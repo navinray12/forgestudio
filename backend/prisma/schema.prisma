@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum VerificationMethod {
+  EMAIL
+  PHONE
+  GITHUB
+}
+
+enum IdentityProvider {
+  EMAIL
+  PHONE
+  GOOGLE
+  GITHUB
+}
+
+enum OtpPurpose {
+  PHONE_SIGNUP
+  PHONE_LOGIN
+  PHONE_VERIFICATION
+}
+
+model User {
+  id                  String              @id @default(uuid()) @db.Uuid
+  fullName            String?
+  email               String?             @unique
+  phone               String?             @unique
+  passwordHash        String?
+  verificationMethod  VerificationMethod?
+  emailVerified       Boolean             @default(false)
+  phoneVerified       Boolean             @default(false)
+  status              UserStatus          @default(ACTIVE)
+  role                UserRole            @default(USER)
+  lastLoginAt         DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  identities          Identity[]
+  sessions            Session[]
+  otpVerifications    OtpVerification[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([status])
+  @@index([role])
+  @@map("users")
+}
+
+model OtpVerification {
+  id         String      @id @default(uuid()) @db.Uuid
+  userId     String?     @db.Uuid
+  otpHash    String
+  purpose    OtpPurpose
+  attempts   Int         @default(0)
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  createdAt  DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([purpose])
+  @@map("otp_verifications")
+}
+
+model Identity {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @db.Uuid
+  provider       IdentityProvider
+  providerUserId String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("identities")
+}
+
+model Session {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
