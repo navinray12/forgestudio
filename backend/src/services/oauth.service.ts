@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
+import { assignDefaultFreePlan } from "./subscription.service.js";
 
 export type OAuthProvider = "GOOGLE" | "GITHUB";
 
@@ -80,6 +81,12 @@ export async function loginWithOAuth(
             : "EMAIL",
       },
     });
+
+    try {
+      await assignDefaultFreePlan(user.id);
+    } catch (err) {
+      console.error("Could not assign default free plan for OAuth user:", err);
+    }
   }
 
   // --------------------------------------------------

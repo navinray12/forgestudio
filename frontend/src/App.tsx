@@ -16,6 +16,8 @@ import SignupPage from "./pages/auth/SignupPage";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
+import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
+import WebsiteEditor from "./pages/editor/WebsiteEditor";
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
@@ -219,6 +221,24 @@ function App() {
             element={
               <RoleRoute allowedRoles={["USER"]}>
                 <UserDashboard />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/subscriptions"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <SubscriptionPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/editor/:websiteId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <WebsiteEditor />
               </RoleRoute>
             }
           />

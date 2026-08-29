@@ -6,6 +6,8 @@ import { hashPassword } from "../utils/password.js";
 import { AppError } from "../utils/app-error.js";
 import type { SignupInput } from "../validators/signup.validator.js";
 
+import { assignDefaultFreePlan } from "./subscription.service.js";
+
 export async function signupUser(input: SignupInput) {
   const fullName = input.fullName.trim();
   const identifier = input.identifier.trim();
@@ -42,6 +44,13 @@ export async function signupUser(input: SignupInput) {
     passwordHash,
     verificationMethod,
   });
+
+  // Assign Free subscription plan to newly registered user
+  try {
+    await assignDefaultFreePlan(user.id);
+  } catch (err) {
+    console.error("Could not assign default free plan during signup:", err);
+  }
 
   return user;
 }

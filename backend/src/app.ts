@@ -1,3 +1,4 @@
+import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -8,6 +9,9 @@ import loginRoutes from "./routes/login.routes.js";
 import signupRoutes from "./routes/signup.routes.js";
 import oauthRoutes from "./routes/oauth.routes.js";
 import meRoutes from "./routes/me.routes.js";
+import subscriptionRoutes from "./routes/subscription.routes.js";
+import websiteRoutes from "./routes/website.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
@@ -17,7 +21,14 @@ const app = express();
 // Security
 // =========================
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
+// Serve static uploads
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // =========================
 // CORS
@@ -73,6 +84,27 @@ app.use("/api/v1/auth", oauthRoutes);
 
 // Current authenticated user
 app.use("/api/v1/auth", meRoutes);
+
+// =========================
+// Subscription Routes
+// =========================
+
+app.use("/api/v1/subscriptions", subscriptionRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
+
+// =========================
+// Website Routes
+// =========================
+
+app.use("/api/v1/websites", websiteRoutes);
+app.use("/api/websites", websiteRoutes);
+
+// =========================
+// Upload Routes
+// =========================
+
+app.use("/api/v1/uploads", uploadRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 // =========================
 // Global Error Handler

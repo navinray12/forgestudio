@@ -7,14 +7,17 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
-    "@prisma/client": "^7.9.1",
+    "@prisma/client": "^7.10.0",
     "argon2": "^0.45.1",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
@@ -38,7 +41,7 @@
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/pg": "^8.23.1",
-    "prisma": "^7.9.1",
+    "prisma": "^7.10.0",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   }

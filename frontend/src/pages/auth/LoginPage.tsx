@@ -20,20 +20,9 @@ function LoginPage() {
     const oauthStatus = params.get("oauth");
     const oauthError = params.get("error");
 
-    if (oauthStatus === "google_success") {
-      console.log("Google OAuth login successful");
-
-      // Temporary:
-      // Dashboard navigation will be added
-      // after /me authentication is connected.
-    }
-
-    if (oauthStatus === "github_success") {
-      console.log("GitHub OAuth login successful");
-
-      // Temporary:
-      // Dashboard navigation will be added
-      // after /me authentication is connected.
+    if (oauthStatus === "google_success" || oauthStatus === "github_success") {
+      console.log("OAuth login successful, redirecting to dashboard...");
+      window.location.href = "/dashboard";
     }
 
     if (oauthError === "google_auth_failed") {
@@ -109,9 +98,7 @@ function LoginPage() {
       }
 
       console.log("Login successful:", data);
-
-      // Dashboard navigation will be added
-      // after auth flow is complete.
+      window.location.href = "/dashboard";
     } catch (error) {
       setError(
         error instanceof Error

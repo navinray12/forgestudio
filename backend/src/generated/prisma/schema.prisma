@@ -39,57 +39,40 @@ enum OtpPurpose {
 }
 
 model User {
-  id                  String              @id @default(uuid()) @db.Uuid
-  fullName            String?
-  email               String?             @unique
-  phone               String?             @unique
-  passwordHash        String?
-  verificationMethod  VerificationMethod?
-  emailVerified       Boolean             @default(false)
-  phoneVerified       Boolean             @default(false)
-  status              UserStatus          @default(ACTIVE)
-  role                UserRole            @default(USER)
-  lastLoginAt         DateTime?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id                 String              @id @default(uuid()) @db.Uuid
+  fullName           String?
+  email              String?             @unique
+  phone              String?             @unique
+  passwordHash       String?
+  verificationMethod VerificationMethod?
+  emailVerified      Boolean             @default(false)
+  phoneVerified      Boolean             @default(false)
+  status             UserStatus          @default(ACTIVE)
+  role               UserRole            @default(USER)
+  lastLoginAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   identities          Identity[]
   sessions            Session[]
   otpVerifications    OtpVerification[]
   passwordResetTokens PasswordResetToken[]
   subscription        UserSubscription?
-  websites            Website[]
 
   @@index([status])
   @@index([role])
   @@map("users")
 }
 
-model Website {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @db.Uuid
-  name       String
-  slug       String
-  status     String   @default("DRAFT")
-  editorData Json     @default("{\"version\":1,\"elements\":[]}")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("websites")
-}
-
 model OtpVerification {
-  id         String      @id @default(uuid()) @db.Uuid
-  userId     String?     @db.Uuid
+  id         String     @id @default(uuid()) @db.Uuid
+  userId     String?    @db.Uuid
   otpHash    String
   purpose    OtpPurpose
-  attempts   Int         @default(0)
+  attempts   Int        @default(0)
   expiresAt  DateTime
   verifiedAt DateTime?
-  createdAt  DateTime    @default(now())
+  createdAt  DateTime   @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -146,34 +129,34 @@ model PasswordResetToken {
 }
 
 model SubscriptionPlan {
-  id              String             @id @default(uuid()) @db.Uuid
+  id              String   @id @default(uuid()) @db.Uuid
   name            String
-  slug            String             @unique
+  slug            String   @unique
   price           Int
-  currency        String             @default("INR")
-  billingInterval String             @default("monthly")
+  currency        String   @default("INR")
+  billingInterval String   @default("monthly")
   websiteLimit    Int
-  storageLimitMb  Int                @default(100)
-  aiCreditLimit   Int                @default(0)
+  storageLimitMb  Int      @default(100)
+  aiCreditLimit   Int      @default(0)
   features        Json
-  isActive        Boolean            @default(true)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  subscriptions   UserSubscription[]
+  subscriptions UserSubscription[]
 
   @@map("subscription_plans")
 }
 
 model UserSubscription {
-  id                 String           @id @default(uuid()) @db.Uuid
-  userId             String           @unique @db.Uuid
-  planId             String           @db.Uuid
-  status             String           @default("ACTIVE")
-  currentPeriodStart DateTime         @default(now())
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @unique @db.Uuid
+  planId             String    @db.Uuid
+  status             String    @default("ACTIVE")
+  currentPeriodStart DateTime  @default(now())
   currentPeriodEnd   DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan SubscriptionPlan @relation(fields: [planId], references: [id])
