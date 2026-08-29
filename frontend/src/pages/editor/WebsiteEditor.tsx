@@ -33,6 +33,83 @@ export interface ElementStyles {
   marginBottom?: string;
   marginLeft?: string;
   lineHeight?: string;
+
+  // Typography Controls (F-070, F-089)
+  fontFamily?: string;
+  letterSpacing?: string;
+  wordSpacing?: string;
+
+  // Background Options (F-073, F-074, F-075, F-076, F-077, F-078)
+  backgroundType?: "solid" | "gradient" | "image" | "video" | "slideshow";
+  backgroundGradient?: string;
+  backgroundImageUrl?: string;
+  backgroundPosition?: string;
+  backgroundRepeat?: string;
+  backgroundSize?: string;
+  backgroundVideoUrl?: string;
+  backgroundVideoOpacity?: string;
+  backgroundSlideshowUrls?: string;
+  backgroundSlideshowSpeed?: string;
+
+  // Borders & Corners (F-079, F-080)
+  borderStyle?: "none" | "solid" | "dashed" | "dotted" | "double";
+  borderWidth?: string;
+  borderColor?: string;
+
+  // Shadows (F-081, F-093)
+  boxShadow?: string;
+  textShadow?: string;
+
+  // Opacity & Blend Mode (F-082, F-083)
+  opacity?: string;
+  mixBlendMode?: string;
+
+  // CSS Filters & Masks (F-084, F-085)
+  filterBlur?: string;
+  filterBrightness?: string;
+  filterContrast?: string;
+  filterGrayscale?: string;
+  filterSaturate?: string;
+  filterHueRotate?: string;
+  clipPath?: string;
+
+  // CSS Transform (F-086)
+  transformRotate?: string;
+  transformScale?: string;
+  transformSkewX?: string;
+  transformSkewY?: string;
+  transformTranslateX?: string;
+  transformTranslateY?: string;
+
+  // Text Stroke & Mask (F-087, F-088)
+  textStrokeWidth?: string;
+  textStrokeColor?: string;
+  textMaskType?: "none" | "gradient" | "image";
+  textMaskGradient?: string;
+  textMaskImage?: string;
+
+  // Ken Burns Effect (F-092)
+  kenBurnsEffect?: "none" | "zoom-in" | "zoom-out";
+  
+  // Text Path (F-090)
+  textPathEnabled?: "true" | "false";
+
+  // Shape Dividers (F-091)
+  dividerTopEnabled?: "true" | "false";
+  dividerTopStyle?: "waves" | "curves" | "slant" | "triangle";
+  dividerTopColor?: string;
+  dividerTopHeight?: string;
+  dividerBottomEnabled?: "true" | "false";
+  dividerBottomStyle?: "waves" | "curves" | "slant" | "triangle";
+  dividerBottomColor?: string;
+  dividerBottomHeight?: string;
+}
+
+export interface Breakpoint {
+  id: string;
+  name: string;
+  width: number;
+  active: boolean;
 }
 
 export interface EditorElement {
@@ -42,9 +119,13 @@ export interface EditorElement {
   src?: string;
   alt?: string;
   href?: string;
+  customClass?: string; // F-068
   styles: ElementStyles;
   layout?: ContainerLayout;
   children?: EditorElement[];
+  responsiveStyles?: Record<string, ElementStyles>;
+  responsiveLayouts?: Record<string, ContainerLayout>;
+  hiddenDevices?: Record<string, boolean>;
 }
 
 interface WebsiteData {
@@ -192,6 +273,301 @@ function insertTreeElement(
     return [...list, newEl];
   }
   return updatedList;
+}
+
+// ==========================================
+// Cascading Value Resolution (Inheritance)
+// ==========================================
+
+export function getBreakpointFallbackChain(bpId: string, activeBps: Breakpoint[]): string[] {
+  const activeBpsSorted = [...activeBps].filter(b => b.active).sort((a, b) => b.width - a.width);
+  const bp = activeBps.find(b => b.id === bpId);
+  const desktop = activeBps.find(b => b.id === "desktop") || { id: "desktop", width: 1024 };
+
+  if (!bp) return ["desktop"];
+  if (bp.id === "desktop") return ["desktop"];
+
+  if (bp.width > desktop.width) {
+    // Larger than desktop: fallback goes down to desktop
+    const chain = activeBpsSorted
+      .filter(b => b.width <= bp.width && b.width >= desktop.width)
+      .map(b => b.id);
+    return chain;
+  } else {
+    // Smaller than desktop: fallback goes up to desktop
+    const chain = activeBpsSorted
+      .filter(b => b.width >= bp.width && b.width <= desktop.width)
+      .reverse()
+      .map(b => b.id);
+    return chain;
+  }
+}
+
+export function getStyleVal(
+  el: EditorElement,
+  prop: keyof ElementStyles,
+  bpId: string,
+  activeBps: Breakpoint[]
+): string | undefined {
+  const chain = getBreakpointFallbackChain(bpId, activeBps);
+  for (const id of chain) {
+    if (id === "desktop") {
+      if (el.styles && el.styles[prop] !== undefined && el.styles[prop] !== "") {
+        return el.styles[prop];
+      }
+    } else {
+      const bpStyles = el.responsiveStyles?.[id];
+      if (bpStyles && bpStyles[prop] !== undefined && bpStyles[prop] !== "") {
+        return bpStyles[prop];
+      }
+    }
+  }
+  return undefined;
+}
+
+export function getLayoutVal<K extends keyof ContainerLayout>(
+  el: EditorElement,
+  prop: K,
+  bpId: string,
+  activeBps: Breakpoint[]
+): ContainerLayout[K] | undefined {
+  const chain = getBreakpointFallbackChain(bpId, activeBps);
+  for (const id of chain) {
+    if (id === "desktop") {
+      if (el.layout && el.layout[prop] !== undefined && (el.layout[prop] as any) !== "") {
+        return el.layout[prop];
+      }
+    } else {
+      const bpLayout = el.responsiveLayouts?.[id];
+      if (bpLayout && bpLayout[prop] !== undefined && (bpLayout[prop] as any) !== "") {
+        return bpLayout[prop];
+      }
+    }
+  }
+  return undefined;
+}
+
+export function resolveElementStyles(
+  el: EditorElement,
+  bpId: string,
+  activeBps: Breakpoint[],
+  globalSettings?: any
+): React.CSSProperties {
+  const styles: React.CSSProperties = {};
+
+  const getVal = (prop: keyof ElementStyles): string | undefined => {
+    return getStyleVal(el, prop, bpId, activeBps);
+  };
+
+  // Basic styling
+  const color = getVal("color");
+  if (color) styles.color = color;
+
+  const fontSize = getVal("fontSize");
+  if (fontSize) styles.fontSize = fontSize;
+
+  const fontWeight = getVal("fontWeight");
+  if (fontWeight) styles.fontWeight = fontWeight;
+
+  const textAlign = getVal("textAlign");
+  if (textAlign) styles.textAlign = textAlign as any;
+
+  const lineHeight = getVal("lineHeight");
+  if (lineHeight) styles.lineHeight = lineHeight;
+
+  const fontFamily = getVal("fontFamily");
+  if (fontFamily && fontFamily !== "inherit") {
+    styles.fontFamily = fontFamily;
+  }
+
+  const letterSpacing = getVal("letterSpacing");
+  if (letterSpacing) styles.letterSpacing = letterSpacing.endsWith("px") || letterSpacing.endsWith("em") ? letterSpacing : `${letterSpacing}px`;
+
+  const wordSpacing = getVal("wordSpacing");
+  if (wordSpacing) styles.wordSpacing = wordSpacing.endsWith("px") || wordSpacing.endsWith("em") ? wordSpacing : `${wordSpacing}px`;
+
+  // Margin/Padding
+  const paddingTop = getVal("paddingTop");
+  if (paddingTop) styles.paddingTop = paddingTop;
+  const paddingRight = getVal("paddingRight");
+  if (paddingRight) styles.paddingRight = paddingRight;
+  const paddingBottom = getVal("paddingBottom");
+  if (paddingBottom) styles.paddingBottom = paddingBottom;
+  const paddingLeft = getVal("paddingLeft");
+  if (paddingLeft) styles.paddingLeft = paddingLeft;
+
+  const marginTop = getVal("marginTop");
+  if (marginTop) styles.marginTop = marginTop;
+  const marginRight = getVal("marginRight");
+  if (marginRight) styles.marginRight = marginRight;
+  const marginBottom = getVal("marginBottom");
+  if (marginBottom) styles.marginBottom = marginBottom;
+  const marginLeft = getVal("marginLeft");
+  if (marginLeft) styles.marginLeft = marginLeft;
+
+  const borderRadius = getVal("borderRadius");
+  if (borderRadius) styles.borderRadius = borderRadius;
+
+  const width = getVal("width");
+  if (width) styles.width = width;
+
+  const height = getVal("height");
+  if (height) styles.height = height;
+
+  // Background Options (F-073, F-074, F-075, F-076)
+  const bgType = getVal("backgroundType") || "solid";
+  if (bgType === "solid") {
+    const bgColor = getVal("backgroundColor");
+    if (bgColor) styles.backgroundColor = bgColor;
+  } else if (bgType === "gradient") {
+    const gradient = getVal("backgroundGradient");
+    if (gradient) styles.background = gradient;
+  } else if (bgType === "image") {
+    const bgImgUrl = getVal("backgroundImageUrl");
+    if (bgImgUrl) {
+      styles.backgroundImage = `url(${bgImgUrl})`;
+      styles.backgroundPosition = getVal("backgroundPosition") || "center center";
+      styles.backgroundRepeat = getVal("backgroundRepeat") || "no-repeat";
+      styles.backgroundSize = getVal("backgroundSize") || "cover";
+    }
+  }
+
+  // Borders (F-079)
+  const borderStyle = getVal("borderStyle");
+  if (borderStyle && borderStyle !== "none") {
+    styles.borderStyle = borderStyle as any;
+    styles.borderWidth = getVal("borderWidth") || "1px";
+    styles.borderColor = getVal("borderColor") || "#cbd5e1";
+  }
+
+  // Box Shadow (F-081)
+  const boxShadow = getVal("boxShadow");
+  if (boxShadow) {
+    if (boxShadow === "none") styles.boxShadow = "none";
+    else if (boxShadow === "sm") styles.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+    else if (boxShadow === "md") styles.boxShadow = "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)";
+    else if (boxShadow === "lg") styles.boxShadow = "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)";
+    else if (boxShadow === "xl") styles.boxShadow = "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)";
+    else if (boxShadow === "inner") styles.boxShadow = "inset 0 2px 4px 0 rgb(0 0 0 / 0.06)";
+    else styles.boxShadow = boxShadow;
+  }
+
+  // Opacity & Blend Mode (F-082, F-083)
+  const opacity = getVal("opacity");
+  if (opacity) {
+    styles.opacity = parseFloat(opacity) / 100;
+  }
+  const mixBlendMode = getVal("mixBlendMode");
+  if (mixBlendMode && mixBlendMode !== "normal") {
+    styles.mixBlendMode = mixBlendMode as any;
+  }
+
+  // Filters (F-084)
+  const blur = getVal("filterBlur") || "0";
+  const brightness = getVal("filterBrightness") || "100";
+  const contrast = getVal("filterContrast") || "100";
+  const grayscale = getVal("filterGrayscale") || "0";
+  const saturate = getVal("filterSaturate") || "100";
+  const hueRotate = getVal("filterHueRotate") || "0";
+  if (blur !== "0" || brightness !== "100" || contrast !== "100" || grayscale !== "0" || saturate !== "100" || hueRotate !== "0") {
+    styles.filter = `blur(${blur}px) brightness(${brightness}%) contrast(${contrast}%) grayscale(${grayscale}%) saturate(${saturate}%) hue-rotate(${hueRotate}deg)`;
+  }
+
+  // Clip Path Masks (F-085)
+  const clipPath = getVal("clipPath");
+  if (clipPath && clipPath !== "none") {
+    styles.clipPath = clipPath;
+  }
+
+  // Transforms (F-086)
+  const rotate = getVal("transformRotate") || "0";
+  const scale = getVal("transformScale") || "1";
+  const skewX = getVal("transformSkewX") || "0";
+  const skewY = getVal("transformSkewY") || "0";
+  const tx = getVal("transformTranslateX") || "0";
+  const ty = getVal("transformTranslateY") || "0";
+  if (rotate !== "0" || scale !== "1" || skewX !== "0" || skewY !== "0" || tx !== "0" || ty !== "0") {
+    styles.transform = `translate(${tx}px, ${ty}px) rotate(${rotate}deg) scale(${scale}) skew(${skewX}deg, ${skewY}deg)`;
+  }
+
+  // Text Outline / Stroke (F-087)
+  const strokeWidth = getVal("textStrokeWidth");
+  const strokeColor = getVal("textStrokeColor");
+  if (strokeWidth && strokeWidth !== "0") {
+    (styles as any).WebkitTextStroke = `${strokeWidth}px ${strokeColor || "currentColor"}`;
+  }
+
+  // Text Shadow (F-093)
+  const textShadow = getVal("textShadow");
+  if (textShadow) {
+    if (textShadow === "none") styles.textShadow = "none";
+    else if (textShadow === "subtle") styles.textShadow = "1px 1px 2px rgba(0,0,0,0.3)";
+    else if (textShadow === "medium") styles.textShadow = "2px 2px 4px rgba(0,0,0,0.4)";
+    else if (textShadow === "hard") styles.textShadow = "3px 3px 0px rgba(0,0,0,0.8)";
+    else styles.textShadow = textShadow;
+  }
+
+  // Text Masking (F-088)
+  const textMaskType = getVal("textMaskType");
+  if (textMaskType === "gradient") {
+    const textMaskGradient = getVal("textMaskGradient") || "linear-gradient(45deg, #2563eb, #10b981)";
+    styles.background = textMaskGradient;
+    (styles as any).WebkitBackgroundClip = "text";
+    (styles as any).WebkitTextFillColor = "transparent";
+  } else if (textMaskType === "image") {
+    const textMaskImage = getVal("textMaskImage");
+    if (textMaskImage) {
+      styles.backgroundImage = `url(${textMaskImage})`;
+      styles.backgroundSize = "cover";
+      styles.backgroundPosition = "center";
+      (styles as any).WebkitBackgroundClip = "text";
+      (styles as any).WebkitTextFillColor = "transparent";
+    }
+  }
+
+  return styles;
+}
+
+export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperties {
+  const inner = { ...resolved };
+  delete inner.marginTop;
+  delete inner.marginRight;
+  delete inner.marginBottom;
+  delete inner.marginLeft;
+  delete inner.boxShadow;
+  delete inner.opacity;
+  delete inner.filter;
+  delete inner.transform;
+  delete inner.mixBlendMode;
+  return inner;
+}
+
+export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interval: number }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (urls.length <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % urls.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [urls, interval]);
+
+  if (urls.length === 0) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-[inherit]">
+      {urls.map((url, i) => (
+        <div
+          key={url + i}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            i === index ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ backgroundImage: `url(${url})` }}
+        />
+      ))}
+    </div>
+  );
 }
 
 // ==========================================
@@ -354,6 +730,16 @@ function createDefaultElement(type: ElementType): EditorElement {
 // Main WebsiteEditor Component
 // ==========================================
 
+const DEFAULT_BREAKPOINTS: Breakpoint[] = [
+  { id: "widescreen", name: "Widescreen", width: 1440, active: false },
+  { id: "laptop", name: "Laptop", width: 1200, active: false },
+  { id: "desktop", name: "Desktop (Base)", width: 1024, active: true },
+  { id: "tabletExtra", name: "Tablet Extra", width: 880, active: false },
+  { id: "tablet", name: "Tablet", width: 768, active: true },
+  { id: "mobileExtra", name: "Mobile Extra", width: 480, active: false },
+  { id: "mobile", name: "Mobile", width: 360, active: true },
+];
+
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -374,6 +760,152 @@ export default function WebsiteEditor() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+
+  const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
+  const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
+  const [isBpModalOpen, setIsBpModalOpen] = useState(false);
+
+  // Global settings state (F-066 to F-101)
+  const [globalSettings, setGlobalSettings] = useState<any>({
+    colors: {
+      primary: "#2563eb",
+      secondary: "#475569",
+      accent: "#10b981",
+      background: "#ffffff",
+      text: "#0f172a",
+    },
+    fonts: {
+      heading: "Inter",
+      body: "Inter",
+    },
+    siteIdentity: {
+      name: "My Website",
+      description: "A beautiful site built with ForgeStudio",
+      logoUrl: "",
+      faviconUrl: "",
+    },
+    globalStyles: {
+      siteMaxWidth: "1200px",
+      defaultBorderRadius: "8px",
+      defaultButtonPadding: "10px 22px",
+      enableDefaultColors: true,
+      enableDefaultFonts: true,
+    },
+    customCss: "",
+    lightboxSettings: {
+      enableLightbox: true,
+      lightboxTheme: "dark",
+    }
+  });
+
+  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global">("global");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    layout: true,
+    typography: false,
+    background: false,
+    borders: false,
+    shadows: false,
+    effects: false,
+    divider: false,
+    textStroke: false,
+    path: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  // When an element is selected, switch to element tab (F-066)
+  useEffect(() => {
+    if (selectedId) {
+      setActiveSidebarTab("element");
+    } else {
+      setActiveSidebarTab("global");
+    }
+  }, [selectedId]);
+
+  // Inject global CSS styles (F-066, F-067, F-068, F-069, F-092)
+  useEffect(() => {
+    const styleId = "editor-injected-global-styles";
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+
+    let css = "";
+    
+    // Inject Ken Burns animations (F-092)
+    css += `
+      @keyframes kb-zoom-in {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.12) translate(-1%, -1%); }
+      }
+      @keyframes kb-zoom-out {
+        0% { transform: scale(1.12); }
+        100% { transform: scale(1); }
+      }
+      .kb-zoom-in {
+        animation: kb-zoom-in 20s infinite alternate ease-in-out !important;
+      }
+      .kb-zoom-out {
+        animation: kb-zoom-out 20s infinite alternate ease-in-out !important;
+      }
+    `;
+
+    if (globalSettings) {
+      css += `
+        :root {
+          --primaryColor: ${globalSettings.colors?.primary || "#2563eb"};
+          --secondaryColor: ${globalSettings.colors?.secondary || "#475569"};
+          --accentColor: ${globalSettings.colors?.accent || "#10b981"};
+          --backgroundColor: ${globalSettings.colors?.background || "#ffffff"};
+          --textColor: ${globalSettings.colors?.text || "#0f172a"};
+          --siteMaxWidth: ${globalSettings.globalStyles?.siteMaxWidth || "1200px"};
+          --defaultBorderRadius: ${globalSettings.globalStyles?.defaultBorderRadius || "8px"};
+        }
+      `;
+
+      if (globalSettings.globalStyles?.enableDefaultFonts) {
+        css += `
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+        `;
+      }
+
+      if (globalSettings.customCss) {
+        css += `\\n/* Custom Global CSS */\\n` + globalSettings.customCss;
+      }
+    }
+
+    styleEl.textContent = css;
+  }, [globalSettings]);
+
+  const handleToggleBreakpoint = (id: string) => {
+    if (id === "desktop") return;
+    setBreakpoints((prev) => {
+      const updated = prev.map((bp) => (bp.id === id ? { ...bp, active: !bp.active } : bp));
+      const isCurrentlyActiveDeactivated =
+        updated.find((bp) => bp.id === id && !bp.active) && activeBreakpointId === id;
+      if (isCurrentlyActiveDeactivated) {
+        setActiveBreakpointId("desktop");
+      }
+      return updated;
+    });
+  };
+
+  const handleWidthChange = (id: string, width: number) => {
+    setBreakpoints((prev) =>
+      prev.map((bp) => (bp.id === id ? { ...bp, width: Math.max(200, Math.min(3000, width)) } : bp))
+    );
+  };
+
+  const handleResetBreakpoints = () => {
+    setBreakpoints(DEFAULT_BREAKPOINTS);
+    setActiveBreakpointId("desktop");
+  };
 
   // Fetch Website Data
   useEffect(() => {
@@ -412,6 +944,22 @@ export default function WebsiteEditor() {
             createDefaultElement("heading"),
           ]);
         }
+
+        if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
+          setBreakpoints(loadedSite.editorData.breakpoints);
+        }
+
+        if (loadedSite?.editorData?.globalSettings) {
+          setGlobalSettings(loadedSite.editorData.globalSettings);
+        } else if (loadedSite?.name) {
+          setGlobalSettings((prev: any) => ({
+            ...prev,
+            siteIdentity: {
+              ...prev.siteIdentity,
+              name: loadedSite.name,
+            }
+          }));
+        }
       } catch (err) {
         console.error("Error loading website:", err);
         setErrorMessage(err instanceof Error ? err.message : "Error loading website");
@@ -436,6 +984,8 @@ export default function WebsiteEditor() {
         editorData: {
           version: 1,
           elements,
+          breakpoints,
+          globalSettings,
         },
       };
 
@@ -494,20 +1044,170 @@ export default function WebsiteEditor() {
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
-      updateTreeElement(prev, selectedId, (el) => ({
-        ...el,
-        styles: { ...el.styles, [key]: value },
-      }))
+      updateTreeElement(prev, selectedId, (el) => {
+        if (activeBreakpointId === "desktop") {
+          return {
+            ...el,
+            styles: { ...el.styles, [key]: value },
+          };
+        } else {
+          const responsiveStyles = { ...el.responsiveStyles };
+          const bpStyles = { ...responsiveStyles[activeBreakpointId] };
+          if (value === undefined || value === "") {
+            delete bpStyles[key];
+          } else {
+            bpStyles[key] = value;
+          }
+          responsiveStyles[activeBreakpointId] = bpStyles;
+          return {
+            ...el,
+            responsiveStyles,
+          };
+        }
+      })
     );
   };
 
   const updateSelectedLayout = (key: keyof ContainerLayout, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
-      updateTreeElement(prev, selectedId, (el) => ({
-        ...el,
-        layout: { ...el.layout, [key]: value },
-      }))
+      updateTreeElement(prev, selectedId, (el) => {
+        if (activeBreakpointId === "desktop") {
+          return {
+            ...el,
+            layout: { ...el.layout, [key]: value },
+          };
+        } else {
+          const responsiveLayouts = { ...el.responsiveLayouts };
+          const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
+          if (value === undefined || value === "") {
+            delete bpLayouts[key];
+          } else {
+            bpLayouts[key] = value;
+          }
+          responsiveLayouts[activeBreakpointId] = bpLayouts;
+          return {
+            ...el,
+            responsiveLayouts,
+          };
+        }
+      })
+    );
+  };
+
+  const resetSelectedStyle = (key: keyof ElementStyles) => {
+    if (!selectedId || activeBreakpointId === "desktop") return;
+    setElements((prev) =>
+      updateTreeElement(prev, selectedId, (el) => {
+        const responsiveStyles = { ...el.responsiveStyles };
+        const bpStyles = { ...responsiveStyles[activeBreakpointId] };
+        delete bpStyles[key];
+        responsiveStyles[activeBreakpointId] = bpStyles;
+        return { ...el, responsiveStyles };
+      })
+    );
+  };
+
+  const resetSelectedLayout = (key: keyof ContainerLayout) => {
+    if (!selectedId || activeBreakpointId === "desktop") return;
+    setElements((prev) =>
+      updateTreeElement(prev, selectedId, (el) => {
+        const responsiveLayouts = { ...el.responsiveLayouts };
+        const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
+        delete bpLayouts[key];
+        responsiveLayouts[activeBreakpointId] = bpLayouts;
+        return { ...el, responsiveLayouts };
+      })
+    );
+  };
+
+  // Helper to render responsive property labels
+  const renderResponsiveLabel = (
+    label: string,
+    styleKey?: keyof ElementStyles,
+    layoutKey?: keyof ContainerLayout
+  ) => {
+    if (!selectedElement) return null;
+
+    const chain = getBreakpointFallbackChain(activeBreakpointId, breakpoints);
+
+    let valSource = "desktop";
+    let isOverridden = false;
+    let hasValue = false;
+
+    if (styleKey) {
+      for (const id of chain) {
+        if (id === "desktop") {
+          if (selectedElement.styles && selectedElement.styles[styleKey] !== undefined && selectedElement.styles[styleKey] !== "") {
+            valSource = "desktop";
+            hasValue = true;
+            break;
+          }
+        } else {
+          const bpStyles = selectedElement.responsiveStyles?.[id];
+          if (bpStyles && bpStyles[styleKey] !== undefined && bpStyles[styleKey] !== "") {
+            valSource = id;
+            hasValue = true;
+            break;
+          }
+        }
+      }
+      isOverridden = activeBreakpointId !== "desktop" && selectedElement.responsiveStyles?.[activeBreakpointId]?.[styleKey] !== undefined;
+    } else if (layoutKey) {
+      for (const id of chain) {
+        if (id === "desktop") {
+          if (selectedElement.layout && selectedElement.layout[layoutKey] !== undefined && (selectedElement.layout[layoutKey] as any) !== "") {
+            valSource = "desktop";
+            hasValue = true;
+            break;
+          }
+        } else {
+          const bpLayout = selectedElement.responsiveLayouts?.[id];
+          if (bpLayout && bpLayout[layoutKey] !== undefined && (bpLayout[layoutKey] as any) !== "") {
+            valSource = id;
+            hasValue = true;
+            break;
+          }
+        }
+      }
+      isOverridden = activeBreakpointId !== "desktop" && selectedElement.responsiveLayouts?.[activeBreakpointId]?.[layoutKey] !== undefined;
+    }
+
+    const sourceBp = breakpoints.find(b => b.id === valSource);
+    const currentBpName = breakpoints.find(b => b.id === activeBreakpointId)?.name || activeBreakpointId;
+
+    return (
+      <div className="flex items-center justify-between mb-1 mt-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-semibold text-slate-600">{label}</span>
+          
+          {/* Responsive Badge */}
+          {activeBreakpointId !== "desktop" && (
+            <span
+              title={isOverridden ? `Overridden on ${currentBpName}` : hasValue ? `Inherited from ${sourceBp?.name || "Desktop"}` : "Unset"}
+              className={`flex h-3.5 w-3.5 items-center justify-center rounded text-[9px] font-bold select-none ${
+                isOverridden
+                  ? "bg-blue-600 text-white"
+                  : hasValue
+                  ? "bg-slate-200 text-slate-500"
+                  : "bg-slate-100 text-slate-400 border border-dashed border-slate-300"
+              }`}
+            >
+              {activeBreakpointId === "mobile" || activeBreakpointId === "mobileExtra" ? "M" : activeBreakpointId === "tablet" || activeBreakpointId === "tabletExtra" ? "T" : activeBreakpointId === "laptop" ? "L" : "W"}
+            </span>
+          )}
+        </div>
+
+        {isOverridden && (
+          <button
+            onClick={() => styleKey ? resetSelectedStyle(styleKey) : layoutKey && resetSelectedLayout(layoutKey)}
+            title="Reset to inherited value"
+            className="text-[9px] font-semibold text-blue-500 hover:text-blue-700 hover:underline"
+          >
+            Clear Override
+          </button>
+        )}
+      </div>
     );
   };
 
@@ -575,15 +1275,162 @@ export default function WebsiteEditor() {
     }
   };
 
+  const renderAccordion = (title: string, sectionId: string, content: React.ReactNode) => {
+    const isOpen = openSections[sectionId];
+    return (
+      <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm bg-white">
+        <button
+          type="button"
+          onClick={() => toggleSection(sectionId)}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-slate-700 bg-slate-50/50 hover:bg-slate-50 border-b border-slate-100 transition outline-none focus:outline-none"
+        >
+          <span>{title}</span>
+          <svg
+            className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isOpen && <div className="p-3.5 space-y-4">{content}</div>}
+      </div>
+    );
+  };
+
   // Helper for numeric font size parsing
   const getFontSizeNum = (fontSizeStr?: string) => {
     if (!fontSizeStr) return "16";
     return fontSizeStr.replace(/px$/, "");
   };
 
+  // Helper for rendering text along a curve (F-090)
+  const renderTextPath = (content: string, style: React.CSSProperties) => {
+    const color = style.color || "#0f172a";
+    const fontSize = style.fontSize || "24px";
+    const fontWeight = style.fontWeight || "700";
+    const fontFamily = style.fontFamily || "inherit";
+    return (
+      <svg viewBox="0 0 500 100" className="w-full h-auto overflow-visible" style={{ minHeight: "60px" }}>
+        <path
+          id="wavyPath"
+          fill="none"
+          stroke="none"
+          d="M 10,60 Q 125,20 250,60 T 490,60"
+        />
+        <text style={{ fontSize, fontWeight, fontFamily, fill: color as string }}>
+          <textPath href="#wavyPath" startOffset="50%" textAnchor="middle">
+            {content}
+          </textPath>
+        </text>
+      </svg>
+    );
+  };
+
+  // Helper for container shape dividers (F-091)
+  const renderShapeDivider = (el: EditorElement, position: "top" | "bottom") => {
+    const suffix = position === "top" ? "Top" : "Bottom";
+    const enabled = getStyleVal(el, `divider${suffix}Enabled` as any, activeBreakpointId, breakpoints) === "true";
+    if (!enabled) return null;
+
+    const style = getStyleVal(el, `divider${suffix}Style` as any, activeBreakpointId, breakpoints) || "waves";
+    const color = getStyleVal(el, `divider${suffix}Color` as any, activeBreakpointId, breakpoints) || "#ffffff";
+    const height = getStyleVal(el, `divider${suffix}Height` as any, activeBreakpointId, breakpoints) || "50px";
+
+    let path = "";
+    const viewBox = "0 0 1200 120";
+    
+    if (style === "slant") {
+      path = position === "top" 
+        ? "M1200 120L0 0 0 120z" 
+        : "M1200 0L0 120 1200 120z";
+    } else if (style === "triangle") {
+      path = position === "top"
+        ? "M600 120L0 0 1200 0z"
+        : "M600 0L1200 120 0 120z";
+    } else if (style === "curves") {
+      path = position === "top"
+        ? "M0 0 C 300 120, 900 120, 1200 0 L 1200 120 L 0 120 Z"
+        : "M0 120 C 300 0, 900 0, 1200 120 L 1200 120 L 0 120 Z";
+    } else { // waves
+      path = position === "top"
+        ? "M0,0 C150,90 350,30 500,90 C650,150 850,90 1000,30 C1100,0 1150,30 1200,60 L1200,120 L0,120 Z"
+        : "M0,120 C150,30 350,90 500,30 C650,-30 850,30 1000,90 C1100,120 1150,90 1200,60 L1200,120 L0,120 Z";
+    }
+
+    const dividerStyles: React.CSSProperties = {
+      position: "absolute",
+      left: 0,
+      width: "100%",
+      height,
+      pointerEvents: "none",
+      zIndex: 10,
+    };
+
+    if (position === "top") {
+      dividerStyles.top = 0;
+      dividerStyles.transform = "scaleY(-1)";
+    } else {
+      dividerStyles.bottom = 0;
+    }
+
+    return (
+      <div style={dividerStyles} className="shape-divider">
+        <svg viewBox={viewBox} preserveAspectRatio="none" className="w-full h-full" style={{ display: "block" }}>
+          <path d={path} fill={color} />
+        </svg>
+      </div>
+    );
+  };
+
+  // Helper for background slideshow (F-078)
+  const renderBackgroundSlideshow = (el: EditorElement) => {
+    const urlsStr = getStyleVal(el, "backgroundSlideshowUrls", activeBreakpointId, breakpoints);
+    const speedStr = getStyleVal(el, "backgroundSlideshowSpeed", activeBreakpointId, breakpoints) || "5";
+    if (!urlsStr) return null;
+
+    const urls = urlsStr.split(",").map(u => u.trim()).filter(Boolean);
+    if (urls.length === 0) return null;
+
+    const speed = parseInt(speedStr) * 1000;
+
+    return <BackgroundSlideshow urls={urls} interval={speed} />;
+  };
+
+  // Helper for background video (F-077)
+  const renderBackgroundVideo = (el: EditorElement) => {
+    const videoUrl = getStyleVal(el, "backgroundVideoUrl", activeBreakpointId, breakpoints);
+    const opacity = getStyleVal(el, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50";
+    if (!videoUrl) return null;
+
+    const opacityFloat = parseFloat(opacity) / 100;
+
+    return (
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-[inherit]" style={{ opacity: opacityFloat }}>
+        <video
+          src={videoUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  };
+
   // Recursive Element Tree Renderer
   const renderElementTree = (el: EditorElement): React.ReactNode => {
     const isSelected = selectedId === el.id && !isPreview;
+    const isHiddenOnCurrentDevice = el.hiddenDevices?.[activeBreakpointId];
+
+    if (isHiddenOnCurrentDevice && isPreview) {
+      return null;
+    }
+
+    const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
     if (el.type === "container") {
       return (
@@ -593,7 +1440,7 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             if (!isPreview) setSelectedId(el.id);
           }}
-          className={`relative transition-all duration-150 ${
+          className={`relative transition-all duration-150 overflow-hidden ${el.customClass || ""} ${
             isPreview
               ? ""
               : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
@@ -603,49 +1450,85 @@ export default function WebsiteEditor() {
               : isPreview
               ? ""
               : "border border-dashed border-slate-300"
-          }`}
+          } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border-2 border-dashed bg-amber-50/10 cursor-not-allowed" : ""}`}
           style={{
             display: "flex",
-            flexDirection: el.layout?.direction || "column",
-            justifyContent: el.layout?.justifyContent || "flex-start",
-            alignItems: el.layout?.alignItems || "stretch",
-            gap: `${el.layout?.gap ?? 10}px`,
-            width: el.styles.width || "100%",
-            height: el.styles.height || "auto",
-            backgroundColor: el.styles.backgroundColor || "transparent",
-            paddingTop: el.styles.paddingTop || "16px",
-            paddingRight: el.styles.paddingRight || "16px",
-            paddingBottom: el.styles.paddingBottom || "16px",
-            paddingLeft: el.styles.paddingLeft || "16px",
-            marginTop: el.styles.marginTop || "8px",
-            marginRight: el.styles.marginRight || "0px",
-            marginBottom: el.styles.marginBottom || "8px",
-            marginLeft: el.styles.marginLeft || "0px",
-            borderRadius: el.styles.borderRadius || "8px",
+            flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
+            justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
+            alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
+            gap: `${getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 10}px`,
+            ...resolvedStyles,
+            width: resolvedStyles.width || "100%",
+            height: resolvedStyles.height || "auto",
+            paddingTop: resolvedStyles.paddingTop || "16px",
+            paddingRight: resolvedStyles.paddingRight || "16px",
+            paddingBottom: resolvedStyles.paddingBottom || "16px",
+            paddingLeft: resolvedStyles.paddingLeft || "16px",
+            marginTop: resolvedStyles.marginTop || "8px",
+            marginRight: resolvedStyles.marginRight || "0px",
+            marginBottom: resolvedStyles.marginBottom || "8px",
+            marginLeft: resolvedStyles.marginLeft || "0px",
+            borderRadius: resolvedStyles.borderRadius || "8px",
           }}
         >
+          {/* Shape Dividers (F-091) */}
+          {renderShapeDivider(el, "top")}
+          {renderShapeDivider(el, "bottom")}
+
+          {/* Background Slideshow (F-078) */}
+          {getStyleVal(el, "backgroundType", activeBreakpointId, breakpoints) === "slideshow" && renderBackgroundSlideshow(el)}
+
+          {/* Background Video (F-077) */}
+          {getStyleVal(el, "backgroundType", activeBreakpointId, breakpoints) === "video" && renderBackgroundVideo(el)}
+
+          {isHiddenOnCurrentDevice && !isPreview && (
+            <div className="absolute top-2 left-3 z-30 flex items-center gap-1 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
+              <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+              </svg>
+              <span>Hidden on {breakpoints.find(b => b.id === activeBreakpointId)?.name}</span>
+            </div>
+          )}
+
           {isSelected && (
-            <div className="absolute -top-3.5 right-3 z-30 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow">
-              <span>Container</span>
-              <span>•</span>
+            <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
+              <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
+                <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                  Container
+                </div>
+              </div>
+              <div className="w-[1px] h-3 bg-slate-700/60" />
               <button
                 onClick={(e) => handleDuplicateElement(el.id, e)}
-                className="hover:underline"
+                className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 text-slate-300 hover:text-white transition"
               >
-                Duplicate
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                  Duplicate
+                </div>
               </button>
-              <span>•</span>
+              <div className="w-[1px] h-3 bg-slate-700/60" />
               <button
                 onClick={(e) => handleDeleteElement(el.id, e)}
-                className="hover:underline"
+                className="relative group flex items-center justify-center p-1 rounded hover:bg-red-950/80 text-red-400 hover:text-red-300 transition"
               >
-                Delete
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-red-950 border border-red-500/20 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                  Delete
+                </div>
               </button>
             </div>
           )}
 
           {(!el.children || el.children.length === 0) && !isPreview ? (
-            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center">
+            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center z-10 relative">
               <span className="text-xs font-bold text-slate-500">Empty Container</span>
               <span className="text-[10px] text-slate-400 mt-0.5">
                 Click an element on the left panel to add inside
@@ -665,7 +1548,7 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview) setSelectedId(el.id);
         }}
-        className={`relative rounded-xl transition duration-150 ${
+        className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${
           isPreview
             ? ""
             : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
@@ -673,26 +1556,67 @@ export default function WebsiteEditor() {
           isSelected
             ? "border-2 border-blue-500 p-2.5"
             : "p-2.5 border border-transparent"
-        }`}
+        } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border border-dashed bg-amber-50/10" : ""}`}
         style={{
-          marginTop: el.styles.marginTop,
-          marginBottom: el.styles.marginBottom,
+          marginTop: getStyleVal(el, "marginTop", activeBreakpointId, breakpoints),
+          marginBottom: getStyleVal(el, "marginBottom", activeBreakpointId, breakpoints),
+          boxShadow: resolvedStyles.boxShadow,
+          opacity: resolvedStyles.opacity,
+          filter: resolvedStyles.filter,
+          transform: resolvedStyles.transform,
+          mixBlendMode: resolvedStyles.mixBlendMode,
         }}
       >
+        {isHiddenOnCurrentDevice && !isPreview && (
+          <div className="absolute top-1.5 left-2 z-30 flex items-center gap-1 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
+            <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+            </svg>
+            <span>Hidden on {breakpoints.find(b => b.id === activeBreakpointId)?.name}</span>
+          </div>
+        )}
+
         {isSelected && (
-          <div className="absolute -top-3.5 right-3 z-30 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow">
+          <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
+            <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
+              <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                {el.type === 'heading' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h12M4 18h16" />
+                ) : el.type === 'button' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                ) : el.type === 'image' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                )}
+              </svg>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                {el.type.charAt(0).toUpperCase() + el.type.slice(1)}
+              </div>
+            </div>
+            <div className="w-[1px] h-3 bg-slate-700/60" />
             <button
               onClick={(e) => handleDuplicateElement(el.id, e)}
-              className="hover:underline"
+              className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 text-slate-300 hover:text-white transition"
             >
-              Duplicate
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+              </svg>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                Duplicate
+              </div>
             </button>
-            <span>•</span>
+            <div className="w-[1px] h-3 bg-slate-700/60" />
             <button
               onClick={(e) => handleDeleteElement(el.id, e)}
-              className="hover:underline"
+              className="relative group flex items-center justify-center p-1 rounded hover:bg-red-950/80 text-red-400 hover:text-red-300 transition"
             >
-              Delete
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-red-950 border border-red-500/20 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                Delete
+              </div>
             </button>
           </div>
         )}
@@ -701,25 +1625,31 @@ export default function WebsiteEditor() {
         {el.type === "heading" && (
           <h2
             style={{
-              color: el.styles.color || "#0f172a",
-              fontSize: el.styles.fontSize || "32px",
-              fontWeight: el.styles.fontWeight || "700",
-              textAlign: el.styles.textAlign || "left",
-              lineHeight: el.styles.lineHeight || "1.2",
+              color: "#0f172a",
+              fontSize: "32px",
+              fontWeight: "700",
+              textAlign: "left",
+              lineHeight: "1.2",
+              ...getInnerStyles(resolvedStyles)
             }}
           >
-            {el.content}
+            {getStyleVal(el, "textPathEnabled", activeBreakpointId, breakpoints) === "true" ? (
+              renderTextPath(el.content, resolvedStyles)
+            ) : (
+              el.content
+            )}
           </h2>
         )}
 
         {el.type === "text" && (
           <p
             style={{
-              color: el.styles.color || "#475569",
-              fontSize: el.styles.fontSize || "16px",
-              fontWeight: el.styles.fontWeight || "400",
-              textAlign: el.styles.textAlign || "left",
-              lineHeight: el.styles.lineHeight || "1.6",
+              color: "#475569",
+              fontSize: "16px",
+              fontWeight: "400",
+              textAlign: "left",
+              lineHeight: "1.6",
+              ...getInnerStyles(resolvedStyles)
             }}
           >
             {el.content}
@@ -727,16 +1657,27 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "image" && (
-          <div style={{ textAlign: el.styles.textAlign || "left" }}>
+          <div style={{ textAlign: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left" }}>
             {el.src ? (
               <img
                 src={resolveImageUrl(el.src, apiUrl)}
                 alt={el.alt || "Uploaded Image"}
-                className="inline-block object-cover max-w-full"
+                onClick={() => {
+                  if (isPreview && globalSettings?.lightboxSettings?.enableLightbox) {
+                    setLightboxImage(resolveImageUrl(el.src!, apiUrl));
+                  }
+                }}
+                className={`inline-block object-cover max-w-full ${
+                  isPreview && globalSettings?.lightboxSettings?.enableLightbox ? "cursor-zoom-in" : ""
+                } ${
+                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-in" ? "kb-zoom-in" : 
+                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-out" ? "kb-zoom-out" : ""
+                }`}
                 style={{
-                  width: el.styles.width || "100%",
-                  height: el.styles.height || "auto",
-                  borderRadius: el.styles.borderRadius || "8px",
+                  width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
+                  height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "auto",
+                  borderRadius: getStyleVal(el, "borderRadius", activeBreakpointId, breakpoints) || "8px",
+                  ...getInnerStyles(resolvedStyles)
                 }}
               />
             ) : (
@@ -754,7 +1695,7 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "button" && (
-          <div style={{ textAlign: el.styles.textAlign || "left" }}>
+          <div style={{ textAlign: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left" }}>
             <a
               href={el.href || "#"}
               onClick={(e) => {
@@ -762,12 +1703,13 @@ export default function WebsiteEditor() {
               }}
               className="inline-block transition hover:opacity-90 shadow-sm"
               style={{
-                color: el.styles.color || "#ffffff",
-                backgroundColor: el.styles.backgroundColor || "#2563eb",
-                fontSize: el.styles.fontSize || "14px",
-                fontWeight: el.styles.fontWeight || "600",
-                padding: el.styles.padding || "10px 22px",
-                borderRadius: el.styles.borderRadius || "8px",
+                color: "#ffffff",
+                backgroundColor: "#2563eb",
+                fontSize: "14px",
+                fontWeight: "600",
+                padding: "10px 22px",
+                borderRadius: "8px",
+                ...getInnerStyles(resolvedStyles)
               }}
             >
               {el.content}
@@ -809,6 +1751,89 @@ export default function WebsiteEditor() {
             {website?.name || "new 1"}
           </span>
         </div>
+
+        {/* Center: Device Switcher Toolbar */}
+        {!isPreview && (
+          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
+            {breakpoints
+              .filter((bp) => bp.active)
+              .sort((a, b) => b.width - a.width)
+              .map((bp) => {
+                const isActive = bp.id === activeBreakpointId;
+                return (
+                  <button
+                    key={bp.id}
+                    onClick={() => setActiveBreakpointId(bp.id)}
+                    title={`${bp.name} (${bp.width}px)`}
+                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    }`}
+                  >
+                    {bp.id === "widescreen" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
+                      </svg>
+                    )}
+                    {bp.id === "laptop" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="3" y="4" width="18" height="12" rx="1" />
+                        <line x1="1" y1="20" x2="23" y2="20" />
+                      </svg>
+                    )}
+                    {bp.id === "desktop" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="3" y="3" width="18" height="13" rx="2" />
+                        <line x1="12" y1="16" x2="12" y2="20" />
+                        <line x1="8" y1="20" x2="16" y2="20" />
+                      </svg>
+                    )}
+                    {bp.id === "tabletExtra" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="4" y="3" width="16" height="18" rx="2" transform="rotate(90 12 12)" />
+                        <circle cx="12" cy="18" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "tablet" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="5" y="3" width="14" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "mobileExtra" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="6" y="3" width="12" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "mobile" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="7" y="3" width="10" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    <span className="hidden md:inline">{bp.name}</span>
+                  </button>
+                );
+              })}
+
+            <div className="h-4 w-px bg-slate-700 mx-1" />
+
+            <button
+              onClick={() => setIsBpModalOpen(true)}
+              title="Manage Custom Breakpoints"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-slate-300 hover:bg-slate-800 hover:text-white transition"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
@@ -922,7 +1947,25 @@ export default function WebsiteEditor() {
           onClick={() => setSelectedId(null)}
           className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
         >
-          <div className="w-full max-w-[760px] min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm transition-all pb-20">
+          <div
+            style={{
+              width: "100%",
+              maxWidth: activeBreakpointId === "widescreen" ? "100%" : `${breakpoints.find(b => b.id === activeBreakpointId)?.width || 1024}px`,
+            }}
+            className={`min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md transition-all duration-300 relative ${
+              activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop"
+                ? "rounded-2xl border border-slate-200 p-8 sm:p-10"
+                : "rounded-[40px] border-[12px] border-slate-900 px-6 py-12"
+            }`}
+          >
+            {/* Simulated Phone Notch / Speaker for Mobile/Tablet */}
+            {!(activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop") && (
+              <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-full flex items-center justify-center gap-1.5 z-50">
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                <div className="w-10 h-1 bg-slate-800 rounded-full" />
+              </div>
+            )}
+
             {elements.length === 0 ? (
               <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
                 <p className="text-sm font-bold text-slate-700">
@@ -944,557 +1987,1529 @@ export default function WebsiteEditor() {
         {/* Right Sidebar: SETTINGS & STYLING           */}
         {/* ========================================== */}
         {!isPreview && (
-          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white p-5 overflow-y-auto shadow-sm">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-              SETTINGS & STYLING
-            </h2>
+          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
+            {/* Sidebar Header & Tab Switcher */}
+            <div className="p-4 border-b border-slate-100 shrink-0 bg-slate-50/50">
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">
+                Settings & Design System
+              </h2>
+              
+              <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedElement) setActiveSidebarTab("element");
+                  }}
+                  disabled={!selectedElement}
+                  className={`flex-1 rounded-md py-1.5 text-center transition ${
+                    !selectedElement 
+                      ? "text-slate-400 cursor-not-allowed" 
+                      : activeSidebarTab === "element"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Element Styles
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSidebarTab("global")}
+                  className={`flex-1 rounded-md py-1.5 text-center transition ${
+                    activeSidebarTab === "global"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Global & Site
+                </button>
+              </div>
+            </div>
 
-            {selectedElement ? (
-              <div className="space-y-5">
-                {/* Element Type Header & Quick Actions */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <span className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                    {selectedElement.type}
-                  </span>
-
-                  <div className="flex items-center gap-3 text-xs font-semibold">
-                    <button
-                      onClick={(e) => handleDuplicateElement(selectedElement.id, e)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Duplicate
-                    </button>
-                    <button
-                      onClick={(e) => handleDeleteElement(selectedElement.id, e)}
-                      className="text-red-500 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-
-                {/* Container Specific Layout Controls */}
-                {selectedElement.type === "container" && (
-                  <div className="space-y-4">
-                    {/* Direction */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Direction
-                      </label>
-                      <select
-                        value={selectedElement.layout?.direction || "column"}
-                        onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="column">Column (Vertical)</option>
-                        <option value="row">Row (Horizontal)</option>
-                      </select>
-                    </div>
-
-                    {/* Justify Content */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Justify Content
-                      </label>
-                      <select
-                        value={selectedElement.layout?.justifyContent || "flex-start"}
-                        onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                        <option value="space-between">Space Between</option>
-                        <option value="space-around">Space Around</option>
-                        <option value="space-evenly">Space Evenly</option>
-                      </select>
-                    </div>
-
-                    {/* Align Items */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Align Items
-                      </label>
-                      <select
-                        value={selectedElement.layout?.alignItems || "stretch"}
-                        onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="stretch">Stretch</option>
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                      </select>
-                    </div>
-
-                    {/* Gap (px) */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Gap (px)
-                      </label>
-                      <input
-                        type="number"
-                        value={selectedElement.layout?.gap ?? 10}
-                        onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    {/* Width & Height */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Width
-                        </label>
-                        <select
-                          value={selectedElement.styles.width || "100%"}
-                          onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="100%">100%</option>
-                          <option value="75%">75%</option>
-                          <option value="50%">50%</option>
-                          <option value="auto">Auto</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Height
-                        </label>
-                        <select
-                          value={selectedElement.styles.height || "auto"}
-                          onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="auto">Auto</option>
-                          <option value="200px">200px</option>
-                          <option value="300px">300px</option>
-                          <option value="400px">400px</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Padding Controls */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Padding (px)
-                      </label>
-                      <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] text-slate-500">
-                        <div>
-                          <span>Top</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.paddingTop || "16")}
-                            onChange={(e) => updateSelectedStyle("paddingTop", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Right</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.paddingRight || "16")}
-                            onChange={(e) => updateSelectedStyle("paddingRight", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Bottom</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.paddingBottom || "16")}
-                            onChange={(e) => updateSelectedStyle("paddingBottom", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Left</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.paddingLeft || "16")}
-                            onChange={(e) => updateSelectedStyle("paddingLeft", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Margin Controls */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Margin (px)
-                      </label>
-                      <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] text-slate-500">
-                        <div>
-                          <span>Top</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.marginTop || "8")}
-                            onChange={(e) => updateSelectedStyle("marginTop", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Right</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.marginRight || "0")}
-                            onChange={(e) => updateSelectedStyle("marginRight", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Bottom</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.marginBottom || "8")}
-                            onChange={(e) => updateSelectedStyle("marginBottom", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                        <div>
-                          <span>Left</span>
-                          <input
-                            type="number"
-                            value={parseInt(selectedElement.styles.marginLeft || "0")}
-                            onChange={(e) => updateSelectedStyle("marginLeft", `${e.target.value}px`)}
-                            className="w-full rounded border border-slate-300 p-1 text-center text-xs"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Container Background Color */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Background Color
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={selectedElement.styles.backgroundColor || "#ffffff"}
-                          onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                          className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                        />
-                        <input
-                          type="text"
-                          value={selectedElement.styles.backgroundColor || "#ffffff"}
-                          onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Content Input */}
-                {selectedElement.type !== "image" && selectedElement.type !== "container" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Text
-                    </label>
-                    <textarea
-                      rows={selectedElement.type === "text" ? 3 : 2}
-                      value={selectedElement.content}
-                      onChange={(e) => updateSelectedProp("content", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-                )}
-
-                {/* Font Size Input (px) */}
-                {selectedElement.type !== "image" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Font Size (px)
-                    </label>
-                    <input
-                      type="number"
-                      value={getFontSizeNum(selectedElement.styles.fontSize)}
-                      onChange={(e) =>
-                        updateSelectedStyle(
-                          "fontSize",
-                          e.target.value ? `${e.target.value}px` : "16px"
-                        )
-                      }
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
-                )}
-
-                {/* Font Weight Dropdown */}
-                {selectedElement.type !== "image" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Font Weight
-                    </label>
-                    <select
-                      value={selectedElement.styles.fontWeight || "400"}
-                      onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="400">Regular (400)</option>
-                      <option value="500">Medium (500)</option>
-                      <option value="600">SemiBold (600)</option>
-                      <option value="700">Bold (700)</option>
-                      <option value="800">ExtraBold (800)</option>
-                    </select>
-                  </div>
-                )}
-
-                {/* Text Color Input */}
-                {selectedElement.type !== "image" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Text Color
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={selectedElement.styles.color || "#0f172a"}
-                        onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                      />
-                      <input
-                        type="text"
-                        value={selectedElement.styles.color || "#0f172a"}
-                        onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Alignment */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Alignment
-                  </label>
-                  <select
-                    value={selectedElement.styles.textAlign || "left"}
-                    onChange={(e) => updateSelectedStyle("textAlign", e.target.value as any)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
-                    <option value="justify">Justify</option>
-                  </select>
-                </div>
-
-                {/* Button Href Link */}
-                {selectedElement.type === "button" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Button Link (URL)
-                    </label>
-                    <input
-                      type="text"
-                      value={selectedElement.href || "#"}
-                      onChange={(e) => updateSelectedProp("href", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                    />
-                  </div>
-                )}
-
-                {/* Button Background Color */}
-                {selectedElement.type === "button" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Button Background Color
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={selectedElement.styles.backgroundColor || "#2563eb"}
-                        onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                      />
-                      <input
-                        type="text"
-                        value={selectedElement.styles.backgroundColor || "#2563eb"}
-                        onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Image Upload Dropzone & Controls */}
-                {selectedElement.type === "image" && (
-                  <div className="space-y-4 pt-2 border-t border-slate-100">
-                    <label className="block text-xs font-semibold text-slate-700">
-                      Upload Computer Image
-                    </label>
-
-                    <div
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setDragOver(true);
-                      }}
-                      onDragLeave={() => setDragOver(false)}
-                      onDrop={handleDrop}
-                      className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${
-                        dragOver
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
-                      }`}
-                    >
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            handleImageFileSelect(e.target.files[0]);
-                          }
-                        }}
-                      />
-
-                      <UploadCloudIcon />
-                      <p className="mt-2 text-xs font-semibold text-slate-700">
-                        {isUploading ? "Uploading..." : "Choose Image from Computer"}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-slate-400">
-                        Supports JPG, PNG, WEBP, GIF, SVG (Max 5MB)
-                      </p>
-
+            {/* Sidebar Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {activeSidebarTab === "element" && selectedElement ? (
+                <div className="space-y-4">
+                  {/* Element Header */}
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">
+                      {selectedElement.type} Settings
+                    </span>
+                    <div className="flex items-center gap-2.5 text-xs font-semibold">
                       <button
                         type="button"
-                        disabled={isUploading}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="mt-3 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition disabled:opacity-50"
+                        onClick={(e) => handleDuplicateElement(selectedElement.id, e)}
+                        className="text-blue-600 hover:underline"
                       >
-                        {isUploading ? "Uploading..." : "Browse Files"}
+                        Duplicate
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Delete
                       </button>
                     </div>
+                  </div>
 
-                    {uploadError && (
-                      <p className="text-xs font-semibold text-red-500">{uploadError}</p>
-                    )}
+                  {/* Accordion Sections */}
 
-                    {/* Active Preview Thumbnail */}
-                    {selectedElement.src && (
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <span className="block text-[11px] font-bold text-slate-500 mb-2">
-                          Image Preview:
+                  {/* 1. Layout & Dimensions */}
+                  {renderAccordion("Layout & Spacing", "layout", (
+                    <div className="space-y-3.5">
+                      {/* Device Visibility Section (F-059, F-063) */}
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                          Device Visibility
                         </span>
-                        <img
-                          src={resolveImageUrl(selectedElement.src, apiUrl)}
-                          alt="Preview"
-                          className="h-28 w-full object-contain rounded-md border border-slate-200 bg-white"
-                        />
-                        <div className="mt-2.5 flex gap-2">
-                          <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="flex-1 rounded-lg border border-slate-300 bg-white py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
-                          >
-                            Change
-                          </button>
-                          <button
-                            onClick={() => updateSelectedProp("src", "")}
-                            className="rounded-lg border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
-                          >
-                            Remove
-                          </button>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {breakpoints
+                            .filter(b => b.active)
+                            .map((bp) => {
+                              const isHidden = selectedElement.hiddenDevices?.[bp.id] || false;
+                              return (
+                                <label
+                                  key={bp.id}
+                                  className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${
+                                    isHidden
+                                      ? "bg-amber-50/50 border-amber-200 text-amber-800"
+                                      : "bg-slate-50/50 border-slate-200 text-slate-700 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isHidden}
+                                    onChange={(e) => {
+                                      const hiddenDevices = { ...selectedElement.hiddenDevices };
+                                      if (e.target.checked) {
+                                        hiddenDevices[bp.id] = true;
+                                      } else {
+                                        delete hiddenDevices[bp.id];
+                                      }
+                                      updateSelectedProp("hiddenDevices", hiddenDevices);
+                                    }}
+                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3 w-3"
+                                  />
+                                  <span className="text-[10px] font-bold">
+                                    Hide: {bp.name}
+                                  </span>
+                                </label>
+                              );
+                            })}
                         </div>
                       </div>
-                    )}
 
-                    {/* Direct Image URL input */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Or Image Web URL
-                      </label>
-                      <input
-                        type="text"
-                        value={selectedElement.src || ""}
-                        onChange={(e) => updateSelectedProp("src", e.target.value)}
-                        placeholder="https://..."
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
-                    </div>
+                      {/* Container Specific Controls */}
+                      {selectedElement.type === "container" && (
+                        <div className="space-y-3.5 pt-2.5 border-t border-slate-100">
+                          <div>
+                            {renderResponsiveLabel("Direction", undefined, "direction")}
+                            <select
+                              value={getLayoutVal(selectedElement, "direction", activeBreakpointId, breakpoints) || "column"}
+                              onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="column">Column (Vertical)</option>
+                              <option value="row">Row (Horizontal)</option>
+                            </select>
+                          </div>
 
-                    {/* Basic Image Styling: Width, Height, Border Radius */}
-                    <div className="space-y-3 pt-2 border-t border-slate-100">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Width
-                        </label>
-                        <select
-                          value={selectedElement.styles.width || "100%"}
-                          onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="100%">100% (Full)</option>
-                          <option value="75%">75%</option>
-                          <option value="50%">50%</option>
-                          <option value="25%">25%</option>
-                        </select>
+                          <div>
+                            {renderResponsiveLabel("Justify Content", undefined, "justifyContent")}
+                            <select
+                              value={getLayoutVal(selectedElement, "justifyContent", activeBreakpointId, breakpoints) || "flex-start"}
+                              onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="flex-start">Start</option>
+                              <option value="center">Center</option>
+                              <option value="flex-end">End</option>
+                              <option value="space-between">Space Between</option>
+                              <option value="space-around">Space Around</option>
+                              <option value="space-evenly">Space Evenly</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Align Items", undefined, "alignItems")}
+                            <select
+                              value={getLayoutVal(selectedElement, "alignItems", activeBreakpointId, breakpoints) || "stretch"}
+                              onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="stretch">Stretch</option>
+                              <option value="flex-start">Start</option>
+                              <option value="center">Center</option>
+                              <option value="flex-end">End</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Gap (px)", undefined, "gap")}
+                            <input
+                              type="number"
+                              value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 10}
+                              onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Content Input for non-containers/images */}
+                      {selectedElement.type !== "image" && selectedElement.type !== "container" && (
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                            TEXT CONTENT
+                          </label>
+                          <textarea
+                            rows={selectedElement.type === "text" ? 3 : 2}
+                            value={selectedElement.content}
+                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      )}
+
+                      {/* Width & Height */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          {renderResponsiveLabel("Width", "width")}
+                          <input
+                            type="text"
+                            placeholder="e.g. 100%, 300px"
+                            value={getStyleVal(selectedElement, "width", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("width", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          {renderResponsiveLabel("Height", "height")}
+                          <input
+                            type="text"
+                            placeholder="e.g. auto, 400px"
+                            value={getStyleVal(selectedElement, "height", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("height", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          />
+                        </div>
                       </div>
 
+                      {/* Padding Controls */}
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Height
-                        </label>
-                        <select
-                          value={selectedElement.styles.height || "auto"}
-                          onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="auto">Auto</option>
-                          <option value="200px">200px</option>
-                          <option value="300px">300px</option>
-                          <option value="400px">400px</option>
-                          <option value="500px">500px</option>
-                        </select>
+                        {renderResponsiveLabel("Padding (px)")}
+                        <div className="grid grid-cols-4 gap-1 text-center text-[9px] font-bold text-slate-400">
+                          <div>
+                            <span>Top</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "paddingTop", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("paddingTop", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Right</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "paddingRight", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("paddingRight", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Bottom</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "paddingBottom", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("paddingBottom", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Left</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "paddingLeft", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("paddingLeft", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                        </div>
                       </div>
 
+                      {/* Margin Controls */}
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Border Radius
-                        </label>
-                        <select
-                          value={selectedElement.styles.borderRadius || "8px"}
-                          onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="0px">0px (Square)</option>
-                          <option value="4px">4px (Small)</option>
-                          <option value="8px">8px (Medium)</option>
-                          <option value="16px">16px (Large)</option>
-                          <option value="9999px">Rounded Pill / Circle</option>
-                        </select>
+                        {renderResponsiveLabel("Margin (px)")}
+                        <div className="grid grid-cols-4 gap-1 text-center text-[9px] font-bold text-slate-400">
+                          <div>
+                            <span>Top</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "marginTop", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("marginTop", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Right</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "marginRight", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("marginRight", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Bottom</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "marginBottom", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("marginBottom", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Left</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "marginLeft", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("marginLeft", `${e.target.value}px`)}
+                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
+                            />
+                          </div>
+                        </div>
                       </div>
 
+                      {/* Custom Classes (F-068) */}
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Alt Text
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                          CUSTOM CSS CLASSES
                         </label>
                         <input
                           type="text"
-                          value={selectedElement.alt || ""}
-                          onChange={(e) => updateSelectedProp("alt", e.target.value)}
-                          placeholder="Image alt description"
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          value={selectedElement.customClass || ""}
+                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
+                          placeholder="e.g. highlight-card shadow-lg"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                         />
                       </div>
                     </div>
+                  ))}
+
+                  {/* 2. Typography Controls (F-070, F-089) */}
+                  {selectedElement.type !== "image" && renderAccordion("Typography Settings", "typography", (
+                    <div className="space-y-3.5">
+                      <div>
+                        {renderResponsiveLabel("Font Family", "fontFamily")}
+                        <select
+                          value={getStyleVal(selectedElement, "fontFamily", activeBreakpointId, breakpoints) || "inherit"}
+                          onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="inherit">Inherit (Default)</option>
+                          <option value="'Inter', sans-serif">Inter</option>
+                          <option value="'Outfit', sans-serif">Outfit</option>
+                          <option value="'Playfair Display', serif">Playfair Display</option>
+                          <option value="'Montserrat', sans-serif">Montserrat</option>
+                          <option value="'Roboto', sans-serif">Roboto</option>
+                          <option value="Georgia, serif">Georgia</option>
+                          <option value="monospace">Monospace</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Font Size (px)", "fontSize")}
+                        <input
+                          type="number"
+                          value={getFontSizeNum(getStyleVal(selectedElement, "fontSize", activeBreakpointId, breakpoints))}
+                          onChange={(e) => updateSelectedStyle("fontSize", e.target.value ? `${e.target.value}px` : "16px")}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Font Weight", "fontWeight")}
+                        <select
+                          value={getStyleVal(selectedElement, "fontWeight", activeBreakpointId, breakpoints) || "400"}
+                          onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="300">Light (300)</option>
+                          <option value="400">Regular (400)</option>
+                          <option value="500">Medium (500)</option>
+                          <option value="600">SemiBold (600)</option>
+                          <option value="700">Bold (700)</option>
+                          <option value="800">ExtraBold (800)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Line Height", "lineHeight")}
+                        <input
+                          type="text"
+                          placeholder="e.g. 1.2, 1.5, 24px"
+                          value={getStyleVal(selectedElement, "lineHeight", activeBreakpointId, breakpoints) || ""}
+                          onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Letter Spacing (px)", "letterSpacing")}
+                        <input
+                          type="number"
+                          step="0.5"
+                          value={parseFloat(getStyleVal(selectedElement, "letterSpacing", activeBreakpointId, breakpoints) || "0")}
+                          onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value ? `${e.target.value}px` : "")}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Word Spacing (px)", "wordSpacing")}
+                        <input
+                          type="number"
+                          value={parseFloat(getStyleVal(selectedElement, "wordSpacing", activeBreakpointId, breakpoints) || "0")}
+                          onChange={(e) => updateSelectedStyle("wordSpacing", e.target.value ? `${e.target.value}px` : "")}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Text Alignment", "textAlign")}
+                        <select
+                          value={getStyleVal(selectedElement, "textAlign", activeBreakpointId, breakpoints) || "left"}
+                          onChange={(e) => updateSelectedStyle("textAlign", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                          <option value="justify">Justify</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 3. Color Palette & Dynamic Colors (F-071, F-072) */}
+                  {selectedElement.type !== "image" && renderAccordion("Color Settings", "colors", (
+                    <div className="space-y-3.5">
+                      {/* Text Color */}
+                      <div>
+                        {renderResponsiveLabel("Text Color", "color")}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints)?.startsWith("var") ? "#000000" : getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#0f172a"}
+                            onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                            className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5 shrink-0"
+                          />
+                          <input
+                            type="text"
+                            value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#0f172a"}
+                            onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                          />
+                        </div>
+                        {/* Dynamic Colors (F-072) */}
+                        <div className="mt-1.5">
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) updateSelectedStyle("color", e.target.value);
+                            }}
+                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-600 outline-none"
+                          >
+                            <option value="">-- Connect Dynamic Color Variable --</option>
+                            <option value="var(--primaryColor)">Primary Theme Color</option>
+                            <option value="var(--secondaryColor)">Secondary Theme Color</option>
+                            <option value="var(--accentColor)">Accent Color</option>
+                            <option value="var(--textColor)">Body Text Color</option>
+                            <option value="var(--backgroundColor)">Site Background</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Element Link (if Button) */}
+                      {selectedElement.type === "button" && (
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                            BUTTON LINK (URL)
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.href || "#"}
+                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 4. Background Controls (F-073, F-074, F-075, F-076, F-077, F-078) */}
+                  {renderAccordion("Background options", "background", (
+                    <div className="space-y-3.5">
+                      <div>
+                        {renderResponsiveLabel("Background Type", "backgroundType")}
+                        <select
+                          value={getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) || "solid"}
+                          onChange={(e) => updateSelectedStyle("backgroundType", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="solid">Solid Color</option>
+                          <option value="gradient">Gradient Background</option>
+                          <option value="image">Background Image</option>
+                          <option value="video">Background Video</option>
+                          <option value="slideshow">Image Slideshow</option>
+                        </select>
+                      </div>
+
+                      {/* Solid Color */}
+                      {(getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "solid" || !getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints)) && (
+                        <div>
+                          {renderResponsiveLabel("Background Color", "backgroundColor")}
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints)?.startsWith("var") ? "#ffffff" : getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                              className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5 shrink-0"
+                            />
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                          {/* Dynamic Color Variable Picker */}
+                          <div className="mt-1.5">
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) updateSelectedStyle("backgroundColor", e.target.value);
+                              }}
+                              className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-600 outline-none"
+                            >
+                              <option value="">-- Connect Dynamic Background Variable --</option>
+                              <option value="var(--backgroundColor)">Background (Base)</option>
+                              <option value="var(--primaryColor)">Primary Theme Color</option>
+                              <option value="var(--secondaryColor)">Secondary Theme Color</option>
+                              <option value="var(--accentColor)">Accent Color</option>
+                              <option value="transparent">Transparent</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Gradient Settings (F-073) */}
+                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "gradient" && (
+                        <div className="space-y-2 border border-slate-200/60 p-2.5 rounded-lg bg-slate-50/50">
+                          <span className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Gradient Parameters</span>
+                          
+                          <div className="grid grid-cols-2 gap-1 text-[10px] font-bold">
+                            <div>
+                              <span>Stop Color 1</span>
+                              <input
+                                type="color"
+                                defaultValue="#2563eb"
+                                onChange={(e) => {
+                                  const stop2 = getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#10b981";
+                                  updateSelectedStyle("backgroundGradient", `linear-gradient(45deg, ${e.target.value}, ${stop2})`);
+                                  updateSelectedStyle("backgroundColor", e.target.value); // cache color 1
+                                }}
+                                className="w-full h-7 rounded cursor-pointer p-0.5 border"
+                              />
+                            </div>
+                            <div>
+                              <span>Stop Color 2</span>
+                              <input
+                                type="color"
+                                defaultValue="#10b981"
+                                onChange={(e) => {
+                                  const stop1 = getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#2563eb";
+                                  updateSelectedStyle("backgroundGradient", `linear-gradient(45deg, ${stop1}, ${e.target.value})`);
+                                }}
+                                className="w-full h-7 rounded cursor-pointer p-0.5 border"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Background Image Options (F-075, F-076) */}
+                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "image" && (
+                        <div className="space-y-3.5">
+                          <div>
+                            {renderResponsiveLabel("Image URL", "backgroundImageUrl")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "backgroundImageUrl", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("backgroundImageUrl", e.target.value)}
+                              placeholder="https://..."
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Position", "backgroundPosition")}
+                            <select
+                              value={getStyleVal(selectedElement, "backgroundPosition", activeBreakpointId, breakpoints) || "center center"}
+                              onChange={(e) => updateSelectedStyle("backgroundPosition", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                            >
+                              <option value="center center">Center Center</option>
+                              <option value="top left">Top Left</option>
+                              <option value="top right">Top Right</option>
+                              <option value="bottom left">Bottom Left</option>
+                              <option value="bottom right">Bottom Right</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Repeat", "backgroundRepeat")}
+                            <select
+                              value={getStyleVal(selectedElement, "backgroundRepeat", activeBreakpointId, breakpoints) || "no-repeat"}
+                              onChange={(e) => updateSelectedStyle("backgroundRepeat", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                            >
+                              <option value="no-repeat">No Repeat</option>
+                              <option value="repeat">Repeat Both</option>
+                              <option value="repeat-x">Repeat Horizontal</option>
+                              <option value="repeat-y">Repeat Vertical</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Size", "backgroundSize")}
+                            <select
+                              value={getStyleVal(selectedElement, "backgroundSize", activeBreakpointId, breakpoints) || "cover"}
+                              onChange={(e) => updateSelectedStyle("backgroundSize", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                            >
+                              <option value="cover">Cover (Fill)</option>
+                              <option value="contain">Contain (Fit)</option>
+                              <option value="auto">Auto</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Video Background (F-077) */}
+                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "video" && (
+                        <div className="space-y-3">
+                          <div>
+                            {renderResponsiveLabel("Video MP4 URL", "backgroundVideoUrl")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "backgroundVideoUrl", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("backgroundVideoUrl", e.target.value)}
+                              placeholder="https://.../video.mp4"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Video Opacity (%)", "backgroundVideoOpacity")}
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={getStyleVal(selectedElement, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50"}
+                              onChange={(e) => updateSelectedStyle("backgroundVideoOpacity", e.target.value)}
+                              className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                            />
+                            <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                              {getStyleVal(selectedElement, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50"}%
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Slideshow (F-078) */}
+                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "slideshow" && (
+                        <div className="space-y-3">
+                          <div>
+                            {renderResponsiveLabel("Image URLs (Comma separated)", "backgroundSlideshowUrls")}
+                            <textarea
+                              rows={3}
+                              value={getStyleVal(selectedElement, "backgroundSlideshowUrls", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("backgroundSlideshowUrls", e.target.value)}
+                              placeholder="https://img1.jpg, https://img2.jpg"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            {renderResponsiveLabel("Transition Delay (sec)", "backgroundSlideshowSpeed")}
+                            <input
+                              type="number"
+                              min="2"
+                              value={getStyleVal(selectedElement, "backgroundSlideshowSpeed", activeBreakpointId, breakpoints) || "5"}
+                              onChange={(e) => updateSelectedStyle("backgroundSlideshowSpeed", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 5. Borders & Corners (F-079, F-080) */}
+                  {renderAccordion("Borders & Corner styling", "borders", (
+                    <div className="space-y-3.5">
+                      <div>
+                        {renderResponsiveLabel("Border Style", "borderStyle")}
+                        <select
+                          value={getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("borderStyle", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">None</option>
+                          <option value="solid">Solid</option>
+                          <option value="dashed">Dashed</option>
+                          <option value="dotted">Dotted</option>
+                          <option value="double">Double</option>
+                        </select>
+                      </div>
+
+                      {getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) !== "none" && getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) !== undefined && (
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            {renderResponsiveLabel("Width", "borderWidth")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "borderWidth", activeBreakpointId, breakpoints) || "1px"}
+                              onChange={(e) => updateSelectedStyle("borderWidth", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                            />
+                          </div>
+                          <div>
+                            {renderResponsiveLabel("Color", "borderColor")}
+                            <input
+                              type="color"
+                              value={getStyleVal(selectedElement, "borderColor", activeBreakpointId, breakpoints) || "#cbd5e1"}
+                              onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                              className="w-full h-8 cursor-pointer rounded border p-0.5"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Border Corner Radius (F-080) */}
+                      <div>
+                        {renderResponsiveLabel("Corner Roundness (px)", "borderRadius")}
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={parseInt(getStyleVal(selectedElement, "borderRadius", activeBreakpointId, breakpoints) || "8")}
+                          onChange={(e) => updateSelectedStyle("borderRadius", `${e.target.value}px`)}
+                          className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                        />
+                        <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                          {parseInt(getStyleVal(selectedElement, "borderRadius", activeBreakpointId, breakpoints) || "8")}px
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 6. Shadows (F-081, F-093) */}
+                  {renderAccordion("Shadow Effects", "shadows", (
+                    <div className="space-y-3.5">
+                      <div>
+                        {renderResponsiveLabel("Box Shadow Preset", "boxShadow")}
+                        <select
+                          value={getStyleVal(selectedElement, "boxShadow", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("boxShadow", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">No Shadow</option>
+                          <option value="sm">Small Shadow</option>
+                          <option value="md">Medium Shadow</option>
+                          <option value="lg">Large Shadow</option>
+                          <option value="xl">Extra Large Shadow</option>
+                          <option value="inner">Inner Shadow</option>
+                        </select>
+                      </div>
+
+                      {/* Text Shadow Preset (F-093) */}
+                      {selectedElement.type !== "image" && (
+                        <div>
+                          {renderResponsiveLabel("Text Shadow Preset", "textShadow")}
+                          <select
+                            value={getStyleVal(selectedElement, "textShadow", activeBreakpointId, breakpoints) || "none"}
+                            onChange={(e) => updateSelectedStyle("textShadow", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="none">No Text Shadow</option>
+                            <option value="subtle">Subtle Shadow</option>
+                            <option value="medium">Medium Shadow</option>
+                            <option value="hard">Hard Drop Shadow</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 7. Opacity, Blend & Filters (F-082, F-083, F-084, F-085, F-086, F-092) */}
+                  {renderAccordion("Filters, Transform & Masks", "effects", (
+                    <div className="space-y-4">
+                      {/* Opacity (F-082) */}
+                      <div>
+                        {renderResponsiveLabel("Opacity (%)", "opacity")}
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={getStyleVal(selectedElement, "opacity", activeBreakpointId, breakpoints) || "100"}
+                          onChange={(e) => updateSelectedStyle("opacity", e.target.value)}
+                          className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                        />
+                        <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                          {getStyleVal(selectedElement, "opacity", activeBreakpointId, breakpoints) || "100"}%
+                        </div>
+                      </div>
+
+                      {/* Mix Blend Mode (F-083) */}
+                      <div>
+                        {renderResponsiveLabel("Blend Mode", "mixBlendMode")}
+                        <select
+                          value={getStyleVal(selectedElement, "mixBlendMode", activeBreakpointId, breakpoints) || "normal"}
+                          onChange={(e) => updateSelectedStyle("mixBlendMode", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="normal">Normal</option>
+                          <option value="multiply">Multiply</option>
+                          <option value="screen">Screen</option>
+                          <option value="overlay">Overlay</option>
+                          <option value="darken">Darken</option>
+                          <option value="lighten">Lighten</option>
+                          <option value="color-dodge">Color Dodge</option>
+                          <option value="difference">Difference</option>
+                        </select>
+                      </div>
+
+                      {/* Clip Path Shapes (F-085) */}
+                      <div>
+                        {renderResponsiveLabel("Clip Path Mask", "clipPath")}
+                        <select
+                          value={getStyleVal(selectedElement, "clipPath", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("clipPath", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">No Mask Shape</option>
+                          <option value="circle(50% at 50% 50%)">Circle</option>
+                          <option value="polygon(50% 0%, 0% 100%, 100% 100%)">Triangle</option>
+                          <option value="polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)">Star</option>
+                          <option value="polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)">Hexagon</option>
+                          <option value="polygon(0% 0%, 100% 0%, 100% 75%, 75% 75%, 75% 100%, 50% 75%, 0% 75%)">Message Bubble</option>
+                        </select>
+                      </div>
+
+                      {/* CSS Filters (F-084) */}
+                      <div className="space-y-3 pt-2.5 border-t border-slate-100">
+                        <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Filters</span>
+                        
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Blur (px)</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="20"
+                            value={getStyleVal(selectedElement, "filterBlur", activeBreakpointId, breakpoints) || "0"}
+                            onChange={(e) => updateSelectedStyle("filterBlur", e.target.value)}
+                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Grayscale (%)</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={getStyleVal(selectedElement, "filterGrayscale", activeBreakpointId, breakpoints) || "0"}
+                            onChange={(e) => updateSelectedStyle("filterGrayscale", e.target.value)}
+                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Brightness (%)</label>
+                          <input
+                            type="range"
+                            min="50"
+                            max="150"
+                            value={getStyleVal(selectedElement, "filterBrightness", activeBreakpointId, breakpoints) || "100"}
+                            onChange={(e) => updateSelectedStyle("filterBrightness", e.target.value)}
+                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
+                          />
+                        </div>
+                      </div>
+
+                      {/* CSS Transform (F-086) */}
+                      <div className="space-y-3 pt-2.5 border-t border-slate-100">
+                        <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Transform</span>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                          <div>
+                            <span>Rotate (deg)</span>
+                            <input
+                              type="number"
+                              value={parseInt(getStyleVal(selectedElement, "transformRotate", activeBreakpointId, breakpoints) || "0")}
+                              onChange={(e) => updateSelectedStyle("transformRotate", `${e.target.value}`)}
+                              className="w-full border rounded px-1.5 py-0.5 text-xs text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <span>Scale</span>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={parseFloat(getStyleVal(selectedElement, "transformScale", activeBreakpointId, breakpoints) || "1")}
+                              onChange={(e) => updateSelectedStyle("transformScale", `${e.target.value}`)}
+                              className="w-full border rounded px-1.5 py-0.5 text-xs text-slate-700"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Ken Burns Effect (F-092) */}
+                      {selectedElement.type === "image" && (
+                        <div className="pt-2 border-t border-slate-100">
+                          {renderResponsiveLabel("Ken Burns Effect", "kenBurnsEffect")}
+                          <select
+                            value={getStyleVal(selectedElement, "kenBurnsEffect", activeBreakpointId, breakpoints) || "none"}
+                            onChange={(e) => updateSelectedStyle("kenBurnsEffect", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="none">Disabled</option>
+                            <option value="zoom-in">Slow Zoom In</option>
+                            <option value="zoom-out">Slow Zoom Out</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 8. Text Stroke & Mask (F-087, F-088) */}
+                  {selectedElement.type !== "image" && renderAccordion("Text Outlines & Masks", "textStroke", (
+                    <div className="space-y-3.5">
+                      {/* Stroke Width & Color (F-087) */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          {renderResponsiveLabel("Stroke (px)", "textStrokeWidth")}
+                          <input
+                            type="number"
+                            min="0"
+                            value={parseInt(getStyleVal(selectedElement, "textStrokeWidth", activeBreakpointId, breakpoints) || "0")}
+                            onChange={(e) => updateSelectedStyle("textStrokeWidth", `${e.target.value}`)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800"
+                          />
+                        </div>
+                        <div>
+                          {renderResponsiveLabel("Stroke Color", "textStrokeColor")}
+                          <input
+                            type="color"
+                            value={getStyleVal(selectedElement, "textStrokeColor", activeBreakpointId, breakpoints) || "#000000"}
+                            onChange={(e) => updateSelectedStyle("textStrokeColor", e.target.value)}
+                            className="w-full h-8 cursor-pointer rounded border p-0.5"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Text Mask Gradient / Image (F-088) */}
+                      <div>
+                        {renderResponsiveLabel("Text Clipping Effect", "textMaskType")}
+                        <select
+                          value={getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("textMaskType", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">None (Solid Color)</option>
+                          <option value="gradient">Gradient Text</option>
+                          <option value="image">Image Clipped Text</option>
+                        </select>
+                      </div>
+
+                      {getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) === "gradient" && (
+                        <div>
+                          {renderResponsiveLabel("Gradient Mask Code", "textMaskGradient")}
+                          <input
+                            type="text"
+                            defaultValue="linear-gradient(45deg, #3b82f6, #10b981)"
+                            onChange={(e) => updateSelectedStyle("textMaskGradient", e.target.value)}
+                            placeholder="linear-gradient(...)"
+                            className="w-full rounded border p-1 text-xs font-mono"
+                          />
+                        </div>
+                      )}
+
+                      {getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) === "image" && (
+                        <div>
+                          {renderResponsiveLabel("Mask Image URL", "textMaskImage")}
+                          <input
+                            type="text"
+                            value={getStyleVal(selectedElement, "textMaskImage", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("textMaskImage", e.target.value)}
+                            placeholder="https://..."
+                            className="w-full rounded border p-1 text-xs font-mono"
+                          />
+                        </div>
+                      )}
+
+                      {/* Text Path Curve (F-090) */}
+                      {selectedElement.type === "heading" && (
+                        <div className="pt-2 border-t border-slate-100">
+                          {renderResponsiveLabel("Curved Text Path", "textPathEnabled")}
+                          <select
+                            value={getStyleVal(selectedElement, "textPathEnabled", activeBreakpointId, breakpoints) || "false"}
+                            onChange={(e) => updateSelectedStyle("textPathEnabled", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="false">Standard Straight Text</option>
+                            <option value="true">Render on SVG Wave Curve</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 9. Shape Dividers (F-091) */}
+                  {selectedElement.type === "container" && renderAccordion("Shape Dividers (Borders)", "divider", (
+                    <div className="space-y-4">
+                      {/* Top Divider */}
+                      <div className="space-y-2 border-b border-slate-100 pb-2">
+                        <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
+                          <input
+                            type="checkbox"
+                            checked={getStyleVal(selectedElement, "dividerTopEnabled", activeBreakpointId, breakpoints) === "true"}
+                            onChange={(e) => updateSelectedStyle("dividerTopEnabled", e.target.checked ? "true" : "false")}
+                            className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
+                          />
+                          ENABLE TOP SHAPE DIVIDER
+                        </label>
+                        
+                        {getStyleVal(selectedElement, "dividerTopEnabled", activeBreakpointId, breakpoints) === "true" && (
+                          <div className="space-y-2 pt-1.5">
+                            <select
+                              value={getStyleVal(selectedElement, "dividerTopStyle", activeBreakpointId, breakpoints) || "waves"}
+                              onChange={(e) => updateSelectedStyle("dividerTopStyle", e.target.value)}
+                              className="w-full rounded border p-1 text-xs"
+                            >
+                              <option value="waves">Waves</option>
+                              <option value="curves">Curves</option>
+                              <option value="slant">Slant</option>
+                              <option value="triangle">Triangle</option>
+                            </select>
+                            
+                            <div className="flex gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "dividerTopColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                                onChange={(e) => updateSelectedStyle("dividerTopColor", e.target.value)}
+                                className="w-10 h-7 rounded border cursor-pointer shrink-0"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Height e.g. 50px"
+                                value={getStyleVal(selectedElement, "dividerTopHeight", activeBreakpointId, breakpoints) || "50px"}
+                                onChange={(e) => updateSelectedStyle("dividerTopHeight", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
+                                className="w-full border rounded px-2 text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom Divider */}
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
+                          <input
+                            type="checkbox"
+                            checked={getStyleVal(selectedElement, "dividerBottomEnabled", activeBreakpointId, breakpoints) === "true"}
+                            onChange={(e) => updateSelectedStyle("dividerBottomEnabled", e.target.checked ? "true" : "false")}
+                            className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
+                          />
+                          ENABLE BOTTOM DIVIDER
+                        </label>
+                        
+                        {getStyleVal(selectedElement, "dividerBottomEnabled", activeBreakpointId, breakpoints) === "true" && (
+                          <div className="space-y-2 pt-1.5">
+                            <select
+                              value={getStyleVal(selectedElement, "dividerBottomStyle", activeBreakpointId, breakpoints) || "waves"}
+                              onChange={(e) => updateSelectedStyle("dividerBottomStyle", e.target.value)}
+                              className="w-full rounded border p-1 text-xs"
+                            >
+                              <option value="waves">Waves</option>
+                              <option value="curves">Curves</option>
+                              <option value="slant">Slant</option>
+                              <option value="triangle">Triangle</option>
+                            </select>
+                            
+                            <div className="flex gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "dividerBottomColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                                onChange={(e) => updateSelectedStyle("dividerBottomColor", e.target.value)}
+                                className="w-10 h-7 rounded border cursor-pointer shrink-0"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Height e.g. 50px"
+                                value={getStyleVal(selectedElement, "dividerBottomHeight", activeBreakpointId, breakpoints) || "50px"}
+                                onChange={(e) => updateSelectedStyle("dividerBottomHeight", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
+                                className="w-full border rounded px-2 text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Global Settings & Site Identity Panel (F-066 to F-101) */
+                <div className="space-y-4">
+                  <div className="border-b border-slate-100 pb-2">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-600">
+                      Global Settings & Identity
+                    </span>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex h-64 flex-col items-center justify-center text-center p-4 text-slate-400">
-                <p className="text-xs font-medium">
-                  Select an element on the canvas to customize text, colors, font sizes, or upload images.
-                </p>
-              </div>
-            )}
+
+                  {/* F-101 Site Identity */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                      Site Identity & Metadata
+                    </h3>
+                    
+                    <div>
+                      <label className="text-[10px] text-slate-600 font-semibold block mb-0.5">Site Name</label>
+                      <input
+                        type="text"
+                        value={globalSettings.siteIdentity?.name || ""}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          siteIdentity: { ...prev.siteIdentity, name: e.target.value }
+                        }))}
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-600 font-semibold block mb-0.5">Description (SEO)</label>
+                      <textarea
+                        rows={2}
+                        value={globalSettings.siteIdentity?.description || ""}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          siteIdentity: { ...prev.siteIdentity, description: e.target.value }
+                        }))}
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* F-067 Global Variables Color Palette */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                        Global Color Palette
+                      </h3>
+                      <label className="flex items-center gap-1 text-[9px] text-slate-400 font-bold">
+                        <input
+                          type="checkbox"
+                          checked={globalSettings.globalStyles?.enableDefaultColors}
+                          onChange={(e) => setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            globalStyles: { ...prev.globalStyles, enableDefaultColors: e.target.checked }
+                          }))}
+                          className="rounded h-3 w-3"
+                        />
+                        Active
+                      </label>
+                    </div>
+
+                    {globalSettings.globalStyles?.enableDefaultColors && (
+                      <div className="space-y-2">
+                        {/* Primary Color */}
+                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
+                          <span>Primary (Brand)</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={globalSettings.colors?.primary || "#2563eb"}
+                              onChange={(e) => setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                colors: { ...prev.colors, primary: e.target.value }
+                              }))}
+                              className="w-7 h-5 rounded cursor-pointer"
+                            />
+                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.primary}</span>
+                          </div>
+                        </div>
+
+                        {/* Secondary Color */}
+                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
+                          <span>Secondary (Text/UI)</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={globalSettings.colors?.secondary || "#475569"}
+                              onChange={(e) => setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                colors: { ...prev.colors, secondary: e.target.value }
+                              }))}
+                              className="w-7 h-5 rounded cursor-pointer"
+                            />
+                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.secondary}</span>
+                          </div>
+                        </div>
+
+                        {/* Accent Color */}
+                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
+                          <span>Accent (CTA)</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={globalSettings.colors?.accent || "#10b981"}
+                              onChange={(e) => setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                colors: { ...prev.colors, accent: e.target.value }
+                              }))}
+                              className="w-7 h-5 rounded cursor-pointer"
+                            />
+                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.accent}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* F-070 Global Fonts Defaults */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                        Global Fonts Defaults
+                      </h3>
+                      <label className="flex items-center gap-1 text-[9px] text-slate-400 font-bold">
+                        <input
+                          type="checkbox"
+                          checked={globalSettings.globalStyles?.enableDefaultFonts}
+                          onChange={(e) => setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            globalStyles: { ...prev.globalStyles, enableDefaultFonts: e.target.checked }
+                          }))}
+                          className="rounded h-3 w-3"
+                        />
+                        Active
+                      </label>
+                    </div>
+
+                    {globalSettings.globalStyles?.enableDefaultFonts && (
+                      <div className="space-y-2.5">
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">HEADING FONT FAMILY</label>
+                          <select
+                            value={globalSettings.fonts?.heading || "Inter"}
+                            onChange={(e) => setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              fonts: { ...prev.fonts, heading: e.target.value }
+                            }))}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          >
+                            <option value="Inter">Inter (Sans-serif)</option>
+                            <option value="Outfit">Outfit (Display)</option>
+                            <option value="Playfair Display">Playfair Display (Serif)</option>
+                            <option value="Montserrat">Montserrat</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">BODY FONT FAMILY</label>
+                          <select
+                            value={globalSettings.fonts?.body || "Inter"}
+                            onChange={(e) => setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              fonts: { ...prev.fonts, body: e.target.value }
+                            }))}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          >
+                            <option value="Inter">Inter (Sans-serif)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="sans-serif">System Sans</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* F-094 Global Layout */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                      Global Layout Width
+                    </h3>
+                    
+                    <div>
+                      <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">SITE MAX WIDTH</label>
+                      <select
+                        value={globalSettings.globalStyles?.siteMaxWidth || "1200px"}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          globalStyles: { ...prev.globalStyles, siteMaxWidth: e.target.value }
+                        }))}
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      >
+                        <option value="1200px">1200px (Default)</option>
+                        <option value="1400px">1400px (Wide)</option>
+                        <option value="1600px">1600px (UltraWide)</option>
+                        <option value="100%">100% (Fluid Layout)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* F-095 Lightbox Defaults */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                      Global Lightbox Controls
+                    </h3>
+
+                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={globalSettings.lightboxSettings?.enableLightbox}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          lightboxSettings: { ...prev.lightboxSettings, enableLightbox: e.target.checked }
+                        }))}
+                        className="rounded h-4.5 w-4.5 text-blue-600"
+                      />
+                      Enable Click-to-Zoom Images
+                    </label>
+
+                    {globalSettings.lightboxSettings?.enableLightbox && (
+                      <div>
+                        <label className="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase">LIGHTBOX BACKGROUND STYLE</label>
+                        <select
+                          value={globalSettings.lightboxSettings?.lightboxTheme || "dark"}
+                          onChange={(e) => setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            lightboxSettings: { ...prev.lightboxSettings, lightboxTheme: e.target.value }
+                          }))}
+                          className="w-full rounded border px-2 py-0.5 text-xs"
+                        >
+                          <option value="dark">Translucent Dark Navy</option>
+                          <option value="light">Translucent Light Glass</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* F-066 Global Stylesheet Custom CSS */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                      Global Stylesheet (CSS)
+                    </h3>
+                    
+                    <div>
+                      <label className="text-[9px] font-bold text-slate-400 block mb-1 uppercase">CUSTOM CSS CODE RULES</label>
+                      <textarea
+                        rows={6}
+                        value={globalSettings.customCss || ""}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          customCss: e.target.value
+                        }))}
+                        placeholder=".card-hover:hover { transform: translateY(-4px); }"
+                        className="w-full rounded border p-2 text-xs font-mono bg-white outline-none focus:border-blue-500 leading-normal"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </aside>
         )}
       </div>
+
+      {/* Full Screen Image Lightbox Modal Overlay (F-095) */}
+      {lightboxImage && (
+        <div
+          onClick={() => setLightboxImage(null)}
+          className={`fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md transition-opacity duration-300 cursor-zoom-out ${
+            globalSettings?.lightboxSettings?.lightboxTheme === "light" 
+              ? "bg-white/80 text-slate-800" 
+              : "bg-slate-950/80 text-white"
+          }`}
+        >
+          <button
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 p-2.5 rounded-full hover:bg-slate-800/10 dark:hover:bg-white/10 transition"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Expanded Zoom"
+            className="max-h-[90vh] max-w-full object-contain rounded-xl shadow-2xl animate-scale-up"
+          />
+        </div>
+      )}
+
+      {/* ========================================== */}
+      {/* Breakpoint Manager Modal                   */}
+      {/* ========================================== */}
+      {isBpModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-slate-950/40 p-4 animate-fade-in">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                </svg>
+                <h3 className="text-sm font-bold text-slate-800">Custom Breakpoint Settings</h3>
+              </div>
+              <button
+                onClick={() => setIsBpModalOpen(false)}
+                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Visual Flow Indicator */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">Inheritance Cascade Flow</h4>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] text-slate-600 font-bold">
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "widescreen")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Widescreen
+                </div>
+                <span>←</span>
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "laptop")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Laptop
+                </div>
+                <span>←</span>
+                <div className="px-2.5 py-1.5 rounded border-2 border-blue-500 bg-blue-50 text-blue-700">
+                  Desktop (Base)
+                </div>
+                <span>→</span>
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "tabletExtra")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Tablet Extra
+                </div>
+                <span>→</span>
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "tablet")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Tablet
+                </div>
+                <span>→</span>
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "mobileExtra")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Mobile Extra
+                </div>
+                <span>→</span>
+                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "mobile")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
+                  Mobile
+                </div>
+              </div>
+              <p className="mt-2.5 text-[10px] text-slate-400 text-center leading-relaxed">
+                Breakpoints inherit styles from parent devices pointing towards Desktop (Base). Activating them adds them to your viewport switcher.
+              </p>
+            </div>
+
+            {/* Form list */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-12 gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-1 px-2">
+                <span className="col-span-5">Breakpoint Device</span>
+                <span className="col-span-2 text-center">Status</span>
+                <span className="col-span-3 text-center">Width (px)</span>
+                <span className="col-span-2 text-right">Action</span>
+              </div>
+
+              <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                {breakpoints.map((bp) => {
+                  const isBase = bp.id === "desktop";
+                  return (
+                    <div
+                      key={bp.id}
+                      className={`grid grid-cols-12 items-center gap-2 rounded-xl p-2.5 transition border ${
+                        bp.active ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100"
+                      }`}
+                    >
+                      <div className="col-span-5 flex items-center gap-2">
+                        <span className={`text-xs font-bold ${bp.active ? "text-slate-800" : "text-slate-400"}`}>
+                          {bp.name}
+                        </span>
+                        {isBase && (
+                          <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700">
+                            Base
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="col-span-2 flex justify-center">
+                        <button
+                          type="button"
+                          disabled={isBase}
+                          onClick={() => handleToggleBreakpoint(bp.id)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 ${
+                            bp.active ? "bg-blue-600" : "bg-slate-200"
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              bp.active ? "translate-x-4" : "translate-x-0"
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      <div className="col-span-3 flex justify-center">
+                        <input
+                          type="number"
+                          disabled={!bp.active}
+                          value={bp.width}
+                          onChange={(e) => handleWidthChange(bp.id, parseInt(e.target.value) || 0)}
+                          className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-center text-xs font-semibold text-slate-800 outline-none focus:border-blue-500 disabled:opacity-40 disabled:bg-slate-100"
+                        />
+                      </div>
+
+                      <div className="col-span-2 flex justify-end">
+                        <span className="text-[11px] font-medium text-slate-400">
+                          {bp.width > 1024 ? "Desktop Up" : isBase ? "Default" : "Desktop Down"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                onClick={handleResetBreakpoints}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 transition"
+              >
+                Reset to Defaults
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsBpModalOpen(false)}
+                className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition"
+              >
+                Save & Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
