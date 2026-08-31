@@ -36,6 +36,13 @@ enum OtpPurpose {
   PHONE_SIGNUP
   PHONE_LOGIN
   PHONE_VERIFICATION
+  EMAIL_SIGNUP
+  EMAIL_LOGIN
+}
+
+enum OtpChannel {
+  EMAIL
+  WHATSAPP
 }
 
 model User {
@@ -84,8 +91,10 @@ model Website {
 model OtpVerification {
   id         String      @id @default(uuid()) @db.Uuid
   userId     String?     @db.Uuid
+  email      String?
   otpHash    String
   purpose    OtpPurpose
+  channel    OtpChannel  @default(EMAIL)
   attempts   Int         @default(0)
   expiresAt  DateTime
   verifiedAt DateTime?

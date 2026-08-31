@@ -36,6 +36,13 @@ enum OtpPurpose {
   PHONE_SIGNUP
   PHONE_LOGIN
   PHONE_VERIFICATION
+  EMAIL_SIGNUP
+  EMAIL_LOGIN
+}
+
+enum OtpChannel {
+  EMAIL
+  WHATSAPP
 }
 
 model User {
@@ -58,17 +65,36 @@ model User {
   otpVerifications    OtpVerification[]
   passwordResetTokens PasswordResetToken[]
   subscription        UserSubscription?
+  websites            Website[]
 
   @@index([status])
   @@index([role])
   @@map("users")
 }
 
+model Website {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  name       String
+  slug       String
+  status     String   @default("DRAFT")
+  editorData Json     @default("{\"version\":1,\"elements\":[]}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("websites")
+}
+
 model OtpVerification {
   id         String     @id @default(uuid()) @db.Uuid
   userId     String?    @db.Uuid
+  email      String?
   otpHash    String
   purpose    OtpPurpose
+  channel    OtpChannel @default(EMAIL)
   attempts   Int        @default(0)
   expiresAt  DateTime
   verifiedAt DateTime?

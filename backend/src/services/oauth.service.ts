@@ -117,43 +117,13 @@ export async function loginWithOAuth(
   });
 
   // --------------------------------------------------
-  // 7. Generate session token
+  // 6. Return user and requiresPassword flag (session created after mandatory password & OTP)
   // --------------------------------------------------
 
-  const sessionToken = generateSessionToken();
-
-  const tokenHash = hashToken(sessionToken);
-
-  // --------------------------------------------------
-  // 8. Session expiry
-  // --------------------------------------------------
-
-  const expiresAt = new Date();
-
-  expiresAt.setDate(
-    expiresAt.getDate() + SESSION_DURATION_DAYS
-  );
-
-  // --------------------------------------------------
-  // 9. Store hashed session token
-  // --------------------------------------------------
-
-  await prisma.session.create({
-    data: {
-      userId: user.id,
-      tokenHash,
-      expiresAt,
-      lastUsedAt: new Date(),
-    },
-  });
-
-  // --------------------------------------------------
-  // 10. Return raw token
-  // --------------------------------------------------
+  const requiresPassword = !user.passwordHash;
 
   return {
     user,
-    sessionToken,
-    expiresAt,
+    requiresPassword,
   };
 }
