@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 interface Website {
   id: string;
@@ -12,6 +13,7 @@ interface Website {
 
 function UserDashboard() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +22,11 @@ function UserDashboard() {
   const [error, setError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -139,6 +146,13 @@ function UserDashboard() {
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
             >
               <span>+ Create New Website</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
+            >
+              <span>Logout</span>
             </button>
           </div>
         </div>
