@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model Website
+ * 
+ */
+export type Website = $Result.DefaultSelection<Prisma.$WebsitePayload>
+/**
  * Model OtpVerification
  * 
  */
@@ -93,10 +98,20 @@ export type IdentityProvider = (typeof IdentityProvider)[keyof typeof IdentityPr
 export const OtpPurpose: {
   PHONE_SIGNUP: 'PHONE_SIGNUP',
   PHONE_LOGIN: 'PHONE_LOGIN',
-  PHONE_VERIFICATION: 'PHONE_VERIFICATION'
+  PHONE_VERIFICATION: 'PHONE_VERIFICATION',
+  EMAIL_SIGNUP: 'EMAIL_SIGNUP',
+  EMAIL_LOGIN: 'EMAIL_LOGIN'
 };
 
 export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose]
+
+
+export const OtpChannel: {
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP'
+};
+
+export type OtpChannel = (typeof OtpChannel)[keyof typeof OtpChannel]
 
 }
 
@@ -119,6 +134,10 @@ export const IdentityProvider: typeof $Enums.IdentityProvider
 export type OtpPurpose = $Enums.OtpPurpose
 
 export const OtpPurpose: typeof $Enums.OtpPurpose
+
+export type OtpChannel = $Enums.OtpChannel
+
+export const OtpChannel: typeof $Enums.OtpChannel
 
 /**
  * ##  Prisma Client ʲˢ
@@ -250,6 +269,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.website`: Exposes CRUD operations for the **Website** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Websites
+    * const websites = await prisma.website.findMany()
+    * ```
+    */
+  get website(): Prisma.WebsiteDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.otpVerification`: Exposes CRUD operations for the **OtpVerification** model.
@@ -758,6 +787,7 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    Website: 'Website',
     OtpVerification: 'OtpVerification',
     Identity: 'Identity',
     Session: 'Session',
@@ -779,7 +809,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -854,6 +884,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      Website: {
+        payload: Prisma.$WebsitePayload<ExtArgs>
+        fields: Prisma.WebsiteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebsiteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebsiteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          findFirst: {
+            args: Prisma.WebsiteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebsiteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          findMany: {
+            args: Prisma.WebsiteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>[]
+          }
+          create: {
+            args: Prisma.WebsiteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          createMany: {
+            args: Prisma.WebsiteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebsiteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>[]
+          }
+          delete: {
+            args: Prisma.WebsiteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          update: {
+            args: Prisma.WebsiteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          deleteMany: {
+            args: Prisma.WebsiteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebsiteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WebsiteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>[]
+          }
+          upsert: {
+            args: Prisma.WebsiteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebsitePayload>
+          }
+          aggregate: {
+            args: Prisma.WebsiteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebsite>
+          }
+          groupBy: {
+            args: Prisma.WebsiteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebsiteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebsiteCountArgs<ExtArgs>
+            result: $Utils.Optional<WebsiteCountAggregateOutputType> | number
           }
         }
       }
@@ -1425,6 +1529,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    website?: WebsiteOmit
     otpVerification?: OtpVerificationOmit
     identity?: IdentityOmit
     session?: SessionOmit
@@ -1515,6 +1620,7 @@ export namespace Prisma {
     sessions: number
     otpVerifications: number
     passwordResetTokens: number
+    websites: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1522,6 +1628,7 @@ export namespace Prisma {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     otpVerifications?: boolean | UserCountOutputTypeCountOtpVerificationsArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
+    websites?: boolean | UserCountOutputTypeCountWebsitesArgs
   }
 
   // Custom InputTypes
@@ -1561,6 +1668,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PasswordResetTokenWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountWebsitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebsiteWhereInput
   }
 
 
@@ -1832,6 +1946,7 @@ export namespace Prisma {
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
+    websites?: boolean | User$websitesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1890,6 +2005,7 @@ export namespace Prisma {
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
+    websites?: boolean | User$websitesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1903,6 +2019,7 @@ export namespace Prisma {
       otpVerifications: Prisma.$OtpVerificationPayload<ExtArgs>[]
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
       subscription: Prisma.$UserSubscriptionPayload<ExtArgs> | null
+      websites: Prisma.$WebsitePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2317,6 +2434,7 @@ export namespace Prisma {
     otpVerifications<T extends User$otpVerificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$otpVerificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OtpVerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     passwordResetTokens<T extends User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends User$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionArgs<ExtArgs>>): Prisma__UserSubscriptionClient<$Result.GetResult<Prisma.$UserSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    websites<T extends User$websitesArgs<ExtArgs> = {}>(args?: Subset<T, User$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2867,6 +2985,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.websites
+   */
+  export type User$websitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    where?: WebsiteWhereInput
+    orderBy?: WebsiteOrderByWithRelationInput | WebsiteOrderByWithRelationInput[]
+    cursor?: WebsiteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2882,6 +3024,1104 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Website
+   */
+
+  export type AggregateWebsite = {
+    _count: WebsiteCountAggregateOutputType | null
+    _min: WebsiteMinAggregateOutputType | null
+    _max: WebsiteMaxAggregateOutputType | null
+  }
+
+  export type WebsiteMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    slug: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebsiteMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    slug: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebsiteCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    slug: number
+    status: number
+    editorData: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WebsiteMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    slug?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebsiteMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    slug?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebsiteCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    slug?: true
+    status?: true
+    editorData?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WebsiteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Website to aggregate.
+     */
+    where?: WebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Websites to fetch.
+     */
+    orderBy?: WebsiteOrderByWithRelationInput | WebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Websites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Websites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Websites
+    **/
+    _count?: true | WebsiteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebsiteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebsiteMaxAggregateInputType
+  }
+
+  export type GetWebsiteAggregateType<T extends WebsiteAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebsite]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebsite[P]>
+      : GetScalarType<T[P], AggregateWebsite[P]>
+  }
+
+
+
+
+  export type WebsiteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebsiteWhereInput
+    orderBy?: WebsiteOrderByWithAggregationInput | WebsiteOrderByWithAggregationInput[]
+    by: WebsiteScalarFieldEnum[] | WebsiteScalarFieldEnum
+    having?: WebsiteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebsiteCountAggregateInputType | true
+    _min?: WebsiteMinAggregateInputType
+    _max?: WebsiteMaxAggregateInputType
+  }
+
+  export type WebsiteGroupByOutputType = {
+    id: string
+    userId: string
+    name: string
+    slug: string
+    status: string
+    editorData: JsonValue
+    createdAt: Date
+    updatedAt: Date
+    _count: WebsiteCountAggregateOutputType | null
+    _min: WebsiteMinAggregateOutputType | null
+    _max: WebsiteMaxAggregateOutputType | null
+  }
+
+  type GetWebsiteGroupByPayload<T extends WebsiteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebsiteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebsiteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebsiteGroupByOutputType[P]>
+            : GetScalarType<T[P], WebsiteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebsiteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    slug?: boolean
+    status?: boolean
+    editorData?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["website"]>
+
+  export type WebsiteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    slug?: boolean
+    status?: boolean
+    editorData?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["website"]>
+
+  export type WebsiteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    slug?: boolean
+    status?: boolean
+    editorData?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["website"]>
+
+  export type WebsiteSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    slug?: boolean
+    status?: boolean
+    editorData?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "createdAt" | "updatedAt", ExtArgs["result"]["website"]>
+  export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WebsiteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $WebsitePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Website"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      name: string
+      slug: string
+      status: string
+      editorData: Prisma.JsonValue
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["website"]>
+    composites: {}
+  }
+
+  type WebsiteGetPayload<S extends boolean | null | undefined | WebsiteDefaultArgs> = $Result.GetResult<Prisma.$WebsitePayload, S>
+
+  type WebsiteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WebsiteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WebsiteCountAggregateInputType | true
+    }
+
+  export interface WebsiteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Website'], meta: { name: 'Website' } }
+    /**
+     * Find zero or one Website that matches the filter.
+     * @param {WebsiteFindUniqueArgs} args - Arguments to find a Website
+     * @example
+     * // Get one Website
+     * const website = await prisma.website.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebsiteFindUniqueArgs>(args: SelectSubset<T, WebsiteFindUniqueArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Website that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WebsiteFindUniqueOrThrowArgs} args - Arguments to find a Website
+     * @example
+     * // Get one Website
+     * const website = await prisma.website.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebsiteFindUniqueOrThrowArgs>(args: SelectSubset<T, WebsiteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Website that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteFindFirstArgs} args - Arguments to find a Website
+     * @example
+     * // Get one Website
+     * const website = await prisma.website.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebsiteFindFirstArgs>(args?: SelectSubset<T, WebsiteFindFirstArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Website that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteFindFirstOrThrowArgs} args - Arguments to find a Website
+     * @example
+     * // Get one Website
+     * const website = await prisma.website.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebsiteFindFirstOrThrowArgs>(args?: SelectSubset<T, WebsiteFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Websites that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Websites
+     * const websites = await prisma.website.findMany()
+     * 
+     * // Get first 10 Websites
+     * const websites = await prisma.website.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const websiteWithIdOnly = await prisma.website.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WebsiteFindManyArgs>(args?: SelectSubset<T, WebsiteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Website.
+     * @param {WebsiteCreateArgs} args - Arguments to create a Website.
+     * @example
+     * // Create one Website
+     * const Website = await prisma.website.create({
+     *   data: {
+     *     // ... data to create a Website
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebsiteCreateArgs>(args: SelectSubset<T, WebsiteCreateArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Websites.
+     * @param {WebsiteCreateManyArgs} args - Arguments to create many Websites.
+     * @example
+     * // Create many Websites
+     * const website = await prisma.website.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebsiteCreateManyArgs>(args?: SelectSubset<T, WebsiteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Websites and returns the data saved in the database.
+     * @param {WebsiteCreateManyAndReturnArgs} args - Arguments to create many Websites.
+     * @example
+     * // Create many Websites
+     * const website = await prisma.website.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Websites and only return the `id`
+     * const websiteWithIdOnly = await prisma.website.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebsiteCreateManyAndReturnArgs>(args?: SelectSubset<T, WebsiteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Website.
+     * @param {WebsiteDeleteArgs} args - Arguments to delete one Website.
+     * @example
+     * // Delete one Website
+     * const Website = await prisma.website.delete({
+     *   where: {
+     *     // ... filter to delete one Website
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebsiteDeleteArgs>(args: SelectSubset<T, WebsiteDeleteArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Website.
+     * @param {WebsiteUpdateArgs} args - Arguments to update one Website.
+     * @example
+     * // Update one Website
+     * const website = await prisma.website.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebsiteUpdateArgs>(args: SelectSubset<T, WebsiteUpdateArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Websites.
+     * @param {WebsiteDeleteManyArgs} args - Arguments to filter Websites to delete.
+     * @example
+     * // Delete a few Websites
+     * const { count } = await prisma.website.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebsiteDeleteManyArgs>(args?: SelectSubset<T, WebsiteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Websites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Websites
+     * const website = await prisma.website.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebsiteUpdateManyArgs>(args: SelectSubset<T, WebsiteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Websites and returns the data updated in the database.
+     * @param {WebsiteUpdateManyAndReturnArgs} args - Arguments to update many Websites.
+     * @example
+     * // Update many Websites
+     * const website = await prisma.website.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Websites and only return the `id`
+     * const websiteWithIdOnly = await prisma.website.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WebsiteUpdateManyAndReturnArgs>(args: SelectSubset<T, WebsiteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Website.
+     * @param {WebsiteUpsertArgs} args - Arguments to update or create a Website.
+     * @example
+     * // Update or create a Website
+     * const website = await prisma.website.upsert({
+     *   create: {
+     *     // ... data to create a Website
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Website we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebsiteUpsertArgs>(args: SelectSubset<T, WebsiteUpsertArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Websites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteCountArgs} args - Arguments to filter Websites to count.
+     * @example
+     * // Count the number of Websites
+     * const count = await prisma.website.count({
+     *   where: {
+     *     // ... the filter for the Websites we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebsiteCountArgs>(
+      args?: Subset<T, WebsiteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebsiteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Website.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebsiteAggregateArgs>(args: Subset<T, WebsiteAggregateArgs>): Prisma.PrismaPromise<GetWebsiteAggregateType<T>>
+
+    /**
+     * Group by Website.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebsiteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebsiteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebsiteGroupByArgs['orderBy'] }
+        : { orderBy?: WebsiteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebsiteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebsiteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Website model
+   */
+  readonly fields: WebsiteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Website.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebsiteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Website model
+   */
+  interface WebsiteFieldRefs {
+    readonly id: FieldRef<"Website", 'String'>
+    readonly userId: FieldRef<"Website", 'String'>
+    readonly name: FieldRef<"Website", 'String'>
+    readonly slug: FieldRef<"Website", 'String'>
+    readonly status: FieldRef<"Website", 'String'>
+    readonly editorData: FieldRef<"Website", 'Json'>
+    readonly createdAt: FieldRef<"Website", 'DateTime'>
+    readonly updatedAt: FieldRef<"Website", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Website findUnique
+   */
+  export type WebsiteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which Website to fetch.
+     */
+    where: WebsiteWhereUniqueInput
+  }
+
+  /**
+   * Website findUniqueOrThrow
+   */
+  export type WebsiteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which Website to fetch.
+     */
+    where: WebsiteWhereUniqueInput
+  }
+
+  /**
+   * Website findFirst
+   */
+  export type WebsiteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which Website to fetch.
+     */
+    where?: WebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Websites to fetch.
+     */
+    orderBy?: WebsiteOrderByWithRelationInput | WebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Websites.
+     */
+    cursor?: WebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Websites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Websites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Websites.
+     */
+    distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * Website findFirstOrThrow
+   */
+  export type WebsiteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which Website to fetch.
+     */
+    where?: WebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Websites to fetch.
+     */
+    orderBy?: WebsiteOrderByWithRelationInput | WebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Websites.
+     */
+    cursor?: WebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Websites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Websites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Websites.
+     */
+    distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * Website findMany
+   */
+  export type WebsiteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter, which Websites to fetch.
+     */
+    where?: WebsiteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Websites to fetch.
+     */
+    orderBy?: WebsiteOrderByWithRelationInput | WebsiteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Websites.
+     */
+    cursor?: WebsiteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Websites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Websites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Websites.
+     */
+    distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * Website create
+   */
+  export type WebsiteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Website.
+     */
+    data: XOR<WebsiteCreateInput, WebsiteUncheckedCreateInput>
+  }
+
+  /**
+   * Website createMany
+   */
+  export type WebsiteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Websites.
+     */
+    data: WebsiteCreateManyInput | WebsiteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Website createManyAndReturn
+   */
+  export type WebsiteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * The data used to create many Websites.
+     */
+    data: WebsiteCreateManyInput | WebsiteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Website update
+   */
+  export type WebsiteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Website.
+     */
+    data: XOR<WebsiteUpdateInput, WebsiteUncheckedUpdateInput>
+    /**
+     * Choose, which Website to update.
+     */
+    where: WebsiteWhereUniqueInput
+  }
+
+  /**
+   * Website updateMany
+   */
+  export type WebsiteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Websites.
+     */
+    data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyInput>
+    /**
+     * Filter which Websites to update
+     */
+    where?: WebsiteWhereInput
+    /**
+     * Limit how many Websites to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Website updateManyAndReturn
+   */
+  export type WebsiteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * The data used to update Websites.
+     */
+    data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyInput>
+    /**
+     * Filter which Websites to update
+     */
+    where?: WebsiteWhereInput
+    /**
+     * Limit how many Websites to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Website upsert
+   */
+  export type WebsiteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Website to update in case it exists.
+     */
+    where: WebsiteWhereUniqueInput
+    /**
+     * In case the Website found by the `where` argument doesn't exist, create a new Website with this data.
+     */
+    create: XOR<WebsiteCreateInput, WebsiteUncheckedCreateInput>
+    /**
+     * In case the Website was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebsiteUpdateInput, WebsiteUncheckedUpdateInput>
+  }
+
+  /**
+   * Website delete
+   */
+  export type WebsiteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    /**
+     * Filter which Website to delete.
+     */
+    where: WebsiteWhereUniqueInput
+  }
+
+  /**
+   * Website deleteMany
+   */
+  export type WebsiteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Websites to delete
+     */
+    where?: WebsiteWhereInput
+    /**
+     * Limit how many Websites to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Website without action
+   */
+  export type WebsiteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
   }
 
 
@@ -2908,8 +4148,10 @@ export namespace Prisma {
   export type OtpVerificationMinAggregateOutputType = {
     id: string | null
     userId: string | null
+    email: string | null
     otpHash: string | null
     purpose: $Enums.OtpPurpose | null
+    channel: $Enums.OtpChannel | null
     attempts: number | null
     expiresAt: Date | null
     verifiedAt: Date | null
@@ -2919,8 +4161,10 @@ export namespace Prisma {
   export type OtpVerificationMaxAggregateOutputType = {
     id: string | null
     userId: string | null
+    email: string | null
     otpHash: string | null
     purpose: $Enums.OtpPurpose | null
+    channel: $Enums.OtpChannel | null
     attempts: number | null
     expiresAt: Date | null
     verifiedAt: Date | null
@@ -2930,8 +4174,10 @@ export namespace Prisma {
   export type OtpVerificationCountAggregateOutputType = {
     id: number
     userId: number
+    email: number
     otpHash: number
     purpose: number
+    channel: number
     attempts: number
     expiresAt: number
     verifiedAt: number
@@ -2951,8 +4197,10 @@ export namespace Prisma {
   export type OtpVerificationMinAggregateInputType = {
     id?: true
     userId?: true
+    email?: true
     otpHash?: true
     purpose?: true
+    channel?: true
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -2962,8 +4210,10 @@ export namespace Prisma {
   export type OtpVerificationMaxAggregateInputType = {
     id?: true
     userId?: true
+    email?: true
     otpHash?: true
     purpose?: true
+    channel?: true
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -2973,8 +4223,10 @@ export namespace Prisma {
   export type OtpVerificationCountAggregateInputType = {
     id?: true
     userId?: true
+    email?: true
     otpHash?: true
     purpose?: true
+    channel?: true
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -3071,8 +4323,10 @@ export namespace Prisma {
   export type OtpVerificationGroupByOutputType = {
     id: string
     userId: string | null
+    email: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel: $Enums.OtpChannel
     attempts: number
     expiresAt: Date
     verifiedAt: Date | null
@@ -3101,8 +4355,10 @@ export namespace Prisma {
   export type OtpVerificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    email?: boolean
     otpHash?: boolean
     purpose?: boolean
+    channel?: boolean
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -3113,8 +4369,10 @@ export namespace Prisma {
   export type OtpVerificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    email?: boolean
     otpHash?: boolean
     purpose?: boolean
+    channel?: boolean
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -3125,8 +4383,10 @@ export namespace Prisma {
   export type OtpVerificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+    email?: boolean
     otpHash?: boolean
     purpose?: boolean
+    channel?: boolean
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -3137,15 +4397,17 @@ export namespace Prisma {
   export type OtpVerificationSelectScalar = {
     id?: boolean
     userId?: boolean
+    email?: boolean
     otpHash?: boolean
     purpose?: boolean
+    channel?: boolean
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
     createdAt?: boolean
   }
 
-  export type OtpVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "otpHash" | "purpose" | "attempts" | "expiresAt" | "verifiedAt" | "createdAt", ExtArgs["result"]["otpVerification"]>
+  export type OtpVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "email" | "otpHash" | "purpose" | "channel" | "attempts" | "expiresAt" | "verifiedAt" | "createdAt", ExtArgs["result"]["otpVerification"]>
   export type OtpVerificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | OtpVerification$userArgs<ExtArgs>
   }
@@ -3164,8 +4426,10 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string | null
+      email: string | null
       otpHash: string
       purpose: $Enums.OtpPurpose
+      channel: $Enums.OtpChannel
       attempts: number
       expiresAt: Date
       verifiedAt: Date | null
@@ -3596,8 +4860,10 @@ export namespace Prisma {
   interface OtpVerificationFieldRefs {
     readonly id: FieldRef<"OtpVerification", 'String'>
     readonly userId: FieldRef<"OtpVerification", 'String'>
+    readonly email: FieldRef<"OtpVerification", 'String'>
     readonly otpHash: FieldRef<"OtpVerification", 'String'>
     readonly purpose: FieldRef<"OtpVerification", 'OtpPurpose'>
+    readonly channel: FieldRef<"OtpVerification", 'OtpChannel'>
     readonly attempts: FieldRef<"OtpVerification", 'Int'>
     readonly expiresAt: FieldRef<"OtpVerification", 'DateTime'>
     readonly verifiedAt: FieldRef<"OtpVerification", 'DateTime'>
@@ -9645,11 +10911,27 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const WebsiteScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    slug: 'slug',
+    status: 'status',
+    editorData: 'editorData',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WebsiteScalarFieldEnum = (typeof WebsiteScalarFieldEnum)[keyof typeof WebsiteScalarFieldEnum]
+
+
   export const OtpVerificationScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
+    email: 'email',
     otpHash: 'otpHash',
     purpose: 'purpose',
+    channel: 'channel',
     attempts: 'attempts',
     expiresAt: 'expiresAt',
     verifiedAt: 'verifiedAt',
@@ -9852,6 +11134,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'OtpPurpose'
    */
   export type EnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose'>
@@ -9862,6 +11158,20 @@ export namespace Prisma {
    * Reference to a field of type 'OtpPurpose[]'
    */
   export type ListEnumOtpPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpPurpose[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'OtpChannel'
+   */
+  export type EnumOtpChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpChannel'>
+    
+
+
+  /**
+   * Reference to a field of type 'OtpChannel[]'
+   */
+  export type ListEnumOtpChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpChannel[]'>
     
 
 
@@ -9890,20 +11200,6 @@ export namespace Prisma {
    * Reference to a field of type 'IdentityProvider[]'
    */
   export type ListEnumIdentityProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IdentityProvider[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -9946,6 +11242,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
+    websites?: WebsiteListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -9967,6 +11264,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
     subscription?: UserSubscriptionOrderByWithRelationInput
+    websites?: WebsiteOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -9991,6 +11289,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
+    websites?: WebsiteListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -10031,14 +11330,86 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
+  export type WebsiteWhereInput = {
+    AND?: WebsiteWhereInput | WebsiteWhereInput[]
+    OR?: WebsiteWhereInput[]
+    NOT?: WebsiteWhereInput | WebsiteWhereInput[]
+    id?: UuidFilter<"Website"> | string
+    userId?: UuidFilter<"Website"> | string
+    name?: StringFilter<"Website"> | string
+    slug?: StringFilter<"Website"> | string
+    status?: StringFilter<"Website"> | string
+    editorData?: JsonFilter<"Website">
+    createdAt?: DateTimeFilter<"Website"> | Date | string
+    updatedAt?: DateTimeFilter<"Website"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type WebsiteOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    status?: SortOrder
+    editorData?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type WebsiteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: WebsiteWhereInput | WebsiteWhereInput[]
+    OR?: WebsiteWhereInput[]
+    NOT?: WebsiteWhereInput | WebsiteWhereInput[]
+    userId?: UuidFilter<"Website"> | string
+    name?: StringFilter<"Website"> | string
+    slug?: StringFilter<"Website"> | string
+    status?: StringFilter<"Website"> | string
+    editorData?: JsonFilter<"Website">
+    createdAt?: DateTimeFilter<"Website"> | Date | string
+    updatedAt?: DateTimeFilter<"Website"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type WebsiteOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    status?: SortOrder
+    editorData?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WebsiteCountOrderByAggregateInput
+    _max?: WebsiteMaxOrderByAggregateInput
+    _min?: WebsiteMinOrderByAggregateInput
+  }
+
+  export type WebsiteScalarWhereWithAggregatesInput = {
+    AND?: WebsiteScalarWhereWithAggregatesInput | WebsiteScalarWhereWithAggregatesInput[]
+    OR?: WebsiteScalarWhereWithAggregatesInput[]
+    NOT?: WebsiteScalarWhereWithAggregatesInput | WebsiteScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"Website"> | string
+    userId?: UuidWithAggregatesFilter<"Website"> | string
+    name?: StringWithAggregatesFilter<"Website"> | string
+    slug?: StringWithAggregatesFilter<"Website"> | string
+    status?: StringWithAggregatesFilter<"Website"> | string
+    editorData?: JsonWithAggregatesFilter<"Website">
+    createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
+  }
+
   export type OtpVerificationWhereInput = {
     AND?: OtpVerificationWhereInput | OtpVerificationWhereInput[]
     OR?: OtpVerificationWhereInput[]
     NOT?: OtpVerificationWhereInput | OtpVerificationWhereInput[]
     id?: UuidFilter<"OtpVerification"> | string
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+    email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -10049,8 +11420,10 @@ export namespace Prisma {
   export type OtpVerificationOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
+    channel?: SortOrder
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
@@ -10064,8 +11437,10 @@ export namespace Prisma {
     OR?: OtpVerificationWhereInput[]
     NOT?: OtpVerificationWhereInput | OtpVerificationWhereInput[]
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+    email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -10076,8 +11451,10 @@ export namespace Prisma {
   export type OtpVerificationOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
+    channel?: SortOrder
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
@@ -10095,8 +11472,10 @@ export namespace Prisma {
     NOT?: OtpVerificationScalarWhereWithAggregatesInput | OtpVerificationScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"OtpVerification"> | string
     userId?: UuidNullableWithAggregatesFilter<"OtpVerification"> | string | null
+    email?: StringNullableWithAggregatesFilter<"OtpVerification"> | string | null
     otpHash?: StringWithAggregatesFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeWithAggregatesFilter<"OtpVerification"> | $Enums.OtpPurpose
+    channel?: EnumOtpChannelWithAggregatesFilter<"OtpVerification"> | $Enums.OtpChannel
     attempts?: IntWithAggregatesFilter<"OtpVerification"> | number
     expiresAt?: DateTimeWithAggregatesFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableWithAggregatesFilter<"OtpVerification"> | Date | string | null
@@ -10478,6 +11857,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -10499,6 +11879,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -10520,6 +11901,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -10541,6 +11923,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -10591,10 +11974,88 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WebsiteCreateInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutWebsitesInput
+  }
+
+  export type WebsiteUncheckedCreateInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebsiteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebsiteCreateManyInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebsiteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebsiteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OtpVerificationCreateInput = {
     id?: string
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -10605,8 +12066,10 @@ export namespace Prisma {
   export type OtpVerificationUncheckedCreateInput = {
     id?: string
     userId?: string | null
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -10615,8 +12078,10 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10627,8 +12092,10 @@ export namespace Prisma {
   export type OtpVerificationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10638,8 +12105,10 @@ export namespace Prisma {
   export type OtpVerificationCreateManyInput = {
     id?: string
     userId?: string | null
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -10648,8 +12117,10 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10659,8 +12130,10 @@ export namespace Prisma {
   export type OtpVerificationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -11155,6 +12628,12 @@ export namespace Prisma {
     isNot?: UserSubscriptionWhereInput | null
   }
 
+  export type WebsiteListRelationFilter = {
+    every?: WebsiteWhereInput
+    some?: WebsiteWhereInput
+    none?: WebsiteWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -11173,6 +12652,10 @@ export namespace Prisma {
   }
 
   export type PasswordResetTokenOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WebsiteOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -11323,18 +12806,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -11349,12 +12820,134 @@ export namespace Prisma {
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type WebsiteCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    status?: SortOrder
+    editorData?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebsiteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebsiteMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
 
   export type EnumOtpPurposeFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpPurpose | EnumOtpPurposeFieldRefInput<$PrismaModel>
     in?: $Enums.OtpPurpose[] | ListEnumOtpPurposeFieldRefInput<$PrismaModel>
     notIn?: $Enums.OtpPurpose[] | ListEnumOtpPurposeFieldRefInput<$PrismaModel>
     not?: NestedEnumOtpPurposeFilter<$PrismaModel> | $Enums.OtpPurpose
+  }
+
+  export type EnumOtpChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumOtpChannelFilter<$PrismaModel> | $Enums.OtpChannel
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -11376,8 +12969,10 @@ export namespace Prisma {
   export type OtpVerificationCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
+    channel?: SortOrder
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -11391,8 +12986,10 @@ export namespace Prisma {
   export type OtpVerificationMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
+    channel?: SortOrder
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -11402,8 +12999,10 @@ export namespace Prisma {
   export type OtpVerificationMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
+    channel?: SortOrder
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -11429,24 +13028,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type StringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
-  }
-
   export type EnumOtpPurposeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpPurpose | EnumOtpPurposeFieldRefInput<$PrismaModel>
     in?: $Enums.OtpPurpose[] | ListEnumOtpPurposeFieldRefInput<$PrismaModel>
@@ -11455,6 +13036,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOtpPurposeFilter<$PrismaModel>
     _max?: NestedEnumOtpPurposeFilter<$PrismaModel>
+  }
+
+  export type EnumOtpChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumOtpChannelWithAggregatesFilter<$PrismaModel> | $Enums.OtpChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOtpChannelFilter<$PrismaModel>
+    _max?: NestedEnumOtpChannelFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -11478,11 +13069,6 @@ export namespace Prisma {
     in?: $Enums.IdentityProvider[] | ListEnumIdentityProviderFieldRefInput<$PrismaModel>
     notIn?: $Enums.IdentityProvider[] | ListEnumIdentityProviderFieldRefInput<$PrismaModel>
     not?: NestedEnumIdentityProviderFilter<$PrismaModel> | $Enums.IdentityProvider
-  }
-
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
   }
 
   export type IdentityProviderProviderUserIdCompoundUniqueInput = {
@@ -11583,29 +13169,6 @@ export namespace Prisma {
     usedAt?: SortOrder
     createdAt?: SortOrder
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type UserSubscriptionListRelationFilter = {
     every?: UserSubscriptionWhereInput
@@ -11675,32 +13238,6 @@ export namespace Prisma {
     websiteLimit?: SortOrder
     storageLimitMb?: SortOrder
     aiCreditLimit?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type SubscriptionPlanScalarRelationFilter = {
@@ -11775,6 +13312,13 @@ export namespace Prisma {
     connect?: UserSubscriptionWhereUniqueInput
   }
 
+  export type WebsiteCreateNestedManyWithoutUserInput = {
+    create?: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput> | WebsiteCreateWithoutUserInput[] | WebsiteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WebsiteCreateOrConnectWithoutUserInput | WebsiteCreateOrConnectWithoutUserInput[]
+    createMany?: WebsiteCreateManyUserInputEnvelope
+    connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+  }
+
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -11807,6 +13351,13 @@ export namespace Prisma {
     create?: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserSubscriptionCreateOrConnectWithoutUserInput
     connect?: UserSubscriptionWhereUniqueInput
+  }
+
+  export type WebsiteUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput> | WebsiteCreateWithoutUserInput[] | WebsiteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WebsiteCreateOrConnectWithoutUserInput | WebsiteCreateOrConnectWithoutUserInput[]
+    createMany?: WebsiteCreateManyUserInputEnvelope
+    connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -11907,6 +13458,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserSubscriptionUpdateToOneWithWhereWithoutUserInput, UserSubscriptionUpdateWithoutUserInput>, UserSubscriptionUncheckedUpdateWithoutUserInput>
   }
 
+  export type WebsiteUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput> | WebsiteCreateWithoutUserInput[] | WebsiteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WebsiteCreateOrConnectWithoutUserInput | WebsiteCreateOrConnectWithoutUserInput[]
+    upsert?: WebsiteUpsertWithWhereUniqueWithoutUserInput | WebsiteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WebsiteCreateManyUserInputEnvelope
+    set?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    disconnect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    delete?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    update?: WebsiteUpdateWithWhereUniqueWithoutUserInput | WebsiteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WebsiteUpdateManyWithWhereWithoutUserInput | WebsiteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -11973,6 +13538,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserSubscriptionUpdateToOneWithWhereWithoutUserInput, UserSubscriptionUpdateWithoutUserInput>, UserSubscriptionUncheckedUpdateWithoutUserInput>
   }
 
+  export type WebsiteUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput> | WebsiteCreateWithoutUserInput[] | WebsiteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WebsiteCreateOrConnectWithoutUserInput | WebsiteCreateOrConnectWithoutUserInput[]
+    upsert?: WebsiteUpsertWithWhereUniqueWithoutUserInput | WebsiteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WebsiteCreateManyUserInputEnvelope
+    set?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    disconnect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    delete?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+    update?: WebsiteUpdateWithWhereUniqueWithoutUserInput | WebsiteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WebsiteUpdateManyWithWhereWithoutUserInput | WebsiteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutWebsitesInput = {
+    create?: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWebsitesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutWebsitesNestedInput = {
+    create?: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWebsitesInput
+    upsert?: UserUpsertWithoutWebsitesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWebsitesInput, UserUpdateWithoutWebsitesInput>, UserUncheckedUpdateWithoutWebsitesInput>
+  }
+
   export type UserCreateNestedOneWithoutOtpVerificationsInput = {
     create?: XOR<UserCreateWithoutOtpVerificationsInput, UserUncheckedCreateWithoutOtpVerificationsInput>
     connectOrCreate?: UserCreateOrConnectWithoutOtpVerificationsInput
@@ -11981,6 +13574,10 @@ export namespace Prisma {
 
   export type EnumOtpPurposeFieldUpdateOperationsInput = {
     set?: $Enums.OtpPurpose
+  }
+
+  export type EnumOtpChannelFieldUpdateOperationsInput = {
+    set?: $Enums.OtpChannel
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -12323,6 +13920,46 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type NestedUuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -12341,6 +13978,13 @@ export namespace Prisma {
     not?: NestedEnumOtpPurposeFilter<$PrismaModel> | $Enums.OtpPurpose
   }
 
+  export type NestedEnumOtpChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumOtpChannelFilter<$PrismaModel> | $Enums.OtpChannel
+  }
+
   export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -12355,23 +13999,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
-  }
-
   export type NestedEnumOtpPurposeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpPurpose | EnumOtpPurposeFieldRefInput<$PrismaModel>
     in?: $Enums.OtpPurpose[] | ListEnumOtpPurposeFieldRefInput<$PrismaModel>
@@ -12380,6 +14007,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOtpPurposeFilter<$PrismaModel>
     _max?: NestedEnumOtpPurposeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumOtpChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumOtpChannelWithAggregatesFilter<$PrismaModel> | $Enums.OtpChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOtpChannelFilter<$PrismaModel>
+    _max?: NestedEnumOtpChannelFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -12424,29 +14061,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumIdentityProviderFilter<$PrismaModel>
     _max?: NestedEnumIdentityProviderFilter<$PrismaModel>
-  }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type IdentityCreateWithoutUserInput = {
@@ -12505,8 +14119,10 @@ export namespace Prisma {
 
   export type OtpVerificationCreateWithoutUserInput = {
     id?: string
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -12515,8 +14131,10 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedCreateWithoutUserInput = {
     id?: string
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -12582,6 +14200,36 @@ export namespace Prisma {
   export type UserSubscriptionCreateOrConnectWithoutUserInput = {
     where: UserSubscriptionWhereUniqueInput
     create: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
+  }
+
+  export type WebsiteCreateWithoutUserInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebsiteUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebsiteCreateOrConnectWithoutUserInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput>
+  }
+
+  export type WebsiteCreateManyUserInputEnvelope = {
+    data: WebsiteCreateManyUserInput | WebsiteCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type IdentityUpsertWithWhereUniqueWithoutUserInput = {
@@ -12663,8 +14311,10 @@ export namespace Prisma {
     NOT?: OtpVerificationScalarWhereInput | OtpVerificationScalarWhereInput[]
     id?: UuidFilter<"OtpVerification"> | string
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+    email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -12730,6 +14380,136 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WebsiteUpsertWithWhereUniqueWithoutUserInput = {
+    where: WebsiteWhereUniqueInput
+    update: XOR<WebsiteUpdateWithoutUserInput, WebsiteUncheckedUpdateWithoutUserInput>
+    create: XOR<WebsiteCreateWithoutUserInput, WebsiteUncheckedCreateWithoutUserInput>
+  }
+
+  export type WebsiteUpdateWithWhereUniqueWithoutUserInput = {
+    where: WebsiteWhereUniqueInput
+    data: XOR<WebsiteUpdateWithoutUserInput, WebsiteUncheckedUpdateWithoutUserInput>
+  }
+
+  export type WebsiteUpdateManyWithWhereWithoutUserInput = {
+    where: WebsiteScalarWhereInput
+    data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type WebsiteScalarWhereInput = {
+    AND?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+    OR?: WebsiteScalarWhereInput[]
+    NOT?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+    id?: UuidFilter<"Website"> | string
+    userId?: UuidFilter<"Website"> | string
+    name?: StringFilter<"Website"> | string
+    slug?: StringFilter<"Website"> | string
+    status?: StringFilter<"Website"> | string
+    editorData?: JsonFilter<"Website">
+    createdAt?: DateTimeFilter<"Website"> | Date | string
+    updatedAt?: DateTimeFilter<"Website"> | Date | string
+  }
+
+  export type UserCreateWithoutWebsitesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutWebsitesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutWebsitesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
+  }
+
+  export type UserUpsertWithoutWebsitesInput = {
+    update: XOR<UserUpdateWithoutWebsitesInput, UserUncheckedUpdateWithoutWebsitesInput>
+    create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutWebsitesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutWebsitesInput, UserUncheckedUpdateWithoutWebsitesInput>
+  }
+
+  export type UserUpdateWithoutWebsitesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutWebsitesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutOtpVerificationsInput = {
     id?: string
     fullName?: string | null
@@ -12748,6 +14528,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -12768,6 +14549,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -12804,6 +14586,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -12824,6 +14607,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -12844,6 +14628,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -12864,6 +14649,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -12900,6 +14686,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -12920,6 +14707,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -12940,6 +14728,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -12960,6 +14749,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -12996,6 +14786,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -13016,6 +14807,7 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -13036,6 +14828,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -13056,6 +14849,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -13092,6 +14886,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -13112,6 +14907,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -13192,6 +14988,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -13212,6 +15009,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -13285,6 +15083,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -13305,6 +15104,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type SubscriptionPlanUpsertWithoutSubscriptionsInput = {
@@ -13369,8 +15169,10 @@ export namespace Prisma {
 
   export type OtpVerificationCreateManyUserInput = {
     id?: string
+    email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
+    channel?: $Enums.OtpChannel
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -13383,6 +15185,16 @@ export namespace Prisma {
     expiresAt: Date | string
     usedAt?: Date | string | null
     createdAt?: Date | string
+  }
+
+  export type WebsiteCreateManyUserInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type IdentityUpdateWithoutUserInput = {
@@ -13438,8 +15250,10 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13448,8 +15262,10 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13458,8 +15274,10 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+    channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13488,6 +15306,36 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebsiteUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebsiteUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebsiteUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserSubscriptionCreateManyPlanInput = {

@@ -4,11 +4,21 @@ import passport from "../config/passport.js";
 import {
   googleOAuthCallback,
   githubOAuthCallback,
+  createOAuthPasswordController,
 } from "../controllers/oauth.controller.js";
 
 import { logout } from "../controllers/auth.controller.js";
 
 const router = Router();
+
+// =========================
+// Create Password for OAuth
+// =========================
+
+router.post(
+  "/create-password",
+  createOAuthPasswordController
+);
 
 // =========================
 // Google OAuth
