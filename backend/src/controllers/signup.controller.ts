@@ -2,6 +2,9 @@ import type { Request, Response, NextFunction } from "express";
 import { signupSchema } from "../validators/signup.validator.js";
 import { signupUser } from "../services/signup.service.js";
 import { createUserSession } from "../services/session.service.js";
+import { generateAndSendOtp, verifyOtp } from "../services/otp.service.js";
+import { prisma } from "../config/prisma.js";
+import { AppError } from "../utils/app-error.js";
 import {
   AUTH_COOKIE_NAME,
   AUTH_COOKIE_OPTIONS,
@@ -28,13 +31,27 @@ export async function signupController(
 
     const user = await signupUser(validationResult.data);
 
-    const session = await createUserSession(user.id);
+    if (user.email) {
+      await generateAndSendOtp({
+        userId: user.id,
+        email: user.email,
+        purpose: "EMAIL_SIGNUP",
+      });
 
-    res.cookie(
-      AUTH_COOKIE_NAME,
-      session.token,
-      AUTH_COOKIE_OPTIONS
-    );
+      return res.status(200).json({
+        success: true,
+        requireOtp: true,
+        message: "Verification code sent to your email.",
+        data: {
+          userId: user.id,
+          email: user.email,
+        },
+      });
+    }
+
+    // Fallback if no email (e.g. phone only)
+    const session = await createUserSession(user.id);
+    res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
     return res.status(201).json({
       success: true,
@@ -42,6 +59,112 @@ export async function signupController(
       data: {
         user,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifySignupOtpController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId, otp } = req.body;
+
+    if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "User ID and verification OTP code are required.",
+        },
+      });
+    }
+
+    await verifyOtp({
+      userId,
+      otp,
+      purpose: "EMAIL_SIGNUP",
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: true },
+    });
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
+    }
+
+    const session = await createUserSession(user.id);
+    res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      data: {
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified,
+          phoneVerified: user.phoneVerified,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resendSignupOtpController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId } = req.body;
+
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "User ID is required to resend verification code.",
+        },
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.email) {
+      throw new AppError(
+        "User or registered email address not found.",
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+
+    await generateAndSendOtp({
+      userId: user.id,
+      email: user.email,
+      purpose: "EMAIL_SIGNUP",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Verification code resent successfully.",
     });
   } catch (error) {
     next(error);
