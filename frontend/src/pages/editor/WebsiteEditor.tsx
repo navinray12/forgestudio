@@ -8,10 +8,25 @@ import { Link, useParams } from "react-router-dom";
 export type ElementType = "container" | "heading" | "text" | "image" | "button";
 
 export interface ContainerLayout {
+  layoutType?: "flex" | "grid" | "masonry";
   direction?: "column" | "row";
+  flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
-  alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
+  alignItems?: "stretch" | "flex-start" | "center" | "flex-end" | "baseline";
+  alignContent?: "stretch" | "flex-start" | "center" | "flex-end" | "space-between" | "space-around";
   gap?: number;
+  rowGap?: number | string;
+  columnGap?: number | string;
+
+  // CSS Grid Controls (F-041, F-043)
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  gridAutoFlow?: "row" | "column" | "dense" | "row dense" | "column dense";
+  justifyItems?: "stretch" | "start" | "center" | "end";
+
+  // Masonry Controls (F-051)
+  masonryColumns?: number;
+  masonryGap?: number | string;
 }
 
 export interface ElementStyles {
@@ -28,11 +43,43 @@ export interface ElementStyles {
   borderRadius?: string;
   width?: string;
   height?: string;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
   marginTop?: string;
   marginRight?: string;
   marginBottom?: string;
   marginLeft?: string;
   lineHeight?: string;
+
+  // Alignment & Self Alignment (F-045)
+  alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+  justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
+
+  // Position & Stacking Controls (F-047, F-048, F-049)
+  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
+  top?: string;
+  right?: string;
+  bottom?: string;
+  left?: string;
+  zIndex?: string | number;
+
+  // Grid Child Placement (F-043)
+  gridColumn?: string;
+  gridRow?: string;
+  gridColumnSpan?: number;
+  gridRowSpan?: number;
+
+  // Scroll & Scroll Snap (F-050)
+  scrollSnapType?: "none" | "x mandatory" | "y mandatory" | "x proximity" | "y proximity" | "both mandatory";
+  scrollSnapAlign?: "none" | "start" | "center" | "end";
+  scrollSnapStop?: "normal" | "always";
+  scrollPadding?: string;
+  scrollMargin?: string;
+  scrollBehavior?: "smooth" | "auto";
+  overflowX?: "visible" | "hidden" | "scroll" | "auto";
+  overflowY?: "visible" | "hidden" | "scroll" | "auto";
 
   // Typography Controls (F-070, F-089)
   fontFamily?: string;
@@ -90,7 +137,7 @@ export interface ElementStyles {
 
   // Ken Burns Effect (F-092)
   kenBurnsEffect?: "none" | "zoom-in" | "zoom-out";
-  
+
   // Text Path (F-090)
   textPathEnabled?: "true" | "false";
 
@@ -308,7 +355,7 @@ export function getStyleVal(
   prop: keyof ElementStyles,
   bpId: string,
   activeBps: Breakpoint[]
-): string | undefined {
+): any {
   const chain = getBreakpointFallbackChain(bpId, activeBps);
   for (const id of chain) {
     if (id === "desktop") {
@@ -351,7 +398,7 @@ export function resolveElementStyles(
   el: EditorElement,
   bpId: string,
   activeBps: Breakpoint[],
-  globalSettings?: any
+  _globalSettings?: any
 ): React.CSSProperties {
   const styles: React.CSSProperties = {};
 
@@ -408,11 +455,86 @@ export function resolveElementStyles(
   const borderRadius = getVal("borderRadius");
   if (borderRadius) styles.borderRadius = borderRadius;
 
+  // Width & Height + Viewport Constraints (F-052)
   const width = getVal("width");
   if (width) styles.width = width;
 
   const height = getVal("height");
   if (height) styles.height = height;
+
+  const minWidth = getVal("minWidth");
+  if (minWidth) styles.minWidth = minWidth;
+
+  const maxWidth = getVal("maxWidth");
+  if (maxWidth) styles.maxWidth = maxWidth;
+
+  const minHeight = getVal("minHeight");
+  if (minHeight) styles.minHeight = minHeight;
+
+  const maxHeight = getVal("maxHeight");
+  if (maxHeight) styles.maxHeight = maxHeight;
+
+  // Alignment & Self-Alignment (F-045)
+  const alignSelf = getVal("alignSelf");
+  if (alignSelf && alignSelf !== "auto") styles.alignSelf = alignSelf;
+
+  const justifySelf = getVal("justifySelf");
+  if (justifySelf && justifySelf !== "auto") (styles as any).justifySelf = justifySelf;
+
+  // Position & Stacking Order (F-047, F-048, F-049)
+  const position = getVal("position");
+  if (position && position !== "static") {
+    styles.position = position as any;
+  }
+
+  const top = getVal("top");
+  if (top !== undefined && top !== "") styles.top = top;
+
+  const right = getVal("right");
+  if (right !== undefined && right !== "") styles.right = right;
+
+  const bottom = getVal("bottom");
+  if (bottom !== undefined && bottom !== "") styles.bottom = bottom;
+
+  const left = getVal("left");
+  if (left !== undefined && left !== "") styles.left = left;
+
+  const zIndex = getVal("zIndex");
+  if (zIndex !== undefined && zIndex !== "") {
+    styles.zIndex = typeof zIndex === "number" ? zIndex : parseInt(zIndex) || (zIndex as any);
+  }
+
+  // CSS Grid Child Placement (F-043)
+  const gridColumn = getVal("gridColumn");
+  if (gridColumn) styles.gridColumn = gridColumn;
+
+  const gridRow = getVal("gridRow");
+  if (gridRow) styles.gridRow = gridRow;
+
+  // Scroll & Scroll Snap (F-050)
+  const scrollSnapType = getVal("scrollSnapType");
+  if (scrollSnapType && scrollSnapType !== "none") (styles as any).scrollSnapType = scrollSnapType;
+
+  const scrollSnapAlign = getVal("scrollSnapAlign");
+  if (scrollSnapAlign && scrollSnapAlign !== "none") (styles as any).scrollSnapAlign = scrollSnapAlign;
+
+  const scrollSnapStop = getVal("scrollSnapStop");
+  if (scrollSnapStop) (styles as any).scrollSnapStop = scrollSnapStop;
+
+  const scrollPadding = getVal("scrollPadding");
+  if (scrollPadding) (styles as any).scrollPadding = scrollPadding;
+
+  const scrollMargin = getVal("scrollMargin");
+  if (scrollMargin) (styles as any).scrollMargin = scrollMargin;
+
+  const scrollBehavior = getVal("scrollBehavior");
+  if (scrollBehavior) styles.scrollBehavior = scrollBehavior as any;
+
+  const overflowX = getVal("overflowX");
+  if (overflowX) styles.overflowX = overflowX as any;
+
+  const overflowY = getVal("overflowY");
+  if (overflowY) styles.overflowY = overflowY as any;
 
   // Background Options (F-073, F-074, F-075, F-076)
   const bgType = getVal("backgroundType") || "solid";
@@ -539,6 +661,19 @@ export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperti
   delete inner.filter;
   delete inner.transform;
   delete inner.mixBlendMode;
+  delete inner.position;
+  delete inner.top;
+  delete inner.right;
+  delete inner.bottom;
+  delete inner.left;
+  delete inner.zIndex;
+  delete inner.alignSelf;
+  delete (inner as any).justifySelf;
+  delete inner.gridColumn;
+  delete inner.gridRow;
+  delete (inner as any).scrollSnapAlign;
+  delete (inner as any).scrollSnapStop;
+  delete (inner as any).scrollMargin;
   return inner;
 }
 
@@ -560,9 +695,8 @@ export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interv
       {urls.map((url, i) => (
         <div
           key={url + i}
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-            i === index ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"
+            }`}
           style={{ backgroundImage: `url(${url})` }}
         />
       ))}
@@ -629,6 +763,17 @@ const UploadCloudIcon = () => (
   </svg>
 );
 
+const GridBoxIcon = () => (
+  <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-50 text-amber-600">
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
+      <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+    </svg>
+  </div>
+);
+
 // ==========================================
 // Default Elements Creator
 // ==========================================
@@ -643,6 +788,7 @@ function createDefaultElement(type: ElementType): EditorElement {
         content: "Container",
         children: [],
         layout: {
+          layoutType: "flex",
           direction: "column",
           justifyContent: "flex-start",
           alignItems: "stretch",
@@ -727,6 +873,151 @@ function createDefaultElement(type: ElementType): EditorElement {
 }
 
 // ==========================================
+// Structural Layout Presets (Elementor Structure Models)
+// ==========================================
+
+export type StructurePresetType =
+  | "single"
+  | "cols-2-equal"
+  | "cols-3-equal"
+  | "cols-2-30-70"
+  | "cols-2-70-30"
+  | "cols-4-equal";
+
+function createStructurePreset(type: StructurePresetType): EditorElement {
+  const rootId = generateId();
+
+  if (type === "single") {
+    return {
+      id: rootId,
+      type: "container",
+      content: "Container",
+      layout: {
+        layoutType: "flex",
+        direction: "column",
+        justifyContent: "flex-start",
+        alignItems: "stretch",
+        gap: 16,
+      },
+      styles: {
+        width: "100%",
+        backgroundColor: "#ffffff",
+        paddingTop: "24px",
+        paddingRight: "24px",
+        paddingBottom: "24px",
+        paddingLeft: "24px",
+        marginTop: "12px",
+        marginBottom: "12px",
+        borderRadius: "12px",
+      },
+      children: [],
+    };
+  }
+
+  const columnConfigs: Record<string, { count: number; widths: string[]; names: string[] }> = {
+    "cols-2-equal": { count: 2, widths: ["50%", "50%"], names: ["Column 1", "Column 2"] },
+    "cols-3-equal": { count: 3, widths: ["33.333%", "33.333%", "33.333%"], names: ["Column 1", "Column 2", "Column 3"] },
+    "cols-2-30-70": { count: 2, widths: ["30%", "70%"], names: ["Column 1 (30%)", "Column 2 (70%)"] },
+    "cols-2-70-30": { count: 2, widths: ["70%", "30%"], names: ["Column 1 (70%)", "Column 2 (30%)"] },
+    "cols-4-equal": { count: 4, widths: ["25%", "25%", "25%", "25%"], names: ["Column 1", "Column 2", "Column 3", "Column 4"] },
+  };
+
+  const config = columnConfigs[type];
+  if (!config) return createDefaultElement("container");
+
+  return {
+    id: rootId,
+    type: "container",
+    content: "Container",
+    layout: {
+      layoutType: "flex",
+      direction: "row",
+      flexWrap: "wrap",
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: 16,
+    },
+    styles: {
+      width: "100%",
+      backgroundColor: "#ffffff",
+      paddingTop: "24px",
+      paddingRight: "24px",
+      paddingBottom: "24px",
+      paddingLeft: "24px",
+      marginTop: "12px",
+      marginBottom: "12px",
+      borderRadius: "12px",
+    },
+    children: config.widths.map((width, idx) => ({
+      id: generateId(),
+      type: "container" as ElementType,
+      content: config.names[idx],
+      layout: {
+        layoutType: "flex" as const,
+        direction: "column" as const,
+        justifyContent: "flex-start" as const,
+        alignItems: "stretch" as const,
+        gap: 10,
+      },
+      styles: {
+        width: `calc(${width} - ${(16 * (config.count - 1)) / config.count}px)`,
+        minHeight: "80px",
+        backgroundColor: "#f8fafc",
+        paddingTop: "20px",
+        paddingRight: "20px",
+        paddingBottom: "20px",
+        paddingLeft: "20px",
+        borderRadius: "10px",
+      },
+      children: [],
+    })),
+  };
+}
+
+function createGridPrimitive(): EditorElement {
+  const rootId = generateId();
+  return {
+    id: rootId,
+    type: "container",
+    content: "Grid Container",
+    layout: {
+      layoutType: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: 16,
+    },
+    styles: {
+      width: "100%",
+      backgroundColor: "#ffffff",
+      paddingTop: "24px",
+      paddingRight: "24px",
+      paddingBottom: "24px",
+      paddingLeft: "24px",
+      marginTop: "12px",
+      marginBottom: "12px",
+      borderRadius: "12px",
+    },
+    children: [
+      {
+        id: generateId(),
+        type: "container",
+        content: "Grid Cell 1",
+        layout: { layoutType: "flex", direction: "column", gap: 10 },
+        styles: { width: "100%", minHeight: "80px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px" },
+        children: [],
+      },
+      {
+        id: generateId(),
+        type: "container",
+        content: "Grid Cell 2",
+        layout: { layoutType: "flex", direction: "column", gap: 10 },
+        styles: { width: "100%", minHeight: "80px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px" },
+        children: [],
+      },
+    ],
+  };
+}
+
+// ==========================================
 // Main WebsiteEditor Component
 // ==========================================
 
@@ -764,6 +1055,7 @@ export default function WebsiteEditor() {
   const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
   const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
   const [isBpModalOpen, setIsBpModalOpen] = useState(false);
+  const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
 
   // Global settings state (F-066 to F-101)
   const [globalSettings, setGlobalSettings] = useState<any>({
@@ -803,7 +1095,13 @@ export default function WebsiteEditor() {
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     layout: true,
+    alignment: false,
+    positioning: false,
+    dimensions: false,
+    scrollSnap: false,
     typography: false,
+    imageMedia: true,
+    colors: false,
     background: false,
     borders: false,
     shadows: false,
@@ -837,7 +1135,7 @@ export default function WebsiteEditor() {
     }
 
     let css = "";
-    
+
     // Inject Ken Burns animations (F-092)
     css += `
       @keyframes kb-zoom-in {
@@ -1021,6 +1319,12 @@ export default function WebsiteEditor() {
     setSelectedId(newEl.id);
   };
 
+  const handleInsertStructure = (presetType: StructurePresetType) => {
+    const newEl = createStructurePreset(presetType);
+    setElements((prev) => insertTreeElement(prev, selectedId, newEl));
+    setSelectedId(newEl.id);
+  };
+
   const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setElements((prev) => deleteTreeElement(prev, id));
@@ -1052,7 +1356,7 @@ export default function WebsiteEditor() {
           };
         } else {
           const responsiveStyles = { ...el.responsiveStyles };
-          const bpStyles = { ...responsiveStyles[activeBreakpointId] };
+          const bpStyles: Record<string, any> = { ...responsiveStyles[activeBreakpointId] };
           if (value === undefined || value === "") {
             delete bpStyles[key];
           } else {
@@ -1079,7 +1383,7 @@ export default function WebsiteEditor() {
           };
         } else {
           const responsiveLayouts = { ...el.responsiveLayouts };
-          const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
+          const bpLayouts: Record<string, any> = { ...responsiveLayouts[activeBreakpointId] };
           if (value === undefined || value === "") {
             delete bpLayouts[key];
           } else {
@@ -1100,7 +1404,7 @@ export default function WebsiteEditor() {
     setElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         const responsiveStyles = { ...el.responsiveStyles };
-        const bpStyles = { ...responsiveStyles[activeBreakpointId] };
+        const bpStyles: Record<string, any> = { ...responsiveStyles[activeBreakpointId] };
         delete bpStyles[key];
         responsiveStyles[activeBreakpointId] = bpStyles;
         return { ...el, responsiveStyles };
@@ -1113,7 +1417,7 @@ export default function WebsiteEditor() {
     setElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         const responsiveLayouts = { ...el.responsiveLayouts };
-        const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
+        const bpLayouts: Record<string, any> = { ...responsiveLayouts[activeBreakpointId] };
         delete bpLayouts[key];
         responsiveLayouts[activeBreakpointId] = bpLayouts;
         return { ...el, responsiveLayouts };
@@ -1180,18 +1484,17 @@ export default function WebsiteEditor() {
       <div className="flex items-center justify-between mb-1 mt-2.5">
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] font-semibold text-slate-600">{label}</span>
-          
+
           {/* Responsive Badge */}
           {activeBreakpointId !== "desktop" && (
             <span
               title={isOverridden ? `Overridden on ${currentBpName}` : hasValue ? `Inherited from ${sourceBp?.name || "Desktop"}` : "Unset"}
-              className={`flex h-3.5 w-3.5 items-center justify-center rounded text-[9px] font-bold select-none ${
-                isOverridden
-                  ? "bg-blue-600 text-white"
-                  : hasValue
+              className={`flex h-3.5 w-3.5 items-center justify-center rounded text-[9px] font-bold select-none ${isOverridden
+                ? "bg-blue-600 text-white"
+                : hasValue
                   ? "bg-slate-200 text-slate-500"
                   : "bg-slate-100 text-slate-400 border border-dashed border-slate-300"
-              }`}
+                }`}
             >
               {activeBreakpointId === "mobile" || activeBreakpointId === "mobileExtra" ? "M" : activeBreakpointId === "tablet" || activeBreakpointId === "tabletExtra" ? "T" : activeBreakpointId === "laptop" ? "L" : "W"}
             </span>
@@ -1341,10 +1644,10 @@ export default function WebsiteEditor() {
 
     let path = "";
     const viewBox = "0 0 1200 120";
-    
+
     if (style === "slant") {
-      path = position === "top" 
-        ? "M1200 120L0 0 0 120z" 
+      path = position === "top"
+        ? "M1200 120L0 0 0 120z"
         : "M1200 0L0 120 1200 120z";
     } else if (style === "triangle") {
       path = position === "top"
@@ -1391,7 +1694,7 @@ export default function WebsiteEditor() {
     const speedStr = getStyleVal(el, "backgroundSlideshowSpeed", activeBreakpointId, breakpoints) || "5";
     if (!urlsStr) return null;
 
-    const urls = urlsStr.split(",").map(u => u.trim()).filter(Boolean);
+    const urls = (typeof urlsStr === "string" ? urlsStr : "").split(",").map((u: string) => u.trim()).filter(Boolean);
     if (urls.length === 0) return null;
 
     const speed = parseInt(speedStr) * 1000;
@@ -1433,6 +1736,53 @@ export default function WebsiteEditor() {
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
     if (el.type === "container") {
+      const layoutType = getLayoutVal(el, "layoutType", activeBreakpointId, breakpoints) || "flex";
+      const gapVal = getLayoutVal(el, "gap", activeBreakpointId, breakpoints);
+      const rowGapVal = getLayoutVal(el, "rowGap", activeBreakpointId, breakpoints);
+      const colGapVal = getLayoutVal(el, "columnGap", activeBreakpointId, breakpoints);
+
+      const rowGapStr = rowGapVal !== undefined && rowGapVal !== ""
+        ? (typeof rowGapVal === "number" ? `${rowGapVal}px` : rowGapVal)
+        : (gapVal !== undefined ? `${gapVal}px` : "10px");
+
+      const colGapStr = colGapVal !== undefined && colGapVal !== ""
+        ? (typeof colGapVal === "number" ? `${colGapVal}px` : colGapVal)
+        : (gapVal !== undefined ? `${gapVal}px` : "10px");
+
+      let containerLayoutStyles: React.CSSProperties = {};
+
+      if (layoutType === "grid") {
+        containerLayoutStyles = {
+          display: "grid",
+          gridTemplateColumns: getLayoutVal(el, "gridTemplateColumns", activeBreakpointId, breakpoints) || "repeat(2, 1fr)",
+          gridTemplateRows: getLayoutVal(el, "gridTemplateRows", activeBreakpointId, breakpoints) || undefined,
+          gridAutoFlow: getLayoutVal(el, "gridAutoFlow", activeBreakpointId, breakpoints) || undefined,
+          justifyItems: getLayoutVal(el, "justifyItems", activeBreakpointId, breakpoints) || undefined,
+          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || undefined,
+          justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || undefined,
+          alignContent: getLayoutVal(el, "alignContent", activeBreakpointId, breakpoints) || undefined,
+          rowGap: rowGapStr,
+          columnGap: colGapStr,
+        };
+      } else if (layoutType === "masonry") {
+        containerLayoutStyles = {
+          display: "block",
+          columnCount: getLayoutVal(el, "masonryColumns", activeBreakpointId, breakpoints) || 3,
+          columnGap: colGapStr,
+        };
+      } else {
+        containerLayoutStyles = {
+          display: "flex",
+          flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
+          flexWrap: getLayoutVal(el, "flexWrap", activeBreakpointId, breakpoints) || "nowrap",
+          justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
+          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
+          alignContent: getLayoutVal(el, "alignContent", activeBreakpointId, breakpoints) || undefined,
+          rowGap: rowGapStr,
+          columnGap: colGapStr,
+        };
+      }
+
       return (
         <div
           key={el.id}
@@ -1440,26 +1790,24 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             if (!isPreview) setSelectedId(el.id);
           }}
-          className={`relative transition-all duration-150 overflow-hidden ${el.customClass || ""} ${
-            isPreview
-              ? ""
-              : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${
-            isSelected
+          className={`relative transition-all duration-150 ${el.customClass || ""} ${isPreview
+            ? ""
+            : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+            } ${isSelected
               ? "border-2 border-blue-500 shadow-sm"
               : isPreview
-              ? ""
-              : "border border-dashed border-slate-300"
-          } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border-2 border-dashed bg-amber-50/10 cursor-not-allowed" : ""}`}
+                ? ""
+                : "border border-dashed border-slate-300"
+            } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border-2 border-dashed bg-amber-50/10 cursor-not-allowed" : ""}`}
           style={{
-            display: "flex",
-            flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
-            justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
-            alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
-            gap: `${getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 10}px`,
+            ...containerLayoutStyles,
             ...resolvedStyles,
             width: resolvedStyles.width || "100%",
             height: resolvedStyles.height || "auto",
+            minWidth: resolvedStyles.minWidth,
+            maxWidth: resolvedStyles.maxWidth,
+            minHeight: resolvedStyles.minHeight,
+            maxHeight: resolvedStyles.maxHeight,
             paddingTop: resolvedStyles.paddingTop || "16px",
             paddingRight: resolvedStyles.paddingRight || "16px",
             paddingBottom: resolvedStyles.paddingBottom || "16px",
@@ -1469,6 +1817,20 @@ export default function WebsiteEditor() {
             marginBottom: resolvedStyles.marginBottom || "8px",
             marginLeft: resolvedStyles.marginLeft || "0px",
             borderRadius: resolvedStyles.borderRadius || "8px",
+            position: resolvedStyles.position,
+            top: resolvedStyles.top,
+            right: resolvedStyles.right,
+            bottom: resolvedStyles.bottom,
+            left: resolvedStyles.left,
+            zIndex: resolvedStyles.zIndex,
+            alignSelf: resolvedStyles.alignSelf,
+            justifySelf: (resolvedStyles as any).justifySelf,
+            gridColumn: resolvedStyles.gridColumn,
+            gridRow: resolvedStyles.gridRow,
+            overflowX: resolvedStyles.overflowX,
+            overflowY: resolvedStyles.overflowY,
+            scrollSnapType: (resolvedStyles as any).scrollSnapType,
+            scrollBehavior: resolvedStyles.scrollBehavior,
           }}
         >
           {/* Shape Dividers (F-091) */}
@@ -1491,15 +1853,20 @@ export default function WebsiteEditor() {
           )}
 
           {isSelected && (
-            <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
+            <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
               <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
                 <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
                 </svg>
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                  Container
+                  Container ({layoutType})
                 </div>
               </div>
+              {resolvedStyles.position && resolvedStyles.position !== "static" && (
+                <span className="bg-blue-900/80 text-blue-300 text-[9px] px-1.5 py-0.5 rounded font-mono uppercase font-bold">
+                  {resolvedStyles.position}
+                </span>
+              )}
               <div className="w-[1px] h-3 bg-slate-700/60" />
               <button
                 onClick={(e) => handleDuplicateElement(el.id, e)}
@@ -1529,13 +1896,21 @@ export default function WebsiteEditor() {
 
           {(!el.children || el.children.length === 0) && !isPreview ? (
             <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center z-10 relative">
-              <span className="text-xs font-bold text-slate-500">Empty Container</span>
+              <span className="text-xs font-bold text-slate-500">Empty {layoutType === "grid" ? "Grid" : layoutType === "masonry" ? "Masonry" : "Container"}</span>
               <span className="text-[10px] text-slate-400 mt-0.5">
                 Click an element on the left panel to add inside
               </span>
             </div>
           ) : (
-            el.children?.map((child) => renderElementTree(child))
+            el.children?.map((child) => (
+              layoutType === "masonry" ? (
+                <div key={child.id} style={{ breakInside: "avoid", display: "inline-block", width: "100%", marginBottom: rowGapStr }}>
+                  {renderElementTree(child)}
+                </div>
+              ) : (
+                renderElementTree(child)
+              )
+            ))
           )}
         </div>
       );
@@ -1548,23 +1923,40 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview) setSelectedId(el.id);
         }}
-        className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${
-          isPreview
-            ? ""
-            : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${
-          isSelected
+        className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${isPreview
+          ? ""
+          : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+          } ${isSelected
             ? "border-2 border-blue-500 p-2.5"
             : "p-2.5 border border-transparent"
-        } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border border-dashed bg-amber-50/10" : ""}`}
+          } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border border-dashed bg-amber-50/10" : ""}`}
         style={{
           marginTop: getStyleVal(el, "marginTop", activeBreakpointId, breakpoints),
+          marginRight: getStyleVal(el, "marginRight", activeBreakpointId, breakpoints),
           marginBottom: getStyleVal(el, "marginBottom", activeBreakpointId, breakpoints),
+          marginLeft: getStyleVal(el, "marginLeft", activeBreakpointId, breakpoints),
           boxShadow: resolvedStyles.boxShadow,
           opacity: resolvedStyles.opacity,
           filter: resolvedStyles.filter,
           transform: resolvedStyles.transform,
           mixBlendMode: resolvedStyles.mixBlendMode,
+          position: resolvedStyles.position,
+          top: resolvedStyles.top,
+          right: resolvedStyles.right,
+          bottom: resolvedStyles.bottom,
+          left: resolvedStyles.left,
+          zIndex: resolvedStyles.zIndex,
+          alignSelf: resolvedStyles.alignSelf,
+          justifySelf: (resolvedStyles as any).justifySelf,
+          gridColumn: resolvedStyles.gridColumn,
+          gridRow: resolvedStyles.gridRow,
+          minWidth: resolvedStyles.minWidth,
+          maxWidth: resolvedStyles.maxWidth,
+          minHeight: resolvedStyles.minHeight,
+          maxHeight: resolvedStyles.maxHeight,
+          scrollSnapAlign: (resolvedStyles as any).scrollSnapAlign,
+          scrollSnapStop: (resolvedStyles as any).scrollSnapStop,
+          scrollMargin: (resolvedStyles as any).scrollMargin,
         }}
       >
         {isHiddenOnCurrentDevice && !isPreview && (
@@ -1577,7 +1969,7 @@ export default function WebsiteEditor() {
         )}
 
         {isSelected && (
-          <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
+          <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
             <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
               <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                 {el.type === 'heading' ? (
@@ -1657,7 +2049,7 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "image" && (
-          <div style={{ textAlign: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left" }}>
+          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) as React.CSSProperties["textAlign"]) || "left" }}>
             {el.src ? (
               <img
                 src={resolveImageUrl(el.src, apiUrl)}
@@ -1667,12 +2059,10 @@ export default function WebsiteEditor() {
                     setLightboxImage(resolveImageUrl(el.src!, apiUrl));
                   }
                 }}
-                className={`inline-block object-cover max-w-full ${
-                  isPreview && globalSettings?.lightboxSettings?.enableLightbox ? "cursor-zoom-in" : ""
-                } ${
-                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-in" ? "kb-zoom-in" : 
-                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-out" ? "kb-zoom-out" : ""
-                }`}
+                className={`inline-block object-cover max-w-full ${isPreview && globalSettings?.lightboxSettings?.enableLightbox ? "cursor-zoom-in" : ""
+                  } ${getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-in" ? "kb-zoom-in" :
+                    getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-out" ? "kb-zoom-out" : ""
+                  }`}
                 style={{
                   width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
                   height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "auto",
@@ -1695,7 +2085,7 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "button" && (
-          <div style={{ textAlign: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left" }}>
+          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) as React.CSSProperties["textAlign"]) || "left" }}>
             <a
               href={el.href || "#"}
               onClick={(e) => {
@@ -1765,11 +2155,10 @@ export default function WebsiteEditor() {
                     key={bp.id}
                     onClick={() => setActiveBreakpointId(bp.id)}
                     title={`${bp.name} (${bp.width}px)`}
-                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                    }`}
+                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${isActive
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }`}
                   >
                     {bp.id === "widescreen" && (
                       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -1851,9 +2240,8 @@ export default function WebsiteEditor() {
 
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-              isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
-            }`}
+            className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
+              }`}
           >
             {isPreview ? "Exit Preview" : "Preview"}
           </button>
@@ -1873,69 +2261,107 @@ export default function WebsiteEditor() {
       {/* ========================================== */}
       <div className="flex flex-1 overflow-hidden">
         {/* ========================================== */}
-        {/* Left Sidebar: ELEMENTS                     */}
+        {/* Left Sidebar: ELEMENTS & LAYOUTS           */}
         {/* ========================================== */}
         {!isPreview && (
-          <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">
-              ELEMENTS
-            </h2>
+          <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
+            {/* 1. Structure (Elementor Style) */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
+                  </svg>
+                  Structure
+                </h2>
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Container */}
-              <button
-                onClick={() => handleAddElement("container")}
-                className="col-span-2 flex items-center justify-center gap-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ContainerBoxIcon />
-                <span className="text-xs font-bold text-blue-700 group-hover:text-blue-800">
-                  + Add Container
-                </span>
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Container Primitive */}
+                <button
+                  onClick={() => setIsStructureModalOpen(true)}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                  title="Flexbox Container & Column Structures"
+                >
+                  <ContainerBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Container
+                  </span>
+                </button>
 
-              {/* Heading */}
-              <button
-                onClick={() => handleAddElement("heading")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <HeadingBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Heading
-                </span>
-              </button>
+                {/* Grid Primitive */}
+                <button
+                  onClick={() => {
+                    const newEl = createGridPrimitive();
+                    setElements((prev) => insertTreeElement(prev, selectedId, newEl));
+                    setSelectedId(newEl.id);
+                  }}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                  title="2D CSS Grid Container"
+                >
+                  <GridBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Grid
+                  </span>
+                </button>
+              </div>
+            </div>
 
-              {/* Text */}
-              <button
-                onClick={() => handleAddElement("text")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <TextBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Text
-                </span>
-              </button>
+            {/* 2. Basic Elements */}
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Basic Elements
+              </h2>
 
-              {/* Image */}
-              <button
-                onClick={() => handleAddElement("image")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ImageBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Image
-                </span>
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Heading */}
+                <button
+                  onClick={() => handleAddElement("heading")}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                >
+                  <HeadingBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Heading
+                  </span>
+                </button>
 
-              {/* Button */}
-              <button
-                onClick={() => handleAddElement("button")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ButtonBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Button
-                </span>
-              </button>
+                {/* Text */}
+                <button
+                  onClick={() => handleAddElement("text")}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                >
+                  <TextBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Text
+                  </span>
+                </button>
+
+                {/* Image */}
+                <button
+                  onClick={() => handleAddElement("image")}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                >
+                  <ImageBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Image
+                  </span>
+                </button>
+
+                {/* Button */}
+                <button
+                  onClick={() => handleAddElement("button")}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
+                >
+                  <ButtonBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
+                    Button
+                  </span>
+                </button>
+              </div>
             </div>
           </aside>
         )}
@@ -1952,11 +2378,10 @@ export default function WebsiteEditor() {
               width: "100%",
               maxWidth: activeBreakpointId === "widescreen" ? "100%" : `${breakpoints.find(b => b.id === activeBreakpointId)?.width || 1024}px`,
             }}
-            className={`min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md transition-all duration-300 relative ${
-              activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop"
-                ? "rounded-2xl border border-slate-200 p-8 sm:p-10"
-                : "rounded-[40px] border-[12px] border-slate-900 px-6 py-12"
-            }`}
+            className={`min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md transition-all duration-300 relative ${activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop"
+              ? "rounded-2xl border border-slate-200 p-8 sm:p-10"
+              : "rounded-[40px] border-[12px] border-slate-900 px-6 py-12"
+              }`}
           >
             {/* Simulated Phone Notch / Speaker for Mobile/Tablet */}
             {!(activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop") && (
@@ -1967,17 +2392,44 @@ export default function WebsiteEditor() {
             )}
 
             {elements.length === 0 ? (
-              <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
-                <p className="text-sm font-bold text-slate-700">
-                  Your Canvas is Empty
+              <div
+                onClick={() => setIsStructureModalOpen(true)}
+                className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-slate-50 hover:border-blue-400 p-8 cursor-pointer transition group"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition group-hover:scale-110 group-hover:bg-blue-700">
+                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <p className="mt-4 text-sm font-bold text-slate-700">
+                  Drag widget here, or click to add a Container
                 </p>
                 <p className="mt-1 text-xs text-slate-400">
-                  Click any element from the left panel to start building.
+                  Choose from 1, 2, 3, 4 column or asymmetric structure layouts
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {elements.map((el) => renderElementTree(el))}
+
+                {/* Elementor-style In-Canvas Quick Add Inserter */}
+                {!isPreview && (
+                  <div className="pt-2 pb-6">
+                    <div
+                      onClick={() => setIsStructureModalOpen(true)}
+                      className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer transition"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow transition group-hover:scale-110 group-hover:bg-blue-700">
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                      <span className="mt-2 text-xs font-bold text-slate-600 group-hover:text-blue-700">
+                        Add New Container
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1993,7 +2445,7 @@ export default function WebsiteEditor() {
               <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">
                 Settings & Design System
               </h2>
-              
+
               <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
                 <button
                   type="button"
@@ -2001,24 +2453,22 @@ export default function WebsiteEditor() {
                     if (selectedElement) setActiveSidebarTab("element");
                   }}
                   disabled={!selectedElement}
-                  className={`flex-1 rounded-md py-1.5 text-center transition ${
-                    !selectedElement 
-                      ? "text-slate-400 cursor-not-allowed" 
-                      : activeSidebarTab === "element"
+                  className={`flex-1 rounded-md py-1.5 text-center transition ${!selectedElement
+                    ? "text-slate-400 cursor-not-allowed"
+                    : activeSidebarTab === "element"
                       ? "bg-white text-slate-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-800"
-                  }`}
+                    }`}
                 >
                   Element Styles
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveSidebarTab("global")}
-                  className={`flex-1 rounded-md py-1.5 text-center transition ${
-                    activeSidebarTab === "global"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`flex-1 rounded-md py-1.5 text-center transition ${activeSidebarTab === "global"
+                    ? "bg-white text-slate-800 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   Global & Site
                 </button>
@@ -2054,8 +2504,8 @@ export default function WebsiteEditor() {
 
                   {/* Accordion Sections */}
 
-                  {/* 1. Layout & Dimensions */}
-                  {renderAccordion("Layout & Spacing", "layout", (
+                  {/* 1. Layout & Structure (F-038, F-039, F-040, F-041, F-042, F-043, F-051, F-046) */}
+                  {renderAccordion("Layout & Structure", "layout", (
                     <div className="space-y-3.5">
                       {/* Device Visibility Section (F-059, F-063) */}
                       <div>
@@ -2070,11 +2520,10 @@ export default function WebsiteEditor() {
                               return (
                                 <label
                                   key={bp.id}
-                                  className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${
-                                    isHidden
-                                      ? "bg-amber-50/50 border-amber-200 text-amber-800"
-                                      : "bg-slate-50/50 border-slate-200 text-slate-700 hover:bg-slate-50"
-                                  }`}
+                                  className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${isHidden
+                                    ? "bg-amber-50/50 border-amber-200 text-amber-800"
+                                    : "bg-slate-50/50 border-slate-200 text-slate-700 hover:bg-slate-50"
+                                    }`}
                                 >
                                   <input
                                     type="checkbox"
@@ -2102,56 +2551,270 @@ export default function WebsiteEditor() {
                       {/* Container Specific Controls */}
                       {selectedElement.type === "container" && (
                         <div className="space-y-3.5 pt-2.5 border-t border-slate-100">
+                          {/* Layout Mode Selector (Flexbox vs CSS Grid vs Masonry) */}
                           <div>
-                            {renderResponsiveLabel("Direction", undefined, "direction")}
-                            <select
-                              value={getLayoutVal(selectedElement, "direction", activeBreakpointId, breakpoints) || "column"}
-                              onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="column">Column (Vertical)</option>
-                              <option value="row">Row (Horizontal)</option>
-                            </select>
+                            {renderResponsiveLabel("Layout Engine", undefined, "layoutType")}
+                            <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-[11px] font-bold">
+                              {(["flex", "grid", "masonry"] as const).map((mode) => {
+                                const activeMode = getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints) || "flex";
+                                return (
+                                  <button
+                                    key={mode}
+                                    type="button"
+                                    onClick={() => updateSelectedLayout("layoutType", mode)}
+                                    className={`py-1 rounded-md transition capitalize ${activeMode === mode
+                                      ? "bg-white text-blue-600 shadow-sm"
+                                      : "text-slate-500 hover:text-slate-800"
+                                      }`}
+                                  >
+                                    {mode === "flex" ? "Flexbox" : mode === "grid" ? "CSS Grid" : "Masonry"}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
 
-                          <div>
-                            {renderResponsiveLabel("Justify Content", undefined, "justifyContent")}
-                            <select
-                              value={getLayoutVal(selectedElement, "justifyContent", activeBreakpointId, breakpoints) || "flex-start"}
-                              onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="flex-start">Start</option>
-                              <option value="center">Center</option>
-                              <option value="flex-end">End</option>
-                              <option value="space-between">Space Between</option>
-                              <option value="space-around">Space Around</option>
-                              <option value="space-evenly">Space Evenly</option>
-                            </select>
-                          </div>
+                          {/* Flexbox Controls */}
+                          {(getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints) === "flex" || !getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints)) && (
+                            <div className="space-y-3 p-2.5 rounded-xl bg-slate-50/50 border border-slate-200/60">
+                              <div>
+                                {renderResponsiveLabel("Flex Direction", undefined, "direction")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "direction", activeBreakpointId, breakpoints) || "column"}
+                                  onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="column">Column (Vertical Stack)</option>
+                                  <option value="row">Row (Horizontal Row)</option>
+                                </select>
+                              </div>
 
-                          <div>
-                            {renderResponsiveLabel("Align Items", undefined, "alignItems")}
-                            <select
-                              value={getLayoutVal(selectedElement, "alignItems", activeBreakpointId, breakpoints) || "stretch"}
-                              onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="stretch">Stretch</option>
-                              <option value="flex-start">Start</option>
-                              <option value="center">Center</option>
-                              <option value="flex-end">End</option>
-                            </select>
-                          </div>
+                              <div>
+                                {renderResponsiveLabel("Flex Wrap", undefined, "flexWrap")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "flexWrap", activeBreakpointId, breakpoints) || "nowrap"}
+                                  onChange={(e) => updateSelectedLayout("flexWrap", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="nowrap">No Wrap (Single Line)</option>
+                                  <option value="wrap">Wrap (Multi-Line)</option>
+                                  <option value="wrap-reverse">Wrap Reverse</option>
+                                </select>
+                              </div>
 
-                          <div>
-                            {renderResponsiveLabel("Gap (px)", undefined, "gap")}
-                            <input
-                              type="number"
-                              value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 10}
-                              onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            />
+                              <div>
+                                {renderResponsiveLabel("Justify Content (Main Axis)", undefined, "justifyContent")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "justifyContent", activeBreakpointId, breakpoints) || "flex-start"}
+                                  onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="flex-start">Start (Left / Top)</option>
+                                  <option value="center">Center</option>
+                                  <option value="flex-end">End (Right / Bottom)</option>
+                                  <option value="space-between">Space Between</option>
+                                  <option value="space-around">Space Around</option>
+                                  <option value="space-evenly">Space Evenly</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Align Items (Cross Axis)", undefined, "alignItems")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "alignItems", activeBreakpointId, breakpoints) || "stretch"}
+                                  onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="stretch">Stretch (Fill Height/Width)</option>
+                                  <option value="flex-start">Start</option>
+                                  <option value="center">Center</option>
+                                  <option value="flex-end">End</option>
+                                  <option value="baseline">Baseline</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Align Content", undefined, "alignContent")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "alignContent", activeBreakpointId, breakpoints) || "stretch"}
+                                  onChange={(e) => updateSelectedLayout("alignContent", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="stretch">Stretch</option>
+                                  <option value="flex-start">Start</option>
+                                  <option value="center">Center</option>
+                                  <option value="flex-end">End</option>
+                                  <option value="space-between">Space Between</option>
+                                  <option value="space-around">Space Around</option>
+                                </select>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* CSS Grid Controls (F-041, F-043) */}
+                          {getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints) === "grid" && (
+                            <div className="space-y-3 p-2.5 rounded-xl bg-slate-50/50 border border-slate-200/60">
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                  Grid Template Columns
+                                </label>
+                                <div className="grid grid-cols-3 gap-1 mb-2">
+                                  {[
+                                    { label: "2 Columns", val: "repeat(2, 1fr)" },
+                                    { label: "3 Columns", val: "repeat(3, 1fr)" },
+                                    { label: "4 Columns", val: "repeat(4, 1fr)" },
+                                    { label: "Auto-Fit", val: "repeat(auto-fit, minmax(200px, 1fr))" },
+                                    { label: "1/3 + 2/3", val: "1fr 2fr" },
+                                    { label: "2/3 + 1/3", val: "2fr 1fr" },
+                                  ].map((preset) => (
+                                    <button
+                                      key={preset.label}
+                                      type="button"
+                                      onClick={() => updateSelectedLayout("gridTemplateColumns", preset.val)}
+                                      className="px-2 py-1 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-600 hover:border-blue-400 hover:text-blue-600 transition"
+                                    >
+                                      {preset.label}
+                                    </button>
+                                  ))}
+                                </div>
+                                {renderResponsiveLabel("Custom Columns Definition", undefined, "gridTemplateColumns")}
+                                <input
+                                  type="text"
+                                  placeholder="e.g. repeat(3, 1fr) or 1fr 2fr 1fr"
+                                  value={getLayoutVal(selectedElement, "gridTemplateColumns", activeBreakpointId, breakpoints) || "repeat(2, 1fr)"}
+                                  onChange={(e) => updateSelectedLayout("gridTemplateColumns", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Grid Template Rows (Optional)", undefined, "gridTemplateRows")}
+                                <input
+                                  type="text"
+                                  placeholder="e.g. auto 1fr or repeat(2, 100px)"
+                                  value={getLayoutVal(selectedElement, "gridTemplateRows", activeBreakpointId, breakpoints) || ""}
+                                  onChange={(e) => updateSelectedLayout("gridTemplateRows", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Grid Auto Flow", undefined, "gridAutoFlow")}
+                                <select
+                                  value={getLayoutVal(selectedElement, "gridAutoFlow", activeBreakpointId, breakpoints) || "row"}
+                                  onChange={(e) => updateSelectedLayout("gridAutoFlow", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="row">Row (Left to Right)</option>
+                                  <option value="column">Column (Top to Bottom)</option>
+                                  <option value="dense">Dense (Pack Holes)</option>
+                                  <option value="row dense">Row Dense</option>
+                                  <option value="column dense">Column Dense</option>
+                                </select>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  {renderResponsiveLabel("Justify Items", undefined, "justifyItems")}
+                                  <select
+                                    value={getLayoutVal(selectedElement, "justifyItems", activeBreakpointId, breakpoints) || "stretch"}
+                                    onChange={(e) => updateSelectedLayout("justifyItems", e.target.value)}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                  >
+                                    <option value="stretch">Stretch</option>
+                                    <option value="start">Start</option>
+                                    <option value="center">Center</option>
+                                    <option value="end">End</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  {renderResponsiveLabel("Align Items", undefined, "alignItems")}
+                                  <select
+                                    value={getLayoutVal(selectedElement, "alignItems", activeBreakpointId, breakpoints) || "stretch"}
+                                    onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                  >
+                                    <option value="stretch">Stretch</option>
+                                    <option value="start">Start</option>
+                                    <option value="center">Center</option>
+                                    <option value="end">End</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Masonry Controls (F-051) */}
+                          {getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints) === "masonry" && (
+                            <div className="space-y-3 p-2.5 rounded-xl bg-slate-50/50 border border-slate-200/60">
+                              <div>
+                                {renderResponsiveLabel("Masonry Columns", undefined, "masonryColumns")}
+                                <div className="grid grid-cols-5 gap-1">
+                                  {[2, 3, 4, 5, 6].map((cols) => {
+                                    const activeCols = getLayoutVal(selectedElement, "masonryColumns", activeBreakpointId, breakpoints) || 3;
+                                    return (
+                                      <button
+                                        key={cols}
+                                        type="button"
+                                        onClick={() => updateSelectedLayout("masonryColumns", cols)}
+                                        className={`py-1.5 rounded-lg text-xs font-bold transition border ${activeCols === cols
+                                          ? "bg-blue-600 text-white border-blue-600 shadow"
+                                          : "bg-white text-slate-700 border-slate-200 hover:border-blue-400"
+                                          }`}
+                                      >
+                                        {cols}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Gap Controls (F-046) */}
+                          <div className="space-y-2 pt-2 border-t border-slate-100">
+                            {renderResponsiveLabel("Unified Spacing Gap (px)", undefined, "gap")}
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="0"
+                                max="80"
+                                value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 10}
+                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                className="w-full accent-blue-600 h-1.5 bg-slate-200 rounded"
+                              />
+                              <input
+                                type="number"
+                                min="0"
+                                value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 10}
+                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                className="w-16 rounded border px-2 py-1 text-center text-xs font-semibold"
+                              />
+                            </div>
+
+                            {/* Advanced Separate Row & Column Gaps */}
+                            <div className="grid grid-cols-2 gap-2 pt-1 text-[10px] font-semibold text-slate-500">
+                              <div>
+                                {renderResponsiveLabel("Row Gap (Vertical)", undefined, "rowGap")}
+                                <input
+                                  type="text"
+                                  placeholder="e.g. 16px, 1.5rem"
+                                  value={getLayoutVal(selectedElement, "rowGap", activeBreakpointId, breakpoints) || ""}
+                                  onChange={(e) => updateSelectedLayout("rowGap", e.target.value)}
+                                  className="w-full rounded border px-2 py-1 text-xs"
+                                />
+                              </div>
+                              <div>
+                                {renderResponsiveLabel("Column Gap (Horiz)", undefined, "columnGap")}
+                                <input
+                                  type="text"
+                                  placeholder="e.g. 20px, 1.5rem"
+                                  value={getLayoutVal(selectedElement, "columnGap", activeBreakpointId, breakpoints) || ""}
+                                  onChange={(e) => updateSelectedLayout("columnGap", e.target.value)}
+                                  className="w-full rounded border px-2 py-1 text-xs"
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -2171,13 +2834,316 @@ export default function WebsiteEditor() {
                         </div>
                       )}
 
+                      {/* Custom Classes (F-068) */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                          CUSTOM CSS CLASSES
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedElement.customClass || ""}
+                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
+                          placeholder="e.g. highlight-card shadow-lg"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 2. Alignment & Placement (F-045, F-043) */}
+                  {renderAccordion("Alignment & Placement", "alignment", (
+                    <div className="space-y-3.5">
+                      {/* Self Align Controls */}
+                      <div>
+                        {renderResponsiveLabel("Align Self (Cross Axis)", "alignSelf")}
+                        <select
+                          value={getStyleVal(selectedElement, "alignSelf", activeBreakpointId, breakpoints) || "auto"}
+                          onChange={(e) => updateSelectedStyle("alignSelf", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="auto">Auto (Inherit)</option>
+                          <option value="flex-start">Start</option>
+                          <option value="center">Center</option>
+                          <option value="flex-end">End</option>
+                          <option value="stretch">Stretch</option>
+                          <option value="baseline">Baseline</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        {renderResponsiveLabel("Justify Self (Grid / Main Axis)", "justifySelf")}
+                        <select
+                          value={getStyleVal(selectedElement, "justifySelf", activeBreakpointId, breakpoints) || "auto"}
+                          onChange={(e) => updateSelectedStyle("justifySelf", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="auto">Auto (Inherit)</option>
+                          <option value="start">Start</option>
+                          <option value="center">Center</option>
+                          <option value="end">End</option>
+                          <option value="stretch">Stretch</option>
+                        </select>
+                      </div>
+
+                      {/* Text Alignment */}
+                      {selectedElement.type !== "image" && (
+                        <div>
+                          {renderResponsiveLabel("Text Alignment", "textAlign")}
+                          <div className="grid grid-cols-4 gap-1 rounded-lg bg-slate-100 p-1">
+                            {(["left", "center", "right", "justify"] as const).map((align) => {
+                              const activeAlign = getStyleVal(selectedElement, "textAlign", activeBreakpointId, breakpoints) || "left";
+                              return (
+                                <button
+                                  key={align}
+                                  type="button"
+                                  onClick={() => updateSelectedStyle("textAlign", align)}
+                                  className={`py-1 rounded text-xs font-bold capitalize transition ${activeAlign === align
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-slate-500 hover:text-slate-800"
+                                    }`}
+                                >
+                                  {align}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* CSS Grid Item Placement (F-043) */}
+                      <div className="pt-2 border-t border-slate-100 space-y-2">
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          CSS Grid Placement (If in Grid)
+                        </span>
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                          <div>
+                            <span>Grid Column Span</span>
+                            <input
+                              type="text"
+                              placeholder="e.g. span 2 or 1 / 3"
+                              value={getStyleVal(selectedElement, "gridColumn", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("gridColumn", e.target.value)}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <span>Grid Row Span</span>
+                            <input
+                              type="text"
+                              placeholder="e.g. span 2 or 1 / 2"
+                              value={getStyleVal(selectedElement, "gridRow", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("gridRow", e.target.value)}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 3. Position & Stacking (F-047, F-048, F-049) */}
+                  {renderAccordion("Position & Layers", "positioning", (
+                    <div className="space-y-3.5">
+                      <div>
+                        {renderResponsiveLabel("Position Mode", "position")}
+                        <select
+                          value={getStyleVal(selectedElement, "position", activeBreakpointId, breakpoints) || "static"}
+                          onChange={(e) => updateSelectedStyle("position", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        >
+                          <option value="static">Static (Default In-Flow)</option>
+                          <option value="relative">Relative (Offset Parent)</option>
+                          <option value="absolute">Absolute (Exact Coords)</option>
+                          <option value="fixed">Fixed (Viewport Screen)</option>
+                          <option value="sticky">Sticky (Scroll Bound)</option>
+                        </select>
+                      </div>
+
+                      {/* Position Offsets Matrix & Inputs */}
+                      {getStyleVal(selectedElement, "position", activeBreakpointId, breakpoints) && getStyleVal(selectedElement, "position", activeBreakpointId, breakpoints) !== "static" && (
+                        <div className="space-y-3 p-2.5 rounded-xl bg-slate-50/50 border border-slate-200/60">
+                          {/* 9-Point Visual Anchor Grid */}
+                          <div>
+                            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                              Quick Anchor Position
+                            </span>
+                            <div className="grid grid-cols-3 gap-1 max-w-[150px] mx-auto">
+                              {[
+                                { name: "Top-Left", top: "0px", left: "0px", right: "auto", bottom: "auto" },
+                                { name: "Top-Center", top: "0px", left: "50%", right: "auto", bottom: "auto" },
+                                { name: "Top-Right", top: "0px", right: "0px", left: "auto", bottom: "auto" },
+                                { name: "Center-Left", top: "50%", left: "0px", right: "auto", bottom: "auto" },
+                                { name: "Center", top: "50%", left: "50%", right: "auto", bottom: "auto" },
+                                { name: "Center-Right", top: "50%", right: "0px", left: "auto", bottom: "auto" },
+                                { name: "Bottom-Left", bottom: "0px", left: "0px", top: "auto", right: "auto" },
+                                { name: "Bottom-Center", bottom: "0px", left: "50%", top: "auto", right: "auto" },
+                                { name: "Bottom-Right", bottom: "0px", right: "0px", top: "auto", left: "auto" },
+                              ].map((anchor) => (
+                                <button
+                                  key={anchor.name}
+                                  type="button"
+                                  title={anchor.name}
+                                  onClick={() => {
+                                    updateSelectedStyle("top", anchor.top);
+                                    updateSelectedStyle("right", anchor.right);
+                                    updateSelectedStyle("bottom", anchor.bottom);
+                                    updateSelectedStyle("left", anchor.left);
+                                  }}
+                                  className="h-6 w-full rounded border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-400 transition flex items-center justify-center text-[9px] font-bold text-slate-500"
+                                >
+                                  •
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Coordinates Inputs */}
+                          <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                            <div>
+                              <span>Top Offset</span>
+                              <input
+                                type="text"
+                                placeholder="e.g. 0px, 10%"
+                                value={getStyleVal(selectedElement, "top", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("top", e.target.value)}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <span>Right Offset</span>
+                              <input
+                                type="text"
+                                placeholder="e.g. 0px, 20px"
+                                value={getStyleVal(selectedElement, "right", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("right", e.target.value)}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <span>Bottom Offset</span>
+                              <input
+                                type="text"
+                                placeholder="e.g. 0px, 20px"
+                                value={getStyleVal(selectedElement, "bottom", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("bottom", e.target.value)}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <span>Left Offset</span>
+                              <input
+                                type="text"
+                                placeholder="e.g. 0px, 50%"
+                                value={getStyleVal(selectedElement, "left", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("left", e.target.value)}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Z-Index Stacking Order (F-048) */}
+                      <div className="space-y-2 pt-2 border-t border-slate-100">
+                        {renderResponsiveLabel("Z-Index Layer Stacking", "zIndex")}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            placeholder="auto or 10"
+                            value={getStyleVal(selectedElement, "zIndex", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("zIndex", e.target.value)}
+                            className="w-24 rounded border px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                          />
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedStyle("zIndex", "0")}
+                              className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600"
+                            >
+                              Back (0)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = parseInt(getStyleVal(selectedElement, "zIndex", activeBreakpointId, breakpoints) as string || "0") || 0;
+                                updateSelectedStyle("zIndex", String(current + 1));
+                              }}
+                              className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600"
+                            >
+                              +1
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedStyle("zIndex", "50")}
+                              className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600"
+                            >
+                              Front (50)
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 4. Dimensions & Viewport Constraints (F-052) */}
+                  {renderAccordion("Dimensions & Viewport", "dimensions", (
+                    <div className="space-y-3.5">
+                      {/* Viewport Presets */}
+                      <div>
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                          Quick Viewport Presets
+                        </span>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateSelectedStyle("width", "100%");
+                              updateSelectedStyle("minHeight", "100vh");
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50 text-[10px] font-bold text-left transition"
+                          >
+                            🌟 100vh Full Screen
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateSelectedStyle("width", "100%");
+                              updateSelectedStyle("minHeight", "50vh");
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50 text-[10px] font-bold text-left transition"
+                          >
+                            ⚡ 50vh Half Screen
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateSelectedStyle("width", "100%");
+                              updateSelectedStyle("height", "auto");
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50 text-[10px] font-bold text-left transition"
+                          >
+                            📏 100% Fluid Width
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateSelectedStyle("width", "auto");
+                              updateSelectedStyle("height", "auto");
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50 text-[10px] font-bold text-left transition"
+                          >
+                            🔄 Auto Size
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Width & Height */}
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           {renderResponsiveLabel("Width", "width")}
                           <input
                             type="text"
-                            placeholder="e.g. 100%, 300px"
+                            placeholder="e.g. 100%, 100vw, 300px"
                             value={getStyleVal(selectedElement, "width", activeBreakpointId, breakpoints) || ""}
                             onChange={(e) => updateSelectedStyle("width", e.target.value)}
                             className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
@@ -2188,10 +3154,58 @@ export default function WebsiteEditor() {
                           {renderResponsiveLabel("Height", "height")}
                           <input
                             type="text"
-                            placeholder="e.g. auto, 400px"
+                            placeholder="e.g. auto, 100vh, 400px"
                             value={getStyleVal(selectedElement, "height", activeBreakpointId, breakpoints) || ""}
                             onChange={(e) => updateSelectedStyle("height", e.target.value)}
                             className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Min / Max Width */}
+                      <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                        <div>
+                          {renderResponsiveLabel("Min Width", "minWidth")}
+                          <input
+                            type="text"
+                            placeholder="e.g. 280px, 50%"
+                            value={getStyleVal(selectedElement, "minWidth", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("minWidth", e.target.value)}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div>
+                          {renderResponsiveLabel("Max Width", "maxWidth")}
+                          <input
+                            type="text"
+                            placeholder="e.g. 1200px, 100%"
+                            value={getStyleVal(selectedElement, "maxWidth", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("maxWidth", e.target.value)}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Min / Max Height */}
+                      <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                        <div>
+                          {renderResponsiveLabel("Min Height", "minHeight")}
+                          <input
+                            type="text"
+                            placeholder="e.g. 100vh, 400px"
+                            value={getStyleVal(selectedElement, "minHeight", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("minHeight", e.target.value)}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          />
+                        </div>
+                        <div>
+                          {renderResponsiveLabel("Max Height", "maxHeight")}
+                          <input
+                            type="text"
+                            placeholder="e.g. 600px, 100vh"
+                            value={getStyleVal(selectedElement, "maxHeight", activeBreakpointId, breakpoints) || ""}
+                            onChange={(e) => updateSelectedStyle("maxHeight", e.target.value)}
+                            className="w-full rounded border px-2 py-1 text-xs"
                           />
                         </div>
                       </div>
@@ -2281,19 +3295,87 @@ export default function WebsiteEditor() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  ))}
 
-                      {/* Custom Classes (F-068) */}
+                  {/* 5. Scroll & Scroll Snap (F-050) */}
+                  {renderAccordion("Scroll & Scroll Snap", "scrollSnap", (
+                    <div className="space-y-3.5">
+                      {/* Overflow Controls */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          {renderResponsiveLabel("Overflow X", "overflowX")}
+                          <select
+                            value={getStyleVal(selectedElement, "overflowX", activeBreakpointId, breakpoints) || "visible"}
+                            onChange={(e) => updateSelectedStyle("overflowX", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="visible">Visible</option>
+                            <option value="hidden">Hidden</option>
+                            <option value="scroll">Scroll</option>
+                            <option value="auto">Auto</option>
+                          </select>
+                        </div>
+                        <div>
+                          {renderResponsiveLabel("Overflow Y", "overflowY")}
+                          <select
+                            value={getStyleVal(selectedElement, "overflowY", activeBreakpointId, breakpoints) || "visible"}
+                            onChange={(e) => updateSelectedStyle("overflowY", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="visible">Visible</option>
+                            <option value="hidden">Hidden</option>
+                            <option value="scroll">Scroll</option>
+                            <option value="auto">Auto</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Scroll Snap Type for Container */}
+                      {selectedElement.type === "container" && (
+                        <div>
+                          {renderResponsiveLabel("Scroll Snap Type", "scrollSnapType")}
+                          <select
+                            value={getStyleVal(selectedElement, "scrollSnapType", activeBreakpointId, breakpoints) || "none"}
+                            onChange={(e) => updateSelectedStyle("scrollSnapType", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="none">None (Regular Scroll)</option>
+                            <option value="x mandatory">X Mandatory (Horizontal Carousel)</option>
+                            <option value="y mandatory">Y Mandatory (Vertical Full-page Snap)</option>
+                            <option value="x proximity">X Proximity (Gentle Snap)</option>
+                            <option value="y proximity">Y Proximity (Gentle Snap)</option>
+                            <option value="both mandatory">Both X & Y Mandatory</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Child Scroll Snap Align */}
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                          CUSTOM CSS CLASSES
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElement.customClass || ""}
-                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
-                          placeholder="e.g. highlight-card shadow-lg"
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        />
+                        {renderResponsiveLabel("Child Snap Align", "scrollSnapAlign")}
+                        <select
+                          value={getStyleVal(selectedElement, "scrollSnapAlign", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("scrollSnapAlign", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">None</option>
+                          <option value="start">Snap to Start (Top/Left)</option>
+                          <option value="center">Snap to Center (Middle)</option>
+                          <option value="end">Snap to End (Bottom/Right)</option>
+                        </select>
+                      </div>
+
+                      {/* Scroll Behavior */}
+                      <div>
+                        {renderResponsiveLabel("Scroll Behavior", "scrollBehavior")}
+                        <select
+                          value={getStyleVal(selectedElement, "scrollBehavior", activeBreakpointId, breakpoints) || "smooth"}
+                          onChange={(e) => updateSelectedStyle("scrollBehavior", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="smooth">Smooth (Animated)</option>
+                          <option value="auto">Auto (Instant)</option>
+                        </select>
                       </div>
                     </div>
                   ))}
@@ -2448,6 +3530,87 @@ export default function WebsiteEditor() {
                     </div>
                   ))}
 
+                  {/* Image Properties & Upload (for Image element) */}
+                  {selectedElement.type === "image" && renderAccordion("Image & Media", "imageMedia", (
+                    <div className="space-y-3.5">
+                      {/* Image Source & Upload */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                          IMAGE SOURCE (URL OR UPLOAD)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="https://... or upload below"
+                            value={selectedElement.src || ""}
+                            onChange={(e) => updateSelectedProp("src", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                          />
+                        </div>
+
+                        {/* Drag and drop upload box */}
+                        <div
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragOver(true);
+                          }}
+                          onDragLeave={() => setDragOver(false)}
+                          onDrop={handleDrop}
+                          onClick={() => fileInputRef.current?.click()}
+                          className={`mt-2 flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl cursor-pointer transition ${dragOver
+                            ? "border-blue-500 bg-blue-50/50"
+                            : "border-slate-300 hover:border-blue-400 bg-slate-50/50"
+                            }`}
+                        >
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => e.target.files?.[0] && handleImageFileSelect(e.target.files[0])}
+                            className="hidden"
+                          />
+                          <UploadCloudIcon />
+                          <span className="mt-1 text-xs font-semibold text-slate-700">
+                            {isUploading ? "Uploading..." : "Click or drag & drop image"}
+                          </span>
+                          <span className="text-[10px] text-slate-400">PNG, JPG, WEBP up to 5MB</span>
+                        </div>
+
+                        {uploadError && (
+                          <p className="mt-1 text-[11px] font-semibold text-red-500">{uploadError}</p>
+                        )}
+                      </div>
+
+                      {/* Alt Text */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                          ALT TEXT (ACCESSIBILITY)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Describe the image..."
+                          value={selectedElement.alt || ""}
+                          onChange={(e) => updateSelectedProp("alt", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Ken Burns Effect (F-092) */}
+                      <div>
+                        {renderResponsiveLabel("Ken Burns Pan & Zoom", "kenBurnsEffect")}
+                        <select
+                          value={getStyleVal(selectedElement, "kenBurnsEffect", activeBreakpointId, breakpoints) || "none"}
+                          onChange={(e) => updateSelectedStyle("kenBurnsEffect", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
+                        >
+                          <option value="none">None</option>
+                          <option value="zoom-in">Slow Zoom In</option>
+                          <option value="zoom-out">Slow Zoom Out</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+
                   {/* 4. Background Controls (F-073, F-074, F-075, F-076, F-077, F-078) */}
                   {renderAccordion("Background options", "background", (
                     <div className="space-y-3.5">
@@ -2507,7 +3670,7 @@ export default function WebsiteEditor() {
                       {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "gradient" && (
                         <div className="space-y-2 border border-slate-200/60 p-2.5 rounded-lg bg-slate-50/50">
                           <span className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Gradient Parameters</span>
-                          
+
                           <div className="grid grid-cols-2 gap-1 text-[10px] font-bold">
                             <div>
                               <span>Stop Color 1</span>
@@ -2811,7 +3974,7 @@ export default function WebsiteEditor() {
                       {/* CSS Filters (F-084) */}
                       <div className="space-y-3 pt-2.5 border-t border-slate-100">
                         <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Filters</span>
-                        
+
                         <div>
                           <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Blur (px)</label>
                           <input
@@ -2852,7 +4015,7 @@ export default function WebsiteEditor() {
                       {/* CSS Transform (F-086) */}
                       <div className="space-y-3 pt-2.5 border-t border-slate-100">
                         <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Transform</span>
-                        
+
                         <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
                           <div>
                             <span>Rotate (deg)</span>
@@ -2991,7 +4154,7 @@ export default function WebsiteEditor() {
                           />
                           ENABLE TOP SHAPE DIVIDER
                         </label>
-                        
+
                         {getStyleVal(selectedElement, "dividerTopEnabled", activeBreakpointId, breakpoints) === "true" && (
                           <div className="space-y-2 pt-1.5">
                             <select
@@ -3004,7 +4167,7 @@ export default function WebsiteEditor() {
                               <option value="slant">Slant</option>
                               <option value="triangle">Triangle</option>
                             </select>
-                            
+
                             <div className="flex gap-2">
                               <input
                                 type="color"
@@ -3035,7 +4198,7 @@ export default function WebsiteEditor() {
                           />
                           ENABLE BOTTOM DIVIDER
                         </label>
-                        
+
                         {getStyleVal(selectedElement, "dividerBottomEnabled", activeBreakpointId, breakpoints) === "true" && (
                           <div className="space-y-2 pt-1.5">
                             <select
@@ -3048,7 +4211,7 @@ export default function WebsiteEditor() {
                               <option value="slant">Slant</option>
                               <option value="triangle">Triangle</option>
                             </select>
-                            
+
                             <div className="flex gap-2">
                               <input
                                 type="color"
@@ -3084,7 +4247,7 @@ export default function WebsiteEditor() {
                     <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
                       Site Identity & Metadata
                     </h3>
-                    
+
                     <div>
                       <label className="text-[10px] text-slate-600 font-semibold block mb-0.5">Site Name</label>
                       <input
@@ -3251,7 +4414,7 @@ export default function WebsiteEditor() {
                     <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
                       Global Layout Width
                     </h3>
-                    
+
                     <div>
                       <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">SITE MAX WIDTH</label>
                       <select
@@ -3312,7 +4475,7 @@ export default function WebsiteEditor() {
                     <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
                       Global Stylesheet (CSS)
                     </h3>
-                    
+
                     <div>
                       <label className="text-[9px] font-bold text-slate-400 block mb-1 uppercase">CUSTOM CSS CODE RULES</label>
                       <textarea
@@ -3338,11 +4501,10 @@ export default function WebsiteEditor() {
       {lightboxImage && (
         <div
           onClick={() => setLightboxImage(null)}
-          className={`fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md transition-opacity duration-300 cursor-zoom-out ${
-            globalSettings?.lightboxSettings?.lightboxTheme === "light" 
-              ? "bg-white/80 text-slate-800" 
-              : "bg-slate-950/80 text-white"
-          }`}
+          className={`fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md transition-opacity duration-300 cursor-zoom-out ${globalSettings?.lightboxSettings?.lightboxTheme === "light"
+            ? "bg-white/80 text-slate-800"
+            : "bg-slate-950/80 text-white"
+            }`}
         >
           <button
             onClick={() => setLightboxImage(null)}
@@ -3357,6 +4519,158 @@ export default function WebsiteEditor() {
             alt="Expanded Zoom"
             className="max-h-[90vh] max-w-full object-contain rounded-xl shadow-2xl animate-scale-up"
           />
+        </div>
+      )}
+
+      {/* ========================================== */}
+      {/* Elementor Structure Preset Picker Modal    */}
+      {/* ========================================== */}
+      {isStructureModalOpen && (
+        <div
+          onClick={() => setIsStructureModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4 animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-5 animate-scale-up"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
+                  </svg>
+                  Select your Structure
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Choose a column layout preset for your container
+                </p>
+              </div>
+              <button
+                onClick={() => setIsStructureModalOpen(false)}
+                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Structure Presets Grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* 1. Full Width (100%) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("single");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center justify-center group-hover:border-blue-400 transition">
+                  <div className="w-full h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  1 Column (100%)
+                </span>
+              </button>
+
+              {/* 2. 2 Equal Columns (50% / 50%) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("cols-2-equal");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center gap-1 group-hover:border-blue-400 transition">
+                  <div className="w-1/2 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/2 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  2 Columns (50/50)
+                </span>
+              </button>
+
+              {/* 3. 3 Equal Columns (33% / 33% / 33%) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("cols-3-equal");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center gap-1 group-hover:border-blue-400 transition">
+                  <div className="w-1/3 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/3 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/3 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  3 Columns (33/33/33)
+                </span>
+              </button>
+
+              {/* 4. 2 Asymmetric Columns (30% / 70%) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("cols-2-30-70");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center gap-1 group-hover:border-blue-400 transition">
+                  <div className="w-[30%] h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-[70%] h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  2 Columns (30/70)
+                </span>
+              </button>
+
+              {/* 5. 2 Asymmetric Columns (70% / 30%) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("cols-2-70-30");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center gap-1 group-hover:border-blue-400 transition">
+                  <div className="w-[70%] h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-[30%] h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  2 Columns (70/30)
+                </span>
+              </button>
+
+              {/* 6. 4 Equal Columns (25% each) */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleInsertStructure("cols-4-equal");
+                  setIsStructureModalOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-blue-500 hover:bg-blue-50/40 hover:shadow-md hover:-translate-y-0.5 group"
+              >
+                <div className="w-full h-12 rounded-lg border-2 border-slate-300 bg-white p-1 flex items-center gap-1 group-hover:border-blue-400 transition">
+                  <div className="w-1/4 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/4 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/4 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                  <div className="w-1/4 h-full bg-slate-200 group-hover:bg-blue-100 rounded transition" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600">
+                  4 Columns (25% each)
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -3436,9 +4750,8 @@ export default function WebsiteEditor() {
                   return (
                     <div
                       key={bp.id}
-                      className={`grid grid-cols-12 items-center gap-2 rounded-xl p-2.5 transition border ${
-                        bp.active ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100"
-                      }`}
+                      className={`grid grid-cols-12 items-center gap-2 rounded-xl p-2.5 transition border ${bp.active ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100"
+                        }`}
                     >
                       <div className="col-span-5 flex items-center gap-2">
                         <span className={`text-xs font-bold ${bp.active ? "text-slate-800" : "text-slate-400"}`}>
@@ -3456,14 +4769,12 @@ export default function WebsiteEditor() {
                           type="button"
                           disabled={isBase}
                           onClick={() => handleToggleBreakpoint(bp.id)}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 ${
-                            bp.active ? "bg-blue-600" : "bg-slate-200"
-                          }`}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 ${bp.active ? "bg-blue-600" : "bg-slate-200"
+                            }`}
                         >
                           <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              bp.active ? "translate-x-4" : "translate-x-0"
-                            }`}
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${bp.active ? "translate-x-4" : "translate-x-0"
+                              }`}
                           />
                         </button>
                       </div>
