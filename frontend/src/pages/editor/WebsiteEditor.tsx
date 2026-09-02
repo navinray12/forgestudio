@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import {
+  type NavigationElementType,
+  type NavigationStyles,
+  getNavigationDefaultElement,
+  NavigationElementRenderer,
+  NavigationSettingsPanel,
+  isNavigationElement,
+} from "./navigation";
 import type { PopupConfig } from "../../types/popup.types";
 import PopupManagerModal from "./components/PopupManagerModal";
 import PopupSettingsPanel from "./components/PopupSettingsPanel";
@@ -14,7 +22,8 @@ export type ElementType =
   | "video" | "divider" | "spacer" | "icon" | "rating"
   | "progress-bar" | "counter" | "html" | "alert"
   | "social-icons" | "google-maps" | "soundcloud"
-  | "div-block" | "paragraph";
+  | "div-block" | "paragraph"
+  | NavigationElementType;
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
 
@@ -40,7 +49,7 @@ export interface ContainerLayout {
   masonryGap?: number | string;
 }
 
-export interface ElementStyles {
+export interface ElementStyles extends NavigationStyles {
   color?: string;
   fontSize?: string;
   fontWeight?: string;
@@ -797,6 +806,9 @@ function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: numb
 
 function createDefaultElement(type: ElementType): EditorElement {
   const id = generateId();
+  const navDefault = getNavigationDefaultElement(type, id);
+  if (navDefault) return navDefault;
+
   switch (type) {
     case "container":
       return {
@@ -1089,6 +1101,13 @@ function createDefaultElement(type: ElementType): EditorElement {
           marginTop: "8px",
           marginBottom: "8px",
         },
+      };
+    default:
+      return {
+        id,
+        type,
+        content: "",
+        styles: {},
       };
   }
 }
@@ -1387,6 +1406,24 @@ export default function WebsiteEditor() {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // Left Sidebar Search & Accordion State
+  const [leftSearchQuery, setLeftSearchQuery] = useState("");
+  const [leftCategoryFilter, setLeftCategoryFilter] = useState<"all" | "basic" | "media" | "navigation">("all");
+  const [openLeftCategories, setOpenLeftCategories] = useState<Record<string, boolean>>({
+    basic: true,
+    media: true,
+    navigation: true,
+  });
+
+  // Elementor-Style Left Panel State
+  const [elementorLeftTab, setElementorLeftTab] = useState<"general" | "style" | "interactions">("general");
+  const [widgetSubTab, setWidgetSubTab] = useState<"widgets" | "components" | "globals">("widgets");
+
+  const toggleLeftCategory = (cat: string) => {
+    setOpenLeftCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
+  };
+
+  // When an element is selected, switch to element tab (F-066)
   useEffect(() => {
     if (selectedId) {
       setActiveSidebarTab("element");
@@ -1780,6 +1817,45 @@ export default function WebsiteEditor() {
             <AnimatedCounter start={0} end={100} prefix="" suffix="%" duration={2000} />
           </div>
         )}
+
+        {/* Paragraph Element (F-173) */}
+        {el.type === "paragraph" && (
+          <p
+            style={{
+              color: "#334155",
+              fontSize: "14px",
+              fontWeight: "400",
+              textAlign: "left",
+              lineHeight: "1.6",
+              ...getInnerStyles(resolvedStyles),
+            }}
+          >
+            {el.content}
+          </p>
+        )}
+
+        {/* Navigation & Search Widgets (F-223 to F-233) */}
+        {[
+          "nav-menu",
+          "wp-menu",
+          "menu-widget",
+          "mega-menu",
+          "breadcrumbs",
+          "menu-anchor",
+          "post-nav",
+          "off-canvas-nav",
+          "site-search",
+          "search-form",
+          "taxonomy-filter"
+        ].includes(el.type) && (
+          <NavigationElementRenderer
+            element={el}
+            activeBreakpointId={activeBreakpointId}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            onUpdateElement={(updater) => setElements((prev) => updateTreeElement(prev, el.id, updater))}
+          />
+        )}
       </div>
     );
   };
@@ -1796,11 +1872,107 @@ export default function WebsiteEditor() {
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* Top Header Bar */}
       <header className="flex h-12 shrink-0 items-center justify-between bg-[#0b1329] px-5 shadow-md">
+        {/* Left: Dashboard link, Elementor Grid Icon & Site Name */}
+        <div className="flex items-center gap-3">
+          <Link
+            to="/dashboard"
+            className="text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1"
+          >
         <div className="flex items-center gap-4">
           <Link to="/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white">
             ‹ Dashboard
           </Link>
           <span className="text-xs font-bold text-white">{website?.name || "Website Editor"}</span>
+
+          <button
+            type="button"
+            onClick={() => setSelectedId(null)}
+            title="Widgets Library (+)"
+            className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+              !selectedId
+                ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white"
+            }`}
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+
+          <span className="text-xs font-bold text-white tracking-wide">
+            {website?.name || "new 1"}
+          </span>
+        </div>
+
+        {/* Center: Device Switcher Toolbar */}
+        {!isPreview && (
+          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
+            {breakpoints
+              .filter((bp) => bp.active)
+              .sort((a, b) => b.width - a.width)
+              .map((bp) => {
+                const isActive = bp.id === activeBreakpointId;
+                return (
+                  <button
+                    key={bp.id}
+                    onClick={() => setActiveBreakpointId(bp.id)}
+                    title={`${bp.name} (${bp.width}px)`}
+                    className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    }`}
+                  >
+                    {bp.id === "widescreen" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
+                      </svg>
+                    )}
+                    {bp.id === "laptop" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="3" y="4" width="18" height="12" rx="1" />
+                        <line x1="1" y1="20" x2="23" y2="20" />
+                      </svg>
+                    )}
+                    {bp.id === "desktop" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="3" y="3" width="18" height="13" rx="2" />
+                        <line x1="12" y1="16" x2="12" y2="20" />
+                        <line x1="8" y1="20" x2="16" y2="20" />
+                      </svg>
+                    )}
+                    {bp.id === "tabletExtra" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="4" y="3" width="16" height="18" rx="2" transform="rotate(90 12 12)" />
+                        <circle cx="12" cy="18" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "tablet" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="5" y="3" width="14" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "mobileExtra" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="6" y="3" width="12" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    {bp.id === "mobile" && (
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <rect x="7" y="3" width="10" height="18" rx="2" />
+                        <circle cx="12" cy="19" r="0.75" />
+                      </svg>
+                    )}
+                    <span className="hidden md:inline">{bp.name}</span>
+                  </button>
+                );
+              })}
+
+            <div className="h-4 w-px bg-slate-700 mx-1" />
 
           {/* Mode Switcher (F-289) */}
           <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
@@ -1890,6 +2062,858 @@ export default function WebsiteEditor() {
 
       {/* Main Workspace Body */}
       <div className="flex flex-1 overflow-hidden">
+        {/* ========================================== */}
+        {/* Left Dynamic Panel (Elementor Style)       */}
+        {/* ========================================== */}
+        {!isPreview && (
+          <aside className="w-80 shrink-0 border-r border-slate-200 bg-white flex flex-col h-full shadow-xs select-none overflow-hidden">
+            {selectedElement ? (
+              /* ========================================== */
+              /* MODE B: EDIT SELECTED ELEMENT              */
+              /* ========================================== */
+              <div className="flex flex-col h-full overflow-hidden">
+                {/* Header: Title, Back to Widgets, Actions */}
+                <div className="p-3 border-b border-slate-200 bg-slate-50/80 shrink-0 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(null)}
+                        title="Back to Widgets"
+                        className="flex h-6 w-6 items-center justify-center rounded-md bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                      <span className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1.5 truncate max-w-[140px]">
+                        <span className="h-2 w-2 rounded-full bg-blue-600 shrink-0" />
+                        Edit {selectedElement.type.replace("-", " ")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-xs font-semibold">
+                      <button
+                        type="button"
+                        onClick={(e) => handleDuplicateElement(selectedElement.id, e)}
+                        title="Duplicate Element"
+                        className="px-2 py-1 text-[10px] font-bold text-blue-600 bg-blue-50 rounded border border-blue-200 hover:bg-blue-100 transition"
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+                        title="Delete Element"
+                        className="px-2 py-1 text-[10px] font-bold text-red-600 bg-red-50 rounded border border-red-200 hover:bg-red-100 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 3 Main Tabs: General | Style | Interactions */}
+                  <div className="flex rounded-lg bg-slate-200/80 p-0.5 text-xs font-bold text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("general")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "general"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      General
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("style")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "style"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Style
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("interactions")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "interactions"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Interactions
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scrollable Panel Body */}
+                <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+                  {/* TAB 1: GENERAL */}
+                  {elementorLeftTab === "general" && (
+                    <div className="space-y-4">
+                      {/* Text / Content Input */}
+                      {typeof selectedElement.content === "string" && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            Title / Content
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={selectedElement.content || ""}
+                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                          />
+                        </div>
+                      )}
+
+                      {/* HTML Tag Selector for Headings / Text */}
+                      {(selectedElement.type === "heading" || selectedElement.type === "text" || selectedElement.type === "paragraph") && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            HTML Tag
+                          </label>
+                          <select
+                            value={selectedElement.tag || (selectedElement.type === "heading" ? "h2" : "p")}
+                            onChange={(e) => updateSelectedProp("tag", e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          >
+                            <option value="h1">H1 (Main Title)</option>
+                            <option value="h2">H2 (Section Header)</option>
+                            <option value="h3">H3 (Sub Heading)</option>
+                            <option value="h4">H4 (Minor Title)</option>
+                            <option value="h5">H5 (Small Header)</option>
+                            <option value="h6">H6 (Caption Header)</option>
+                            <option value="p">P (Paragraph)</option>
+                            <option value="div">DIV (Generic Block)</option>
+                            <option value="span">SPAN (Inline Text)</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Link / Action URL */}
+                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.type === "heading") && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            Link URL / Action
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.href || ""}
+                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+                            placeholder="https://example.com or #section"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      )}
+
+                      {/* Navigation Elements Detailed Settings Panel */}
+                      {([
+                        "nav-menu",
+                        "wp-menu",
+                        "menu-widget",
+                        "mega-menu",
+                        "breadcrumbs",
+                        "menu-anchor",
+                        "post-nav",
+                        "off-canvas-nav",
+                        "site-search",
+                        "search-form",
+                        "taxonomy-filter",
+                      ] as ElementType[]).includes(selectedElement.type) && (
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          updateSelectedProp={updateSelectedProp}
+                          updateSelectedStyle={updateSelectedStyle}
+                          renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 2: STYLE */}
+                  {elementorLeftTab === "style" && (
+                    <div className="space-y-4">
+                      {/* Local CSS Class */}
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                          CSS Class Name
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedElement.customClass || ""}
+                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
+                          placeholder="e.g. hero-title shadow-lg"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Accordions for Styling */}
+                      {renderAccordion("Layout & Spacing", "layout", (
+                        <div className="space-y-3.5">
+                          {/* Device Visibility */}
+                          <div>
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                              Device Visibility
+                            </span>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {breakpoints
+                                .filter(b => b.active)
+                                .map((bp) => {
+                                  const isHidden = selectedElement.hiddenDevices?.[bp.id] || false;
+                                  return (
+                                    <label
+                                      key={bp.id}
+                                      className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${
+                                        isHidden
+                                          ? "bg-amber-50/50 border-amber-200 text-amber-800"
+                                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isHidden}
+                                        onChange={(e) => {
+                                          const hiddenDevices = { ...selectedElement.hiddenDevices };
+                                          if (e.target.checked) {
+                                            hiddenDevices[bp.id] = true;
+                                          } else {
+                                            delete hiddenDevices[bp.id];
+                                          }
+                                          updateSelectedProp("hiddenDevices", hiddenDevices);
+                                        }}
+                                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3 w-3"
+                                      />
+                                      <span className="text-[10px] font-bold">
+                                        Hide: {bp.name}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                            </div>
+                          </div>
+
+                          {/* Padding */}
+                          <div>
+                            {renderResponsiveLabel("Padding", "padding")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "padding", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("padding", e.target.value)}
+                              placeholder="e.g. 16px or 1rem 2rem"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+
+                          {/* Margin */}
+                          <div>
+                            {renderResponsiveLabel("Margin", "margin")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "margin", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("margin", e.target.value)}
+                              placeholder="e.g. 0 auto or 20px"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Typography Accordion */}
+                      {renderAccordion("Typography & Font", "typography", (
+                        <div className="space-y-3.5">
+                          {/* Font Family */}
+                          <div>
+                            {renderResponsiveLabel("Font Family", "fontFamily")}
+                            <select
+                              value={getStyleVal(selectedElement, "fontFamily", activeBreakpointId, breakpoints) || "sans-serif"}
+                              onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="sans-serif">System Sans-serif</option>
+                              <option value="serif">System Serif</option>
+                              <option value="monospace">Monospace</option>
+                              <option value="Inter">Inter</option>
+                              <option value="Roboto">Roboto</option>
+                            </select>
+                          </div>
+
+                          {/* Font Size & Weight */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              {renderResponsiveLabel("Font Size", "fontSize")}
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "fontSize", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("fontSize", e.target.value)}
+                                placeholder="16px"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                            <div>
+                              {renderResponsiveLabel("Font Weight", "fontWeight")}
+                              <select
+                                value={getStyleVal(selectedElement, "fontWeight", activeBreakpointId, breakpoints) || "normal"}
+                                onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="normal">Normal (400)</option>
+                                <option value="500">Medium (500)</option>
+                                <option value="600">SemiBold (600)</option>
+                                <option value="bold">Bold (700)</option>
+                                <option value="900">Black (900)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Text Color */}
+                          <div>
+                            {renderResponsiveLabel("Text Color", "color")}
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#000000"}
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                className="h-7 w-7 cursor-pointer rounded border border-slate-300 p-0.5"
+                              />
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                placeholder="#000000"
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Background Accordion */}
+                      {renderAccordion("Background & Colors", "background", (
+                        <div className="space-y-3.5">
+                          <div>
+                            {renderResponsiveLabel("Background Color", "backgroundColor")}
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                className="h-7 w-7 cursor-pointer rounded border border-slate-300 p-0.5"
+                              />
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                placeholder="transparent or #ffffff"
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* TAB 3: INTERACTIONS */}
+                  {elementorLeftTab === "interactions" && (
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3.5 space-y-2">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-blue-700 block">
+                          ✨ Motion &amp; Entrance Effects
+                        </span>
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                          Add animations and hover triggers when users scroll or interact with this {selectedElement.type}.
+                        </p>
+                      </div>
+
+                      {/* Entrance Animation Selector */}
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                          Entrance Animation
+                        </label>
+                        <select
+                          value={selectedElement.styles?.animation || "none"}
+                          onChange={(e) => updateSelectedStyle("animation", e.target.value)}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        >
+                          <option value="none">None (Static)</option>
+                          <option value="fade-in">Fade In</option>
+                          <option value="zoom-in">Zoom In</option>
+                          <option value="slide-up">Slide Up</option>
+                          <option value="bounce">Bounce</option>
+                          <option value="flip">3D Flip</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* ========================================== */
+              /* MODE A: WIDGETS LIBRARY PALETTE            */
+              /* ========================================== */
+              <div className="flex flex-col h-full overflow-hidden">
+                {/* Left Sidebar Sticky Header & Search */}
+                <div className="p-3.5 border-b border-slate-100 bg-slate-50/60 shrink-0 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <svg className="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Elements &amp; Widgets
+                    </span>
+                  </div>
+
+                  {/* Instant Element Search Bar */}
+                  <div className="relative">
+                    <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={leftSearchQuery}
+                      onChange={(e) => setLeftSearchQuery(e.target.value)}
+                      placeholder="Search Widget..."
+                      className="w-full rounded-lg border border-slate-200 bg-white pl-8 pr-7 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                    />
+                    {leftSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setLeftSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sub Tabs: Widgets | Components | Globals */}
+                  <div className="flex rounded-lg bg-slate-200/70 p-0.5 text-[10px] font-extrabold text-slate-600">
+                    {(["widgets", "components", "globals"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setWidgetSubTab(tab)}
+                        className={`flex-1 rounded-md py-1 text-center capitalize transition ${
+                          widgetSubTab === tab
+                            ? "bg-white text-slate-800 shadow-xs font-black"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scrollable Elements Catalog */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-4">
+                  {/* Category Filter Pills */}
+                  <div className="flex rounded-lg bg-slate-100 p-0.5 text-[10px] font-bold text-slate-500">
+                    {(["all", "basic", "media", "navigation"] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setLeftCategoryFilter(cat)}
+                        className={`flex-1 rounded-md py-1 text-center capitalize transition ${
+                          leftCategoryFilter === cat
+                            ? "bg-white text-slate-800 shadow-xs font-black"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* SECTION 1: LAYOUT & BASIC */}
+                  {(leftCategoryFilter === "all" || leftCategoryFilter === "basic") && (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleLeftCategory("basic")}
+                        className="w-full flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 hover:text-slate-600 py-1"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>🧩</span> Atomic Elements
+                        </span>
+                        <span>{openLeftCategories.basic ? "▼" : "▶"}</span>
+                      </button>
+
+                      {(openLeftCategories.basic || leftSearchQuery) && (
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Container */}
+                          {("container layout section flex grid").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("container")}
+                              className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 text-white shadow-sm hover:from-blue-700 hover:to-indigo-700 transition hover:-translate-y-0.5 active:scale-95 group"
+                            >
+                              <ContainerBoxIcon />
+                              <span className="text-xs font-bold">+ Add Layout Container</span>
+                            </button>
+                          )}
+
+                          {/* Heading */}
+                          {("heading title header h1 h2").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("heading")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <HeadingBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Heading</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Text */}
+                          {("text paragraph body content").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("text")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <TextBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Text</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Image */}
+                          {("image photo picture gallery").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("image")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <ImageBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Image</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Button */}
+                          {("button cta link action").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("button")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <ButtonBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Button</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Div Block */}
+                          {("div block section wrapper").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("div-block")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700 font-bold text-[9px] group-hover:scale-110 transition-transform">
+                                DIV
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Div Block</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Paragraph */}
+                          {("paragraph article copy text").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("paragraph")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600 font-serif font-bold text-xs group-hover:scale-110 transition-transform">
+                                P
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Paragraph</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* SECTION 2: NAVIGATION & SEARCH */}
+                  {(leftCategoryFilter === "all" || leftCategoryFilter === "navigation") && (
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => toggleLeftCategory("navigation")}
+                        className="w-full flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 hover:text-slate-600 py-1"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>🧭</span> Navigation &amp; Search
+                        </span>
+                        <span>{openLeftCategories.navigation ? "▼" : "▶"}</span>
+                      </button>
+
+                      {(openLeftCategories.navigation || leftSearchQuery) && (
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Nav Menu */}
+                          {("nav menu navbar link Header navigation").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("nav-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ☰
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Nav Menu</span>
+                            </button>
+                          )}
+
+                          {/* WP Menu */}
+                          {("wp wordpress menu header sync").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("wp-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-sky-500 hover:bg-sky-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 text-white font-black text-xs group-hover:scale-110 transition-transform">
+                                W
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-sky-600">WP Menu</span>
+                            </button>
+                          )}
+
+                          {/* Menu Widget */}
+                          {("menu widget dropdown control badge").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("menu-widget")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-indigo-500 hover:bg-indigo-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🗂️
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-indigo-600">Menu Widget</span>
+                            </button>
+                          )}
+
+                          {/* Mega Menu */}
+                          {("mega menu column promo feature dropdown").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("mega-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-purple-500 hover:bg-purple-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ▦
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-purple-600">Mega Menu</span>
+                            </button>
+                          )}
+
+                          {/* Breadcrumbs */}
+                          {("breadcrumbs trail path hierarchy home seo").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("breadcrumbs")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ››
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-amber-600">Breadcrumbs</span>
+                            </button>
+                          )}
+
+                          {/* Menu Anchor */}
+                          {("menu anchor pin scroll jump target").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("menu-anchor")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-emerald-500 hover:bg-emerald-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⚓
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-emerald-600">Anchor Pin</span>
+                            </button>
+                          )}
+
+                          {/* Post Nav */}
+                          {("post nav previous next article blog").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("post-nav")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⇄
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-teal-600">Post Nav</span>
+                            </button>
+                          )}
+
+                          {/* Off Canvas */}
+                          {("off canvas drawer slide flyout mobile").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("off-canvas-nav")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-rose-500 hover:bg-rose-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⇥
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-rose-600">Off Canvas</span>
+                            </button>
+                          )}
+
+                          {/* Site Search */}
+                          {("site search find autocomplete live query").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("site-search")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🔍
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Site Search</span>
+                            </button>
+                          )}
+
+                          {/* Search Form */}
+                          {("search form input method action get post").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("search-form")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-cyan-500 hover:bg-cyan-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                [🔍]
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-cyan-600">Search Form</span>
+                            </button>
+                          )}
+
+                          {/* Taxonomy Filter */}
+                          {("taxonomy filter tags category categories pills count").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("taxonomy-filter")}
+                              className="col-span-2 flex items-center justify-center gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🏷️
+                              </div>
+                              <span className="text-xs font-bold text-slate-700 group-hover:text-amber-600">Taxonomy Filter</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </aside>
+        )}
+
+        {/* ========================================== */}
+        {/* Center: White Canvas Container              */}
+        {/* ========================================== */}
+        <main
+          onClick={() => setSelectedId(null)}
+          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: activeBreakpointId === "widescreen" ? "100%" : `${breakpoints.find(b => b.id === activeBreakpointId)?.width || 1024}px`,
+            }}
+            className={`min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md transition-all duration-300 relative ${
+              activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop"
+                ? "rounded-2xl border border-slate-200 p-8 sm:p-10"
+                : "rounded-[40px] border-[12px] border-slate-900 px-6 py-12"
+            }`}
+          >
+            {/* Simulated Phone Notch / Speaker for Mobile/Tablet */}
+            {!(activeBreakpointId === "desktop" || activeBreakpointId === "widescreen" || activeBreakpointId === "laptop") && (
+              <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-full flex items-center justify-center gap-1.5 z-50">
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                <div className="w-10 h-1 bg-slate-800 rounded-full" />
+              </div>
+            )}
+
+            {elements.length === 0 ? (
+              <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
+                <p className="text-sm font-bold text-slate-700">
+                  Your Canvas is Empty
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Click any element from the left panel to start building.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {elements.map((el) => renderElementTree(el))}
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* ========================================== */}
+        {/* Right Sidebar: Inspector & Settings Panel  */}
+        {/* ========================================== */}
+        {activeSidebarTab && (
+          <aside className="w-80 border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-y-auto">
+            {/* Header / Tabs */}
+            <div className="flex border-b border-slate-200 bg-slate-50/50 p-2 gap-1 sticky top-0 z-10">
+              <button
+                onClick={() => setActiveSidebarTab("element")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                  activeSidebarTab === "element"
+                    ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Element Style
+              </button>
+              <button
+                onClick={() => setActiveSidebarTab("global")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                  activeSidebarTab === "global"
+                    ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Global Site
+              </button>
+            </div>
+
+            <div className="p-4 space-y-6">
+              {activeSidebarTab === "element" ? (
+                <div>
+                  {!selectedElement ? (
+                    <div className="flex h-64 flex-col items-center justify-center text-center p-6 text-slate-400">
+                      <p className="text-xs font-semibold">No Element Selected</p>
+                      <p className="text-[11px] mt-1 text-slate-400">Click any element on the canvas to inspect & edit styles.</p>
+                    </div>
+                  ) : (
+                    /* Element Style Panel */
+                    <div className="space-y-4">
+                      {/* Navigation Settings Renderer if selected element is navigation */}
+                      {isNavigationElement(selectedElement.type) ? (
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          activeBreakpointId={activeBreakpointId}
+                          breakpoints={breakpoints}
+                          updateSelectedStyle={updateSelectedStyle}
+                          updateSelectedProp={updateSelectedProp}
+                          renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      ) : (
+                        <div className="space-y-4">
+                          {/* 2. Hover / Transform Effects */}
+                          <div className="border-b border-slate-100 pb-3">
+                            <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Hover Transform & Effects</span>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                {renderResponsiveLabel("Scale (x)", "hoverScale")}
+                                <input
+                                  type="number"
+                                  step="0.05"
+                                  min="0.5"
+                                  max="2"
+                                  placeholder="1.0"
+                                  value={getStyleVal(selectedElement, "hoverScale", activeBreakpointId, breakpoints) || ""}
+                                  onChange={(e) => updateSelectedStyle("hoverScale", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
+                                />
+                            </div>
         {/* Left Palette */}
         {!isPreview && (
           <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
@@ -2219,6 +3243,84 @@ export default function WebsiteEditor() {
                           </div>
                         )}
 
+                          <div>
+                            {renderResponsiveLabel("Hover Opacity (%)", "hoverOpacity")}
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={getStyleVal(selectedElement, "hoverOpacity", activeBreakpointId, breakpoints) || "100"}
+                              onChange={(e) => updateSelectedStyle("hoverOpacity", e.target.value)}
+                              className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                            />
+                            <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                              {getStyleVal(selectedElement, "hoverOpacity", activeBreakpointId, breakpoints) || "100"}%
+                            </div>
+                          </div>
+                        </div>
+
+                      {/* 3. Mouse Effects (F-126, F-127, F-128) */}
+                      <div className="border-b border-slate-100 pb-3">
+                        <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Mouse Tracking & 3D Tilt</span>
+                        <div className="space-y-3">
+                          {/* Mouse Track */}
+                          <div className="space-y-1.5">
+                            <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
+                              <input
+                                type="checkbox"
+                                checked={getStyleVal(selectedElement, "mouseTrackEnabled", activeBreakpointId, breakpoints) === "true"}
+                                onChange={(e) => updateSelectedStyle("mouseTrackEnabled", e.target.checked ? "true" : "false")}
+                                className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
+                              />
+                              ENABLE MOUSE TRACKING
+                            </label>
+                            {getStyleVal(selectedElement, "mouseTrackEnabled", activeBreakpointId, breakpoints) === "true" && (
+                              <div>
+                                <label className="text-[10px] font-bold text-slate-400 block mb-0.5 uppercase">TRACKING SENSITIVITY</label>
+                                <input
+                                  type="range"
+                                  min="-0.8"
+                                  max="0.8"
+                                  step="0.05"
+                                  value={parseFloat(getStyleVal(selectedElement, "mouseTrackSpeed", activeBreakpointId, breakpoints) || "0.1")}
+                                  onChange={(e) => updateSelectedStyle("mouseTrackSpeed", e.target.value)}
+                                  className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                                />
+                                <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                                  {getStyleVal(selectedElement, "mouseTrackSpeed", activeBreakpointId, breakpoints) || "0.1"} (speed)
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 3D Tilt */}
+                          <div className="space-y-1.5 pt-2 border-t border-slate-55 bg-transparent">
+                            <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
+                              <input
+                                type="checkbox"
+                                checked={getStyleVal(selectedElement, "tilt3DEnabled", activeBreakpointId, breakpoints) === "true"}
+                                onChange={(e) => updateSelectedStyle("tilt3DEnabled", e.target.checked ? "true" : "false")}
+                                className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
+                              />
+                              ENABLE 3D TILT EFFECT
+                            </label>
+                            {getStyleVal(selectedElement, "tilt3DEnabled", activeBreakpointId, breakpoints) === "true" && (
+                              <div>
+                                <label className="text-[10px] font-bold text-slate-400 block mb-0.5 uppercase">MAX TILT ANGLE</label>
+                                <input
+                                  type="range"
+                                  min="5"
+                                  max="45"
+                                  value={parseInt(getStyleVal(selectedElement, "tilt3DMax", activeBreakpointId, breakpoints) || "15")}
+                                  onChange={(e) => updateSelectedStyle("tilt3DMax", e.target.value)}
+                                  className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                                />
+                                <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
+                                  {getStyleVal(selectedElement, "tilt3DMax", activeBreakpointId, breakpoints) || "15"} deg
+                                </div>
+                              </div>
+                            )}
+                          </div>
                       {selectedElement.type !== "container" && (
                         <div>
                           <label className="block text-[10px] font-bold text-slate-500 mb-1">
@@ -2323,6 +3425,51 @@ export default function WebsiteEditor() {
                             />
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+                /* Global Settings & Site Identity Panel (F-066 to F-101) */
+                <div className="space-y-4">
+                  <div className="border-b border-slate-100 pb-2">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-600">
+                      Global Settings & Identity
+                    </span>
+                  </div>
+
+                  {/* F-101 Site Identity */}
+                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
+                      Site Identity & Metadata
+                    </h3>
+                    
+                    <div>
+                      <label className="text-[10px] text-slate-600 font-semibold block mb-0.5">Site Name</label>
+                      <input
+                        type="text"
+                        value={globalSettings.siteIdentity?.name || ""}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          siteIdentity: { ...prev.siteIdentity, name: e.target.value }
+                        }))}
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-600 font-semibold block mb-0.5">Description (SEO)</label>
+                      <textarea
+                        rows={2}
+                        value={globalSettings.siteIdentity?.description || ""}
+                        onChange={(e) => setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          siteIdentity: { ...prev.siteIdentity, description: e.target.value }
+                        }))}
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      />
                       )}
                     </div>
                   ) : (
@@ -2444,6 +3591,24 @@ export default function WebsiteEditor() {
                               </select>
                             </div>
 
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">BODY FONT FAMILY</label>
+                          <select
+                            value={globalSettings.fonts?.body || "Inter"}
+                            onChange={(e) => setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              fonts: { ...prev.fonts, body: e.target.value }
+                            }))}
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          >
+                            <option value="Inter">Inter (Sans-serif)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="sans-serif">System Sans</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                             <div>
                               <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
                                 Label
