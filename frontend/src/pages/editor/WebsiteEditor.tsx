@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import type { PopupConfig } from "../../types/popup.types";
+import PopupManagerModal from "./components/PopupManagerModal";
+import PopupSettingsPanel from "./components/PopupSettingsPanel";
+import PopupRuntimePreview from "./components/PopupRuntimePreview";
 
 // ==========================================
 // Types & Interfaces
@@ -264,6 +268,7 @@ interface WebsiteData {
     elements: EditorElement[];
     breakpoints?: Breakpoint[];
     globalSettings?: any;
+    popups?: PopupConfig[];
   };
 }
 
@@ -1249,16 +1254,17 @@ const DEFAULT_BREAKPOINTS: Breakpoint[] = [
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
-  const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
   const [elements, setElements] = useState<EditorElement[]>([]);
+  const [popups, setPopups] = useState<PopupConfig[]>([]);
+  const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
+  const [activePopupId, setActivePopupId] = useState<string | null>(null);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [activeElementState] = useState<ElementState>("normal");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1268,8 +1274,66 @@ export default function WebsiteEditor() {
   const [isPreview, setIsPreview] = useState(false);
   const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
   const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
-  const [isBpModalOpen, setIsBpModalOpen] = useState(false);
   const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
+
+  // Active Popup reference
+  const activePopup = activePopupId ? popups.find((p) => p.id === activePopupId) || null : null;
+  const currentElementList = activeCanvasMode === "popup" && activePopup ? activePopup.elements || [] : elements;
+
+  const setUnifiedElements = (updater: (prev: EditorElement[]) => EditorElement[]) => {
+    if (activeCanvasMode === "popup" && activePopupId) {
+      setPopups((prev) =>
+        prev.map((p) => (p.id === activePopupId ? { ...p, elements: updater(p.elements || []) } : p))
+      );
+    } else {
+      setElements(updater);
+    }
+  };
+
+  const handleCreatePopup = (newPopup: PopupConfig) => {
+    setPopups((prev) => [...prev, newPopup]);
+  };
+
+  const handleUpdatePopup = (popupId: string, updater: (p: PopupConfig) => PopupConfig) => {
+    setPopups((prev) => prev.map((p) => (p.id === popupId ? updater(p) : p)));
+  };
+
+  const handleDeletePopup = (popupId: string) => {
+    setPopups((prev) => prev.filter((p) => p.id !== popupId));
+    if (activePopupId === popupId) {
+      setActivePopupId(null);
+      setActiveCanvasMode("page");
+    }
+  };
+
+  const handleDuplicatePopup = (popupId: string) => {
+    const target = popups.find((p) => p.id === popupId);
+    if (!target) return;
+    const cloned: PopupConfig = JSON.parse(JSON.stringify(target));
+    cloned.id = "pop_" + Math.random().toString(36).substring(2, 9);
+    cloned.name = `${target.name} (Copy)`;
+    cloned.viewsCount = 0;
+    cloned.clicksCount = 0;
+    setPopups((prev) => [...prev, cloned]);
+  };
+
+  const handleSelectPopupForEdit = (popupId: string) => {
+    setActivePopupId(popupId);
+    setActiveCanvasMode("popup");
+    setSelectedId(null);
+  };
+
+  const handleTrackPopupView = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
+    );
+  };
+
+  const handleTrackPopupClick = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
+    );
+  };
 
   // Global Settings
   const [globalSettings, setGlobalSettings] = useState<any>({
@@ -1304,8 +1368,7 @@ export default function WebsiteEditor() {
     }
   });
 
-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global">("global");
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup">("global");
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     layout: true,
@@ -1327,10 +1390,12 @@ export default function WebsiteEditor() {
   useEffect(() => {
     if (selectedId) {
       setActiveSidebarTab("element");
+    } else if (activeCanvasMode === "popup") {
+      setActiveSidebarTab("popup");
     } else {
       setActiveSidebarTab("global");
     }
-  }, [selectedId]);
+  }, [selectedId, activeCanvasMode]);
 
   // Fetch Website Data
   useEffect(() => {
@@ -1359,6 +1424,10 @@ export default function WebsiteEditor() {
             createDefaultElement("text"),
             createDefaultElement("button"),
           ]);
+        }
+
+        if (loadedSite?.editorData?.popups && Array.isArray(loadedSite.editorData.popups)) {
+          setPopups(loadedSite.editorData.popups);
         }
 
         if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
@@ -1394,6 +1463,7 @@ export default function WebsiteEditor() {
           elements,
           breakpoints,
           globalSettings,
+          popups,
         },
       };
 
@@ -1418,39 +1488,39 @@ export default function WebsiteEditor() {
 
   const handleAddElement = (type: ElementType) => {
     const newEl = createDefaultElement(type);
-    setElements((prev) => insertTreeElement(prev, selectedId, newEl));
+    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
     setSelectedId(newEl.id);
   };
 
   const handleInsertStructure = (presetType: StructurePresetType) => {
     const newEl = createStructurePreset(presetType);
-    setElements((prev) => insertTreeElement(prev, selectedId, newEl));
+    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
     setSelectedId(newEl.id);
   };
 
   const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setElements((prev) => deleteTreeElement(prev, id));
+    setUnifiedElements((prev) => deleteTreeElement(prev, id));
     if (selectedId === id) setSelectedId(null);
   };
 
   const handleDuplicateElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setElements((prev) => duplicateTreeElement(prev, id));
+    setUnifiedElements((prev) => duplicateTreeElement(prev, id));
   };
 
-  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
+  const selectedElement = selectedId ? findTreeElement(currentElementList, selectedId) : null;
 
   const updateSelectedProp = (key: keyof EditorElement, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => ({ ...el, [key]: value }))
     );
   };
 
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         if (activeBreakpointId === "desktop") {
           return {
@@ -1477,7 +1547,7 @@ export default function WebsiteEditor() {
 
   const updateSelectedLayout = (key: keyof ContainerLayout, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         if (activeBreakpointId === "desktop") {
           return {
@@ -1504,8 +1574,8 @@ export default function WebsiteEditor() {
 
   const renderResponsiveLabel = (
     label: string,
-    styleKey?: keyof ElementStyles,
-    layoutKey?: keyof ContainerLayout
+    _styleKey?: keyof ElementStyles,
+    _layoutKey?: keyof ContainerLayout
   ) => {
     return (
       <div className="flex items-center justify-between mb-1 mt-2">
@@ -1731,16 +1801,62 @@ export default function WebsiteEditor() {
             ‹ Dashboard
           </Link>
           <span className="text-xs font-bold text-white">{website?.name || "Website Editor"}</span>
+
+          {/* Mode Switcher (F-289) */}
+          <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
+            <button
+              onClick={() => {
+                setActiveCanvasMode("page");
+                setSelectedId(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                activeCanvasMode === "page"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <span>📄</span> Page Canvas
+            </button>
+            <button
+              onClick={() => setIsPopupManagerOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                activeCanvasMode === "popup"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <span>✨</span> Popups ({popups.length})
+            </button>
+          </div>
+
+          {activeCanvasMode === "popup" && activePopup && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 text-xs">
+              <span className="text-amber-300 font-bold">Popup Mode:</span>
+              <span className="text-white font-medium truncate max-w-[140px]">{activePopup.name}</span>
+              <button
+                onClick={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+                className="text-amber-300 hover:text-white font-bold ml-1"
+                title="Return to Page Canvas"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
         {!isPreview && (
           <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
-            {breakpoints.filter(b => b.active).map((bp) => (
+            {breakpoints.filter((b) => b.active).map((bp) => (
               <button
                 key={bp.id}
                 onClick={() => setActiveBreakpointId(bp.id)}
                 className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
-                  bp.id === activeBreakpointId ? "bg-blue-600 text-white shadow-sm" : "text-slate-300 hover:bg-slate-800"
+                  bp.id === activeBreakpointId
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-300 hover:bg-slate-800"
                 }`}
               >
                 {bp.name}
@@ -1754,9 +1870,13 @@ export default function WebsiteEditor() {
           {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className="rounded-full border border-slate-600 px-4 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${
+              isPreview
+                ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
+                : "border-slate-600 text-slate-300 hover:bg-slate-800"
+            }`}
           >
-            {isPreview ? "Exit Preview" : "Preview"}
+            {isPreview ? "Exit Preview" : "Preview Site & Popups"}
           </button>
           <button
             onClick={handleSave}
@@ -1788,7 +1908,7 @@ export default function WebsiteEditor() {
                 <button
                   onClick={() => {
                     const newEl = createGridPrimitive();
-                    setElements(prev => insertTreeElement(prev, selectedId, newEl));
+                    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
                     setSelectedId(newEl.id);
                   }}
                   className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
@@ -1838,183 +1958,561 @@ export default function WebsiteEditor() {
           onClick={() => setSelectedId(null)}
           className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
         >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: `${breakpoints.find(b => b.id === activeBreakpointId)?.width || 1024}px`,
-            }}
-            className="min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md rounded-2xl border border-slate-200 p-8 sm:p-10 relative"
-          >
-            {elements.length === 0 ? (
-              <div
-                onClick={() => setIsStructureModalOpen(true)}
-                className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
-                  +
+          {activeCanvasMode === "popup" && activePopup ? (
+            /* Popup Visual Editing Canvas */
+            <div className="flex flex-col items-center justify-center w-full my-auto">
+              <div className="mb-3 flex items-center justify-between w-full max-w-2xl px-2">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 uppercase">
+                    {activePopup.layoutMode} Mode
+                  </span>
+                  <span className="text-xs font-bold text-slate-700">{activePopup.name}</span>
                 </div>
-                <p className="mt-4 text-sm font-bold text-slate-700">Click to add a Container</p>
+                <button
+                  onClick={() => setIsPopupManagerOpen(true)}
+                  className="text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Manage All Popups
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {elements.map((el) => renderElementTree(el))}
 
-                {!isPreview && (
-                  <div className="pt-4 pb-6">
+              {/* Backdrop Frame Simulation */}
+              <div
+                className="w-full max-w-4xl min-h-[550px] rounded-3xl p-8 flex items-center justify-center relative transition-all duration-200 border border-slate-300 shadow-inner"
+                style={{
+                  backgroundColor: activePopup.backdropOverlay ? activePopup.backdropColor : "#e2e8f0",
+                }}
+              >
+                {/* Popup Container Box */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    width: activePopup.width || "580px",
+                    maxWidth: "100%",
+                    minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
+                  }}
+                  className={`bg-white shadow-2xl relative transition-all duration-150 ${
+                    activePopup.layoutMode === "hello-bar"
+                      ? "rounded-none w-full shadow-md"
+                      : "rounded-2xl"
+                  }`}
+                >
+                  {/* Close button badge */}
+                  {activePopup.closeButton && (
                     <div
-                      onClick={() => setIsStructureModalOpen(true)}
-                      className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer"
+                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${
+                        activePopup.closeButtonPosition === "outside"
+                          ? "-top-3 -right-3"
+                          : "top-3 right-3"
+                      }`}
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
-                        +
-                      </div>
-                      <span className="mt-2 text-xs font-bold text-slate-600">Add New Container</span>
+                      ✕
                     </div>
+                  )}
+
+                  {/* Popup Inner Elements */}
+                  <div className="p-4">
+                    {activePopup.elements.length === 0 ? (
+                      <div
+                        onClick={() => setIsStructureModalOpen(true)}
+                        className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400 bg-slate-50"
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+                          +
+                        </div>
+                        <p className="mt-2 text-xs font-bold text-slate-700">Add Container into Popup</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {activePopup.elements.map((el) => renderElementTree(el))}
+
+                        <div className="pt-2">
+                          <div
+                            onClick={() => setIsStructureModalOpen(true)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 hover:bg-blue-50/40 hover:border-blue-400 py-3 cursor-pointer text-xs font-bold text-slate-600"
+                          >
+                            <span>+</span> Add Container to Popup
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* Main Page Canvas */
+            <div
+              style={{
+                width: "100%",
+                maxWidth: `${breakpoints.find((b) => b.id === activeBreakpointId)?.width || 1024}px`,
+              }}
+              className="min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md rounded-2xl border border-slate-200 p-8 sm:p-10 relative"
+            >
+              {elements.length === 0 ? (
+                <div
+                  onClick={() => setIsStructureModalOpen(true)}
+                  className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
+                    +
+                  </div>
+                  <p className="mt-4 text-sm font-bold text-slate-700">Click to add a Container</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {elements.map((el) => renderElementTree(el))}
+
+                  {!isPreview && (
+                    <div className="pt-4 pb-6">
+                      <div
+                        onClick={() => setIsStructureModalOpen(true)}
+                        className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer"
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+                          +
+                        </div>
+                        <span className="mt-2 text-xs font-bold text-slate-600">Add New Container</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </main>
 
         {/* Right Settings Inspector */}
         {!isPreview && (
           <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2">
-                Settings & Design
-              </h2>
-              <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => selectedElement && setActiveSidebarTab("element")}
-                  disabled={!selectedElement}
-                  className={`flex-1 rounded-md py-1.5 text-center ${
-                    activeSidebarTab === "element" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500"
-                  }`}
-                >
-                  Element Styles
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveSidebarTab("global")}
-                  className={`flex-1 rounded-md py-1.5 text-center ${
-                    activeSidebarTab === "global" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500"
-                  }`}
-                >
-                  Global & Site
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {activeSidebarTab === "element" && selectedElement ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <span className="text-xs font-bold uppercase text-blue-600">{selectedElement.type} Settings</span>
-                    <button onClick={(e) => handleDeleteElement(selectedElement.id, e)} className="text-xs text-red-500 hover:underline">
-                      Delete
+            {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
+              <PopupSettingsPanel
+                popup={activePopup}
+                onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
+                onExitPopupEdit={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+              />
+            ) : (
+              <>
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Settings & Design
+                    </h2>
+                    {activeCanvasMode === "popup" && (
+                      <button
+                        onClick={() => setSelectedId(null)}
+                        className="text-[11px] font-bold text-blue-600 hover:underline"
+                      >
+                        Popup Options →
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => selectedElement && setActiveSidebarTab("element")}
+                      disabled={!selectedElement}
+                      className={`flex-1 rounded-md py-1.5 text-center ${
+                        activeSidebarTab === "element"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      Element Styles
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSidebarTab("global")}
+                      className={`flex-1 rounded-md py-1.5 text-center ${
+                        activeSidebarTab === "global"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      Global & Site
                     </button>
                   </div>
+                </div>
 
-                  {selectedElement.type === "container" && renderAccordion("Layout & Structure", "layout", (
-                    <div className="space-y-3">
-                      <div>
-                        {renderResponsiveLabel("Layout Engine")}
-                        <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
-                          {(["flex", "grid", "masonry"] as const).map((mode) => (
-                            <button
-                              key={mode}
-                              onClick={() => updateSelectedLayout("layoutType", mode)}
-                              className={`py-1 rounded capitalize ${
-                                (getLayoutVal(selectedElement, "layoutType", activeBreakpointId, breakpoints) || "flex") === mode
-                                  ? "bg-white text-blue-600 shadow"
-                                  : "text-slate-600"
-                              }`}
-                            >
-                              {mode}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Direction")}
-                        <select
-                          value={getLayoutVal(selectedElement, "direction", activeBreakpointId, breakpoints) || "column"}
-                          onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                          className="w-full rounded border px-2 py-1.5 text-xs"
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {activeSidebarTab === "element" && selectedElement ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <span className="text-xs font-bold uppercase text-blue-600">
+                          {selectedElement.type} Settings
+                        </span>
+                        <button
+                          onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+                          className="text-xs text-red-500 hover:underline"
                         >
-                          <option value="column">Column (Vertical)</option>
-                          <option value="row">Row (Horizontal)</option>
-                        </select>
+                          Delete
+                        </button>
                       </div>
 
-                      <div>
-                        {renderResponsiveLabel("Spacing Gap (px)")}
-                        <input
-                          type="number"
-                          value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 16}
-                          onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
-                          className="w-full rounded border px-2 py-1 text-xs"
-                        />
-                      </div>
+                      {selectedElement.type === "container" &&
+                        renderAccordion(
+                          "Layout & Structure",
+                          "layout",
+                          <div className="space-y-3">
+                            <div>
+                              {renderResponsiveLabel("Layout Engine")}
+                              <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+                                {(["flex", "grid", "masonry"] as const).map((mode) => (
+                                  <button
+                                    key={mode}
+                                    onClick={() => updateSelectedLayout("layoutType", mode)}
+                                    className={`py-1 rounded capitalize ${
+                                      (getLayoutVal(
+                                        selectedElement,
+                                        "layoutType",
+                                        activeBreakpointId,
+                                        breakpoints
+                                      ) || "flex") === mode
+                                        ? "bg-white text-blue-600 shadow"
+                                        : "text-slate-600"
+                                    }`}
+                                  >
+                                    {mode}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div>
+                              {renderResponsiveLabel("Direction")}
+                              <select
+                                value={
+                                  getLayoutVal(
+                                    selectedElement,
+                                    "direction",
+                                    activeBreakpointId,
+                                    breakpoints
+                                  ) || "column"
+                                }
+                                onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                                className="w-full rounded border px-2 py-1.5 text-xs"
+                              >
+                                <option value="column">Column (Vertical)</option>
+                                <option value="row">Row (Horizontal)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              {renderResponsiveLabel("Spacing Gap (px)")}
+                              <input
+                                type="number"
+                                value={
+                                  getLayoutVal(
+                                    selectedElement,
+                                    "gap",
+                                    activeBreakpointId,
+                                    breakpoints
+                                  ) ?? 16
+                                }
+                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                className="w-full rounded border px-2 py-1 text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                      {selectedElement.type !== "container" && (
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                            CONTENT
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.content || ""}
+                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+                            className="w-full rounded border px-3 py-1.5 text-xs"
+                          />
+                        </div>
+                      )}
+
+                      {/* Smart Link & URL Controls (F-291) */}
+                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                          <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                            Link & Smart Actions (F-291)
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.href || ""}
+                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+                            placeholder="https://..., popup:open(id), scroll:to(id)"
+                            className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                          />
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {popups.length > 0 && (
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    updateSelectedProp("href", `popup:open(${e.target.value})`);
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                              >
+                                <option value="">+ Open Popup...</option>
+                                {popups.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("href", "popup:close")}
+                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                            >
+                              Close Popup
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                            >
+                              Scroll to Top
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {renderAccordion(
+                        "Typography & Colors",
+                        "typography",
+                        <div className="space-y-3">
+                          <div>
+                            {renderResponsiveLabel("Text Color")}
+                            <input
+                              type="color"
+                              value={
+                                getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
+                                "#0f172a"
+                              }
+                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                              className="w-full h-8 cursor-pointer rounded border p-0.5"
+                            />
+                          </div>
+                          <div>
+                            {renderResponsiveLabel("Font Size (px)")}
+                            <input
+                              type="text"
+                              value={
+                                getStyleVal(
+                                  selectedElement,
+                                  "fontSize",
+                                  activeBreakpointId,
+                                  breakpoints
+                                ) || "16px"
+                              }
+                              onChange={(e) =>
+                                updateSelectedStyle(
+                                  "fontSize",
+                                  e.target.value.endsWith("px")
+                                    ? e.target.value
+                                    : `${e.target.value}px`
+                                )
+                              }
+                              className="w-full rounded border px-2 py-1 text-xs"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
-
-                  {selectedElement.type !== "container" && (
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 mb-1">CONTENT</label>
-                      <input
-                        type="text"
-                        value={selectedElement.content || ""}
-                        onChange={(e) => updateSelectedProp("content", e.target.value)}
-                        className="w-full rounded border px-3 py-1.5 text-xs"
-                      />
-                    </div>
-                  )}
-
-                  {renderAccordion("Typography & Colors", "typography", (
-                    <div className="space-y-3">
-                      <div>
-                        {renderResponsiveLabel("Text Color")}
-                        <input
-                          type="color"
-                          value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#0f172a"}
-                          onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                          className="w-full h-8 cursor-pointer rounded border p-0.5"
-                        />
-                      </div>
-                      <div>
-                        {renderResponsiveLabel("Font Size (px)")}
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Site Identity */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
                         <input
                           type="text"
-                          value={getStyleVal(selectedElement, "fontSize", activeBreakpointId, breakpoints) || "16px"}
-                          onChange={(e) => updateSelectedStyle("fontSize", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
+                          value={globalSettings.siteIdentity?.name || ""}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                            }))
+                          }
+                          placeholder="Site Name"
                           className="w-full rounded border px-2 py-1 text-xs"
                         />
                       </div>
+
+                      {/* Back To Top Button Settings (F-289) */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+                          <input
+                            type="checkbox"
+                            checked={globalSettings.backToTop?.enabled !== false}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                              }))
+                            }
+                            className="h-4 w-4 rounded text-blue-600"
+                          />
+                        </div>
+                        {globalSettings.backToTop?.enabled !== false && (
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                              <select
+                                value={globalSettings.backToTop?.position || "bottom-right"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    backToTop: { ...prev.backToTop, position: e.target.value },
+                                  }))
+                                }
+                                className="rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                              </select>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                              <input
+                                type="number"
+                                value={globalSettings.backToTop?.offset ?? 300}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                                  }))
+                                }
+                                className="w-20 rounded border px-2 py-1 text-[11px]"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Floating Action Button Settings (F-287) */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                          <input
+                            type="checkbox"
+                            checked={globalSettings.floatingActionButton?.enabled === true}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  enabled: e.target.checked,
+                                },
+                              }))
+                            }
+                            className="h-4 w-4 rounded text-blue-600"
+                          />
+                        </div>
+
+                        {globalSettings.floatingActionButton?.enabled && (
+                          <div className="space-y-2 pt-1">
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Icon & Type
+                              </label>
+                              <select
+                                value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      icon: e.target.value,
+                                      backgroundColor:
+                                        e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                    },
+                                  }))
+                                }
+                                className="w-full rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="whatsapp">WhatsApp Button</option>
+                                <option value="chat">Live Chat / Message</option>
+                                <option value="phone">Call Now (Phone)</option>
+                                <option value="email">Email Us</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Label
+                              </label>
+                              <input
+                                type="text"
+                                value={globalSettings.floatingActionButton?.label || ""}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      label: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="Chat with us"
+                                className="w-full rounded border px-2 py-1 text-[11px]"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Link or Smart Action
+                              </label>
+                              <input
+                                type="text"
+                                value={globalSettings.floatingActionButton?.link || ""}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      link: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="https://wa.me/... or popup:open(id)"
+                                className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                              <select
+                                value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      position: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                    <input
-                      type="text"
-                      value={globalSettings.siteIdentity?.name || ""}
-                      onChange={(e) => setGlobalSettings((prev: any) => ({
-                        ...prev,
-                        siteIdentity: { ...prev.siteIdentity, name: e.target.value }
-                      }))}
-                      placeholder="Site Name"
-                      className="w-full rounded border px-2 py-1 text-xs"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </aside>
         )}
       </div>
@@ -2061,6 +2559,30 @@ export default function WebsiteEditor() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Popup Manager Modal (F-289) */}
+      <PopupManagerModal
+        isOpen={isPopupManagerOpen}
+        onClose={() => setIsPopupManagerOpen(false)}
+        popups={popups}
+        onSelectPopupForEdit={handleSelectPopupForEdit}
+        onCreatePopup={handleCreatePopup}
+        onUpdatePopup={handleUpdatePopup}
+        onDeletePopup={handleDeletePopup}
+        onDuplicatePopup={handleDuplicatePopup}
+      />
+
+      {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
+      {isPreview && (
+        <PopupRuntimePreview
+          popups={popups}
+          renderElementTree={renderElementTree}
+          onTrackView={handleTrackPopupView}
+          onTrackClick={handleTrackPopupClick}
+          isPreviewMode={true}
+          globalSettings={globalSettings}
+        />
       )}
     </div>
   );
