@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import {
+  type NavigationElementType,
+  type NavigationStyles,
+  getNavigationDefaultElement,
+  NavigationElementRenderer,
+  NavigationSettingsPanel,
+  isNavigationElement,
+} from "./navigation";
 
 // ==========================================
 // Types & Interfaces
@@ -10,7 +18,8 @@ export type ElementType =
   | "video" | "divider" | "spacer" | "icon" | "rating"
   | "progress-bar" | "counter" | "html" | "alert"
   | "social-icons" | "google-maps" | "soundcloud"
-  | "div-block" | "paragraph";
+  | "div-block" | "paragraph"
+  | NavigationElementType;
 
 export interface ContainerLayout {
   direction?: "column" | "row";
@@ -19,7 +28,7 @@ export interface ContainerLayout {
   gap?: number;
 }
 
-export interface ElementStyles {
+export interface ElementStyles extends NavigationStyles {
   color?: string;
   fontSize?: string;
   fontWeight?: string;
@@ -1026,6 +1035,9 @@ function AnimatedCounter({
 
 function createDefaultElement(type: ElementType): EditorElement {
   const id = generateId();
+  const navDefault = getNavigationDefaultElement(type, id);
+  if (navDefault) return navDefault;
+
   switch (type) {
     case "container":
       return {
@@ -1320,6 +1332,13 @@ function createDefaultElement(type: ElementType): EditorElement {
           marginBottom: "8px",
         },
       };
+    default:
+      return {
+        id,
+        type,
+        content: "",
+        styles: {},
+      };
   }
 }
 
@@ -1414,6 +1433,23 @@ export default function WebsiteEditor() {
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  // Left Sidebar Search & Accordion State
+  const [leftSearchQuery, setLeftSearchQuery] = useState("");
+  const [leftCategoryFilter, setLeftCategoryFilter] = useState<"all" | "basic" | "media" | "navigation">("all");
+  const [openLeftCategories, setOpenLeftCategories] = useState<Record<string, boolean>>({
+    basic: true,
+    media: true,
+    navigation: true,
+  });
+
+  // Elementor-Style Left Panel State
+  const [elementorLeftTab, setElementorLeftTab] = useState<"general" | "style" | "interactions">("general");
+  const [widgetSubTab, setWidgetSubTab] = useState<"widgets" | "components" | "globals">("widgets");
+
+  const toggleLeftCategory = (cat: string) => {
+    setOpenLeftCategories((prev) => ({ ...prev, [cat]: !prev[cat] }));
   };
 
   // When an element is selected, switch to element tab (F-066)
@@ -2594,6 +2630,29 @@ export default function WebsiteEditor() {
             {el.content}
           </p>
         )}
+
+        {/* Navigation & Search Widgets (F-223 to F-233) */}
+        {[
+          "nav-menu",
+          "wp-menu",
+          "menu-widget",
+          "mega-menu",
+          "breadcrumbs",
+          "menu-anchor",
+          "post-nav",
+          "off-canvas-nav",
+          "site-search",
+          "search-form",
+          "taxonomy-filter"
+        ].includes(el.type) && (
+          <NavigationElementRenderer
+            element={el}
+            activeBreakpointId={activeBreakpointId}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            onUpdateElement={(updater) => setElements((prev) => updateTreeElement(prev, el.id, updater))}
+          />
+        )}
       </div>
     </MotionWrapper>
     );
@@ -2617,14 +2676,29 @@ export default function WebsiteEditor() {
       {/* Top Header Bar (Dark Navy, matching screenshot) */}
       {/* ========================================== */}
       <header className="flex h-12 shrink-0 items-center justify-between bg-[#0b1329] px-5 shadow-md">
-        {/* Left: Dashboard link & Site Name */}
-        <div className="flex items-center gap-4">
+        {/* Left: Dashboard link, Elementor Grid Icon & Site Name */}
+        <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
             className="text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1"
           >
             ‹ Dashboard
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setSelectedId(null)}
+            title="Widgets Library (+)"
+            className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+              !selectedId
+                ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white"
+            }`}
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
 
           <span className="text-xs font-bold text-white tracking-wide">
             {website?.name || "new 1"}
@@ -2752,200 +2826,742 @@ export default function WebsiteEditor() {
       {/* ========================================== */}
       <div className="flex flex-1 overflow-hidden">
         {/* ========================================== */}
-        {/* Left Sidebar: ELEMENTS                     */}
+        {/* Left Dynamic Panel (Elementor Style)       */}
         {/* ========================================== */}
         {!isPreview && (
-          <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">
-              ELEMENTS
-            </h2>
+          <aside className="w-80 shrink-0 border-r border-slate-200 bg-white flex flex-col h-full shadow-xs select-none overflow-hidden">
+            {selectedElement ? (
+              /* ========================================== */
+              /* MODE B: EDIT SELECTED ELEMENT              */
+              /* ========================================== */
+              <div className="flex flex-col h-full overflow-hidden">
+                {/* Header: Title, Back to Widgets, Actions */}
+                <div className="p-3 border-b border-slate-200 bg-slate-50/80 shrink-0 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(null)}
+                        title="Back to Widgets"
+                        className="flex h-6 w-6 items-center justify-center rounded-md bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                      <span className="text-xs font-black uppercase text-slate-800 tracking-wide flex items-center gap-1.5 truncate max-w-[140px]">
+                        <span className="h-2 w-2 rounded-full bg-blue-600 shrink-0" />
+                        Edit {selectedElement.type.replace("-", " ")}
+                      </span>
+                    </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Container */}
-              <button
-                onClick={() => handleAddElement("container")}
-                className="col-span-2 flex items-center justify-center gap-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ContainerBoxIcon />
-                <span className="text-xs font-bold text-blue-700 group-hover:text-blue-800">
-                  + Add Container
-                </span>
-              </button>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold">
+                      <button
+                        type="button"
+                        onClick={(e) => handleDuplicateElement(selectedElement.id, e)}
+                        title="Duplicate Element"
+                        className="px-2 py-1 text-[10px] font-bold text-blue-600 bg-blue-50 rounded border border-blue-200 hover:bg-blue-100 transition"
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+                        title="Delete Element"
+                        className="px-2 py-1 text-[10px] font-bold text-red-600 bg-red-50 rounded border border-red-200 hover:bg-red-100 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
 
-              {/* Heading */}
-              <button
-                onClick={() => handleAddElement("heading")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <HeadingBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Heading
-                </span>
-              </button>
-
-              {/* Text */}
-              <button
-                onClick={() => handleAddElement("text")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <TextBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Text
-                </span>
-              </button>
-
-              {/* Image */}
-              <button
-                onClick={() => handleAddElement("image")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ImageBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Image
-                </span>
-              </button>
-
-              {/* Button */}
-              <button
-                onClick={() => handleAddElement("button")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <ButtonBoxIcon />
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                  Button
-                </span>
-              </button>
-
-              {/* Video */}
-              <button
-                onClick={() => handleAddElement("video")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-red-50 text-red-600">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  {/* 3 Main Tabs: General | Style | Interactions */}
+                  <div className="flex rounded-lg bg-slate-200/80 p-0.5 text-xs font-bold text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("general")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "general"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      General
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("style")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "style"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Style
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setElementorLeftTab("interactions")}
+                      className={`flex-1 rounded-md py-1.5 text-center transition ${
+                        elementorLeftTab === "interactions"
+                          ? "bg-white text-slate-900 shadow-xs font-black"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Interactions
+                    </button>
+                  </div>
                 </div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Video</span>
-              </button>
 
-              {/* Divider */}
-              <button
-                onClick={() => handleAddElement("divider")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-slate-500 font-bold">―</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Divider</span>
-              </button>
+                {/* Scrollable Panel Body */}
+                <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+                  {/* TAB 1: GENERAL */}
+                  {elementorLeftTab === "general" && (
+                    <div className="space-y-4">
+                      {/* Text / Content Input */}
+                      {typeof selectedElement.content === "string" && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            Title / Content
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={selectedElement.content || ""}
+                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                          />
+                        </div>
+                      )}
 
-              {/* Spacer */}
-              <button
-                onClick={() => handleAddElement("spacer")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded border border-dashed border-slate-300 text-slate-400">↕</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Spacer</span>
-              </button>
+                      {/* HTML Tag Selector for Headings / Text */}
+                      {(selectedElement.type === "heading" || selectedElement.type === "text" || selectedElement.type === "paragraph") && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            HTML Tag
+                          </label>
+                          <select
+                            value={selectedElement.tag || (selectedElement.type === "heading" ? "h2" : "p")}
+                            onChange={(e) => updateSelectedProp("tag", e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          >
+                            <option value="h1">H1 (Main Title)</option>
+                            <option value="h2">H2 (Section Header)</option>
+                            <option value="h3">H3 (Sub Heading)</option>
+                            <option value="h4">H4 (Minor Title)</option>
+                            <option value="h5">H5 (Small Header)</option>
+                            <option value="h6">H6 (Caption Header)</option>
+                            <option value="p">P (Paragraph)</option>
+                            <option value="div">DIV (Generic Block)</option>
+                            <option value="span">SPAN (Inline Text)</option>
+                          </select>
+                        </div>
+                      )}
 
-              {/* Icon */}
-              <button
-                onClick={() => handleAddElement("icon")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-50 text-amber-500">★</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Icon</span>
-              </button>
+                      {/* Link / Action URL */}
+                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.type === "heading") && (
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                            Link URL / Action
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.href || ""}
+                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+                            placeholder="https://example.com or #section"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          />
+                        </div>
+                      )}
 
-              {/* Rating */}
-              <button
-                onClick={() => handleAddElement("rating")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-amber-500">★★</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Rating</span>
-              </button>
+                      {/* Navigation Elements Detailed Settings Panel */}
+                      {([
+                        "nav-menu",
+                        "wp-menu",
+                        "menu-widget",
+                        "mega-menu",
+                        "breadcrumbs",
+                        "menu-anchor",
+                        "post-nav",
+                        "off-canvas-nav",
+                        "site-search",
+                        "search-form",
+                        "taxonomy-filter",
+                      ] as ElementType[]).includes(selectedElement.type) && (
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          updateSelectedProp={updateSelectedProp}
+                          updateSelectedStyle={updateSelectedStyle}
+                          renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      )}
+                    </div>
+                  )}
 
-              {/* Progress Bar */}
-              <button
-                onClick={() => handleAddElement("progress-bar")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-indigo-50 text-indigo-500">
-                  <div className="w-5 bg-indigo-200 h-1.5 rounded-full overflow-hidden"><div className="w-3 bg-indigo-500 h-full" /></div>
+                  {/* TAB 2: STYLE */}
+                  {elementorLeftTab === "style" && (
+                    <div className="space-y-4">
+                      {/* Local CSS Class */}
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                          CSS Class Name
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedElement.customClass || ""}
+                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
+                          placeholder="e.g. hero-title shadow-lg"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Accordions for Styling */}
+                      {renderAccordion("Layout & Spacing", "layout", (
+                        <div className="space-y-3.5">
+                          {/* Device Visibility */}
+                          <div>
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                              Device Visibility
+                            </span>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {breakpoints
+                                .filter(b => b.active)
+                                .map((bp) => {
+                                  const isHidden = selectedElement.hiddenDevices?.[bp.id] || false;
+                                  return (
+                                    <label
+                                      key={bp.id}
+                                      className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${
+                                        isHidden
+                                          ? "bg-amber-50/50 border-amber-200 text-amber-800"
+                                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isHidden}
+                                        onChange={(e) => {
+                                          const hiddenDevices = { ...selectedElement.hiddenDevices };
+                                          if (e.target.checked) {
+                                            hiddenDevices[bp.id] = true;
+                                          } else {
+                                            delete hiddenDevices[bp.id];
+                                          }
+                                          updateSelectedProp("hiddenDevices", hiddenDevices);
+                                        }}
+                                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3 w-3"
+                                      />
+                                      <span className="text-[10px] font-bold">
+                                        Hide: {bp.name}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                            </div>
+                          </div>
+
+                          {/* Padding */}
+                          <div>
+                            {renderResponsiveLabel("Padding", "padding")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "padding", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("padding", e.target.value)}
+                              placeholder="e.g. 16px or 1rem 2rem"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+
+                          {/* Margin */}
+                          <div>
+                            {renderResponsiveLabel("Margin", "margin")}
+                            <input
+                              type="text"
+                              value={getStyleVal(selectedElement, "margin", activeBreakpointId, breakpoints) || ""}
+                              onChange={(e) => updateSelectedStyle("margin", e.target.value)}
+                              placeholder="e.g. 0 auto or 20px"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Typography Accordion */}
+                      {renderAccordion("Typography & Font", "typography", (
+                        <div className="space-y-3.5">
+                          {/* Font Family */}
+                          <div>
+                            {renderResponsiveLabel("Font Family", "fontFamily")}
+                            <select
+                              value={getStyleVal(selectedElement, "fontFamily", activeBreakpointId, breakpoints) || "sans-serif"}
+                              onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="sans-serif">System Sans-serif</option>
+                              <option value="serif">System Serif</option>
+                              <option value="monospace">Monospace</option>
+                              <option value="Inter">Inter</option>
+                              <option value="Roboto">Roboto</option>
+                            </select>
+                          </div>
+
+                          {/* Font Size & Weight */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              {renderResponsiveLabel("Font Size", "fontSize")}
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "fontSize", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("fontSize", e.target.value)}
+                                placeholder="16px"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                            <div>
+                              {renderResponsiveLabel("Font Weight", "fontWeight")}
+                              <select
+                                value={getStyleVal(selectedElement, "fontWeight", activeBreakpointId, breakpoints) || "normal"}
+                                onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="normal">Normal (400)</option>
+                                <option value="500">Medium (500)</option>
+                                <option value="600">SemiBold (600)</option>
+                                <option value="bold">Bold (700)</option>
+                                <option value="900">Black (900)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Text Color */}
+                          <div>
+                            {renderResponsiveLabel("Text Color", "color")}
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#000000"}
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                className="h-7 w-7 cursor-pointer rounded border border-slate-300 p-0.5"
+                              />
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                placeholder="#000000"
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Background Accordion */}
+                      {renderAccordion("Background & Colors", "background", (
+                        <div className="space-y-3.5">
+                          <div>
+                            {renderResponsiveLabel("Background Color", "backgroundColor")}
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
+                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                className="h-7 w-7 cursor-pointer rounded border border-slate-300 p-0.5"
+                              />
+                              <input
+                                type="text"
+                                value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || ""}
+                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                placeholder="transparent or #ffffff"
+                                className="flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* TAB 3: INTERACTIONS */}
+                  {elementorLeftTab === "interactions" && (
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3.5 space-y-2">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-blue-700 block">
+                          ✨ Motion &amp; Entrance Effects
+                        </span>
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                          Add animations and hover triggers when users scroll or interact with this {selectedElement.type}.
+                        </p>
+                      </div>
+
+                      {/* Entrance Animation Selector */}
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                          Entrance Animation
+                        </label>
+                        <select
+                          value={selectedElement.styles?.animation || "none"}
+                          onChange={(e) => updateSelectedStyle("animation", e.target.value)}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        >
+                          <option value="none">None (Static)</option>
+                          <option value="fade-in">Fade In</option>
+                          <option value="zoom-in">Zoom In</option>
+                          <option value="slide-up">Slide Up</option>
+                          <option value="bounce">Bounce</option>
+                          <option value="flip">3D Flip</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Progress</span>
-              </button>
+              </div>
+            ) : (
+              /* ========================================== */
+              /* MODE A: WIDGETS LIBRARY PALETTE            */
+              /* ========================================== */
+              <div className="flex flex-col h-full overflow-hidden">
+                {/* Left Sidebar Sticky Header & Search */}
+                <div className="p-3.5 border-b border-slate-100 bg-slate-50/60 shrink-0 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <svg className="h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Elements &amp; Widgets
+                    </span>
+                  </div>
 
-              {/* Counter */}
-              <button
-                onClick={() => handleAddElement("counter")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-sky-50 text-sky-600 font-bold text-[10px]">123</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Counter</span>
-              </button>
+                  {/* Instant Element Search Bar */}
+                  <div className="relative">
+                    <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={leftSearchQuery}
+                      onChange={(e) => setLeftSearchQuery(e.target.value)}
+                      placeholder="Search Widget..."
+                      className="w-full rounded-lg border border-slate-200 bg-white pl-8 pr-7 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                    />
+                    {leftSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setLeftSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
 
-              {/* HTML */}
-              <button
-                onClick={() => handleAddElement("html")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-indigo-600 font-mono font-bold text-xs">&lt;/&gt;</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">HTML</span>
-              </button>
+                  {/* Sub Tabs: Widgets | Components | Globals */}
+                  <div className="flex rounded-lg bg-slate-200/70 p-0.5 text-[10px] font-extrabold text-slate-600">
+                    {(["widgets", "components", "globals"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setWidgetSubTab(tab)}
+                        className={`flex-1 rounded-md py-1 text-center capitalize transition ${
+                          widgetSubTab === tab
+                            ? "bg-white text-slate-800 shadow-xs font-black"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Alert */}
-              <button
-                onClick={() => handleAddElement("alert")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-50 text-amber-600 text-xs font-bold">!</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Alert</span>
-              </button>
+                {/* Scrollable Elements Catalog */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-4">
+                  {/* Category Filter Pills */}
+                  <div className="flex rounded-lg bg-slate-100 p-0.5 text-[10px] font-bold text-slate-500">
+                    {(["all", "basic", "media", "navigation"] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setLeftCategoryFilter(cat)}
+                        className={`flex-1 rounded-md py-1 text-center capitalize transition ${
+                          leftCategoryFilter === cat
+                            ? "bg-white text-slate-800 shadow-xs font-black"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
 
-              {/* Social Icons */}
-              <button
-                onClick={() => handleAddElement("social-icons")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-blue-600 text-xs">🌐</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Socials</span>
-              </button>
+                  {/* SECTION 1: LAYOUT & BASIC */}
+                  {(leftCategoryFilter === "all" || leftCategoryFilter === "basic") && (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleLeftCategory("basic")}
+                        className="w-full flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 hover:text-slate-600 py-1"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>🧩</span> Atomic Elements
+                        </span>
+                        <span>{openLeftCategories.basic ? "▼" : "▶"}</span>
+                      </button>
 
-              {/* Google Maps */}
-              <button
-                onClick={() => handleAddElement("google-maps")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-emerald-600 text-xs">📍</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Map</span>
-              </button>
+                      {(openLeftCategories.basic || leftSearchQuery) && (
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Container */}
+                          {("container layout section flex grid").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("container")}
+                              className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 text-white shadow-sm hover:from-blue-700 hover:to-indigo-700 transition hover:-translate-y-0.5 active:scale-95 group"
+                            >
+                              <ContainerBoxIcon />
+                              <span className="text-xs font-bold">+ Add Layout Container</span>
+                            </button>
+                          )}
 
-              {/* SoundCloud */}
-              <button
-                onClick={() => handleAddElement("soundcloud")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-orange-500 text-xs">☁️</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">SoundCloud</span>
-              </button>
+                          {/* Heading */}
+                          {("heading title header h1 h2").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("heading")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <HeadingBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Heading</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
 
-              {/* Div Block */}
-              <button
-                onClick={() => handleAddElement("div-block")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-slate-50 border border-slate-300 text-slate-600 font-bold text-[9px]">DIV</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Div Block</span>
-              </button>
+                          {/* Text */}
+                          {("text paragraph body content").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("text")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <TextBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Text</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
 
-              {/* Paragraph */}
-              <button
-                onClick={() => handleAddElement("paragraph")}
-                className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm transition hover:border-blue-400 hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-              >
-                <div className="flex h-7 w-7 items-center justify-center text-slate-700 font-serif font-bold text-xs">P</div>
-                <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">Paragraph</span>
-              </button>
-            </div>
+                          {/* Image */}
+                          {("image photo picture gallery").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("image")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <ImageBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Image</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Button */}
+                          {("button cta link action").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("button")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <ButtonBoxIcon />
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Button</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Div Block */}
+                          {("div block section wrapper").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("div-block")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700 font-bold text-[9px] group-hover:scale-110 transition-transform">
+                                DIV
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Div Block</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+
+                          {/* Paragraph */}
+                          {("paragraph article copy text").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("paragraph")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-400 hover:bg-blue-50/40 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-600 font-serif font-bold text-xs group-hover:scale-110 transition-transform">
+                                P
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Paragraph</span>
+                              <span className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-black text-blue-500">+</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* SECTION 2: NAVIGATION & SEARCH */}
+                  {(leftCategoryFilter === "all" || leftCategoryFilter === "navigation") && (
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => toggleLeftCategory("navigation")}
+                        className="w-full flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 hover:text-slate-600 py-1"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>🧭</span> Navigation &amp; Search
+                        </span>
+                        <span>{openLeftCategories.navigation ? "▼" : "▶"}</span>
+                      </button>
+
+                      {(openLeftCategories.navigation || leftSearchQuery) && (
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Nav Menu */}
+                          {("nav menu navbar link Header navigation").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("nav-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ☰
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Nav Menu</span>
+                            </button>
+                          )}
+
+                          {/* WP Menu */}
+                          {("wp wordpress menu header sync").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("wp-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-sky-500 hover:bg-sky-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 text-white font-black text-xs group-hover:scale-110 transition-transform">
+                                W
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-sky-600">WP Menu</span>
+                            </button>
+                          )}
+
+                          {/* Menu Widget */}
+                          {("menu widget dropdown control badge").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("menu-widget")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-indigo-500 hover:bg-indigo-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🗂️
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-indigo-600">Menu Widget</span>
+                            </button>
+                          )}
+
+                          {/* Mega Menu */}
+                          {("mega menu column promo feature dropdown").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("mega-menu")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-purple-500 hover:bg-purple-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ▦
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-purple-600">Mega Menu</span>
+                            </button>
+                          )}
+
+                          {/* Breadcrumbs */}
+                          {("breadcrumbs trail path hierarchy home seo").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("breadcrumbs")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ››
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-amber-600">Breadcrumbs</span>
+                            </button>
+                          )}
+
+                          {/* Menu Anchor */}
+                          {("menu anchor pin scroll jump target").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("menu-anchor")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-emerald-500 hover:bg-emerald-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⚓
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-emerald-600">Anchor Pin</span>
+                            </button>
+                          )}
+
+                          {/* Post Nav */}
+                          {("post nav previous next article blog").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("post-nav")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⇄
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-teal-600">Post Nav</span>
+                            </button>
+                          )}
+
+                          {/* Off Canvas */}
+                          {("off canvas drawer slide flyout mobile").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("off-canvas-nav")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-rose-500 hover:bg-rose-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                ⇥
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-rose-600">Off Canvas</span>
+                            </button>
+                          )}
+
+                          {/* Site Search */}
+                          {("site search find autocomplete live query").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("site-search")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🔍
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Site Search</span>
+                            </button>
+                          )}
+
+                          {/* Search Form */}
+                          {("search form input method action get post").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("search-form")}
+                              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-cyan-500 hover:bg-cyan-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                [🔍]
+                              </div>
+                              <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-cyan-600">Search Form</span>
+                            </button>
+                          )}
+
+                          {/* Taxonomy Filter */}
+                          {("taxonomy filter tags category categories pills count").includes(leftSearchQuery.toLowerCase()) && (
+                            <button
+                              onClick={() => handleAddElement("taxonomy-filter")}
+                              className="col-span-2 flex items-center justify-center gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all group relative text-center"
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                                🏷️
+                              </div>
+                              <span className="text-xs font-bold text-slate-700 group-hover:text-amber-600">Taxonomy Filter</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </aside>
         )}
 
@@ -2993,1606 +3609,73 @@ export default function WebsiteEditor() {
         </main>
 
         {/* ========================================== */}
-        {/* Right Sidebar: SETTINGS & STYLING           */}
+        {/* Right Sidebar: Inspector & Settings Panel  */}
         {/* ========================================== */}
-        {!isPreview && (
-          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
-            {/* Sidebar Header & Tab Switcher */}
-            <div className="p-4 border-b border-slate-100 shrink-0 bg-slate-50/50">
-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">
-                Settings & Design System
-              </h2>
-              
-              <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (selectedElement) setActiveSidebarTab("element");
-                  }}
-                  disabled={!selectedElement}
-                  className={`flex-1 rounded-md py-1.5 text-center transition ${
-                    !selectedElement 
-                      ? "text-slate-400 cursor-not-allowed" 
-                      : activeSidebarTab === "element"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Element Styles
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveSidebarTab("global")}
-                  className={`flex-1 rounded-md py-1.5 text-center transition ${
-                    activeSidebarTab === "global"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Global & Site
-                </button>
-              </div>
+        {activeSidebarTab && (
+          <aside className="w-80 border-l border-slate-200 bg-white flex flex-col shrink-0 overflow-y-auto">
+            {/* Header / Tabs */}
+            <div className="flex border-b border-slate-200 bg-slate-50/50 p-2 gap-1 sticky top-0 z-10">
+              <button
+                onClick={() => setActiveSidebarTab("element")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                  activeSidebarTab === "element"
+                    ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Element Style
+              </button>
+              <button
+                onClick={() => setActiveSidebarTab("global")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                  activeSidebarTab === "global"
+                    ? "bg-white text-blue-600 shadow-xs border border-slate-200/60"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Global Site
+              </button>
             </div>
 
-            {/* Sidebar Scrollable Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {activeSidebarTab === "element" && selectedElement ? (
-                <div className="space-y-4">
-                  {/* Element Header */}
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600">
-                      {selectedElement.type} Settings
-                    </span>
-                    <div className="flex items-center gap-2.5 text-xs font-semibold">
-                      <button
-                        type="button"
-                        onClick={(e) => handleDuplicateElement(selectedElement.id, e)}
-                        className="text-blue-600 hover:underline"
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleDeleteElement(selectedElement.id, e)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
+            <div className="p-4 space-y-6">
+              {activeSidebarTab === "element" ? (
+                <div>
+                  {!selectedElement ? (
+                    <div className="flex h-64 flex-col items-center justify-center text-center p-6 text-slate-400">
+                      <p className="text-xs font-semibold">No Element Selected</p>
+                      <p className="text-[11px] mt-1 text-slate-400">Click any element on the canvas to inspect & edit styles.</p>
                     </div>
-                  </div>
-
-                  {/* Accordion Sections */}
-
-                  {/* 1. Layout & Dimensions */}
-                  {renderAccordion("Layout & Spacing", "layout", (
-                    <div className="space-y-3.5">
-                      {/* Device Visibility Section (F-059, F-063) */}
-                      <div>
-                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                          Device Visibility
-                        </span>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {breakpoints
-                            .filter(b => b.active)
-                            .map((bp) => {
-                              const isHidden = selectedElement.hiddenDevices?.[bp.id] || false;
-                              return (
-                                <label
-                                  key={bp.id}
-                                  className={`flex items-center gap-1.5 rounded-lg border p-1.5 cursor-pointer transition ${
-                                    isHidden
-                                      ? "bg-amber-50/50 border-amber-200 text-amber-800"
-                                      : "bg-slate-50/50 border-slate-200 text-slate-700 hover:bg-slate-50"
-                                  }`}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={isHidden}
-                                    onChange={(e) => {
-                                      const hiddenDevices = { ...selectedElement.hiddenDevices };
-                                      if (e.target.checked) {
-                                        hiddenDevices[bp.id] = true;
-                                      } else {
-                                        delete hiddenDevices[bp.id];
-                                      }
-                                      updateSelectedProp("hiddenDevices", hiddenDevices);
-                                    }}
-                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3 w-3"
-                                  />
-                                  <span className="text-[10px] font-bold">
-                                    Hide: {bp.name}
-                                  </span>
-                                </label>
-                              );
-                            })}
-                        </div>
-                      </div>
-
-                      {/* Container Specific Controls */}
-                      {selectedElement.type === "container" && (
-                        <div className="space-y-3.5 pt-2.5 border-t border-slate-100">
-                          <div>
-                            {renderResponsiveLabel("Direction", undefined, "direction")}
-                            <select
-                              value={getLayoutVal(selectedElement, "direction", activeBreakpointId, breakpoints) || "column"}
-                              onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="column">Column (Vertical)</option>
-                              <option value="row">Row (Horizontal)</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Justify Content", undefined, "justifyContent")}
-                            <select
-                              value={getLayoutVal(selectedElement, "justifyContent", activeBreakpointId, breakpoints) || "flex-start"}
-                              onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="flex-start">Start</option>
-                              <option value="center">Center</option>
-                              <option value="flex-end">End</option>
-                              <option value="space-between">Space Between</option>
-                              <option value="space-around">Space Around</option>
-                              <option value="space-evenly">Space Evenly</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Align Items", undefined, "alignItems")}
-                            <select
-                              value={getLayoutVal(selectedElement, "alignItems", activeBreakpointId, breakpoints) || "stretch"}
-                              onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="stretch">Stretch</option>
-                              <option value="flex-start">Start</option>
-                              <option value="center">Center</option>
-                              <option value="flex-end">End</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Gap (px)", undefined, "gap")}
-                            <input
-                              type="number"
-                              value={getLayoutVal(selectedElement, "gap", activeBreakpointId, breakpoints) ?? 10}
-                              onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Content Input for non-containers/images */}
-                      {selectedElement.type !== "image" && selectedElement.type !== "container" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                            TEXT CONTENT
-                          </label>
-                          <textarea
-                            rows={selectedElement.type === "text" ? 3 : 2}
-                            value={selectedElement.content}
-                            onChange={(e) => updateSelectedProp("content", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                          />
-                        </div>
-                      )}
-
-                      {/* Width & Height */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          {renderResponsiveLabel("Width", "width")}
-                          <input
-                            type="text"
-                            placeholder="e.g. 100%, 300px"
-                            value={getStyleVal(selectedElement, "width", activeBreakpointId, breakpoints) || ""}
-                            onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          {renderResponsiveLabel("Height", "height")}
-                          <input
-                            type="text"
-                            placeholder="e.g. auto, 400px"
-                            value={getStyleVal(selectedElement, "height", activeBreakpointId, breakpoints) || ""}
-                            onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Padding Controls */}
-                      <div>
-                        {renderResponsiveLabel("Padding (px)")}
-                        <div className="grid grid-cols-4 gap-1 text-center text-[9px] font-bold text-slate-400">
-                          <div>
-                            <span>Top</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "paddingTop", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("paddingTop", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Right</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "paddingRight", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("paddingRight", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Bottom</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "paddingBottom", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("paddingBottom", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Left</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "paddingLeft", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("paddingLeft", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Margin Controls */}
-                      <div>
-                        {renderResponsiveLabel("Margin (px)")}
-                        <div className="grid grid-cols-4 gap-1 text-center text-[9px] font-bold text-slate-400">
-                          <div>
-                            <span>Top</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "marginTop", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("marginTop", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Right</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "marginRight", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("marginRight", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Bottom</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "marginBottom", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("marginBottom", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Left</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "marginLeft", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("marginLeft", `${e.target.value}px`)}
-                              className="w-full rounded border border-slate-300 p-1 text-center text-xs font-semibold text-slate-700"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Custom Classes (F-068) */}
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                          CUSTOM CSS CLASSES
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElement.customClass || ""}
-                          onChange={(e) => updateSelectedProp("customClass", e.target.value)}
-                          placeholder="e.g. highlight-card shadow-lg"
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Widget Configuration Accordion Panel (F-142 - F-173) */}
-                  {["video", "divider", "spacer", "icon", "rating", "progress-bar", "counter", "html", "alert", "social-icons", "google-maps", "soundcloud"].includes(selectedElement.type) && renderAccordion("Widget Configuration", "widget", (
-                    <div className="space-y-4 text-xs">
-                      {/* Video configuration */}
-                      {selectedElement.type === "video" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Video Provider", "videoProvider")}
-                            <select
-                              value={getStyleVal(selectedElement, "videoProvider", activeBreakpointId, breakpoints) || "youtube"}
-                              onChange={(e) => updateSelectedStyle("videoProvider", e.target.value)}
-                              className="w-full rounded border p-1"
-                            >
-                              <option value="youtube">YouTube</option>
-                              <option value="vimeo">Vimeo</option>
-                              <option value="hosted">Self Hosted MP4</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 mb-1">VIDEO URL / IFRAME SRC</label>
-                            <input
-                              type="text"
-                              value={selectedElement.src || ""}
-                              onChange={(e) => updateSelectedProp("src", e.target.value)}
-                              className="w-full rounded border p-1 font-mono text-[10px]"
-                              placeholder="e.g. https://www.youtube.com/embed/..."
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Divider configuration */}
-                      {selectedElement.type === "divider" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Divider Line Style", "dividerStyle")}
-                            <select
-                              value={getStyleVal(selectedElement, "dividerStyle", activeBreakpointId, breakpoints) || "solid"}
-                              onChange={(e) => updateSelectedStyle("dividerStyle", e.target.value)}
-                              className="w-full rounded border p-1"
-                            >
-                              <option value="solid">Solid</option>
-                              <option value="dashed">Dashed</option>
-                              <option value="dotted">Dotted</option>
-                            </select>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Height/Thickness (px)", "dividerHeight")}
-                              <input
-                                type="number"
-                                min="1"
-                                max="20"
-                                value={getStyleVal(selectedElement, "dividerHeight", activeBreakpointId, breakpoints) || "2"}
-                                onChange={(e) => updateSelectedStyle("dividerHeight", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Width (%)", "dividerWidth")}
-                              <input
-                                type="text"
-                                placeholder="100%"
-                                value={getStyleVal(selectedElement, "dividerWidth", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("dividerWidth", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Divider Color", "dividerColor")}
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "dividerColor", activeBreakpointId, breakpoints) || "#cbd5e1"}
-                              onChange={(e) => updateSelectedStyle("dividerColor", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Spacer configuration */}
-                      {selectedElement.type === "spacer" && (
-                        <div>
-                          {renderResponsiveLabel("Spacer Height (px)", "height")}
-                          <input
-                            type="text"
-                            placeholder="40px"
-                            value={getStyleVal(selectedElement, "height", activeBreakpointId, breakpoints) || "40px"}
-                            onChange={(e) => updateSelectedStyle("height", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
-                            className="w-full rounded border p-1"
-                          />
-                        </div>
-                      )}
-
-                      {/* Icon configuration */}
-                      {selectedElement.type === "icon" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Icon Name", "iconName")}
-                            <select
-                              value={getStyleVal(selectedElement, "iconName", activeBreakpointId, breakpoints) || "star"}
-                              onChange={(e) => updateSelectedStyle("iconName", e.target.value)}
-                              className="w-full rounded border p-1"
-                            >
-                              <option value="star">Star</option>
-                              <option value="heart">Heart</option>
-                              <option value="check">Checkmark</option>
-                              <option value="info">Info</option>
-                              <option value="alert">Warning Alert</option>
-                              <option value="globe">Globe</option>
-                            </select>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Icon Size (px)", "iconSize")}
-                              <input
-                                type="number"
-                                value={getStyleVal(selectedElement, "iconSize", activeBreakpointId, breakpoints) || "32"}
-                                onChange={(e) => updateSelectedStyle("iconSize", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Alignment", "textAlign")}
-                              <select
-                                value={getStyleVal(selectedElement, "textAlign", activeBreakpointId, breakpoints) || "center"}
-                                onChange={(e) => updateSelectedStyle("textAlign", e.target.value)}
-                                className="w-full rounded border p-1"
-                              >
-                                <option value="left">Left</option>
-                                <option value="center">Center</option>
-                                <option value="right">Right</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Icon Color", "iconColor")}
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "iconColor", activeBreakpointId, breakpoints) || "#2563eb"}
-                              onChange={(e) => updateSelectedStyle("iconColor", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Rating configuration */}
-                      {selectedElement.type === "rating" && (
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Stars Count", "ratingStarsCount")}
-                              <input
-                                type="number"
-                                min="1"
-                                max="10"
-                                value={getStyleVal(selectedElement, "ratingStarsCount", activeBreakpointId, breakpoints) || "5"}
-                                onChange={(e) => updateSelectedStyle("ratingStarsCount", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Rating Value", "ratingValue")}
-                              <input
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                max="10"
-                                value={getStyleVal(selectedElement, "ratingValue", activeBreakpointId, breakpoints) || "4.5"}
-                                onChange={(e) => updateSelectedStyle("ratingValue", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Star Size (px)", "ratingSize")}
-                              <input
-                                type="number"
-                                value={getStyleVal(selectedElement, "ratingSize", activeBreakpointId, breakpoints) || "20"}
-                                onChange={(e) => updateSelectedStyle("ratingSize", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Alignment", "textAlign")}
-                              <select
-                                value={getStyleVal(selectedElement, "textAlign", activeBreakpointId, breakpoints) || "left"}
-                                onChange={(e) => updateSelectedStyle("textAlign", e.target.value)}
-                                className="w-full rounded border p-1"
-                              >
-                                <option value="left">Left</option>
-                                <option value="center">Center</option>
-                                <option value="right">Right</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Stars Color", "ratingColor")}
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "ratingColor", activeBreakpointId, breakpoints) || "#f59e0b"}
-                              onChange={(e) => updateSelectedStyle("ratingColor", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Progress Bar configuration */}
-                      {selectedElement.type === "progress-bar" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Label", "progressLabel")}
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "progressLabel", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("progressLabel", e.target.value)}
-                              className="w-full rounded border p-1"
-                              placeholder="e.g. Completed Tasks"
-                            />
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Percentage Filled (%)", "progressPercent")}
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={getStyleVal(selectedElement, "progressPercent", activeBreakpointId, breakpoints) || "75"}
-                              onChange={(e) => updateSelectedStyle("progressPercent", e.target.value)}
-                              className="w-full h-1 bg-slate-200 rounded accent-blue-600 cursor-pointer"
-                            />
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Progress Color", "progressColor")}
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "progressColor", activeBreakpointId, breakpoints) || "#3b82f6"}
-                              onChange={(e) => updateSelectedStyle("progressColor", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Counter configuration */}
-                      {selectedElement.type === "counter" && (
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Start Value", "counterStart")}
-                              <input
-                                type="number"
-                                value={getStyleVal(selectedElement, "counterStart", activeBreakpointId, breakpoints) || "0"}
-                                onChange={(e) => updateSelectedStyle("counterStart", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Target Value", "counterEnd")}
-                              <input
-                                type="number"
-                                value={getStyleVal(selectedElement, "counterEnd", activeBreakpointId, breakpoints) || "100"}
-                                onChange={(e) => updateSelectedStyle("counterEnd", e.target.value)}
-                                className="w-full rounded border p-1"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Prefix", "counterPrefix")}
-                              <input
-                                type="text"
-                                value={getStyleVal(selectedElement, "counterPrefix", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("counterPrefix", e.target.value)}
-                                className="w-full rounded border p-1"
-                                placeholder="e.g. $"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Suffix", "counterSuffix")}
-                              <input
-                                type="text"
-                                value={getStyleVal(selectedElement, "counterSuffix", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("counterSuffix", e.target.value)}
-                                className="w-full rounded border p-1"
-                                placeholder="e.g. %"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Duration (ms)", "counterDuration")}
-                            <input
-                              type="number"
-                              step="500"
-                              value={getStyleVal(selectedElement, "counterDuration", activeBreakpointId, breakpoints) || "2000"}
-                              onChange={(e) => updateSelectedStyle("counterDuration", e.target.value)}
-                              className="w-full rounded border p-1"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* HTML configuration */}
-                      {selectedElement.type === "html" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">RAW HTML CODE</label>
-                          <textarea
-                            rows={6}
-                            value={selectedElement.content}
-                            onChange={(e) => updateSelectedProp("content", e.target.value)}
-                            className="w-full rounded border p-2 font-mono text-[10px] text-slate-700 outline-none"
-                            placeholder="<div style='...'>...</div>"
-                          />
-                        </div>
-                      )}
-
-                      {/* Alert configuration */}
-                      {selectedElement.type === "alert" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Alert Type", "alertType")}
-                            <select
-                              value={getStyleVal(selectedElement, "alertType", activeBreakpointId, breakpoints) || "info"}
-                              onChange={(e) => updateSelectedStyle("alertType", e.target.value)}
-                              className="w-full rounded border p-1 bg-white text-slate-700"
-                            >
-                              <option value="info">Info (Blue)</option>
-                              <option value="success">Success (Green)</option>
-                              <option value="warning">Warning (Yellow)</option>
-                              <option value="danger">Danger (Red)</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 mb-1">ALERT MESSAGE TEXT</label>
-                            <textarea
-                              rows={3}
-                              value={selectedElement.content}
-                              onChange={(e) => updateSelectedProp("content", e.target.value)}
-                              className="w-full rounded border p-2 text-slate-700 outline-none"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Social Icons configuration */}
-                      {selectedElement.type === "social-icons" && (
-                        <div className="space-y-3">
-                          <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Social Profile Links</span>
-                          <div>
-                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Facebook</label>
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "socialFacebook", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("socialFacebook", e.target.value)}
-                              className="w-full rounded border p-1 text-slate-700"
-                              placeholder="https://facebook.com/..."
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Twitter / X</label>
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "socialTwitter", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("socialTwitter", e.target.value)}
-                              className="w-full rounded border p-1 text-slate-700"
-                              placeholder="https://twitter.com/..."
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Instagram</label>
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "socialInstagram", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("socialInstagram", e.target.value)}
-                              className="w-full rounded border p-1 text-slate-700"
-                              placeholder="https://instagram.com/..."
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">LinkedIn</label>
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "socialLinkedin", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("socialLinkedin", e.target.value)}
-                              className="w-full rounded border p-1 text-slate-700"
-                              placeholder="https://linkedin.com/in/..."
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-50">
-                            <div>
-                              {renderResponsiveLabel("Icon Size (px)", "socialIconSize")}
-                              <input
-                                type="number"
-                                value={getStyleVal(selectedElement, "socialIconSize", activeBreakpointId, breakpoints) || "20"}
-                                onChange={(e) => updateSelectedStyle("socialIconSize", e.target.value)}
-                                className="w-full rounded border p-1 text-slate-700"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Icon Color", "socialIconColor")}
-                              <input
-                                type="color"
-                                value={getStyleVal(selectedElement, "socialIconColor", activeBreakpointId, breakpoints) || "#475569"}
-                                onChange={(e) => updateSelectedStyle("socialIconColor", e.target.value)}
-                                className="w-full h-8 cursor-pointer rounded border p-0.5 shrink-0"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Google Maps configuration */}
-                      {selectedElement.type === "google-maps" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">GOOGLE MAPS EMBED IFRAME SRC</label>
-                          <input
-                            type="text"
-                            value={selectedElement.src || ""}
-                            onChange={(e) => updateSelectedProp("src", e.target.value)}
-                            className="w-full rounded border p-1 font-mono text-[10px] text-slate-700"
-                            placeholder="https://maps.google.com/maps?q=..."
-                          />
-                        </div>
-                      )}
-
-                      {/* SoundCloud configuration */}
-                      {selectedElement.type === "soundcloud" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">SOUNDCLOUD EMBED PLAYER SRC</label>
-                          <input
-                            type="text"
-                            value={selectedElement.src || ""}
-                            onChange={(e) => updateSelectedProp("src", e.target.value)}
-                            className="w-full rounded border p-1 font-mono text-[10px] text-slate-700"
-                            placeholder="https://w.soundcloud.com/player/..."
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 2. Typography Controls (F-070, F-089) */}
-                  {selectedElement.type !== "image" && renderAccordion("Typography Settings", "typography", (
-                    <div className="space-y-3.5">
-                      <div>
-                        {renderResponsiveLabel("Font Family", "fontFamily")}
-                        <select
-                          value={getStyleVal(selectedElement, "fontFamily", activeBreakpointId, breakpoints) || "inherit"}
-                          onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="inherit">Inherit (Default)</option>
-                          <option value="'Inter', sans-serif">Inter</option>
-                          <option value="'Outfit', sans-serif">Outfit</option>
-                          <option value="'Playfair Display', serif">Playfair Display</option>
-                          <option value="'Montserrat', sans-serif">Montserrat</option>
-                          <option value="'Roboto', sans-serif">Roboto</option>
-                          <option value="Georgia, serif">Georgia</option>
-                          <option value="monospace">Monospace</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Font Size (px)", "fontSize")}
-                        <input
-                          type="number"
-                          value={getFontSizeNum(getStyleVal(selectedElement, "fontSize", activeBreakpointId, breakpoints))}
-                          onChange={(e) => updateSelectedStyle("fontSize", e.target.value ? `${e.target.value}px` : "16px")}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Font Weight", "fontWeight")}
-                        <select
-                          value={getStyleVal(selectedElement, "fontWeight", activeBreakpointId, breakpoints) || "400"}
-                          onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="300">Light (300)</option>
-                          <option value="400">Regular (400)</option>
-                          <option value="500">Medium (500)</option>
-                          <option value="600">SemiBold (600)</option>
-                          <option value="700">Bold (700)</option>
-                          <option value="800">ExtraBold (800)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Line Height", "lineHeight")}
-                        <input
-                          type="text"
-                          placeholder="e.g. 1.2, 1.5, 24px"
-                          value={getStyleVal(selectedElement, "lineHeight", activeBreakpointId, breakpoints) || ""}
-                          onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Letter Spacing (px)", "letterSpacing")}
-                        <input
-                          type="number"
-                          step="0.5"
-                          value={parseFloat(getStyleVal(selectedElement, "letterSpacing", activeBreakpointId, breakpoints) || "0")}
-                          onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value ? `${e.target.value}px` : "")}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Word Spacing (px)", "wordSpacing")}
-                        <input
-                          type="number"
-                          value={parseFloat(getStyleVal(selectedElement, "wordSpacing", activeBreakpointId, breakpoints) || "0")}
-                          onChange={(e) => updateSelectedStyle("wordSpacing", e.target.value ? `${e.target.value}px` : "")}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        {renderResponsiveLabel("Text Alignment", "textAlign")}
-                        <select
-                          value={getStyleVal(selectedElement, "textAlign", activeBreakpointId, breakpoints) || "left"}
-                          onChange={(e) => updateSelectedStyle("textAlign", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="left">Left</option>
-                          <option value="center">Center</option>
-                          <option value="right">Right</option>
-                          <option value="justify">Justify</option>
-                        </select>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* 3. Color Palette & Dynamic Colors (F-071, F-072) */}
-                  {selectedElement.type !== "image" && renderAccordion("Color Settings", "colors", (
-                    <div className="space-y-3.5">
-                      {/* Text Color */}
-                      <div>
-                        {renderResponsiveLabel("Text Color", "color")}
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints)?.startsWith("var") ? "#000000" : getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#0f172a"}
-                            onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                            className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5 shrink-0"
-                          />
-                          <input
-                            type="text"
-                            value={getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) || "#0f172a"}
-                            onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                          />
-                        </div>
-                        {/* Dynamic Colors (F-072) */}
-                        <div className="mt-1.5">
-                          <select
-                            onChange={(e) => {
-                              if (e.target.value) updateSelectedStyle("color", e.target.value);
-                            }}
-                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-600 outline-none"
-                          >
-                            <option value="">-- Connect Dynamic Color Variable --</option>
-                            <option value="var(--primaryColor)">Primary Theme Color</option>
-                            <option value="var(--secondaryColor)">Secondary Theme Color</option>
-                            <option value="var(--accentColor)">Accent Color</option>
-                            <option value="var(--textColor)">Body Text Color</option>
-                            <option value="var(--backgroundColor)">Site Background</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Element Link (if Button) */}
-                      {selectedElement.type === "button" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                            BUTTON LINK (URL)
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElement.href || "#"}
-                            onChange={(e) => updateSelectedProp("href", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 4. Background Controls (F-073, F-074, F-075, F-076, F-077, F-078) */}
-                  {renderAccordion("Background options", "background", (
-                    <div className="space-y-3.5">
-                      <div>
-                        {renderResponsiveLabel("Background Type", "backgroundType")}
-                        <select
-                          value={getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) || "solid"}
-                          onChange={(e) => updateSelectedStyle("backgroundType", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="solid">Solid Color</option>
-                          <option value="gradient">Gradient Background</option>
-                          <option value="image">Background Image</option>
-                          <option value="video">Background Video</option>
-                          <option value="slideshow">Image Slideshow</option>
-                        </select>
-                      </div>
-
-                      {/* Solid Color */}
-                      {(getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "solid" || !getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints)) && (
-                        <div>
-                          {renderResponsiveLabel("Background Color", "backgroundColor")}
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints)?.startsWith("var") ? "#ffffff" : getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
-                              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                              className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5 shrink-0"
-                            />
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#ffffff"}
-                              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                            />
-                          </div>
-                          {/* Dynamic Color Variable Picker */}
-                          <div className="mt-1.5">
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) updateSelectedStyle("backgroundColor", e.target.value);
-                              }}
-                              className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-600 outline-none"
-                            >
-                              <option value="">-- Connect Dynamic Background Variable --</option>
-                              <option value="var(--backgroundColor)">Background (Base)</option>
-                              <option value="var(--primaryColor)">Primary Theme Color</option>
-                              <option value="var(--secondaryColor)">Secondary Theme Color</option>
-                              <option value="var(--accentColor)">Accent Color</option>
-                              <option value="transparent">Transparent</option>
-                            </select>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Gradient Settings (F-073) */}
-                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "gradient" && (
-                        <div className="space-y-2 border border-slate-200/60 p-2.5 rounded-lg bg-slate-50/50">
-                          <span className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Gradient Parameters</span>
-                          
-                          <div className="grid grid-cols-2 gap-1 text-[10px] font-bold">
-                            <div>
-                              <span>Stop Color 1</span>
-                              <input
-                                type="color"
-                                defaultValue="#2563eb"
-                                onChange={(e) => {
-                                  const stop2 = getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#10b981";
-                                  updateSelectedStyle("backgroundGradient", `linear-gradient(45deg, ${e.target.value}, ${stop2})`);
-                                  updateSelectedStyle("backgroundColor", e.target.value); // cache color 1
-                                }}
-                                className="w-full h-7 rounded cursor-pointer p-0.5 border"
-                              />
-                            </div>
-                            <div>
-                              <span>Stop Color 2</span>
-                              <input
-                                type="color"
-                                defaultValue="#10b981"
-                                onChange={(e) => {
-                                  const stop1 = getStyleVal(selectedElement, "backgroundColor", activeBreakpointId, breakpoints) || "#2563eb";
-                                  updateSelectedStyle("backgroundGradient", `linear-gradient(45deg, ${stop1}, ${e.target.value})`);
-                                }}
-                                className="w-full h-7 rounded cursor-pointer p-0.5 border"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Background Image Options (F-075, F-076) */}
-                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "image" && (
-                        <div className="space-y-3.5">
-                          <div>
-                            {renderResponsiveLabel("Image URL", "backgroundImageUrl")}
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "backgroundImageUrl", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("backgroundImageUrl", e.target.value)}
-                              placeholder="https://..."
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
-                            />
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Position", "backgroundPosition")}
-                            <select
-                              value={getStyleVal(selectedElement, "backgroundPosition", activeBreakpointId, breakpoints) || "center center"}
-                              onChange={(e) => updateSelectedStyle("backgroundPosition", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                            >
-                              <option value="center center">Center Center</option>
-                              <option value="top left">Top Left</option>
-                              <option value="top right">Top Right</option>
-                              <option value="bottom left">Bottom Left</option>
-                              <option value="bottom right">Bottom Right</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Repeat", "backgroundRepeat")}
-                            <select
-                              value={getStyleVal(selectedElement, "backgroundRepeat", activeBreakpointId, breakpoints) || "no-repeat"}
-                              onChange={(e) => updateSelectedStyle("backgroundRepeat", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                            >
-                              <option value="no-repeat">No Repeat</option>
-                              <option value="repeat">Repeat Both</option>
-                              <option value="repeat-x">Repeat Horizontal</option>
-                              <option value="repeat-y">Repeat Vertical</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Size", "backgroundSize")}
-                            <select
-                              value={getStyleVal(selectedElement, "backgroundSize", activeBreakpointId, breakpoints) || "cover"}
-                              onChange={(e) => updateSelectedStyle("backgroundSize", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                            >
-                              <option value="cover">Cover (Fill)</option>
-                              <option value="contain">Contain (Fit)</option>
-                              <option value="auto">Auto</option>
-                            </select>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Video Background (F-077) */}
-                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "video" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Video MP4 URL", "backgroundVideoUrl")}
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "backgroundVideoUrl", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("backgroundVideoUrl", e.target.value)}
-                              placeholder="https://.../video.mp4"
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
-                            />
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Video Opacity (%)", "backgroundVideoOpacity")}
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={getStyleVal(selectedElement, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50"}
-                              onChange={(e) => updateSelectedStyle("backgroundVideoOpacity", e.target.value)}
-                              className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
-                            />
-                            <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
-                              {getStyleVal(selectedElement, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50"}%
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Slideshow (F-078) */}
-                      {getStyleVal(selectedElement, "backgroundType", activeBreakpointId, breakpoints) === "slideshow" && (
-                        <div className="space-y-3">
-                          <div>
-                            {renderResponsiveLabel("Image URLs (Comma separated)", "backgroundSlideshowUrls")}
-                            <textarea
-                              rows={3}
-                              value={getStyleVal(selectedElement, "backgroundSlideshowUrls", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("backgroundSlideshowUrls", e.target.value)}
-                              placeholder="https://img1.jpg, https://img2.jpg"
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
-                            />
-                          </div>
-
-                          <div>
-                            {renderResponsiveLabel("Transition Delay (sec)", "backgroundSlideshowSpeed")}
-                            <input
-                              type="number"
-                              min="2"
-                              value={getStyleVal(selectedElement, "backgroundSlideshowSpeed", activeBreakpointId, breakpoints) || "5"}
-                              onChange={(e) => updateSelectedStyle("backgroundSlideshowSpeed", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 5. Borders & Corners (F-079, F-080) */}
-                  {renderAccordion("Borders & Corner styling", "borders", (
-                    <div className="space-y-3.5">
-                      <div>
-                        {renderResponsiveLabel("Border Style", "borderStyle")}
-                        <select
-                          value={getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) || "none"}
-                          onChange={(e) => updateSelectedStyle("borderStyle", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="none">None</option>
-                          <option value="solid">Solid</option>
-                          <option value="dashed">Dashed</option>
-                          <option value="dotted">Dotted</option>
-                          <option value="double">Double</option>
-                        </select>
-                      </div>
-
-                      {getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) !== "none" && getStyleVal(selectedElement, "borderStyle", activeBreakpointId, breakpoints) !== undefined && (
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            {renderResponsiveLabel("Width", "borderWidth")}
-                            <input
-                              type="text"
-                              value={getStyleVal(selectedElement, "borderWidth", activeBreakpointId, breakpoints) || "1px"}
-                              onChange={(e) => updateSelectedStyle("borderWidth", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                            />
-                          </div>
-                          <div>
-                            {renderResponsiveLabel("Color", "borderColor")}
-                            <input
-                              type="color"
-                              value={getStyleVal(selectedElement, "borderColor", activeBreakpointId, breakpoints) || "#cbd5e1"}
-                              onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Border Corner Radius (F-080) */}
-                      <div>
-                        {renderResponsiveLabel("Corner Roundness (px)", "borderRadius")}
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={parseInt(getStyleVal(selectedElement, "borderRadius", activeBreakpointId, breakpoints) || "8")}
-                          onChange={(e) => updateSelectedStyle("borderRadius", `${e.target.value}px`)}
-                          className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
-                        />
-                        <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
-                          {parseInt(getStyleVal(selectedElement, "borderRadius", activeBreakpointId, breakpoints) || "8")}px
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* 6. Shadows (F-081, F-093) */}
-                  {renderAccordion("Shadow Effects", "shadows", (
-                    <div className="space-y-3.5">
-                      <div>
-                        {renderResponsiveLabel("Box Shadow Preset", "boxShadow")}
-                        <select
-                          value={getStyleVal(selectedElement, "boxShadow", activeBreakpointId, breakpoints) || "none"}
-                          onChange={(e) => updateSelectedStyle("boxShadow", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="none">No Shadow</option>
-                          <option value="sm">Small Shadow</option>
-                          <option value="md">Medium Shadow</option>
-                          <option value="lg">Large Shadow</option>
-                          <option value="xl">Extra Large Shadow</option>
-                          <option value="inner">Inner Shadow</option>
-                        </select>
-                      </div>
-
-                      {/* Text Shadow Preset (F-093) */}
-                      {selectedElement.type !== "image" && (
-                        <div>
-                          {renderResponsiveLabel("Text Shadow Preset", "textShadow")}
-                          <select
-                            value={getStyleVal(selectedElement, "textShadow", activeBreakpointId, breakpoints) || "none"}
-                            onChange={(e) => updateSelectedStyle("textShadow", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                          >
-                            <option value="none">No Text Shadow</option>
-                            <option value="subtle">Subtle Shadow</option>
-                            <option value="medium">Medium Shadow</option>
-                            <option value="hard">Hard Drop Shadow</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 7. Opacity, Blend & Filters (F-082, F-083, F-084, F-085, F-086, F-092) */}
-                  {renderAccordion("Filters, Transform & Masks", "effects", (
+                  ) : (
+                    /* Element Style Panel */
                     <div className="space-y-4">
-                      {/* Opacity (F-082) */}
-                      <div>
-                        {renderResponsiveLabel("Opacity (%)", "opacity")}
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={getStyleVal(selectedElement, "opacity", activeBreakpointId, breakpoints) || "100"}
-                          onChange={(e) => updateSelectedStyle("opacity", e.target.value)}
-                          className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                      {/* Navigation Settings Renderer if selected element is navigation */}
+                      {isNavigationElement(selectedElement.type) ? (
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          activeBreakpointId={activeBreakpointId}
+                          breakpoints={breakpoints}
+                          updateSelectedStyle={updateSelectedStyle}
+                          updateSelectedProp={updateSelectedProp}
+                          renderResponsiveLabel={renderResponsiveLabel}
                         />
-                        <div className="text-right text-[10px] font-bold text-slate-400 mt-1">
-                          {getStyleVal(selectedElement, "opacity", activeBreakpointId, breakpoints) || "100"}%
-                        </div>
-                      </div>
-
-                      {/* Mix Blend Mode (F-083) */}
-                      <div>
-                        {renderResponsiveLabel("Blend Mode", "mixBlendMode")}
-                        <select
-                          value={getStyleVal(selectedElement, "mixBlendMode", activeBreakpointId, breakpoints) || "normal"}
-                          onChange={(e) => updateSelectedStyle("mixBlendMode", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="normal">Normal</option>
-                          <option value="multiply">Multiply</option>
-                          <option value="screen">Screen</option>
-                          <option value="overlay">Overlay</option>
-                          <option value="darken">Darken</option>
-                          <option value="lighten">Lighten</option>
-                          <option value="color-dodge">Color Dodge</option>
-                          <option value="difference">Difference</option>
-                        </select>
-                      </div>
-
-                      {/* Clip Path Shapes (F-085) */}
-                      <div>
-                        {renderResponsiveLabel("Clip Path Mask", "clipPath")}
-                        <select
-                          value={getStyleVal(selectedElement, "clipPath", activeBreakpointId, breakpoints) || "none"}
-                          onChange={(e) => updateSelectedStyle("clipPath", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="none">No Mask Shape</option>
-                          <option value="circle(50% at 50% 50%)">Circle</option>
-                          <option value="polygon(50% 0%, 0% 100%, 100% 100%)">Triangle</option>
-                          <option value="polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)">Star</option>
-                          <option value="polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)">Hexagon</option>
-                          <option value="polygon(0% 0%, 100% 0%, 100% 75%, 75% 75%, 75% 100%, 50% 75%, 0% 75%)">Message Bubble</option>
-                        </select>
-                      </div>
-
-                      {/* CSS Filters (F-084) */}
-                      <div className="space-y-3 pt-2.5 border-t border-slate-100">
-                        <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Filters</span>
-                        
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Blur (px)</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="20"
-                            value={getStyleVal(selectedElement, "filterBlur", activeBreakpointId, breakpoints) || "0"}
-                            onChange={(e) => updateSelectedStyle("filterBlur", e.target.value)}
-                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Grayscale (%)</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={getStyleVal(selectedElement, "filterGrayscale", activeBreakpointId, breakpoints) || "0"}
-                            onChange={(e) => updateSelectedStyle("filterGrayscale", e.target.value)}
-                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Brightness (%)</label>
-                          <input
-                            type="range"
-                            min="50"
-                            max="150"
-                            value={getStyleVal(selectedElement, "filterBrightness", activeBreakpointId, breakpoints) || "100"}
-                            onChange={(e) => updateSelectedStyle("filterBrightness", e.target.value)}
-                            className="w-full accent-blue-600 h-1 bg-slate-200 rounded"
-                          />
-                        </div>
-                      </div>
-
-                      {/* CSS Transform (F-086) */}
-                      <div className="space-y-3 pt-2.5 border-t border-slate-100">
-                        <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">CSS Transform</span>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
-                          <div>
-                            <span>Rotate (deg)</span>
-                            <input
-                              type="number"
-                              value={parseInt(getStyleVal(selectedElement, "transformRotate", activeBreakpointId, breakpoints) || "0")}
-                              onChange={(e) => updateSelectedStyle("transformRotate", `${e.target.value}`)}
-                              className="w-full border rounded px-1.5 py-0.5 text-xs text-slate-700"
-                            />
-                          </div>
-                          <div>
-                            <span>Scale</span>
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={parseFloat(getStyleVal(selectedElement, "transformScale", activeBreakpointId, breakpoints) || "1")}
-                              onChange={(e) => updateSelectedStyle("transformScale", `${e.target.value}`)}
-                              className="w-full border rounded px-1.5 py-0.5 text-xs text-slate-700"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Ken Burns Effect (F-092) */}
-                      {selectedElement.type === "image" && (
-                        <div className="pt-2 border-t border-slate-100">
-                          {renderResponsiveLabel("Ken Burns Effect", "kenBurnsEffect")}
-                          <select
-                            value={getStyleVal(selectedElement, "kenBurnsEffect", activeBreakpointId, breakpoints) || "none"}
-                            onChange={(e) => updateSelectedStyle("kenBurnsEffect", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                          >
-                            <option value="none">Disabled</option>
-                            <option value="zoom-in">Slow Zoom In</option>
-                            <option value="zoom-out">Slow Zoom Out</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 8. Text Stroke & Mask (F-087, F-088) */}
-                  {selectedElement.type !== "image" && renderAccordion("Text Outlines & Masks", "textStroke", (
-                    <div className="space-y-3.5">
-                      {/* Stroke Width & Color (F-087) */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          {renderResponsiveLabel("Stroke (px)", "textStrokeWidth")}
-                          <input
-                            type="number"
-                            min="0"
-                            value={parseInt(getStyleVal(selectedElement, "textStrokeWidth", activeBreakpointId, breakpoints) || "0")}
-                            onChange={(e) => updateSelectedStyle("textStrokeWidth", `${e.target.value}`)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800"
-                          />
-                        </div>
-                        <div>
-                          {renderResponsiveLabel("Stroke Color", "textStrokeColor")}
-                          <input
-                            type="color"
-                            value={getStyleVal(selectedElement, "textStrokeColor", activeBreakpointId, breakpoints) || "#000000"}
-                            onChange={(e) => updateSelectedStyle("textStrokeColor", e.target.value)}
-                            className="w-full h-8 cursor-pointer rounded border p-0.5"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Text Mask Gradient / Image (F-088) */}
-                      <div>
-                        {renderResponsiveLabel("Text Clipping Effect", "textMaskType")}
-                        <select
-                          value={getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) || "none"}
-                          onChange={(e) => updateSelectedStyle("textMaskType", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                        >
-                          <option value="none">None (Solid Color)</option>
-                          <option value="gradient">Gradient Text</option>
-                          <option value="image">Image Clipped Text</option>
-                        </select>
-                      </div>
-
-                      {getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) === "gradient" && (
-                        <div>
-                          {renderResponsiveLabel("Gradient Mask Code", "textMaskGradient")}
-                          <input
-                            type="text"
-                            defaultValue="linear-gradient(45deg, #3b82f6, #10b981)"
-                            onChange={(e) => updateSelectedStyle("textMaskGradient", e.target.value)}
-                            placeholder="linear-gradient(...)"
-                            className="w-full rounded border p-1 text-xs font-mono"
-                          />
-                        </div>
-                      )}
-
-                      {getStyleVal(selectedElement, "textMaskType", activeBreakpointId, breakpoints) === "image" && (
-                        <div>
-                          {renderResponsiveLabel("Mask Image URL", "textMaskImage")}
-                          <input
-                            type="text"
-                            value={getStyleVal(selectedElement, "textMaskImage", activeBreakpointId, breakpoints) || ""}
-                            onChange={(e) => updateSelectedStyle("textMaskImage", e.target.value)}
-                            placeholder="https://..."
-                            className="w-full rounded border p-1 text-xs font-mono"
-                          />
-                        </div>
-                      )}
-
-                      {/* Text Path Curve (F-090) */}
-                      {selectedElement.type === "heading" && (
-                        <div className="pt-2 border-t border-slate-100">
-                          {renderResponsiveLabel("Curved Text Path", "textPathEnabled")}
-                          <select
-                            value={getStyleVal(selectedElement, "textPathEnabled", activeBreakpointId, breakpoints) || "false"}
-                            onChange={(e) => updateSelectedStyle("textPathEnabled", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none"
-                          >
-                            <option value="false">Standard Straight Text</option>
-                            <option value="true">Render on SVG Wave Curve</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* 9. Shape Dividers (F-091) */}
-                  {selectedElement.type === "container" && renderAccordion("Shape Dividers (Borders)", "divider", (
-                    <div className="space-y-4">
-                      {/* Top Divider */}
-                      <div className="space-y-2 border-b border-slate-100 pb-2">
-                        <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
-                          <input
-                            type="checkbox"
-                            checked={getStyleVal(selectedElement, "dividerTopEnabled", activeBreakpointId, breakpoints) === "true"}
-                            onChange={(e) => updateSelectedStyle("dividerTopEnabled", e.target.checked ? "true" : "false")}
-                            className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
-                          />
-                          ENABLE TOP SHAPE DIVIDER
-                        </label>
-                        
-                        {getStyleVal(selectedElement, "dividerTopEnabled", activeBreakpointId, breakpoints) === "true" && (
-                          <div className="space-y-2 pt-1.5">
-                            <select
-                              value={getStyleVal(selectedElement, "dividerTopStyle", activeBreakpointId, breakpoints) || "waves"}
-                              onChange={(e) => updateSelectedStyle("dividerTopStyle", e.target.value)}
-                              className="w-full rounded border p-1 text-xs"
-                            >
-                              <option value="waves">Waves</option>
-                              <option value="curves">Curves</option>
-                              <option value="slant">Slant</option>
-                              <option value="triangle">Triangle</option>
-                            </select>
-                            
-                            <div className="flex gap-2">
-                              <input
-                                type="color"
-                                value={getStyleVal(selectedElement, "dividerTopColor", activeBreakpointId, breakpoints) || "#ffffff"}
-                                onChange={(e) => updateSelectedStyle("dividerTopColor", e.target.value)}
-                                className="w-10 h-7 rounded border cursor-pointer shrink-0"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Height e.g. 50px"
-                                value={getStyleVal(selectedElement, "dividerTopHeight", activeBreakpointId, breakpoints) || "50px"}
-                                onChange={(e) => updateSelectedStyle("dividerTopHeight", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
-                                className="w-full border rounded px-2 text-xs"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bottom Divider */}
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500">
-                          <input
-                            type="checkbox"
-                            checked={getStyleVal(selectedElement, "dividerBottomEnabled", activeBreakpointId, breakpoints) === "true"}
-                            onChange={(e) => updateSelectedStyle("dividerBottomEnabled", e.target.checked ? "true" : "false")}
-                            className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
-                          />
-                          ENABLE BOTTOM DIVIDER
-                        </label>
-                        
-                        {getStyleVal(selectedElement, "dividerBottomEnabled", activeBreakpointId, breakpoints) === "true" && (
-                          <div className="space-y-2 pt-1.5">
-                            <select
-                              value={getStyleVal(selectedElement, "dividerBottomStyle", activeBreakpointId, breakpoints) || "waves"}
-                              onChange={(e) => updateSelectedStyle("dividerBottomStyle", e.target.value)}
-                              className="w-full rounded border p-1 text-xs"
-                            >
-                              <option value="waves">Waves</option>
-                              <option value="curves">Curves</option>
-                              <option value="slant">Slant</option>
-                              <option value="triangle">Triangle</option>
-                            </select>
-                            
-                            <div className="flex gap-2">
-                              <input
-                                type="color"
-                                value={getStyleVal(selectedElement, "dividerBottomColor", activeBreakpointId, breakpoints) || "#ffffff"}
-                                onChange={(e) => updateSelectedStyle("dividerBottomColor", e.target.value)}
-                                className="w-10 h-7 rounded border cursor-pointer shrink-0"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Height e.g. 50px"
-                                value={getStyleVal(selectedElement, "dividerBottomHeight", activeBreakpointId, breakpoints) || "50px"}
-                                onChange={(e) => updateSelectedStyle("dividerBottomHeight", e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`)}
-                                className="w-full border rounded px-2 text-xs"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Motion & Interaction Accordion Panel (F-123 to F-141) */}
-                  {renderAccordion("Motion & Interactions", "motion", (
-                    <div className="space-y-4 text-xs">
-                      {/* 1. Entrance Animations (F-124) */}
-                      <div className="border-b border-slate-100 pb-3">
-                        <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Entrance Animation</span>
-                        <div className="space-y-2">
-                          <div>
-                            {renderResponsiveLabel("Animation Presets", "entranceAnimation")}
-                            <select
-                              value={getStyleVal(selectedElement, "entranceAnimation", activeBreakpointId, breakpoints) || "none"}
-                              onChange={(e) => updateSelectedStyle("entranceAnimation", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
-                            >
-                              <option value="none">None (Static)</option>
-                              <option value="fade-in">Fade In</option>
-                              <option value="fade-in-up">Fade In Up</option>
-                              <option value="fade-in-down">Fade In Down</option>
-                              <option value="zoom-in">Zoom In</option>
-                              <option value="slide-up">Slide Up</option>
-                              <option value="slide-down">Slide Down</option>
-                              <option value="bounce-in">Bounce In</option>
-                            </select>
-                          </div>
-                          {(getStyleVal(selectedElement, "entranceAnimation", activeBreakpointId, breakpoints) || "none") !== "none" && (
+                      ) : (
+                        <div className="space-y-4">
+                          {/* 2. Hover / Transform Effects */}
+                          <div className="border-b border-slate-100 pb-3">
+                            <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Hover Transform & Effects</span>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                {renderResponsiveLabel("Duration (s)", "entranceDuration")}
+                                {renderResponsiveLabel("Scale (x)", "hoverScale")}
                                 <input
                                   type="number"
-                                  step="0.1"
-                                  min="0"
-                                  value={parseFloat(getStyleVal(selectedElement, "entranceDuration", activeBreakpointId, breakpoints) || "0.8")}
-                                  onChange={(e) => updateSelectedStyle("entranceDuration", e.target.value)}
+                                  step="0.05"
+                                  min="0.5"
+                                  max="2"
+                                  placeholder="1.0"
+                                  value={getStyleVal(selectedElement, "hoverScale", activeBreakpointId, breakpoints) || ""}
+                                  onChange={(e) => updateSelectedStyle("hoverScale", e.target.value)}
                                   className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
                                 />
-                              </div>
-                              <div>
-                                {renderResponsiveLabel("Delay (s)", "entranceDelay")}
-                                <input
-                                  type="number"
-                                  step="0.1"
-                                  min="0"
-                                  value={parseFloat(getStyleVal(selectedElement, "entranceDelay", activeBreakpointId, breakpoints) || "0")}
-                                  onChange={(e) => updateSelectedStyle("entranceDelay", e.target.value)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* 2. Hover Interactions (F-125) */}
-                      <div className="border-b border-slate-100 pb-3">
-                        <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Hover State Animations</span>
-                        <div className="space-y-2.5">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              {renderResponsiveLabel("Scale multiplier", "hoverScale")}
-                              <input
-                                type="number"
-                                step="0.05"
-                                min="0.5"
-                                max="2"
-                                placeholder="1.0"
-                                value={getStyleVal(selectedElement, "hoverScale", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("hoverScale", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
-                              />
                             </div>
                             <div>
                               {renderResponsiveLabel("Rotate (deg)", "hoverRotate")}
@@ -4645,7 +3728,6 @@ export default function WebsiteEditor() {
                             </div>
                           </div>
                         </div>
-                      </div>
 
                       {/* 3. Mouse Effects (F-126, F-127, F-128) */}
                       <div className="border-b border-slate-100 pb-3">
@@ -4922,9 +4004,11 @@ export default function WebsiteEditor() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              ) : (
+              )}
+            </div>
+          ) : (
                 /* Global Settings & Site Identity Panel (F-066 to F-101) */
                 <div className="space-y-4">
                   <div className="border-b border-slate-100 pb-2">
@@ -5098,88 +4182,6 @@ export default function WebsiteEditor() {
                         </div>
                       </div>
                     )}
-                  </div>
-
-                  {/* F-094 Global Layout */}
-                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
-                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
-                      Global Layout Width
-                    </h3>
-                    
-                    <div>
-                      <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">SITE MAX WIDTH</label>
-                      <select
-                        value={globalSettings.globalStyles?.siteMaxWidth || "1200px"}
-                        onChange={(e) => setGlobalSettings((prev: any) => ({
-                          ...prev,
-                          globalStyles: { ...prev.globalStyles, siteMaxWidth: e.target.value }
-                        }))}
-                        className="w-full rounded border px-2 py-1 text-xs"
-                      >
-                        <option value="1200px">1200px (Default)</option>
-                        <option value="1400px">1400px (Wide)</option>
-                        <option value="1600px">1600px (UltraWide)</option>
-                        <option value="100%">100% (Fluid Layout)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* F-095 Lightbox Defaults */}
-                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
-                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
-                      Global Lightbox Controls
-                    </h3>
-
-                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={globalSettings.lightboxSettings?.enableLightbox}
-                        onChange={(e) => setGlobalSettings((prev: any) => ({
-                          ...prev,
-                          lightboxSettings: { ...prev.lightboxSettings, enableLightbox: e.target.checked }
-                        }))}
-                        className="rounded h-4.5 w-4.5 text-blue-600"
-                      />
-                      Enable Click-to-Zoom Images
-                    </label>
-
-                    {globalSettings.lightboxSettings?.enableLightbox && (
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase">LIGHTBOX BACKGROUND STYLE</label>
-                        <select
-                          value={globalSettings.lightboxSettings?.lightboxTheme || "dark"}
-                          onChange={(e) => setGlobalSettings((prev: any) => ({
-                            ...prev,
-                            lightboxSettings: { ...prev.lightboxSettings, lightboxTheme: e.target.value }
-                          }))}
-                          className="w-full rounded border px-2 py-0.5 text-xs"
-                        >
-                          <option value="dark">Translucent Dark Navy</option>
-                          <option value="light">Translucent Light Glass</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* F-066 Global Stylesheet Custom CSS */}
-                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
-                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
-                      Global Stylesheet (CSS)
-                    </h3>
-                    
-                    <div>
-                      <label className="text-[9px] font-bold text-slate-400 block mb-1 uppercase">CUSTOM CSS CODE RULES</label>
-                      <textarea
-                        rows={6}
-                        value={globalSettings.customCss || ""}
-                        onChange={(e) => setGlobalSettings((prev: any) => ({
-                          ...prev,
-                          customCss: e.target.value
-                        }))}
-                        placeholder=".card-hover:hover { transform: translateY(-4px); }"
-                        className="w-full rounded border p-2 text-xs font-mono bg-white outline-none focus:border-blue-500 leading-normal"
-                      />
-                    </div>
                   </div>
                 </div>
               )}
