@@ -24,6 +24,7 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
+<<<<<<< HEAD
 }
 
 // Ensure PostgreSQL enum types and columns are updated for Email & WhatsApp OTP
@@ -64,3 +65,6 @@ async function ensureDbSchema() {
 ensureDbSchema().catch((err) => {
   console.error("Failed to run schema auto-migration:", err);
 });
+=======
+}
+>>>>>>> 8d95dec (Initial project code)

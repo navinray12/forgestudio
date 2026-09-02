@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { prisma } from "../config/prisma.js";
+=======
+>>>>>>> 8d95dec (Initial project code)
 import {
   generateSessionToken,
   hashSessionToken,
@@ -33,6 +36,7 @@ export async function createUserSession(
     token: rawToken,
     expiresAt,
   };
+<<<<<<< HEAD
 }
 
 export async function createSupportSession(
@@ -66,4 +70,6 @@ export async function revokeSupportSessions(userId: string) {
       revokedAt: new Date(),
     },
   });
+=======
+>>>>>>> 8d95dec (Initial project code)
 }

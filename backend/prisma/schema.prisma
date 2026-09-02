@@ -36,6 +36,7 @@ enum OtpPurpose {
   PHONE_SIGNUP
   PHONE_LOGIN
   PHONE_VERIFICATION
+<<<<<<< HEAD
   EMAIL_SIGNUP
   EMAIL_LOGIN
 }
@@ -43,6 +44,8 @@ enum OtpPurpose {
 enum OtpChannel {
   EMAIL
   WHATSAPP
+=======
+>>>>>>> 8d95dec (Initial project code)
 }
 
 model User {
@@ -64,6 +67,10 @@ model User {
   sessions            Session[]
   otpVerifications    OtpVerification[]
   passwordResetTokens PasswordResetToken[]
+<<<<<<< HEAD
+=======
+  apiKeys             ApiKey[]
+>>>>>>> 8d95dec (Initial project code)
   subscription        UserSubscription?
   websites            Website[]
 
@@ -72,6 +79,25 @@ model User {
   @@map("users")
 }
 
+<<<<<<< HEAD
+=======
+model ApiKey {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  keyHash     String    @unique
+  userId      String    @db.Uuid
+  scopes      String[]  @default(["read"])
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+>>>>>>> 8d95dec (Initial project code)
 model Website {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String   @db.Uuid
@@ -91,10 +117,15 @@ model Website {
 model OtpVerification {
   id         String      @id @default(uuid()) @db.Uuid
   userId     String?     @db.Uuid
+<<<<<<< HEAD
   email      String?
   otpHash    String
   purpose    OtpPurpose
   channel    OtpChannel  @default(EMAIL)
+=======
+  otpHash    String
+  purpose    OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
   attempts   Int         @default(0)
   expiresAt  DateTime
   verifiedAt DateTime?

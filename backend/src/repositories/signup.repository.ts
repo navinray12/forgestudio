@@ -1,5 +1,9 @@
 import { prisma } from "../config/database.js";
+<<<<<<< HEAD
 import type { VerificationMethod } from "../generated/prisma/index.js";
+=======
+import type { VerificationMethod } from "../generated/prisma/enums.js";
+>>>>>>> 8d95dec (Initial project code)
 
 export async function findUserByEmailOrPhone(
   email?: string,

@@ -41,10 +41,43 @@ export async function requireAuth(
     });
 
     if (!session) {
+<<<<<<< HEAD
       return res.status(401).json({
         success: false,
         message: "Invalid session",
       });
+=======
+      // F-118: Fallback check for Developer API Key
+      const apiKey = await (prisma as any).apiKey.findUnique({
+        where: { keyHash: tokenHash },
+        include: { user: true }
+      });
+      if (!apiKey || apiKey.revokedAt) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid session or API key",
+        });
+      }
+
+      await (prisma as any).apiKey.update({
+        where: { id: apiKey.id },
+        data: { lastUsedAt: new Date() }
+      });
+
+      res.locals.user = apiKey.user;
+      res.locals.isDeveloperApi = true;
+      res.locals.apiScopes = apiKey.scopes;
+
+      // F-118: Scopes Enforcement
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && !apiKey.scopes.includes('write')) {
+        return res.status(403).json({
+          success: false,
+          message: "API Key lacks required 'write' scope for this operation."
+        });
+      }
+
+      return next();
+>>>>>>> 8d95dec (Initial project code)
     }
 
     if (session.revokedAt) {

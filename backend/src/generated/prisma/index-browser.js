@@ -136,6 +136,21 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+<<<<<<< HEAD
+=======
+exports.Prisma.ApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  keyHash: 'keyHash',
+  userId: 'userId',
+  scopes: 'scopes',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+>>>>>>> 8d95dec (Initial project code)
 exports.Prisma.WebsiteScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -150,10 +165,15 @@ exports.Prisma.WebsiteScalarFieldEnum = {
 exports.Prisma.OtpVerificationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+<<<<<<< HEAD
   email: 'email',
   otpHash: 'otpHash',
   purpose: 'purpose',
   channel: 'channel',
+=======
+  otpHash: 'otpHash',
+  purpose: 'purpose',
+>>>>>>> 8d95dec (Initial project code)
   attempts: 'attempts',
   expiresAt: 'expiresAt',
   verifiedAt: 'verifiedAt',
@@ -260,6 +280,7 @@ exports.UserRole = exports.$Enums.UserRole = {
 exports.OtpPurpose = exports.$Enums.OtpPurpose = {
   PHONE_SIGNUP: 'PHONE_SIGNUP',
   PHONE_LOGIN: 'PHONE_LOGIN',
+<<<<<<< HEAD
   PHONE_VERIFICATION: 'PHONE_VERIFICATION',
   EMAIL_SIGNUP: 'EMAIL_SIGNUP',
   EMAIL_LOGIN: 'EMAIL_LOGIN'
@@ -268,6 +289,9 @@ exports.OtpPurpose = exports.$Enums.OtpPurpose = {
 exports.OtpChannel = exports.$Enums.OtpChannel = {
   EMAIL: 'EMAIL',
   WHATSAPP: 'WHATSAPP'
+=======
+  PHONE_VERIFICATION: 'PHONE_VERIFICATION'
+>>>>>>> 8d95dec (Initial project code)
 };
 
 exports.IdentityProvider = exports.$Enums.IdentityProvider = {
@@ -279,6 +303,10 @@ exports.IdentityProvider = exports.$Enums.IdentityProvider = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+<<<<<<< HEAD
+=======
+  ApiKey: 'ApiKey',
+>>>>>>> 8d95dec (Initial project code)
   Website: 'Website',
   OtpVerification: 'OtpVerification',
   Identity: 'Identity',

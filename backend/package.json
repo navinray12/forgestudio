@@ -20,29 +20,51 @@
     "@prisma/client": "^7.10.0",
     "argon2": "^0.45.1",
     "bcryptjs": "^3.0.3",
+<<<<<<< HEAD
+=======
+    "clean-css": "^5.3.3",
+>>>>>>> 8d95dec (Initial project code)
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "helmet": "^8.3.0",
+<<<<<<< HEAD
     "nodemailer": "^9.0.6",
+=======
+>>>>>>> 8d95dec (Initial project code)
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.23.0",
+<<<<<<< HEAD
+=======
+    "terser": "^5.51.2",
+>>>>>>> 8d95dec (Initial project code)
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+<<<<<<< HEAD
+=======
+    "@types/clean-css": "^4.2.11",
+>>>>>>> 8d95dec (Initial project code)
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
+<<<<<<< HEAD
     "@types/nodemailer": "^8.0.1",
+=======
+>>>>>>> 8d95dec (Initial project code)
     "@types/passport": "^1.0.17",
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/pg": "^8.23.1",
+<<<<<<< HEAD
+=======
+    "@types/terser": "^3.8.1",
+>>>>>>> 8d95dec (Initial project code)
     "prisma": "^7.10.0",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"

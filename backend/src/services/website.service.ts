@@ -184,12 +184,28 @@ export async function updateWebsiteEditorData(
 
   try {
     if (db?.website?.update) {
+<<<<<<< HEAD
       const updated = await db.website.update({
         where: { id: websiteId },
         data: {
           editorData,
           updatedAt: new Date(),
         },
+=======
+      const updateData: any = {
+        editorData,
+        updatedAt: new Date(),
+      };
+      
+      // Keep root database 'name' synchronized with editor's Global Site Identity 
+      if (editorData?.globalSettings?.siteIdentity?.name) {
+          updateData.name = editorData.globalSettings.siteIdentity.name;
+      }
+      
+      const updated = await db.website.update({
+        where: { id: websiteId },
+        data: updateData,
+>>>>>>> 8d95dec (Initial project code)
       });
       return updated;
     }
@@ -197,7 +213,13 @@ export async function updateWebsiteEditorData(
     const jsonStr = JSON.stringify(editorData);
     const updated: any[] = await prisma.$queryRaw`
       UPDATE websites
+<<<<<<< HEAD
       SET "editorData" = ${jsonStr}::jsonb, "updatedAt" = NOW()
+=======
+      SET "editorData" = ${jsonStr}::jsonb, 
+          "name" = COALESCE(NULLIF(${editorData?.globalSettings?.siteIdentity?.name || ''}, ''), "name"),
+          "updatedAt" = NOW()
+>>>>>>> 8d95dec (Initial project code)
       WHERE id = ${websiteId}::uuid AND "userId" = ${userId}::uuid
       RETURNING id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
     `;

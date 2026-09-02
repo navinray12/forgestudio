@@ -2,9 +2,12 @@ import type { Request, Response, NextFunction } from "express";
 import { signupSchema } from "../validators/signup.validator.js";
 import { signupUser } from "../services/signup.service.js";
 import { createUserSession } from "../services/session.service.js";
+<<<<<<< HEAD
 import { generateAndSendOtp, verifyOtp } from "../services/otp.service.js";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
+=======
+>>>>>>> 8d95dec (Initial project code)
 import {
   AUTH_COOKIE_NAME,
   AUTH_COOKIE_OPTIONS,
@@ -31,6 +34,7 @@ export async function signupController(
 
     const user = await signupUser(validationResult.data);
 
+<<<<<<< HEAD
     if (user.email) {
       await generateAndSendOtp({
         userId: user.id,
@@ -52,6 +56,15 @@ export async function signupController(
     // Fallback if no email (e.g. phone only)
     const session = await createUserSession(user.id);
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
+=======
+    const session = await createUserSession(user.id);
+
+    res.cookie(
+      AUTH_COOKIE_NAME,
+      session.token,
+      AUTH_COOKIE_OPTIONS
+    );
+>>>>>>> 8d95dec (Initial project code)
 
     return res.status(201).json({
       success: true,
@@ -64,6 +77,7 @@ export async function signupController(
     next(error);
   }
 }
+<<<<<<< HEAD
 
 export async function verifySignupOtpController(
   req: Request,
@@ -170,3 +184,5 @@ export async function resendSignupOtpController(
     next(error);
   }
 }
+=======
+>>>>>>> 8d95dec (Initial project code)

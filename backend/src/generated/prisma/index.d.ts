@@ -19,6 +19,14 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+<<<<<<< HEAD
+=======
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = $Result.DefaultSelection<Prisma.$ApiKeyPayload>
+/**
+>>>>>>> 8d95dec (Initial project code)
  * Model Website
  * 
  */
@@ -98,13 +106,18 @@ export type IdentityProvider = (typeof IdentityProvider)[keyof typeof IdentityPr
 export const OtpPurpose: {
   PHONE_SIGNUP: 'PHONE_SIGNUP',
   PHONE_LOGIN: 'PHONE_LOGIN',
+<<<<<<< HEAD
   PHONE_VERIFICATION: 'PHONE_VERIFICATION',
   EMAIL_SIGNUP: 'EMAIL_SIGNUP',
   EMAIL_LOGIN: 'EMAIL_LOGIN'
+=======
+  PHONE_VERIFICATION: 'PHONE_VERIFICATION'
+>>>>>>> 8d95dec (Initial project code)
 };
 
 export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose]
 
+<<<<<<< HEAD
 
 export const OtpChannel: {
   EMAIL: 'EMAIL',
@@ -113,6 +126,8 @@ export const OtpChannel: {
 
 export type OtpChannel = (typeof OtpChannel)[keyof typeof OtpChannel]
 
+=======
+>>>>>>> 8d95dec (Initial project code)
 }
 
 export type UserRole = $Enums.UserRole
@@ -135,10 +150,13 @@ export type OtpPurpose = $Enums.OtpPurpose
 
 export const OtpPurpose: typeof $Enums.OtpPurpose
 
+<<<<<<< HEAD
 export type OtpChannel = $Enums.OtpChannel
 
 export const OtpChannel: typeof $Enums.OtpChannel
 
+=======
+>>>>>>> 8d95dec (Initial project code)
 /**
  * ##  Prisma Client ʲˢ
  *
@@ -271,6 +289,19 @@ export class PrismaClient<
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
+<<<<<<< HEAD
+=======
+   * `prisma.apiKey`: Exposes CRUD operations for the **ApiKey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ApiKeys
+    * const apiKeys = await prisma.apiKey.findMany()
+    * ```
+    */
+  get apiKey(): Prisma.ApiKeyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+>>>>>>> 8d95dec (Initial project code)
    * `prisma.website`: Exposes CRUD operations for the **Website** model.
     * Example usage:
     * ```ts
@@ -787,6 +818,10 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+<<<<<<< HEAD
+=======
+    ApiKey: 'ApiKey',
+>>>>>>> 8d95dec (Initial project code)
     Website: 'Website',
     OtpVerification: 'OtpVerification',
     Identity: 'Identity',
@@ -809,7 +844,11 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
+<<<<<<< HEAD
       modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription"
+=======
+      modelProps: "user" | "apiKey" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription"
+>>>>>>> 8d95dec (Initial project code)
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -887,6 +926,83 @@ export namespace Prisma {
           }
         }
       }
+<<<<<<< HEAD
+=======
+      ApiKey: {
+        payload: Prisma.$ApiKeyPayload<ExtArgs>
+        fields: Prisma.ApiKeyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApiKeyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApiKeyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          findFirst: {
+            args: Prisma.ApiKeyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApiKeyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          findMany: {
+            args: Prisma.ApiKeyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>[]
+          }
+          create: {
+            args: Prisma.ApiKeyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          createMany: {
+            args: Prisma.ApiKeyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApiKeyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>[]
+          }
+          delete: {
+            args: Prisma.ApiKeyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          update: {
+            args: Prisma.ApiKeyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          deleteMany: {
+            args: Prisma.ApiKeyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApiKeyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ApiKeyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>[]
+          }
+          upsert: {
+            args: Prisma.ApiKeyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApiKeyPayload>
+          }
+          aggregate: {
+            args: Prisma.ApiKeyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApiKey>
+          }
+          groupBy: {
+            args: Prisma.ApiKeyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApiKeyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApiKeyCountArgs<ExtArgs>
+            result: $Utils.Optional<ApiKeyCountAggregateOutputType> | number
+          }
+        }
+      }
+>>>>>>> 8d95dec (Initial project code)
       Website: {
         payload: Prisma.$WebsitePayload<ExtArgs>
         fields: Prisma.WebsiteFieldRefs
@@ -1529,6 +1645,10 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+<<<<<<< HEAD
+=======
+    apiKey?: ApiKeyOmit
+>>>>>>> 8d95dec (Initial project code)
     website?: WebsiteOmit
     otpVerification?: OtpVerificationOmit
     identity?: IdentityOmit
@@ -1620,6 +1740,10 @@ export namespace Prisma {
     sessions: number
     otpVerifications: number
     passwordResetTokens: number
+<<<<<<< HEAD
+=======
+    apiKeys: number
+>>>>>>> 8d95dec (Initial project code)
     websites: number
   }
 
@@ -1628,6 +1752,10 @@ export namespace Prisma {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     otpVerifications?: boolean | UserCountOutputTypeCountOtpVerificationsArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
+<<<<<<< HEAD
+=======
+    apiKeys?: boolean | UserCountOutputTypeCountApiKeysArgs
+>>>>>>> 8d95dec (Initial project code)
     websites?: boolean | UserCountOutputTypeCountWebsitesArgs
   }
 
@@ -1673,6 +1801,16 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+<<<<<<< HEAD
+=======
+  export type UserCountOutputTypeCountApiKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApiKeyWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+>>>>>>> 8d95dec (Initial project code)
   export type UserCountOutputTypeCountWebsitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WebsiteWhereInput
   }
@@ -1945,6 +2083,10 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
+<<<<<<< HEAD
+=======
+    apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
+>>>>>>> 8d95dec (Initial project code)
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     websites?: boolean | User$websitesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -2004,6 +2146,10 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
+<<<<<<< HEAD
+=======
+    apiKeys?: boolean | User$apiKeysArgs<ExtArgs>
+>>>>>>> 8d95dec (Initial project code)
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     websites?: boolean | User$websitesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -2018,6 +2164,10 @@ export namespace Prisma {
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       otpVerifications: Prisma.$OtpVerificationPayload<ExtArgs>[]
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+<<<<<<< HEAD
+=======
+      apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+>>>>>>> 8d95dec (Initial project code)
       subscription: Prisma.$UserSubscriptionPayload<ExtArgs> | null
       websites: Prisma.$WebsitePayload<ExtArgs>[]
     }
@@ -2433,6 +2583,10 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     otpVerifications<T extends User$otpVerificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$otpVerificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OtpVerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     passwordResetTokens<T extends User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+<<<<<<< HEAD
+=======
+    apiKeys<T extends User$apiKeysArgs<ExtArgs> = {}>(args?: Subset<T, User$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+>>>>>>> 8d95dec (Initial project code)
     subscription<T extends User$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionArgs<ExtArgs>>): Prisma__UserSubscriptionClient<$Result.GetResult<Prisma.$UserSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     websites<T extends User$websitesArgs<ExtArgs> = {}>(args?: Subset<T, User$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -2966,6 +3120,33 @@ export namespace Prisma {
   }
 
   /**
+<<<<<<< HEAD
+=======
+   * User.apiKeys
+   */
+  export type User$apiKeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    where?: ApiKeyWhereInput
+    orderBy?: ApiKeyOrderByWithRelationInput | ApiKeyOrderByWithRelationInput[]
+    cursor?: ApiKeyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ApiKeyScalarFieldEnum | ApiKeyScalarFieldEnum[]
+  }
+
+  /**
+>>>>>>> 8d95dec (Initial project code)
    * User.subscription
    */
   export type User$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3028,6 +3209,1120 @@ export namespace Prisma {
 
 
   /**
+<<<<<<< HEAD
+=======
+   * Model ApiKey
+   */
+
+  export type AggregateApiKey = {
+    _count: ApiKeyCountAggregateOutputType | null
+    _min: ApiKeyMinAggregateOutputType | null
+    _max: ApiKeyMaxAggregateOutputType | null
+  }
+
+  export type ApiKeyMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    keyHash: string | null
+    userId: string | null
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ApiKeyMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    keyHash: string | null
+    userId: string | null
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ApiKeyCountAggregateOutputType = {
+    id: number
+    name: number
+    keyHash: number
+    userId: number
+    scopes: number
+    lastUsedAt: number
+    revokedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ApiKeyMinAggregateInputType = {
+    id?: true
+    name?: true
+    keyHash?: true
+    userId?: true
+    lastUsedAt?: true
+    revokedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ApiKeyMaxAggregateInputType = {
+    id?: true
+    name?: true
+    keyHash?: true
+    userId?: true
+    lastUsedAt?: true
+    revokedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ApiKeyCountAggregateInputType = {
+    id?: true
+    name?: true
+    keyHash?: true
+    userId?: true
+    scopes?: true
+    lastUsedAt?: true
+    revokedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ApiKeyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiKey to aggregate.
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiKeys to fetch.
+     */
+    orderBy?: ApiKeyOrderByWithRelationInput | ApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ApiKeys
+    **/
+    _count?: true | ApiKeyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApiKeyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApiKeyMaxAggregateInputType
+  }
+
+  export type GetApiKeyAggregateType<T extends ApiKeyAggregateArgs> = {
+        [P in keyof T & keyof AggregateApiKey]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApiKey[P]>
+      : GetScalarType<T[P], AggregateApiKey[P]>
+  }
+
+
+
+
+  export type ApiKeyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApiKeyWhereInput
+    orderBy?: ApiKeyOrderByWithAggregationInput | ApiKeyOrderByWithAggregationInput[]
+    by: ApiKeyScalarFieldEnum[] | ApiKeyScalarFieldEnum
+    having?: ApiKeyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApiKeyCountAggregateInputType | true
+    _min?: ApiKeyMinAggregateInputType
+    _max?: ApiKeyMaxAggregateInputType
+  }
+
+  export type ApiKeyGroupByOutputType = {
+    id: string
+    name: string
+    keyHash: string
+    userId: string
+    scopes: string[]
+    lastUsedAt: Date | null
+    revokedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ApiKeyCountAggregateOutputType | null
+    _min: ApiKeyMinAggregateOutputType | null
+    _max: ApiKeyMaxAggregateOutputType | null
+  }
+
+  type GetApiKeyGroupByPayload<T extends ApiKeyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApiKeyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApiKeyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApiKeyGroupByOutputType[P]>
+            : GetScalarType<T[P], ApiKeyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApiKeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    keyHash?: boolean
+    userId?: boolean
+    scopes?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["apiKey"]>
+
+  export type ApiKeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    keyHash?: boolean
+    userId?: boolean
+    scopes?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["apiKey"]>
+
+  export type ApiKeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    keyHash?: boolean
+    userId?: boolean
+    scopes?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["apiKey"]>
+
+  export type ApiKeySelectScalar = {
+    id?: boolean
+    name?: boolean
+    keyHash?: boolean
+    userId?: boolean
+    scopes?: boolean
+    lastUsedAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "keyHash" | "userId" | "scopes" | "lastUsedAt" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["apiKey"]>
+  export type ApiKeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ApiKeyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ApiKeyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ApiKeyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ApiKey"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      keyHash: string
+      userId: string
+      scopes: string[]
+      lastUsedAt: Date | null
+      revokedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["apiKey"]>
+    composites: {}
+  }
+
+  type ApiKeyGetPayload<S extends boolean | null | undefined | ApiKeyDefaultArgs> = $Result.GetResult<Prisma.$ApiKeyPayload, S>
+
+  type ApiKeyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ApiKeyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ApiKeyCountAggregateInputType | true
+    }
+
+  export interface ApiKeyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ApiKey'], meta: { name: 'ApiKey' } }
+    /**
+     * Find zero or one ApiKey that matches the filter.
+     * @param {ApiKeyFindUniqueArgs} args - Arguments to find a ApiKey
+     * @example
+     * // Get one ApiKey
+     * const apiKey = await prisma.apiKey.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApiKeyFindUniqueArgs>(args: SelectSubset<T, ApiKeyFindUniqueArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ApiKey that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ApiKeyFindUniqueOrThrowArgs} args - Arguments to find a ApiKey
+     * @example
+     * // Get one ApiKey
+     * const apiKey = await prisma.apiKey.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApiKeyFindUniqueOrThrowArgs>(args: SelectSubset<T, ApiKeyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApiKey that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyFindFirstArgs} args - Arguments to find a ApiKey
+     * @example
+     * // Get one ApiKey
+     * const apiKey = await prisma.apiKey.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApiKeyFindFirstArgs>(args?: SelectSubset<T, ApiKeyFindFirstArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApiKey that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyFindFirstOrThrowArgs} args - Arguments to find a ApiKey
+     * @example
+     * // Get one ApiKey
+     * const apiKey = await prisma.apiKey.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApiKeyFindFirstOrThrowArgs>(args?: SelectSubset<T, ApiKeyFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ApiKeys that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ApiKeys
+     * const apiKeys = await prisma.apiKey.findMany()
+     * 
+     * // Get first 10 ApiKeys
+     * const apiKeys = await prisma.apiKey.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const apiKeyWithIdOnly = await prisma.apiKey.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ApiKeyFindManyArgs>(args?: SelectSubset<T, ApiKeyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ApiKey.
+     * @param {ApiKeyCreateArgs} args - Arguments to create a ApiKey.
+     * @example
+     * // Create one ApiKey
+     * const ApiKey = await prisma.apiKey.create({
+     *   data: {
+     *     // ... data to create a ApiKey
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApiKeyCreateArgs>(args: SelectSubset<T, ApiKeyCreateArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ApiKeys.
+     * @param {ApiKeyCreateManyArgs} args - Arguments to create many ApiKeys.
+     * @example
+     * // Create many ApiKeys
+     * const apiKey = await prisma.apiKey.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApiKeyCreateManyArgs>(args?: SelectSubset<T, ApiKeyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ApiKeys and returns the data saved in the database.
+     * @param {ApiKeyCreateManyAndReturnArgs} args - Arguments to create many ApiKeys.
+     * @example
+     * // Create many ApiKeys
+     * const apiKey = await prisma.apiKey.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ApiKeys and only return the `id`
+     * const apiKeyWithIdOnly = await prisma.apiKey.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApiKeyCreateManyAndReturnArgs>(args?: SelectSubset<T, ApiKeyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ApiKey.
+     * @param {ApiKeyDeleteArgs} args - Arguments to delete one ApiKey.
+     * @example
+     * // Delete one ApiKey
+     * const ApiKey = await prisma.apiKey.delete({
+     *   where: {
+     *     // ... filter to delete one ApiKey
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApiKeyDeleteArgs>(args: SelectSubset<T, ApiKeyDeleteArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ApiKey.
+     * @param {ApiKeyUpdateArgs} args - Arguments to update one ApiKey.
+     * @example
+     * // Update one ApiKey
+     * const apiKey = await prisma.apiKey.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApiKeyUpdateArgs>(args: SelectSubset<T, ApiKeyUpdateArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ApiKeys.
+     * @param {ApiKeyDeleteManyArgs} args - Arguments to filter ApiKeys to delete.
+     * @example
+     * // Delete a few ApiKeys
+     * const { count } = await prisma.apiKey.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApiKeyDeleteManyArgs>(args?: SelectSubset<T, ApiKeyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ApiKeys
+     * const apiKey = await prisma.apiKey.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApiKeyUpdateManyArgs>(args: SelectSubset<T, ApiKeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApiKeys and returns the data updated in the database.
+     * @param {ApiKeyUpdateManyAndReturnArgs} args - Arguments to update many ApiKeys.
+     * @example
+     * // Update many ApiKeys
+     * const apiKey = await prisma.apiKey.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ApiKeys and only return the `id`
+     * const apiKeyWithIdOnly = await prisma.apiKey.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ApiKeyUpdateManyAndReturnArgs>(args: SelectSubset<T, ApiKeyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ApiKey.
+     * @param {ApiKeyUpsertArgs} args - Arguments to update or create a ApiKey.
+     * @example
+     * // Update or create a ApiKey
+     * const apiKey = await prisma.apiKey.upsert({
+     *   create: {
+     *     // ... data to create a ApiKey
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ApiKey we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApiKeyUpsertArgs>(args: SelectSubset<T, ApiKeyUpsertArgs<ExtArgs>>): Prisma__ApiKeyClient<$Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ApiKeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyCountArgs} args - Arguments to filter ApiKeys to count.
+     * @example
+     * // Count the number of ApiKeys
+     * const count = await prisma.apiKey.count({
+     *   where: {
+     *     // ... the filter for the ApiKeys we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApiKeyCountArgs>(
+      args?: Subset<T, ApiKeyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApiKeyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApiKeyAggregateArgs>(args: Subset<T, ApiKeyAggregateArgs>): Prisma.PrismaPromise<GetApiKeyAggregateType<T>>
+
+    /**
+     * Group by ApiKey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApiKeyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApiKeyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApiKeyGroupByArgs['orderBy'] }
+        : { orderBy?: ApiKeyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApiKeyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApiKeyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ApiKey model
+   */
+  readonly fields: ApiKeyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ApiKey.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApiKeyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ApiKey model
+   */
+  interface ApiKeyFieldRefs {
+    readonly id: FieldRef<"ApiKey", 'String'>
+    readonly name: FieldRef<"ApiKey", 'String'>
+    readonly keyHash: FieldRef<"ApiKey", 'String'>
+    readonly userId: FieldRef<"ApiKey", 'String'>
+    readonly scopes: FieldRef<"ApiKey", 'String[]'>
+    readonly lastUsedAt: FieldRef<"ApiKey", 'DateTime'>
+    readonly revokedAt: FieldRef<"ApiKey", 'DateTime'>
+    readonly createdAt: FieldRef<"ApiKey", 'DateTime'>
+    readonly updatedAt: FieldRef<"ApiKey", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ApiKey findUnique
+   */
+  export type ApiKeyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which ApiKey to fetch.
+     */
+    where: ApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ApiKey findUniqueOrThrow
+   */
+  export type ApiKeyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which ApiKey to fetch.
+     */
+    where: ApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ApiKey findFirst
+   */
+  export type ApiKeyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which ApiKey to fetch.
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiKeys to fetch.
+     */
+    orderBy?: ApiKeyOrderByWithRelationInput | ApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiKeys.
+     */
+    cursor?: ApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiKeys.
+     */
+    distinct?: ApiKeyScalarFieldEnum | ApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ApiKey findFirstOrThrow
+   */
+  export type ApiKeyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which ApiKey to fetch.
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiKeys to fetch.
+     */
+    orderBy?: ApiKeyOrderByWithRelationInput | ApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApiKeys.
+     */
+    cursor?: ApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiKeys.
+     */
+    distinct?: ApiKeyScalarFieldEnum | ApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ApiKey findMany
+   */
+  export type ApiKeyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter, which ApiKeys to fetch.
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApiKeys to fetch.
+     */
+    orderBy?: ApiKeyOrderByWithRelationInput | ApiKeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ApiKeys.
+     */
+    cursor?: ApiKeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApiKeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApiKeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApiKeys.
+     */
+    distinct?: ApiKeyScalarFieldEnum | ApiKeyScalarFieldEnum[]
+  }
+
+  /**
+   * ApiKey create
+   */
+  export type ApiKeyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ApiKey.
+     */
+    data: XOR<ApiKeyCreateInput, ApiKeyUncheckedCreateInput>
+  }
+
+  /**
+   * ApiKey createMany
+   */
+  export type ApiKeyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ApiKeys.
+     */
+    data: ApiKeyCreateManyInput | ApiKeyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApiKey createManyAndReturn
+   */
+  export type ApiKeyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to create many ApiKeys.
+     */
+    data: ApiKeyCreateManyInput | ApiKeyCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ApiKey update
+   */
+  export type ApiKeyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ApiKey.
+     */
+    data: XOR<ApiKeyUpdateInput, ApiKeyUncheckedUpdateInput>
+    /**
+     * Choose, which ApiKey to update.
+     */
+    where: ApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ApiKey updateMany
+   */
+  export type ApiKeyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ApiKeys.
+     */
+    data: XOR<ApiKeyUpdateManyMutationInput, ApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which ApiKeys to update
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApiKey updateManyAndReturn
+   */
+  export type ApiKeyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * The data used to update ApiKeys.
+     */
+    data: XOR<ApiKeyUpdateManyMutationInput, ApiKeyUncheckedUpdateManyInput>
+    /**
+     * Filter which ApiKeys to update
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ApiKey upsert
+   */
+  export type ApiKeyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ApiKey to update in case it exists.
+     */
+    where: ApiKeyWhereUniqueInput
+    /**
+     * In case the ApiKey found by the `where` argument doesn't exist, create a new ApiKey with this data.
+     */
+    create: XOR<ApiKeyCreateInput, ApiKeyUncheckedCreateInput>
+    /**
+     * In case the ApiKey was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApiKeyUpdateInput, ApiKeyUncheckedUpdateInput>
+  }
+
+  /**
+   * ApiKey delete
+   */
+  export type ApiKeyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+    /**
+     * Filter which ApiKey to delete.
+     */
+    where: ApiKeyWhereUniqueInput
+  }
+
+  /**
+   * ApiKey deleteMany
+   */
+  export type ApiKeyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApiKeys to delete
+     */
+    where?: ApiKeyWhereInput
+    /**
+     * Limit how many ApiKeys to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApiKey without action
+   */
+  export type ApiKeyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApiKey
+     */
+    select?: ApiKeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApiKey
+     */
+    omit?: ApiKeyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApiKeyInclude<ExtArgs> | null
+  }
+
+
+  /**
+>>>>>>> 8d95dec (Initial project code)
    * Model Website
    */
 
@@ -4148,10 +5443,15 @@ export namespace Prisma {
   export type OtpVerificationMinAggregateOutputType = {
     id: string | null
     userId: string | null
+<<<<<<< HEAD
     email: string | null
     otpHash: string | null
     purpose: $Enums.OtpPurpose | null
     channel: $Enums.OtpChannel | null
+=======
+    otpHash: string | null
+    purpose: $Enums.OtpPurpose | null
+>>>>>>> 8d95dec (Initial project code)
     attempts: number | null
     expiresAt: Date | null
     verifiedAt: Date | null
@@ -4161,10 +5461,15 @@ export namespace Prisma {
   export type OtpVerificationMaxAggregateOutputType = {
     id: string | null
     userId: string | null
+<<<<<<< HEAD
     email: string | null
     otpHash: string | null
     purpose: $Enums.OtpPurpose | null
     channel: $Enums.OtpChannel | null
+=======
+    otpHash: string | null
+    purpose: $Enums.OtpPurpose | null
+>>>>>>> 8d95dec (Initial project code)
     attempts: number | null
     expiresAt: Date | null
     verifiedAt: Date | null
@@ -4174,10 +5479,15 @@ export namespace Prisma {
   export type OtpVerificationCountAggregateOutputType = {
     id: number
     userId: number
+<<<<<<< HEAD
     email: number
     otpHash: number
     purpose: number
     channel: number
+=======
+    otpHash: number
+    purpose: number
+>>>>>>> 8d95dec (Initial project code)
     attempts: number
     expiresAt: number
     verifiedAt: number
@@ -4197,10 +5507,15 @@ export namespace Prisma {
   export type OtpVerificationMinAggregateInputType = {
     id?: true
     userId?: true
+<<<<<<< HEAD
     email?: true
     otpHash?: true
     purpose?: true
     channel?: true
+=======
+    otpHash?: true
+    purpose?: true
+>>>>>>> 8d95dec (Initial project code)
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -4210,10 +5525,15 @@ export namespace Prisma {
   export type OtpVerificationMaxAggregateInputType = {
     id?: true
     userId?: true
+<<<<<<< HEAD
     email?: true
     otpHash?: true
     purpose?: true
     channel?: true
+=======
+    otpHash?: true
+    purpose?: true
+>>>>>>> 8d95dec (Initial project code)
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -4223,10 +5543,15 @@ export namespace Prisma {
   export type OtpVerificationCountAggregateInputType = {
     id?: true
     userId?: true
+<<<<<<< HEAD
     email?: true
     otpHash?: true
     purpose?: true
     channel?: true
+=======
+    otpHash?: true
+    purpose?: true
+>>>>>>> 8d95dec (Initial project code)
     attempts?: true
     expiresAt?: true
     verifiedAt?: true
@@ -4323,10 +5648,15 @@ export namespace Prisma {
   export type OtpVerificationGroupByOutputType = {
     id: string
     userId: string | null
+<<<<<<< HEAD
     email: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts: number
     expiresAt: Date
     verifiedAt: Date | null
@@ -4355,10 +5685,15 @@ export namespace Prisma {
   export type OtpVerificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+<<<<<<< HEAD
     email?: boolean
     otpHash?: boolean
     purpose?: boolean
     channel?: boolean
+=======
+    otpHash?: boolean
+    purpose?: boolean
+>>>>>>> 8d95dec (Initial project code)
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -4369,10 +5704,15 @@ export namespace Prisma {
   export type OtpVerificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+<<<<<<< HEAD
     email?: boolean
     otpHash?: boolean
     purpose?: boolean
     channel?: boolean
+=======
+    otpHash?: boolean
+    purpose?: boolean
+>>>>>>> 8d95dec (Initial project code)
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -4383,10 +5723,15 @@ export namespace Prisma {
   export type OtpVerificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
+<<<<<<< HEAD
     email?: boolean
     otpHash?: boolean
     purpose?: boolean
     channel?: boolean
+=======
+    otpHash?: boolean
+    purpose?: boolean
+>>>>>>> 8d95dec (Initial project code)
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
@@ -4397,17 +5742,26 @@ export namespace Prisma {
   export type OtpVerificationSelectScalar = {
     id?: boolean
     userId?: boolean
+<<<<<<< HEAD
     email?: boolean
     otpHash?: boolean
     purpose?: boolean
     channel?: boolean
+=======
+    otpHash?: boolean
+    purpose?: boolean
+>>>>>>> 8d95dec (Initial project code)
     attempts?: boolean
     expiresAt?: boolean
     verifiedAt?: boolean
     createdAt?: boolean
   }
 
+<<<<<<< HEAD
   export type OtpVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "email" | "otpHash" | "purpose" | "channel" | "attempts" | "expiresAt" | "verifiedAt" | "createdAt", ExtArgs["result"]["otpVerification"]>
+=======
+  export type OtpVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "otpHash" | "purpose" | "attempts" | "expiresAt" | "verifiedAt" | "createdAt", ExtArgs["result"]["otpVerification"]>
+>>>>>>> 8d95dec (Initial project code)
   export type OtpVerificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | OtpVerification$userArgs<ExtArgs>
   }
@@ -4426,10 +5780,15 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string | null
+<<<<<<< HEAD
       email: string | null
       otpHash: string
       purpose: $Enums.OtpPurpose
       channel: $Enums.OtpChannel
+=======
+      otpHash: string
+      purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
       attempts: number
       expiresAt: Date
       verifiedAt: Date | null
@@ -4860,10 +6219,15 @@ export namespace Prisma {
   interface OtpVerificationFieldRefs {
     readonly id: FieldRef<"OtpVerification", 'String'>
     readonly userId: FieldRef<"OtpVerification", 'String'>
+<<<<<<< HEAD
     readonly email: FieldRef<"OtpVerification", 'String'>
     readonly otpHash: FieldRef<"OtpVerification", 'String'>
     readonly purpose: FieldRef<"OtpVerification", 'OtpPurpose'>
     readonly channel: FieldRef<"OtpVerification", 'OtpChannel'>
+=======
+    readonly otpHash: FieldRef<"OtpVerification", 'String'>
+    readonly purpose: FieldRef<"OtpVerification", 'OtpPurpose'>
+>>>>>>> 8d95dec (Initial project code)
     readonly attempts: FieldRef<"OtpVerification", 'Int'>
     readonly expiresAt: FieldRef<"OtpVerification", 'DateTime'>
     readonly verifiedAt: FieldRef<"OtpVerification", 'DateTime'>
@@ -10911,6 +12275,24 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+<<<<<<< HEAD
+=======
+  export const ApiKeyScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    keyHash: 'keyHash',
+    userId: 'userId',
+    scopes: 'scopes',
+    lastUsedAt: 'lastUsedAt',
+    revokedAt: 'revokedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+>>>>>>> 8d95dec (Initial project code)
   export const WebsiteScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -10928,10 +12310,15 @@ export namespace Prisma {
   export const OtpVerificationScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
+<<<<<<< HEAD
     email: 'email',
     otpHash: 'otpHash',
     purpose: 'purpose',
     channel: 'channel',
+=======
+    otpHash: 'otpHash',
+    purpose: 'purpose',
+>>>>>>> 8d95dec (Initial project code)
     attempts: 'attempts',
     expiresAt: 'expiresAt',
     verifiedAt: 'verifiedAt',
@@ -11162,6 +12549,7 @@ export namespace Prisma {
 
 
   /**
+<<<<<<< HEAD
    * Reference to a field of type 'OtpChannel'
    */
   export type EnumOtpChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpChannel'>
@@ -11176,6 +12564,8 @@ export namespace Prisma {
 
 
   /**
+=======
+>>>>>>> 8d95dec (Initial project code)
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -11241,6 +12631,10 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyListRelationFilter
+>>>>>>> 8d95dec (Initial project code)
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
     websites?: WebsiteListRelationFilter
   }
@@ -11263,6 +12657,10 @@ export namespace Prisma {
     sessions?: SessionOrderByRelationAggregateInput
     otpVerifications?: OtpVerificationOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyOrderByRelationAggregateInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionOrderByWithRelationInput
     websites?: WebsiteOrderByRelationAggregateInput
   }
@@ -11288,6 +12686,10 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyListRelationFilter
+>>>>>>> 8d95dec (Initial project code)
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
     websites?: WebsiteListRelationFilter
   }, "id" | "email" | "phone">
@@ -11330,6 +12732,84 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyWhereInput = {
+    AND?: ApiKeyWhereInput | ApiKeyWhereInput[]
+    OR?: ApiKeyWhereInput[]
+    NOT?: ApiKeyWhereInput | ApiKeyWhereInput[]
+    id?: UuidFilter<"ApiKey"> | string
+    name?: StringFilter<"ApiKey"> | string
+    keyHash?: StringFilter<"ApiKey"> | string
+    userId?: UuidFilter<"ApiKey"> | string
+    scopes?: StringNullableListFilter<"ApiKey">
+    lastUsedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type ApiKeyOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    keyHash?: SortOrder
+    userId?: SortOrder
+    scopes?: SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type ApiKeyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    keyHash?: string
+    AND?: ApiKeyWhereInput | ApiKeyWhereInput[]
+    OR?: ApiKeyWhereInput[]
+    NOT?: ApiKeyWhereInput | ApiKeyWhereInput[]
+    name?: StringFilter<"ApiKey"> | string
+    userId?: UuidFilter<"ApiKey"> | string
+    scopes?: StringNullableListFilter<"ApiKey">
+    lastUsedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "keyHash">
+
+  export type ApiKeyOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    keyHash?: SortOrder
+    userId?: SortOrder
+    scopes?: SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ApiKeyCountOrderByAggregateInput
+    _max?: ApiKeyMaxOrderByAggregateInput
+    _min?: ApiKeyMinOrderByAggregateInput
+  }
+
+  export type ApiKeyScalarWhereWithAggregatesInput = {
+    AND?: ApiKeyScalarWhereWithAggregatesInput | ApiKeyScalarWhereWithAggregatesInput[]
+    OR?: ApiKeyScalarWhereWithAggregatesInput[]
+    NOT?: ApiKeyScalarWhereWithAggregatesInput | ApiKeyScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"ApiKey"> | string
+    name?: StringWithAggregatesFilter<"ApiKey"> | string
+    keyHash?: StringWithAggregatesFilter<"ApiKey"> | string
+    userId?: UuidWithAggregatesFilter<"ApiKey"> | string
+    scopes?: StringNullableListFilter<"ApiKey">
+    lastUsedAt?: DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ApiKey"> | Date | string
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteWhereInput = {
     AND?: WebsiteWhereInput | WebsiteWhereInput[]
     OR?: WebsiteWhereInput[]
@@ -11406,10 +12886,15 @@ export namespace Prisma {
     NOT?: OtpVerificationWhereInput | OtpVerificationWhereInput[]
     id?: UuidFilter<"OtpVerification"> | string
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+<<<<<<< HEAD
     email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
     channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
+=======
+    otpHash?: StringFilter<"OtpVerification"> | string
+    purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -11420,10 +12905,15 @@ export namespace Prisma {
   export type OtpVerificationOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
+<<<<<<< HEAD
     email?: SortOrderInput | SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
     channel?: SortOrder
+=======
+    otpHash?: SortOrder
+    purpose?: SortOrder
+>>>>>>> 8d95dec (Initial project code)
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
@@ -11437,10 +12927,15 @@ export namespace Prisma {
     OR?: OtpVerificationWhereInput[]
     NOT?: OtpVerificationWhereInput | OtpVerificationWhereInput[]
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+<<<<<<< HEAD
     email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
     channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
+=======
+    otpHash?: StringFilter<"OtpVerification"> | string
+    purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -11451,10 +12946,15 @@ export namespace Prisma {
   export type OtpVerificationOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
+<<<<<<< HEAD
     email?: SortOrderInput | SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
     channel?: SortOrder
+=======
+    otpHash?: SortOrder
+    purpose?: SortOrder
+>>>>>>> 8d95dec (Initial project code)
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
@@ -11472,10 +12972,15 @@ export namespace Prisma {
     NOT?: OtpVerificationScalarWhereWithAggregatesInput | OtpVerificationScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"OtpVerification"> | string
     userId?: UuidNullableWithAggregatesFilter<"OtpVerification"> | string | null
+<<<<<<< HEAD
     email?: StringNullableWithAggregatesFilter<"OtpVerification"> | string | null
     otpHash?: StringWithAggregatesFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeWithAggregatesFilter<"OtpVerification"> | $Enums.OtpPurpose
     channel?: EnumOtpChannelWithAggregatesFilter<"OtpVerification"> | $Enums.OtpChannel
+=======
+    otpHash?: StringWithAggregatesFilter<"OtpVerification"> | string
+    purpose?: EnumOtpPurposeWithAggregatesFilter<"OtpVerification"> | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntWithAggregatesFilter<"OtpVerification"> | number
     expiresAt?: DateTimeWithAggregatesFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableWithAggregatesFilter<"OtpVerification"> | Date | string | null
@@ -11856,6 +13361,10 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
@@ -11878,6 +13387,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
@@ -11900,6 +13413,10 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
@@ -11922,6 +13439,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -11974,6 +13495,92 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyCreateInput = {
+    id?: string
+    name: string
+    keyHash: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutApiKeysInput
+  }
+
+  export type ApiKeyUncheckedCreateInput = {
+    id?: string
+    name: string
+    keyHash: string
+    userId: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApiKeyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutApiKeysNestedInput
+  }
+
+  export type ApiKeyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiKeyCreateManyInput = {
+    id?: string
+    name: string
+    keyHash: string
+    userId: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApiKeyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiKeyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteCreateInput = {
     id?: string
     name: string
@@ -12052,10 +13659,15 @@ export namespace Prisma {
 
   export type OtpVerificationCreateInput = {
     id?: string
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -12066,10 +13678,15 @@ export namespace Prisma {
   export type OtpVerificationUncheckedCreateInput = {
     id?: string
     userId?: string | null
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -12078,10 +13695,15 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12092,10 +13714,15 @@ export namespace Prisma {
   export type OtpVerificationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12105,10 +13732,15 @@ export namespace Prisma {
   export type OtpVerificationCreateManyInput = {
     id?: string
     userId?: string | null
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -12117,10 +13749,15 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12130,10 +13767,15 @@ export namespace Prisma {
   export type OtpVerificationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12623,6 +14265,15 @@ export namespace Prisma {
     none?: PasswordResetTokenWhereInput
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyListRelationFilter = {
+    every?: ApiKeyWhereInput
+    some?: ApiKeyWhereInput
+    none?: ApiKeyWhereInput
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionNullableScalarRelationFilter = {
     is?: UserSubscriptionWhereInput | null
     isNot?: UserSubscriptionWhereInput | null
@@ -12655,6 +14306,13 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -12820,6 +14478,74 @@ export namespace Prisma {
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
+<<<<<<< HEAD
+=======
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type ApiKeyCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    keyHash?: SortOrder
+    userId?: SortOrder
+    scopes?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ApiKeyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    keyHash?: SortOrder
+    userId?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ApiKeyMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    keyHash?: SortOrder
+    userId?: SortOrder
+    lastUsedAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+>>>>>>> 8d95dec (Initial project code)
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -12844,11 +14570,14 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+<<<<<<< HEAD
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -12879,6 +14608,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
+<<<<<<< HEAD
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
@@ -12897,6 +14627,8 @@ export namespace Prisma {
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
   }
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
@@ -12943,6 +14675,7 @@ export namespace Prisma {
     not?: NestedEnumOtpPurposeFilter<$PrismaModel> | $Enums.OtpPurpose
   }
 
+<<<<<<< HEAD
   export type EnumOtpChannelFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
     in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
@@ -12950,6 +14683,8 @@ export namespace Prisma {
     not?: NestedEnumOtpChannelFilter<$PrismaModel> | $Enums.OtpChannel
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -12969,10 +14704,15 @@ export namespace Prisma {
   export type OtpVerificationCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+<<<<<<< HEAD
     email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
     channel?: SortOrder
+=======
+    otpHash?: SortOrder
+    purpose?: SortOrder
+>>>>>>> 8d95dec (Initial project code)
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -12986,10 +14726,15 @@ export namespace Prisma {
   export type OtpVerificationMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+<<<<<<< HEAD
     email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
     channel?: SortOrder
+=======
+    otpHash?: SortOrder
+    purpose?: SortOrder
+>>>>>>> 8d95dec (Initial project code)
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -12999,10 +14744,15 @@ export namespace Prisma {
   export type OtpVerificationMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+<<<<<<< HEAD
     email?: SortOrder
     otpHash?: SortOrder
     purpose?: SortOrder
     channel?: SortOrder
+=======
+    otpHash?: SortOrder
+    purpose?: SortOrder
+>>>>>>> 8d95dec (Initial project code)
     attempts?: SortOrder
     expiresAt?: SortOrder
     verifiedAt?: SortOrder
@@ -13038,6 +14788,7 @@ export namespace Prisma {
     _max?: NestedEnumOtpPurposeFilter<$PrismaModel>
   }
 
+<<<<<<< HEAD
   export type EnumOtpChannelWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
     in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
@@ -13048,6 +14799,8 @@ export namespace Prisma {
     _max?: NestedEnumOtpChannelFilter<$PrismaModel>
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -13306,6 +15059,16 @@ export namespace Prisma {
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyCreateNestedManyWithoutUserInput = {
+    create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
+    createMany?: ApiKeyCreateManyUserInputEnvelope
+    connect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionCreateNestedOneWithoutUserInput = {
     create?: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserSubscriptionCreateOrConnectWithoutUserInput
@@ -13347,6 +15110,16 @@ export namespace Prisma {
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
+    createMany?: ApiKeyCreateManyUserInputEnvelope
+    connect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserSubscriptionCreateOrConnectWithoutUserInput
@@ -13448,6 +15221,23 @@ export namespace Prisma {
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
+    upsert?: ApiKeyUpsertWithWhereUniqueWithoutUserInput | ApiKeyUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ApiKeyCreateManyUserInputEnvelope
+    set?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    disconnect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    delete?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    connect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    update?: ApiKeyUpdateWithWhereUniqueWithoutUserInput | ApiKeyUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ApiKeyUpdateManyWithWhereWithoutUserInput | ApiKeyUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ApiKeyScalarWhereInput | ApiKeyScalarWhereInput[]
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionUpdateOneWithoutUserNestedInput = {
     create?: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserSubscriptionCreateOrConnectWithoutUserInput
@@ -13528,6 +15318,23 @@ export namespace Prisma {
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
+    upsert?: ApiKeyUpsertWithWhereUniqueWithoutUserInput | ApiKeyUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ApiKeyCreateManyUserInputEnvelope
+    set?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    disconnect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    delete?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    connect?: ApiKeyWhereUniqueInput | ApiKeyWhereUniqueInput[]
+    update?: ApiKeyUpdateWithWhereUniqueWithoutUserInput | ApiKeyUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ApiKeyUpdateManyWithWhereWithoutUserInput | ApiKeyUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ApiKeyScalarWhereInput | ApiKeyScalarWhereInput[]
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserSubscriptionCreateOrConnectWithoutUserInput
@@ -13552,6 +15359,32 @@ export namespace Prisma {
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyCreatescopesInput = {
+    set: string[]
+  }
+
+  export type UserCreateNestedOneWithoutApiKeysInput = {
+    create?: XOR<UserCreateWithoutApiKeysInput, UserUncheckedCreateWithoutApiKeysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApiKeysInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ApiKeyUpdatescopesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserUpdateOneRequiredWithoutApiKeysNestedInput = {
+    create?: XOR<UserCreateWithoutApiKeysInput, UserUncheckedCreateWithoutApiKeysInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApiKeysInput
+    upsert?: UserUpsertWithoutApiKeysInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApiKeysInput, UserUpdateWithoutApiKeysInput>, UserUncheckedUpdateWithoutApiKeysInput>
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserCreateNestedOneWithoutWebsitesInput = {
     create?: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
     connectOrCreate?: UserCreateOrConnectWithoutWebsitesInput
@@ -13576,10 +15409,13 @@ export namespace Prisma {
     set?: $Enums.OtpPurpose
   }
 
+<<<<<<< HEAD
   export type EnumOtpChannelFieldUpdateOperationsInput = {
     set?: $Enums.OtpChannel
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -13978,6 +15814,7 @@ export namespace Prisma {
     not?: NestedEnumOtpPurposeFilter<$PrismaModel> | $Enums.OtpPurpose
   }
 
+<<<<<<< HEAD
   export type NestedEnumOtpChannelFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
     in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
@@ -13985,6 +15822,8 @@ export namespace Prisma {
     not?: NestedEnumOtpChannelFilter<$PrismaModel> | $Enums.OtpChannel
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -14009,6 +15848,7 @@ export namespace Prisma {
     _max?: NestedEnumOtpPurposeFilter<$PrismaModel>
   }
 
+<<<<<<< HEAD
   export type NestedEnumOtpChannelWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.OtpChannel | EnumOtpChannelFieldRefInput<$PrismaModel>
     in?: $Enums.OtpChannel[] | ListEnumOtpChannelFieldRefInput<$PrismaModel>
@@ -14019,6 +15859,8 @@ export namespace Prisma {
     _max?: NestedEnumOtpChannelFilter<$PrismaModel>
   }
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -14119,10 +15961,15 @@ export namespace Prisma {
 
   export type OtpVerificationCreateWithoutUserInput = {
     id?: string
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -14131,10 +15978,15 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedCreateWithoutUserInput = {
     id?: string
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -14177,6 +16029,41 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyCreateWithoutUserInput = {
+    id?: string
+    name: string
+    keyHash: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApiKeyUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    keyHash: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApiKeyCreateOrConnectWithoutUserInput = {
+    where: ApiKeyWhereUniqueInput
+    create: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput>
+  }
+
+  export type ApiKeyCreateManyUserInputEnvelope = {
+    data: ApiKeyCreateManyUserInput | ApiKeyCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionCreateWithoutUserInput = {
     id?: string
     status?: string
@@ -14311,10 +16198,15 @@ export namespace Prisma {
     NOT?: OtpVerificationScalarWhereInput | OtpVerificationScalarWhereInput[]
     id?: UuidFilter<"OtpVerification"> | string
     userId?: UuidNullableFilter<"OtpVerification"> | string | null
+<<<<<<< HEAD
     email?: StringNullableFilter<"OtpVerification"> | string | null
     otpHash?: StringFilter<"OtpVerification"> | string
     purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
     channel?: EnumOtpChannelFilter<"OtpVerification"> | $Enums.OtpChannel
+=======
+    otpHash?: StringFilter<"OtpVerification"> | string
+    purpose?: EnumOtpPurposeFilter<"OtpVerification"> | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFilter<"OtpVerification"> | number
     expiresAt?: DateTimeFilter<"OtpVerification"> | Date | string
     verifiedAt?: DateTimeNullableFilter<"OtpVerification"> | Date | string | null
@@ -14349,6 +16241,40 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyUpsertWithWhereUniqueWithoutUserInput = {
+    where: ApiKeyWhereUniqueInput
+    update: XOR<ApiKeyUpdateWithoutUserInput, ApiKeyUncheckedUpdateWithoutUserInput>
+    create: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput>
+  }
+
+  export type ApiKeyUpdateWithWhereUniqueWithoutUserInput = {
+    where: ApiKeyWhereUniqueInput
+    data: XOR<ApiKeyUpdateWithoutUserInput, ApiKeyUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ApiKeyUpdateManyWithWhereWithoutUserInput = {
+    where: ApiKeyScalarWhereInput
+    data: XOR<ApiKeyUpdateManyMutationInput, ApiKeyUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ApiKeyScalarWhereInput = {
+    AND?: ApiKeyScalarWhereInput | ApiKeyScalarWhereInput[]
+    OR?: ApiKeyScalarWhereInput[]
+    NOT?: ApiKeyScalarWhereInput | ApiKeyScalarWhereInput[]
+    id?: UuidFilter<"ApiKey"> | string
+    name?: StringFilter<"ApiKey"> | string
+    keyHash?: StringFilter<"ApiKey"> | string
+    userId?: UuidFilter<"ApiKey"> | string
+    scopes?: StringNullableListFilter<"ApiKey">
+    lastUsedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    revokedAt?: DateTimeNullableFilter<"ApiKey"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApiKey"> | Date | string
+    updatedAt?: DateTimeFilter<"ApiKey"> | Date | string
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserSubscriptionUpsertWithoutUserInput = {
     update: XOR<UserSubscriptionUpdateWithoutUserInput, UserSubscriptionUncheckedUpdateWithoutUserInput>
     create: XOR<UserSubscriptionCreateWithoutUserInput, UserSubscriptionUncheckedCreateWithoutUserInput>
@@ -14410,6 +16336,113 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Website"> | Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type UserCreateWithoutApiKeysInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutApiKeysInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutApiKeysInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutApiKeysInput, UserUncheckedCreateWithoutApiKeysInput>
+  }
+
+  export type UserUpsertWithoutApiKeysInput = {
+    update: XOR<UserUpdateWithoutApiKeysInput, UserUncheckedUpdateWithoutApiKeysInput>
+    create: XOR<UserCreateWithoutApiKeysInput, UserUncheckedCreateWithoutApiKeysInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutApiKeysInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutApiKeysInput, UserUncheckedUpdateWithoutApiKeysInput>
+  }
+
+  export type UserUpdateWithoutApiKeysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutApiKeysInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -14428,6 +16461,10 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
   }
 
@@ -14449,6 +16486,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
   }
 
@@ -14486,6 +16527,10 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
   }
 
@@ -14507,6 +16552,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
   }
 
@@ -14527,6 +16576,10 @@ export namespace Prisma {
     identities?: IdentityCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
@@ -14548,6 +16601,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
@@ -14585,6 +16642,10 @@ export namespace Prisma {
     identities?: IdentityUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
@@ -14606,6 +16667,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -14627,6 +16692,10 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
@@ -14648,6 +16717,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
@@ -14685,6 +16758,10 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
@@ -14706,6 +16783,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -14727,6 +16808,10 @@ export namespace Prisma {
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
@@ -14748,6 +16833,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
@@ -14785,6 +16874,10 @@ export namespace Prisma {
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
@@ -14806,6 +16899,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -14827,6 +16924,10 @@ export namespace Prisma {
     identities?: IdentityCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
@@ -14848,6 +16949,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
@@ -14885,6 +16990,10 @@ export namespace Prisma {
     identities?: IdentityUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
@@ -14906,6 +17015,10 @@ export namespace Prisma {
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -14988,6 +17101,10 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     websites?: WebsiteCreateNestedManyWithoutUserInput
   }
 
@@ -15009,6 +17126,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedCreateNestedManyWithoutUserInput
+>>>>>>> 8d95dec (Initial project code)
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -15083,6 +17204,10 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     websites?: WebsiteUpdateManyWithoutUserNestedInput
   }
 
@@ -15104,6 +17229,10 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+<<<<<<< HEAD
+=======
+    apiKeys?: ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+>>>>>>> 8d95dec (Initial project code)
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -15169,10 +17298,15 @@ export namespace Prisma {
 
   export type OtpVerificationCreateManyUserInput = {
     id?: string
+<<<<<<< HEAD
     email?: string | null
     otpHash: string
     purpose: $Enums.OtpPurpose
     channel?: $Enums.OtpChannel
+=======
+    otpHash: string
+    purpose: $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: number
     expiresAt: Date | string
     verifiedAt?: Date | string | null
@@ -15187,6 +17321,20 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyCreateManyUserInput = {
+    id?: string
+    name: string
+    keyHash: string
+    scopes?: ApiKeyCreatescopesInput | string[]
+    lastUsedAt?: Date | string | null
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteCreateManyUserInput = {
     id?: string
     name: string
@@ -15250,10 +17398,15 @@ export namespace Prisma {
 
   export type OtpVerificationUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15262,10 +17415,15 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15274,10 +17432,15 @@ export namespace Prisma {
 
   export type OtpVerificationUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+<<<<<<< HEAD
     email?: NullableStringFieldUpdateOperationsInput | string | null
     otpHash?: StringFieldUpdateOperationsInput | string
     purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
     channel?: EnumOtpChannelFieldUpdateOperationsInput | $Enums.OtpChannel
+=======
+    otpHash?: StringFieldUpdateOperationsInput | string
+    purpose?: EnumOtpPurposeFieldUpdateOperationsInput | $Enums.OtpPurpose
+>>>>>>> 8d95dec (Initial project code)
     attempts?: IntFieldUpdateOperationsInput | number
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -15308,6 +17471,42 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+<<<<<<< HEAD
+=======
+  export type ApiKeyUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiKeyUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApiKeyUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    keyHash?: StringFieldUpdateOperationsInput | string
+    scopes?: ApiKeyUpdatescopesInput | string[]
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+>>>>>>> 8d95dec (Initial project code)
   export type WebsiteUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string

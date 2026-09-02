@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { useAuth } from "../../context/AuthContext";
+=======
+>>>>>>> 8d95dec (Initial project code)
 
 interface Website {
   id: string;
@@ -13,7 +16,10 @@ interface Website {
 
 function UserDashboard() {
   const navigate = useNavigate();
+<<<<<<< HEAD
   const { logout } = useAuth();
+=======
+>>>>>>> 8d95dec (Initial project code)
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,11 +29,14 @@ function UserDashboard() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+<<<<<<< HEAD
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
   };
 
+=======
+>>>>>>> 8d95dec (Initial project code)
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchWebsites = async () => {
@@ -147,6 +156,7 @@ function UserDashboard() {
             >
               <span>+ Create New Website</span>
             </button>
+<<<<<<< HEAD
 
             <button
               onClick={handleLogout}
@@ -154,6 +164,8 @@ function UserDashboard() {
             >
               <span>Logout</span>
             </button>
+=======
+>>>>>>> 8d95dec (Initial project code)
           </div>
         </div>
 

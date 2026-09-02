@@ -1,12 +1,23 @@
+<<<<<<< HEAD
 import type { Request, Response, NextFunction } from "express";
+=======
+import type { Request, Response } from "express";
+>>>>>>> 8d95dec (Initial project code)
 import {
   loginWithOAuth,
   type OAuthProfile,
 } from "../services/oauth.service.js";
+<<<<<<< HEAD
 import { hashPassword } from "../utils/password.js";
 import { generateAndSendOtp } from "../services/otp.service.js";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
+=======
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_COOKIE_OPTIONS,
+} from "../config/auth.js";
+>>>>>>> 8d95dec (Initial project code)
 
 const getFrontendUrl = () =>
   process.env.FRONTEND_URL || "http://localhost:5173";
@@ -37,6 +48,7 @@ export async function googleOAuthCallback(
 
     const result = await loginWithOAuth(oauthProfile);
 
+<<<<<<< HEAD
     const emailParam = encodeURIComponent(result.user.email || "");
     const phoneParam = encodeURIComponent(result.user.phone || "");
 
@@ -48,6 +60,12 @@ export async function googleOAuthCallback(
 
     return res.redirect(
       `${getFrontendUrl()}/login?oauth_select=true&userId=${result.user.id}&email=${emailParam}&phone=${phoneParam}`
+=======
+    res.cookie(AUTH_COOKIE_NAME, result.sessionToken, AUTH_COOKIE_OPTIONS);
+
+    return res.redirect(
+      `${getFrontendUrl()}/login?oauth=google_success`
+>>>>>>> 8d95dec (Initial project code)
     );
   } catch (error) {
     console.error("Google OAuth callback error:", error);
@@ -88,6 +106,7 @@ export async function githubOAuthCallback(
 
     const result = await loginWithOAuth(oauthProfile);
 
+<<<<<<< HEAD
     const emailParam = encodeURIComponent(result.user.email || "");
     const phoneParam = encodeURIComponent(result.user.phone || "");
 
@@ -99,6 +118,12 @@ export async function githubOAuthCallback(
 
     return res.redirect(
       `${getFrontendUrl()}/login?oauth_select=true&userId=${result.user.id}&email=${emailParam}&phone=${phoneParam}`
+=======
+    res.cookie(AUTH_COOKIE_NAME, result.sessionToken, AUTH_COOKIE_OPTIONS);
+
+    return res.redirect(
+      `${getFrontendUrl()}/login?oauth=github_success`
+>>>>>>> 8d95dec (Initial project code)
     );
   } catch (error) {
     console.error("GitHub OAuth callback error:", error);
@@ -107,6 +132,7 @@ export async function githubOAuthCallback(
       `${getFrontendUrl()}/login?error=github_auth_failed`
     );
   }
+<<<<<<< HEAD
 }
 
 export async function createOAuthPasswordController(
@@ -173,4 +199,6 @@ export async function createOAuthPasswordController(
   } catch (error) {
     next(error);
   }
+=======
+>>>>>>> 8d95dec (Initial project code)
 }
