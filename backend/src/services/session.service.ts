@@ -1,3 +1,4 @@
+import { prisma } from "../config/prisma.js";
 import {
   generateSessionToken,
   hashSessionToken,
@@ -32,4 +33,37 @@ export async function createUserSession(
     token: rawToken,
     expiresAt,
   };
+}
+
+export async function createSupportSession(
+  userId: string,
+  durationMinutes: number = 120
+) {
+  const rawToken = `supp_${generateSessionToken()}`;
+  const tokenHash = hashSessionToken(rawToken);
+
+  const expiresAt = new Date(Date.now() + durationMinutes * 60 * 1000);
+
+  await createSession({
+    userId,
+    tokenHash,
+    expiresAt,
+  });
+
+  return {
+    supportToken: rawToken,
+    expiresAt,
+  };
+}
+
+export async function revokeSupportSessions(userId: string) {
+  return prisma.session.updateMany({
+    where: {
+      userId,
+      revokedAt: null,
+    },
+    data: {
+      revokedAt: new Date(),
+    },
+  });
 }
