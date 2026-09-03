@@ -8,6 +8,14 @@ import {
   NavigationSettingsPanel,
   isNavigationElement,
 } from "./navigation";
+import {
+  type IntegrationElementType,
+  type IntegrationStyles,
+  getIntegrationDefaultElement,
+  IntegrationElementRenderer,
+  IntegrationSettingsPanel,
+  isIntegrationElement,
+} from "./integrations";
 
 // ==========================================
 // Types & Interfaces
@@ -19,7 +27,8 @@ export type ElementType =
   | "progress-bar" | "counter" | "html" | "alert"
   | "social-icons" | "google-maps" | "soundcloud"
   | "div-block" | "paragraph"
-  | NavigationElementType;
+  | NavigationElementType
+  | IntegrationElementType;
 
 export interface ContainerLayout {
   direction?: "column" | "row";
@@ -28,7 +37,7 @@ export interface ContainerLayout {
   gap?: number;
 }
 
-export interface ElementStyles extends NavigationStyles {
+export interface ElementStyles extends NavigationStyles, IntegrationStyles {
   color?: string;
   fontSize?: string;
   fontWeight?: string;
@@ -1333,6 +1342,13 @@ function createDefaultElement(type: ElementType): EditorElement {
         },
       };
     default:
+      if (isNavigationElement(type)) {
+        const navEl = getNavigationDefaultElement(type);
+        if (navEl) return navEl;
+      }
+      if (isIntegrationElement(type)) {
+        return getIntegrationDefaultElement(type);
+      }
       return {
         id,
         type,
@@ -1437,11 +1453,12 @@ export default function WebsiteEditor() {
 
   // Left Sidebar Search & Accordion State
   const [leftSearchQuery, setLeftSearchQuery] = useState("");
-  const [leftCategoryFilter, setLeftCategoryFilter] = useState<"all" | "basic" | "media" | "navigation">("all");
+  const [leftCategoryFilter, setLeftCategoryFilter] = useState<"all" | "basic" | "media" | "navigation" | "integrations">("all");
   const [openLeftCategories, setOpenLeftCategories] = useState<Record<string, boolean>>({
     basic: true,
     media: true,
     navigation: true,
+    integrations: true,
   });
 
   // Elementor-Style Left Panel State
@@ -2653,6 +2670,18 @@ export default function WebsiteEditor() {
             onUpdateElement={(updater) => setElements((prev) => updateTreeElement(prev, el.id, updater))}
           />
         )}
+
+        {/* Integrations & Ecosystem Widgets (F-411 to F-425) */}
+        {isIntegrationElement(el.type) && (
+          <IntegrationElementRenderer
+            el={el}
+            isPreview={isPreview}
+            apiUrl={apiUrl}
+            getStyleVal={(prop) => getStyleVal(el, prop as any, activeBreakpointId, breakpoints)}
+            getInnerStyles={getInnerStyles}
+            resolvedStyles={resolvedStyles}
+          />
+        )}
       </div>
     </MotionWrapper>
     );
@@ -3274,7 +3303,7 @@ export default function WebsiteEditor() {
                 <div className="flex-1 overflow-y-auto p-3 space-y-4">
                   {/* Category Filter Pills */}
                   <div className="flex rounded-lg bg-slate-100 p-0.5 text-[10px] font-bold text-slate-500">
-                    {(["all", "basic", "media", "navigation"] as const).map((cat) => (
+                    {(["all", "basic", "media", "navigation", "integrations"] as const).map((cat) => (
                       <button
                         key={cat}
                         type="button"
@@ -3552,13 +3581,227 @@ export default function WebsiteEditor() {
                               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
                                 🏷️
                               </div>
-                              <span className="text-xs font-bold text-slate-700 group-hover:text-amber-600">Taxonomy Filter</span>
                             </button>
                           )}
                         </div>
                       )}
                     </div>
                   )}
+
+                  {/* SECTION 3: INTEGRATIONS & ECOSYSTEM (F-411 to F-425) */}
+                  {(leftCategoryFilter === "all" || (leftCategoryFilter as string) === "integrations") && (
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => toggleLeftCategory("integrations")}
+                      className="w-full flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 hover:text-slate-600 py-1"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span>⚡</span> Integrations &amp; Ecosystem
+                      </span>
+                      <span>{openLeftCategories.integrations ? "▼" : "▶"}</span>
+                    </button>
+
+                    {(openLeftCategories.integrations || leftSearchQuery) && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Google Maps (F-411) */}
+                        {("google maps map location address embed").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("google-maps")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-red-500 hover:bg-red-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-red-500 to-rose-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              📍
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-red-600">Google Maps</span>
+                          </button>
+                        )}
+
+                        {/* Facebook Embed (F-412) */}
+                        {("facebook fb post video embed").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("facebook-integration")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              f
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Facebook Embed</span>
+                          </button>
+                        )}
+
+                        {/* Facebook Comments (F-413) */}
+                        {("facebook fb comments discussion feedback").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("facebook-comments")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              💬
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">FB Comments</span>
+                          </button>
+                        )}
+
+                        {/* Facebook Feed (F-414) */}
+                        {("facebook fb feed page timeline").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("facebook-feed")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              📰
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">FB Page Feed</span>
+                          </button>
+                        )}
+
+                        {/* Facebook Like Button (F-415) */}
+                        {("facebook fb like share recommend button").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("facebook-like-button")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              👍
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">FB Like Button</span>
+                          </button>
+                        )}
+
+                        {/* SoundCloud (F-416) */}
+                        {("soundcloud audio music player track").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("soundcloud")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-orange-500 hover:bg-orange-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              ☁️
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-orange-600">SoundCloud</span>
+                          </button>
+                        )}
+
+                        {/* Google Calendar (F-417) */}
+                        {("google calendar gcal schedule events").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("google-calendar")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-sky-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              📅
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-blue-600">Google Calendar</span>
+                          </button>
+                        )}
+
+                        {/* PayPal (F-418) */}
+                        {("paypal payment checkout buy order money").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("paypal")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-amber-500 hover:bg-amber-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 text-slate-950 font-black text-xs group-hover:scale-110 transition-transform">
+                              P
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-amber-600">PayPal Pay</span>
+                          </button>
+                        )}
+
+                        {/* Stripe (F-419) */}
+                        {("stripe payment checkout buy credit card").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("stripe")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-indigo-600 hover:bg-indigo-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              S
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-indigo-600">Stripe Pay</span>
+                          </button>
+                        )}
+
+                        {/* Lottie (F-420) */}
+                        {("lottie animation json svg motion").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("lottie")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-teal-500 hover:bg-teal-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              ✨
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-teal-600">Lottie Animation</span>
+                          </button>
+                        )}
+
+                        {/* WordPress Shortcode (F-421) */}
+                        {("wordpress wp shortcode tag contact form").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("wordpress-shortcode")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-sky-600 hover:bg-sky-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-sky-400 font-mono font-bold text-xs group-hover:scale-110 transition-transform">
+                              [ ]
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-sky-600">WP Shortcode</span>
+                          </button>
+                        )}
+
+                        {/* Dynamic Data (F-422) */}
+                        {("dynamic data api rest endpoint fetch json").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("dynamic-data")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-cyan-600 hover:bg-cyan-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-600 to-blue-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              🔄
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-cyan-600">Dynamic Data</span>
+                          </button>
+                        )}
+
+                        {/* LMS Compatibility (F-423) */}
+                        {("lms learndash lifterlms course lesson education").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("lms-compat")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-emerald-600 hover:bg-emerald-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              🎓
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-emerald-600">LMS Course</span>
+                          </button>
+                        )}
+
+                        {/* CRM Lead Capture (F-424) */}
+                        {("crm hubspot salesforce mailchimp lead form sync").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("crm-integration")}
+                            className="flex flex-col items-center justify-center rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-sky-500 hover:bg-sky-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              🎯
+                            </div>
+                            <span className="mt-1.5 text-[11px] font-bold text-slate-700 group-hover:text-sky-600">CRM Lead Sync</span>
+                          </button>
+                        )}
+
+                        {/* Webhook Integration (F-425) */}
+                        {("webhook trigger event zapier make dispatch").includes(leftSearchQuery.toLowerCase()) && (
+                          <button
+                            onClick={() => handleAddElement("webhook-integration")}
+                            className="col-span-2 flex items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-white p-3 shadow-xs hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md transition-all group text-center"
+                          >
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-xs group-hover:scale-110 transition-transform">
+                              🔗
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600">Webhook Dispatcher</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
                 </div>
               </div>
             )}
@@ -3657,6 +3900,11 @@ export default function WebsiteEditor() {
                           updateSelectedStyle={updateSelectedStyle}
                           updateSelectedProp={updateSelectedProp}
                           renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      ) : isIntegrationElement(selectedElement.type) ? (
+                        <IntegrationSettingsPanel
+                          selectedElement={selectedElement}
+                          updateSelectedElementStyle={updateSelectedStyle}
                         />
                       ) : (
                         <div className="space-y-4">
