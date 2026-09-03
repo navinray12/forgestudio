@@ -9,9 +9,15 @@ import {
   isNavigationElement,
 } from "./navigation";
 import type { PopupConfig } from "../../types/popup.types";
+import type { FormWidgetConfig } from "../../types/form.types";
+import { createDefaultFormConfig } from "../../types/form.types";
 import PopupManagerModal from "./components/PopupManagerModal";
 import PopupSettingsPanel from "./components/PopupSettingsPanel";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
+import FormWidgetRenderer from "./components/forms/FormWidgetRenderer";
+import FormInspectorPanel from "./components/forms/FormInspectorPanel";
+import FormTemplatesModal from "./components/forms/FormTemplatesModal";
+import FormSubmissionsModal from "./components/forms/FormSubmissionsModal";
 
 // ==========================================
 // Types & Interfaces
@@ -22,7 +28,7 @@ export type ElementType =
   | "video" | "divider" | "spacer" | "icon" | "rating"
   | "progress-bar" | "counter" | "html" | "alert"
   | "social-icons" | "google-maps" | "soundcloud"
-  | "div-block" | "paragraph"
+  | "div-block" | "paragraph" | "form"
   | NavigationElementType;
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
@@ -265,6 +271,7 @@ export interface EditorElement {
   responsiveStyles?: Record<string, ElementStyles>;
   responsiveLayouts?: Record<string, ContainerLayout>;
   hiddenDevices?: Record<string, boolean>;
+  formConfig?: FormWidgetConfig;
 }
 
 interface WebsiteData {
@@ -1102,6 +1109,17 @@ function createDefaultElement(type: ElementType): EditorElement {
           marginBottom: "8px",
         },
       };
+    case "form":
+      return {
+        id,
+        type: "form",
+        content: "Contact Form",
+        formConfig: createDefaultFormConfig(),
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+        },
     default:
       return {
         id,
@@ -1280,6 +1298,8 @@ export default function WebsiteEditor() {
   const [elements, setElements] = useState<EditorElement[]>([]);
   const [popups, setPopups] = useState<PopupConfig[]>([]);
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isFormTemplatesOpen, setIsFormTemplatesOpen] = useState(false);
+  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
   const [activePopupId, setActivePopupId] = useState<string | null>(null);
 
@@ -1817,6 +1837,12 @@ export default function WebsiteEditor() {
             <AnimatedCounter start={0} end={100} prefix="" suffix="%" duration={2000} />
           </div>
         )}
+        {el.type === "form" && (
+          <FormWidgetRenderer
+            config={el.formConfig || createDefaultFormConfig()}
+            websiteId={websiteId}
+            isPreview={isPreview}
+            apiUrl={apiUrl}
 
         {/* Paragraph Element (F-173) */}
         {el.type === "paragraph" && (
@@ -1998,6 +2024,12 @@ export default function WebsiteEditor() {
               }`}
             >
               <span>✨</span> Popups ({popups.length})
+            </button>
+            <button
+              onClick={() => setIsSubmissionsOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold text-slate-300 hover:text-white transition"
+            >
+              <span>📊</span> Leads
             </button>
           </div>
 
@@ -2974,6 +3006,28 @@ export default function WebsiteEditor() {
                 </button>
               </div>
             </div>
+
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+                Forms & Lead Capture
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleAddElement("form")}
+                  className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400 bg-white shadow-xs"
+                >
+                  <span className="text-xl">📝</span>
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Form Widget</span>
+                </button>
+                <button
+                  onClick={() => setIsFormTemplatesOpen(true)}
+                  className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400 bg-blue-50/50 shadow-xs"
+                >
+                  <span className="text-xl">📋</span>
+                  <span className="mt-1.5 text-xs font-semibold text-blue-700">Templates</span>
+                </button>
+              </div>
+            </div>
           </aside>
         )}
 
@@ -3163,6 +3217,13 @@ export default function WebsiteEditor() {
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {activeSidebarTab === "element" && selectedElement ? (
+                    selectedElement.type === "form" ? (
+                      <FormInspectorPanel
+                        config={selectedElement.formConfig || createDefaultFormConfig()}
+                        onChange={(updatedConfig) => updateSelectedProp("formConfig", updatedConfig)}
+                        popups={popups}
+                      />
+                    ) : (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between border-b pb-2">
                         <span className="text-xs font-bold uppercase text-blue-600">
@@ -3472,6 +3533,7 @@ export default function WebsiteEditor() {
                       />
                       )}
                     </div>
+                    )
                   ) : (
                     <div className="space-y-4">
                       {/* Site Identity */}
@@ -3736,6 +3798,35 @@ export default function WebsiteEditor() {
         onUpdatePopup={handleUpdatePopup}
         onDeletePopup={handleDeletePopup}
         onDuplicatePopup={handleDuplicatePopup}
+      />
+
+      {/* Form Templates Library Modal (F-274) */}
+      <FormTemplatesModal
+        isOpen={isFormTemplatesOpen}
+        onClose={() => setIsFormTemplatesOpen(false)}
+        onSelectTemplate={(config) => {
+          const newEl: EditorElement = {
+            id: generateId(),
+            type: "form",
+            content: config.formName,
+            formConfig: config,
+            styles: {
+              width: "100%",
+              marginTop: "12px",
+              marginBottom: "12px",
+            },
+          };
+          setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+          setSelectedId(newEl.id);
+        }}
+      />
+
+      {/* Leads & Submissions Dashboard Modal (F-278) */}
+      <FormSubmissionsModal
+        isOpen={isSubmissionsOpen}
+        onClose={() => setIsSubmissionsOpen(false)}
+        websiteId={websiteId}
+        apiUrl={apiUrl}
       />
 
       {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}

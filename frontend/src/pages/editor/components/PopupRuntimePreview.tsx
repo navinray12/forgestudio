@@ -202,12 +202,21 @@ export default function PopupRuntimePreview({
       }
     };
 
+    // 7. Custom Open Popup Event Listener (e.g. from Form Submission)
+    const handleCustomOpenPopup = (e: Event) => {
+      const customEvent = e as CustomEvent<{ popupId: string }>;
+      if (customEvent.detail?.popupId) {
+        openPopup(customEvent.detail.popupId);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mousemove", resetIdleTimer, { passive: true });
     document.addEventListener("keydown", resetIdleTimer, { passive: true });
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("click", handleClick);
+    window.addEventListener("forge:open-popup", handleCustomOpenPopup);
 
     resetIdleTimer();
     handleScroll();
@@ -221,6 +230,7 @@ export default function PopupRuntimePreview({
       document.removeEventListener("keydown", resetIdleTimer);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("click", handleClick);
+      window.removeEventListener("forge:open-popup", handleCustomOpenPopup);
     };
   }, [popups, globalSettings]);
 
