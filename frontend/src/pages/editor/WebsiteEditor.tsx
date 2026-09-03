@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   type NavigationElementType,
@@ -16,12 +16,22 @@ import {
   IntegrationSettingsPanel,
   isIntegrationElement,
 } from "./integrations";
+import type { PopupConfig } from "../../types/popup.types";
+import type { FormWidgetConfig } from "../../types/form.types";
+import { createDefaultFormConfig } from "../../types/form.types";
+import PopupManagerModal from "./components/PopupManagerModal";
+import PopupSettingsPanel from "./components/PopupSettingsPanel";
+import PopupRuntimePreview from "./components/PopupRuntimePreview";
+import FormWidgetRenderer from "./components/forms/FormWidgetRenderer";
+import FormInspectorPanel from "./components/forms/FormInspectorPanel";
+import FormTemplatesModal from "./components/forms/FormTemplatesModal";
+import FormSubmissionsModal from "./components/forms/FormSubmissionsModal";
 
 // ==========================================
 // Types & Interfaces
 // ==========================================
 
-export type ElementType = 
+export type ElementType =
   | "container" | "heading" | "text" | "image" | "button"
   | "video" | "divider" | "spacer" | "icon" | "rating"
   | "progress-bar" | "counter" | "html" | "alert"
@@ -29,12 +39,31 @@ export type ElementType =
   | "div-block" | "paragraph"
   | NavigationElementType
   | IntegrationElementType;
+  | "div-block" | "paragraph" | "form"
+  | NavigationElementType;
+
+export type DeviceMode = "desktop" | "tablet" | "mobile";
 
 export interface ContainerLayout {
+  layoutType?: "flex" | "grid" | "masonry";
   direction?: "column" | "row";
+  flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
-  alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
+  alignItems?: "stretch" | "flex-start" | "center" | "flex-end" | "baseline";
+  alignContent?: "stretch" | "flex-start" | "center" | "flex-end" | "space-between" | "space-around";
   gap?: number;
+  rowGap?: number | string;
+  columnGap?: number | string;
+
+  // CSS Grid Controls (F-041, F-043)
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  gridAutoFlow?: "row" | "column" | "dense" | "row dense" | "column dense";
+  justifyItems?: "stretch" | "start" | "center" | "end";
+
+  // Masonry Controls (F-051)
+  masonryColumns?: number;
+  masonryGap?: number | string;
 }
 
 export interface ElementStyles extends NavigationStyles, IntegrationStyles {
@@ -51,21 +80,58 @@ export interface ElementStyles extends NavigationStyles, IntegrationStyles {
   borderRadius?: string;
   width?: string;
   height?: string;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
   marginTop?: string;
   marginRight?: string;
   marginBottom?: string;
   marginLeft?: string;
   lineHeight?: string;
 
+  // Alignment & Self Alignment (F-045)
+  alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+  justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
+
+  // Position & Stacking Controls (F-047, F-048, F-049)
+  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
+  top?: string;
+  right?: string;
+  bottom?: string;
+  left?: string;
+  zIndex?: string | number;
+
+  // Grid Child Placement (F-043)
+  gridColumn?: string;
+  gridRow?: string;
+  gridColumnSpan?: number;
+  gridRowSpan?: number;
+
+  // Scroll & Scroll Snap (F-050)
+  scrollSnapType?: "none" | "x mandatory" | "y mandatory" | "x proximity" | "y proximity" | "both mandatory";
+  scrollSnapAlign?: "none" | "start" | "center" | "end";
+  scrollSnapStop?: "normal" | "always";
+  scrollPadding?: string;
+  scrollMargin?: string;
+  scrollBehavior?: "smooth" | "auto";
+  overflowX?: "visible" | "hidden" | "scroll" | "auto";
+  overflowY?: "visible" | "hidden" | "scroll" | "auto";
+
   // Typography Controls (F-070, F-089)
   fontFamily?: string;
+  fontStyle?: "normal" | "italic";
+  textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
+  textDecoration?: "none" | "underline" | "overline" | "line-through";
   letterSpacing?: string;
   wordSpacing?: string;
+  textShadow?: string;
 
-  // Background Options (F-073, F-074, F-075, F-076, F-077, F-078)
+  // Background Options (F-073 to F-078)
   backgroundType?: "solid" | "gradient" | "image" | "video" | "slideshow";
   backgroundGradient?: string;
   backgroundImageUrl?: string;
+  backgroundImage?: string;
   backgroundPosition?: string;
   backgroundRepeat?: string;
   backgroundSize?: string;
@@ -78,10 +144,13 @@ export interface ElementStyles extends NavigationStyles, IntegrationStyles {
   borderStyle?: "none" | "solid" | "dashed" | "dotted" | "double";
   borderWidth?: string;
   borderColor?: string;
+  borderTopLeftRadius?: string;
+  borderTopRightRadius?: string;
+  borderBottomRightRadius?: string;
+  borderBottomLeftRadius?: string;
 
   // Shadows (F-081, F-093)
   boxShadow?: string;
-  textShadow?: string;
 
   // Opacity & Blend Mode (F-082, F-083)
   opacity?: string;
@@ -113,8 +182,6 @@ export interface ElementStyles extends NavigationStyles, IntegrationStyles {
 
   // Ken Burns Effect (F-092)
   kenBurnsEffect?: "none" | "zoom-in" | "zoom-out";
-  
-  // Text Path (F-090)
   textPathEnabled?: "true" | "false";
 
   // Shape Dividers (F-091)
@@ -154,7 +221,7 @@ export interface ElementStyles extends NavigationStyles, IntegrationStyles {
   interactionTargetId?: string;
   interactionActionValue?: string;
 
-  // Core Content Widgets options (F-142 - F-173)
+  // Widget Options (F-142 - F-173)
   videoProvider?: "youtube" | "vimeo" | "hosted";
   videoAutoplay?: "true" | "false";
   videoControls?: "true" | "false";
@@ -188,6 +255,8 @@ export interface ElementStyles extends NavigationStyles, IntegrationStyles {
   socialIconColor?: string;
 }
 
+export type ElementState = "normal" | "hover";
+
 export interface Breakpoint {
   id: string;
   name: string;
@@ -202,13 +271,18 @@ export interface EditorElement {
   src?: string;
   alt?: string;
   href?: string;
-  customClass?: string; // F-068
+  customClass?: string;
   styles: ElementStyles;
+  hoverStyles?: Partial<ElementStyles>;
   layout?: ContainerLayout;
   children?: EditorElement[];
+  componentId?: string;
+  isComponent?: boolean;
+  componentName?: string;
   responsiveStyles?: Record<string, ElementStyles>;
   responsiveLayouts?: Record<string, ContainerLayout>;
   hiddenDevices?: Record<string, boolean>;
+  formConfig?: FormWidgetConfig;
 }
 
 interface WebsiteData {
@@ -219,6 +293,9 @@ interface WebsiteData {
   editorData?: {
     version: number;
     elements: EditorElement[];
+    breakpoints?: Breakpoint[];
+    globalSettings?: any;
+    popups?: PopupConfig[];
   };
 }
 
@@ -240,7 +317,6 @@ function resolveImageUrl(src: string | undefined, apiUrl: string): string {
   return `${cleanApiUrl}${cleanSrc}`;
 }
 
-// Tree Navigation & Manipulation Helpers
 function findTreeElement(list: EditorElement[], id: string): EditorElement | null {
   for (const item of list) {
     if (item.id === id) return item;
@@ -287,7 +363,6 @@ function deleteTreeElement(list: EditorElement[], id: string): EditorElement[] {
 
 function duplicateTreeElement(list: EditorElement[], id: string): EditorElement[] {
   let result: EditorElement[] = [];
-
   for (const item of list) {
     if (item.id === id) {
       const clonedItem: EditorElement = JSON.parse(JSON.stringify(item));
@@ -298,7 +373,6 @@ function duplicateTreeElement(list: EditorElement[], id: string): EditorElement[
         }
       };
       reassignIds(clonedItem);
-
       result.push(item);
       result.push(clonedItem);
     } else if (item.children && item.children.length > 0) {
@@ -310,7 +384,6 @@ function duplicateTreeElement(list: EditorElement[], id: string): EditorElement[
       result.push(item);
     }
   }
-
   return result;
 }
 
@@ -322,20 +395,16 @@ function insertTreeElement(
   if (!targetId) {
     return [...list, newEl];
   }
-
   const target = findTreeElement(list, targetId);
   if (!target) {
     return [...list, newEl];
   }
-
-  if (target.type === "container") {
+  if (target.type === "container" || target.type === "div-block") {
     return updateTreeElement(list, targetId, (c) => ({
       ...c,
       children: [...(c.children || []), newEl],
     }));
   }
-
-  // If target is inside a container, append after target
   let inserted = false;
   const insertInArray = (arr: EditorElement[]): EditorElement[] => {
     const res: EditorElement[] = [];
@@ -350,16 +419,12 @@ function insertTreeElement(
     }
     return res;
   };
-
   const updatedList = insertInArray(list);
-  if (!inserted) {
-    return [...list, newEl];
-  }
-  return updatedList;
+  return inserted ? updatedList : [...list, newEl];
 }
 
 // ==========================================
-// Cascading Value Resolution (Inheritance)
+// Cascading Value Resolution
 // ==========================================
 
 export function getBreakpointFallbackChain(bpId: string, activeBps: Breakpoint[]): string[] {
@@ -367,22 +432,17 @@ export function getBreakpointFallbackChain(bpId: string, activeBps: Breakpoint[]
   const bp = activeBps.find(b => b.id === bpId);
   const desktop = activeBps.find(b => b.id === "desktop") || { id: "desktop", width: 1024 };
 
-  if (!bp) return ["desktop"];
-  if (bp.id === "desktop") return ["desktop"];
+  if (!bp || bp.id === "desktop") return ["desktop"];
 
   if (bp.width > desktop.width) {
-    // Larger than desktop: fallback goes down to desktop
-    const chain = activeBpsSorted
+    return activeBpsSorted
       .filter(b => b.width <= bp.width && b.width >= desktop.width)
       .map(b => b.id);
-    return chain;
   } else {
-    // Smaller than desktop: fallback goes up to desktop
-    const chain = activeBpsSorted
+    return activeBpsSorted
       .filter(b => b.width >= bp.width && b.width <= desktop.width)
       .reverse()
       .map(b => b.id);
-    return chain;
   }
 }
 
@@ -391,7 +451,7 @@ export function getStyleVal(
   prop: keyof ElementStyles,
   bpId: string,
   activeBps: Breakpoint[]
-): string | undefined {
+): any {
   const chain = getBreakpointFallbackChain(bpId, activeBps);
   for (const id of chain) {
     if (id === "desktop") {
@@ -400,8 +460,8 @@ export function getStyleVal(
       }
     } else {
       const bpStyles = el.responsiveStyles?.[id];
-      if (bpStyles && bpStyles[prop] !== undefined && bpStyles[prop] !== "") {
-        return bpStyles[prop];
+      if (bpStyles && (bpStyles as any)[prop] !== undefined && (bpStyles as any)[prop] !== "") {
+        return (bpStyles as any)[prop];
       }
     }
   }
@@ -437,12 +497,8 @@ export function resolveElementStyles(
   _globalSettings?: any
 ): React.CSSProperties {
   const styles: React.CSSProperties = {};
+  const getVal = (prop: keyof ElementStyles): string | undefined => getStyleVal(el, prop, bpId, activeBps);
 
-  const getVal = (prop: keyof ElementStyles): string | undefined => {
-    return getStyleVal(el, prop, bpId, activeBps);
-  };
-
-  // Basic styling
   const color = getVal("color");
   if (color) styles.color = color;
 
@@ -459,9 +515,7 @@ export function resolveElementStyles(
   if (lineHeight) styles.lineHeight = lineHeight;
 
   const fontFamily = getVal("fontFamily");
-  if (fontFamily && fontFamily !== "inherit") {
-    styles.fontFamily = fontFamily;
-  }
+  if (fontFamily && fontFamily !== "inherit") styles.fontFamily = fontFamily;
 
   const letterSpacing = getVal("letterSpacing");
   if (letterSpacing) styles.letterSpacing = letterSpacing.endsWith("px") || letterSpacing.endsWith("em") ? letterSpacing : `${letterSpacing}px`;
@@ -469,7 +523,6 @@ export function resolveElementStyles(
   const wordSpacing = getVal("wordSpacing");
   if (wordSpacing) styles.wordSpacing = wordSpacing.endsWith("px") || wordSpacing.endsWith("em") ? wordSpacing : `${wordSpacing}px`;
 
-  // Margin/Padding
   const paddingTop = getVal("paddingTop");
   if (paddingTop) styles.paddingTop = paddingTop;
   const paddingRight = getVal("paddingRight");
@@ -497,7 +550,63 @@ export function resolveElementStyles(
   const height = getVal("height");
   if (height) styles.height = height;
 
-  // Background Options (F-073, F-074, F-075, F-076)
+  const minWidth = getVal("minWidth");
+  if (minWidth) styles.minWidth = minWidth;
+
+  const maxWidth = getVal("maxWidth");
+  if (maxWidth) styles.maxWidth = maxWidth;
+
+  const minHeight = getVal("minHeight");
+  if (minHeight) styles.minHeight = minHeight;
+
+  const maxHeight = getVal("maxHeight");
+  if (maxHeight) styles.maxHeight = maxHeight;
+
+  const alignSelf = getVal("alignSelf");
+  if (alignSelf && alignSelf !== "auto") styles.alignSelf = alignSelf;
+
+  const justifySelf = getVal("justifySelf");
+  if (justifySelf && justifySelf !== "auto") (styles as any).justifySelf = justifySelf;
+
+  const position = getVal("position");
+  if (position && position !== "static") styles.position = position as any;
+
+  const top = getVal("top");
+  if (top !== undefined && top !== "") styles.top = top;
+  const right = getVal("right");
+  if (right !== undefined && right !== "") styles.right = right;
+  const bottom = getVal("bottom");
+  if (bottom !== undefined && bottom !== "") styles.bottom = bottom;
+  const left = getVal("left");
+  if (left !== undefined && left !== "") styles.left = left;
+
+  const zIndex = getVal("zIndex");
+  if (zIndex !== undefined && zIndex !== "") {
+    styles.zIndex = typeof zIndex === "number" ? zIndex : parseInt(zIndex) || (zIndex as any);
+  }
+
+  const gridColumn = getVal("gridColumn");
+  if (gridColumn) styles.gridColumn = gridColumn;
+  const gridRow = getVal("gridRow");
+  if (gridRow) styles.gridRow = gridRow;
+
+  const scrollSnapType = getVal("scrollSnapType");
+  if (scrollSnapType && scrollSnapType !== "none") (styles as any).scrollSnapType = scrollSnapType;
+  const scrollSnapAlign = getVal("scrollSnapAlign");
+  if (scrollSnapAlign && scrollSnapAlign !== "none") (styles as any).scrollSnapAlign = scrollSnapAlign;
+  const scrollSnapStop = getVal("scrollSnapStop");
+  if (scrollSnapStop) (styles as any).scrollSnapStop = scrollSnapStop;
+  const scrollPadding = getVal("scrollPadding");
+  if (scrollPadding) (styles as any).scrollPadding = scrollPadding;
+  const scrollMargin = getVal("scrollMargin");
+  if (scrollMargin) (styles as any).scrollMargin = scrollMargin;
+  const scrollBehavior = getVal("scrollBehavior");
+  if (scrollBehavior) styles.scrollBehavior = scrollBehavior as any;
+  const overflowX = getVal("overflowX");
+  if (overflowX) styles.overflowX = overflowX as any;
+  const overflowY = getVal("overflowY");
+  if (overflowY) styles.overflowY = overflowY as any;
+
   const bgType = getVal("backgroundType") || "solid";
   if (bgType === "solid") {
     const bgColor = getVal("backgroundColor");
@@ -506,7 +615,7 @@ export function resolveElementStyles(
     const gradient = getVal("backgroundGradient");
     if (gradient) styles.background = gradient;
   } else if (bgType === "image") {
-    const bgImgUrl = getVal("backgroundImageUrl");
+    const bgImgUrl = getVal("backgroundImageUrl") || getVal("backgroundImage");
     if (bgImgUrl) {
       styles.backgroundImage = `url(${bgImgUrl})`;
       styles.backgroundPosition = getVal("backgroundPosition") || "center center";
@@ -515,7 +624,6 @@ export function resolveElementStyles(
     }
   }
 
-  // Borders (F-079)
   const borderStyle = getVal("borderStyle");
   if (borderStyle && borderStyle !== "none") {
     styles.borderStyle = borderStyle as any;
@@ -523,29 +631,15 @@ export function resolveElementStyles(
     styles.borderColor = getVal("borderColor") || "#cbd5e1";
   }
 
-  // Box Shadow (F-081)
   const boxShadow = getVal("boxShadow");
-  if (boxShadow) {
-    if (boxShadow === "none") styles.boxShadow = "none";
-    else if (boxShadow === "sm") styles.boxShadow = "0 1px 2px 0 rgb(0 0 0 / 0.05)";
-    else if (boxShadow === "md") styles.boxShadow = "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)";
-    else if (boxShadow === "lg") styles.boxShadow = "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)";
-    else if (boxShadow === "xl") styles.boxShadow = "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)";
-    else if (boxShadow === "inner") styles.boxShadow = "inset 0 2px 4px 0 rgb(0 0 0 / 0.06)";
-    else styles.boxShadow = boxShadow;
-  }
+  if (boxShadow) styles.boxShadow = boxShadow;
 
-  // Opacity & Blend Mode (F-082, F-083)
   const opacity = getVal("opacity");
-  if (opacity) {
-    styles.opacity = parseFloat(opacity) / 100;
-  }
-  const mixBlendMode = getVal("mixBlendMode");
-  if (mixBlendMode && mixBlendMode !== "normal") {
-    styles.mixBlendMode = mixBlendMode as any;
-  }
+  if (opacity) styles.opacity = parseFloat(opacity) / 100;
 
-  // Filters (F-084)
+  const mixBlendMode = getVal("mixBlendMode");
+  if (mixBlendMode && mixBlendMode !== "normal") styles.mixBlendMode = mixBlendMode as any;
+
   const blur = getVal("filterBlur") || "0";
   const brightness = getVal("filterBrightness") || "100";
   const contrast = getVal("filterContrast") || "100";
@@ -556,13 +650,9 @@ export function resolveElementStyles(
     styles.filter = `blur(${blur}px) brightness(${brightness}%) contrast(${contrast}%) grayscale(${grayscale}%) saturate(${saturate}%) hue-rotate(${hueRotate}deg)`;
   }
 
-  // Clip Path Masks (F-085)
   const clipPath = getVal("clipPath");
-  if (clipPath && clipPath !== "none") {
-    styles.clipPath = clipPath;
-  }
+  if (clipPath && clipPath !== "none") styles.clipPath = clipPath;
 
-  // Transforms (F-086)
   const rotate = getVal("transformRotate") || "0";
   const scale = getVal("transformScale") || "1";
   const skewX = getVal("transformSkewX") || "0";
@@ -573,40 +663,14 @@ export function resolveElementStyles(
     styles.transform = `translate(${tx}px, ${ty}px) rotate(${rotate}deg) scale(${scale}) skew(${skewX}deg, ${skewY}deg)`;
   }
 
-  // Text Outline / Stroke (F-087)
   const strokeWidth = getVal("textStrokeWidth");
   const strokeColor = getVal("textStrokeColor");
   if (strokeWidth && strokeWidth !== "0") {
     (styles as any).WebkitTextStroke = `${strokeWidth}px ${strokeColor || "currentColor"}`;
   }
 
-  // Text Shadow (F-093)
   const textShadow = getVal("textShadow");
-  if (textShadow) {
-    if (textShadow === "none") styles.textShadow = "none";
-    else if (textShadow === "subtle") styles.textShadow = "1px 1px 2px rgba(0,0,0,0.3)";
-    else if (textShadow === "medium") styles.textShadow = "2px 2px 4px rgba(0,0,0,0.4)";
-    else if (textShadow === "hard") styles.textShadow = "3px 3px 0px rgba(0,0,0,0.8)";
-    else styles.textShadow = textShadow;
-  }
-
-  // Text Masking (F-088)
-  const textMaskType = getVal("textMaskType");
-  if (textMaskType === "gradient") {
-    const textMaskGradient = getVal("textMaskGradient") || "linear-gradient(45deg, #2563eb, #10b981)";
-    styles.background = textMaskGradient;
-    (styles as any).WebkitBackgroundClip = "text";
-    (styles as any).WebkitTextFillColor = "transparent";
-  } else if (textMaskType === "image") {
-    const textMaskImage = getVal("textMaskImage");
-    if (textMaskImage) {
-      styles.backgroundImage = `url(${textMaskImage})`;
-      styles.backgroundSize = "cover";
-      styles.backgroundPosition = "center";
-      (styles as any).WebkitBackgroundClip = "text";
-      (styles as any).WebkitTextFillColor = "transparent";
-    }
-  }
+  if (textShadow) styles.textShadow = textShadow;
 
   return styles;
 }
@@ -622,6 +686,19 @@ export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperti
   delete inner.filter;
   delete inner.transform;
   delete inner.mixBlendMode;
+  delete inner.position;
+  delete inner.top;
+  delete inner.right;
+  delete inner.bottom;
+  delete inner.left;
+  delete inner.zIndex;
+  delete inner.alignSelf;
+  delete (inner as any).justifySelf;
+  delete inner.gridColumn;
+  delete inner.gridRow;
+  delete (inner as any).scrollSnapAlign;
+  delete (inner as any).scrollSnapStop;
+  delete (inner as any).scrollMargin;
   return inner;
 }
 
@@ -653,273 +730,7 @@ export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interv
   );
 }
 
-export function MotionWrapper({
-  el,
-  activeBreakpointId,
-  breakpoints,
-  isPreview,
-  children,
-  onClick,
-}: {
-  el: EditorElement;
-  activeBreakpointId: string;
-  breakpoints: Breakpoint[];
-  isPreview: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [hasEntered, setHasEntered] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [scrollProgress, setScrollProgress] = useState(0.5);
-
-  const getVal = (prop: keyof ElementStyles): string | undefined => {
-    return getStyleVal(el, prop, activeBreakpointId, breakpoints);
-  };
-
-  useEffect(() => {
-    const entrance = getVal("entranceAnimation");
-    if (!entrance || entrance === "none") {
-      setHasEntered(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasEntered(true);
-        } else if (!isPreview) {
-          setHasEntered(false);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [el.styles, activeBreakpointId, isPreview]);
-
-  useEffect(() => {
-    const scrollEnabled = getVal("scrollEffectsEnabled") === "true";
-    if (!scrollEnabled) return;
-
-    const handleScroll = () => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const viewH = window.innerHeight;
-      const progress = (viewH - rect.top) / (viewH + rect.height);
-      setScrollProgress(Math.max(0, Math.min(1, progress)));
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [el.styles, activeBreakpointId]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    
-    const mouseTrack = getVal("mouseTrackEnabled") === "true";
-    const tiltEnabled = getVal("tilt3DEnabled") === "true";
-    if (!mouseTrack && !tiltEnabled) return;
-
-    const rect = ref.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const xc = rect.width / 2;
-    const yc = rect.height / 2;
-
-    if (mouseTrack) {
-      const speed = parseFloat(getVal("mouseTrackSpeed") || "0.1");
-      setMouseOffset({
-        x: (x - xc) * speed,
-        y: (y - yc) * speed,
-      });
-    }
-
-    if (tiltEnabled) {
-      const maxTilt = parseFloat(getVal("tilt3DMax") || "15");
-      const tiltX = -((y - yc) / yc) * maxTilt;
-      const tiltY = ((x - xc) / xc) * maxTilt;
-      setTilt({ x: tiltX, y: tiltY });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setHovered(false);
-    setMouseOffset({ x: 0, y: 0 });
-    setTilt({ x: 0, y: 0 });
-  };
-
-  const handleMouseEnter = () => {
-    setHovered(true);
-  };
-
-  const handleTriggerInteraction = (trigger: "click" | "hover" | "dblclick") => {
-    const configuredTrigger = getVal("interactionTrigger");
-    if (configuredTrigger !== trigger) return;
-
-    const action = getVal("interactionAction");
-    const targetId = getVal("interactionTargetId");
-    const actionVal = getVal("interactionActionValue") || "";
-
-    if (!action || action === "none") return;
-    if (!isPreview && trigger === "click") return;
-
-    if (action === "alert") {
-      alert(actionVal || "Interaction Triggered!");
-    } else if (action === "scroll-to" && targetId) {
-      const targetDom = document.getElementById(targetId);
-      if (targetDom) {
-        targetDom.scrollIntoView({ behavior: "smooth" });
-      }
-    } else if (action === "toggle-class" && targetId) {
-      const targetDom = document.getElementById(targetId);
-      if (targetDom) {
-        targetDom.classList.toggle(actionVal || "active-toggle");
-      }
-    } else if (action === "show-hide" && targetId) {
-      const targetDom = document.getElementById(targetId);
-      if (targetDom) {
-        targetDom.style.display = targetDom.style.display === "none" ? "" : "none";
-      }
-    }
-  };
-
-  const wrapperStyle: React.CSSProperties = {};
-
-  const stickyPos = getVal("stickyPosition");
-  if (stickyPos && stickyPos !== "none") {
-    wrapperStyle.position = "sticky";
-    if (stickyPos === "top") {
-      wrapperStyle.top = getVal("stickyOffset") ? `${getVal("stickyOffset")}px` : "0px";
-    } else {
-      wrapperStyle.bottom = getVal("stickyOffset") ? `${getVal("stickyOffset")}px` : "0px";
-    }
-    wrapperStyle.zIndex = 40;
-  }
-
-  const hoverDuration = getVal("hoverTransitionDuration") || "0.3";
-  wrapperStyle.transition = `transform ${hoverDuration}s ease, opacity ${hoverDuration}s ease, filter ${hoverDuration}s ease`;
-
-  const entranceAnim = isPreview ? getVal("entranceAnimation") : "none";
-  if (entranceAnim && entranceAnim !== "none" && hasEntered) {
-    const duration = getVal("entranceDuration") || "0.8";
-    const delay = getVal("entranceDelay") || "0";
-    wrapperStyle.animation = `entrance-${entranceAnim} ${duration}s ${delay}s ease-out forwards`;
-  } else if (entranceAnim && entranceAnim !== "none" && !hasEntered) {
-    wrapperStyle.opacity = 0;
-  }
-
-  let transformStr = "";
-
-  if (hovered) {
-    const hScale = getVal("hoverScale");
-    if (hScale) transformStr += ` scale(${hScale})`;
-
-    const hRotate = getVal("hoverRotate");
-    if (hRotate) transformStr += ` rotate(${hRotate}deg)`;
-
-    const hTranslateY = getVal("hoverTranslateY");
-    if (hTranslateY) transformStr += ` translateY(${hTranslateY}px)`;
-
-    const hOpacity = getVal("hoverOpacity");
-    if (hOpacity) {
-      wrapperStyle.opacity = parseFloat(hOpacity) / 100;
-    }
-  }
-
-  const tiltEnabled = isPreview && getVal("tilt3DEnabled") === "true";
-  if (tiltEnabled && (tilt.x !== 0 || tilt.y !== 0)) {
-    transformStr += ` perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`;
-  }
-
-  const mouseTrack = isPreview && getVal("mouseTrackEnabled") === "true";
-  if (mouseTrack && (mouseOffset.x !== 0 || mouseOffset.y !== 0)) {
-    transformStr += ` translate(${mouseOffset.x}px, ${mouseOffset.y}px)`;
-  }
-
-  const scrollEnabled = isPreview && getVal("scrollEffectsEnabled") === "true";
-  if (scrollEnabled) {
-    const speedY = parseFloat(getVal("scrollSpeedY") || "0");
-    if (speedY !== 0) {
-      transformStr += ` translateY(${(scrollProgress - 0.5) * 100 * speedY}px)`;
-    }
-
-    const speedX = parseFloat(getVal("scrollSpeedX") || "0");
-    if (speedX !== 0) {
-      transformStr += ` translateX(${(scrollProgress - 0.5) * 100 * speedX}px)`;
-    }
-
-    const scrRotate = parseFloat(getVal("scrollRotate") || "0");
-    if (scrRotate !== 0) {
-      transformStr += ` rotate(${(scrollProgress - 0.5) * scrRotate}deg)`;
-    }
-
-    const scrScale = parseFloat(getVal("scrollScale") || "0");
-    if (scrScale !== 0) {
-      transformStr += ` scale(${1 + (scrollProgress - 0.5) * scrScale})`;
-    }
-
-    const scrBlur = parseFloat(getVal("scrollBlur") || "0");
-    if (scrBlur !== 0) {
-      const currentBlur = Math.abs(scrollProgress - 0.5) * 2 * scrBlur;
-      wrapperStyle.filter = wrapperStyle.filter
-        ? `${wrapperStyle.filter} blur(${currentBlur}px)`
-        : `blur(${currentBlur}px)`;
-    }
-
-    const scrTrans = getVal("scrollTransparency");
-    if (scrTrans && scrTrans !== "none") {
-      let op = 1;
-      if (scrTrans === "fade-in") {
-        op = scrollProgress;
-      } else if (scrTrans === "fade-out") {
-        op = 1 - scrollProgress;
-      } else if (scrTrans === "fade-in-out") {
-        op = 1 - Math.abs(scrollProgress - 0.5) * 2;
-      }
-      wrapperStyle.opacity = op;
-    }
-  }
-
-  if (transformStr) {
-    wrapperStyle.transform = transformStr;
-  }
-
-  return (
-    <div
-      ref={ref}
-      id={el.id}
-      style={wrapperStyle}
-      className={onClick ? "cursor-pointer" : ""}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={() => {
-        handleMouseEnter();
-        handleTriggerInteraction("hover");
-      }}
-      onClick={() => {
-        handleTriggerInteraction("click");
-        if (onClick) onClick();
-      }}
-      onDoubleClick={() => handleTriggerInteraction("dblclick")}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ==========================================
-// Sidebar Vector Icons (Matching Screenshot)
-// ==========================================
-
+// Icons & Widgets Helpers
 const ContainerBoxIcon = () => (
   <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-50 text-blue-600">
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -929,18 +740,19 @@ const ContainerBoxIcon = () => (
   </div>
 );
 
-const HeadingBoxIcon = () => (
-  <div className="flex h-7 w-7 items-center justify-center font-serif text-lg font-bold text-slate-700">
-    H
+const GridBoxIcon = () => (
+  <div className="flex h-7 w-7 items-center justify-center rounded bg-amber-50 text-amber-600">
+    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
+      <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+    </svg>
   </div>
 );
 
-const TextBoxIcon = () => (
-  <div className="flex h-7 w-7 items-center justify-center font-sans text-lg font-bold text-slate-700">
-    T
-  </div>
-);
-
+const HeadingBoxIcon = () => <div className="flex h-7 w-7 items-center justify-center font-serif text-lg font-bold text-slate-700">H</div>;
+const TextBoxIcon = () => <div className="flex h-7 w-7 items-center justify-center font-sans text-lg font-bold text-slate-700">T</div>;
 const ImageBoxIcon = () => (
   <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-50 text-emerald-600">
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -950,14 +762,11 @@ const ImageBoxIcon = () => (
     </svg>
   </div>
 );
-
 const ButtonBoxIcon = () => (
   <div className="flex h-7 w-7 items-center justify-center">
     <div className="h-4 w-5 rounded-md border-2 border-slate-700 bg-slate-100" />
   </div>
 );
-
-// Colorful placeholder icon inside empty image box
 const EmptyPictureIcon = () => (
   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
@@ -966,16 +775,6 @@ const EmptyPictureIcon = () => (
   </div>
 );
 
-// Upload Icon
-// const UploadCloudIcon = () => (
-//   <svg className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-//     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-//     <polyline points="17 8 12 3 7 8" />
-//     <line x1="12" y1="3" x2="12" y2="15" />
-//   </svg>
-// );
-
-// Helper to render inline customizable SVG icons (F-150)
 function renderSvgIcon(name: string, size: string, color: string) {
   const sizePx = `${size || 24}px`;
   const fill = color || "currentColor";
@@ -996,20 +795,7 @@ function renderSvgIcon(name: string, size: string, color: string) {
   }
 }
 
-// Helper to animate count values (F-156)
-function AnimatedCounter({
-  start,
-  end,
-  prefix,
-  suffix,
-  duration,
-}: {
-  start: number;
-  end: number;
-  prefix: string;
-  suffix: string;
-  duration: number;
-}) {
+function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: number; end: number; prefix: string; suffix: string; duration: number }) {
   const [count, setCount] = useState(start);
 
   useEffect(() => {
@@ -1029,13 +815,7 @@ function AnimatedCounter({
     return () => cancelAnimationFrame(frameId);
   }, [start, end, duration]);
 
-  return (
-    <span>
-      {prefix}
-      {count}
-      {suffix}
-    </span>
-  );
+  return <span>{prefix}{count}{suffix}</span>;
 }
 
 // ==========================================
@@ -1055,6 +835,7 @@ function createDefaultElement(type: ElementType): EditorElement {
         content: "Container",
         children: [],
         layout: {
+          layoutType: "flex",
           direction: "column",
           justifyContent: "flex-start",
           alignItems: "stretch",
@@ -1147,8 +928,6 @@ function createDefaultElement(type: ElementType): EditorElement {
           marginTop: "16px",
           marginBottom: "16px",
           videoProvider: "youtube",
-          videoAutoplay: "false",
-          videoControls: "true",
         },
       };
     case "divider":
@@ -1293,7 +1072,7 @@ function createDefaultElement(type: ElementType): EditorElement {
         id,
         type: "soundcloud",
         content: "SoundCloud Audio",
-        src: "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/49931160&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true",
+        src: "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/49931160&color=%23ff5500",
         styles: {
           width: "100%",
           height: "166px",
@@ -1341,6 +1120,17 @@ function createDefaultElement(type: ElementType): EditorElement {
           marginBottom: "8px",
         },
       };
+    case "form":
+      return {
+        id,
+        type: "form",
+        content: "Contact Form",
+        formConfig: createDefaultFormConfig(),
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+        },
     default:
       if (isNavigationElement(type)) {
         const navEl = getNavigationDefaultElement(type);
@@ -1359,7 +1149,152 @@ function createDefaultElement(type: ElementType): EditorElement {
 }
 
 // ==========================================
-// Main WebsiteEditor Component
+// Structural Layout Presets
+// ==========================================
+
+export type StructurePresetType =
+  | "single"
+  | "cols-2-equal"
+  | "cols-3-equal"
+  | "cols-2-30-70"
+  | "cols-2-70-30"
+  | "cols-4-equal";
+
+function createStructurePreset(type: StructurePresetType): EditorElement {
+  const rootId = generateId();
+
+  if (type === "single") {
+    return {
+      id: rootId,
+      type: "container",
+      content: "Container",
+      layout: {
+        layoutType: "flex",
+        direction: "column",
+        justifyContent: "flex-start",
+        alignItems: "stretch",
+        gap: 16,
+      },
+      styles: {
+        width: "100%",
+        backgroundColor: "#ffffff",
+        paddingTop: "24px",
+        paddingRight: "24px",
+        paddingBottom: "24px",
+        paddingLeft: "24px",
+        marginTop: "12px",
+        marginBottom: "12px",
+        borderRadius: "12px",
+      },
+      children: [],
+    };
+  }
+
+  const columnConfigs: Record<string, { count: number; widths: string[]; names: string[] }> = {
+    "cols-2-equal": { count: 2, widths: ["50%", "50%"], names: ["Column 1", "Column 2"] },
+    "cols-3-equal": { count: 3, widths: ["33.333%", "33.333%", "33.333%"], names: ["Column 1", "Column 2", "Column 3"] },
+    "cols-2-30-70": { count: 2, widths: ["30%", "70%"], names: ["Column 1 (30%)", "Column 2 (70%)"] },
+    "cols-2-70-30": { count: 2, widths: ["70%", "30%"], names: ["Column 1 (70%)", "Column 2 (30%)"] },
+    "cols-4-equal": { count: 4, widths: ["25%", "25%", "25%", "25%"], names: ["Column 1", "Column 2", "Column 3", "Column 4"] },
+  };
+
+  const config = columnConfigs[type];
+  if (!config) return createDefaultElement("container");
+
+  return {
+    id: rootId,
+    type: "container",
+    content: "Container",
+    layout: {
+      layoutType: "flex",
+      direction: "row",
+      flexWrap: "wrap",
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: 16,
+    },
+    styles: {
+      width: "100%",
+      backgroundColor: "#ffffff",
+      paddingTop: "24px",
+      paddingRight: "24px",
+      paddingBottom: "24px",
+      paddingLeft: "24px",
+      marginTop: "12px",
+      marginBottom: "12px",
+      borderRadius: "12px",
+    },
+    children: config.widths.map((width, idx) => ({
+      id: generateId(),
+      type: "container" as ElementType,
+      content: config.names[idx],
+      layout: {
+        layoutType: "flex" as const,
+        direction: "column" as const,
+        justifyContent: "flex-start" as const,
+        alignItems: "stretch" as const,
+        gap: 10,
+      },
+      styles: {
+        width: `calc(${width} - ${(16 * (config.count - 1)) / config.count}px)`,
+        minHeight: "80px",
+        backgroundColor: "#f8fafc",
+        paddingTop: "20px",
+        paddingRight: "20px",
+        paddingBottom: "20px",
+        paddingLeft: "20px",
+        borderRadius: "10px",
+      },
+      children: [],
+    })),
+  };
+}
+
+function createGridPrimitive(): EditorElement {
+  const rootId = generateId();
+  return {
+    id: rootId,
+    type: "container",
+    content: "Grid Container",
+    layout: {
+      layoutType: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: 16,
+    },
+    styles: {
+      width: "100%",
+      backgroundColor: "#ffffff",
+      paddingTop: "24px",
+      paddingRight: "24px",
+      paddingBottom: "24px",
+      paddingLeft: "24px",
+      marginTop: "12px",
+      marginBottom: "12px",
+      borderRadius: "12px",
+    },
+    children: [
+      {
+        id: generateId(),
+        type: "container",
+        content: "Grid Cell 1",
+        layout: { layoutType: "flex", direction: "column", gap: 10 },
+        styles: { width: "100%", minHeight: "80px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px" },
+        children: [],
+      },
+      {
+        id: generateId(),
+        type: "container",
+        content: "Grid Cell 2",
+        layout: { layoutType: "flex", direction: "column", gap: 10 },
+        styles: { width: "100%", minHeight: "80px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px" },
+        children: [],
+      },
+    ],
+  };
+}
+
+// ==========================================
+// Main Component
 // ==========================================
 
 const DEFAULT_BREAKPOINTS: Breakpoint[] = [
@@ -1374,30 +1309,90 @@ const DEFAULT_BREAKPOINTS: Breakpoint[] = [
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
-  // const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
   const [elements, setElements] = useState<EditorElement[]>([]);
+  const [popups, setPopups] = useState<PopupConfig[]>([]);
+  const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isFormTemplatesOpen, setIsFormTemplatesOpen] = useState(false);
+  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
+  const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
+  const [activePopupId, setActivePopupId] = useState<string | null>(null);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const [isPreview, setIsPreview] = useState(false);
-
-  // const [isUploading, setIsUploading] = useState(false);
-  // const [uploadError, setUploadError] = useState("");
-  // const [dragOver, setDragOver] = useState(false);
-
   const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
   const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
-  const [isBpModalOpen, setIsBpModalOpen] = useState(false);
+  const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
 
-  // Global settings state (F-066 to F-101)
+  // Active Popup reference
+  const activePopup = activePopupId ? popups.find((p) => p.id === activePopupId) || null : null;
+  const currentElementList = activeCanvasMode === "popup" && activePopup ? activePopup.elements || [] : elements;
+
+  const setUnifiedElements = (updater: (prev: EditorElement[]) => EditorElement[]) => {
+    if (activeCanvasMode === "popup" && activePopupId) {
+      setPopups((prev) =>
+        prev.map((p) => (p.id === activePopupId ? { ...p, elements: updater(p.elements || []) } : p))
+      );
+    } else {
+      setElements(updater);
+    }
+  };
+
+  const handleCreatePopup = (newPopup: PopupConfig) => {
+    setPopups((prev) => [...prev, newPopup]);
+  };
+
+  const handleUpdatePopup = (popupId: string, updater: (p: PopupConfig) => PopupConfig) => {
+    setPopups((prev) => prev.map((p) => (p.id === popupId ? updater(p) : p)));
+  };
+
+  const handleDeletePopup = (popupId: string) => {
+    setPopups((prev) => prev.filter((p) => p.id !== popupId));
+    if (activePopupId === popupId) {
+      setActivePopupId(null);
+      setActiveCanvasMode("page");
+    }
+  };
+
+  const handleDuplicatePopup = (popupId: string) => {
+    const target = popups.find((p) => p.id === popupId);
+    if (!target) return;
+    const cloned: PopupConfig = JSON.parse(JSON.stringify(target));
+    cloned.id = "pop_" + Math.random().toString(36).substring(2, 9);
+    cloned.name = `${target.name} (Copy)`;
+    cloned.viewsCount = 0;
+    cloned.clicksCount = 0;
+    setPopups((prev) => [...prev, cloned]);
+  };
+
+  const handleSelectPopupForEdit = (popupId: string) => {
+    setActivePopupId(popupId);
+    setActiveCanvasMode("popup");
+    setSelectedId(null);
+  };
+
+  const handleTrackPopupView = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
+    );
+  };
+
+  const handleTrackPopupClick = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
+    );
+  };
+
+  // Global Settings
   const [globalSettings, setGlobalSettings] = useState<any>({
     colors: {
       primary: "#2563eb",
@@ -1430,21 +1425,19 @@ export default function WebsiteEditor() {
     }
   });
 
-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global">("global");
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup">("global");
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     layout: true,
+    alignment: false,
+    positioning: false,
+    dimensions: false,
+    scrollSnap: false,
     typography: false,
+    colors: false,
     background: false,
     borders: false,
     shadows: false,
-    effects: false,
-    divider: false,
-    textStroke: false,
-    path: false,
-    motion: false,
-    widget: false,
   });
 
   const toggleSection = (section: string) => {
@@ -1473,123 +1466,12 @@ export default function WebsiteEditor() {
   useEffect(() => {
     if (selectedId) {
       setActiveSidebarTab("element");
+    } else if (activeCanvasMode === "popup") {
+      setActiveSidebarTab("popup");
     } else {
       setActiveSidebarTab("global");
     }
-  }, [selectedId]);
-
-  // Inject global CSS styles (F-066, F-067, F-068, F-069, F-092)
-  useEffect(() => {
-    const styleId = "editor-injected-global-styles";
-    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      document.head.appendChild(styleEl);
-    }
-
-    let css = "";
-    
-    // Inject Ken Burns animations (F-092)
-    css += `
-      @keyframes kb-zoom-in {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.12) translate(-1%, -1%); }
-      }
-      @keyframes kb-zoom-out {
-        0% { transform: scale(1.12); }
-        100% { transform: scale(1); }
-      }
-      .kb-zoom-in {
-        animation: kb-zoom-in 20s infinite alternate ease-in-out !important;
-      }
-      .kb-zoom-out {
-        animation: kb-zoom-out 20s infinite alternate ease-in-out !important;
-      }
-      
-      /* Entrance Animations (F-124) */
-      @keyframes entrance-fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes entrance-fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes entrance-fade-in-down {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes entrance-zoom-in {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-      }
-      @keyframes entrance-slide-up {
-        from { transform: translateY(100px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      @keyframes entrance-slide-down {
-        from { transform: translateY(-100px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      @keyframes entrance-bounce-in {
-        0% { opacity: 0; transform: scale(0.3); }
-        50% { opacity: 1; transform: scale(1.05); }
-        70% { transform: scale(0.9); }
-        100% { transform: scale(1); }
-      }
-    `;
-
-    if (globalSettings) {
-      css += `
-        :root {
-          --primaryColor: ${globalSettings.colors?.primary || "#2563eb"};
-          --secondaryColor: ${globalSettings.colors?.secondary || "#475569"};
-          --accentColor: ${globalSettings.colors?.accent || "#10b981"};
-          --backgroundColor: ${globalSettings.colors?.background || "#ffffff"};
-          --textColor: ${globalSettings.colors?.text || "#0f172a"};
-          --siteMaxWidth: ${globalSettings.globalStyles?.siteMaxWidth || "1200px"};
-          --defaultBorderRadius: ${globalSettings.globalStyles?.defaultBorderRadius || "8px"};
-        }
-      `;
-
-      if (globalSettings.globalStyles?.enableDefaultFonts) {
-        css += `
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
-        `;
-      }
-
-      if (globalSettings.customCss) {
-        css += `\\n/* Custom Global CSS */\\n` + globalSettings.customCss;
-      }
-    }
-
-    styleEl.textContent = css;
-  }, [globalSettings]);
-
-  const handleToggleBreakpoint = (id: string) => {
-    if (id === "desktop") return;
-    setBreakpoints((prev) => {
-      const updated = prev.map((bp) => (bp.id === id ? { ...bp, active: !bp.active } : bp));
-      const isCurrentlyActiveDeactivated =
-        updated.find((bp) => bp.id === id && !bp.active) && activeBreakpointId === id;
-      if (isCurrentlyActiveDeactivated) {
-        setActiveBreakpointId("desktop");
-      }
-      return updated;
-    });
-  };
-
-  const handleWidthChange = (id: string, width: number) => {
-    setBreakpoints((prev) =>
-      prev.map((bp) => (bp.id === id ? { ...bp, width: Math.max(200, Math.min(3000, width)) } : bp))
-    );
-  };
-
-  const handleResetBreakpoints = () => {
-    setBreakpoints(DEFAULT_BREAKPOINTS);
-    setActiveBreakpointId("desktop");
-  };
+  }, [selectedId, activeCanvasMode]);
 
   // Fetch Website Data
   useEffect(() => {
@@ -1605,10 +1487,7 @@ export default function WebsiteEditor() {
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.message || data?.error?.message || "Failed to load website.");
-        }
+        if (!res.ok) throw new Error(data?.message || "Failed to load website.");
 
         const loadedSite = data.website || data;
         setWebsite(loadedSite);
@@ -1616,17 +1495,15 @@ export default function WebsiteEditor() {
         if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
           setElements(loadedSite.editorData.elements);
         } else {
-          // Default starting elements matching screenshot
           setElements([
             createDefaultElement("heading"),
             createDefaultElement("text"),
             createDefaultElement("button"),
-            createDefaultElement("heading"),
-            createDefaultElement("text"),
-            createDefaultElement("button"),
-            createDefaultElement("image"),
-            createDefaultElement("heading"),
           ]);
+        }
+
+        if (loadedSite?.editorData?.popups && Array.isArray(loadedSite.editorData.popups)) {
+          setPopups(loadedSite.editorData.popups);
         }
 
         if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
@@ -1635,14 +1512,6 @@ export default function WebsiteEditor() {
 
         if (loadedSite?.editorData?.globalSettings) {
           setGlobalSettings(loadedSite.editorData.globalSettings);
-        } else if (loadedSite?.name) {
-          setGlobalSettings((prev: any) => ({
-            ...prev,
-            siteIdentity: {
-              ...prev.siteIdentity,
-              name: loadedSite.name,
-            }
-          }));
         }
       } catch (err) {
         console.error("Error loading website:", err);
@@ -1655,7 +1524,7 @@ export default function WebsiteEditor() {
     fetchWebsite();
   }, [websiteId, apiUrl]);
 
-  // Save Website Data
+  // Save Data
   const handleSave = async () => {
     if (!websiteId) return;
 
@@ -1670,64 +1539,64 @@ export default function WebsiteEditor() {
           elements,
           breakpoints,
           globalSettings,
+          popups,
         },
       };
 
       const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || data?.error?.message || "Failed to save website.");
-      }
+      if (!res.ok) throw new Error(data?.message || "Failed to save website.");
 
       setSaveMessage("Saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
-    } catch (err) {
-      console.error("Error saving website:", err);
-      setErrorMessage(err instanceof Error ? err.message : "Failed to save website.");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to save website data.");
     } finally {
       setSaving(false);
     }
   };
 
-  // Element Manipulation (Tree Aware)
   const handleAddElement = (type: ElementType) => {
     const newEl = createDefaultElement(type);
-    setElements((prev) => insertTreeElement(prev, selectedId, newEl));
+    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+    setSelectedId(newEl.id);
+  };
+
+  const handleInsertStructure = (presetType: StructurePresetType) => {
+    const newEl = createStructurePreset(presetType);
+    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
     setSelectedId(newEl.id);
   };
 
   const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setElements((prev) => deleteTreeElement(prev, id));
+    setUnifiedElements((prev) => deleteTreeElement(prev, id));
     if (selectedId === id) setSelectedId(null);
   };
 
   const handleDuplicateElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setElements((prev) => duplicateTreeElement(prev, id));
+    setUnifiedElements((prev) => duplicateTreeElement(prev, id));
   };
 
-  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
+  const selectedElement = selectedId ? findTreeElement(currentElementList, selectedId) : null;
 
   const updateSelectedProp = (key: keyof EditorElement, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => ({ ...el, [key]: value }))
     );
   };
 
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         if (activeBreakpointId === "desktop") {
           return {
@@ -1736,13 +1605,13 @@ export default function WebsiteEditor() {
           };
         } else {
           const responsiveStyles = { ...el.responsiveStyles };
-          const bpStyles = { ...responsiveStyles[activeBreakpointId] };
+          const bpStyles: Record<string, any> = { ...responsiveStyles[activeBreakpointId] };
           if (value === undefined || value === "") {
             delete bpStyles[key];
           } else {
             bpStyles[key] = value;
           }
-          responsiveStyles[activeBreakpointId] = bpStyles;
+          responsiveStyles[activeBreakpointId] = bpStyles as ElementStyles;
           return {
             ...el,
             responsiveStyles,
@@ -1754,7 +1623,7 @@ export default function WebsiteEditor() {
 
   const updateSelectedLayout = (key: keyof ContainerLayout, value: any) => {
     if (!selectedId) return;
-    setElements((prev) =>
+    setUnifiedElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => {
         if (activeBreakpointId === "desktop") {
           return {
@@ -1763,13 +1632,13 @@ export default function WebsiteEditor() {
           };
         } else {
           const responsiveLayouts = { ...el.responsiveLayouts };
-          const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
+          const bpLayouts: Record<string, any> = { ...responsiveLayouts[activeBreakpointId] };
           if (value === undefined || value === "") {
             delete bpLayouts[key];
           } else {
             bpLayouts[key] = value;
           }
-          responsiveLayouts[activeBreakpointId] = bpLayouts;
+          responsiveLayouts[activeBreakpointId] = bpLayouts as ContainerLayout;
           return {
             ...el,
             responsiveLayouts,
@@ -1779,185 +1648,17 @@ export default function WebsiteEditor() {
     );
   };
 
-  const resetSelectedStyle = (key: keyof ElementStyles) => {
-    if (!selectedId || activeBreakpointId === "desktop") return;
-    setElements((prev) =>
-      updateTreeElement(prev, selectedId, (el) => {
-        const responsiveStyles = { ...el.responsiveStyles };
-        const bpStyles = { ...responsiveStyles[activeBreakpointId] };
-        delete bpStyles[key];
-        responsiveStyles[activeBreakpointId] = bpStyles;
-        return { ...el, responsiveStyles };
-      })
-    );
-  };
-
-  const resetSelectedLayout = (key: keyof ContainerLayout) => {
-    if (!selectedId || activeBreakpointId === "desktop") return;
-    setElements((prev) =>
-      updateTreeElement(prev, selectedId, (el) => {
-        const responsiveLayouts = { ...el.responsiveLayouts };
-        const bpLayouts = { ...responsiveLayouts[activeBreakpointId] };
-        delete bpLayouts[key];
-        responsiveLayouts[activeBreakpointId] = bpLayouts;
-        return { ...el, responsiveLayouts };
-      })
-    );
-  };
-
-  // Helper to render responsive property labels
   const renderResponsiveLabel = (
     label: string,
-    styleKey?: keyof ElementStyles,
-    layoutKey?: keyof ContainerLayout
+    _styleKey?: keyof ElementStyles,
+    _layoutKey?: keyof ContainerLayout
   ) => {
-    if (!selectedElement) return null;
-
-    const chain = getBreakpointFallbackChain(activeBreakpointId, breakpoints);
-
-    let valSource = "desktop";
-    let isOverridden = false;
-    let hasValue = false;
-
-    if (styleKey) {
-      for (const id of chain) {
-        if (id === "desktop") {
-          if (selectedElement.styles && selectedElement.styles[styleKey] !== undefined && selectedElement.styles[styleKey] !== "") {
-            valSource = "desktop";
-            hasValue = true;
-            break;
-          }
-        } else {
-          const bpStyles = selectedElement.responsiveStyles?.[id];
-          if (bpStyles && bpStyles[styleKey] !== undefined && bpStyles[styleKey] !== "") {
-            valSource = id;
-            hasValue = true;
-            break;
-          }
-        }
-      }
-      isOverridden = activeBreakpointId !== "desktop" && selectedElement.responsiveStyles?.[activeBreakpointId]?.[styleKey] !== undefined;
-    } else if (layoutKey) {
-      for (const id of chain) {
-        if (id === "desktop") {
-          if (selectedElement.layout && selectedElement.layout[layoutKey] !== undefined && (selectedElement.layout[layoutKey] as any) !== "") {
-            valSource = "desktop";
-            hasValue = true;
-            break;
-          }
-        } else {
-          const bpLayout = selectedElement.responsiveLayouts?.[id];
-          if (bpLayout && bpLayout[layoutKey] !== undefined && (bpLayout[layoutKey] as any) !== "") {
-            valSource = id;
-            hasValue = true;
-            break;
-          }
-        }
-      }
-      isOverridden = activeBreakpointId !== "desktop" && selectedElement.responsiveLayouts?.[activeBreakpointId]?.[layoutKey] !== undefined;
-    }
-
-    const sourceBp = breakpoints.find(b => b.id === valSource);
-    const currentBpName = breakpoints.find(b => b.id === activeBreakpointId)?.name || activeBreakpointId;
-
     return (
-      <div className="flex items-center justify-between mb-1 mt-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-semibold text-slate-600">{label}</span>
-          
-          {/* Responsive Badge */}
-          {activeBreakpointId !== "desktop" && (
-            <span
-              title={isOverridden ? `Overridden on ${currentBpName}` : hasValue ? `Inherited from ${sourceBp?.name || "Desktop"}` : "Unset"}
-              className={`flex h-3.5 w-3.5 items-center justify-center rounded text-[9px] font-bold select-none ${
-                isOverridden
-                  ? "bg-blue-600 text-white"
-                  : hasValue
-                  ? "bg-slate-200 text-slate-500"
-                  : "bg-slate-100 text-slate-400 border border-dashed border-slate-300"
-              }`}
-            >
-              {activeBreakpointId === "mobile" || activeBreakpointId === "mobileExtra" ? "M" : activeBreakpointId === "tablet" || activeBreakpointId === "tabletExtra" ? "T" : activeBreakpointId === "laptop" ? "L" : "W"}
-            </span>
-          )}
-        </div>
-
-        {isOverridden && (
-          <button
-            onClick={() => styleKey ? resetSelectedStyle(styleKey) : layoutKey && resetSelectedLayout(layoutKey)}
-            title="Reset to inherited value"
-            className="text-[9px] font-semibold text-blue-500 hover:text-blue-700 hover:underline"
-          >
-            Clear Override
-          </button>
-        )}
+      <div className="flex items-center justify-between mb-1 mt-2">
+        <span className="text-[11px] font-semibold text-slate-600">{label}</span>
       </div>
     );
   };
-
-  // Image File Upload Logic
-  // const handleImageFileSelect = async (file: File) => {
-  //   if (!file) return;
-
-  //   const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
-  //   if (!validTypes.includes(file.type)) {
-  //     setUploadError("Please select a valid image file (JPG, PNG, WEBP, GIF, SVG).");
-  //     return;
-  //   }
-
-  //   if (file.size > 5 * 1024 * 1024) {
-  //     setUploadError("Image size must be less than 5 MB.");
-  //     return;
-  //   }
-
-  //   setUploadError("");
-  //   setIsUploading(true);
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("image", file);
-
-  //     let uploadRes = await fetch(`${apiUrl}/api/v1/uploads/image`, {
-  //       method: "POST",
-  //       credentials: "include",
-  //       body: formData,
-  //     });
-
-  //     if (!uploadRes.ok && uploadRes.status === 404) {
-  //       uploadRes = await fetch(`${apiUrl}/api/uploads/image`, {
-  //         method: "POST",
-  //         credentials: "include",
-  //         body: formData,
-  //       });
-  //     }
-
-  //     const uploadData = await uploadRes.json();
-
-  //     if (!uploadRes.ok) {
-  //       throw new Error(uploadData?.message || uploadData?.error?.message || "Failed to upload image.");
-  //     }
-
-  //     const returnedUrl = uploadData.url || uploadData?.data?.url;
-  //     if (returnedUrl) {
-  //       updateSelectedProp("src", returnedUrl);
-  //     } else {
-  //       throw new Error("No image URL returned from server.");
-  //     }
-  //   } catch (err) {
-  //     console.error("Upload error:", err);
-  //     setUploadError(err instanceof Error ? err.message : "Error uploading image.");
-  //   } finally {
-  //     setIsUploading(false);
-  //   }
-  // };
-
-  // const handleDrop = (e: React.DragEvent) => {
-  //   e.preventDefault();
-  //   setDragOver(false);
-  //   if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-  //     handleImageFileSelect(e.dataTransfer.files[0]);
-  //   }
-  // };
 
   const renderAccordion = (title: string, sectionId: string, content: React.ReactNode) => {
     const isOpen = openSections[sectionId];
@@ -1966,187 +1667,74 @@ export default function WebsiteEditor() {
         <button
           type="button"
           onClick={() => toggleSection(sectionId)}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-slate-700 bg-slate-50/50 hover:bg-slate-50 border-b border-slate-100 transition outline-none focus:outline-none"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-slate-700 bg-slate-50/50 hover:bg-slate-50 border-b border-slate-100 transition outline-none"
         >
           <span>{title}</span>
-          <svg
-            className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2.5"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
+          <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
         </button>
         {isOpen && <div className="p-3.5 space-y-4">{content}</div>}
       </div>
     );
   };
 
-  // Helper for numeric font size parsing
-  const getFontSizeNum = (fontSizeStr?: string) => {
-    if (!fontSizeStr) return "16";
-    return fontSizeStr.replace(/px$/, "");
-  };
-
-  // Helper for rendering text along a curve (F-090)
-  const renderTextPath = (content: string, style: React.CSSProperties) => {
-    const color = style.color || "#0f172a";
-    const fontSize = style.fontSize || "24px";
-    const fontWeight = style.fontWeight || "700";
-    const fontFamily = style.fontFamily || "inherit";
-    return (
-      <svg viewBox="0 0 500 100" className="w-full h-auto overflow-visible" style={{ minHeight: "60px" }}>
-        <path
-          id="wavyPath"
-          fill="none"
-          stroke="none"
-          d="M 10,60 Q 125,20 250,60 T 490,60"
-        />
-        <text style={{ fontSize, fontWeight, fontFamily, fill: color as string }}>
-          <textPath href="#wavyPath" startOffset="50%" textAnchor="middle">
-            {content}
-          </textPath>
-        </text>
-      </svg>
-    );
-  };
-
-  // Helper for container shape dividers (F-091)
-  const renderShapeDivider = (el: EditorElement, position: "top" | "bottom") => {
-    const suffix = position === "top" ? "Top" : "Bottom";
-    const enabled = getStyleVal(el, `divider${suffix}Enabled` as any, activeBreakpointId, breakpoints) === "true";
-    if (!enabled) return null;
-
-    const style = getStyleVal(el, `divider${suffix}Style` as any, activeBreakpointId, breakpoints) || "waves";
-    const color = getStyleVal(el, `divider${suffix}Color` as any, activeBreakpointId, breakpoints) || "#ffffff";
-    const height = getStyleVal(el, `divider${suffix}Height` as any, activeBreakpointId, breakpoints) || "50px";
-
-    let path = "";
-    const viewBox = "0 0 1200 120";
-    
-    if (style === "slant") {
-      path = position === "top" 
-        ? "M1200 120L0 0 0 120z" 
-        : "M1200 0L0 120 1200 120z";
-    } else if (style === "triangle") {
-      path = position === "top"
-        ? "M600 120L0 0 1200 0z"
-        : "M600 0L1200 120 0 120z";
-    } else if (style === "curves") {
-      path = position === "top"
-        ? "M0 0 C 300 120, 900 120, 1200 0 L 1200 120 L 0 120 Z"
-        : "M0 120 C 300 0, 900 0, 1200 120 L 1200 120 L 0 120 Z";
-    } else { // waves
-      path = position === "top"
-        ? "M0,0 C150,90 350,30 500,90 C650,150 850,90 1000,30 C1100,0 1150,30 1200,60 L1200,120 L0,120 Z"
-        : "M0,120 C150,30 350,90 500,30 C650,-30 850,30 1000,90 C1100,120 1150,90 1200,60 L1200,120 L0,120 Z";
-    }
-
-    const dividerStyles: React.CSSProperties = {
-      position: "absolute",
-      left: 0,
-      width: "100%",
-      height,
-      pointerEvents: "none",
-      zIndex: 10,
-    };
-
-    if (position === "top") {
-      dividerStyles.top = 0;
-      dividerStyles.transform = "scaleY(-1)";
-    } else {
-      dividerStyles.bottom = 0;
-    }
-
-    return (
-      <div style={dividerStyles} className="shape-divider">
-        <svg viewBox={viewBox} preserveAspectRatio="none" className="w-full h-full" style={{ display: "block" }}>
-          <path d={path} fill={color} />
-        </svg>
-      </div>
-    );
-  };
-
-  // Helper for background slideshow (F-078)
-  const renderBackgroundSlideshow = (el: EditorElement) => {
-    const urlsStr = getStyleVal(el, "backgroundSlideshowUrls", activeBreakpointId, breakpoints);
-    const speedStr = getStyleVal(el, "backgroundSlideshowSpeed", activeBreakpointId, breakpoints) || "5";
-    if (!urlsStr) return null;
-
-    const urls = urlsStr.split(",").map(u => u.trim()).filter(Boolean);
-    if (urls.length === 0) return null;
-
-    const speed = parseInt(speedStr) * 1000;
-
-    return <BackgroundSlideshow urls={urls} interval={speed} />;
-  };
-
-  // Helper for background video (F-077)
-  const renderBackgroundVideo = (el: EditorElement) => {
-    const videoUrl = getStyleVal(el, "backgroundVideoUrl", activeBreakpointId, breakpoints);
-    const opacity = getStyleVal(el, "backgroundVideoOpacity", activeBreakpointId, breakpoints) || "50";
-    if (!videoUrl) return null;
-
-    const opacityFloat = parseFloat(opacity) / 100;
-
-    return (
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-[inherit]" style={{ opacity: opacityFloat }}>
-        <video
-          src={videoUrl}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        />
-      </div>
-    );
-  };
-
-  // Recursive Element Tree Renderer
+  // Tree Renderer
   const renderElementTree = (el: EditorElement): React.ReactNode => {
     const isSelected = selectedId === el.id && !isPreview;
-    const isHiddenOnCurrentDevice = el.hiddenDevices?.[activeBreakpointId];
-
-    if (isHiddenOnCurrentDevice && isPreview) {
-      return null;
-    }
-
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
     if (el.type === "container") {
+      const layoutType = getLayoutVal(el, "layoutType", activeBreakpointId, breakpoints) || "flex";
+      const gapVal = getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 16;
+      const rowGapVal = getLayoutVal(el, "rowGap", activeBreakpointId, breakpoints);
+      const colGapVal = getLayoutVal(el, "columnGap", activeBreakpointId, breakpoints);
+
+      const rowGapStr = rowGapVal !== undefined && rowGapVal !== "" ? (typeof rowGapVal === "number" ? `${rowGapVal}px` : rowGapVal) : `${gapVal}px`;
+      const colGapStr = colGapVal !== undefined && colGapVal !== "" ? (typeof colGapVal === "number" ? `${colGapVal}px` : colGapVal) : `${gapVal}px`;
+
+      let containerLayoutStyles: React.CSSProperties = {};
+      if (layoutType === "grid") {
+        containerLayoutStyles = {
+          display: "grid",
+          gridTemplateColumns: getLayoutVal(el, "gridTemplateColumns", activeBreakpointId, breakpoints) || "repeat(2, 1fr)",
+          gridTemplateRows: getLayoutVal(el, "gridTemplateRows", activeBreakpointId, breakpoints) || undefined,
+          gridAutoFlow: getLayoutVal(el, "gridAutoFlow", activeBreakpointId, breakpoints) || undefined,
+          justifyItems: getLayoutVal(el, "justifyItems", activeBreakpointId, breakpoints) || undefined,
+          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || undefined,
+          rowGap: rowGapStr,
+          columnGap: colGapStr,
+        };
+      } else if (layoutType === "masonry") {
+        containerLayoutStyles = {
+          display: "block",
+          columnCount: getLayoutVal(el, "masonryColumns", activeBreakpointId, breakpoints) || 3,
+          columnGap: colGapStr,
+        };
+      } else {
+        containerLayoutStyles = {
+          display: "flex",
+          flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
+          flexWrap: getLayoutVal(el, "flexWrap", activeBreakpointId, breakpoints) || "nowrap",
+          justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
+          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
+          rowGap: rowGapStr,
+          columnGap: colGapStr,
+        };
+      }
+
       return (
-        <MotionWrapper
-          el={el}
-          activeBreakpointId={activeBreakpointId}
-          breakpoints={breakpoints}
-          isPreview={isPreview}
-        >
-          <div
-            key={el.id}
+        <div
+          key={el.id}
           onClick={(e) => {
             e.stopPropagation();
             if (!isPreview) setSelectedId(el.id);
           }}
-          className={`relative transition-all duration-150 overflow-hidden ${el.customClass || ""} ${
-            isPreview
-              ? ""
-              : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+          className={`relative transition-all duration-150 ${el.customClass || ""} ${
+            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
           } ${
-            isSelected
-              ? "border-2 border-blue-500 shadow-sm"
-              : isPreview
-              ? ""
-              : "border border-dashed border-slate-300"
-          } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border-2 border-dashed bg-amber-50/10 cursor-not-allowed" : ""}`}
+            isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
+          }`}
           style={{
-            display: "flex",
-            flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
-            justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
-            alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
-            gap: `${getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 10}px`,
+            ...containerLayoutStyles,
             ...resolvedStyles,
             width: resolvedStyles.width || "100%",
             height: resolvedStyles.height || "auto",
@@ -2155,482 +1743,125 @@ export default function WebsiteEditor() {
             paddingBottom: resolvedStyles.paddingBottom || "16px",
             paddingLeft: resolvedStyles.paddingLeft || "16px",
             marginTop: resolvedStyles.marginTop || "8px",
-            marginRight: resolvedStyles.marginRight || "0px",
             marginBottom: resolvedStyles.marginBottom || "8px",
-            marginLeft: resolvedStyles.marginLeft || "0px",
             borderRadius: resolvedStyles.borderRadius || "8px",
           }}
         >
-          {/* Shape Dividers (F-091) */}
-          {renderShapeDivider(el, "top")}
-          {renderShapeDivider(el, "bottom")}
-
-          {/* Background Slideshow (F-078) */}
-          {getStyleVal(el, "backgroundType", activeBreakpointId, breakpoints) === "slideshow" && renderBackgroundSlideshow(el)}
-
-          {/* Background Video (F-077) */}
-          {getStyleVal(el, "backgroundType", activeBreakpointId, breakpoints) === "video" && renderBackgroundVideo(el)}
-
-          {isHiddenOnCurrentDevice && !isPreview && (
-            <div className="absolute top-2 left-3 z-30 flex items-center gap-1 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
-              <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-              </svg>
-              <span>Hidden on {breakpoints.find(b => b.id === activeBreakpointId)?.name}</span>
-            </div>
-          )}
-
           {isSelected && (
-            <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
-              <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
-                <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                  Container
-                </div>
-              </div>
-              <div className="w-[1px] h-3 bg-slate-700/60" />
+            <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
+              <span className="text-blue-400 font-bold px-1">Container ({layoutType})</span>
               <button
                 onClick={(e) => handleDuplicateElement(el.id, e)}
-                className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 text-slate-300 hover:text-white transition"
+                className="p-1 hover:text-blue-400"
               >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                  Duplicate
-                </div>
+                Duplicate
               </button>
-              <div className="w-[1px] h-3 bg-slate-700/60" />
               <button
                 onClick={(e) => handleDeleteElement(el.id, e)}
-                className="relative group flex items-center justify-center p-1 rounded hover:bg-red-950/80 text-red-400 hover:text-red-300 transition"
+                className="p-1 hover:text-red-400 text-red-500"
               >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-red-950 border border-red-500/20 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                  Delete
-                </div>
+                Delete
               </button>
             </div>
           )}
 
           {(!el.children || el.children.length === 0) && !isPreview ? (
-            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center z-10 relative">
+            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center">
               <span className="text-xs font-bold text-slate-500">Empty Container</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">
-                Click an element on the left panel to add inside
-              </span>
             </div>
           ) : (
             el.children?.map((child) => renderElementTree(child))
           )}
         </div>
-      </MotionWrapper>
       );
     }
 
     return (
-      <MotionWrapper
-        el={el}
-        activeBreakpointId={activeBreakpointId}
-        breakpoints={breakpoints}
-        isPreview={isPreview}
-      >
-        <div
-          key={el.id}
-          onClick={(e) => {
+      <div
+        key={el.id}
+        onClick={(e) => {
           e.stopPropagation();
           if (!isPreview) setSelectedId(el.id);
         }}
         className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${
-          isPreview
-            ? ""
-            : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${
-          isSelected
-            ? "border-2 border-blue-500 p-2.5"
-            : "p-2.5 border border-transparent"
-        } ${isHiddenOnCurrentDevice ? "opacity-40 border-amber-400 border border-dashed bg-amber-50/10" : ""}`}
-        style={{
-          marginTop: getStyleVal(el, "marginTop", activeBreakpointId, breakpoints),
-          marginBottom: getStyleVal(el, "marginBottom", activeBreakpointId, breakpoints),
-          boxShadow: resolvedStyles.boxShadow,
-          opacity: resolvedStyles.opacity,
-          filter: resolvedStyles.filter,
-          transform: resolvedStyles.transform,
-          mixBlendMode: resolvedStyles.mixBlendMode,
-        }}
+          isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+        } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
+        style={{ ...resolvedStyles }}
       >
-        {isHiddenOnCurrentDevice && !isPreview && (
-          <div className="absolute top-1.5 left-2 z-30 flex items-center gap-1 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
-            <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-            <span>Hidden on {breakpoints.find(b => b.id === activeBreakpointId)?.name}</span>
-          </div>
-        )}
-
         {isSelected && (
-          <div className="absolute -top-4.5 right-3 z-30 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl">
-            <div className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 cursor-default">
-              <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                {el.type === 'heading' ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h12M4 18h16" />
-                ) : el.type === 'button' ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                ) : el.type === 'image' ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                )}
-              </svg>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                {el.type.charAt(0).toUpperCase() + el.type.slice(1)}
-              </div>
-            </div>
-            <div className="w-[1px] h-3 bg-slate-700/60" />
-            <button
-              onClick={(e) => handleDuplicateElement(el.id, e)}
-              className="relative group flex items-center justify-center p-1 rounded hover:bg-slate-800/80 text-slate-300 hover:text-white transition"
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-              </svg>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-slate-900 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                Duplicate
-              </div>
+          <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
+            <span className="text-blue-400 font-bold px-1 capitalize">{el.type}</span>
+            <button onClick={(e) => handleDuplicateElement(el.id, e)} className="p-1 hover:text-blue-400">
+              Duplicate
             </button>
-            <div className="w-[1px] h-3 bg-slate-700/60" />
-            <button
-              onClick={(e) => handleDeleteElement(el.id, e)}
-              className="relative group flex items-center justify-center p-1 rounded hover:bg-red-950/80 text-red-400 hover:text-red-300 transition"
-            >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-40 bg-red-950 border border-red-500/20 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                Delete
-              </div>
+            <button onClick={(e) => handleDeleteElement(el.id, e)} className="p-1 hover:text-red-400 text-red-500">
+              Delete
             </button>
           </div>
         )}
 
-        {/* Element Renderers */}
         {el.type === "heading" && (
-          <h2
-            style={{
-              color: "#0f172a",
-              fontSize: "32px",
-              fontWeight: "700",
-              textAlign: "left",
-              lineHeight: "1.2",
-              ...getInnerStyles(resolvedStyles)
-            }}
-          >
-            {getStyleVal(el, "textPathEnabled", activeBreakpointId, breakpoints) === "true" ? (
-              renderTextPath(el.content, resolvedStyles)
-            ) : (
-              el.content
-            )}
+          <h2 style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...getInnerStyles(resolvedStyles) }}>
+            {el.content}
           </h2>
         )}
 
         {el.type === "text" && (
-          <p
-            style={{
-              color: "#475569",
-              fontSize: "16px",
-              fontWeight: "400",
-              textAlign: "left",
-              lineHeight: "1.6",
-              ...getInnerStyles(resolvedStyles)
-            }}
-          >
+          <p style={{ fontSize: "16px", color: "#475569", ...getInnerStyles(resolvedStyles) }}>
             {el.content}
           </p>
         )}
 
         {el.type === "image" && (
-          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left") as any }}>
+          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "left" }}>
             {el.src ? (
-              <img
-                src={resolveImageUrl(el.src, apiUrl)}
-                alt={el.alt || "Uploaded Image"}
-                onClick={() => {
-                  if (isPreview && globalSettings?.lightboxSettings?.enableLightbox) {
-                    setLightboxImage(resolveImageUrl(el.src!, apiUrl));
-                  }
-                }}
-                className={`inline-block object-cover max-w-full ${
-                  isPreview && globalSettings?.lightboxSettings?.enableLightbox ? "cursor-zoom-in" : ""
-                } ${
-                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-in" ? "kb-zoom-in" : 
-                  getStyleVal(el, "kenBurnsEffect", activeBreakpointId, breakpoints) === "zoom-out" ? "kb-zoom-out" : ""
-                }`}
-                style={{
-                  width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
-                  height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "auto",
-                  borderRadius: getStyleVal(el, "borderRadius", activeBreakpointId, breakpoints) || "8px",
-                  ...getInnerStyles(resolvedStyles)
-                }}
-              />
+              <img src={resolveImageUrl(el.src, apiUrl)} alt={el.alt || "Image"} className="max-w-full rounded-lg" />
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 py-10 px-6 text-center transition hover:border-blue-400">
+              <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl bg-slate-50">
                 <EmptyPictureIcon />
-                <h4 className="mt-3 text-xs font-bold text-slate-700">
-                  No Image Selected
-                </h4>
-                <p className="mt-1 text-[11px] text-slate-400">
-                  Click to choose or upload an image in the right panel
-                </p>
+                <span className="text-xs font-bold text-slate-500 mt-2">No Image Selected</span>
               </div>
             )}
           </div>
         )}
 
         {el.type === "button" && (
-          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left") as any }}>
+          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "left" }}>
             <a
               href={el.href || "#"}
-              onClick={(e) => {
-                if (!isPreview) e.preventDefault();
-              }}
-              className="inline-block transition hover:opacity-90 shadow-sm"
-              style={{
-                color: "#ffffff",
-                backgroundColor: "#2563eb",
-                fontSize: "14px",
-                fontWeight: "600",
-                padding: "10px 22px",
-                borderRadius: "8px",
-                ...getInnerStyles(resolvedStyles)
-              }}
+              onClick={(e) => !isPreview && e.preventDefault()}
+              className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
+              style={{ ...getInnerStyles(resolvedStyles) }}
             >
               {el.content}
             </a>
           </div>
         )}
 
-        {/* Video (F-145) */}
         {el.type === "video" && (
-          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "center") as any }}>
-            <iframe
-              src={el.src || "https://www.youtube.com/embed/dQw4w9WgXcQ"}
-              title="Video Player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="max-w-full rounded-lg"
-              style={{
-                width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
-                height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "350px",
-                ...getInnerStyles(resolvedStyles),
-              }}
-            />
+          <div className="aspect-video w-full">
+            <iframe src={el.src || "https://www.youtube.com/embed/dQw4w9WgXcQ"} title="Video" className="w-full h-full rounded-lg" />
           </div>
         )}
 
-        {/* Divider (F-169) */}
-        {el.type === "divider" && (
-          <div style={{ padding: "10px 0" }}>
-            <hr
-              style={{
-                borderTopStyle: (getStyleVal(el, "dividerStyle", activeBreakpointId, breakpoints) as any) || "solid",
-                borderTopWidth: `${getStyleVal(el, "dividerHeight", activeBreakpointId, breakpoints) || "2"}px`,
-                borderTopColor: getStyleVal(el, "dividerColor", activeBreakpointId, breakpoints) || "#cbd5e1",
-                width: getStyleVal(el, "dividerWidth", activeBreakpointId, breakpoints) || "100%",
-                margin: "0 auto",
-                ...getInnerStyles(resolvedStyles),
-              }}
-            />
-          </div>
-        )}
-
-        {/* Spacer (F-170) */}
-        {el.type === "spacer" && (
-          <div
-            style={{
-              height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "40px",
-              width: "100%",
-              ...getInnerStyles(resolvedStyles),
-            }}
-          />
-        )}
-
-        {/* Icon (F-150) */}
+        {el.type === "divider" && <hr style={{ borderColor: "#cbd5e1", ...getInnerStyles(resolvedStyles) }} />}
+        {el.type === "spacer" && <div style={{ height: resolvedStyles.height || "40px" }} />}
         {el.type === "icon" && (
-          <div style={{ display: "flex", justifyContent: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "center" }}>
-            <div style={{ ...getInnerStyles(resolvedStyles) }}>
-              {renderSvgIcon(
-                getStyleVal(el, "iconName", activeBreakpointId, breakpoints) || "star",
-                getStyleVal(el, "iconSize", activeBreakpointId, breakpoints) || "32",
-                getStyleVal(el, "iconColor", activeBreakpointId, breakpoints) || "#2563eb"
-              )}
-            </div>
+          <div style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center" }}>
+            {renderSvgIcon(el.styles.iconName || "star", el.styles.iconSize || "32", el.styles.iconColor || "#2563eb")}
           </div>
         )}
-
-        {/* Rating (F-160) */}
-        {el.type === "rating" && (
-          <div style={{ display: "flex", justifyContent: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "left" }}>
-            <div className="flex gap-0.5" style={{ ...getInnerStyles(resolvedStyles) }}>
-              {Array.from({ length: parseInt(getStyleVal(el, "ratingStarsCount", activeBreakpointId, breakpoints) || "5") }).map((_, idx) => {
-                const val = parseFloat(getStyleVal(el, "ratingValue", activeBreakpointId, breakpoints) || "4.5");
-                const active = idx + 1 <= val;
-                const size = getStyleVal(el, "ratingSize", activeBreakpointId, breakpoints) || "20";
-                const color = getStyleVal(el, "ratingColor", activeBreakpointId, breakpoints) || "#f59e0b";
-                return (
-                  <span key={idx} style={{ color: active ? color : "#e2e8f0", fontSize: `${size}px` }}>
-                    ★
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Progress Bar (F-157) */}
-        {el.type === "progress-bar" && (
-          <div style={{ ...getInnerStyles(resolvedStyles) }} className="w-full">
-            {getStyleVal(el, "progressLabel", activeBreakpointId, breakpoints) && (
-              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                <span>{getStyleVal(el, "progressLabel", activeBreakpointId, breakpoints)}</span>
-                <span>{getStyleVal(el, "progressPercent", activeBreakpointId, breakpoints) || "0"}%</span>
-              </div>
-            )}
-            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500 ease-out"
-                style={{
-                  width: `${getStyleVal(el, "progressPercent", activeBreakpointId, breakpoints) || "0"}%`,
-                  backgroundColor: getStyleVal(el, "progressColor", activeBreakpointId, breakpoints) || "#3b82f6",
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Counter (F-156) */}
         {el.type === "counter" && (
-          <div style={{ textAlign: (getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "center") as any, ...getInnerStyles(resolvedStyles) }}>
-            <AnimatedCounter
-              start={parseInt(getStyleVal(el, "counterStart", activeBreakpointId, breakpoints) || "0")}
-              end={parseInt(getStyleVal(el, "counterEnd", activeBreakpointId, breakpoints) || "100")}
-              prefix={getStyleVal(el, "counterPrefix", activeBreakpointId, breakpoints) || ""}
-              suffix={getStyleVal(el, "counterSuffix", activeBreakpointId, breakpoints) || ""}
-              duration={parseInt(getStyleVal(el, "counterDuration", activeBreakpointId, breakpoints) || "2000")}
-            />
+          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "center" }}>
+            <AnimatedCounter start={0} end={100} prefix="" suffix="%" duration={2000} />
           </div>
         )}
-
-        {/* HTML (F-162) */}
-        {el.type === "html" && (
-          <div
-            style={{ ...getInnerStyles(resolvedStyles) }}
-            dangerouslySetInnerHTML={{ __html: el.content || "" }}
-          />
-        )}
-
-        {/* Alert (F-161) */}
-        {el.type === "alert" && (
-          <div
-            style={{ ...getInnerStyles(resolvedStyles) }}
-            className={`p-3 rounded-lg border text-xs flex justify-between items-center ${
-              getStyleVal(el, "alertType", activeBreakpointId, breakpoints) === "success"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                : getStyleVal(el, "alertType", activeBreakpointId, breakpoints) === "warning"
-                ? "bg-amber-50 border-amber-200 text-amber-800"
-                : getStyleVal(el, "alertType", activeBreakpointId, breakpoints) === "danger"
-                ? "bg-red-50 border-red-200 text-red-800"
-                : "bg-blue-50 border-blue-200 text-blue-800"
-            }`}
-          >
-            <span>{el.content}</span>
-          </div>
-        )}
-
-        {/* Social Icons (F-152) */}
-        {el.type === "social-icons" && (
-          <div style={{ display: "flex", justifyContent: getStyleVal(el, "textAlign", activeBreakpointId, breakpoints) || "center" }}>
-            <div style={{ ...getInnerStyles(resolvedStyles) }} className="flex gap-3 items-center">
-              {getStyleVal(el, "socialFacebook", activeBreakpointId, breakpoints) && (
-                <a href={getStyleVal(el, "socialFacebook", activeBreakpointId, breakpoints)} target="_blank" rel="noreferrer" style={{ color: getStyleVal(el, "socialIconColor", activeBreakpointId, breakpoints) || "#475569" }}>
-                  <svg style={{ width: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px`, height: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px` }} fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </a>
-              )}
-              {getStyleVal(el, "socialTwitter", activeBreakpointId, breakpoints) && (
-                <a href={getStyleVal(el, "socialTwitter", activeBreakpointId, breakpoints)} target="_blank" rel="noreferrer" style={{ color: getStyleVal(el, "socialIconColor", activeBreakpointId, breakpoints) || "#475569" }}>
-                  <svg style={{ width: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px`, height: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px` }} fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                </a>
-              )}
-              {getStyleVal(el, "socialInstagram", activeBreakpointId, breakpoints) && (
-                <a href={getStyleVal(el, "socialInstagram", activeBreakpointId, breakpoints)} target="_blank" rel="noreferrer" style={{ color: getStyleVal(el, "socialIconColor", activeBreakpointId, breakpoints) || "#475569" }}>
-                  <svg style={{ width: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px`, height: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px` }} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                </a>
-              )}
-              {getStyleVal(el, "socialLinkedin", activeBreakpointId, breakpoints) && (
-                <a href={getStyleVal(el, "socialLinkedin", activeBreakpointId, breakpoints)} target="_blank" rel="noreferrer" style={{ color: getStyleVal(el, "socialIconColor", activeBreakpointId, breakpoints) || "#475569" }}>
-                  <svg style={{ width: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px`, height: `${getStyleVal(el, "socialIconSize", activeBreakpointId, breakpoints) || 20}px` }} fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Google Maps (F-167) */}
-        {el.type === "google-maps" && (
-          <div style={{ textAlign: "center" }}>
-            <iframe
-              src={el.src || "https://maps.google.com/maps?q=London&t=&z=13&ie=UTF8&iwloc=&output=embed"}
-              title="Google Maps"
-              frameBorder="0"
-              style={{
-                width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
-                height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "350px",
-                borderRadius: getStyleVal(el, "borderRadius", activeBreakpointId, breakpoints) || "8px",
-                ...getInnerStyles(resolvedStyles),
-              }}
-            />
-          </div>
-        )}
-
-        {/* SoundCloud (F-168) */}
-        {el.type === "soundcloud" && (
-          <div>
-            <iframe
-              src={el.src || "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/49931160&color=%23ff5500"}
-              title="SoundCloud"
-              frameBorder="no"
-              scrolling="no"
-              style={{
-                width: getStyleVal(el, "width", activeBreakpointId, breakpoints) || "100%",
-                height: getStyleVal(el, "height", activeBreakpointId, breakpoints) || "166px",
-                ...getInnerStyles(resolvedStyles),
-              }}
-            />
-          </div>
-        )}
-
-        {/* Div Block (F-172) */}
-        {el.type === "div-block" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
-              justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
-              alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
-              gap: `${getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 10}px`,
-              ...getInnerStyles(resolvedStyles),
-              width: resolvedStyles.width || "100%",
-              height: resolvedStyles.height || "100px",
-            }}
-          >
-            {el.children?.map((child) => renderElementTree(child))}
-          </div>
-        )}
+        {el.type === "form" && (
+          <FormWidgetRenderer
+            config={el.formConfig || createDefaultFormConfig()}
+            websiteId={websiteId}
+            isPreview={isPreview}
+            apiUrl={apiUrl}
 
         {/* Paragraph Element (F-173) */}
         {el.type === "paragraph" && (
@@ -2683,27 +1914,20 @@ export default function WebsiteEditor() {
           />
         )}
       </div>
-    </MotionWrapper>
     );
   };
 
-  // Render Loader
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-slate-600">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-          <p className="text-xs font-semibold">Loading Website Editor...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
-      {/* ========================================== */}
-      {/* Top Header Bar (Dark Navy, matching screenshot) */}
-      {/* ========================================== */}
+      {/* Top Header Bar */}
       <header className="flex h-12 shrink-0 items-center justify-between bg-[#0b1329] px-5 shadow-md">
         {/* Left: Dashboard link, Elementor Grid Icon & Site Name */}
         <div className="flex items-center gap-3">
@@ -2711,8 +1935,11 @@ export default function WebsiteEditor() {
             to="/dashboard"
             className="text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1"
           >
+        <div className="flex items-center gap-4">
+          <Link to="/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white">
             ‹ Dashboard
           </Link>
+          <span className="text-xs font-bold text-white">{website?.name || "Website Editor"}</span>
 
           <button
             type="button"
@@ -2804,55 +2031,99 @@ export default function WebsiteEditor() {
 
             <div className="h-4 w-px bg-slate-700 mx-1" />
 
+          {/* Mode Switcher (F-289) */}
+          <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
             <button
-              onClick={() => setIsBpModalOpen(true)}
-              title="Manage Custom Breakpoints"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-slate-300 hover:bg-slate-800 hover:text-white transition"
+              onClick={() => {
+                setActiveCanvasMode("page");
+                setSelectedId(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                activeCanvasMode === "page"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+              }`}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <span>📄</span> Page Canvas
             </button>
+            <button
+              onClick={() => setIsPopupManagerOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                activeCanvasMode === "popup"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <span>✨</span> Popups ({popups.length})
+            </button>
+            <button
+              onClick={() => setIsSubmissionsOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold text-slate-300 hover:text-white transition"
+            >
+              <span>📊</span> Leads
+            </button>
+          </div>
+
+          {activeCanvasMode === "popup" && activePopup && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 text-xs">
+              <span className="text-amber-300 font-bold">Popup Mode:</span>
+              <span className="text-white font-medium truncate max-w-[140px]">{activePopup.name}</span>
+              <button
+                onClick={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+                className="text-amber-300 hover:text-white font-bold ml-1"
+                title="Return to Page Canvas"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        {!isPreview && (
+          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
+            {breakpoints.filter((b) => b.active).map((bp) => (
+              <button
+                key={bp.id}
+                onClick={() => setActiveBreakpointId(bp.id)}
+                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
+                  bp.id === activeBreakpointId
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-300 hover:bg-slate-800"
+                }`}
+              >
+                {bp.name}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          {saveMessage && (
-            <span className="text-xs font-medium text-emerald-400">
-              ✓ {saveMessage}
-            </span>
-          )}
-
-          {errorMessage && (
-            <span className="text-xs font-medium text-red-400">
-              {errorMessage}
-            </span>
-          )}
-
+          {saveMessage && <span className="text-xs text-emerald-400">✓ {saveMessage}</span>}
+          {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-              isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
+            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${
+              isPreview
+                ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
+                : "border-slate-600 text-slate-300 hover:bg-slate-800"
             }`}
           >
-            {isPreview ? "Exit Preview" : "Preview"}
+            {isPreview ? "Exit Preview" : "Preview Site & Popups"}
           </button>
-
           <button
             onClick={handleSave}
             disabled={saving}
-            className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white shadow hover:bg-blue-700 transition disabled:opacity-50"
+            className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </header>
 
-      {/* ========================================== */}
-      {/* Main Workspace Body                         */}
-      {/* ========================================== */}
+      {/* Main Workspace Body */}
       <div className="flex flex-1 overflow-hidden">
         {/* ========================================== */}
         {/* Left Dynamic Panel (Elementor Style)       */}
@@ -3925,41 +3196,363 @@ export default function WebsiteEditor() {
                                   className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
                                 />
                             </div>
-                            <div>
-                              {renderResponsiveLabel("Rotate (deg)", "hoverRotate")}
-                              <input
-                                type="number"
-                                placeholder="0"
-                                value={getStyleVal(selectedElement, "hoverRotate", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("hoverRotate", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
-                              />
-                            </div>
-                          </div>
+        {/* Left Palette */}
+        {!isPreview && (
+          <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 mb-3">
+                Structure
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setIsStructureModalOpen(true)}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
+                >
+                  <ContainerBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Container</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newEl = createGridPrimitive();
+                    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+                    setSelectedId(newEl.id);
+                  }}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
+                >
+                  <GridBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Grid</span>
+                </button>
+              </div>
+            </div>
 
-                          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+                Basic Elements
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => handleAddElement("heading")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <HeadingBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Heading</span>
+                </button>
+                <button onClick={() => handleAddElement("text")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <TextBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Text</span>
+                </button>
+                <button onClick={() => handleAddElement("image")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <ImageBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Image</span>
+                </button>
+                <button onClick={() => handleAddElement("button")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <ButtonBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Button</span>
+                </button>
+                <button onClick={() => handleAddElement("video")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl">📹</span>
+                  <span className="mt-1.5 text-xs font-semibold">Video</span>
+                </button>
+                <button onClick={() => handleAddElement("icon")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl">★</span>
+                  <span className="mt-1.5 text-xs font-semibold">Icon</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+                Forms & Lead Capture
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => handleAddElement("form")}
+                  className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400 bg-white shadow-xs"
+                >
+                  <span className="text-xl">📝</span>
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Form Widget</span>
+                </button>
+                <button
+                  onClick={() => setIsFormTemplatesOpen(true)}
+                  className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400 bg-blue-50/50 shadow-xs"
+                >
+                  <span className="text-xl">📋</span>
+                  <span className="mt-1.5 text-xs font-semibold text-blue-700">Templates</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        {/* Center Canvas */}
+        <main
+          onClick={() => setSelectedId(null)}
+          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
+        >
+          {activeCanvasMode === "popup" && activePopup ? (
+            /* Popup Visual Editing Canvas */
+            <div className="flex flex-col items-center justify-center w-full my-auto">
+              <div className="mb-3 flex items-center justify-between w-full max-w-2xl px-2">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 uppercase">
+                    {activePopup.layoutMode} Mode
+                  </span>
+                  <span className="text-xs font-bold text-slate-700">{activePopup.name}</span>
+                </div>
+                <button
+                  onClick={() => setIsPopupManagerOpen(true)}
+                  className="text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  Manage All Popups
+                </button>
+              </div>
+
+              {/* Backdrop Frame Simulation */}
+              <div
+                className="w-full max-w-4xl min-h-[550px] rounded-3xl p-8 flex items-center justify-center relative transition-all duration-200 border border-slate-300 shadow-inner"
+                style={{
+                  backgroundColor: activePopup.backdropOverlay ? activePopup.backdropColor : "#e2e8f0",
+                }}
+              >
+                {/* Popup Container Box */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    width: activePopup.width || "580px",
+                    maxWidth: "100%",
+                    minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
+                  }}
+                  className={`bg-white shadow-2xl relative transition-all duration-150 ${
+                    activePopup.layoutMode === "hello-bar"
+                      ? "rounded-none w-full shadow-md"
+                      : "rounded-2xl"
+                  }`}
+                >
+                  {/* Close button badge */}
+                  {activePopup.closeButton && (
+                    <div
+                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${
+                        activePopup.closeButtonPosition === "outside"
+                          ? "-top-3 -right-3"
+                          : "top-3 right-3"
+                      }`}
+                    >
+                      ✕
+                    </div>
+                  )}
+
+                  {/* Popup Inner Elements */}
+                  <div className="p-4">
+                    {activePopup.elements.length === 0 ? (
+                      <div
+                        onClick={() => setIsStructureModalOpen(true)}
+                        className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400 bg-slate-50"
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+                          +
+                        </div>
+                        <p className="mt-2 text-xs font-bold text-slate-700">Add Container into Popup</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {activePopup.elements.map((el) => renderElementTree(el))}
+
+                        <div className="pt-2">
+                          <div
+                            onClick={() => setIsStructureModalOpen(true)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 hover:bg-blue-50/40 hover:border-blue-400 py-3 cursor-pointer text-xs font-bold text-slate-600"
+                          >
+                            <span>+</span> Add Container to Popup
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Main Page Canvas */
+            <div
+              style={{
+                width: "100%",
+                maxWidth: `${breakpoints.find((b) => b.id === activeBreakpointId)?.width || 1024}px`,
+              }}
+              className="min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md rounded-2xl border border-slate-200 p-8 sm:p-10 relative"
+            >
+              {elements.length === 0 ? (
+                <div
+                  onClick={() => setIsStructureModalOpen(true)}
+                  className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
+                    +
+                  </div>
+                  <p className="mt-4 text-sm font-bold text-slate-700">Click to add a Container</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {elements.map((el) => renderElementTree(el))}
+
+                  {!isPreview && (
+                    <div className="pt-4 pb-6">
+                      <div
+                        onClick={() => setIsStructureModalOpen(true)}
+                        className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer"
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+                          +
+                        </div>
+                        <span className="mt-2 text-xs font-bold text-slate-600">Add New Container</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* Right Settings Inspector */}
+        {!isPreview && (
+          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
+            {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
+              <PopupSettingsPanel
+                popup={activePopup}
+                onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
+                onExitPopupEdit={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+              />
+            ) : (
+              <>
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Settings & Design
+                    </h2>
+                    {activeCanvasMode === "popup" && (
+                      <button
+                        onClick={() => setSelectedId(null)}
+                        className="text-[11px] font-bold text-blue-600 hover:underline"
+                      >
+                        Popup Options →
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => selectedElement && setActiveSidebarTab("element")}
+                      disabled={!selectedElement}
+                      className={`flex-1 rounded-md py-1.5 text-center ${
+                        activeSidebarTab === "element"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      Element Styles
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSidebarTab("global")}
+                      className={`flex-1 rounded-md py-1.5 text-center ${
+                        activeSidebarTab === "global"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      Global & Site
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {activeSidebarTab === "element" && selectedElement ? (
+                    selectedElement.type === "form" ? (
+                      <FormInspectorPanel
+                        config={selectedElement.formConfig || createDefaultFormConfig()}
+                        onChange={(updatedConfig) => updateSelectedProp("formConfig", updatedConfig)}
+                        popups={popups}
+                      />
+                    ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <span className="text-xs font-bold uppercase text-blue-600">
+                          {selectedElement.type} Settings
+                        </span>
+                        <button
+                          onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+                          className="text-xs text-red-500 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+
+                      {selectedElement.type === "container" &&
+                        renderAccordion(
+                          "Layout & Structure",
+                          "layout",
+                          <div className="space-y-3">
                             <div>
-                              {renderResponsiveLabel("Translate Y (px)", "hoverTranslateY")}
-                              <input
-                                type="number"
-                                placeholder="0"
-                                value={getStyleVal(selectedElement, "hoverTranslateY", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("hoverTranslateY", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
-                              />
+                              {renderResponsiveLabel("Layout Engine")}
+                              <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+                                {(["flex", "grid", "masonry"] as const).map((mode) => (
+                                  <button
+                                    key={mode}
+                                    onClick={() => updateSelectedLayout("layoutType", mode)}
+                                    className={`py-1 rounded capitalize ${
+                                      (getLayoutVal(
+                                        selectedElement,
+                                        "layoutType",
+                                        activeBreakpointId,
+                                        breakpoints
+                                      ) || "flex") === mode
+                                        ? "bg-white text-blue-600 shadow"
+                                        : "text-slate-600"
+                                    }`}
+                                  >
+                                    {mode}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
+
                             <div>
-                              {renderResponsiveLabel("Hover Duration (s)", "hoverTransitionDuration")}
+                              {renderResponsiveLabel("Direction")}
+                              <select
+                                value={
+                                  getLayoutVal(
+                                    selectedElement,
+                                    "direction",
+                                    activeBreakpointId,
+                                    breakpoints
+                                  ) || "column"
+                                }
+                                onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                                className="w-full rounded border px-2 py-1.5 text-xs"
+                              >
+                                <option value="column">Column (Vertical)</option>
+                                <option value="row">Row (Horizontal)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              {renderResponsiveLabel("Spacing Gap (px)")}
                               <input
                                 type="number"
-                                step="0.1"
-                                placeholder="0.3"
-                                value={getStyleVal(selectedElement, "hoverTransitionDuration", activeBreakpointId, breakpoints) || ""}
-                                onChange={(e) => updateSelectedStyle("hoverTransitionDuration", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-medium text-slate-800 outline-none"
+                                value={
+                                  getLayoutVal(
+                                    selectedElement,
+                                    "gap",
+                                    activeBreakpointId,
+                                    breakpoints
+                                  ) ?? 16
+                                }
+                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                className="w-full rounded border px-2 py-1 text-xs"
                               />
                             </div>
                           </div>
+                        )}
 
                           <div>
                             {renderResponsiveLabel("Hover Opacity (%)", "hoverOpacity")}
@@ -4039,216 +3632,109 @@ export default function WebsiteEditor() {
                               </div>
                             )}
                           </div>
-                        </div>
-                      </div>
-
-                      {/* 4. Scroll Effects (F-129 to F-135) */}
-                      <div className="border-b border-slate-100 pb-3">
-                        <label className="flex items-center gap-2 font-bold text-[10px] text-slate-500 uppercase tracking-wide">
+                      {selectedElement.type !== "container" && (
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
+                            CONTENT
+                          </label>
                           <input
-                            type="checkbox"
-                            checked={getStyleVal(selectedElement, "scrollEffectsEnabled", activeBreakpointId, breakpoints) === "true"}
-                            onChange={(e) => updateSelectedStyle("scrollEffectsEnabled", e.target.checked ? "true" : "false")}
-                            className="rounded border-slate-300 text-blue-600 h-3.5 w-3.5"
+                            type="text"
+                            value={selectedElement.content || ""}
+                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+                            className="w-full rounded border px-3 py-1.5 text-xs"
                           />
-                          SCROLL EFFECTS
-                        </label>
-                        {getStyleVal(selectedElement, "scrollEffectsEnabled", activeBreakpointId, breakpoints) === "true" && (
-                          <div className="space-y-3 pt-2">
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                {renderResponsiveLabel("Horiz. Speed", "scrollSpeedX")}
-                                <input
-                                  type="number"
-                                  step="0.5"
-                                  placeholder="0"
-                                  value={getStyleVal(selectedElement, "scrollSpeedX", activeBreakpointId, breakpoints) || ""}
-                                  onChange={(e) => updateSelectedStyle("scrollSpeedX", e.target.value)}
-                                  className="w-full rounded border p-1 text-slate-700"
-                                />
-                              </div>
-                              <div>
-                                {renderResponsiveLabel("Vert. Speed", "scrollSpeedY")}
-                                <input
-                                  type="number"
-                                  step="0.5"
-                                  placeholder="0"
-                                  value={getStyleVal(selectedElement, "scrollSpeedY", activeBreakpointId, breakpoints) || ""}
-                                  onChange={(e) => updateSelectedStyle("scrollSpeedY", e.target.value)}
-                                  className="w-full rounded border p-1 text-slate-700"
-                                />
-                              </div>
-                            </div>
+                        </div>
+                      )}
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                {renderResponsiveLabel("Scroll Rotate", "scrollRotate")}
-                                <input
-                                  type="number"
-                                  placeholder="0"
-                                  value={getStyleVal(selectedElement, "scrollRotate", activeBreakpointId, breakpoints) || ""}
-                                  onChange={(e) => updateSelectedStyle("scrollRotate", e.target.value)}
-                                  className="w-full rounded border p-1 text-slate-700"
-                                />
-                              </div>
-                              <div>
-                                {renderResponsiveLabel("Scroll Scale", "scrollScale")}
-                                <input
-                                  type="number"
-                                  step="0.05"
-                                  placeholder="0"
-                                  value={getStyleVal(selectedElement, "scrollScale", activeBreakpointId, breakpoints) || ""}
-                                  onChange={(e) => updateSelectedStyle("scrollScale", e.target.value)}
-                                  className="w-full rounded border p-1 text-slate-700"
-                                />
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                {renderResponsiveLabel("Scroll Blur", "scrollBlur")}
-                                <input
-                                  type="number"
-                                  placeholder="0"
-                                  value={getStyleVal(selectedElement, "scrollBlur", activeBreakpointId, breakpoints) || ""}
-                                  onChange={(e) => updateSelectedStyle("scrollBlur", e.target.value)}
-                                  className="w-full rounded border p-1 text-slate-700"
-                                />
-                              </div>
-                              <div>
-                                {renderResponsiveLabel("Transparency", "scrollTransparency")}
-                                <select
-                                  value={getStyleVal(selectedElement, "scrollTransparency", activeBreakpointId, breakpoints) || "none"}
-                                  onChange={(e) => updateSelectedStyle("scrollTransparency", e.target.value)}
-                                  className="w-full rounded border p-1 bg-white text-slate-700"
-                                >
-                                  <option value="none">None</option>
-                                  <option value="fade-in">Fade In</option>
-                                  <option value="fade-out">Fade Out</option>
-                                  <option value="fade-in-out">Fade In Out</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 5. Sticky Positioning (F-136) */}
-                      <div className="border-b border-slate-100 pb-3">
-                        <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Sticky Scrolling</span>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            {renderResponsiveLabel("Sticky Position", "stickyPosition")}
-                            <select
-                              value={getStyleVal(selectedElement, "stickyPosition", activeBreakpointId, breakpoints) || "none"}
-                              onChange={(e) => updateSelectedStyle("stickyPosition", e.target.value)}
-                              className="w-full rounded border p-1 bg-white text-slate-700"
+                      {/* Smart Link & URL Controls (F-291) */}
+                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                          <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                            Link & Smart Actions (F-291)
+                          </label>
+                          <input
+                            type="text"
+                            value={selectedElement.href || ""}
+                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+                            placeholder="https://..., popup:open(id), scroll:to(id)"
+                            className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                          />
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {popups.length > 0 && (
+                              <select
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    updateSelectedProp("href", `popup:open(${e.target.value})`);
+                                    e.target.value = "";
+                                  }
+                                }}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                              >
+                                <option value="">+ Open Popup...</option>
+                                {popups.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("href", "popup:close")}
+                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
                             >
-                              <option value="none">None (Default)</option>
-                              <option value="top">Stick to Top</option>
-                              <option value="bottom">Stick to Bottom</option>
-                            </select>
+                              Close Popup
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                            >
+                              Scroll to Top
+                            </button>
                           </div>
+                        </div>
+                      )}
+
+                      {renderAccordion(
+                        "Typography & Colors",
+                        "typography",
+                        <div className="space-y-3">
                           <div>
-                            {renderResponsiveLabel("Offset (px)", "stickyOffset")}
+                            {renderResponsiveLabel("Text Color")}
                             <input
-                              type="number"
-                              placeholder="0"
-                              value={getStyleVal(selectedElement, "stickyOffset", activeBreakpointId, breakpoints) || ""}
-                              onChange={(e) => updateSelectedStyle("stickyOffset", e.target.value)}
-                              className="w-full rounded border p-1 text-slate-700"
+                              type="color"
+                              value={
+                                getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
+                                "#0f172a"
+                              }
+                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                              className="w-full h-8 cursor-pointer rounded border p-0.5"
                             />
                           </div>
-                        </div>
-                      </div>
-
-                      {/* 6. Interactions (F-138 to F-141) */}
-                      <div>
-                        <span className="block font-bold text-slate-500 mb-2 uppercase tracking-wide text-[10px]">Event Actions & Interactions</span>
-                        <div className="space-y-2">
                           <div>
-                            {renderResponsiveLabel("Interaction Trigger", "interactionTrigger")}
-                            <select
-                              value={getStyleVal(selectedElement, "interactionTrigger", activeBreakpointId, breakpoints) || "none"}
-                              onChange={(e) => updateSelectedStyle("interactionTrigger", e.target.value)}
-                              className="w-full rounded border p-1 bg-white text-slate-700"
-                            >
-                              <option value="none">None</option>
-                              <option value="click">On Click</option>
-                              <option value="hover">On Hover</option>
-                              <option value="dblclick">On Double Click</option>
-                            </select>
+                            {renderResponsiveLabel("Font Size (px)")}
+                            <input
+                              type="text"
+                              value={
+                                getStyleVal(
+                                  selectedElement,
+                                  "fontSize",
+                                  activeBreakpointId,
+                                  breakpoints
+                                ) || "16px"
+                              }
+                              onChange={(e) =>
+                                updateSelectedStyle(
+                                  "fontSize",
+                                  e.target.value.endsWith("px")
+                                    ? e.target.value
+                                    : `${e.target.value}px`
+                                )
+                              }
+                              className="w-full rounded border px-2 py-1 text-xs"
+                            />
                           </div>
-
-                          {(getStyleVal(selectedElement, "interactionTrigger", activeBreakpointId, breakpoints) || "none") !== "none" && (
-                            <>
-                              <div>
-                                {renderResponsiveLabel("Action To Run", "interactionAction")}
-                                <select
-                                  value={getStyleVal(selectedElement, "interactionAction", activeBreakpointId, breakpoints) || "none"}
-                                  onChange={(e) => updateSelectedStyle("interactionAction", e.target.value)}
-                                  className="w-full rounded border p-1 bg-white text-slate-700"
-                                >
-                                  <option value="none">No Action</option>
-                                  <option value="alert">Trigger Alert popup</option>
-                                  <option value="scroll-to">Smooth Scroll to Element</option>
-                                  <option value="toggle-class">Toggle CSS Class name</option>
-                                  <option value="show-hide">Show / Hide Element</option>
-                                </select>
-                              </div>
-
-                              {/* Target Selection Dropdown */}
-                              {["scroll-to", "toggle-class", "show-hide"].includes(
-                                getStyleVal(selectedElement, "interactionAction", activeBreakpointId, breakpoints) || ""
-                              ) && (
-                                <div>
-                                  {renderResponsiveLabel("Target Element", "interactionTargetId")}
-                                  <select
-                                    value={getStyleVal(selectedElement, "interactionTargetId", activeBreakpointId, breakpoints) || ""}
-                                    onChange={(e) => updateSelectedStyle("interactionTargetId", e.target.value)}
-                                    className="w-full rounded border p-1 font-mono text-[10px] bg-white text-slate-700"
-                                  >
-                                    <option value="">Select target element...</option>
-                                    {(() => {
-                                      const ids: string[] = [];
-                                      const collect = (list: EditorElement[]) => {
-                                        list.forEach((item) => {
-                                          ids.push(item.id);
-                                          if (item.children) collect(item.children);
-                                        });
-                                      };
-                                      collect(elements);
-                                      return ids.map((id) => (
-                                        <option key={id} value={id}>
-                                          {id} ({(elements.find(x => x.id === id) || findTreeElement(elements, id))?.type})
-                                        </option>
-                                      ));
-                                    })()}
-                                  </select>
-                                </div>
-                              )}
-
-                              {/* Action Value Input */}
-                              {["alert", "toggle-class"].includes(
-                                getStyleVal(selectedElement, "interactionAction", activeBreakpointId, breakpoints) || ""
-                              ) && (
-                                <div>
-                                  {renderResponsiveLabel("Action Value (Custom Class / Text)", "interactionActionValue")}
-                                  <input
-                                    type="text"
-                                    placeholder={
-                                      getStyleVal(selectedElement, "interactionAction", activeBreakpointId, breakpoints) === "alert"
-                                        ? "Message to alert..."
-                                        : "CSS class name to toggle..."
-                                    }
-                                    value={getStyleVal(selectedElement, "interactionActionValue", activeBreakpointId, breakpoints) || ""}
-                                    onChange={(e) => updateSelectedStyle("interactionActionValue", e.target.value)}
-                                    className="w-full rounded border p-1 text-slate-700"
-                                  />
-                                </div>
-                              )}
-                            </>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -4295,123 +3781,127 @@ export default function WebsiteEditor() {
                         }))}
                         className="w-full rounded border px-2 py-1 text-xs"
                       />
+                      )}
                     </div>
-                  </div>
-
-                  {/* F-067 Global Variables Color Palette */}
-                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
-                        Global Color Palette
-                      </h3>
-                      <label className="flex items-center gap-1 text-[9px] text-slate-400 font-bold">
+                    )
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Site Identity */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
                         <input
-                          type="checkbox"
-                          checked={globalSettings.globalStyles?.enableDefaultColors}
-                          onChange={(e) => setGlobalSettings((prev: any) => ({
-                            ...prev,
-                            globalStyles: { ...prev.globalStyles, enableDefaultColors: e.target.checked }
-                          }))}
-                          className="rounded h-3 w-3"
-                        />
-                        Active
-                      </label>
-                    </div>
-
-                    {globalSettings.globalStyles?.enableDefaultColors && (
-                      <div className="space-y-2">
-                        {/* Primary Color */}
-                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
-                          <span>Primary (Brand)</span>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={globalSettings.colors?.primary || "#2563eb"}
-                              onChange={(e) => setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                colors: { ...prev.colors, primary: e.target.value }
-                              }))}
-                              className="w-7 h-5 rounded cursor-pointer"
-                            />
-                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.primary}</span>
-                          </div>
-                        </div>
-
-                        {/* Secondary Color */}
-                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
-                          <span>Secondary (Text/UI)</span>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={globalSettings.colors?.secondary || "#475569"}
-                              onChange={(e) => setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                colors: { ...prev.colors, secondary: e.target.value }
-                              }))}
-                              className="w-7 h-5 rounded cursor-pointer"
-                            />
-                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.secondary}</span>
-                          </div>
-                        </div>
-
-                        {/* Accent Color */}
-                        <div className="flex items-center justify-between gap-1 text-[10px] font-semibold text-slate-600">
-                          <span>Accent (CTA)</span>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={globalSettings.colors?.accent || "#10b981"}
-                              onChange={(e) => setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                colors: { ...prev.colors, accent: e.target.value }
-                              }))}
-                              className="w-7 h-5 rounded cursor-pointer"
-                            />
-                            <span className="font-mono text-[9px] font-bold text-slate-400">{globalSettings.colors?.accent}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* F-070 Global Fonts Defaults */}
-                  <div className="space-y-3 p-3 border border-slate-200 bg-slate-50/50 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
-                        Global Fonts Defaults
-                      </h3>
-                      <label className="flex items-center gap-1 text-[9px] text-slate-400 font-bold">
-                        <input
-                          type="checkbox"
-                          checked={globalSettings.globalStyles?.enableDefaultFonts}
-                          onChange={(e) => setGlobalSettings((prev: any) => ({
-                            ...prev,
-                            globalStyles: { ...prev.globalStyles, enableDefaultFonts: e.target.checked }
-                          }))}
-                          className="rounded h-3 w-3"
-                        />
-                        Active
-                      </label>
-                    </div>
-
-                    {globalSettings.globalStyles?.enableDefaultFonts && (
-                      <div className="space-y-2.5">
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">HEADING FONT FAMILY</label>
-                          <select
-                            value={globalSettings.fonts?.heading || "Inter"}
-                            onChange={(e) => setGlobalSettings((prev: any) => ({
+                          type="text"
+                          value={globalSettings.siteIdentity?.name || ""}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
                               ...prev,
-                              fonts: { ...prev.fonts, heading: e.target.value }
-                            }))}
-                            className="w-full rounded border px-2 py-1 text-xs"
-                          >
-                            <option value="Inter">Inter (Sans-serif)</option>
-                            <option value="Outfit">Outfit (Display)</option>
-                            <option value="Playfair Display">Playfair Display (Serif)</option>
-                            <option value="Montserrat">Montserrat</option>
-                          </select>
+                              siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                            }))
+                          }
+                          placeholder="Site Name"
+                          className="w-full rounded border px-2 py-1 text-xs"
+                        />
+                      </div>
+
+                      {/* Back To Top Button Settings (F-289) */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+                          <input
+                            type="checkbox"
+                            checked={globalSettings.backToTop?.enabled !== false}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                              }))
+                            }
+                            className="h-4 w-4 rounded text-blue-600"
+                          />
                         </div>
+                        {globalSettings.backToTop?.enabled !== false && (
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                              <select
+                                value={globalSettings.backToTop?.position || "bottom-right"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    backToTop: { ...prev.backToTop, position: e.target.value },
+                                  }))
+                                }
+                                className="rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                              </select>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                              <input
+                                type="number"
+                                value={globalSettings.backToTop?.offset ?? 300}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                                  }))
+                                }
+                                className="w-20 rounded border px-2 py-1 text-[11px]"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Floating Action Button Settings (F-287) */}
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                          <input
+                            type="checkbox"
+                            checked={globalSettings.floatingActionButton?.enabled === true}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  enabled: e.target.checked,
+                                },
+                              }))
+                            }
+                            className="h-4 w-4 rounded text-blue-600"
+                          />
+                        </div>
+
+                        {globalSettings.floatingActionButton?.enabled && (
+                          <div className="space-y-2 pt-1">
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Icon & Type
+                              </label>
+                              <select
+                                value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      icon: e.target.value,
+                                      backgroundColor:
+                                        e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                    },
+                                  }))
+                                }
+                                className="w-full rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="whatsapp">WhatsApp Button</option>
+                                <option value="chat">Live Chat / Message</option>
+                                <option value="phone">Call Now (Phone)</option>
+                                <option value="email">Email Us</option>
+                              </select>
+                            </div>
 
                         <div>
                           <label className="text-[9px] font-bold text-slate-400 uppercase block mb-0.5">BODY FONT FAMILY</label>
@@ -4431,188 +3921,174 @@ export default function WebsiteEditor() {
                       </div>
                     )}
                   </div>
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Label
+                              </label>
+                              <input
+                                type="text"
+                                value={globalSettings.floatingActionButton?.label || ""}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      label: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="Chat with us"
+                                className="w-full rounded border px-2 py-1 text-[11px]"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                Link or Smart Action
+                              </label>
+                              <input
+                                type="text"
+                                value={globalSettings.floatingActionButton?.link || ""}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      link: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="https://wa.me/... or popup:open(id)"
+                                className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2">
+                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                              <select
+                                value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                                onChange={(e) =>
+                                  setGlobalSettings((prev: any) => ({
+                                    ...prev,
+                                    floatingActionButton: {
+                                      ...prev.floatingActionButton,
+                                      position: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="rounded border px-2 py-1 text-[11px]"
+                              >
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </aside>
         )}
       </div>
 
-      {/* Full Screen Image Lightbox Modal Overlay (F-095) */}
-      {lightboxImage && (
+      {/* Structure Preset Modal */}
+      {isStructureModalOpen && (
         <div
-          onClick={() => setLightboxImage(null)}
-          className={`fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md transition-opacity duration-300 cursor-zoom-out ${
-            globalSettings?.lightboxSettings?.lightboxTheme === "light" 
-              ? "bg-white/80 text-slate-800" 
-              : "bg-slate-950/80 text-white"
-          }`}
+          onClick={() => setIsStructureModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4"
         >
-          <button
-            onClick={() => setLightboxImage(null)}
-            className="absolute top-4 right-4 p-2.5 rounded-full hover:bg-slate-800/10 dark:hover:bg-white/10 transition"
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-4"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <img
-            src={lightboxImage}
-            alt="Expanded Zoom"
-            className="max-h-[90vh] max-w-full object-contain rounded-xl shadow-2xl animate-scale-up"
-          />
-        </div>
-      )}
-
-      {/* ========================================== */}
-      {/* Breakpoint Manager Modal                   */}
-      {/* ========================================== */}
-      {isBpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-slate-950/40 p-4 animate-fade-in">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                </svg>
-                <h3 className="text-sm font-bold text-slate-800">Custom Breakpoint Settings</h3>
-              </div>
-              <button
-                onClick={() => setIsBpModalOpen(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            <div className="flex items-center justify-between border-b pb-3">
+              <h3 className="text-sm font-bold text-slate-800">Select your Structure</h3>
+              <button onClick={() => setIsStructureModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
             </div>
-
-            {/* Visual Flow Indicator */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">Inheritance Cascade Flow</h4>
-              <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] text-slate-600 font-bold">
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "widescreen")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Widescreen
-                </div>
-                <span>←</span>
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "laptop")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Laptop
-                </div>
-                <span>←</span>
-                <div className="px-2.5 py-1.5 rounded border-2 border-blue-500 bg-blue-50 text-blue-700">
-                  Desktop (Base)
-                </div>
-                <span>→</span>
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "tabletExtra")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Tablet Extra
-                </div>
-                <span>→</span>
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "tablet")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Tablet
-                </div>
-                <span>→</span>
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "mobileExtra")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Mobile Extra
-                </div>
-                <span>→</span>
-                <div className={`px-2 py-1 rounded border transition ${breakpoints.find(b => b.id === "mobile")?.active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 text-slate-400 border-dashed"}`}>
-                  Mobile
-                </div>
-              </div>
-              <p className="mt-2.5 text-[10px] text-slate-400 text-center leading-relaxed">
-                Breakpoints inherit styles from parent devices pointing towards Desktop (Base). Activating them adds them to your viewport switcher.
-              </p>
-            </div>
-
-            {/* Form list */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-12 gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-1 px-2">
-                <span className="col-span-5">Breakpoint Device</span>
-                <span className="col-span-2 text-center">Status</span>
-                <span className="col-span-3 text-center">Width (px)</span>
-                <span className="col-span-2 text-right">Action</span>
-              </div>
-
-              <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                {breakpoints.map((bp) => {
-                  const isBase = bp.id === "desktop";
-                  return (
-                    <div
-                      key={bp.id}
-                      className={`grid grid-cols-12 items-center gap-2 rounded-xl p-2.5 transition border ${
-                        bp.active ? "bg-white border-slate-200" : "bg-slate-50/50 border-slate-100"
-                      }`}
-                    >
-                      <div className="col-span-5 flex items-center gap-2">
-                        <span className={`text-xs font-bold ${bp.active ? "text-slate-800" : "text-slate-400"}`}>
-                          {bp.name}
-                        </span>
-                        {isBase && (
-                          <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700">
-                            Base
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="col-span-2 flex justify-center">
-                        <button
-                          type="button"
-                          disabled={isBase}
-                          onClick={() => handleToggleBreakpoint(bp.id)}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 ${
-                            bp.active ? "bg-blue-600" : "bg-slate-200"
-                          }`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              bp.active ? "translate-x-4" : "translate-x-0"
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      <div className="col-span-3 flex justify-center">
-                        <input
-                          type="number"
-                          disabled={!bp.active}
-                          value={bp.width}
-                          onChange={(e) => handleWidthChange(bp.id, parseInt(e.target.value) || 0)}
-                          className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-center text-xs font-semibold text-slate-800 outline-none focus:border-blue-500 disabled:opacity-40 disabled:bg-slate-100"
-                        />
-                      </div>
-
-                      <div className="col-span-2 flex justify-end">
-                        <span className="text-[11px] font-medium text-slate-400">
-                          {bp.width > 1024 ? "Desktop Up" : isBase ? "Default" : "Desktop Down"}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-              <button
-                type="button"
-                onClick={handleResetBreakpoints}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 transition"
-              >
-                Reset to Defaults
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsBpModalOpen(false)}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition"
-              >
-                Save & Close
-              </button>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { id: "single", label: "1 Column", cols: [1] },
+                { id: "cols-2-equal", label: "2 Columns (50/50)", cols: [1, 1] },
+                { id: "cols-3-equal", label: "3 Columns (33/33/33)", cols: [1, 1, 1] },
+                { id: "cols-2-30-70", label: "2 Columns (30/70)", cols: [0.3, 0.7] },
+                { id: "cols-2-70-30", label: "2 Columns (70/30)", cols: [0.7, 0.3] },
+                { id: "cols-4-equal", label: "4 Columns (25% each)", cols: [1, 1, 1, 1] },
+              ].map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => {
+                    handleInsertStructure(preset.id as StructurePresetType);
+                    setIsStructureModalOpen(false);
+                  }}
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border p-3 bg-slate-50 hover:border-blue-500 hover:bg-blue-50/50"
+                >
+                  <div className="w-full h-10 border rounded bg-white p-1 flex gap-1">
+                    {preset.cols.map((_, i) => (
+                      <div key={i} className="h-full bg-slate-200 rounded flex-1" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-700">{preset.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
+      )}
+
+      {/* Popup Manager Modal (F-289) */}
+      <PopupManagerModal
+        isOpen={isPopupManagerOpen}
+        onClose={() => setIsPopupManagerOpen(false)}
+        popups={popups}
+        onSelectPopupForEdit={handleSelectPopupForEdit}
+        onCreatePopup={handleCreatePopup}
+        onUpdatePopup={handleUpdatePopup}
+        onDeletePopup={handleDeletePopup}
+        onDuplicatePopup={handleDuplicatePopup}
+      />
+
+      {/* Form Templates Library Modal (F-274) */}
+      <FormTemplatesModal
+        isOpen={isFormTemplatesOpen}
+        onClose={() => setIsFormTemplatesOpen(false)}
+        onSelectTemplate={(config) => {
+          const newEl: EditorElement = {
+            id: generateId(),
+            type: "form",
+            content: config.formName,
+            formConfig: config,
+            styles: {
+              width: "100%",
+              marginTop: "12px",
+              marginBottom: "12px",
+            },
+          };
+          setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+          setSelectedId(newEl.id);
+        }}
+      />
+
+      {/* Leads & Submissions Dashboard Modal (F-278) */}
+      <FormSubmissionsModal
+        isOpen={isSubmissionsOpen}
+        onClose={() => setIsSubmissionsOpen(false)}
+        websiteId={websiteId}
+        apiUrl={apiUrl}
+      />
+
+      {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
+      {isPreview && (
+        <PopupRuntimePreview
+          popups={popups}
+          renderElementTree={renderElementTree}
+          onTrackView={handleTrackPopupView}
+          onTrackClick={handleTrackPopupClick}
+          isPreviewMode={true}
+          globalSettings={globalSettings}
+        />
       )}
     </div>
   );

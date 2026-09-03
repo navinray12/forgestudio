@@ -1,13 +1,10 @@
-import type {
-  Request,
-  Response,
-  NextFunction,
-} from "express";
-
+import type { Request, Response, NextFunction } from "express";
 import { loginSchema } from "../validators/login.validator.js";
 import { loginUser } from "../services/login.service.js";
 import { createUserSession } from "../services/session.service.js";
-
+import { generateAndSendOtp, verifyOtp, sendOtpWhatsApp } from "../services/otp.service.js";
+import { prisma } from "../config/prisma.js";
+import { AppError } from "../utils/app-error.js";
 import {
   AUTH_COOKIE_NAME,
   AUTH_COOKIE_OPTIONS,
@@ -19,9 +16,7 @@ export async function loginController(
   next: NextFunction
 ) {
   try {
-    const validationResult = loginSchema.safeParse(
-      req.body
-    );
+    const validationResult = loginSchema.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -34,26 +29,197 @@ export async function loginController(
       });
     }
 
-    const user = await loginUser(
-      validationResult.data
-    );
+    const user = await loginUser(validationResult.data);
 
-    const session = await createUserSession(
-      user.id
-    );
+    // Prompt user for OTP verification channel selection
+    return res.status(200).json({
+      success: true,
+      requireChannelSelection: true,
+      message: "Please select your preferred verification method.",
+      data: {
+        userId: user.id,
+        email: user.email,
+        phone: user.phone,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    res.cookie(
-      AUTH_COOKIE_NAME,
-      session.token,
-      AUTH_COOKIE_OPTIONS
-    );
+export async function sendLoginOtpController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId, channel } = req.body;
+
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "User ID is required to send verification code.",
+        },
+      });
+    }
+
+    const selectedChannel = channel === "WHATSAPP" ? "WHATSAPP" : "EMAIL";
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
+    }
+
+    if (selectedChannel === "WHATSAPP") {
+      await sendOtpWhatsApp({ userId: user.id, phone: user.phone || undefined });
+      return;
+    }
+
+    if (!user.email) {
+      throw new AppError(
+        "Registered email address not found.",
+        400,
+        "EMAIL_NOT_FOUND"
+      );
+    }
+
+    await generateAndSendOtp({
+      userId: user.id,
+      email: user.email,
+      purpose: "EMAIL_LOGIN",
+      channel: "EMAIL",
+    });
+
+    return res.status(200).json({
+      success: true,
+      requireOtp: true,
+      message: "Verification code sent to your email.",
+      data: {
+        userId: user.id,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifyLoginOtpController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId, otp } = req.body;
+
+    if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "User ID and verification OTP code are required.",
+        },
+      });
+    }
+
+    await verifyOtp({
+      userId,
+      otp,
+      purpose: "EMAIL_LOGIN",
+    });
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
+    }
+
+    const session = await createUserSession(user.id);
+    res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
     return res.status(200).json({
       success: true,
       message: "Login successful",
       data: {
-        user,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified,
+          phoneVerified: user.phoneVerified,
+        },
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resendLoginOtpController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId, channel } = req.body;
+
+    if (!userId || typeof userId !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "User ID is required to resend verification code.",
+        },
+      });
+    }
+
+    const selectedChannel = channel === "WHATSAPP" ? "WHATSAPP" : "EMAIL";
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError(
+        "User account not found.",
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+
+    if (selectedChannel === "WHATSAPP") {
+      await sendOtpWhatsApp({ userId: user.id, phone: user.phone || undefined });
+      return;
+    }
+
+    if (!user.email) {
+      throw new AppError(
+        "Registered email address not found.",
+        400,
+        "EMAIL_NOT_FOUND"
+      );
+    }
+
+    await generateAndSendOtp({
+      userId: user.id,
+      email: user.email,
+      purpose: "EMAIL_LOGIN",
+      channel: "EMAIL",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Verification code resent successfully.",
     });
   } catch (error) {
     next(error);

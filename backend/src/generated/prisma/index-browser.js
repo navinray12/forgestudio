@@ -136,11 +136,24 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WebsiteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  slug: 'slug',
+  status: 'status',
+  editorData: 'editorData',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.OtpVerificationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  email: 'email',
   otpHash: 'otpHash',
   purpose: 'purpose',
+  channel: 'channel',
   attempts: 'attempts',
   expiresAt: 'expiresAt',
   verifiedAt: 'verifiedAt',
@@ -247,7 +260,14 @@ exports.UserRole = exports.$Enums.UserRole = {
 exports.OtpPurpose = exports.$Enums.OtpPurpose = {
   PHONE_SIGNUP: 'PHONE_SIGNUP',
   PHONE_LOGIN: 'PHONE_LOGIN',
-  PHONE_VERIFICATION: 'PHONE_VERIFICATION'
+  PHONE_VERIFICATION: 'PHONE_VERIFICATION',
+  EMAIL_SIGNUP: 'EMAIL_SIGNUP',
+  EMAIL_LOGIN: 'EMAIL_LOGIN'
+};
+
+exports.OtpChannel = exports.$Enums.OtpChannel = {
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP'
 };
 
 exports.IdentityProvider = exports.$Enums.IdentityProvider = {
@@ -259,6 +279,7 @@ exports.IdentityProvider = exports.$Enums.IdentityProvider = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Website: 'Website',
   OtpVerification: 'OtpVerification',
   Identity: 'Identity',
   Session: 'Session',

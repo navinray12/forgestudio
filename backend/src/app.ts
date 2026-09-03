@@ -9,10 +9,12 @@ import loginRoutes from "./routes/login.routes.js";
 import signupRoutes from "./routes/signup.routes.js";
 import oauthRoutes from "./routes/oauth.routes.js";
 import meRoutes from "./routes/me.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 import subscriptionRoutes from "./routes/subscription.routes.js";
 import websiteRoutes from "./routes/website.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import integrationRoutes from "./routes/integration.routes.js";
+import formRoutes from "./routes/form.routes.js";
 
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
@@ -80,6 +82,10 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
 app.use("/api/v1/auth", loginRoutes);
 app.use("/api/v1/auth", signupRoutes);
 
+// Support tokens & temporary credentials (F-020)
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/auth", authRoutes);
+
 // Google + GitHub OAuth
 app.use("/api/v1/auth", oauthRoutes);
 
@@ -113,6 +119,11 @@ app.use("/api/uploads", uploadRoutes);
 
 app.use("/api/v1/integrations", integrationRoutes);
 app.use("/api/integrations", integrationRoutes);
+// Form & Lead Generation Routes (F-270 - F-281)
+// =========================
+
+app.use("/api/v1/forms", formRoutes);
+app.use("/api/forms", formRoutes);
 
 // =========================
 // Global Error Handler
