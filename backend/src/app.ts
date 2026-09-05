@@ -23,6 +23,8 @@ import pluginCompatRoutes from "./routes/pluginCompat.routes.js";
 import designNotesRoutes from "./routes/designNotes.routes.js";
 import componentAccessRoutes from "./routes/componentAccess.routes.js";
 
+import templateRoutes from "./routes/template.routes.js";
+
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -121,6 +123,7 @@ app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
 
 // =========================
+<<<<<<< HEAD
 // Team Routes
 // =========================
 
@@ -168,6 +171,13 @@ app.use("/api/v1/design-notes", designNotesRoutes);
 app.use("/api/design-notes", designNotesRoutes);
 app.use("/api/v1/component-access", componentAccessRoutes);
 app.use("/api/component-access", componentAccessRoutes);
+=======
+// Template Routes (F-322)
+// =========================
+
+app.use("/api/v1/templates", templateRoutes);
+app.use("/api/templates", templateRoutes);
+>>>>>>> origin/main
 
 // =========================
 // Global Error Handler
