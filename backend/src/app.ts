@@ -14,6 +14,8 @@ import subscriptionRoutes from "./routes/subscription.routes.js";
 import websiteRoutes from "./routes/website.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 
+import templateRoutes from "./routes/template.routes.js";
+
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -110,6 +112,13 @@ app.use("/api/websites", websiteRoutes);
 
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
+
+// =========================
+// Template Routes (F-322)
+// =========================
+
+app.use("/api/v1/templates", templateRoutes);
+app.use("/api/templates", templateRoutes);
 
 // =========================
 // Global Error Handler

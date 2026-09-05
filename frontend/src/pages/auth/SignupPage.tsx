@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { PhoneInput, type PhoneInputValue } from "../../components/phone-input";
 
 function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [identifier, setIdentifier] = useState("");
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
+  const [phoneVal, setPhoneVal] = useState<PhoneInputValue | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,10 +85,20 @@ function SignupPage() {
       return;
     }
 
-    if (!identifier.trim()) {
-      setError("Please enter your email or phone number.");
+    if (authMethod === "phone") {
+      if (!phoneVal || !phoneVal.isValid) {
+        setError(phoneVal?.errorMessage || "Please enter a valid phone number.");
+        return;
+      }
+    } else if (!identifier.trim()) {
+      setError("Please enter your email address.");
       return;
     }
+
+    const finalIdentifier =
+      authMethod === "phone" && phoneVal
+        ? phoneVal.fullNumber
+        : identifier.trim();
 
     if (!password) {
       setError("Please enter a password.");
@@ -115,7 +128,7 @@ function SignupPage() {
           credentials: "include",
           body: JSON.stringify({
             fullName: fullName.trim(),
-            identifier: identifier.trim(),
+            identifier: finalIdentifier,
             password,
           }),
         }
@@ -438,26 +451,70 @@ function SignupPage() {
                     />
                   </div>
 
-                  {/* Email / Phone */}
+                  {/* Email / Phone Selection */}
                   <div>
-                    <label
-                      htmlFor="identifier"
-                      className="mb-1.5 block text-[13px] font-semibold text-slate-700"
-                    >
-                      Email or phone number
-                    </label>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <label className="text-[13px] font-semibold text-slate-700">
+                        {authMethod === "phone"
+                          ? "Phone number"
+                          : "Email address"}
+                      </label>
+                      <div className="flex items-center gap-2 text-[11px] font-medium">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMethod("email");
+                            setError("");
+                          }}
+                          className={`px-2 py-0.5 rounded-md transition ${
+                            authMethod === "email"
+                              ? "bg-blue-100 text-blue-700 font-bold"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          Email
+                        </button>
+                        <span className="text-slate-300">|</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMethod("phone");
+                            setError("");
+                          }}
+                          className={`px-2 py-0.5 rounded-md transition ${
+                            authMethod === "phone"
+                              ? "bg-blue-100 text-blue-700 font-bold"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          Phone
+                        </button>
+                      </div>
+                    </div>
 
-                    <input
-                      id="identifier"
-                      type="text"
-                      value={identifier}
-                      onChange={(event) =>
-                        setIdentifier(event.target.value)
-                      }
-                      placeholder="Enter your email or phone number"
-                      autoComplete="username"
-                      className="h-11 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
-                    />
+                    {authMethod === "phone" ? (
+                      <PhoneInput
+                        id="signup-phone"
+                        required
+                        value={phoneVal?.fullNumber || ""}
+                        onChange={(val) => {
+                          setPhoneVal(val);
+                          setError("");
+                        }}
+                      />
+                    ) : (
+                      <input
+                        id="identifier"
+                        type="email"
+                        value={identifier}
+                        onChange={(event) =>
+                          setIdentifier(event.target.value)
+                        }
+                        placeholder="Enter your email address"
+                        autoComplete="email"
+                        className="h-11 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
+                      />
+                    )}
                   </div>
 
                   {/* Password */}

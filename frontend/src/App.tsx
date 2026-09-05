@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
 import WebsiteEditor from "./pages/editor/WebsiteEditor";
+import SharedTemplatePreviewPage from "./pages/templates/SharedTemplatePreviewPage";
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
@@ -70,6 +71,7 @@ function RoleRoute({
 
   return <>{children}</>;
 }
+
 function LoginRoute() {
   const { user, loading } = useAuth();
 
@@ -205,6 +207,13 @@ function App() {
           <Route
             path="/signup"
             element={<SignupRoute />}
+          />
+
+          {/* ================= PUBLIC SHARED TEMPLATES ================= */}
+
+          <Route
+            path="/template/share/:shareToken"
+            element={<SharedTemplatePreviewPage />}
           />
 
           {/* ================= ROOT ================= */}
