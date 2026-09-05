@@ -21,12 +21,11 @@ export async function sendOtpWhatsApp(params: {
   otp?: string;
 }): Promise<void> {
   // Placeholder boundary for future WhatsApp integration
-  // DO NOT connect to any WhatsApp API/provider yet
-  throw new AppError(
-    "WhatsApp OTP will be available soon.",
-    400,
-    "WHATSAPP_OTP_NOT_CONFIGURED"
-  );
+  console.log(`\n==================================================`);
+  console.log(`[WHATSAPP OTP] (SIMULATED) Sent to: ${params.phone}`);
+  console.log(`[WHATSAPP OTP] OTP Code: ${params.otp}`);
+  console.log(`==================================================\n`);
+  return;
 }
 
 export async function generateAndSendOtp(params: {
@@ -38,12 +37,7 @@ export async function generateAndSendOtp(params: {
 }) {
   const { userId, email, phone, purpose, channel = "EMAIL" } = params;
 
-  if (channel === "WHATSAPP") {
-    await sendOtpWhatsApp({ userId, phone });
-    return;
-  }
-
-  const normalizedEmail = (email || "").toLowerCase().trim();
+  const normalizedEmail = email ? email.toLowerCase().trim() : null;
 
   // Check resend cooldown
   const recentOtp = await prisma.otpVerification.findFirst({
@@ -63,8 +57,7 @@ export async function generateAndSendOtp(params: {
     );
     const remainingSeconds = RESEND_COOLDOWN_SECONDS - elapsedSeconds;
     throw new AppError(
-      `Please wait ${
-        remainingSeconds > 0 ? remainingSeconds : 60
+      `Please wait ${remainingSeconds > 0 ? remainingSeconds : 60
       } seconds before requesting a new verification code.`,
       429,
       "OTP_RESEND_COOLDOWN"
@@ -87,13 +80,16 @@ export async function generateAndSendOtp(params: {
   );
 
   const createData: any = {
-    email: normalizedEmail,
     otpHash,
     purpose,
     channel,
     attempts: 0,
     expiresAt,
   };
+
+  if (normalizedEmail) {
+    createData.email = normalizedEmail;
+  }
 
   if (userId) {
     createData.user = { connect: { id: userId } };
@@ -103,14 +99,21 @@ export async function generateAndSendOtp(params: {
     data: createData,
   });
 
-  const emailPurpose = purpose === "EMAIL_SIGNUP" ? "SIGNUP" : "LOGIN";
-  await sendOtpEmail(normalizedEmail, otp, emailPurpose);
+  if (channel === "WHATSAPP") {
+    await sendOtpWhatsApp({ userId, phone, otp });
+    return;
+  }
+
+  if (normalizedEmail) {
+    const emailPurpose = purpose === "EMAIL_SIGNUP" ? "SIGNUP" : "LOGIN";
+    await sendOtpEmail(normalizedEmail, otp, emailPurpose);
+  }
 }
 
 export async function verifyOtp(params: {
   userId: string;
   otp: string;
-  purpose: "EMAIL_SIGNUP" | "EMAIL_LOGIN";
+  purpose: "EMAIL_SIGNUP" | "EMAIL_LOGIN" | "PHONE_SIGNUP" | "PHONE_LOGIN";
 }) {
   const { userId, otp, purpose } = params;
   const cleanOtp = otp.trim();

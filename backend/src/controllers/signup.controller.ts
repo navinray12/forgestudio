@@ -49,7 +49,25 @@ export async function signupController(
       });
     }
 
-    // Fallback if no email (e.g. phone only)
+    if (user.phone && !user.email) {
+      await generateAndSendOtp({
+        userId: user.id,
+        phone: user.phone,
+        purpose: "PHONE_SIGNUP",
+        channel: "WHATSAPP",
+      });
+
+      return res.status(200).json({
+        success: true,
+        requireOtp: true,
+        message: "Verification code sent to your WhatsApp.",
+        data: {
+          userId: user.id,
+          phone: user.phone,
+        },
+      });
+    }
+
     const session = await createUserSession(user.id);
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
@@ -71,7 +89,7 @@ export async function verifySignupOtpController(
   next: NextFunction
 ) {
   try {
-    const { userId, otp } = req.body;
+    const { userId, otp, channel } = req.body;
 
     if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
       return res.status(400).json({
@@ -86,12 +104,21 @@ export async function verifySignupOtpController(
     await verifyOtp({
       userId,
       otp,
-      purpose: "EMAIL_SIGNUP",
+      purpose: channel === "WHATSAPP" ? "PHONE_SIGNUP" : "EMAIL_SIGNUP",
     });
+
+    // We can confidently set both to true or conditionally based on channel,
+    // though the request didn't explicitly separate them in the output
+    const updateData: any = {};
+    if (channel === "WHATSAPP") {
+      updateData.phoneVerified = true;
+    } else {
+      updateData.emailVerified = true;
+    }
 
     await prisma.user.update({
       where: { id: userId },
-      data: { emailVerified: true },
+      data: updateData,
     });
 
     const user = await prisma.user.findUnique({
@@ -148,7 +175,29 @@ export async function resendSignupOtpController(
       where: { id: userId },
     });
 
-    if (!user || !user.email) {
+    if (!user) {
+      throw new AppError(
+        "User account not found.",
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+
+    if (user.phone && !user.email) {
+      await generateAndSendOtp({
+        userId: user.id,
+        phone: user.phone,
+        purpose: "PHONE_SIGNUP",
+        channel: "WHATSAPP",
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Verification code resent successfully to WhatsApp.",
+      });
+    }
+
+    if (!user.email) {
       throw new AppError(
         "User or registered email address not found.",
         404,

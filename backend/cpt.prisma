@@ -1,0 +1,68 @@
+// ==========================================
+// F-121: Custom Post Types Foundation
+// ==========================================
+
+model CustomPostType {
+  id          String   @id @default(uuid()) @db.Uuid
+  websiteId   String   @db.Uuid
+  name        String
+  singular    String
+  plural      String
+  slug        String
+  description String?
+  icon        String?
+  isPublic    Boolean  @default(true)
+  hasArchive  Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  website     Website       @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  fields      CustomField[]
+  entries     CustomEntry[]
+
+  @@unique([websiteId, slug])
+  @@index([websiteId])
+  @@map("custom_post_types")
+}
+
+model CustomField {
+  id          String   @id @default(uuid()) @db.Uuid
+  postTypeId  String   @db.Uuid
+  name        String
+  key         String
+  type        String
+  required    Boolean  @default(false)
+  order       Int      @default(0)
+  options     Json?    
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postType    CustomPostType @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
+  
+  @@unique([postTypeId, key])
+  @@index([postTypeId])
+  @@map("custom_fields")
+}
+
+model CustomEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  postTypeId  String   @db.Uuid
+  title       String
+  slug        String
+  status      String   @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED, ARCHIVED
+  authorId    String   @db.Uuid
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postType    CustomPostType @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
+  author      User           @relation(fields: [authorId], references: [id])
+  values      Json           @default("{}") 
+
+  @@unique([postTypeId, slug])
+  @@index([postTypeId])
+  @@index([authorId])
+  @@map("custom_entries")
+}

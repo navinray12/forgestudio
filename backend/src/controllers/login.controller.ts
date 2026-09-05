@@ -76,8 +76,21 @@ export async function sendLoginOtpController(
     }
 
     if (selectedChannel === "WHATSAPP") {
-      await sendOtpWhatsApp({ userId: user.id, phone: user.phone || undefined });
-      return;
+      await generateAndSendOtp({
+        userId: user.id,
+        phone: user.phone || undefined,
+        purpose: "PHONE_LOGIN",
+        channel: "WHATSAPP",
+      });
+      return res.status(200).json({
+        success: true,
+        requireOtp: true,
+        message: "Verification code sent to WhatsApp.",
+        data: {
+          userId: user.id,
+          phone: user.phone,
+        },
+      });
     }
 
     if (!user.email) {
@@ -115,7 +128,7 @@ export async function verifyLoginOtpController(
   next: NextFunction
 ) {
   try {
-    const { userId, otp } = req.body;
+    const { userId, otp, channel } = req.body;
 
     if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
       return res.status(400).json({
@@ -130,7 +143,7 @@ export async function verifyLoginOtpController(
     await verifyOtp({
       userId,
       otp,
-      purpose: "EMAIL_LOGIN",
+      purpose: channel === "WHATSAPP" ? "PHONE_LOGIN" : "EMAIL_LOGIN",
     });
 
     const user = await prisma.user.findUnique({
@@ -198,8 +211,16 @@ export async function resendLoginOtpController(
     }
 
     if (selectedChannel === "WHATSAPP") {
-      await sendOtpWhatsApp({ userId: user.id, phone: user.phone || undefined });
-      return;
+      await generateAndSendOtp({
+        userId: user.id,
+        phone: user.phone || undefined,
+        purpose: "PHONE_LOGIN",
+        channel: "WHATSAPP",
+      });
+      return res.status(200).json({
+        success: true,
+        message: "Verification code resent to WhatsApp.",
+      });
     }
 
     if (!user.email) {

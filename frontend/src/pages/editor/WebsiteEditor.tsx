@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import type { PopupConfig } from "../../types/popup.types";
+import PopupManagerModal from "./components/PopupManagerModal";
+import PopupSettingsPanel from "./components/PopupSettingsPanel";
+import PopupRuntimePreview from "./components/PopupRuntimePreview";
+import DeveloperModal from "./components/DeveloperModal";
+import NotesPanel from "./components/NotesPanel";
+import ComponentAccessModal from "./components/ComponentAccessModal";
+import type { DeveloperModalMode } from "./components/DeveloperModal";
+=======
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
@@ -8,11 +20,20 @@ import { ImportWebsiteKitDialog } from "../../features/templates/components/Impo
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { PhoneInput } from "../../components/phone-input";
 
+>>>>>>> origin/main
 
 // ==========================================
 // Types & Interfaces
 // ==========================================
 
+<<<<<<< HEAD
+export type ElementType =
+  | "container" | "heading" | "text" | "image" | "button"
+  | "video" | "divider" | "spacer" | "icon" | "rating"
+  | "progress-bar" | "counter" | "html" | "shortcode" | "alert"
+  | "social-icons" | "google-maps" | "soundcloud"
+  | "div-block" | "paragraph";
+=======
 export interface NavSubmenuItem {
   id: string;
   label: string;
@@ -141,6 +162,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
+>>>>>>> origin/main
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
 
@@ -296,6 +318,21 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
+<<<<<<< HEAD
+  rowGap?: number | string;
+  columnGap?: number | string;
+
+  // CSS Grid Controls (F-041, F-043)
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  gridAutoFlow?: "row" | "column" | "dense" | "row dense" | "column dense";
+  justifyItems?: "stretch" | "start" | "center" | "end";
+
+  // Masonry Controls
+  masonryColumns?: number;
+  masonryGap?: number | string;
+=======
+>>>>>>> origin/main
 }
 
 export interface ElementStyles {
@@ -317,6 +354,39 @@ export interface ElementStyles {
   marginBottom?: string;
   marginLeft?: string;
   lineHeight?: string;
+<<<<<<< HEAD
+
+  // Alignment & Self Alignment
+  alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+  justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
+
+  // Position & Stacking Controls (F-047, F-048, F-049)
+  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
+  top?: string;
+  right?: string;
+  bottom?: string;
+  left?: string;
+  zIndex?: string | number;
+
+  // Grid Child Placement
+  gridColumn?: string;
+  gridRow?: string;
+  gridColumnSpan?: number;
+  gridRowSpan?: number;
+
+  // Scroll & Scroll Snap
+  scrollSnapType?: "none" | "x mandatory" | "y mandatory" | "x proximity" | "y proximity" | "both mandatory";
+  scrollSnapAlign?: "none" | "start" | "center" | "end";
+  scrollSnapStop?: "normal" | "always";
+  scrollPadding?: string;
+  scrollMargin?: string;
+  scrollBehavior?: "smooth" | "auto";
+  overflowX?: "visible" | "hidden" | "scroll" | "auto";
+  overflowY?: "visible" | "hidden" | "scroll" | "auto";
+
+  // Typography Controls (F-070, F-089)
+=======
+>>>>>>> origin/main
   fontFamily?: string;
   fontStyle?: "normal" | "italic";
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
@@ -335,6 +405,110 @@ export interface ElementStyles {
   borderBottomRightRadius?: string;
   borderBottomLeftRadius?: string;
   boxShadow?: string;
+<<<<<<< HEAD
+
+  // Opacity & Blend Mode (F-082, F-083)
+  opacity?: string;
+  mixBlendMode?: string;
+
+  // CSS Filters & Masks (F-084, F-085)
+  filterBlur?: string;
+  filterBrightness?: string;
+  filterContrast?: string;
+  filterGrayscale?: string;
+  filterSaturate?: string;
+  filterHueRotate?: string;
+  clipPath?: string;
+
+  // CSS Transform
+  transformRotate?: string;
+  transformScale?: string;
+  transformSkewX?: string;
+  transformSkewY?: string;
+  transformTranslateX?: string;
+  transformTranslateY?: string;
+
+  // Text Stroke & Mask (F-087, F-088)
+  textStrokeWidth?: string;
+  textStrokeColor?: string;
+  textMaskType?: "none" | "gradient" | "image";
+  textMaskGradient?: string;
+  textMaskImage?: string;
+
+  // Ken Burns Effect
+  kenBurnsEffect?: "none" | "zoom-in" | "zoom-out";
+  textPathEnabled?: "true" | "false";
+
+  // Shape Dividers
+  dividerTopEnabled?: "true" | "false";
+  dividerTopStyle?: "waves" | "curves" | "slant" | "triangle";
+  dividerTopColor?: string;
+  dividerTopHeight?: string;
+  dividerBottomEnabled?: "true" | "false";
+  dividerBottomStyle?: "waves" | "curves" | "slant" | "triangle";
+  dividerBottomColor?: string;
+  dividerBottomHeight?: string;
+
+  // Motion & Interaction (F-123 - F-141)
+  entranceAnimation?: "none" | "fade-in" | "fade-in-up" | "fade-in-down" | "zoom-in" | "slide-up" | "slide-down" | "bounce-in";
+  entranceDuration?: string;
+  entranceDelay?: string;
+  hoverScale?: string;
+  hoverRotate?: string;
+  hoverTranslateY?: string;
+  hoverOpacity?: string;
+  hoverTransitionDuration?: string;
+  mouseTrackEnabled?: "true" | "false";
+  mouseTrackSpeed?: string;
+  tilt3DEnabled?: "true" | "false";
+  tilt3DMax?: string;
+  scrollEffectsEnabled?: "true" | "false";
+  scrollSpeedX?: string;
+  scrollSpeedY?: string;
+  scrollTransparency?: "none" | "fade-in" | "fade-out" | "fade-in-out";
+  scrollRotate?: string;
+  scrollBlur?: string;
+  scrollScale?: string;
+  stickyPosition?: "none" | "top" | "bottom";
+  stickyOffset?: string;
+  interactionTrigger?: "none" | "click" | "hover" | "dblclick";
+  interactionAction?: "none" | "toggle-class" | "show-hide" | "alert" | "scroll-to";
+  interactionTargetId?: string;
+  interactionActionValue?: string;
+
+  // Widget Options (F-142 - F-173)
+  videoProvider?: "youtube" | "vimeo" | "hosted";
+  videoAutoplay?: "true" | "false";
+  videoControls?: "true" | "false";
+  dividerStyle?: "solid" | "dashed" | "dotted";
+  dividerColor?: string;
+  dividerHeight?: string;
+  dividerWidth?: string;
+  iconName?: string;
+  iconSize?: string;
+  iconColor?: string;
+  ratingStarsCount?: string;
+  ratingValue?: string;
+  ratingColor?: string;
+  ratingSize?: string;
+  progressPercent?: string;
+  progressColor?: string;
+  progressLabel?: string;
+  counterStart?: string;
+  counterEnd?: string;
+  counterPrefix?: string;
+  counterSuffix?: string;
+  counterDuration?: string;
+  alertType?: "info" | "success" | "warning" | "danger";
+  alertDismissible?: "true" | "false";
+  socialFacebook?: string;
+  socialTwitter?: string;
+  socialInstagram?: string;
+  socialLinkedin?: string;
+  socialYoutube?: string;
+  socialIconSize?: string;
+  socialIconColor?: string;
+=======
   position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
   top?: string;
   right?: string;
@@ -344,6 +518,7 @@ export interface ElementStyles {
   objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   objectPosition?: string;
   opacity?: number | string;
+>>>>>>> origin/main
 }
 
 export type ElementState = "normal" | "hover";
@@ -352,6 +527,7 @@ export interface EditorElement {
   id: string;
   type: ElementType;
   content: string;
+  isProtected?: boolean;
   src?: string;
   alt?: string;
   href?: string;
@@ -779,6 +955,17 @@ export interface EditorElement {
   componentId?: string;
   isComponent?: boolean;
   componentName?: string;
+<<<<<<< HEAD
+  responsiveStyles?: Record<string, ElementStyles>;
+  responsiveLayouts?: Record<string, ContainerLayout>;
+  hiddenDevices?: Record<string, boolean>;
+
+  // Developer/Advanced (F-102, F-105 to F-109)
+  customId?: string;
+  customCss?: string;
+  customSelectors?: string;
+  customAttributes?: { name: string; value: string }[];
+=======
   responsiveStyles?: {
     desktop?: Partial<ElementStyles>;
     tablet?: Partial<ElementStyles>;
@@ -794,6 +981,7 @@ export interface EditorElement {
     tablet?: Partial<ContainerLayout>;
     mobile?: Partial<ContainerLayout>;
   };
+>>>>>>> origin/main
 }
 
 interface WebsiteData {
@@ -801,6 +989,7 @@ interface WebsiteData {
   name: string;
   slug: string;
   status: string;
+  userPermission?: string;
   editorData?: {
     version: number;
     elements: EditorElement[];
@@ -1309,9 +1498,336 @@ function moveTreeElement(
 }
 
 // ==========================================
+<<<<<<< HEAD
+// CSS Helper (F-102, F-103, F-104, F-107)
+// ==========================================
+export function getDeveloperCss(elements: EditorElement[]): string {
+  let css = "";
+  for (const el of elements) {
+    if (el.customCss) {
+      css += `\n/* Element ${el.customId || el.id} */\n.${el.id} { ${el.customCss} }\n`;
+    }
+    if (el.customSelectors) {
+      // Replace '&' with the element's specific class scope
+      css += `\n/* Selectors ${el.customId || el.id} */\n${el.customSelectors.replace(/&/g, `.${el.id}`)}\n`;
+    }
+    if (el.children) css += getDeveloperCss(el.children);
+  }
+  return css;
+}
+
+// ==========================================
+// Cascading Value Resolution
+// ==========================================
+
+export function getBreakpointFallbackChain(bpId: string, activeBps: Breakpoint[]): string[] {
+  const activeBpsSorted = [...activeBps].filter(b => b.active).sort((a, b) => b.width - a.width);
+  const bp = activeBps.find(b => b.id === bpId);
+  const desktop = activeBps.find(b => b.id === "desktop") || { id: "desktop", width: 1024 };
+
+  if (!bp || bp.id === "desktop") return ["desktop"];
+
+  if (bp.width > desktop.width) {
+    return activeBpsSorted
+      .filter(b => b.width <= bp.width && b.width >= desktop.width)
+      .map(b => b.id);
+  } else {
+    return activeBpsSorted
+      .filter(b => b.width >= bp.width && b.width <= desktop.width)
+      .reverse()
+      .map(b => b.id);
+  }
+}
+
+export function getStyleVal(
+  el: EditorElement,
+  prop: keyof ElementStyles,
+  bpId: string,
+  activeBps: Breakpoint[]
+): any {
+  const chain = getBreakpointFallbackChain(bpId, activeBps);
+  for (const id of chain) {
+    if (id === "desktop") {
+      if (el.styles && el.styles[prop] !== undefined && el.styles[prop] !== "") {
+        return el.styles[prop];
+      }
+    } else {
+      const bpStyles = el.responsiveStyles?.[id];
+      if (bpStyles && (bpStyles as any)[prop] !== undefined && (bpStyles as any)[prop] !== "") {
+        return (bpStyles as any)[prop];
+      }
+    }
+  }
+  return undefined;
+}
+
+export function getLayoutVal<K extends keyof ContainerLayout>(
+  el: EditorElement,
+  prop: K,
+  bpId: string,
+  activeBps: Breakpoint[]
+): ContainerLayout[K] | undefined {
+  const chain = getBreakpointFallbackChain(bpId, activeBps);
+  for (const id of chain) {
+    if (id === "desktop") {
+      if (el.layout && el.layout[prop] !== undefined && (el.layout[prop] as any) !== "") {
+        return el.layout[prop];
+      }
+    } else {
+      const bpLayout = el.responsiveLayouts?.[id];
+      if (bpLayout && bpLayout[prop] !== undefined && (bpLayout[prop] as any) !== "") {
+        return bpLayout[prop];
+      }
+    }
+  }
+  return undefined;
+}
+
+export function resolveElementStyles(
+  el: EditorElement,
+  bpId: string,
+  activeBps: Breakpoint[],
+  _globalSettings?: any
+): React.CSSProperties {
+  const styles: React.CSSProperties = {};
+  const getVal = (prop: keyof ElementStyles): string | undefined => getStyleVal(el, prop, bpId, activeBps);
+
+  const color = getVal("color");
+  if (color) styles.color = color;
+
+  const fontSize = getVal("fontSize");
+  if (fontSize) styles.fontSize = fontSize;
+
+  const fontWeight = getVal("fontWeight");
+  if (fontWeight) styles.fontWeight = fontWeight;
+
+  const textAlign = getVal("textAlign");
+  if (textAlign) styles.textAlign = textAlign as any;
+
+  const lineHeight = getVal("lineHeight");
+  if (lineHeight) styles.lineHeight = lineHeight;
+
+  const fontFamily = getVal("fontFamily");
+  if (fontFamily && fontFamily !== "inherit") styles.fontFamily = fontFamily;
+
+  const letterSpacing = getVal("letterSpacing");
+  if (letterSpacing) styles.letterSpacing = letterSpacing.endsWith("px") || letterSpacing.endsWith("em") ? letterSpacing : `${letterSpacing}px`;
+
+  const wordSpacing = getVal("wordSpacing");
+  if (wordSpacing) styles.wordSpacing = wordSpacing.endsWith("px") || wordSpacing.endsWith("em") ? wordSpacing : `${wordSpacing}px`;
+
+  const paddingTop = getVal("paddingTop");
+  if (paddingTop) styles.paddingTop = paddingTop;
+  const paddingRight = getVal("paddingRight");
+  if (paddingRight) styles.paddingRight = paddingRight;
+  const paddingBottom = getVal("paddingBottom");
+  if (paddingBottom) styles.paddingBottom = paddingBottom;
+  const paddingLeft = getVal("paddingLeft");
+  if (paddingLeft) styles.paddingLeft = paddingLeft;
+
+  const marginTop = getVal("marginTop");
+  if (marginTop) styles.marginTop = marginTop;
+  const marginRight = getVal("marginRight");
+  if (marginRight) styles.marginRight = marginRight;
+  const marginBottom = getVal("marginBottom");
+  if (marginBottom) styles.marginBottom = marginBottom;
+  const marginLeft = getVal("marginLeft");
+  if (marginLeft) styles.marginLeft = marginLeft;
+
+  const borderRadius = getVal("borderRadius");
+  if (borderRadius) styles.borderRadius = borderRadius;
+
+  const width = getVal("width");
+  if (width) styles.width = width;
+
+  const height = getVal("height");
+  if (height) styles.height = height;
+
+  const minWidth = getVal("minWidth");
+  if (minWidth) styles.minWidth = minWidth;
+
+  const maxWidth = getVal("maxWidth");
+  if (maxWidth) styles.maxWidth = maxWidth;
+
+  const minHeight = getVal("minHeight");
+  if (minHeight) styles.minHeight = minHeight;
+
+  const maxHeight = getVal("maxHeight");
+  if (maxHeight) styles.maxHeight = maxHeight;
+
+  const alignSelf = getVal("alignSelf");
+  if (alignSelf && alignSelf !== "auto") styles.alignSelf = alignSelf;
+
+  const justifySelf = getVal("justifySelf");
+  if (justifySelf && justifySelf !== "auto") (styles as any).justifySelf = justifySelf;
+
+  const position = getVal("position");
+  if (position && position !== "static") styles.position = position as any;
+
+  const top = getVal("top");
+  if (top !== undefined && top !== "") styles.top = top;
+  const right = getVal("right");
+  if (right !== undefined && right !== "") styles.right = right;
+  const bottom = getVal("bottom");
+  if (bottom !== undefined && bottom !== "") styles.bottom = bottom;
+  const left = getVal("left");
+  if (left !== undefined && left !== "") styles.left = left;
+
+  const zIndex = getVal("zIndex");
+  if (zIndex !== undefined && zIndex !== "") {
+    styles.zIndex = typeof zIndex === "number" ? zIndex : parseInt(zIndex) || (zIndex as any);
+  }
+
+  const gridColumn = getVal("gridColumn");
+  if (gridColumn) styles.gridColumn = gridColumn;
+  const gridRow = getVal("gridRow");
+  if (gridRow) styles.gridRow = gridRow;
+
+  const scrollSnapType = getVal("scrollSnapType");
+  if (scrollSnapType && scrollSnapType !== "none") (styles as any).scrollSnapType = scrollSnapType;
+  const scrollSnapAlign = getVal("scrollSnapAlign");
+  if (scrollSnapAlign && scrollSnapAlign !== "none") (styles as any).scrollSnapAlign = scrollSnapAlign;
+  const scrollSnapStop = getVal("scrollSnapStop");
+  if (scrollSnapStop) (styles as any).scrollSnapStop = scrollSnapStop;
+  const scrollPadding = getVal("scrollPadding");
+  if (scrollPadding) (styles as any).scrollPadding = scrollPadding;
+  const scrollMargin = getVal("scrollMargin");
+  if (scrollMargin) (styles as any).scrollMargin = scrollMargin;
+  const scrollBehavior = getVal("scrollBehavior");
+  if (scrollBehavior) styles.scrollBehavior = scrollBehavior as any;
+  const overflowX = getVal("overflowX");
+  if (overflowX) styles.overflowX = overflowX as any;
+  const overflowY = getVal("overflowY");
+  if (overflowY) styles.overflowY = overflowY as any;
+
+  const bgType = getVal("backgroundType") || "solid";
+  if (bgType === "solid") {
+    const bgColor = getVal("backgroundColor");
+    if (bgColor) styles.backgroundColor = bgColor;
+  } else if (bgType === "gradient") {
+    const gradient = getVal("backgroundGradient");
+    if (gradient) styles.background = gradient;
+  } else if (bgType === "image") {
+    const bgImgUrl = getVal("backgroundImageUrl") || getVal("backgroundImage");
+    if (bgImgUrl) {
+      styles.backgroundImage = `url(${bgImgUrl})`;
+      styles.backgroundPosition = getVal("backgroundPosition") || "center center";
+      styles.backgroundRepeat = getVal("backgroundRepeat") || "no-repeat";
+      styles.backgroundSize = getVal("backgroundSize") || "cover";
+    }
+  }
+
+  const borderStyle = getVal("borderStyle");
+  if (borderStyle && borderStyle !== "none") {
+    styles.borderStyle = borderStyle as any;
+    styles.borderWidth = getVal("borderWidth") || "1px";
+    styles.borderColor = getVal("borderColor") || "#cbd5e1";
+  }
+
+  const boxShadow = getVal("boxShadow");
+  if (boxShadow) styles.boxShadow = boxShadow;
+
+  const opacity = getVal("opacity");
+  if (opacity) styles.opacity = parseFloat(opacity) / 100;
+
+  const mixBlendMode = getVal("mixBlendMode");
+  if (mixBlendMode && mixBlendMode !== "normal") styles.mixBlendMode = mixBlendMode as any;
+
+  const blur = getVal("filterBlur") || "0";
+  const brightness = getVal("filterBrightness") || "100";
+  const contrast = getVal("filterContrast") || "100";
+  const grayscale = getVal("filterGrayscale") || "0";
+  const saturate = getVal("filterSaturate") || "100";
+  const hueRotate = getVal("filterHueRotate") || "0";
+  if (blur !== "0" || brightness !== "100" || contrast !== "100" || grayscale !== "0" || saturate !== "100" || hueRotate !== "0") {
+    styles.filter = `blur(${blur}px) brightness(${brightness}%) contrast(${contrast}%) grayscale(${grayscale}%) saturate(${saturate}%) hue-rotate(${hueRotate}deg)`;
+  }
+
+  const clipPath = getVal("clipPath");
+  if (clipPath && clipPath !== "none") styles.clipPath = clipPath;
+
+  const rotate = getVal("transformRotate") || "0";
+  const scale = getVal("transformScale") || "1";
+  const skewX = getVal("transformSkewX") || "0";
+  const skewY = getVal("transformSkewY") || "0";
+  const tx = getVal("transformTranslateX") || "0";
+  const ty = getVal("transformTranslateY") || "0";
+  if (rotate !== "0" || scale !== "1" || skewX !== "0" || skewY !== "0" || tx !== "0" || ty !== "0") {
+    styles.transform = `translate(${tx}px, ${ty}px) rotate(${rotate}deg) scale(${scale}) skew(${skewX}deg, ${skewY}deg)`;
+  }
+
+  const strokeWidth = getVal("textStrokeWidth");
+  const strokeColor = getVal("textStrokeColor");
+  if (strokeWidth && strokeWidth !== "0") {
+    (styles as any).WebkitTextStroke = `${strokeWidth}px ${strokeColor || "currentColor"}`;
+  }
+
+  const textShadow = getVal("textShadow");
+  if (textShadow) styles.textShadow = textShadow;
+
+  return styles;
+}
+
+export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperties {
+  const inner = { ...resolved };
+  delete inner.marginTop;
+  delete inner.marginRight;
+  delete inner.marginBottom;
+  delete inner.marginLeft;
+  delete inner.boxShadow;
+  delete inner.opacity;
+  delete inner.filter;
+  delete inner.transform;
+  delete inner.mixBlendMode;
+  delete inner.position;
+  delete inner.top;
+  delete inner.right;
+  delete inner.bottom;
+  delete inner.left;
+  delete inner.zIndex;
+  delete inner.alignSelf;
+  delete (inner as any).justifySelf;
+  delete inner.gridColumn;
+  delete inner.gridRow;
+  delete (inner as any).scrollSnapAlign;
+  delete (inner as any).scrollSnapStop;
+  delete (inner as any).scrollMargin;
+  return inner;
+}
+
+export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interval: number }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (urls.length <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % urls.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [urls, interval]);
+
+  if (urls.length === 0) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 rounded-[inherit]">
+      {urls.map((url, i) => (
+        <div
+          key={url + i}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"
+            }`}
+          style={{ backgroundImage: `url(${url})` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Icons & Widgets Helpers
+=======
 // Sidebar Vector Icons (Matching Screenshot)
 // ==========================================
 
+>>>>>>> origin/main
 const ContainerBoxIcon = () => (
   <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-50 text-blue-600">
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -7821,6 +8337,50 @@ const EmptyPictureIcon = () => (
   </div>
 );
 
+<<<<<<< HEAD
+function renderSvgIcon(name: string, size: string, color: string) {
+  const sizePx = `${size || 24}px`;
+  const fill = color || "currentColor";
+  switch (name) {
+    case "heart":
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill={fill}><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>;
+    case "check":
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
+    case "info":
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>;
+    case "alert":
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>;
+    case "globe":
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>;
+    case "star":
+    default:
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill={fill}><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>;
+  }
+}
+
+function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: number; end: number; prefix: string; suffix: string; duration: number }) {
+  const [count, setCount] = useState(start);
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    let frameId: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      setCount(Math.floor(progress * (end - start) + start));
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate);
+      }
+    };
+
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [start, end, duration]);
+
+  return <span>{prefix}{count}{suffix}</span>;
+}
+=======
 // Upload Icon
 const UploadCloudIcon = () => (
   <svg className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -7829,6 +8389,7 @@ const UploadCloudIcon = () => (
     <line x1="12" y1="3" x2="12" y2="15" />
   </svg>
 );
+>>>>>>> origin/main
 
 // ==========================================
 // Default Elements Creator
@@ -8037,6 +8598,107 @@ function createDefaultElement(type: ElementType): EditorElement {
     case "portfolio":
       return {
         id,
+<<<<<<< HEAD
+        type: "rating",
+        content: "Rating",
+        styles: {
+          ratingStarsCount: "5",
+          ratingValue: "4.5",
+          ratingColor: "#f59e0b",
+          ratingSize: "20",
+          textAlign: "left",
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "progress-bar":
+      return {
+        id,
+        type: "progress-bar",
+        content: "Progress Bar",
+        styles: {
+          progressPercent: "75",
+          progressColor: "#3b82f6",
+          progressLabel: "Task Completion",
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "counter":
+      return {
+        id,
+        type: "counter",
+        content: "Counter",
+        styles: {
+          counterStart: "0",
+          counterEnd: "100",
+          counterPrefix: "",
+          counterSuffix: "%",
+          counterDuration: "2000",
+          color: "#2563eb",
+          fontSize: "36px",
+          fontWeight: "700",
+          textAlign: "center",
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "html":
+      return {
+        id,
+        type: "html",
+        content: "<div style='padding:20px; background:#eff6ff; border-radius:8px; border:1px solid #bfdbfe;'><p style='margin:0; font-size:14px;'>Custom HTML Code</p></div>",
+        styles: {
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "shortcode":
+      return {
+        id,
+        type: "shortcode",
+        content: "gallery id='1' columns='3'",
+        styles: {
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "alert":
+      return {
+        id,
+        type: "alert",
+        content: "Attention! This is an important notification alert message block.",
+        styles: {
+          alertType: "info",
+          alertDismissible: "true",
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "social-icons":
+      return {
+        id,
+        type: "social-icons",
+        content: "Social Icons",
+        styles: {
+          socialFacebook: "https://facebook.com",
+          socialTwitter: "https://twitter.com",
+          socialInstagram: "https://instagram.com",
+          socialLinkedin: "https://linkedin.com",
+          socialIconSize: "20",
+          socialIconColor: "#475569",
+          textAlign: "center",
+          marginTop: "16px",
+          marginBottom: "16px",
+        },
+      };
+    case "google-maps":
+      return {
+        id,
+        type: "google-maps",
+        content: "Google Map",
+        src: "https://maps.google.com/maps?q=London&t=&z=13&ie=UTF8&iwloc=&output=embed",
+=======
         type: "portfolio",
         content: "Portfolio Projects",
         portfolioColumns: 3,
@@ -8072,6 +8734,7 @@ function createDefaultElement(type: ElementType): EditorElement {
             url: "#",
           },
         ],
+>>>>>>> origin/main
         styles: {
           width: "100%",
           marginTop: "16px",
@@ -9511,11 +10174,23 @@ export default function WebsiteEditor() {
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
   const [elements, setElements] = useState<EditorElement[]>([]);
+<<<<<<< HEAD
+  const [popups, setPopups] = useState<PopupConfig[]>([]);
+  const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
+  const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
+  const [activePopupId, setActivePopupId] = useState<string | null>(null);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
+=======
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
   const [showHeaderFeatures, setShowHeaderFeatures] = useState<boolean>(true);
+>>>>>>> origin/main
 
   // Reusable Components State (F-005)
   const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement }>>({});
@@ -9909,7 +10584,14 @@ export default function WebsiteEditor() {
     siteLanguage: "en",
   });
 
+<<<<<<< HEAD
+  const [pageCss, setPageCss] = useState<string>("");
+
+  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup" | "advanced">("global");
+  const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
+=======
   const navigate = useNavigate();
+>>>>>>> origin/main
 
   // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
@@ -10076,6 +10758,19 @@ export default function WebsiteEditor() {
         const loadedSite = data.website || data;
         setWebsite(loadedSite);
 
+        // Fetch component accesses
+        try {
+          const accessRes = await fetch(`${apiUrl}/api/v1/component-access/${websiteId}/all`, {
+            credentials: "include"
+          });
+          const accessData = await accessRes.json();
+          if (accessRes.ok && accessData.accesses) {
+            setAllowedComponentIds(new Set(accessData.accesses.map((a: any) => a.componentId)));
+          }
+        } catch (e) {
+          console.error("Failed to fetch accesses", e);
+        }
+
         if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
           setElements(loadedSite.editorData.elements);
         } else {
@@ -10087,8 +10782,26 @@ export default function WebsiteEditor() {
         } else if (loadedSite?.name) {
           setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
         }
+<<<<<<< HEAD
+
+        if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
+          setBreakpoints(loadedSite.editorData.breakpoints);
+        }
+
+        if (loadedSite?.editorData?.globalSettings) {
+          setGlobalSettings(loadedSite.editorData.globalSettings);
+        }
+
+        if (loadedSite?.editorData?.pageCss) {
+          setPageCss(loadedSite.editorData.pageCss);
+        }
+      } catch (err) {
+        console.error("Error loading website:", err);
+        setErrorMessage(err instanceof Error ? err.message : "Error loading website");
+=======
       } catch (err: any) {
         setErrorMessage(err.message || "Failed to load website data.");
+>>>>>>> origin/main
       } finally {
         setLoading(false);
       }
@@ -10358,7 +11071,14 @@ export default function WebsiteEditor() {
         editorData: {
           version: 1,
           elements,
+<<<<<<< HEAD
+          breakpoints,
+          globalSettings,
+          popups,
+          pageCss,
+=======
           pageSettings,
+>>>>>>> origin/main
         },
       };
 
@@ -12827,6 +13547,11 @@ export default function WebsiteEditor() {
     const isEditingHoverState = isSelected && activeElementState === "hover";
     const mergedStyles = getMergedStyles(el, activeDevice, isEditingHoverState ? "hover" : "normal");
 
+    const customAttrProps = (el.customAttributes || []).reduce((acc, curr) => {
+      if (curr.name && curr.name.trim()) acc[curr.name.trim()] = curr.value || "";
+      return acc;
+    }, {} as any);
+
     if (el.type === "container") {
       const mergedLayout = getMergedLayout(el, activeDevice);
       const isHovered = hoveredId === el.id && !isSelected && !isPreview;
@@ -12837,6 +13562,10 @@ export default function WebsiteEditor() {
       return (
         <div
           key={el.id}
+<<<<<<< HEAD
+          id={el.customId || undefined}
+          {...customAttrProps}
+=======
           data-el-id={el.id}
           draggable={!isPreview}
           onDragStart={(e) => {
@@ -12853,10 +13582,16 @@ export default function WebsiteEditor() {
           }}
           onDragOver={(e) => handleDragOverElement(e, el.id, true)}
           onDrop={(e) => handleDropElement(e, el.id, dropPosition)}
+>>>>>>> origin/main
           onClick={(e) => {
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
+<<<<<<< HEAD
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+            } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
+            }`}
+=======
           onContextMenu={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -12896,6 +13631,7 @@ export default function WebsiteEditor() {
               ? "outline outline-2 outline-blue-500 bg-blue-50/20"
               : ""
           }`}
+>>>>>>> origin/main
           style={{
             boxSizing: "border-box",
             display: "flex",
@@ -13092,6 +13828,10 @@ export default function WebsiteEditor() {
     return (
       <div
         key={el.id}
+<<<<<<< HEAD
+        id={el.customId || undefined}
+        {...customAttrProps}
+=======
         data-el-id={el.id}
         draggable={!isPreview}
         onDragStart={(e) => {
@@ -13108,6 +13848,7 @@ export default function WebsiteEditor() {
         }}
         onDragOver={(e) => handleDragOverElement(e, el.id, false)}
         onDrop={(e) => handleDropElement(e, el.id, dropPosition)}
+>>>>>>> origin/main
         onClick={(e) => {
           e.stopPropagation();
           if (!isPreview) handleSelectElement(el.id, e);
@@ -13163,6 +13904,12 @@ export default function WebsiteEditor() {
           ...compileBackgroundAndBorderStyles(mergedStyles),
           ...compilePositioningStyles(mergedStyles),
         }}
+<<<<<<< HEAD
+        className={`relative rounded-xl transition duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+          } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
+        style={{ ...resolvedStyles }}
+=======
+>>>>>>> origin/main
       >
         {isHovered && !isSelected && !isPreview && (
           <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
@@ -13840,6 +14587,12 @@ export default function WebsiteEditor() {
           <div style={{ textAlign: mergedStyles.textAlign || "left", width: "100%", boxSizing: "border-box" }}>
             <a
               href={el.href || "#"}
+<<<<<<< HEAD
+              {...customAttrProps}
+              onClick={(e) => !isPreview && e.preventDefault()}
+              className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
+              style={{ ...getInnerStyles(resolvedStyles) }}
+=======
               contentEditable={!isPreview}
               suppressContentEditableWarning
               onFocus={() => handleSelectElement(el.id)}
@@ -13868,6 +14621,7 @@ export default function WebsiteEditor() {
                 letterSpacing: mergedStyles.letterSpacing,
                 textShadow: mergedStyles.textShadow,
               }}
+>>>>>>> origin/main
             >
               {el.content}
             </a>
@@ -14242,6 +14996,17 @@ export default function WebsiteEditor() {
             }
           />
         )}
+
+        {el.type === "html" && (
+          <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block (F-110)</p>" }} className="w-full h-full" />
+        )}
+
+        {el.type === "shortcode" && (
+          <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs font-mono text-amber-800 text-center break-all transition">
+            {el.content ? `[ ${el.content} ]` : "Enter Shortcode here (F-111)"}
+            <div className="opacity-60 text-[9px] mt-1 uppercase font-bold tracking-wider">Renders Dynamically on Publish</div>
+          </div>
+        )}
       </div>
     );
   };
@@ -14281,6 +15046,30 @@ export default function WebsiteEditor() {
               <span>{t("quitEditor", "Quit Editor")}</span>
             </button>
 
+<<<<<<< HEAD
+          {/* Mode Switcher */}
+          <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
+            <button
+              onClick={() => {
+                setActiveCanvasMode("page");
+                setSelectedId(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "page"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-300 hover:text-white"
+                }`}
+            >
+              <span>📄</span> Page Canvas
+            </button>
+            <button
+              onClick={() => setIsPopupManagerOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "popup"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-300 hover:text-white"
+                }`}
+            >
+              <span>✨</span> Popups ({popups.length})
+=======
             {/* Header Features Toggle Button (Right side of Quit Editor) */}
             <button
               type="button"
@@ -14293,6 +15082,7 @@ export default function WebsiteEditor() {
               title={showHeaderFeatures ? "Header Features: ON (Click to Hide)" : "Header Features: OFF (Click to Show)"}
             >
               <span>{showHeaderFeatures ? "⚡: ON" : "⚡: OFF"}</span>
+>>>>>>> origin/main
             </button>
 
             {showHeaderFeatures && (
@@ -14326,6 +15116,106 @@ export default function WebsiteEditor() {
             )}
           </div>
 
+<<<<<<< HEAD
+          {activeCanvasMode === "popup" && activePopup && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 text-xs">
+              <span className="text-amber-300 font-bold">Popup Mode:</span>
+              <span className="text-white font-medium truncate max-w-[140px]">{activePopup.name}</span>
+              <button
+                onClick={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+                className="text-amber-300 hover:text-white font-bold ml-1"
+                title="Return to Page Canvas"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        {!isPreview && (
+          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
+            {breakpoints.filter((b) => b.active).map((bp) => (
+              <button
+                key={bp.id}
+                onClick={() => setActiveBreakpointId(bp.id)}
+                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${bp.id === activeBreakpointId
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:bg-slate-800"
+                  }`}
+              >
+                {bp.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsComponentAccessOpen(!isComponentAccessOpen)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border bg-transparent text-slate-300 border-slate-600 hover:text-white"
+          >
+            🔒 Access
+          </button>
+          <button
+            onClick={() => setIsNotesOpen(!isNotesOpen)}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border ${isNotesOpen ? "bg-slate-700 text-white border-slate-600 shadow-sm" : "bg-transparent text-slate-300 border-slate-600 hover:text-white"}`}
+          >
+            💬 Notes (F-404)
+          </button>
+
+          {saveMessage && <span className="text-xs text-emerald-400">✓ {saveMessage}</span>}
+          {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
+          <button
+            onClick={() => setIsPreview(!isPreview)}
+            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${isPreview
+              ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
+              : "border-slate-600 text-slate-300 hover:bg-slate-800"
+              }`}
+          >
+            {isPreview ? "Exit Preview" : "Preview Site & Popups"}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Workspace Body */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Palette */}
+        {!isPreview && (
+          <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 mb-3">
+                Structure
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setIsStructureModalOpen(true)}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
+                >
+                  <ContainerBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Container</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newEl = createGridPrimitive();
+                    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+                    setSelectedId(newEl.id);
+                  }}
+                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
+                >
+                  <GridBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Grid</span>
+                </button>
+=======
           {showHeaderFeatures && (
             <>
               {/* Middle: Responsive Device Selector */}
@@ -14349,8 +15239,81 @@ export default function WebsiteEditor() {
                     <span>{mode}</span>
                   </button>
                 ))}
+>>>>>>> origin/main
               </div>
 
+<<<<<<< HEAD
+            <div>
+              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+                Basic Elements
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => handleAddElement("heading")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <HeadingBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Heading</span>
+                </button>
+                <button onClick={() => handleAddElement("text")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <TextBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Text</span>
+                </button>
+                <button onClick={() => handleAddElement("image")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <ImageBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Image</span>
+                </button>
+                <button onClick={() => handleAddElement("button")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <ButtonBoxIcon />
+                  <span className="mt-1.5 text-xs font-semibold">Button</span>
+                </button>
+                <button onClick={() => handleAddElement("video")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl">📹</span>
+                  <span className="mt-1.5 text-xs font-semibold">Video</span>
+                </button>
+                <button onClick={() => handleAddElement("icon")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl">★</span>
+                  <span className="mt-1.5 text-xs font-semibold">Icon</span>
+                </button>
+                <button onClick={() => handleAddElement("html")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl font-mono text-blue-500">{"</>"}</span>
+                  <span className="mt-1.5 text-xs font-semibold">HTML</span>
+                </button>
+                <button onClick={() => handleAddElement("shortcode")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl font-mono text-amber-500">[ ]</span>
+                  <span className="mt-1.5 text-xs font-semibold">Shortcode</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        {/* Center Canvas */}
+        <main
+          onClick={() => setSelectedId(null)}
+          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10 relative"
+        >
+          <style>
+            {`
+                /* Global CSS */
+                ${globalSettings.customCss || ""}
+                
+                /* Page CSS */
+                ${pageCss || ""}
+                
+                /* Elements CSS */
+                ${getDeveloperCss(elements)}
+                ${getDeveloperCss(popups.flatMap(p => p.elements))}
+             `}
+          </style>
+
+          {activeCanvasMode === "popup" && activePopup ? (
+            /* Popup Visual Editing Canvas */
+            <div className="flex flex-col items-center justify-center w-full my-auto">
+              <div className="mb-3 flex items-center justify-between w-full max-w-2xl px-2">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 uppercase">
+                    {activePopup.layoutMode} Mode
+                  </span>
+                  <span className="text-xs font-bold text-slate-700">{activePopup.name}</span>
+=======
               {/* Right: Actions */}
               <div className="flex items-center gap-3">
                 {/* Undo / Redo Buttons (F-013) */}
@@ -14381,8 +15344,42 @@ export default function WebsiteEditor() {
                     <span>🕓</span>
                     <span>History</span>
                   </button>
+>>>>>>> origin/main
                 </div>
 
+<<<<<<< HEAD
+              {/* Backdrop Frame Simulation */}
+              <div
+                className="w-full max-w-4xl min-h-[550px] rounded-3xl p-8 flex items-center justify-center relative transition-all duration-200 border border-slate-300 shadow-inner"
+                style={{
+                  backgroundColor: activePopup.backdropOverlay ? activePopup.backdropColor : "#e2e8f0",
+                }}
+              >
+                {/* Popup Container Box */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    width: activePopup.width || "580px",
+                    maxWidth: "100%",
+                    minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
+                  }}
+                  className={`bg-white shadow-2xl relative transition-all duration-150 ${activePopup.layoutMode === "hello-bar"
+                    ? "rounded-none w-full shadow-md"
+                    : "rounded-2xl"
+                    }`}
+                >
+                  {/* Close button badge */}
+                  {activePopup.closeButton && (
+                    <div
+                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${activePopup.closeButtonPosition === "outside"
+                        ? "-top-3 -right-3"
+                        : "top-3 right-3"
+                        }`}
+                    >
+                      ✕
+                    </div>
+                  )}
+=======
                 {saveMessage && (
                   <span className="text-xs font-medium text-emerald-400">
                     ✓ {saveMessage}
@@ -14493,6 +15490,7 @@ export default function WebsiteEditor() {
                 >
                   {isPreview ? t("exitPreview", "Exit Preview") : t("preview", "Preview")}
                 </button>
+>>>>>>> origin/main
 
                 {/* F-321 Autosave Status Indicator */}
                 <AutosaveStatusIndicator
@@ -14548,6 +15546,47 @@ export default function WebsiteEditor() {
         </header>
       )}
 
+<<<<<<< HEAD
+        {/* F-404 Notes Panel overlay */}
+        <NotesPanel
+          isOpen={isNotesOpen}
+          onClose={() => setIsNotesOpen(false)}
+          websiteId={websiteId || ""}
+          apiUrl={apiUrl}
+          selectedElementId={selectedId}
+          elements={elements}
+        />
+
+        <ComponentAccessModal
+          isOpen={isComponentAccessOpen}
+          onClose={() => setIsComponentAccessOpen(false)}
+          websiteId={websiteId || ""}
+          apiUrl={apiUrl}
+          elements={elements}
+          onUpdateElement={(id, updates) => setUnifiedElements((prev) => updateTreeElement(prev, id, el => ({ ...el, ...updates })))}
+        />
+
+        {/* Right Settings Inspector */}
+        {!isPreview && (
+          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
+            {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
+              <PopupSettingsPanel
+                popup={activePopup}
+                onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
+                onExitPopupEdit={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+              />
+            ) : (
+              <>
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Settings & Design
+                    </h2>
+                    {activeCanvasMode === "popup" && (
+=======
       {/* ========================================== */}
       {/* Main Workspace Body                         */}
       {/* ========================================== */}
@@ -14634,6 +15673,7 @@ export default function WebsiteEditor() {
                     />
                     <span className="absolute left-2.5 top-2 text-xs text-slate-400">🔍</span>
                     {widgetLibrarySearch && (
+>>>>>>> origin/main
                       <button
                         type="button"
                         onClick={() => setWidgetLibrarySearch("")}
@@ -14661,9 +15701,18 @@ export default function WebsiteEditor() {
                     />
                     <button
                       type="button"
+<<<<<<< HEAD
+                      onClick={() => selectedElement && setActiveSidebarTab("element")}
+                      disabled={!selectedElement}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "element"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
+=======
                       onClick={() => importFileInputRef.current?.click()}
                       disabled={isUploading}
                       className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 p-2.5 text-xs font-bold text-blue-700 hover:border-blue-500 hover:bg-blue-100/60 transition disabled:opacity-50 shadow-xs"
+>>>>>>> origin/main
                     >
                       <span>📁</span>
                       <span>{isUploading ? "Importing Asset..." : "Import Asset / File"}</span>
@@ -16192,10 +17241,32 @@ export default function WebsiteEditor() {
                       Duplicate
                     </button>
                     <button
+<<<<<<< HEAD
+                      type="button"
+                      onClick={() => setActiveSidebarTab("global")}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "global"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
+                    >
+                      Site Settings
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selectedElement && setActiveSidebarTab("advanced")}
+                      disabled={!selectedElement}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "advanced"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
+                    >
+                      Advanced
+=======
                       onClick={(e) => handleDeleteElement(selectedElement.id, e)}
                       className="text-red-500 hover:underline"
                     >
                       Delete
+>>>>>>> origin/main
                     </button>
                   </div>
                 </div>
@@ -16541,6 +17612,78 @@ export default function WebsiteEditor() {
                         </button>
                       </div>
 
+<<<<<<< HEAD
+                      {/* F-405 Protection View */}
+                      {selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg flex flex-col gap-2">
+                          <span className="font-bold flex items-center gap-2">🔒 Editing Restricted</span>
+                          <span className="text-[11px] leading-tight">This component is protected by the administrators.</span>
+                        </div>
+                      )}
+
+                      <div className={`space-y-4 ${selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) ? "opacity-40 pointer-events-none select-none" : ""}`}>
+                        {selectedElement.type === "container" &&
+                          renderAccordion(
+                            "Layout & Structure",
+                            "layout",
+                            <div className="space-y-3">
+                              <div>
+                                {renderResponsiveLabel("Layout Engine")}
+                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+                                  {(["flex", "grid", "masonry"] as const).map((mode) => (
+                                    <button
+                                      key={mode}
+                                      onClick={() => updateSelectedLayout("layoutType", mode)}
+                                      className={`py-1 rounded capitalize ${(getLayoutVal(
+                                        selectedElement,
+                                        "layoutType",
+                                        activeBreakpointId,
+                                        breakpoints
+                                      ) || "flex") === mode
+                                        ? "bg-white text-blue-600 shadow"
+                                        : "text-slate-600"
+                                        }`}
+                                    >
+                                      {mode}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Direction")}
+                                <select
+                                  value={
+                                    getLayoutVal(
+                                      selectedElement,
+                                      "direction",
+                                      activeBreakpointId,
+                                      breakpoints
+                                    ) || "column"
+                                  }
+                                  onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                                  className="w-full rounded border px-2 py-1.5 text-xs"
+                                >
+                                  <option value="column">Column (Vertical)</option>
+                                  <option value="row">Row (Horizontal)</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Spacing Gap (px)")}
+                                <input
+                                  type="number"
+                                  value={
+                                    getLayoutVal(
+                                      selectedElement,
+                                      "gap",
+                                      activeBreakpointId,
+                                      breakpoints
+                                    ) ?? 16
+                                  }
+                                  onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                  className="w-full rounded border px-2 py-1 text-xs"
+=======
                       <div className="space-y-3">
                         {(selectedElement.posts || []).map((post, idx) => (
                           <div key={post.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2">
@@ -16627,10 +17770,223 @@ export default function WebsiteEditor() {
                                   }}
                                   placeholder="Jane Doe"
                                   className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+>>>>>>> origin/main
                                 />
                               </div>
                             </div>
+                          )}
 
+<<<<<<< HEAD
+                        {selectedElement.type !== "container" && selectedElement.type !== "image" && selectedElement.type !== "video" && selectedElement.type !== "spacer" && selectedElement.type !== "divider" && selectedElement.type !== "icon" && selectedElement.type !== "counter" && (
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                              {selectedElement.type === "html" ? "Raw HTML Editor (F-110)" : selectedElement.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
+                            </label>
+                            {selectedElement.type === "html" || selectedElement.type === "text" || selectedElement.type === "shortcode" ? (
+                              <textarea
+                                value={selectedElement.content || ""}
+                                onChange={(e) => updateSelectedProp("content", e.target.value)}
+                                rows={selectedElement.type === "html" ? 8 : selectedElement.type === "shortcode" ? 3 : 4}
+                                className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElement.type === "html" || selectedElement.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
+                                placeholder={selectedElement.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElement.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
+                              />
+                            ) : (
+                              <input
+                                type="text"
+                                value={selectedElement.content || ""}
+                                onChange={(e) => updateSelectedProp("content", e.target.value)}
+                                className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        {/* Smart Link & URL Controls */}
+                        {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
+                          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                            <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                              Link & Smart Actions
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedElement.href || ""}
+                              onChange={(e) => updateSelectedProp("href", e.target.value)}
+                              placeholder="https://..., popup:open(id), scroll:to(id)"
+                              className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                            />
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {popups.length > 0 && (
+                                <select
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      updateSelectedProp("href", `popup:open(${e.target.value})`);
+                                      e.target.value = "";
+                                    }
+                                  }}
+                                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                                >
+                                  <option value="">+ Open Popup...</option>
+                                  {popups.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => updateSelectedProp("href", "popup:close")}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                              >
+                                Close Popup
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                              >
+                                Scroll to Top
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {renderAccordion(
+                          "Typography & Colors",
+                          "typography",
+                          <div className="space-y-3">
+                            <div>
+                              {renderResponsiveLabel("Text Color")}
+                              <input
+                                type="color"
+                                value={
+                                  getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
+                                  "#0f172a"
+                                }
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                className="w-full h-8 cursor-pointer rounded border p-0.5"
+                              />
+                            </div>
+                            <div>
+                              {renderResponsiveLabel("Font Size (px)")}
+                              <input
+                                type="text"
+                                value={
+                                  getStyleVal(
+                                    selectedElement,
+                                    "fontSize",
+                                    activeBreakpointId,
+                                    breakpoints
+                                  ) || "16px"
+                                }
+                                onChange={(e) =>
+                                  updateSelectedStyle(
+                                    "fontSize",
+                                    e.target.value.endsWith("px")
+                                      ? e.target.value
+                                      : `${e.target.value}px`
+                                  )
+                                }
+                                className="w-full rounded border px-2 py-1 text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      ) : activeSidebarTab === "advanced" && selectedElement ? (
+                      <div className="space-y-4">
+                        {/* Developer Options for Element (F-102, F-105 to F-109) */}
+                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                          <div>
+                            <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
+                            <input type="text" value={selectedElement.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
+                            <input type="text" value={selectedElement.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                          </div>
+                          <hr className="border-slate-200" />
+                          <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
+                          </button>
+                          <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
+                          </button>
+                          <button onClick={() => setDevModalMode(selectedElement.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
+                          </button>
+                        </div>
+                      </div>
+                      ) : (
+                      <div className="space-y-4">
+                        {/* Site Identity */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                          <input
+                            type="text"
+                            value={globalSettings.siteIdentity?.name || ""}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                              }))
+                            }
+                            placeholder="Site Name"
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          />
+                        </div>
+
+                        {/* Back To Top Button Settings */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+                            <input
+                              type="checkbox"
+                              checked={globalSettings.backToTop?.enabled !== false}
+                              onChange={(e) =>
+                                setGlobalSettings((prev: any) => ({
+                                  ...prev,
+                                  backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                                }))
+                              }
+                              className="h-4 w-4 rounded text-blue-600"
+                            />
+                          </div>
+                          {globalSettings.backToTop?.enabled !== false && (
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                <select
+                                  value={globalSettings.backToTop?.position || "bottom-right"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      backToTop: { ...prev.backToTop, position: e.target.value },
+                                    }))
+                                  }
+                                  className="rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="bottom-right">Bottom Right</option>
+                                  <option value="bottom-left">Bottom Left</option>
+                                </select>
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                                <input
+                                  type="number"
+                                  value={globalSettings.backToTop?.offset ?? 300}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                                    }))
+                                  }
+                                  className="w-20 rounded border px-2 py-1 text-[11px]"
+                                />
+                              </div>
+                            </div>
+                          )}
+=======
                             <div>
                               <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
                                 Featured Image URL
@@ -17241,9 +18597,137 @@ export default function WebsiteEditor() {
                             <option value={5000}>5 Seconds</option>
                             <option value={7000}>7 Seconds (Slow)</option>
                           </select>
+>>>>>>> origin/main
                         </div>
-                      )}
+
+                        {/* Floating Action Button Settings */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                            <input
+                              type="checkbox"
+                              checked={globalSettings.floatingActionButton?.enabled === true}
+                              onChange={(e) =>
+                                setGlobalSettings((prev: any) => ({
+                                  ...prev,
+                                  floatingActionButton: {
+                                    ...prev.floatingActionButton,
+                                    enabled: e.target.checked,
+                                  },
+                                }))
+                              }
+                              className="h-4 w-4 rounded text-blue-600"
+                            />
+                          </div>
+
+                          {globalSettings.floatingActionButton?.enabled && (
+                            <div className="space-y-2 pt-1">
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Icon & Type
+                                </label>
+                                <select
+                                  value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        icon: e.target.value,
+                                        backgroundColor:
+                                          e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                      },
+                                    }))
+                                  }
+                                  className="w-full rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="whatsapp">WhatsApp Button</option>
+                                  <option value="chat">Live Chat / Message</option>
+                                  <option value="phone">Call Now (Phone)</option>
+                                  <option value="email">Email Us</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Label
+                                </label>
+                                <input
+                                  type="text"
+                                  value={globalSettings.floatingActionButton?.label || ""}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        label: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  placeholder="Chat with us"
+                                  className="w-full rounded border px-2 py-1 text-[11px]"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Link or Smart Action
+                                </label>
+                                <input
+                                  type="text"
+                                  value={globalSettings.floatingActionButton?.link || ""}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        link: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  placeholder="https://wa.me/... or popup:open(id)"
+                                  className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                                />
+                              </div>
+
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                <select
+                                  value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        position: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  className="rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="bottom-left">Bottom Left</option>
+                                  <option value="bottom-right">Bottom Right</option>
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
+<<<<<<< HEAD
+                  ) : null}
+
+                  {/* Dev / Global Settings Controls */}
+                  {activeSidebarTab === "global" && (
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3 mt-4">
+                      <h3 className="text-xs font-bold text-slate-700">Developer Options</h3>
+                      <button onClick={() => setDevModalMode("page-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                        <span className="text-blue-500">{"</>"}</span> Edit Page Custom CSS (F-103)
+                      </button>
+                      <button onClick={() => setDevModalMode("global-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                        <span className="text-violet-500">{"</>"}</span> Edit Global Custom CSS (F-104)
+                      </button>
+=======
 
                     {/* Display Navigation Controls */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
@@ -24146,6 +25630,7 @@ export default function WebsiteEditor() {
                           </div>
                         )}
                       </div>
+>>>>>>> origin/main
                     </div>
 
                     {/* PLAYBACK SECTION */}
@@ -25226,6 +26711,7 @@ export default function WebsiteEditor() {
                       Active — Site displays Maintenance Notice
                     </span>
                   )}
+
                 </div>
 
                 {/* Page Title */}
@@ -26171,6 +27657,58 @@ export default function WebsiteEditor() {
         </div>
       )}
 
+<<<<<<< HEAD
+      {/* Popup Manager Modal */}
+      <PopupManagerModal
+        isOpen={isPopupManagerOpen}
+        onClose={() => setIsPopupManagerOpen(false)}
+        popups={popups}
+        onSelectPopupForEdit={handleSelectPopupForEdit}
+        onCreatePopup={handleCreatePopup}
+        onUpdatePopup={handleUpdatePopup}
+        onDeletePopup={handleDeletePopup}
+        onDuplicatePopup={handleDuplicatePopup}
+      />
+
+      {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
+      {isPreview && (
+        <PopupRuntimePreview
+          popups={popups}
+          renderElementTree={renderElementTree}
+          onTrackView={handleTrackPopupView}
+          onTrackClick={handleTrackPopupClick}
+          isPreviewMode={true}
+          globalSettings={globalSettings}
+        />
+      )}
+
+      {/* Developer Modal (F-102 - F-109) */}
+      <DeveloperModal
+        isOpen={!!devModalMode}
+        onClose={() => setDevModalMode(null)}
+        mode={devModalMode!}
+        initialValue={
+          devModalMode === "element-css" ? selectedElement?.customCss :
+            devModalMode === "css-selectors" ? selectedElement?.customSelectors :
+              devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
+                devModalMode === "page-css" ? pageCss :
+                  devModalMode === "global-css" ? globalSettings.customCss :
+                    ""
+        }
+        onSave={(val) => {
+          if (devModalMode === "element-css" && selectedElement) {
+            updateSelectedProp("customCss", val);
+          } else if (devModalMode === "css-selectors" && selectedElement) {
+            updateSelectedProp("customSelectors", val);
+          } else if (devModalMode === "custom-attributes" && selectedElement) {
+            updateSelectedProp("customAttributes", val);
+          } else if (devModalMode === "page-css") {
+            setPageCss(val);
+          } else if (devModalMode === "global-css") {
+            setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
+          }
+        }}
+=======
       {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
       <SaveTemplateDialog
         isOpen={isSaveTemplateOpen}
@@ -26214,6 +27752,7 @@ export default function WebsiteEditor() {
         onClose={() => setIsRevisionHistoryOpen(false)}
         websiteId={websiteId || ""}
         onRestore={handleRestoreRevision}
+>>>>>>> origin/main
       />
     </div>
   );

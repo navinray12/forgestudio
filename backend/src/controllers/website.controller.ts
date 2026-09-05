@@ -90,9 +90,9 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData } = req.body;
+    const { editorData, performanceSettings } = req.body;
 
-    const website = await updateWebsiteEditorData(websiteId, user.id, editorData);
+    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings);
 
     return res.status(200).json({
       success: true,
@@ -126,4 +126,92 @@ export async function deleteWebsiteHandler(
   } catch (error) {
     next(error);
   }
+}
+
+export async function getWebsiteRolesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+
+    // Using default service to import
+    const { getWebsiteRoles } = await import("../services/website.service.js");
+    const roles = await getWebsiteRoles(websiteId, user.id);
+
+    return res.status(200).json({
+      success: true,
+      roles,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateWebsiteRoleHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const collaboratorUserId = req.params.collaboratorUserId as string;
+    const { role } = req.body;
+
+    const { updateWebsiteRole } = await import("../services/website.service.js");
+    const result = await updateWebsiteRole(websiteId, user.id, collaboratorUserId, role);
+
+    return res.status(200).json({
+      success: true,
+      message: "Role updated successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function inviteWebsiteMemberHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email, role } = req.body;
+    const { inviteWebsiteMember } = await import("../services/website.service.js");
+    const result = await inviteWebsiteMember(req.params.id as string, res.locals.user.id, email, role);
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) { next(error); }
+}
+
+export async function acceptWebsiteInvitationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { token } = req.body;
+    const { acceptWebsiteInvitation } = await import("../services/website.service.js");
+    const result = await acceptWebsiteInvitation(token, res.locals.user.id);
+    return res.status(200).json({ ...result, success: true });
+  } catch (error) { next(error); }
+}
+
+export async function removeWebsiteMemberHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { removeWebsiteMember } = await import("../services/website.service.js");
+    await removeWebsiteMember(req.params.id as string, res.locals.user.id, req.params.collaboratorUserId as string);
+    return res.status(200).json({ success: true, message: "Member removed" });
+  } catch (error) { next(error); }
+}
+
+export async function getGranularPermissionsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { getGranularPermissions } = await import("../services/permission.service.js");
+    const result = await getGranularPermissions(req.params.id as string, res.locals.user.id);
+    return res.status(200).json({ success: true, permissions: result });
+  } catch (error) { next(error); }
+}
+
+export async function setGranularPermissionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { targetUserId, resourceId, capability, effect } = req.body;
+    const { setGranularPermission } = await import("../services/permission.service.js");
+    const result = await setGranularPermission(req.params.id as string, res.locals.user.id, targetUserId, resourceId, capability, effect);
+    return res.status(200).json({ ...result, success: true });
+  } catch (error) { next(error); }
 }
