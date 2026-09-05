@@ -1,0 +1,2278 @@
+diff a/frontend/src/pages/editor/WebsiteEditor.tsx b/frontend/src/pages/editor/WebsiteEditor.tsx	(rejected hunks)
+@@ -1258,1332 +1412,1026 @@ export default function WebsiteEditor() {
+ 
+   // State Management
+   const [website, setWebsite] = useState<WebsiteData | null>(null);
+-  const [elements, setElements] = useState<EditorElement[]>([]);
++  const [userPermission, setUserPermission] = useState<string>("NONE");
++  const isReadOnly = userPermission === "REVIEWER";
++  const isContentEditor = userPermission === "CONTENT_EDITOR";
++  const isDesignLocked = isReadOnly || isContentEditor;
++
++  const [pages, setPages] = useState<PageConfig[]>([{ id: "home", name: "Home", slug: "/", elements: [], customCss: "" }]);
++  const [activePageId, setActivePageId] = useState<string>("home");
++
+   const [popups, setPopups] = useState<PopupConfig[]>([]);
+   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
+   const [activePopupId, setActivePopupId] = useState<string | null>(null);
++  const [activeSidebarDevModule, setActiveSidebarDevModule] = useState<"none" | "global-css" | "page-css">("none");
++  <div
++    onClick={() => setIsStructureModalOpen(true)}
++    className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400"
++  >
++    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
++      +
++    </div>
++    <p className="mt-4 text-sm font-bold text-slate-700">Click to add a Container</p>
++  </div>
++              ) : (
++    <div className="space-y-4">
++      {elements.map((el) => renderElementTree(el))}
+ 
+-  const [selectedId, setSelectedId] = useState<string | null>(null);
+-
+-  const [loading, setLoading] = useState(true);
+-  const [saving, setSaving] = useState(false);
+-  const [saveMessage, setSaveMessage] = useState("");
+-  const [errorMessage, setErrorMessage] = useState("");
+-
+-  const [isPreview, setIsPreview] = useState(false);
+-  const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
+-  const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
+-  const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
+-
+-  // Active Popup reference
+-  const activePopup = activePopupId ? popups.find((p) => p.id === activePopupId) || null : null;
+-  const currentElementList = activeCanvasMode === "popup" && activePopup ? activePopup.elements || [] : elements;
+-
+-  const setUnifiedElements = (updater: (prev: EditorElement[]) => EditorElement[]) => {
+-    if (activeCanvasMode === "popup" && activePopupId) {
+-      setPopups((prev) =>
+-        prev.map((p) => (p.id === activePopupId ? { ...p, elements: updater(p.elements || []) } : p))
+-      );
+-    } else {
+-      setElements(updater);
+-    }
+-  };
+-
+-  const handleCreatePopup = (newPopup: PopupConfig) => {
+-    setPopups((prev) => [...prev, newPopup]);
+-  };
+-
+-  const handleUpdatePopup = (popupId: string, updater: (p: PopupConfig) => PopupConfig) => {
+-    setPopups((prev) => prev.map((p) => (p.id === popupId ? updater(p) : p)));
+-  };
+-
+-  const handleDeletePopup = (popupId: string) => {
+-    setPopups((prev) => prev.filter((p) => p.id !== popupId));
+-    if (activePopupId === popupId) {
+-      setActivePopupId(null);
+-      setActiveCanvasMode("page");
+-    }
+-  };
+-
+-  const handleDuplicatePopup = (popupId: string) => {
+-    const target = popups.find((p) => p.id === popupId);
+-    if (!target) return;
+-    const cloned: PopupConfig = JSON.parse(JSON.stringify(target));
+-    cloned.id = "pop_" + Math.random().toString(36).substring(2, 9);
+-    cloned.name = `${target.name} (Copy)`;
+-    cloned.viewsCount = 0;
+-    cloned.clicksCount = 0;
+-    setPopups((prev) => [...prev, cloned]);
+-  };
+-
+-  const handleSelectPopupForEdit = (popupId: string) => {
+-    setActivePopupId(popupId);
+-    setActiveCanvasMode("popup");
+-    setSelectedId(null);
+-  };
+-
+-  const handleTrackPopupView = (popupId: string) => {
+-    setPopups((prev) =>
+-      prev.map((p) => (p.id === popupId ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
+-    );
+-  };
+-
+-  const handleTrackPopupClick = (popupId: string) => {
+-    setPopups((prev) =>
+-      prev.map((p) => (p.id === popupId ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
+-    );
+-  };
+-
+-  // Global Settings
+-  const [globalSettings, setGlobalSettings] = useState<any>({
+-    colors: {
+-      primary: "#2563eb",
+-      secondary: "#475569",
+-      accent: "#10b981",
+-      background: "#ffffff",
+-      text: "#0f172a",
+-    },
+-    fonts: {
+-      heading: "Inter",
+-      body: "Inter",
+-    },
+-    siteIdentity: {
+-      name: "My Website",
+-      description: "A beautiful site built with ForgeStudio",
+-      logoUrl: "",
+-      faviconUrl: "",
+-    },
+-    globalStyles: {
+-      siteMaxWidth: "1200px",
+-      defaultBorderRadius: "8px",
+-      defaultButtonPadding: "10px 22px",
+-      enableDefaultColors: true,
+-      enableDefaultFonts: true,
+-    },
+-    customCss: "",
+-    lightboxSettings: {
+-      enableLightbox: true,
+-      lightboxTheme: "dark",
+-    }
+-  });
+-
+-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup">("global");
+-
+-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+-    layout: true,
+-    alignment: false,
+-    positioning: false,
+-    dimensions: false,
+-    scrollSnap: false,
+-    typography: false,
+-    colors: false,
+-    background: false,
+-    borders: false,
+-    shadows: false,
+-  });
+-
+-  const toggleSection = (section: string) => {
+-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+-  };
+-
+-  useEffect(() => {
+-    if (selectedId) {
+-      setActiveSidebarTab("element");
+-    } else if (activeCanvasMode === "popup") {
+-      setActiveSidebarTab("popup");
+-    } else {
+-      setActiveSidebarTab("global");
+-    }
+-  }, [selectedId, activeCanvasMode]);
+-
+-  // Fetch Website Data
+-  useEffect(() => {
+-    if (!websiteId) return;
+-
+-    const fetchWebsite = async () => {
+-      try {
+-        setLoading(true);
+-        setErrorMessage("");
+-
+-        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
+-          credentials: "include",
+-        });
+-
+-        const data = await res.json();
+-        if (!res.ok) throw new Error(data?.message || "Failed to load website.");
+-
+-        const loadedSite = data.website || data;
+-        setWebsite(loadedSite);
+-
+-        if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
+-          setElements(loadedSite.editorData.elements);
+-        } else {
+-          setElements([
+-            createDefaultElement("heading"),
+-            createDefaultElement("text"),
+-            createDefaultElement("button"),
+-          ]);
+-        }
+-
+-        if (loadedSite?.editorData?.popups && Array.isArray(loadedSite.editorData.popups)) {
+-          setPopups(loadedSite.editorData.popups);
+-        }
+-
+-        if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
+-          setBreakpoints(loadedSite.editorData.breakpoints);
+-        }
+-
+-        if (loadedSite?.editorData?.globalSettings) {
+-          setGlobalSettings(loadedSite.editorData.globalSettings);
+-        }
+-      } catch (err) {
+-        console.error("Error loading website:", err);
+-        setErrorMessage(err instanceof Error ? err.message : "Error loading website");
+-      } finally {
+-        setLoading(false);
+-      }
+-    };
+-
+-    fetchWebsite();
+-  }, [websiteId, apiUrl]);
+-
+-  // Save Data
+-  const handleSave = async () => {
+-    if (!websiteId) return;
+-
+-    try {
+-      setSaving(true);
+-      setSaveMessage("");
+-      setErrorMessage("");
+-
+-      const payload = {
+-        editorData: {
+-          version: 1,
+-          elements,
+-          breakpoints,
+-          globalSettings,
+-          popups,
+-        },
+-      };
+-
+-      const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
+-        method: "PUT",
+-        headers: { "Content-Type": "application/json" },
+-        credentials: "include",
+-        body: JSON.stringify(payload),
+-      });
+-
+-      const data = await res.json();
+-      if (!res.ok) throw new Error(data?.message || "Failed to save website.");
+-
+-      setSaveMessage("Saved successfully!");
+-      setTimeout(() => setSaveMessage(""), 3000);
+-    } catch (err: any) {
+-      setErrorMessage(err.message || "Failed to save website data.");
+-    } finally {
+-      setSaving(false);
+-    }
+-  };
+-
+-  const handleAddElement = (type: ElementType) => {
+-    const newEl = createDefaultElement(type);
+-    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+-    setSelectedId(newEl.id);
+-  };
+-
+-  const handleInsertStructure = (presetType: StructurePresetType) => {
+-    const newEl = createStructurePreset(presetType);
+-    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+-    setSelectedId(newEl.id);
+-  };
+-
+-  const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
+-    e?.stopPropagation();
+-    setUnifiedElements((prev) => deleteTreeElement(prev, id));
+-    if (selectedId === id) setSelectedId(null);
+-  };
+-
+-  const handleDuplicateElement = (id: string, e?: React.MouseEvent) => {
+-    e?.stopPropagation();
+-    setUnifiedElements((prev) => duplicateTreeElement(prev, id));
+-  };
+-
+-  const selectedElement = selectedId ? findTreeElement(currentElementList, selectedId) : null;
+-
+-  const updateSelectedProp = (key: keyof EditorElement, value: any) => {
+-    if (!selectedId) return;
+-    setUnifiedElements((prev) =>
+-      updateTreeElement(prev, selectedId, (el) => ({ ...el, [key]: value }))
+-    );
+-  };
+-
+-  const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
+-    if (!selectedId) return;
+-    setUnifiedElements((prev) =>
+-      updateTreeElement(prev, selectedId, (el) => {
+-        if (activeBreakpointId === "desktop") {
+-          return {
+-            ...el,
+-            styles: { ...el.styles, [key]: value },
+-          };
+-        } else {
+-          const responsiveStyles = { ...el.responsiveStyles };
+-          const bpStyles: Record<string, any> = { ...responsiveStyles[activeBreakpointId] };
+-          if (value === undefined || value === "") {
+-            delete bpStyles[key];
+-          } else {
+-            bpStyles[key] = value;
+-          }
+-          responsiveStyles[activeBreakpointId] = bpStyles as ElementStyles;
+-          return {
+-            ...el,
+-            responsiveStyles,
+-          };
+-        }
+-      })
+-    );
+-  };
+-
+-  const updateSelectedLayout = (key: keyof ContainerLayout, value: any) => {
+-    if (!selectedId) return;
+-    setUnifiedElements((prev) =>
+-      updateTreeElement(prev, selectedId, (el) => {
+-        if (activeBreakpointId === "desktop") {
+-          return {
+-            ...el,
+-            layout: { ...el.layout, [key]: value },
+-          };
+-        } else {
+-          const responsiveLayouts = { ...el.responsiveLayouts };
+-          const bpLayouts: Record<string, any> = { ...responsiveLayouts[activeBreakpointId] };
+-          if (value === undefined || value === "") {
+-            delete bpLayouts[key];
+-          } else {
+-            bpLayouts[key] = value;
+-          }
+-          responsiveLayouts[activeBreakpointId] = bpLayouts as ContainerLayout;
+-          return {
+-            ...el,
+-            responsiveLayouts,
+-          };
+-        }
+-      })
+-    );
+-  };
+-
+-  const renderResponsiveLabel = (
+-    label: string,
+-    _styleKey?: keyof ElementStyles,
+-    _layoutKey?: keyof ContainerLayout
+-  ) => {
+-    return (
+-      <div className="flex items-center justify-between mb-1 mt-2">
+-        <span className="text-[11px] font-semibold text-slate-600">{label}</span>
+-      </div>
+-    );
+-  };
+-
+-  const renderAccordion = (title: string, sectionId: string, content: React.ReactNode) => {
+-    const isOpen = openSections[sectionId];
+-    return (
+-      <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-sm bg-white">
+-        <button
+-          type="button"
+-          onClick={() => toggleSection(sectionId)}
+-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-slate-700 bg-slate-50/50 hover:bg-slate-50 border-b border-slate-100 transition outline-none"
+-        >
+-          <span>{title}</span>
+-          <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>Γû╝</span>
+-        </button>
+-        {isOpen && <div className="p-3.5 space-y-4">{content}</div>}
+-      </div>
+-    );
+-  };
+-
+-  // Tree Renderer
+-  const renderElementTree = (el: EditorElement): React.ReactNode => {
+-    const isSelected = selectedId === el.id && !isPreview;
+-    const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
+-
+-    if (el.type === "container") {
+-      const layoutType = getLayoutVal(el, "layoutType", activeBreakpointId, breakpoints) || "flex";
+-      const gapVal = getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 16;
+-      const rowGapVal = getLayoutVal(el, "rowGap", activeBreakpointId, breakpoints);
+-      const colGapVal = getLayoutVal(el, "columnGap", activeBreakpointId, breakpoints);
+-
+-      const rowGapStr = rowGapVal !== undefined && rowGapVal !== "" ? (typeof rowGapVal === "number" ? `${rowGapVal}px` : rowGapVal) : `${gapVal}px`;
+-      const colGapStr = colGapVal !== undefined && colGapVal !== "" ? (typeof colGapVal === "number" ? `${colGapVal}px` : colGapVal) : `${gapVal}px`;
+-
+-      let containerLayoutStyles: React.CSSProperties = {};
+-      if (layoutType === "grid") {
+-        containerLayoutStyles = {
+-          display: "grid",
+-          gridTemplateColumns: getLayoutVal(el, "gridTemplateColumns", activeBreakpointId, breakpoints) || "repeat(2, 1fr)",
+-          gridTemplateRows: getLayoutVal(el, "gridTemplateRows", activeBreakpointId, breakpoints) || undefined,
+-          gridAutoFlow: getLayoutVal(el, "gridAutoFlow", activeBreakpointId, breakpoints) || undefined,
+-          justifyItems: getLayoutVal(el, "justifyItems", activeBreakpointId, breakpoints) || undefined,
+-          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || undefined,
+-          rowGap: rowGapStr,
+-          columnGap: colGapStr,
+-        };
+-      } else if (layoutType === "masonry") {
+-        containerLayoutStyles = {
+-          display: "block",
+-          columnCount: getLayoutVal(el, "masonryColumns", activeBreakpointId, breakpoints) || 3,
+-          columnGap: colGapStr,
+-        };
+-      } else {
+-        containerLayoutStyles = {
+-          display: "flex",
+-          flexDirection: getLayoutVal(el, "direction", activeBreakpointId, breakpoints) || "column",
+-          flexWrap: getLayoutVal(el, "flexWrap", activeBreakpointId, breakpoints) || "nowrap",
+-          justifyContent: getLayoutVal(el, "justifyContent", activeBreakpointId, breakpoints) || "flex-start",
+-          alignItems: getLayoutVal(el, "alignItems", activeBreakpointId, breakpoints) || "stretch",
+-          rowGap: rowGapStr,
+-          columnGap: colGapStr,
+-        };
+-      }
+-
+-      return (
+-        <div
+-          key={el.id}
+-          onClick={(e) => {
+-            e.stopPropagation();
+-            if (!isPreview) setSelectedId(el.id);
+-          }}
+-          className={`relative transition-all duration-150 ${el.customClass || ""} ${
+-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+-          } ${
+-            isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
+-          }`}
+-          style={{
+-            ...containerLayoutStyles,
+-            ...resolvedStyles,
+-            width: resolvedStyles.width || "100%",
+-            height: resolvedStyles.height || "auto",
+-            paddingTop: resolvedStyles.paddingTop || "16px",
+-            paddingRight: resolvedStyles.paddingRight || "16px",
+-            paddingBottom: resolvedStyles.paddingBottom || "16px",
+-            paddingLeft: resolvedStyles.paddingLeft || "16px",
+-            marginTop: resolvedStyles.marginTop || "8px",
+-            marginBottom: resolvedStyles.marginBottom || "8px",
+-            borderRadius: resolvedStyles.borderRadius || "8px",
+-          }}
+-        >
+-          {isSelected && (
+-            <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
+-              <span className="text-blue-400 font-bold px-1">Container ({layoutType})</span>
+-              <button
+-                onClick={(e) => handleDuplicateElement(el.id, e)}
+-                className="p-1 hover:text-blue-400"
+-              >
+-                Duplicate
+-              </button>
+-              <button
+-                onClick={(e) => handleDeleteElement(el.id, e)}
+-                className="p-1 hover:text-red-400 text-red-500"
+-              >
+-                Delete
+-              </button>
+-            </div>
+-          )}
+-
+-          {(!el.children || el.children.length === 0) && !isPreview ? (
+-            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center">
+-              <span className="text-xs font-bold text-slate-500">Empty Container</span>
++      {!isPreview && (
++        <div className="pt-4 pb-6">
++          <div
++            onClick={() => setIsStructureModalOpen(true)}
++            className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer"
++          >
++            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
++              +
+             </div>
+-          ) : (
+-            el.children?.map((child) => renderElementTree(child))
+-          )}
+-        </div>
+-      );
+-    }
+-
+-    return (
+-      <div
+-        key={el.id}
+-        onClick={(e) => {
+-          e.stopPropagation();
+-          if (!isPreview) setSelectedId(el.id);
+-        }}
+-        className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${
+-          isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+-        } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
+-        style={{ ...resolvedStyles }}
+-      >
+-        {isSelected && (
+-          <div className="absolute -top-4 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-[#0b1329] border border-blue-500/30 p-1 text-[11px] font-semibold text-white shadow-xl pointer-events-auto">
+-            <span className="text-blue-400 font-bold px-1 capitalize">{el.type}</span>
+-            <button onClick={(e) => handleDuplicateElement(el.id, e)} className="p-1 hover:text-blue-400">
+-              Duplicate
+-            </button>
+-            <button onClick={(e) => handleDeleteElement(el.id, e)} className="p-1 hover:text-red-400 text-red-500">
+-              Delete
+-            </button>
+-          </div>
+-        )}
+-
+-        {el.type === "heading" && (
+-          <h2 style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...getInnerStyles(resolvedStyles) }}>
+-            {el.content}
+-          </h2>
+-        )}
+-
+-        {el.type === "text" && (
+-          <p style={{ fontSize: "16px", color: "#475569", ...getInnerStyles(resolvedStyles) }}>
+-            {el.content}
+-          </p>
+-        )}
+-
+-        {el.type === "image" && (
+-          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "left" }}>
+-            {el.src ? (
+-              <img src={resolveImageUrl(el.src, apiUrl)} alt={el.alt || "Image"} className="max-w-full rounded-lg" />
+-            ) : (
+-              <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl bg-slate-50">
+-                <EmptyPictureIcon />
+-                <span className="text-xs font-bold text-slate-500 mt-2">No Image Selected</span>
+-              </div>
+-            )}
+-          </div>
+-        )}
+-
+-        {el.type === "button" && (
+-          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "left" }}>
+-            <a
+-              href={el.href || "#"}
+-              onClick={(e) => !isPreview && e.preventDefault()}
+-              className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
+-              style={{ ...getInnerStyles(resolvedStyles) }}
+-            >
+-              {el.content}
+-            </a>
+-          </div>
+-        )}
+-
+-        {el.type === "video" && (
+-          <div className="aspect-video w-full">
+-            <iframe src={el.src || "https://www.youtube.com/embed/dQw4w9WgXcQ"} title="Video" className="w-full h-full rounded-lg" />
++            <span className="mt-2 text-xs font-bold text-slate-600">Add New Container</span>
+           </div>
+-        )}
+-
+-        {el.type === "divider" && <hr style={{ borderColor: "#cbd5e1", ...getInnerStyles(resolvedStyles) }} />}
+-        {el.type === "spacer" && <div style={{ height: resolvedStyles.height || "40px" }} />}
+-        {el.type === "icon" && (
+-          <div style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center" }}>
+-            {renderSvgIcon(el.styles.iconName || "star", el.styles.iconSize || "32", el.styles.iconColor || "#2563eb")}
+-          </div>
+-        )}
+-        {el.type === "counter" && (
+-          <div style={{ textAlign: (resolvedStyles.textAlign as any) || "center" }}>
+-            <AnimatedCounter start={0} end={100} prefix="" suffix="%" duration={2000} />
+-          </div>
+-        )}
+-      </div>
+-    );
+-  };
+-
+-  if (loading) {
+-    return (
+-      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+-      </div>
+-    );
+-  }
+-
+-  return (
+-    <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
+-      {/* Top Header Bar */}
+-      <header className="flex h-12 shrink-0 items-center justify-between bg-[#0b1329] px-5 shadow-md">
+-        <div className="flex items-center gap-4">
+-          <Link to="/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white">
+-            ΓÇ╣ Dashboard
+-          </Link>
+-          <span className="text-xs font-bold text-white">{website?.name || "Website Editor"}</span>
+-
+-          {/* Mode Switcher (F-289) */}
+-          <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
+-            <button
+-              onClick={() => {
+-                setActiveCanvasMode("page");
+-                setSelectedId(null);
+-              }}
+-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+-                activeCanvasMode === "page"
+-                  ? "bg-blue-600 text-white shadow-sm"
+-                  : "text-slate-300 hover:text-white"
+-              }`}
+-            >
+-              <span>≡ƒôä</span> Page Canvas
+-            </button>
+-            <button
+-              onClick={() => setIsPopupManagerOpen(true)}
+-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+-                activeCanvasMode === "popup"
+-                  ? "bg-blue-600 text-white shadow-sm"
+-                  : "text-slate-300 hover:text-white"
+-              }`}
+-            >
+-              <span>Γ£¿</span> Popups ({popups.length})
+-            </button>
+-          </div>
+-
+-          {activeCanvasMode === "popup" && activePopup && (
+-            <div className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 text-xs">
+-              <span className="text-amber-300 font-bold">Popup Mode:</span>
+-              <span className="text-white font-medium truncate max-w-[140px]">{activePopup.name}</span>
+-              <button
+-                onClick={() => {
+-                  setActiveCanvasMode("page");
+-                  setSelectedId(null);
+-                }}
+-                className="text-amber-300 hover:text-white font-bold ml-1"
+-                title="Return to Page Canvas"
+-              >
+-                Γ£ò
+-              </button>
+-            </div>
+-          )}
+         </div>
+-
+-        {!isPreview && (
+-          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
+-            {breakpoints.filter((b) => b.active).map((bp) => (
+-              <button
+-                key={bp.id}
+-                onClick={() => setActiveBreakpointId(bp.id)}
+-                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
+-                  bp.id === activeBreakpointId
+-                    ? "bg-blue-600 text-white shadow-sm"
+-                    : "text-slate-300 hover:bg-slate-800"
+-                }`}
+-              >
+-                {bp.name}
+-              </button>
+-            ))}
++      )}
++    </div>
++  )
++}
++            </div >
++          )}
++        </main >
++
++  {/* Right Settings Inspector */ }
++{
++  !isPreview && (
++    <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden relative group">
++      {isReadOnly && (
++        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-50 flex items-center justify-center cursor-not-allowed group-hover:bg-white/60 transition duration-200" title="You don't have permission to edit this component.">
++          <div className="bg-slate-800 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none">
++            <span>≡ƒöÆ</span> Read Only
+           </div>
+-        )}
+-
+-        <div className="flex items-center gap-3">
+-          {saveMessage && <span className="text-xs text-emerald-400">Γ£ô {saveMessage}</span>}
+-          {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
+-          <button
+-            onClick={() => setIsPreview(!isPreview)}
+-            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${
+-              isPreview
+-                ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
+-                : "border-slate-600 text-slate-300 hover:bg-slate-800"
+-            }`}
+-          >
+-            {isPreview ? "Exit Preview" : "Preview Site & Popups"}
+-          </button>
+-          <button
+-            onClick={handleSave}
+-            disabled={saving}
+-            className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+-          >
+-            {saving ? "Saving..." : "Save"}
+-          </button>
+         </div>
+-      </header>
+-
+-      {/* Main Workspace Body */}
+-      <div className="flex flex-1 overflow-hidden">
+-        {/* Left Palette */}
+-        {!isPreview && (
+-          <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
+-            <div>
+-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 mb-3">
+-                Structure
++      )}
++      {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
++        <PopupSettingsPanel
++          popup={activePopup}
++          onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
++          onExitPopupEdit={() => {
++            setActiveCanvasMode("page");
++            setSelectedId(null);
++          }}
++        />
++      ) : (
++        <>
++          <div className="p-4 border-b border-slate-100 bg-slate-50/50">
++            <div className="flex items-center justify-between mb-2">
++              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
++                Settings & Design
+               </h2>
+-              <div className="grid grid-cols-2 gap-2">
++              {activeCanvasMode === "popup" && (
+                 <button
+-                  onClick={() => setIsStructureModalOpen(true)}
+-                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
++                  onClick={() => setSelectedId(null)}
++                  className="text-[11px] font-bold text-blue-600 hover:underline"
+                 >
+-                  <ContainerBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Container</span>
++                  Popup Options ΓåÆ
+                 </button>
+-                <button
+-                  onClick={() => {
+-                    const newEl = createGridPrimitive();
+-                    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
+-                    setSelectedId(newEl.id);
+-                  }}
+-                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
+-                >
+-                  <GridBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Grid</span>
+-                </button>
+-              </div>
++              )}
+             </div>
+-
+-            <div>
+-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
+-                Basic Elements
+-              </h2>
+-              <div className="grid grid-cols-2 gap-2">
+-                <button onClick={() => handleAddElement("heading")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <HeadingBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold">Heading</span>
+-                </button>
+-                <button onClick={() => handleAddElement("text")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <TextBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold">Text</span>
+-                </button>
+-                <button onClick={() => handleAddElement("image")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <ImageBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold">Image</span>
+-                </button>
+-                <button onClick={() => handleAddElement("button")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <ButtonBoxIcon />
+-                  <span className="mt-1.5 text-xs font-semibold">Button</span>
+-                </button>
+-                <button onClick={() => handleAddElement("video")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <span className="text-xl">≡ƒô╣</span>
+-                  <span className="mt-1.5 text-xs font-semibold">Video</span>
+-                </button>
+-                <button onClick={() => handleAddElement("icon")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+-                  <span className="text-xl">Γÿà</span>
+-                  <span className="mt-1.5 text-xs font-semibold">Icon</span>
+-                </button>
+-              </div>
++            <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
++              <button
++                type="button"
++                onClick={() => selectedElement && setActiveSidebarTab("element")}
++                disabled={!selectedElement}
++                className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "element"
++                  ? "bg-white text-slate-800 shadow-sm"
++                  : "text-slate-500"
++                  }`}
++              >
++                Element Styles
++              </button>
++              <button
++                type="button"
++                onClick={() => setActiveSidebarTab("global")}
++                className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "global"
++                  ? "bg-white text-slate-800 shadow-sm"
++                  : "text-slate-500"
++                  }`}
++              >
++                Global & Site
++              </button>
+             </div>
+-          </aside>
+-        )}
+-
+-        {/* Center Canvas */}
+-        <main
+-          onClick={() => setSelectedId(null)}
+-          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
+-        >
+-          {activeCanvasMode === "popup" && activePopup ? (
+-            /* Popup Visual Editing Canvas */
+-            <div className="flex flex-col items-center justify-center w-full my-auto">
+-              <div className="mb-3 flex items-center justify-between w-full max-w-2xl px-2">
+-                <div className="flex items-center gap-2">
+-                  <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 uppercase">
+-                    {activePopup.layoutMode} Mode
++          </div>
++
++          <div className="flex-1 overflow-y-auto p-4 space-y-4">
++            {activeSidebarTab === "element" && selectedElement ? (
++              <div className="space-y-4">
++                <div className="flex items-center justify-between border-b pb-2">
++                  <span className="text-xs font-bold uppercase text-blue-600">
++                    {selectedElement.type} Settings
+                   </span>
+-                  <span className="text-xs font-bold text-slate-700">{activePopup.name}</span>
++                  <button
++                    onClick={(e) => handleDeleteElement(selectedElement.id, e)}
++                    className="text-xs text-red-500 hover:underline"
++                  >
++                    Delete
++                  </button>
+                 </div>
+-                <button
+-                  onClick={() => setIsPopupManagerOpen(true)}
+-                  className="text-xs font-semibold text-blue-600 hover:underline"
+-                >
+-                  Manage All Popups
+-                </button>
+-              </div>
+-
+-              {/* Backdrop Frame Simulation */}
+-              <div
+-                className="w-full max-w-4xl min-h-[550px] rounded-3xl p-8 flex items-center justify-center relative transition-all duration-200 border border-slate-300 shadow-inner"
+-                style={{
+-                  backgroundColor: activePopup.backdropOverlay ? activePopup.backdropColor : "#e2e8f0",
+-                }}
+-              >
+-                {/* Popup Container Box */}
+-                <div
+-                  onClick={(e) => e.stopPropagation()}
+-                  style={{
+-                    width: activePopup.width || "580px",
+-                    maxWidth: "100%",
+-                    minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
+-                  }}
+-                  className={`bg-white shadow-2xl relative transition-all duration-150 ${
+-                    activePopup.layoutMode === "hello-bar"
+-                      ? "rounded-none w-full shadow-md"
+-                      : "rounded-2xl"
+-                  }`}
+-                >
+-                  {/* Close button badge */}
+-                  {activePopup.closeButton && (
+-                    <div
+-                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${
+-                        activePopup.closeButtonPosition === "outside"
+-                          ? "-top-3 -right-3"
+-                          : "top-3 right-3"
+-                      }`}
+-                    >
+-                      Γ£ò
+-                    </div>
+-                  )}
+ 
+-                  {/* Popup Inner Elements */}
+-                  <div className="p-4">
+-                    {activePopup.elements.length === 0 ? (
+-                      <div
+-                        onClick={() => setIsStructureModalOpen(true)}
+-                        className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400 bg-slate-50"
+-                      >
+-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+-                          +
++                {selectedElement.type === "container" &&
++                  renderAccordion(
++                    "Layout & Structure",
++                    "layout",
++                    <div className="space-y-3">
++                      <div>
++                        {renderResponsiveLabel("Layout Engine")}
++                        <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
++                          {(["flex", "grid", "masonry"] as const).map((mode) => (
++                            <button
++                              key={mode}
++                              onClick={() => updateSelectedLayout("layoutType", mode)}
++                              className={`py-1 rounded capitalize ${(getLayoutVal(
++                                selectedElement,
++                                "layoutType",
++                                activeBreakpointId,
++                                breakpoints
++                              ) || "flex") === mode
++                                ? "bg-white text-blue-600 shadow"
++                                : "text-slate-600"
++                                }`}
++                            >
++                              {mode}
++                            </button>
++                          ))}
+                         </div>
+-                        <p className="mt-2 text-xs font-bold text-slate-700">Add Container into Popup</p>
+                       </div>
+-                    ) : (
+-                      <div className="space-y-3">
+-                        {activePopup.elements.map((el) => renderElementTree(el))}
+-
+-                        <div className="pt-2">
+-                          <div
+-                            onClick={() => setIsStructureModalOpen(true)}
+-                            className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 hover:bg-blue-50/40 hover:border-blue-400 py-3 cursor-pointer text-xs font-bold text-slate-600"
+-                          >
+-                            <span>+</span> Add Container to Popup
+-                          </div>
+-                        </div>
++
++                      <div>
++                        {renderResponsiveLabel("Direction")}
++                        <select
++                          value={
++                            getLayoutVal(
++                              selectedElement,
++                              "direction",
++                              activeBreakpointId,
++                              breakpoints
++                            ) || "column"
++                          }
++                          onChange={(e) => updateSelectedLayout("direction", e.target.value)}
++                          className="w-full rounded border px-2 py-1.5 text-xs"
++                        >
++                          <option value="column">Column (Vertical)</option>
++                          <option value="row">Row (Horizontal)</option>
++                        </select>
+                       </div>
+-                    )}
+-                  </div>
+-                </div>
+-              </div>
+-            </div>
+-          ) : (
+-            /* Main Page Canvas */
+-            <div
+-              style={{
+-                width: "100%",
+-                maxWidth: `${breakpoints.find((b) => b.id === activeBreakpointId)?.width || 1024}px`,
+-              }}
+-              className="min-h-[750px] h-auto shrink-0 my-2 bg-white shadow-md rounded-2xl border border-slate-200 p-8 sm:p-10 relative"
+-            >
+-              {elements.length === 0 ? (
+-                <div
+-                  onClick={() => setIsStructureModalOpen(true)}
+-                  className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 cursor-pointer hover:border-blue-400"
+-                >
+-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg">
+-                    +
+-                  </div>
+-                  <p className="mt-4 text-sm font-bold text-slate-700">Click to add a Container</p>
+-                </div>
+-              ) : (
+-                <div className="space-y-4">
+-                  {elements.map((el) => renderElementTree(el))}
+-
+-                  {!isPreview && (
+-                    <div className="pt-4 pb-6">
+-                      <div
+-                        onClick={() => setIsStructureModalOpen(true)}
+-                        className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/40 hover:bg-blue-50/30 hover:border-blue-400 py-6 cursor-pointer"
+-                      >
+-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow font-bold">
+-                          +
+-                        </div>
+-                        <span className="mt-2 text-xs font-bold text-slate-600">Add New Container</span>
++
++                      <div>
++                        {renderResponsiveLabel("Spacing Gap (px)")}
++                        <input
++                          type="number"
++                          value={
++                            getLayoutVal(
++                              selectedElement,
++                              "gap",
++                              activeBreakpointId,
++                              breakpoints
++                            ) ?? 16
++                          }
++                          onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
++                          className="w-full rounded border px-2 py-1 text-xs"
++                        />
+                       </div>
+                     </div>
+                   )}
+-                </div>
+-              )}
+-            </div>
+-          )}
+-        </main>
+-
+-        {/* Right Settings Inspector */}
+-        {!isPreview && (
+-          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
+-            {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
+-              <PopupSettingsPanel
+-                popup={activePopup}
+-                onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
+-                onExitPopupEdit={() => {
+-                  setActiveCanvasMode("page");
+-                  setSelectedId(null);
+-                }}
+-              />
+-            ) : (
+-              <>
+-                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+-                  <div className="flex items-center justify-between mb-2">
+-                    <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+-                      Settings & Design
+-                    </h2>
+-                    {activeCanvasMode === "popup" && (
++
++                {selectedElement.type === "html" ? (
++                  <div>
++                    <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
++                      HTML Developer Panel (F-110)
++                    </label>
++                    <textarea
++                      value={selectedElement.content || ""}
++                      onChange={(e) => updateSelectedProp("content", e.target.value)}
++                      onKeyDown={(e) => {
++                        if (e.key === 'Tab') {
++                          e.preventDefault();
++                          const target = e.target as HTMLTextAreaElement;
++                          const start = target.selectionStart;
++                          const end = target.selectionEnd;
++                          const value = target.value;
++                          updateSelectedProp("content", value.substring(0, start) + "  " + value.substring(end));
++                          setTimeout(() => {
++                            target.selectionStart = target.selectionEnd = start + 2;
++                          }, 0);
++                        }
++                      }}
++                      className="w-full h-[250px] rounded border border-slate-700 p-3 text-[11px] leading-tight font-mono bg-[#0f172a] text-blue-300 focus:outline-none focus:border-blue-500 shadow-inner"
++                      spellCheck={false}
++                      placeholder={`<div>\n  <p>Your HTML markup safely mounts here...</p>\n</div>`}
++                    />
++                    <p className="mt-1 text-[9px] text-slate-500 font-semibold leading-tight">
++                      Valid HTML executes natively avoiding container boundaries. Inline Scripts and Dangerous APIs are destroyed automatically via AST mapping loops.
++                    </p>
++                  </div>
++                ) : selectedElement.type === "shortcode" ? (
++                  <div>
++                    <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
++                      WordPress Shortcode (F-111)
++                    </label>
++                    <textarea
++                      value={selectedElement.content || ""}
++                      onChange={(e) => updateSelectedProp("content", e.target.value)}
++                      className="w-full h-[120px] rounded border border-indigo-200 p-3 text-[12px] font-mono bg-indigo-50 text-indigo-900 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 shadow-inner"
++                      spellCheck={false}
++                      placeholder={`[gallery ids="1,2,3"]\n\nShortcodes map natively to WordPress.`}
++                    />
++                    <p className="mt-2 text-[9px] text-slate-500 font-semibold leading-tight">
++                      Shortcodes preserve syntax perfectly. Output executes explicitly during active remote WordPress connections!
++                    </p>
++                  </div>
++                ) : selectedElement.type !== "container" ? (
++                  <div>
++                    <label className="block text-[10px] font-bold text-slate-500 mb-1">
++                      CONTENT
++                    </label>
++                    <input
++                      type="text"
++                      value={selectedElement.content || ""}
++                      onChange={(e) => updateSelectedProp("content", e.target.value)}
++                      className="w-full rounded border px-3 py-1.5 text-xs"
++                    />
++                  </div>
++                ) : null}
++
++                {/* Smart Link & URL Controls (F-291) */}
++                {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
++                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
++                    <label className="block text-[10px] font-bold text-slate-600 uppercase">
++                      Link & Smart Actions (F-291)
++                    </label>
++                    <input
++                      type="text"
++                      value={selectedElement.href || ""}
++                      onChange={(e) => updateSelectedProp("href", e.target.value)}
++                      placeholder="https://..., popup:open(id), scroll:to(id)"
++                      className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
++                    />
++                    <div className="flex flex-wrap gap-1.5 pt-1">
++                      {popups.length > 0 && (
++                        <select
++                          onChange={(e) => {
++                            if (e.target.value) {
++                              updateSelectedProp("href", `popup:open(${e.target.value})`);
++                              e.target.value = "";
++                            }
++                          }}
++                          className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
++                        >
++                          <option value="">+ Open Popup...</option>
++                          {popups.map((p) => (
++                            <option key={p.id} value={p.id}>
++                              {p.name}
++                            </option>
++                          ))}
++                        </select>
++                      )}
+                       <button
+-                        onClick={() => setSelectedId(null)}
+-                        className="text-[11px] font-bold text-blue-600 hover:underline"
++                        type="button"
++                        onClick={() => updateSelectedProp("href", "popup:close")}
++                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                       >
+-                        Popup Options ΓåÆ
++                        Close Popup
+                       </button>
+-                    )}
++                      <button
++                        type="button"
++                        onClick={() => updateSelectedProp("href", "scroll:to(top)")}
++                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
++                      >
++                        Scroll to Top
++                      </button>
++                    </div>
+                   </div>
+-                  <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
+-                    <button
+-                      type="button"
+-                      onClick={() => selectedElement && setActiveSidebarTab("element")}
+-                      disabled={!selectedElement}
+-                      className={`flex-1 rounded-md py-1.5 text-center ${
+-                        activeSidebarTab === "element"
+-                          ? "bg-white text-slate-800 shadow-sm"
+-                          : "text-slate-500"
+-                      }`}
+-                    >
+-                      Element Styles
+-                    </button>
+-                    <button
+-                      type="button"
+-                      onClick={() => setActiveSidebarTab("global")}
+-                      className={`flex-1 rounded-md py-1.5 text-center ${
+-                        activeSidebarTab === "global"
+-                          ? "bg-white text-slate-800 shadow-sm"
+-                          : "text-slate-500"
+-                      }`}
+-                    >
+-                      Global & Site
+-                    </button>
++                )}
++
++                {renderAccordion(
++                  "Typography & Colors",
++                  "typography",
++                  <div className="space-y-3">
++                    <div>
++                      {renderResponsiveLabel("Text Color")}
++                      <input
++                        type="color"
++                        value={
++                          getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
++                          "#0f172a"
++                        }
++                        onChange={(e) => updateSelectedStyle("color", e.target.value)}
++                        className="w-full h-8 cursor-pointer rounded border p-0.5"
++                      />
++                    </div>
++                    <div>
++                      {renderResponsiveLabel("Font Size (px)")}
++                      <input
++                        type="text"
++                        value={
++                          getStyleVal(
++                            selectedElement,
++                            "fontSize",
++                            activeBreakpointId,
++                            breakpoints
++                          ) || "16px"
++                        }
++                        onChange={(e) =>
++                          updateSelectedStyle(
++                            "fontSize",
++                            e.target.value.endsWith("px")
++                              ? e.target.value
++                              : `${e.target.value}px`
++                          )
++                        }
++                        className="w-full rounded border px-2 py-1 text-xs"
++                      />
++                    </div>
+                   </div>
+-                </div>
++                )}
++
++                {/* F-107: Element Custom CSS & Selectors */}
++                {(() => {
++                  const legacyCss = getStyleVal(selectedElement, "customCss", activeBreakpointId, breakpoints) || "";
++                  const rules: { id: string, selector: string, css: string }[] = getStyleVal(selectedElement, "customCssRules", activeBreakpointId, breakpoints) || [];
++                  const validLegacy = legacyCss === "" || (legacyCss.match(/\{/g) || []).length === (legacyCss.match(/\}/g) || []).length;
+ 
+-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+-                  {activeSidebarTab === "element" && selectedElement ? (
++                  return renderAccordion(
++                    "Custom CSS",
++                    "customCss",
+                     <div className="space-y-4">
+-                      <div className="flex items-center justify-between border-b pb-2">
+-                        <span className="text-xs font-bold uppercase text-blue-600">
+-                          {selectedElement.type} Settings
+-                        </span>
++                      <div className="flex items-center justify-between">
++                        {renderResponsiveLabel("CSS Selectors")}
+                         <button
+-                          onClick={(e) => handleDeleteElement(selectedElement.id, e)}
+-                          className="text-xs text-red-500 hover:underline"
++                          onClick={() => {
++                            const newRule = { id: generateId(), selector: "&", css: "" };
++                            updateSelectedStyle("customCssRules", [...rules, newRule]);
++                          }}
++                          className="text-[9px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
+                         >
+-                          Delete
++                          + Add Rule
+                         </button>
+                       </div>
+ 
+-                      {selectedElement.type === "container" &&
+-                        renderAccordion(
+-                          "Layout & Structure",
+-                          "layout",
+-                          <div className="space-y-3">
+-                            <div>
+-                              {renderResponsiveLabel("Layout Engine")}
+-                              <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+-                                {(["flex", "grid", "masonry"] as const).map((mode) => (
+-                                  <button
+-                                    key={mode}
+-                                    onClick={() => updateSelectedLayout("layoutType", mode)}
+-                                    className={`py-1 rounded capitalize ${
+-                                      (getLayoutVal(
+-                                        selectedElement,
+-                                        "layoutType",
+-                                        activeBreakpointId,
+-                                        breakpoints
+-                                      ) || "flex") === mode
+-                                        ? "bg-white text-blue-600 shadow"
+-                                        : "text-slate-600"
+-                                    }`}
+-                                  >
+-                                    {mode}
+-                                  </button>
+-                                ))}
++                      {/* Rules List */}
++                      <div className="space-y-3">
++                        {rules.map(rule => {
++                          return (
++                            <div key={rule.id} className="border border-slate-700 rounded-md bg-slate-800 overflow-hidden shadow-sm">
++                              <div className="flex bg-slate-900 border-b border-slate-700 p-1.5 gap-2 items-center">
++                                <span className="text-[10px] text-slate-400 font-mono pl-1">Target</span>
++                                <input
++                                  type="text"
++                                  value={rule.selector}
++                                  onChange={(e) => {
++                                    const updated = rules.map(r => r.id === rule.id ? { ...r, selector: e.target.value } : r);
++                                    updateSelectedStyle("customCssRules", updated);
++                                  }}
++                                  placeholder="& (Current Element)"
++                                  className="flex-1 bg-slate-900 text-[11px] text-emerald-400 font-mono outline-none border-none"
++                                />
++                                <button onClick={() => {
++                                  if (window.confirm("Delete this CSS Rule?")) {
++                                    updateSelectedStyle("customCssRules", rules.filter(r => r.id !== rule.id));
++                                  }
++                                }} className="text-slate-500 hover:text-red-500 px-1 font-bold">├ù</button>
+                               </div>
++                              <textarea
++                                value={rule.css}
++                                onChange={(e) => {
++                                  const updated = rules.map(r => r.id === rule.id ? { ...r, css: e.target.value } : r);
++                                  updateSelectedStyle("customCssRules", updated);
++                                }}
++                                placeholder={`border-radius: 20px;`}
++                                className="w-full min-h-[60px] p-2 text-[11px] font-mono bg-transparent text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
++                                spellCheck={false}
++                              />
+                             </div>
++                          );
++                        })}
++                      </div>
+ 
+-                            <div>
+-                              {renderResponsiveLabel("Direction")}
+-                              <select
+-                                value={
+-                                  getLayoutVal(
+-                                    selectedElement,
+-                                    "direction",
+-                                    activeBreakpointId,
+-                                    breakpoints
+-                                  ) || "column"
+-                                }
+-                                onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+-                                className="w-full rounded border px-2 py-1.5 text-xs"
+-                              >
+-                                <option value="column">Column (Vertical)</option>
+-                                <option value="row">Row (Horizontal)</option>
+-                              </select>
+-                            </div>
++                      {/* Legacy Fallback F-102 (Only show if exists or array is empty) */}
++                      {(legacyCss !== "" || rules.length === 0) && (
++                        <div className="space-y-2 mt-4 pt-4 border-t border-slate-200">
++                          <div className="flex items-center justify-between">
++                            <span className="text-[10px] font-semibold text-slate-600">Base CSS (Standalone)</span>
++                            <span className={`text-[9px] font-bold ${legacyCss === "" ? "text-slate-400" : validLegacy ? "text-emerald-500" : "text-red-500"}`}>
++                              {legacyCss === "" ? "Empty" : validLegacy ? "Γ£ô Valid" : "ΓÜá Invalid"}
++                            </span>
++                          </div>
++                          <textarea
++                            value={legacyCss}
++                            onChange={(e) => updateSelectedStyle("customCss", e.target.value)}
++                            placeholder={`/* Target: Current Element */\nborder-radius: 20px;`}
++                            className="w-full min-h-[80px] p-2 text-[11px] font-mono rounded bg-slate-800 text-slate-100 border border-slate-700 placeholder-slate-500 focus:outline-none focus:border-blue-500"
++                            spellCheck={false}
++                          />
++                        </div>
++                      )}
+ 
+-                            <div>
+-                              {renderResponsiveLabel("Spacing Gap (px)")}
+-                              <input
+-                                type="number"
+-                                value={
+-                                  getLayoutVal(
+-                                    selectedElement,
+-                                    "gap",
+-                                    activeBreakpointId,
+-                                    breakpoints
+-                                  ) ?? 16
++                      <div className="flex items-center justify-between mt-1 pt-2 border-t border-slate-100">
++                        <span className="text-[9px] text-slate-500 font-semibold leading-tight pr-4">
++                          ≡ƒÆí Tip: Use <strong className="text-indigo-500">&</strong> to reference the current element (e.g. <strong className="text-indigo-500">&:hover</strong>).
++                        </span>
++                      </div>
++                    </div>
++                  );
++                })()}
++
++                {/* F-105: CSS ID (Advanced) */}
++                {(() => {
++                  const cssIdVal = selectedElement.cssId || "";
++                  // Validation logic
++                  const isValid = cssIdVal === "" || /^[A-Za-z][A-Za-z0-9_-]*$/.test(cssIdVal);
++
++                  // Duplication check (recursive) against the unified page
++                  let isDuplicate = false;
++                  if (cssIdVal !== "") {
++                    const hasDupe = (elementsList: EditorElement[]): boolean => {
++                      for (const el of elementsList) {
++                        if (el.id !== selectedElement.id && el.cssId === cssIdVal) return true;
++                        if (el.children && hasDupe(el.children)) return true;
++                      }
++                      return false;
++                    };
++                    isDuplicate = hasDupe(currentElementList);
++                  }
++
++                  return renderAccordion(
++                    "Advanced",
++                    "advancedSettings",
++                    <div className="space-y-3">
++                      <div>
++                        <div className="flex items-center justify-between mb-1">
++                          <label className="text-[11px] font-semibold text-slate-700">CSS ID</label>
++                          <span className={`text-[10px] font-bold ${cssIdVal === "" ? "text-slate-400" : isDuplicate ? "text-amber-500" : !isValid ? "text-red-500" : "text-emerald-500"}`}>
++                            {cssIdVal === "" ? "Empty" : isDuplicate ? "ΓÜá Duplicate ID on page" : !isValid ? "Γ£ò Invalid format" : "Γ£ô Valid ID"}
++                          </span>
++                        </div>
++                        <input
++                          type="text"
++                          value={cssIdVal}
++                          onChange={(e) => {
++                            setUnifiedElements(prev => {
++                              const newTree = JSON.parse(JSON.stringify(prev));
++                              const updateCssId = (list: EditorElement[]): boolean => {
++                                for (let idx = 0; idx < list.length; idx++) {
++                                  if (list[idx].id === selectedElement.id) {
++                                    list[idx].cssId = e.target.value.trim();
++                                    return true;
++                                  }
++                                  if (list[idx].children && updateCssId(list[idx].children!)) {
++                                    return true;
++                                  }
+                                 }
+-                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+-                                className="w-full rounded border px-2 py-1 text-xs"
+-                              />
+-                            </div>
+-                          </div>
++                                return false;
++                              };
++                              updateCssId(newTree);
++                              return newTree;
++                            });
++                          }}
++                          placeholder="e.g. hero-section"
++                          className={`w-full rounded border px-2 py-1.5 text-xs font-mono outline-none ${!isValid || isDuplicate ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-slate-300 focus:border-blue-500'}`}
++                        />
++                        <p className="mt-1.5 text-[9px] text-slate-500 leading-tight">
++                          Give this element a unique ID. Use letters, numbers, hyphens and underscores.
++                        </p>
++                        {cssIdVal !== "" && (
++                          <button onClick={() => {
++                            if (window.confirm("Remove CSS ID?")) {
++                              setUnifiedElements(prev => {
++                                const newTree = JSON.parse(JSON.stringify(prev));
++                                const removeCssId = (list: EditorElement[]): boolean => {
++                                  for (let idx = 0; idx < list.length; idx++) {
++                                    if (list[idx].id === selectedElement.id) {
++                                      list[idx].cssId = "";
++                                      return true;
++                                    }
++                                    if (list[idx].children && removeCssId(list[idx].children!)) {
++                                      return true;
++                                    }
++                                  }
++                                  return false;
++                                };
++                                removeCssId(newTree);
++                                return newTree;
++                              });
++                            }
++                          }} className="mt-2 text-[10px] text-red-500 hover:underline font-bold">
++                            Remove ID
++                          </button>
+                         )}
++                      </div>
+ 
+-                      {selectedElement.type !== "container" && (
+-                        <div>
+-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
+-                            CONTENT
+-                          </label>
++                      {/* CSS Classes (F-106) */}
++                      <div className="pt-3 mt-3 border-t border-slate-200">
++                        <div className="flex items-center justify-between mb-2">
++                          <label className="text-[11px] font-semibold text-slate-700">CSS Classes</label>
++                          <span className="text-[10px] text-slate-500 font-semibold">{selectedElement.cssClasses?.length || 0} classes</span>
++                        </div>
++                        <div className="flex flex-wrap gap-1.5 mb-2">
++                          {selectedElement.cssClasses?.map(cls => (
++                            <span key={cls} className="flex items-center gap-1 bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-mono">
++                              {cls}
++                              <button onClick={() => {
++                                setUnifiedElements(prev => {
++                                  const newTree = JSON.parse(JSON.stringify(prev));
++                                  const removeCls = (list: EditorElement[]): boolean => {
++                                    for (let idx = 0; idx < list.length; idx++) {
++                                      if (list[idx].id === selectedElement.id) {
++                                        list[idx].cssClasses = list[idx].cssClasses?.filter((c: string) => c !== cls) || [];
++                                        return true;
++                                      }
++                                      if (list[idx].children && removeCls(list[idx].children!)) return true;
++                                    }
++                                    return false;
++                                  };
++                                  removeCls(newTree);
++                                  return newTree;
++                                });
++                              }} className="text-slate-500 hover:text-red-500 font-bold ml-1 text-xs">├ù</button>
++                            </span>
++                          ))}
++                        </div>
++                        <div className="flex gap-2">
+                           <input
+                             type="text"
+-                            value={selectedElement.content || ""}
+-                            onChange={(e) => updateSelectedProp("content", e.target.value)}
+-                            className="w-full rounded border px-3 py-1.5 text-xs"
++                            value={tempCssClass}
++                            onChange={(e) => setTempCssClass(e.target.value)}
++                            onKeyDown={(e) => {
++                              if (e.key === 'Enter') {
++                                const val = tempCssClass.trim();
++                                if (!val) return;
++                                if (!/^[A-Za-z_-][A-Za-z0-9_-]*$/.test(val)) {
++                                  alert("Class names may contain letters, numbers, hyphens and underscores.");
++                                  return;
++                                }
++                                if (selectedElement.cssClasses?.includes(val)) {
++                                  alert("This class is already assigned to this element.");
++                                  return;
++                                }
++                                setUnifiedElements(prev => {
++                                  const newTree = JSON.parse(JSON.stringify(prev));
++                                  const addCls = (list: EditorElement[]): boolean => {
++                                    for (let idx = 0; idx < list.length; idx++) {
++                                      if (list[idx].id === selectedElement.id) {
++                                        list[idx].cssClasses = [...(list[idx].cssClasses || []), val];
++                                        return true;
++                                      }
++                                      if (list[idx].children && addCls(list[idx].children!)) return true;
++                                    }
++                                    return false;
++                                  };
++                                  addCls(newTree);
++                                  return newTree;
++                                });
++                                setTempCssClass("");
++                              }
++                            }}
++                            placeholder="e.g. hero-section"
++                            className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                           />
++                          <button onClick={() => {
++                            const val = tempCssClass.trim();
++                            if (!val) return;
++                            if (!/^[A-Za-z_-][A-Za-z0-9_-]*$/.test(val)) {
++                              alert("Class names may contain letters, numbers, hyphens and underscores.");
++                              return;
++                            }
++                            if (selectedElement.cssClasses?.includes(val)) {
++                              alert("This class is already assigned to this element.");
++                              return;
++                            }
++                            setUnifiedElements(prev => {
++                              const newTree = JSON.parse(JSON.stringify(prev));
++                              const addCls = (list: EditorElement[]): boolean => {
++                                for (let idx = 0; idx < list.length; idx++) {
++                                  if (list[idx].id === selectedElement.id) {
++                                    list[idx].cssClasses = [...(list[idx].cssClasses || []), val];
++                                    return true;
++                                  }
++                                  if (list[idx].children && addCls(list[idx].children!)) return true;
++                                }
++                                return false;
++                              };
++                              addCls(newTree);
++                              return newTree;
++                            });
++                            setTempCssClass("");
++                          }} className="rounded bg-blue-600 px-3 py-1 text-xs font-bold text-white hover:bg-blue-700 shrink-0">Add</button>
+                         </div>
+-                      )}
++                        <p className="mt-1.5 text-[9px] text-slate-500 leading-tight">
++                          Press Enter to add. Add classes here to target them with reusable Global or Page constraints.
++                        </p>
++                        {(selectedElement.cssClasses?.length || 0) > 0 && (
++                          <button onClick={() => {
++                            if (window.confirm("Remove all CSS classes from this element?")) {
++                              setUnifiedElements(prev => {
++                                const newTree = JSON.parse(JSON.stringify(prev));
++                                const removeAll = (list: EditorElement[]): boolean => {
++                                  for (let idx = 0; idx < list.length; idx++) {
++                                    if (list[idx].id === selectedElement.id) {
++                                      list[idx].cssClasses = [];
++                                      return true;
++                                    }
++                                    if (list[idx].children && removeAll(list[idx].children!)) return true;
++                                  }
++                                  return false;
++                                };
++                                removeAll(newTree);
++                                return newTree;
++                              });
++                            }
++                          }} className="mt-2 text-[10px] text-red-500 hover:underline font-bold">
++                            Clear All Classes
++                          </button>
++                        )}
++                      </div>
++                    </div>
++                  );
++                })()}
++              </div>
++            ) : (
++              <div className="space-y-4">
++
++                {/* ==== Developer Module Toolset (F-103 to F-104) ==== */}
++                {activeSidebarDevModule === 'none' ? (
++                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm mt-4 p-4 mb-4">
++                    <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mb-3">Global / Page Styles</h3>
++                    <div className="grid grid-cols-2 gap-2">
++                      <button onClick={() => setActiveSidebarDevModule('global-css')} className="flex flex-col items-center p-3 border border-indigo-100 bg-indigo-50/50 rounded-xl hover:border-indigo-400 hover:shadow-sm transition">
++                        <span className="text-xl font-bold text-indigo-500">≡ƒîì</span>
++                        <span className="mt-1.5 text-[11px] font-bold text-indigo-700 uppercase tracking-widest text-center">Global CSS</span>
++                      </button>
++                      <button onClick={() => setActiveSidebarDevModule('page-css')} className="flex flex-col items-center p-3 border border-blue-100 bg-blue-50/50 rounded-xl hover:border-blue-400 hover:shadow-sm transition">
++                        <span className="text-xl font-bold text-blue-500">≡ƒôä</span>
++                        <span className="mt-1.5 text-[11px] font-bold text-blue-700 uppercase tracking-widest text-center">Page CSS</span>
++                      </button>
++                    </div>
++                  </div>
++                ) : (
++                  <div className="rounded-xl border border-slate-200 bg-white shadow-sm mt-4 p-4 mb-4">
++                    <button onClick={() => setActiveSidebarDevModule('none')} className="mb-4 text-xs font-bold text-blue-600 hover:underline flex items-center justify-start">
++                      &larr; Back to Settings
++                    </button>
+ 
+-                      {/* Smart Link & URL Controls (F-291) */}
+-                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
+-                        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+-                          <label className="block text-[10px] font-bold text-slate-600 uppercase">
+-                            Link & Smart Actions (F-291)
+-                          </label>
+-                          <input
+-                            type="text"
+-                            value={selectedElement.href || ""}
+-                            onChange={(e) => updateSelectedProp("href", e.target.value)}
+-                            placeholder="https://..., popup:open(id), scroll:to(id)"
+-                            className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
++                    {activeSidebarDevModule === 'global-css' && (
++                      <div className="space-y-4">
++                        <div className="flex items-center justify-between mb-2">
++                          <h3 className="text-[11px] font-extrabold text-indigo-700 uppercase tracking-tighter">Global Custom CSS</h3>
++                        </div>
++                        <div className="space-y-2">
++                          <div className="flex items-center justify-between">
++                            <span className="text-[10px] font-bold text-slate-500">Applies to all pages</span>
++                            {(() => {
++                              const cssValue = globalSettings.globalCustomCss || '';
++                              const openBraces = (cssValue.match(/\{/g) || []).length;
++                              const closeBraces = (cssValue.match(/\}/g) || []).length;
++                              const isValid = openBraces === closeBraces;
++                              return (
++                                <span className={`text-[10px] font-bold ${cssValue === '' ? 'text-slate-400' : isValid ? 'text-emerald-500' : 'text-red-500'}`}>
++                                  {cssValue === '' ? 'Empty' : isValid ? 'Γ£ô Valid CSS' : 'ΓÜá Invalid CSS'}
++                                </span>
++                              );
++                            })()}
++                          </div>
++                          <textarea
++                            value={globalSettings.globalCustomCss || ''}
++                            onChange={(e) => setGlobalSettings((prev: any) => ({ ...prev, globalCustomCss: e.target.value }))}
++                            placeholder="/* Write custom CSS for the entire website */
++body {
++  font-family: 'Inter', sans-serif;
++}"
++                            className="w-full min-h-[150px] p-2 text-[11px] font-mono rounded bg-slate-800 text-slate-100 border border-slate-700 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
++                            spellCheck={false}
+                           />
+-                          <div className="flex flex-wrap gap-1.5 pt-1">
+-                            {popups.length > 0 && (
+-                              <select
+-                                onChange={(e) => {
+-                                  if (e.target.value) {
+-                                    updateSelectedProp("href", `popup:open(${e.target.value})`);
+-                                    e.target.value = "";
+-                                  }
+-                                }}
+-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+-                              >
+-                                <option value="">+ Open Popup...</option>
+-                                {popups.map((p) => (
+-                                  <option key={p.id} value={p.id}>
+-                                    {p.name}
+-                                  </option>
+-                                ))}
+-                              </select>
+-                            )}
++                          <div className="flex items-center justify-between mt-1">
++                            <span className="text-[10px] text-slate-500 font-semibold max-w-[140px] leading-tight">≡ƒÆí Scoped to website content only.</span>
+                             <button
+-                              type="button"
+-                              onClick={() => updateSelectedProp("href", "popup:close")}
+-                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+-                            >
+-                              Close Popup
+-                            </button>
+-                            <button
+-                              type="button"
+-                              onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+-                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+-                            >
+-                              Scroll to Top
+-                            </button>
++                              onClick={() => {
++                                if (globalSettings.globalCustomCss && window.confirm('Remove all global custom CSS from this website?')) {
++                                  setGlobalSettings((prev: any) => ({ ...prev, globalCustomCss: '' }));
++                                }
++                              }}
++                              className={`text-[10px] font-bold hover:underline ${globalSettings.globalCustomCss ? 'text-red-500 cursor-pointer' : 'text-slate-400 cursor-not-allowed'}`}
++                              disabled={!globalSettings.globalCustomCss}
++                            >Reset CSS</button>
+                           </div>
+                         </div>
+-                      )}
++                      </div>
++                    )}
+ 
+-                      {renderAccordion(
+-                        "Typography & Colors",
+-                        "typography",
+-                        <div className="space-y-3">
+-                          <div>
+-                            {renderResponsiveLabel("Text Color")}
+-                            <input
+-                              type="color"
+-                              value={
+-                                getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
+-                                "#0f172a"
+-                              }
+-                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
+-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
+-                            />
++                    {activeSidebarDevModule === 'page-css' && (
++                      <div className="space-y-4">
++                        <div className="flex items-center justify-between mb-2">
++                          <h3 className="text-xs font-bold text-blue-700">Page Custom CSS</h3>
++                        </div>
++                        <div className="space-y-2">
++                          <div className="flex items-center justify-between">
++                            <span className="text-[10px] uppercase font-bold text-slate-500">Page: {activePage.name}</span>
++                            {(() => {
++                              const cssValue = activePage.customCss || '';
++                              const openBraces = (cssValue.match(/\{/g) || []).length;
++                              const closeBraces = (cssValue.match(/\}/g) || []).length;
++                              const isValid = openBraces === closeBraces;
++                              return (
++                                <span className={`text-[10px] font-bold ${cssValue === '' ? 'text-slate-400' : isValid ? 'text-emerald-500' : 'text-red-500'}`}>
++                                  {cssValue === '' ? 'Empty' : isValid ? 'Γ£ô Valid CSS' : 'ΓÜá Invalid CSS'}
++                                </span>
++                              );
++                            })()}
+                           </div>
+-                          <div>
+-                            {renderResponsiveLabel("Font Size (px)")}
+-                            <input
+-                              type="text"
+-                              value={
+-                                getStyleVal(
+-                                  selectedElement,
+-                                  "fontSize",
+-                                  activeBreakpointId,
+-                                  breakpoints
+-                                ) || "16px"
+-                              }
+-                              onChange={(e) =>
+-                                updateSelectedStyle(
+-                                  "fontSize",
+-                                  e.target.value.endsWith("px")
+-                                    ? e.target.value
+-                                    : `${e.target.value}px`
+-                                )
+-                              }
+-                              className="w-full rounded border px-2 py-1 text-xs"
+-                            />
++                          <textarea
++                            value={activePage.customCss || ''}
++                            onChange={(e) => setPages((prev) => prev.map((p) => p.id === activePageId ? { ...p, customCss: e.target.value } : p))}
++                            placeholder={`/* Write custom CSS specifically for ${activePage.name} */
++.hero-title {
++  letter-spacing: 2px;
++}`}
++                            className="w-full min-h-[150px] p-2 text-[11px] font-mono rounded bg-slate-800 text-slate-100 border border-slate-700 placeholder-slate-500 focus:outline-none focus:border-blue-500"
++                            spellCheck={false}
++                          />
++                          <div className="flex items-center justify-between mt-1">
++                            <span className="text-[10px] text-slate-500 font-semibold">≡ƒÆí Applied only to this page.</span>
++                            <button
++                              onClick={() => {
++                                if (activePage.customCss && window.confirm(`Remove all custom CSS from the ${activePage.name} page?`)) {
++                                  setPages((prev) => prev.map((p) => p.id === activePageId ? { ...p, customCss: '' } : p));
++                                }
++                              }}
++                              className={`text-[10px] font-bold hover:underline ${activePage.customCss ? 'text-red-500 cursor-pointer' : 'text-slate-400 cursor-not-allowed'}`}
++                              disabled={!activePage.customCss}
++                            >Reset CSS</button>
+                           </div>
+                         </div>
+-                      )}
+-                    </div>
+-                  ) : (
+-                    <div className="space-y-4">
+-                      {/* Site Identity */}
+-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+-                        <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
++                      </div>
++                    )}
++                  </div>
++                )}
++                {/* Site Identity */}
++                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
++                  <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
++                  <input
++                    type="text"
++                    value={globalSettings.siteIdentity?.name || ""}
++                    onChange={(e) =>
++                      setGlobalSettings((prev: any) => ({
++                        ...prev,
++                        siteIdentity: { ...prev.siteIdentity, name: e.target.value },
++                      }))
++                    }
++                    placeholder="Site Name"
++                    className="w-full rounded border px-2 py-1 text-xs"
++                  />
++                </div>
++
++                {/* Back To Top Button Settings (F-289) */}
++                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
++                  <div className="flex items-center justify-between">
++                    <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
++                    <input
++                      type="checkbox"
++                      checked={globalSettings.backToTop?.enabled !== false}
++                      onChange={(e) =>
++                        setGlobalSettings((prev: any) => ({
++                          ...prev,
++                          backToTop: { ...prev.backToTop, enabled: e.target.checked },
++                        }))
++                      }
++                      className="h-4 w-4 rounded text-blue-600"
++                    />
++                  </div>
++                  {globalSettings.backToTop?.enabled !== false && (
++                    <div className="space-y-2 pt-1">
++                      <div className="flex items-center justify-between gap-2">
++                        <label className="text-[11px] font-semibold text-slate-600">Position:</label>
++                        <select
++                          value={globalSettings.backToTop?.position || "bottom-right"}
++                          onChange={(e) =>
++                            setGlobalSettings((prev: any) => ({
++                              ...prev,
++                              backToTop: { ...prev.backToTop, position: e.target.value },
++                            }))
++                          }
++                          className="rounded border px-2 py-1 text-[11px]"
++                        >
++                          <option value="bottom-right">Bottom Right</option>
++                          <option value="bottom-left">Bottom Left</option>
++                        </select>
++                      </div>
++                      <div className="flex items-center justify-between gap-2">
++                        <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                         <input
+-                          type="text"
+-                          value={globalSettings.siteIdentity?.name || ""}
++                          type="number"
++                          value={globalSettings.backToTop?.offset ?? 300}
+                           onChange={(e) =>
+                             setGlobalSettings((prev: any) => ({
+                               ...prev,
+-                              siteIdentity: { ...prev.siteIdentity, name: e.target.value },
++                              backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                             }))
+                           }
+-                          placeholder="Site Name"
+-                          className="w-full rounded border px-2 py-1 text-xs"
++                          className="w-20 rounded border px-2 py-1 text-[11px]"
+                         />
+                       </div>
++                    </div>
++                  )}
++                </div>
+ 
+-                      {/* Back To Top Button Settings (F-289) */}
+-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+-                        <div className="flex items-center justify-between">
+-                          <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+-                          <input
+-                            type="checkbox"
+-                            checked={globalSettings.backToTop?.enabled !== false}
+-                            onChange={(e) =>
+-                              setGlobalSettings((prev: any) => ({
+-                                ...prev,
+-                                backToTop: { ...prev.backToTop, enabled: e.target.checked },
+-                              }))
+-                            }
+-                            className="h-4 w-4 rounded text-blue-600"
+-                          />
+-                        </div>
+-                        {globalSettings.backToTop?.enabled !== false && (
+-                          <div className="space-y-2 pt-1">
+-                            <div className="flex items-center justify-between gap-2">
+-                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+-                              <select
+-                                value={globalSettings.backToTop?.position || "bottom-right"}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    backToTop: { ...prev.backToTop, position: e.target.value },
+-                                  }))
+-                                }
+-                                className="rounded border px-2 py-1 text-[11px]"
+-                              >
+-                                <option value="bottom-right">Bottom Right</option>
+-                                <option value="bottom-left">Bottom Left</option>
+-                              </select>
+-                            </div>
+-                            <div className="flex items-center justify-between gap-2">
+-                              <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+-                              <input
+-                                type="number"
+-                                value={globalSettings.backToTop?.offset ?? 300}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+-                                  }))
+-                                }
+-                                className="w-20 rounded border px-2 py-1 text-[11px]"
+-                              />
+-                            </div>
+-                          </div>
+-                        )}
+-                      </div>
+-
+-                      {/* Floating Action Button Settings (F-287) */}
+-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+-                        <div className="flex items-center justify-between">
+-                          <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+-                          <input
+-                            type="checkbox"
+-                            checked={globalSettings.floatingActionButton?.enabled === true}
+-                            onChange={(e) =>
+-                              setGlobalSettings((prev: any) => ({
+-                                ...prev,
+-                                floatingActionButton: {
+-                                  ...prev.floatingActionButton,
+-                                  enabled: e.target.checked,
+-                                },
+-                              }))
+-                            }
+-                            className="h-4 w-4 rounded text-blue-600"
+-                          />
+-                        </div>
++                {/* Floating Action Button Settings (F-287) */}
++                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
++                  <div className="flex items-center justify-between">
++                    <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
++                    <input
++                      type="checkbox"
++                      checked={globalSettings.floatingActionButton?.enabled === true}
++                      onChange={(e) =>
++                        setGlobalSettings((prev: any) => ({
++                          ...prev,
++                          floatingActionButton: {
++                            ...prev.floatingActionButton,
++                            enabled: e.target.checked,
++                          },
++                        }))
++                      }
++                      className="h-4 w-4 rounded text-blue-600"
++                    />
++                  </div>
+ 
+-                        {globalSettings.floatingActionButton?.enabled && (
+-                          <div className="space-y-2 pt-1">
+-                            <div>
+-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+-                                Icon & Type
+-                              </label>
+-                              <select
+-                                value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    floatingActionButton: {
+-                                      ...prev.floatingActionButton,
+-                                      icon: e.target.value,
+-                                      backgroundColor:
+-                                        e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+-                                    },
+-                                  }))
+-                                }
+-                                className="w-full rounded border px-2 py-1 text-[11px]"
+-                              >
+-                                <option value="whatsapp">WhatsApp Button</option>
+-                                <option value="chat">Live Chat / Message</option>
+-                                <option value="phone">Call Now (Phone)</option>
+-                                <option value="email">Email Us</option>
+-                              </select>
+-                            </div>
++                  {globalSettings.floatingActionButton?.enabled && (
++                    <div className="space-y-2 pt-1">
++                      <div>
++                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
++                          Icon & Type
++                        </label>
++                        <select
++                          value={globalSettings.floatingActionButton?.icon || "whatsapp"}
++                          onChange={(e) =>
++                            setGlobalSettings((prev: any) => ({
++                              ...prev,
++                              floatingActionButton: {
++                                ...prev.floatingActionButton,
++                                icon: e.target.value,
++                                backgroundColor:
++                                  e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
++                              },
++                            }))
++                          }
++                          className="w-full rounded border px-2 py-1 text-[11px]"
++                        >
++                          <option value="whatsapp">WhatsApp Button</option>
++                          <option value="chat">Live Chat / Message</option>
++                          <option value="phone">Call Now (Phone)</option>
++                          <option value="email">Email Us</option>
++                        </select>
++                      </div>
+ 
+-                            <div>
+-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+-                                Label
+-                              </label>
+-                              <input
+-                                type="text"
+-                                value={globalSettings.floatingActionButton?.label || ""}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    floatingActionButton: {
+-                                      ...prev.floatingActionButton,
+-                                      label: e.target.value,
+-                                    },
+-                                  }))
+-                                }
+-                                placeholder="Chat with us"
+-                                className="w-full rounded border px-2 py-1 text-[11px]"
+-                              />
+-                            </div>
++                      <div>
++                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
++                          Label
++                        </label>
++                        <input
++                          type="text"
++                          value={globalSettings.floatingActionButton?.label || ""}
++                          onChange={(e) =>
++                            setGlobalSettings((prev: any) => ({
++                              ...prev,
++                              floatingActionButton: {
++                                ...prev.floatingActionButton,
++                                label: e.target.value,
++                              },
++                            }))
++                          }
++                          placeholder="Chat with us"
++                          className="w-full rounded border px-2 py-1 text-[11px]"
++                        />
++                      </div>
+ 
+-                            <div>
+-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+-                                Link or Smart Action
+-                              </label>
+-                              <input
+-                                type="text"
+-                                value={globalSettings.floatingActionButton?.link || ""}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    floatingActionButton: {
+-                                      ...prev.floatingActionButton,
+-                                      link: e.target.value,
+-                                    },
+-                                  }))
+-                                }
+-                                placeholder="https://wa.me/... or popup:open(id)"
+-                                className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+-                              />
+-                            </div>
++                      <div>
++                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
++                          Link or Smart Action
++                        </label>
++                        <input
++                          type="text"
++                          value={globalSettings.floatingActionButton?.link || ""}
++                          onChange={(e) =>
++                            setGlobalSettings((prev: any) => ({
++                              ...prev,
++                              floatingActionButton: {
++                                ...prev.floatingActionButton,
++                                link: e.target.value,
++                              },
++                            }))
++                          }
++                          placeholder="https://wa.me/... or popup:open(id)"
++                          className="w-full rounded border px-2 py-1 text-[11px] font-mono"
++                        />
++                      </div>
+ 
+-                            <div className="flex items-center justify-between gap-2">
+-                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+-                              <select
+-                                value={globalSettings.floatingActionButton?.position || "bottom-left"}
+-                                onChange={(e) =>
+-                                  setGlobalSettings((prev: any) => ({
+-                                    ...prev,
+-                                    floatingActionButton: {
+-                                      ...prev.floatingActionButton,
+-                                      position: e.target.value,
+-                                    },
+-                                  }))
+-                                }
+-                                className="rounded border px-2 py-1 text-[11px]"
+-                              >
+-                                <option value="bottom-left">Bottom Left</option>
+-                                <option value="bottom-right">Bottom Right</option>
+-                              </select>
+-                            </div>
+-                          </div>
+-                        )}
++                      <div className="flex items-center justify-between gap-2">
++                        <label className="text-[11px] font-semibold text-slate-600">Position:</label>
++                        <select
++                          value={globalSettings.floatingActionButton?.position || "bottom-left"}
++                          onChange={(e) =>
++                            setGlobalSettings((prev: any) => ({
++                              ...prev,
++                              floatingActionButton: {
++                                ...prev.floatingActionButton,
++                                position: e.target.value,
++                              },
++                            }))
++                          }
++                          className="rounded border px-2 py-1 text-[11px]"
++                        >
++                          <option value="bottom-left">Bottom Left</option>
++                          <option value="bottom-right">Bottom Right</option>
++                        </select>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+-              </>
++              </div>
+             )}
+-          </aside>
+-        )}
+-      </div>
+-
+-      {/* Structure Preset Modal */}
+-      {isStructureModalOpen && (
+-        <div
+-          onClick={() => setIsStructureModalOpen(false)}
+-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4"
+-        >
+-          <div
+-            onClick={(e) => e.stopPropagation()}
+-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-4"
+-          >
+-            <div className="flex items-center justify-between border-b pb-3">
+-              <h3 className="text-sm font-bold text-slate-800">Select your Structure</h3>
+-              <button onClick={() => setIsStructureModalOpen(false)} className="text-slate-400 hover:text-slate-600">Γ£ò</button>
+-            </div>
+-            <div className="grid grid-cols-3 gap-3">
+-              {[
+-                { id: "single", label: "1 Column", cols: [1] },
+-                { id: "cols-2-equal", label: "2 Columns (50/50)", cols: [1, 1] },
+-                { id: "cols-3-equal", label: "3 Columns (33/33/33)", cols: [1, 1, 1] },
+-                { id: "cols-2-30-70", label: "2 Columns (30/70)", cols: [0.3, 0.7] },
+-                { id: "cols-2-70-30", label: "2 Columns (70/30)", cols: [0.7, 0.3] },
+-                { id: "cols-4-equal", label: "4 Columns (25% each)", cols: [1, 1, 1, 1] },
+-              ].map((preset) => (
+-                <button
+-                  key={preset.id}
+-                  onClick={() => {
+-                    handleInsertStructure(preset.id as StructurePresetType);
+-                    setIsStructureModalOpen(false);
+-                  }}
+-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border p-3 bg-slate-50 hover:border-blue-500 hover:bg-blue-50/50"
+-                >
+-                  <div className="w-full h-10 border rounded bg-white p-1 flex gap-1">
+-                    {preset.cols.map((_, i) => (
+-                      <div key={i} className="h-full bg-slate-200 rounded flex-1" />
+-                    ))}
+-                  </div>
+-                  <span className="text-[10px] font-bold text-slate-700">{preset.label}</span>
+-                </button>
+-              ))}
+-            </div>
+           </div>
+-        </div>
+-      )}
+-
+-      {/* Popup Manager Modal (F-289) */}
+-      <PopupManagerModal
+-        isOpen={isPopupManagerOpen}
+-        onClose={() => setIsPopupManagerOpen(false)}
+-        popups={popups}
+-        onSelectPopupForEdit={handleSelectPopupForEdit}
+-        onCreatePopup={handleCreatePopup}
+-        onUpdatePopup={handleUpdatePopup}
+-        onDeletePopup={handleDeletePopup}
+-        onDuplicatePopup={handleDuplicatePopup}
+-      />
+-
+-      {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
+-      {isPreview && (
+-        <PopupRuntimePreview
+-          popups={popups}
+-          renderElementTree={renderElementTree}
+-          onTrackView={handleTrackPopupView}
+-          onTrackClick={handleTrackPopupClick}
+-          isPreviewMode={true}
+-          globalSettings={globalSettings}
+-        />
++        </>
+       )}
++    </aside>
++  )
++}
++      </div >
++
++  {/* Structure Preset Modal */ }
++{
++  isStructureModalOpen && (
++    <div
++      onClick={() => setIsStructureModalOpen(false)}
++      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4"
++    >
++      <div
++        onClick={(e) => e.stopPropagation()}
++        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 flex flex-col gap-4"
++      >
++        <div className="flex items-center justify-between border-b pb-3">
++          <h3 className="text-sm font-bold text-slate-800">Select your Structure</h3>
++          <button onClick={() => setIsStructureModalOpen(false)} className="text-slate-400 hover:text-slate-600">Γ£ò</button>
++        </div>
++        <div className="grid grid-cols-3 gap-3">
++          {[
++            { id: "single", label: "1 Column", cols: [1] },
++            { id: "cols-2-equal", label: "2 Columns (50/50)", cols: [1, 1] },
++            { id: "cols-3-equal", label: "3 Columns (33/33/33)", cols: [1, 1, 1] },
++            { id: "cols-2-30-70", label: "2 Columns (30/70)", cols: [0.3, 0.7] },
++            { id: "cols-2-70-30", label: "2 Columns (70/30)", cols: [0.7, 0.3] },
++            { id: "cols-4-equal", label: "4 Columns (25% each)", cols: [1, 1, 1, 1] },
++          ].map((preset) => (
++            <button
++              key={preset.id}
++              onClick={() => {
++                handleInsertStructure(preset.id as StructurePresetType);
++                setIsStructureModalOpen(false);
++              }}
++              className="flex flex-col items-center justify-center gap-2 rounded-xl border p-3 bg-slate-50 hover:border-blue-500 hover:bg-blue-50/50"
++            >
++              <div className="w-full h-10 border rounded bg-white p-1 flex gap-1">
++                {preset.cols.map((_, i) => (
++                  <div key={i} className="h-full bg-slate-200 rounded flex-1" />
++                ))}
++              </div>
++              <span className="text-[10px] font-bold text-slate-700">{preset.label}</span>
++            </button>
++          ))}
++        </div>
++      </div>
+     </div>
++  )
++}
++
++{/* Popup Manager Modal (F-289) */ }
++<PopupManagerModal
++  isOpen={isPopupManagerOpen}
++  onClose={() => setIsPopupManagerOpen(false)}
++  popups={popups}
++  onSelectPopupForEdit={handleSelectPopupForEdit}
++  onCreatePopup={handleCreatePopup}
++  onUpdatePopup={handleUpdatePopup}
++  onDeletePopup={handleDeletePopup}
++  onDuplicatePopup={handleDuplicatePopup}
++/>
++
++{/* Runtime Simulation in Preview Mode (F-282 - F-291) */ }
++{
++  isPreview && (
++    <PopupRuntimePreview
++      popups={popups}
++      renderElementTree={renderElementTree}
++      onTrackView={handleTrackPopupView}
++      onTrackClick={handleTrackPopupClick}
++      isPreviewMode={true}
++      globalSettings={globalSettings}
++    />
++  )
++}
++    </div >
+   );
+ }
+\ No newline at end of file

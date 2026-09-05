@@ -18,6 +18,11 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
 import WebsiteEditor from "./pages/editor/WebsiteEditor";
+import CustomPostTypesList from "./pages/dashboard/CustomPostTypesList";
+import CustomPostTypeBuilder from "./pages/dashboard/CustomPostTypeBuilder";
+import CustomEntriesList from "./pages/dashboard/CustomEntriesList";
+import CustomEntryEditor from "./pages/dashboard/CustomEntryEditor";
+
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
@@ -243,7 +248,64 @@ function App() {
             }
           />
 
+          {/* ================= CUSTOM POST TYPES ================= */}
+
+          <Route
+            path="/dashboard/cpts/:websiteId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypesList />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/cpts/:websiteId/builder"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypeBuilder />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/cpts/:websiteId/builder/:cptId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypeBuilder />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntriesList />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId/editor"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntryEditor />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId/editor/:entryId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntryEditor />
+              </RoleRoute>
+            }
+          />
+
           {/* ================= ADMIN ================= */}
+
 
           <Route
             path="/admin"

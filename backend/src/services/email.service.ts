@@ -12,9 +12,12 @@ export async function sendOtpEmail(
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
   if (!smtpHost || !smtpUser || !smtpPassword || !smtpFrom) {
-    throw new Error(
-      "SMTP configuration is missing. Check SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD and SMTP_FROM."
-    );
+    console.log(`\n==================================================`);
+    console.log(`[EMAIL OTP] (SIMULATED - NO SMTP SETUP) Sent to: ${toEmail}`);
+    console.log(`[EMAIL OTP] Purpose: ${purpose}`);
+    console.log(`[EMAIL OTP] OTP Code: ${otp}`);
+    console.log(`==================================================\n`);
+    return;
   }
 
   const transporter = nodemailer.createTransport({

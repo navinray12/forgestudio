@@ -4,6 +4,10 @@ import type { PopupConfig } from "../../types/popup.types";
 import PopupManagerModal from "./components/PopupManagerModal";
 import PopupSettingsPanel from "./components/PopupSettingsPanel";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
+import DeveloperModal from "./components/DeveloperModal";
+import NotesPanel from "./components/NotesPanel";
+import ComponentAccessModal from "./components/ComponentAccessModal";
+import type { DeveloperModalMode } from "./components/DeveloperModal";
 
 // ==========================================
 // Types & Interfaces
@@ -12,7 +16,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 export type ElementType =
   | "container" | "heading" | "text" | "image" | "button"
   | "video" | "divider" | "spacer" | "icon" | "rating"
-  | "progress-bar" | "counter" | "html" | "alert"
+  | "progress-bar" | "counter" | "html" | "shortcode" | "alert"
   | "social-icons" | "google-maps" | "soundcloud"
   | "div-block" | "paragraph";
 
@@ -35,7 +39,7 @@ export interface ContainerLayout {
   gridAutoFlow?: "row" | "column" | "dense" | "row dense" | "column dense";
   justifyItems?: "stretch" | "start" | "center" | "end";
 
-  // Masonry Controls (F-051)
+  // Masonry Controls
   masonryColumns?: number;
   masonryGap?: number | string;
 }
@@ -64,7 +68,7 @@ export interface ElementStyles {
   marginLeft?: string;
   lineHeight?: string;
 
-  // Alignment & Self Alignment (F-045)
+  // Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
   justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
 
@@ -76,13 +80,13 @@ export interface ElementStyles {
   left?: string;
   zIndex?: string | number;
 
-  // Grid Child Placement (F-043)
+  // Grid Child Placement
   gridColumn?: string;
   gridRow?: string;
   gridColumnSpan?: number;
   gridRowSpan?: number;
 
-  // Scroll & Scroll Snap (F-050)
+  // Scroll & Scroll Snap
   scrollSnapType?: "none" | "x mandatory" | "y mandatory" | "x proximity" | "y proximity" | "both mandatory";
   scrollSnapAlign?: "none" | "start" | "center" | "end";
   scrollSnapStop?: "normal" | "always";
@@ -139,7 +143,7 @@ export interface ElementStyles {
   filterHueRotate?: string;
   clipPath?: string;
 
-  // CSS Transform (F-086)
+  // CSS Transform
   transformRotate?: string;
   transformScale?: string;
   transformSkewX?: string;
@@ -154,11 +158,11 @@ export interface ElementStyles {
   textMaskGradient?: string;
   textMaskImage?: string;
 
-  // Ken Burns Effect (F-092)
+  // Ken Burns Effect
   kenBurnsEffect?: "none" | "zoom-in" | "zoom-out";
   textPathEnabled?: "true" | "false";
 
-  // Shape Dividers (F-091)
+  // Shape Dividers
   dividerTopEnabled?: "true" | "false";
   dividerTopStyle?: "waves" | "curves" | "slant" | "triangle";
   dividerTopColor?: string;
@@ -242,6 +246,7 @@ export interface EditorElement {
   id: string;
   type: ElementType;
   content: string;
+  isProtected?: boolean;
   src?: string;
   alt?: string;
   href?: string;
@@ -256,6 +261,12 @@ export interface EditorElement {
   responsiveStyles?: Record<string, ElementStyles>;
   responsiveLayouts?: Record<string, ContainerLayout>;
   hiddenDevices?: Record<string, boolean>;
+
+  // Developer/Advanced (F-102, F-105 to F-109)
+  customId?: string;
+  customCss?: string;
+  customSelectors?: string;
+  customAttributes?: { name: string; value: string }[];
 }
 
 interface WebsiteData {
@@ -263,6 +274,7 @@ interface WebsiteData {
   name: string;
   slug: string;
   status: string;
+  userPermission?: string;
   editorData?: {
     version: number;
     elements: EditorElement[];
@@ -394,6 +406,24 @@ function insertTreeElement(
   };
   const updatedList = insertInArray(list);
   return inserted ? updatedList : [...list, newEl];
+}
+
+// ==========================================
+// CSS Helper (F-102, F-103, F-104, F-107)
+// ==========================================
+export function getDeveloperCss(elements: EditorElement[]): string {
+  let css = "";
+  for (const el of elements) {
+    if (el.customCss) {
+      css += `\n/* Element ${el.customId || el.id} */\n.${el.id} { ${el.customCss} }\n`;
+    }
+    if (el.customSelectors) {
+      // Replace '&' with the element's specific class scope
+      css += `\n/* Selectors ${el.customId || el.id} */\n${el.customSelectors.replace(/&/g, `.${el.id}`)}\n`;
+    }
+    if (el.children) css += getDeveloperCss(el.children);
+  }
+  return css;
 }
 
 // ==========================================
@@ -693,9 +723,8 @@ export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interv
       {urls.map((url, i) => (
         <div
           key={url + i}
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-            i === index ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"
+            }`}
           style={{ backgroundImage: `url(${url})` }}
         />
       ))}
@@ -753,18 +782,18 @@ function renderSvgIcon(name: string, size: string, color: string) {
   const fill = color || "currentColor";
   switch (name) {
     case "heart":
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill={fill}><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill={fill}><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>;
     case "check":
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
     case "info":
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>;
     case "alert":
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>;
     case "globe":
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>;
     case "star":
     default:
-      return <svg style={{width: sizePx, height: sizePx}} viewBox="0 0 24 24" fill={fill}><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill={fill}><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>;
   }
 }
 
@@ -989,6 +1018,16 @@ function createDefaultElement(type: ElementType): EditorElement {
         id,
         type: "html",
         content: "<div style='padding:20px; background:#eff6ff; border-radius:8px; border:1px solid #bfdbfe;'><p style='margin:0; font-size:14px;'>Custom HTML Code</p></div>",
+        styles: {
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+    case "shortcode":
+      return {
+        id,
+        type: "shortcode",
+        content: "gallery id='1' columns='3'",
         styles: {
           marginTop: "12px",
           marginBottom: "12px",
@@ -1261,10 +1300,13 @@ export default function WebsiteEditor() {
   const [elements, setElements] = useState<EditorElement[]>([]);
   const [popups, setPopups] = useState<PopupConfig[]>([]);
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
   const [activePopupId, setActivePopupId] = useState<string | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1368,7 +1410,10 @@ export default function WebsiteEditor() {
     }
   });
 
-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup">("global");
+  const [pageCss, setPageCss] = useState<string>("");
+
+  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup" | "advanced">("global");
+  const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     layout: true,
@@ -1416,6 +1461,19 @@ export default function WebsiteEditor() {
         const loadedSite = data.website || data;
         setWebsite(loadedSite);
 
+        // Fetch component accesses
+        try {
+          const accessRes = await fetch(`${apiUrl}/api/v1/component-access/${websiteId}/all`, {
+            credentials: "include"
+          });
+          const accessData = await accessRes.json();
+          if (accessRes.ok && accessData.accesses) {
+            setAllowedComponentIds(new Set(accessData.accesses.map((a: any) => a.componentId)));
+          }
+        } catch (e) {
+          console.error("Failed to fetch accesses", e);
+        }
+
         if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
           setElements(loadedSite.editorData.elements);
         } else {
@@ -1436,6 +1494,10 @@ export default function WebsiteEditor() {
 
         if (loadedSite?.editorData?.globalSettings) {
           setGlobalSettings(loadedSite.editorData.globalSettings);
+        }
+
+        if (loadedSite?.editorData?.pageCss) {
+          setPageCss(loadedSite.editorData.pageCss);
         }
       } catch (err) {
         console.error("Error loading website:", err);
@@ -1464,6 +1526,7 @@ export default function WebsiteEditor() {
           breakpoints,
           globalSettings,
           popups,
+          pageCss,
         },
       };
 
@@ -1606,6 +1669,11 @@ export default function WebsiteEditor() {
     const isSelected = selectedId === el.id && !isPreview;
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
+    const customAttrProps = (el.customAttributes || []).reduce((acc, curr) => {
+      if (curr.name && curr.name.trim()) acc[curr.name.trim()] = curr.value || "";
+      return acc;
+    }, {} as any);
+
     if (el.type === "container") {
       const layoutType = getLayoutVal(el, "layoutType", activeBreakpointId, breakpoints) || "flex";
       const gapVal = getLayoutVal(el, "gap", activeBreakpointId, breakpoints) ?? 16;
@@ -1648,15 +1716,15 @@ export default function WebsiteEditor() {
       return (
         <div
           key={el.id}
+          id={el.customId || undefined}
+          {...customAttrProps}
           onClick={(e) => {
             e.stopPropagation();
             if (!isPreview) setSelectedId(el.id);
           }}
-          className={`relative transition-all duration-150 ${el.customClass || ""} ${
-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${
-            isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
-          }`}
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+            } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
+            }`}
           style={{
             ...containerLayoutStyles,
             ...resolvedStyles,
@@ -1703,13 +1771,14 @@ export default function WebsiteEditor() {
     return (
       <div
         key={el.id}
+        id={el.customId || undefined}
+        {...customAttrProps}
         onClick={(e) => {
           e.stopPropagation();
           if (!isPreview) setSelectedId(el.id);
         }}
-        className={`relative rounded-xl transition duration-150 ${el.customClass || ""} ${
-          isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
+        className={`relative rounded-xl transition duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+          } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
         style={{ ...resolvedStyles }}
       >
         {isSelected && (
@@ -1753,6 +1822,7 @@ export default function WebsiteEditor() {
           <div style={{ textAlign: (resolvedStyles.textAlign as any) || "left" }}>
             <a
               href={el.href || "#"}
+              {...customAttrProps}
               onClick={(e) => !isPreview && e.preventDefault()}
               className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
               style={{ ...getInnerStyles(resolvedStyles) }}
@@ -1780,6 +1850,17 @@ export default function WebsiteEditor() {
             <AnimatedCounter start={0} end={100} prefix="" suffix="%" duration={2000} />
           </div>
         )}
+
+        {el.type === "html" && (
+          <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block (F-110)</p>" }} className="w-full h-full" />
+        )}
+
+        {el.type === "shortcode" && (
+          <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs font-mono text-amber-800 text-center break-all transition">
+            {el.content ? `[ ${el.content} ]` : "Enter Shortcode here (F-111)"}
+            <div className="opacity-60 text-[9px] mt-1 uppercase font-bold tracking-wider">Renders Dynamically on Publish</div>
+          </div>
+        )}
       </div>
     );
   };
@@ -1802,28 +1883,26 @@ export default function WebsiteEditor() {
           </Link>
           <span className="text-xs font-bold text-white">{website?.name || "Website Editor"}</span>
 
-          {/* Mode Switcher (F-289) */}
+          {/* Mode Switcher */}
           <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
             <button
               onClick={() => {
                 setActiveCanvasMode("page");
                 setSelectedId(null);
               }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
-                activeCanvasMode === "page"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-slate-300 hover:text-white"
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "page"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-300 hover:text-white"
+                }`}
             >
               <span>📄</span> Page Canvas
             </button>
             <button
               onClick={() => setIsPopupManagerOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
-                activeCanvasMode === "popup"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-slate-300 hover:text-white"
-              }`}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "popup"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-300 hover:text-white"
+                }`}
             >
               <span>✨</span> Popups ({popups.length})
             </button>
@@ -1853,11 +1932,10 @@ export default function WebsiteEditor() {
               <button
                 key={bp.id}
                 onClick={() => setActiveBreakpointId(bp.id)}
-                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${
-                  bp.id === activeBreakpointId
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-300 hover:bg-slate-800"
-                }`}
+                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${bp.id === activeBreakpointId
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:bg-slate-800"
+                  }`}
               >
                 {bp.name}
               </button>
@@ -1866,15 +1944,27 @@ export default function WebsiteEditor() {
         )}
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsComponentAccessOpen(!isComponentAccessOpen)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border bg-transparent text-slate-300 border-slate-600 hover:text-white"
+          >
+            🔒 Access
+          </button>
+          <button
+            onClick={() => setIsNotesOpen(!isNotesOpen)}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border ${isNotesOpen ? "bg-slate-700 text-white border-slate-600 shadow-sm" : "bg-transparent text-slate-300 border-slate-600 hover:text-white"}`}
+          >
+            💬 Notes (F-404)
+          </button>
+
           {saveMessage && <span className="text-xs text-emerald-400">✓ {saveMessage}</span>}
           {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${
-              isPreview
-                ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
-                : "border-slate-600 text-slate-300 hover:bg-slate-800"
-            }`}
+            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${isPreview
+              ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
+              : "border-slate-600 text-slate-300 hover:bg-slate-800"
+              }`}
           >
             {isPreview ? "Exit Preview" : "Preview Site & Popups"}
           </button>
@@ -1948,6 +2038,14 @@ export default function WebsiteEditor() {
                   <span className="text-xl">★</span>
                   <span className="mt-1.5 text-xs font-semibold">Icon</span>
                 </button>
+                <button onClick={() => handleAddElement("html")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl font-mono text-blue-500">{"</>"}</span>
+                  <span className="mt-1.5 text-xs font-semibold">HTML</span>
+                </button>
+                <button onClick={() => handleAddElement("shortcode")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
+                  <span className="text-xl font-mono text-amber-500">[ ]</span>
+                  <span className="mt-1.5 text-xs font-semibold">Shortcode</span>
+                </button>
               </div>
             </div>
           </aside>
@@ -1956,8 +2054,22 @@ export default function WebsiteEditor() {
         {/* Center Canvas */}
         <main
           onClick={() => setSelectedId(null)}
-          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
+          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10 relative"
         >
+          <style>
+            {`
+                /* Global CSS */
+                ${globalSettings.customCss || ""}
+                
+                /* Page CSS */
+                ${pageCss || ""}
+                
+                /* Elements CSS */
+                ${getDeveloperCss(elements)}
+                ${getDeveloperCss(popups.flatMap(p => p.elements))}
+             `}
+          </style>
+
           {activeCanvasMode === "popup" && activePopup ? (
             /* Popup Visual Editing Canvas */
             <div className="flex flex-col items-center justify-center w-full my-auto">
@@ -1991,20 +2103,18 @@ export default function WebsiteEditor() {
                     maxWidth: "100%",
                     minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
                   }}
-                  className={`bg-white shadow-2xl relative transition-all duration-150 ${
-                    activePopup.layoutMode === "hello-bar"
-                      ? "rounded-none w-full shadow-md"
-                      : "rounded-2xl"
-                  }`}
+                  className={`bg-white shadow-2xl relative transition-all duration-150 ${activePopup.layoutMode === "hello-bar"
+                    ? "rounded-none w-full shadow-md"
+                    : "rounded-2xl"
+                    }`}
                 >
                   {/* Close button badge */}
                   {activePopup.closeButton && (
                     <div
-                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${
-                        activePopup.closeButtonPosition === "outside"
-                          ? "-top-3 -right-3"
-                          : "top-3 right-3"
-                      }`}
+                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${activePopup.closeButtonPosition === "outside"
+                        ? "-top-3 -right-3"
+                        : "top-3 right-3"
+                        }`}
                     >
                       ✕
                     </div>
@@ -2082,6 +2192,25 @@ export default function WebsiteEditor() {
           )}
         </main>
 
+        {/* F-404 Notes Panel overlay */}
+        <NotesPanel
+          isOpen={isNotesOpen}
+          onClose={() => setIsNotesOpen(false)}
+          websiteId={websiteId || ""}
+          apiUrl={apiUrl}
+          selectedElementId={selectedId}
+          elements={elements}
+        />
+
+        <ComponentAccessModal
+          isOpen={isComponentAccessOpen}
+          onClose={() => setIsComponentAccessOpen(false)}
+          websiteId={websiteId || ""}
+          apiUrl={apiUrl}
+          elements={elements}
+          onUpdateElement={(id, updates) => setUnifiedElements((prev) => updateTreeElement(prev, id, el => ({ ...el, ...updates })))}
+        />
+
         {/* Right Settings Inspector */}
         {!isPreview && (
           <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
@@ -2115,24 +2244,33 @@ export default function WebsiteEditor() {
                       type="button"
                       onClick={() => selectedElement && setActiveSidebarTab("element")}
                       disabled={!selectedElement}
-                      className={`flex-1 rounded-md py-1.5 text-center ${
-                        activeSidebarTab === "element"
-                          ? "bg-white text-slate-800 shadow-sm"
-                          : "text-slate-500"
-                      }`}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "element"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
                     >
                       Element Styles
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveSidebarTab("global")}
-                      className={`flex-1 rounded-md py-1.5 text-center ${
-                        activeSidebarTab === "global"
-                          ? "bg-white text-slate-800 shadow-sm"
-                          : "text-slate-500"
-                      }`}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "global"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
                     >
-                      Global & Site
+                      Site Settings
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selectedElement && setActiveSidebarTab("advanced")}
+                      disabled={!selectedElement}
+                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "advanced"
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-500"
+                        }`}
+                    >
+                      Advanced
                     </button>
                   </div>
                 </div>
@@ -2152,20 +2290,28 @@ export default function WebsiteEditor() {
                         </button>
                       </div>
 
-                      {selectedElement.type === "container" &&
-                        renderAccordion(
-                          "Layout & Structure",
-                          "layout",
-                          <div className="space-y-3">
-                            <div>
-                              {renderResponsiveLabel("Layout Engine")}
-                              <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
-                                {(["flex", "grid", "masonry"] as const).map((mode) => (
-                                  <button
-                                    key={mode}
-                                    onClick={() => updateSelectedLayout("layoutType", mode)}
-                                    className={`py-1 rounded capitalize ${
-                                      (getLayoutVal(
+                      {/* F-405 Protection View */}
+                      {selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg flex flex-col gap-2">
+                          <span className="font-bold flex items-center gap-2">🔒 Editing Restricted</span>
+                          <span className="text-[11px] leading-tight">This component is protected by the administrators.</span>
+                        </div>
+                      )}
+
+                      <div className={`space-y-4 ${selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) ? "opacity-40 pointer-events-none select-none" : ""}`}>
+                        {selectedElement.type === "container" &&
+                          renderAccordion(
+                            "Layout & Structure",
+                            "layout",
+                            <div className="space-y-3">
+                              <div>
+                                {renderResponsiveLabel("Layout Engine")}
+                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+                                  {(["flex", "grid", "masonry"] as const).map((mode) => (
+                                    <button
+                                      key={mode}
+                                      onClick={() => updateSelectedLayout("layoutType", mode)}
+                                      className={`py-1 rounded capitalize ${(getLayoutVal(
                                         selectedElement,
                                         "layoutType",
                                         activeBreakpointId,
@@ -2173,343 +2319,392 @@ export default function WebsiteEditor() {
                                       ) || "flex") === mode
                                         ? "bg-white text-blue-600 shadow"
                                         : "text-slate-600"
-                                    }`}
-                                  >
-                                    {mode}
-                                  </button>
-                                ))}
+                                        }`}
+                                    >
+                                      {mode}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Direction")}
+                                <select
+                                  value={
+                                    getLayoutVal(
+                                      selectedElement,
+                                      "direction",
+                                      activeBreakpointId,
+                                      breakpoints
+                                    ) || "column"
+                                  }
+                                  onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                                  className="w-full rounded border px-2 py-1.5 text-xs"
+                                >
+                                  <option value="column">Column (Vertical)</option>
+                                  <option value="row">Row (Horizontal)</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                {renderResponsiveLabel("Spacing Gap (px)")}
+                                <input
+                                  type="number"
+                                  value={
+                                    getLayoutVal(
+                                      selectedElement,
+                                      "gap",
+                                      activeBreakpointId,
+                                      breakpoints
+                                    ) ?? 16
+                                  }
+                                  onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                  className="w-full rounded border px-2 py-1 text-xs"
+                                />
                               </div>
                             </div>
+                          )}
 
-                            <div>
-                              {renderResponsiveLabel("Direction")}
-                              <select
-                                value={
-                                  getLayoutVal(
-                                    selectedElement,
-                                    "direction",
-                                    activeBreakpointId,
-                                    breakpoints
-                                  ) || "column"
-                                }
-                                onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                                className="w-full rounded border px-2 py-1.5 text-xs"
-                              >
-                                <option value="column">Column (Vertical)</option>
-                                <option value="row">Row (Horizontal)</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              {renderResponsiveLabel("Spacing Gap (px)")}
+                        {selectedElement.type !== "container" && selectedElement.type !== "image" && selectedElement.type !== "video" && selectedElement.type !== "spacer" && selectedElement.type !== "divider" && selectedElement.type !== "icon" && selectedElement.type !== "counter" && (
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                              {selectedElement.type === "html" ? "Raw HTML Editor (F-110)" : selectedElement.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
+                            </label>
+                            {selectedElement.type === "html" || selectedElement.type === "text" || selectedElement.type === "shortcode" ? (
+                              <textarea
+                                value={selectedElement.content || ""}
+                                onChange={(e) => updateSelectedProp("content", e.target.value)}
+                                rows={selectedElement.type === "html" ? 8 : selectedElement.type === "shortcode" ? 3 : 4}
+                                className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElement.type === "html" || selectedElement.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
+                                placeholder={selectedElement.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElement.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
+                              />
+                            ) : (
                               <input
-                                type="number"
+                                type="text"
+                                value={selectedElement.content || ""}
+                                onChange={(e) => updateSelectedProp("content", e.target.value)}
+                                className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        {/* Smart Link & URL Controls */}
+                        {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
+                          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                            <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                              Link & Smart Actions
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedElement.href || ""}
+                              onChange={(e) => updateSelectedProp("href", e.target.value)}
+                              placeholder="https://..., popup:open(id), scroll:to(id)"
+                              className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                            />
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {popups.length > 0 && (
+                                <select
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      updateSelectedProp("href", `popup:open(${e.target.value})`);
+                                      e.target.value = "";
+                                    }
+                                  }}
+                                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                                >
+                                  <option value="">+ Open Popup...</option>
+                                  {popups.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => updateSelectedProp("href", "popup:close")}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                              >
+                                Close Popup
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                              >
+                                Scroll to Top
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {renderAccordion(
+                          "Typography & Colors",
+                          "typography",
+                          <div className="space-y-3">
+                            <div>
+                              {renderResponsiveLabel("Text Color")}
+                              <input
+                                type="color"
                                 value={
-                                  getLayoutVal(
+                                  getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
+                                  "#0f172a"
+                                }
+                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                className="w-full h-8 cursor-pointer rounded border p-0.5"
+                              />
+                            </div>
+                            <div>
+                              {renderResponsiveLabel("Font Size (px)")}
+                              <input
+                                type="text"
+                                value={
+                                  getStyleVal(
                                     selectedElement,
-                                    "gap",
+                                    "fontSize",
                                     activeBreakpointId,
                                     breakpoints
-                                  ) ?? 16
+                                  ) || "16px"
                                 }
-                                onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
+                                onChange={(e) =>
+                                  updateSelectedStyle(
+                                    "fontSize",
+                                    e.target.value.endsWith("px")
+                                      ? e.target.value
+                                      : `${e.target.value}px`
+                                  )
+                                }
                                 className="w-full rounded border px-2 py-1 text-xs"
                               />
                             </div>
                           </div>
                         )}
-
-                      {selectedElement.type !== "container" && (
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                            CONTENT
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElement.content || ""}
-                            onChange={(e) => updateSelectedProp("content", e.target.value)}
-                            className="w-full rounded border px-3 py-1.5 text-xs"
-                          />
-                        </div>
-                      )}
-
-                      {/* Smart Link & URL Controls (F-291) */}
-                      {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
-                        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
-                          <label className="block text-[10px] font-bold text-slate-600 uppercase">
-                            Link & Smart Actions (F-291)
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElement.href || ""}
-                            onChange={(e) => updateSelectedProp("href", e.target.value)}
-                            placeholder="https://..., popup:open(id), scroll:to(id)"
-                            className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
-                          />
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {popups.length > 0 && (
-                              <select
-                                onChange={(e) => {
-                                  if (e.target.value) {
-                                    updateSelectedProp("href", `popup:open(${e.target.value})`);
-                                    e.target.value = "";
-                                  }
-                                }}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
-                              >
-                                <option value="">+ Open Popup...</option>
-                                {popups.map((p) => (
-                                  <option key={p.id} value={p.id}>
-                                    {p.name}
-                                  </option>
-                                ))}
-                              </select>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => updateSelectedProp("href", "popup:close")}
-                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                            >
-                              Close Popup
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateSelectedProp("href", "scroll:to(top)")}
-                              className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                            >
-                              Scroll to Top
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {renderAccordion(
-                        "Typography & Colors",
-                        "typography",
-                        <div className="space-y-3">
+                      </div>
+                      ) : activeSidebarTab === "advanced" && selectedElement ? (
+                      <div className="space-y-4">
+                        {/* Developer Options for Element (F-102, F-105 to F-109) */}
+                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
                           <div>
-                            {renderResponsiveLabel("Text Color")}
-                            <input
-                              type="color"
-                              value={
-                                getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
-                                "#0f172a"
-                              }
-                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                              className="w-full h-8 cursor-pointer rounded border p-0.5"
-                            />
+                            <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
+                            <input type="text" value={selectedElement.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
                           </div>
                           <div>
-                            {renderResponsiveLabel("Font Size (px)")}
+                            <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
+                            <input type="text" value={selectedElement.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                          </div>
+                          <hr className="border-slate-200" />
+                          <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
+                          </button>
+                          <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
+                          </button>
+                          <button onClick={() => setDevModalMode(selectedElement.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                            <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
+                          </button>
+                        </div>
+                      </div>
+                      ) : (
+                      <div className="space-y-4">
+                        {/* Site Identity */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                          <input
+                            type="text"
+                            value={globalSettings.siteIdentity?.name || ""}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                              }))
+                            }
+                            placeholder="Site Name"
+                            className="w-full rounded border px-2 py-1 text-xs"
+                          />
+                        </div>
+
+                        {/* Back To Top Button Settings */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
                             <input
-                              type="text"
-                              value={
-                                getStyleVal(
-                                  selectedElement,
-                                  "fontSize",
-                                  activeBreakpointId,
-                                  breakpoints
-                                ) || "16px"
-                              }
+                              type="checkbox"
+                              checked={globalSettings.backToTop?.enabled !== false}
                               onChange={(e) =>
-                                updateSelectedStyle(
-                                  "fontSize",
-                                  e.target.value.endsWith("px")
-                                    ? e.target.value
-                                    : `${e.target.value}px`
-                                )
+                                setGlobalSettings((prev: any) => ({
+                                  ...prev,
+                                  backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                                }))
                               }
-                              className="w-full rounded border px-2 py-1 text-xs"
+                              className="h-4 w-4 rounded text-blue-600"
                             />
                           </div>
+                          {globalSettings.backToTop?.enabled !== false && (
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                <select
+                                  value={globalSettings.backToTop?.position || "bottom-right"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      backToTop: { ...prev.backToTop, position: e.target.value },
+                                    }))
+                                  }
+                                  className="rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="bottom-right">Bottom Right</option>
+                                  <option value="bottom-left">Bottom Left</option>
+                                </select>
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                                <input
+                                  type="number"
+                                  value={globalSettings.backToTop?.offset ?? 300}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                                    }))
+                                  }
+                                  className="w-20 rounded border px-2 py-1 text-[11px]"
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+
+                        {/* Floating Action Button Settings */}
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                            <input
+                              type="checkbox"
+                              checked={globalSettings.floatingActionButton?.enabled === true}
+                              onChange={(e) =>
+                                setGlobalSettings((prev: any) => ({
+                                  ...prev,
+                                  floatingActionButton: {
+                                    ...prev.floatingActionButton,
+                                    enabled: e.target.checked,
+                                  },
+                                }))
+                              }
+                              className="h-4 w-4 rounded text-blue-600"
+                            />
+                          </div>
+
+                          {globalSettings.floatingActionButton?.enabled && (
+                            <div className="space-y-2 pt-1">
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Icon & Type
+                                </label>
+                                <select
+                                  value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        icon: e.target.value,
+                                        backgroundColor:
+                                          e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                      },
+                                    }))
+                                  }
+                                  className="w-full rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="whatsapp">WhatsApp Button</option>
+                                  <option value="chat">Live Chat / Message</option>
+                                  <option value="phone">Call Now (Phone)</option>
+                                  <option value="email">Email Us</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Label
+                                </label>
+                                <input
+                                  type="text"
+                                  value={globalSettings.floatingActionButton?.label || ""}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        label: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  placeholder="Chat with us"
+                                  className="w-full rounded border px-2 py-1 text-[11px]"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                  Link or Smart Action
+                                </label>
+                                <input
+                                  type="text"
+                                  value={globalSettings.floatingActionButton?.link || ""}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        link: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  placeholder="https://wa.me/... or popup:open(id)"
+                                  className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                                />
+                              </div>
+
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                <select
+                                  value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                                  onChange={(e) =>
+                                    setGlobalSettings((prev: any) => ({
+                                      ...prev,
+                                      floatingActionButton: {
+                                        ...prev.floatingActionButton,
+                                        position: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                  className="rounded border px-2 py-1 text-[11px]"
+                                >
+                                  <option value="bottom-left">Bottom Left</option>
+                                  <option value="bottom-right">Bottom Right</option>
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {/* Site Identity */}
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                        <input
-                          type="text"
-                          value={globalSettings.siteIdentity?.name || ""}
-                          onChange={(e) =>
-                            setGlobalSettings((prev: any) => ({
-                              ...prev,
-                              siteIdentity: { ...prev.siteIdentity, name: e.target.value },
-                            }))
-                          }
-                          placeholder="Site Name"
-                          className="w-full rounded border px-2 py-1 text-xs"
-                        />
-                      </div>
+                  ) : null}
 
-                      {/* Back To Top Button Settings (F-289) */}
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                          <input
-                            type="checkbox"
-                            checked={globalSettings.backToTop?.enabled !== false}
-                            onChange={(e) =>
-                              setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                              }))
-                            }
-                            className="h-4 w-4 rounded text-blue-600"
-                          />
-                        </div>
-                        {globalSettings.backToTop?.enabled !== false && (
-                          <div className="space-y-2 pt-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                              <select
-                                value={globalSettings.backToTop?.position || "bottom-right"}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    backToTop: { ...prev.backToTop, position: e.target.value },
-                                  }))
-                                }
-                                className="rounded border px-2 py-1 text-[11px]"
-                              >
-                                <option value="bottom-right">Bottom Right</option>
-                                <option value="bottom-left">Bottom Left</option>
-                              </select>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                              <input
-                                type="number"
-                                value={globalSettings.backToTop?.offset ?? 300}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                  }))
-                                }
-                                className="w-20 rounded border px-2 py-1 text-[11px]"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Floating Action Button Settings (F-287) */}
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                          <input
-                            type="checkbox"
-                            checked={globalSettings.floatingActionButton?.enabled === true}
-                            onChange={(e) =>
-                              setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                floatingActionButton: {
-                                  ...prev.floatingActionButton,
-                                  enabled: e.target.checked,
-                                },
-                              }))
-                            }
-                            className="h-4 w-4 rounded text-blue-600"
-                          />
-                        </div>
-
-                        {globalSettings.floatingActionButton?.enabled && (
-                          <div className="space-y-2 pt-1">
-                            <div>
-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                Icon & Type
-                              </label>
-                              <select
-                                value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    floatingActionButton: {
-                                      ...prev.floatingActionButton,
-                                      icon: e.target.value,
-                                      backgroundColor:
-                                        e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                    },
-                                  }))
-                                }
-                                className="w-full rounded border px-2 py-1 text-[11px]"
-                              >
-                                <option value="whatsapp">WhatsApp Button</option>
-                                <option value="chat">Live Chat / Message</option>
-                                <option value="phone">Call Now (Phone)</option>
-                                <option value="email">Email Us</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                Label
-                              </label>
-                              <input
-                                type="text"
-                                value={globalSettings.floatingActionButton?.label || ""}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    floatingActionButton: {
-                                      ...prev.floatingActionButton,
-                                      label: e.target.value,
-                                    },
-                                  }))
-                                }
-                                placeholder="Chat with us"
-                                className="w-full rounded border px-2 py-1 text-[11px]"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                Link or Smart Action
-                              </label>
-                              <input
-                                type="text"
-                                value={globalSettings.floatingActionButton?.link || ""}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    floatingActionButton: {
-                                      ...prev.floatingActionButton,
-                                      link: e.target.value,
-                                    },
-                                  }))
-                                }
-                                placeholder="https://wa.me/... or popup:open(id)"
-                                className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                              />
-                            </div>
-
-                            <div className="flex items-center justify-between gap-2">
-                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                              <select
-                                value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                onChange={(e) =>
-                                  setGlobalSettings((prev: any) => ({
-                                    ...prev,
-                                    floatingActionButton: {
-                                      ...prev.floatingActionButton,
-                                      position: e.target.value,
-                                    },
-                                  }))
-                                }
-                                className="rounded border px-2 py-1 text-[11px]"
-                              >
-                                <option value="bottom-left">Bottom Left</option>
-                                <option value="bottom-right">Bottom Right</option>
-                              </select>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                  {/* Dev / Global Settings Controls */}
+                  {activeSidebarTab === "global" && (
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3 mt-4">
+                      <h3 className="text-xs font-bold text-slate-700">Developer Options</h3>
+                      <button onClick={() => setDevModalMode("page-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                        <span className="text-blue-500">{"</>"}</span> Edit Page Custom CSS (F-103)
+                      </button>
+                      <button onClick={() => setDevModalMode("global-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                        <span className="text-violet-500">{"</>"}</span> Edit Global Custom CSS (F-104)
+                      </button>
                     </div>
                   )}
+
                 </div>
               </>
             )}
@@ -2561,7 +2756,7 @@ export default function WebsiteEditor() {
         </div>
       )}
 
-      {/* Popup Manager Modal (F-289) */}
+      {/* Popup Manager Modal */}
       <PopupManagerModal
         isOpen={isPopupManagerOpen}
         onClose={() => setIsPopupManagerOpen(false)}
@@ -2584,6 +2779,34 @@ export default function WebsiteEditor() {
           globalSettings={globalSettings}
         />
       )}
+
+      {/* Developer Modal (F-102 - F-109) */}
+      <DeveloperModal
+        isOpen={!!devModalMode}
+        onClose={() => setDevModalMode(null)}
+        mode={devModalMode!}
+        initialValue={
+          devModalMode === "element-css" ? selectedElement?.customCss :
+            devModalMode === "css-selectors" ? selectedElement?.customSelectors :
+              devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
+                devModalMode === "page-css" ? pageCss :
+                  devModalMode === "global-css" ? globalSettings.customCss :
+                    ""
+        }
+        onSave={(val) => {
+          if (devModalMode === "element-css" && selectedElement) {
+            updateSelectedProp("customCss", val);
+          } else if (devModalMode === "css-selectors" && selectedElement) {
+            updateSelectedProp("customSelectors", val);
+          } else if (devModalMode === "custom-attributes" && selectedElement) {
+            updateSelectedProp("customAttributes", val);
+          } else if (devModalMode === "page-css") {
+            setPageCss(val);
+          } else if (devModalMode === "global-css") {
+            setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
+          }
+        }}
+      />
     </div>
   );
 }
