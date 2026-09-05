@@ -13,8 +13,8 @@ import authRoutes from "./routes/auth.routes.js";
 import subscriptionRoutes from "./routes/subscription.routes.js";
 import websiteRoutes from "./routes/website.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
-import integrationRoutes from "./routes/integration.routes.js";
-import formRoutes from "./routes/form.routes.js";
+
+import templateRoutes from "./routes/template.routes.js";
 
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
@@ -114,16 +114,11 @@ app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
 
 // =========================
-// Integrations Routes (F-411 to F-425)
+// Template Routes (F-322)
 // =========================
 
-app.use("/api/v1/integrations", integrationRoutes);
-app.use("/api/integrations", integrationRoutes);
-// Form & Lead Generation Routes (F-270 - F-281)
-// =========================
-
-app.use("/api/v1/forms", formRoutes);
-app.use("/api/forms", formRoutes);
+app.use("/api/v1/templates", templateRoutes);
+app.use("/api/templates", templateRoutes);
 
 // =========================
 // Global Error Handler

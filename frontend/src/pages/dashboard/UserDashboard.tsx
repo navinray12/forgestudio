@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
+import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
 
 interface Website {
   id: string;
@@ -22,6 +24,82 @@ function UserDashboard() {
   const [error, setError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [exportingKitId, setExportingKitId] = useState<string | null>(null);
+  const [isImportKitOpen, setIsImportKitOpen] = useState(false);
+
+  const handleExportDashboardKit = async (site: Website) => {
+    try {
+      setExportingKitId(site.id);
+      const res = await fetch(`${apiUrl}/api/websites/${site.id}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.website) {
+        const editorData = data.website.editorData || {};
+        exportWebsiteKitAsJson({
+          website: { id: site.id, name: site.name },
+          elements: editorData.elements || [],
+          pageSettings: editorData.pageSettings || { title: site.name },
+        });
+      } else {
+        alert("Unable to fetch website data for export.");
+      }
+    } catch (err) {
+      console.error("Dashboard Kit Export error:", err);
+      alert("Failed to export website kit.");
+    } finally {
+      setExportingKitId(null);
+    }
+  };
+
+  const handleImportDashboardKit = async (kitData: {
+    website: { name: string; description?: string; settings?: Record<string, any> };
+    pages: Array<{
+      id: string;
+      title: string;
+      path: string;
+      elements: any[];
+      pageSettings: Record<string, any>;
+    }>;
+    templates: any[];
+  }) => {
+    try {
+      const siteName = kitData.website?.name || "Imported Kit Website";
+      const mainPage = kitData.pages?.[0] || { elements: [], pageSettings: {} };
+
+      const res = await fetch(`${apiUrl}/api/websites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: siteName }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.website?.id) {
+        alert(data?.message || "Failed to create website from kit.");
+        return;
+      }
+
+      const newSiteId = data.website.id;
+      await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          editorData: {
+            elements: mainPage.elements || [],
+            pageSettings: mainPage.pageSettings || { title: siteName },
+          },
+        }),
+      });
+
+      setIsImportKitOpen(false);
+      navigate(`/editor/${newSiteId}`);
+    } catch (err) {
+      console.error("Failed to import website kit on dashboard:", err);
+      alert("Error importing website kit.");
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -149,6 +227,14 @@ function UserDashboard() {
             </button>
 
             <button
+              onClick={() => setIsImportKitOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100 active:scale-[0.98]"
+              title="Import a Website Kit JSON file to create a new project"
+            >
+              <span>Import Kit 📥</span>
+            </button>
+
+            <button
               onClick={handleLogout}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 active:scale-[0.98]"
             >
@@ -220,13 +306,24 @@ function UserDashboard() {
                       Delete
                     </button>
 
-                    <button
-                      onClick={() => navigate(`/editor/${site.id}`)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
-                    >
-                      <span>Open Editor</span>
-                      <span>→</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleExportDashboardKit(site)}
+                        disabled={exportingKitId === site.id}
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
+                        title="Export project configuration as a portable Website Kit JSON file"
+                      >
+                        {exportingKitId === site.id ? "Exporting..." : "Export Kit 📦"}
+                      </button>
+
+                      <button
+                        onClick={() => navigate(`/editor/${site.id}`)}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
+                      >
+                        <span>Open Editor</span>
+                        <span>→</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -334,6 +431,13 @@ function UserDashboard() {
           </div>
         </div>
       )}
+
+      {/* Import Website Kit Dialog */}
+      <ImportWebsiteKitDialog
+        isOpen={isImportKitOpen}
+        onClose={() => setIsImportKitOpen(false)}
+        onImportKit={handleImportDashboardKit}
+      />
     </div>
   );
 }
