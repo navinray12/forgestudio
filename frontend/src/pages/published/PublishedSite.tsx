@@ -68,7 +68,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     });
 
     // Pass attributes securely
-    const customAttrs = el.customAttributes?.filter((a: any) => a.enabled !== false).reduce((acc: any, attr) => {
+    const customAttrs = el.customAttributes?.filter((a: any) => a.enabled !== false).reduce((acc: any, attr: any) => {
         if (attr.name) acc[attr.name] = attr.value || "";
         return acc;
     }, {}) || {};
@@ -153,7 +153,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         <React.Fragment key={el.id}>
             <div ref={assignRefIfTracked as any} {...mergedProps}>
                 {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-                    <BackgroundSlideshow urls={el.styles.backgroundSlideshowUrls.split(",")} interval={Number(el.styles.backgroundSlideshowSpeed) || 5000} />
+                    <BackgroundSlideshow urls={Array.isArray(el.styles.backgroundSlideshowUrls) ? el.styles.backgroundSlideshowUrls : String(el.styles.backgroundSlideshowUrls).split(",")} interval={Number(el.styles.backgroundSlideshowSpeed) || 5000} />
                 )}
                 {el.children?.map(child => (
                     <RenderNode
