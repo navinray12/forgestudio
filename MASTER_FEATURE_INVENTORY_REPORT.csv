@@ -1,0 +1,68 @@
+Feature_ID,Category_Module,Feature_Name,Description,Source,Status,Implementation_Location,Dynamic_Persistence,RBAC_Role_Required
+F-001,Core Visual Editor,Drag & Drop Editor,Visually build pages by dragging elements onto canvas,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State & Canvas JSON,USER
+F-002,Core Visual Editor,Pixel-Perfect Design,Precise positioning and styling controls,Elementor,PRESERVED,frontend/src/pages/editor/inspector/spacing.tsx,Local State,USER
+F-003,Core Visual Editor,Visual Canvas,Live visual workspace for page design,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State,USER
+F-004,Core Visual Editor,Nested Elements,Allow components/widgets to contain other elements,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State Tree,USER
+F-005,Core Visual Editor,Components,Reusable building blocks with centralized updates,Elementor,COMPLETED,frontend/src/features/atomic-editor/components/,PostgreSQL (Website.editorData),USER
+F-006,Core Visual Editor,Multi Select,Select and edit multiple elements together,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State (selectedIds),USER
+F-007,Core Visual Editor,Copy Elements,Copy elements and reuse them elsewhere,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State (copiedElement),USER
+F-008,Core Visual Editor,Delete Elements,Remove elements from a page,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State,USER
+F-009,Core Visual Editor,Duplicate Elements,Duplicate existing elements,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State,USER
+F-010,Core Visual Editor,Element Menus,Contextual menus for element actions,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State (contextMenu),USER
+F-011,Core Visual Editor,Widget Customization,Configure and style individual widgets,Elementor,PRESERVED,frontend/src/pages/editor/inspector/index.ts,Local State,USER
+F-012,Core Visual Editor,Favorite Widgets,Quick access to frequently used widgets,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State (favoriteWidgets),USER
+F-013,Core Visual Editor,Undo / Redo / Revision,Track and revert design changes,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local History Stack,USER
+F-014,Core Visual Editor,Import Files,Import supported assets into editor,Elementor,COMPLETED,backend/src/controllers/upload.controller.ts,PostgreSQL / Express Upload API,USER
+F-015,Core Visual Editor,Full Screen Canvas,Distraction-free editor workspace,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local UI Toggle,USER
+F-016,Core Visual Editor,Canvas Layout,Blank page layout without theme chrome,Elementor,PRESERVED,frontend/src/pages/published/PublishedSite.tsx,Prisma Website Model,USER
+F-017,Core Visual Editor,Inline Editing,Edit content directly on visual canvas,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-018,Core Visual Editor,Page Settings,"Configure page-level settings (title, slug, CSS)",Elementor,COMPLETED,frontend/src/pages/editor/WebsiteEditor.tsx,PostgreSQL (Website.editorData),USER
+F-019,Core Visual Editor,Maintenance Mode,Display temporary maintenance page,Elementor,COMPLETED,backend/src/controllers/website.controller.ts,PostgreSQL (Website.status),ADMIN
+F-020,Core Visual Editor,Temporary Support Credentials,Temporary support credentials for troubleshooting,Elementor,COMPLETED,backend/src/controllers/auth.controller.ts,Express Auth API (/api/v1/auth),ADMIN
+F-021,Core Visual Editor,Structure / Layers Indicators,Visual page structure tree navigation,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Local State,USER
+F-037,Layout & Structure,Containers / Sections,Primary structural containers for layouts,Elementor,PRESERVED,frontend/src/pages/editor/defaults/index.ts,Local Canvas State,USER
+F-038,Layout & Structure,Columns,Create multi-column layouts,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local Layout State,USER
+F-042,Layout & Structure,Flexbox Layout,Flexible row/column layout control,Elementor,PRESERVED,frontend/src/pages/editor/utils/index.ts,Local CSS Grid/Flex,USER
+F-043,Layout & Structure,CSS Grid Layout,Two-dimensional grid layout system,Elementor,PRESERVED,frontend/src/pages/editor/utils/index.ts,Local CSS Grid,USER
+F-053,Responsive Design,Responsive Editing,Separate design adjustments by device,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Device Mode State,USER
+F-054,Responsive Design,Desktop Editing,Desktop-specific layout controls,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Device Mode (desktop),USER
+F-055,Responsive Design,Tablet Editing,Tablet-specific layout controls,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Device Mode (tablet),USER
+F-056,Responsive Design,Mobile Editing,Mobile-specific layout controls,Elementor,PRESERVED,frontend/src/pages/editor/WebsiteEditor.tsx,Device Mode (mobile),USER
+F-066,Styling & Design System,Global Styles,Centralized website styling tokens,Elementor,COMPLETED,frontend/src/features/atomic-editor/,PostgreSQL (GlobalSettings),USER
+F-067,Styling & Design System,Variables,Reusable global colors and typography,Elementor,COMPLETED,frontend/src/features/atomic-editor/,PostgreSQL,USER
+F-068,Styling & Design System,Global Classes,Reusable CSS classes across elements,Elementor,COMPLETED,frontend/src/features/atomic-editor/,PostgreSQL,USER
+F-102,CSS & Developer Controls,Element Custom CSS,Custom CSS rules per element,Elementor,PRESERVED,frontend/src/pages/editor/utils/index.ts,Scoped CSS Injector,USER
+F-105,CSS & Developer Controls,CSS ID & Classes,Assign custom IDs and CSS classes,Elementor,PRESERVED,frontend/src/pages/editor/types/index.ts,EditorElement Attributes,USER
+F-110,CSS & Developer Controls,HTML Widget / Custom Code,Insert custom HTML and JS snippets,Elementor,COMPLETED,backend/src/controllers/customCode.controller.ts,PostgreSQL / Express API,ADMIN
+F-142,Content Widgets,Heading,Customizable headings,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-143,Content Widgets,Image Widget,Image display and styling,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-144,Content Widgets,Text Editor,Formatted rich text content,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-145,Content Widgets,Video Widget,Embedded / self-hosted video,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-146,Content Widgets,Button,Interactive buttons and links,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-178,Pro Widgets,Form Builder,Customizable website forms & submissions,Elementor,COMPLETED,backend/src/controllers/form.controller.ts,PostgreSQL (FormSubmission),USER
+F-182,Pro Widgets,Price Table,Displays pricing plans and packages,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-184,Pro Widgets,Gallery Widget,Advanced image galleries with lightbox,Elementor,PRESERVED,frontend/src/pages/editor/widgets/renderers.tsx,Local State,USER
+F-195,Pro Widgets,Template Library,Insert reusable saved templates,Elementor,COMPLETED,backend/src/controllers/template.controller.ts,PostgreSQL (Site Templates),USER
+F-234,Theme Builder,Header & Footer Builder,Visually design website headers & footers,Elementor,COMPLETED,backend/src/controllers/website.controller.ts,PostgreSQL (ThemeLocationRule),ADMIN
+F-265,Theme Builder,Custom Post Types,Support custom content types,Elementor,COMPLETED,backend/src/controllers/customPostType.controller.ts,PostgreSQL (CustomPostType),ADMIN
+F-270,Forms,Form Submissions,Capture and manage form responses,Elementor,COMPLETED,backend/src/services/form/form.service.ts,PostgreSQL (FormSubmission),ADMIN
+F-272,Forms,Form Validation,Validate submitted form input data,Elementor,COMPLETED,backend/src/validators/,Zod Schema Validation,USER
+F-282,Popup & Conversion,Popup Builder,Customizable website overlays and popups,Elementor,PRESERVED,frontend/src/pages/editor/components/PopupManagerModal.tsx,Local & State JSON,USER
+F-320,Revisions,Revision History,View and restore previous design versions,Elementor,COMPLETED,frontend/src/features/revision-history/,PostgreSQL (Revisions),USER
+F-332,Site Kits,Website Kit Export/Import,Export/Import complete website setup JSON,Elementor,COMPLETED,frontend/src/features/website-kits/,JSON File Bundles,ADMIN
+F-382,AI Platform,AI Text Generation,Generates website text using AI,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-383,AI Platform,AI Image Generation,Generates images using AI,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-384,AI Platform,AI Code Generation,Generates code using AI,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-385,AI Platform,AI Section Generation,Generates sections using AI,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-389,AI Platform,AI Website Generation,Prompt-to-website generation pipeline,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-403,AI Platform,AI Assistant Agent,AI website creation/management assistant,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-479,AI Platform,Hosting AI Assistant,AI-triggered hosting management actions,Elementor AI,EXCLUDED-AI,None (Out of Scope),None,None
+F-406,Collaboration,Role Manager,Control capabilities by user role (User/Admin/SuperAdmin),Elementor,COMPLETED,frontend/src/pages/dashboard/components/RoleManagerModal.tsx,PostgreSQL (User.role RBAC),SUPER_ADMIN
+F-409,Collaboration,Granular Permissions,Resource/action permissions across teams,Elementor,COMPLETED,backend/src/services/permission.service.ts,Express RBAC Middleware,SUPER_ADMIN
+F-410,Collaboration,Audit Logs,Log security and sensitive admin actions,Elementor,COMPLETED,backend/prisma/schema.prisma,PostgreSQL (AuditLog),SUPER_ADMIN
+F-484,WP Integration,WordPress Connector,Bridge SaaS platform with WordPress endpoints,WordPress,COMPLETED,backend/src/controllers/pluginCompat.controller.ts,Express REST API,ADMIN
+F-490,WP Integration,Page CRUD API,Create/read/update/delete website pages,WordPress,COMPLETED,backend/src/controllers/website.controller.ts,PostgreSQL (Website Model),USER
+F-495,WP Integration,Publishing Pipeline,Render page JSON to HTML/CSS live output,WordPress,COMPLETED,frontend/src/pages/published/PublishedSite.tsx,PostgreSQL Persistent Storage,USER
+F-768,Security,Server-Side Authorization,Enforce permissions server-side on API endpoints,Security,COMPLETED,backend/src/middlewares/auth.middleware.ts,JWT & Session Tokens,USER
+F-774,Security,Rate Limiting,Protect APIs against rate limit abuses,Security,COMPLETED,backend/src/routes/developer.routes.ts,Express Rate Limit Middleware,USER
+F-776,Security,Credential Encryption,Securely hash passwords using Argon2 & bcrypt,Security,COMPLETED,backend/src/utils/password.ts,Argon2 / bcryptjs,USER

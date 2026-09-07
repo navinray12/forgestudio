@@ -83,6 +83,9 @@ model Website {
   updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  formSubmissions   FormSubmission[]
+  customPostTypes   CustomPostType[]
+  themeLocationRules ThemeLocationRule[]
 
   @@index([userId])
   @@map("websites")
@@ -170,6 +173,7 @@ model SubscriptionPlan {
   updatedAt       DateTime           @updatedAt
 
   subscriptions   UserSubscription[]
+  auditLogs       AuditLog[]
 
   @@map("subscription_plans")
 }
@@ -188,4 +192,68 @@ model UserSubscription {
   plan SubscriptionPlan @relation(fields: [planId], references: [id])
 
   @@map("user_subscriptions")
+}
+
+model FormSubmission {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  formId     String
+  data       Json
+  ipAddress  String?
+  status     String   @default("NEW")
+  createdAt  DateTime @default(now())
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([formId])
+  @@map("form_submissions")
+}
+
+model CustomPostType {
+  id          String   @id @default(uuid()) @db.Uuid
+  websiteId   String   @db.Uuid
+  name        String
+  slug        String
+  description String?
+  supports    Json     @default("["title", "editor", "thumbnail"]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, slug])
+  @@map("custom_post_types")
+}
+
+model ThemeLocationRule {
+  id           String   @id @default(uuid()) @db.Uuid
+  websiteId    String   @db.Uuid
+  locationType String   // HEADER, FOOTER, SINGLE, ARCHIVE, ERROR404
+  templateId   String
+  conditions   Json     @default("[]")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, locationType])
+  @@map("theme_location_rules")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String?  @db.Uuid
+  action         String
+  targetResource String
+  details        Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
 }
