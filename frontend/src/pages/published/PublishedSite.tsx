@@ -224,6 +224,8 @@ export default function PublishedSite() {
                 if (site?.editorData?.breakpoints) setBreakpoints(site.editorData.breakpoints);
                 if (site?.editorData?.globalSettings) setGlobalSettings(site.editorData.globalSettings);
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
+                if (site?.status) setSiteStatus(site.status);
+                if (site?.themeLocationRules) setThemeRules(site.themeLocationRules);
 
             } catch (err: any) {
                 setErrorMessage(err.message || "Failed to boot published runtime");
@@ -233,6 +235,9 @@ export default function PublishedSite() {
         };
         fetchWebsite();
     }, [websiteId, apiUrl]);
+
+    const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
+    const [themeRules, setThemeRules] = useState<any[]>([]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -269,8 +274,6 @@ export default function PublishedSite() {
             const outerProps = { ...resolved };
             Object.keys(innerProps).forEach(k => delete (outerProps as any)[k]);
 
-            // F-355: Strip backgroundImage out of F-353 compiler Hash pipeline.
-            // This forces it to be applied natively via the RenderNode so we can defer its application!
             delete (outerProps as any).backgroundImage;
             delete (innerProps as any).backgroundImage;
 
@@ -297,12 +300,6 @@ export default function PublishedSite() {
                 classMap.set(el.id, styleHashToClass.get(stylePayload)!);
             }
 
-            // F-355: Prevent global CSS from overriding deferred inline background images eagerly
-            // (If they are deferred, we don't dump them into the external CSS. Wait, if F-353 puts background-image in CSS, all instances fetch eagerly!)
-            // We should NOT include `backgroundImage` in outer/inner props if we want to defer it lazily globally?
-            // Actually, if it goes to CSS, it evaluates on parse! 
-            // So we MUST intercept `backgroundImage` from F-353 compiler for lazy elements.
-
             if (el.children) el.children.forEach(processElement);
         };
 
@@ -317,6 +314,16 @@ export default function PublishedSite() {
     if (loading) return <div className="min-h-screen text-slate-500 bg-slate-50 text-center flex items-center justify-center">Loading Website...</div>;
     if (errorMessage) return <div className="text-red-500 m-4">Error: {errorMessage}</div>;
 
+    if (siteStatus === "MAINTENANCE") {
+        return (
+            <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
+                <div className="text-6xl mb-4">🚧</div>
+                <h1 className="text-3xl font-bold mb-2">Website Under Maintenance</h1>
+                <p className="text-slate-400 max-w-md">We are currently performing scheduled maintenance. Please check back shortly.</p>
+            </div>
+        );
+    }
+
     return (
         <div data-website-id={websiteId} data-page-id={pages[0]?.id || "home"} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
@@ -330,7 +337,7 @@ export default function PublishedSite() {
                 <RenderNode
                     key={el.id}
                     el={el}
-                    isCritical={index === 0} // F-355: Mark top-level 0 as eager LCP
+                    isCritical={index === 0}
                     activeBreakpointId={activeBreakpointId}
                     breakpoints={breakpoints}
                     globalSettings={globalSettings}
