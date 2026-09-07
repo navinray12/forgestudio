@@ -5908,3 +5908,44 @@ export const ShareButtonsWidgetRenderer = ({
 };
 
 // Colorful placeholder icon inside empty image box
+
+// ==========================================
+// WOOCOMMERCE STORE WIDGET RENDERERS
+// ==========================================
+
+export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
+  const styles = getMergedStyles(el, activeDevice);
+  return <h2 style={styles} className="font-bold text-slate-900">{el.content || "Sample Product Title"}</h2>;
+};
+
+export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
+  const styles = getMergedStyles(el, activeDevice);
+  return <div style={styles} className="text-xl font-bold text-emerald-600">{el.content || "$99.99"}</div>;
+};
+
+export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
+  const styles = getMergedStyles(el, activeDevice);
+  return (
+    <div style={styles} className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
+      <img src={el.content || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600"} alt="Product" className="h-auto w-full rounded-lg object-cover" />
+    </div>
+  );
+};
+
+export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
+  const styles = getMergedStyles(el, activeDevice);
+  return (
+    <button style={styles} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white shadow-md transition hover:bg-slate-800">
+      🛒 {el.content || "Add to Cart"}
+    </button>
+  );
+};
+
+export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
+  const styles = getMergedStyles(el, activeDevice);
+  return (
+    <div style={styles} className="flex items-center gap-1 text-amber-400 font-bold">
+      ⭐⭐⭐⭐⭐ <span className="text-xs text-slate-500 ml-1">(4.9 / 5.0 - 128 Reviews)</span>
+    </div>
+  );
+};

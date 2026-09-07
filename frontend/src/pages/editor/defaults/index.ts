@@ -1971,6 +1971,42 @@ export function createDefaultElement(type: ElementType): EditorElement {
           marginBottom: "16px",
         },
       };
+    case "wc-product-title":
+      return {
+        id,
+        type,
+        content: "Sample Product Title",
+        styles: { fontSize: "24px", fontWeight: "700", color: "#0f172a", marginBottom: "8px" }
+      };
+    case "wc-product-price":
+      return {
+        id,
+        type,
+        content: "$99.99",
+        styles: { fontSize: "20px", fontWeight: "600", color: "#16a34a", marginBottom: "12px" }
+      };
+    case "wc-product-images":
+      return {
+        id,
+        type,
+        content: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
+        styles: { width: "100%", borderRadius: "8px", marginBottom: "12px" }
+      };
+    case "wc-add-to-cart":
+      return {
+        id,
+        type,
+        content: "Add to Cart 🛒",
+        styles: { backgroundColor: "#0f172a", color: "#ffffff", padding: "12px 24px", borderRadius: "8px", fontWeight: "600" }
+      };
+    case "wc-product-rating":
+      return {
+        id,
+        type,
+        content: "5",
+        styles: { color: "#eab308", fontSize: "18px", marginBottom: "8px" }
+      };
+
     default:
       return {
         id,

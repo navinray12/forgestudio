@@ -63,7 +63,7 @@ export interface GalleryImageItem {
 
 export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "flip" | "highlight";
 
-export type ElementType = "container" | "heading" | "text" | "image" | "video" | "button" | "posts" | "share-buttons" | "portfolio" | "slides" | "form" | "login" | "nav-menu" | "animated-headline" | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action" | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel" | "table-of-contents" | "countdown" | "facebook-page" | "blockquote" | "template" | "reviews" | "facebook-button" | "facebook-embed" | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie" | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu" | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets" | "reusable-components" | "basic-media-carousel" | "basic-gallery" | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library";
+export type ElementType = "container" | "heading" | "text" | "image" | "video" | "button" | "posts" | "share-buttons" | "portfolio" | "slides" | "form" | "login" | "nav-menu" | "animated-headline" | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action" | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel" | "table-of-contents" | "countdown" | "facebook-page" | "blockquote" | "template" | "reviews" | "facebook-button" | "facebook-embed" | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie" | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu" | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets" | "reusable-components" | "basic-media-carousel" | "basic-gallery" | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library" | "wc-product-title" | "wc-product-price" | "wc-product-images" | "wc-add-to-cart" | "wc-product-rating";
 
 export interface WidgetRegistryItem {
   type: ElementType;
@@ -126,6 +126,13 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "dynamic-lightbox", name: "Dynamic Lightbox", category: "Media", icon: "🔍", description: "Full-screen media lightbox modal overlay with smooth transitions" },
   { type: "custom-svg", name: "SVG / Custom Icon", category: "Media", icon: "⚡", description: "Sanitized custom SVG vector graphic asset viewer" },
   { type: "icon-library", name: "Icon Library", category: "Media", icon: "🎨", description: "Searchable ready-to-use vector icon picker library" },
+
+  // WooCommerce Store Widgets
+  { type: "wc-product-title", name: "Product Title", category: "Commerce", icon: "🏷️", description: "Displays WooCommerce product title" },
+  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
+  { type: "wc-product-images", name: "Product Images", category: "Commerce", icon: "🖼️", description: "Displays main product gallery & thumbnails" },
+  { type: "wc-add-to-cart", name: "Add to Cart", category: "Commerce", icon: "🛒", description: "Customizable purchase & add to cart button" },
+  { type: "wc-product-rating", name: "Product Rating", category: "Commerce", icon: "⭐", description: "Displays product review star rating" },
 
   // Commerce
   { type: "paypal-button", name: "PayPal Button", category: "Commerce", icon: "💳", description: "Direct PayPal express checkout button" },

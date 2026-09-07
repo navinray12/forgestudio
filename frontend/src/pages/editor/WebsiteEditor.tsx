@@ -173,7 +173,12 @@ import {
   DynamicLightboxWidgetRenderer,
   CustomSvgWidgetRenderer,
   IconLibraryWidgetRenderer,
-  ShareButtonsWidgetRenderer
+  ShareButtonsWidgetRenderer,
+  WcProductTitleWidgetRenderer,
+  WcProductPriceWidgetRenderer,
+  WcProductImagesWidgetRenderer,
+  WcAddToCartWidgetRenderer,
+  WcProductRatingWidgetRenderer
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
@@ -1593,7 +1598,17 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           return "🔘";
         case "posts":
           return "📰";
-        case "share-buttons":
+        case "wc-product-title":
+      return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+    case "wc-product-price":
+      return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+    case "wc-product-images":
+      return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+    case "wc-add-to-cart":
+      return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+    case "wc-product-rating":
+      return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+    case "share-buttons":
           return "🔗";
         case "portfolio":
           return "💼";
