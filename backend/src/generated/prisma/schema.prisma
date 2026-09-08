@@ -66,18 +66,12 @@ model User {
   passwordResetTokens PasswordResetToken[]
   subscription        UserSubscription?
   websites            Website[]
-  collaborations      WebsiteCollaborator[]
-  ownedTeams          Team[]                @relation("TeamOwner")
-  teamMemberships     TeamMember[]
-  sentInvitations     TeamInvitation[]      @relation("InvitationSender")
-  sentWebsiteInvites  WebsiteInvitation[]   @relation("WebsiteInvitationSender")
-  granularPermissions GranularPermission[]
+  auditLogs           AuditLog[]
   developerApiKeys    DeveloperApiKey[]
-  customEntries       CustomEntry[]
-  codeRevisions       CustomCodeRevision[]
-  authoredNotes       DesignNote[]          @relation("NoteAuthor")
-  resolvedNotes       DesignNote[]          @relation("NoteResolver")
+  designNotes         DesignNote[]
+  collaborations      WebsiteCollaborator[]
   componentAccesses   ComponentAccess[]
+  customEntries       CustomEntry[]
 
   @@index([status])
   @@index([role])
@@ -85,47 +79,28 @@ model User {
 }
 
 model Website {
-  id                  String   @id @default(uuid()) @db.Uuid
-  userId              String   @db.Uuid
-  name                String
-  slug                String
-  status              String   @default("DRAFT")
-  editorData          Json     @default("{\"version\":1,\"elements\":[]}")
-  performanceSettings Json?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  teamId              String?  @db.Uuid
-
-  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team                  Team?                 @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  collaborators         WebsiteCollaborator[]
-  invitations           WebsiteInvitation[]
-  granularPermissions   GranularPermission[]
-  customPostTypes       CustomPostType[]
-  customCodeSnippets    CustomCodeSnippet[]
-  pluginCompatibilities PluginCompatibility[]
-  designNotes           DesignNote[]
-  componentAccesses     ComponentAccess[]
-
-  @@index([userId])
-  @@map("websites")
-}
-
-model WebsiteCollaborator {
   id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
   userId     String   @db.Uuid
-  permission String   @default("VIEWER") // "VIEWER" | "EDITOR"
+  name       String
+  slug       String
+  status     String   @default("DRAFT")
+  editorData Json     @default("{\"version\":1,\"elements\":[]}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  formSubmissions    FormSubmission[]
+  customPostTypes    CustomPostType[]
+  themeLocationRules ThemeLocationRule[]
+  sftpConnections    SftpConnection[]
+  pluginIntegrations PluginIntegration[]
+  customCodeSnippets CustomCodeSnippet[]
+  designNotes        DesignNote[]
+  componentAccesses  ComponentAccess[]
+  collaborators      WebsiteCollaborator[]
 
-  @@unique([websiteId, userId])
   @@index([userId])
-  @@index([websiteId])
-  @@map("website_collaborators")
+  @@map("websites")
 }
 
 model OtpVerification {
@@ -230,125 +205,29 @@ model UserSubscription {
   @@map("user_subscriptions")
 }
 
-model Team {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String
-  description String?
-  ownerId     String   @db.Uuid
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  owner       User             @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members     TeamMember[]
-  websites    Website[]
-  invitations TeamInvitation[]
-
-  @@index([ownerId])
-  @@map("teams")
-}
-
-model TeamMember {
-  id        String   @id @default(uuid()) @db.Uuid
-  teamId    String   @db.Uuid
-  userId    String   @db.Uuid
-  role      String   @default("DESIGNER")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@index([userId])
-  @@map("team_members")
-}
-
-model TeamInvitation {
-  id        String   @id @default(uuid()) @db.Uuid
-  teamId    String   @db.Uuid
-  email     String
-  role      String   @default("DESIGNER")
-  tokenHash String   @unique
-  status    String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
-  expiresAt DateTime
-  invitedBy String   @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  inviter User @relation("InvitationSender", fields: [invitedBy], references: [id], onDelete: Cascade)
-
-  @@index([teamId])
-  @@index([email])
-  @@map("team_invitations")
-}
-
-model WebsiteInvitation {
+model FormSubmission {
   id        String   @id @default(uuid()) @db.Uuid
   websiteId String   @db.Uuid
-  email     String
-  role      String   @default("DESIGNER")
-  tokenHash String   @unique
-  status    String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
-  expiresAt DateTime
-  invitedBy String   @db.Uuid
+  formId    String
+  data      Json
+  ipAddress String?
+  status    String   @default("NEW")
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  inviter User    @relation("WebsiteInvitationSender", fields: [invitedBy], references: [id], onDelete: Cascade)
 
   @@index([websiteId])
-  @@index([email])
-  @@map("website_invitations")
-}
-
-model GranularPermission {
-  id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
-  userId     String   @db.Uuid
-  resourceId String   @default("*") // "*" for global, or specific component id
-  capability String // "VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "PUBLISH", "MANAGE_PERMISSIONS"
-  effect     String // "ALLOW" or "DENY"
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // A user can only have one rule per capability for a specific resource
-  @@unique([websiteId, userId, resourceId, capability])
-  @@index([websiteId])
-  @@index([userId])
-  @@map("granular_permissions")
-}
-
-model DeveloperApiKey {
-  id         String    @id @default(uuid()) @db.Uuid
-  userId     String    @db.Uuid
-  name       String
-  tokenHash  String    @unique
-  scopes     String[]
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("developer_api_keys")
+  @@index([formId])
+  @@map("form_submissions")
 }
 
 model CustomPostType {
   id          String   @id @default(uuid()) @db.Uuid
   websiteId   String   @db.Uuid
   name        String
-  singular    String
-  plural      String
   slug        String
   description String?
-  hasArchive  Boolean  @default(false)
+  supports    Json     @default("[\"title\", \"editor\", \"thumbnail\"]")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -357,140 +236,216 @@ model CustomPostType {
   entries CustomEntry[]
 
   @@unique([websiteId, slug])
-  @@index([websiteId])
   @@map("custom_post_types")
+}
+
+model ThemeLocationRule {
+  id           String   @id @default(uuid()) @db.Uuid
+  websiteId    String   @db.Uuid
+  locationType String // HEADER, FOOTER, SINGLE, ARCHIVE, ERROR404
+  templateId   String
+  conditions   Json     @default("[]")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, locationType])
+  @@map("theme_location_rules")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String?  @db.Uuid
+  action         String
+  targetResource String
+  details        Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model SftpConnection {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  host       String
+  port       Int      @default(22)
+  username   String
+  remotePath String   @default("/var/www/html")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("sftp_connections")
+}
+
+model PluginIntegration {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  pluginSlug String // acf, toolset, pods, learndash, lifterlms
+  config     Json     @default("{}")
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, pluginSlug])
+  @@map("plugin_integrations")
+}
+
+model MultisiteNetwork {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  domain      String   @unique
+  networkType String   @default("SUBDIRECTORY") // SUBDIRECTORY | SUBDOMAIN
+  config      Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("multisite_networks")
 }
 
 model CustomField {
   id         String   @id @default(uuid()) @db.Uuid
   postTypeId String   @db.Uuid
   name       String
-  key        String
-  type       String
-  required   Boolean  @default(false)
+  slug       String
+  type       String   @default("text")
   order      Int      @default(0)
-  options    Json?
+  config     Json     @default("{}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   postType CustomPostType @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
 
-  @@index([postTypeId])
   @@map("custom_fields")
 }
 
 model CustomEntry {
   id         String   @id @default(uuid()) @db.Uuid
   postTypeId String   @db.Uuid
-  authorId   String   @db.Uuid
   title      String
-  slug       String
-  status     String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
-  values     Json
+  slug       String?
+  data       Json     @default("{}")
+  status     String   @default("PUBLISHED")
+  authorId   String?  @db.Uuid
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   postType CustomPostType @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
-  author   User           @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  author   User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
-  @@unique([postTypeId, slug])
-  @@index([postTypeId])
-  @@index([authorId])
   @@map("custom_entries")
 }
 
 model CustomCodeSnippet {
   id           String    @id @default(uuid()) @db.Uuid
   websiteId    String    @db.Uuid
-  title        String
-  language     String // HTML, CSS, JS
-  code         String
-  placement    String // HEAD, BODY_TOP, BODY_BOTTOM
-  scope        String    @default("GLOBAL") // GLOBAL, PAGE
+  name         String?
+  title        String?
+  language     String    @default("JS") // JS, CSS, HTML
+  codeType     String    @default("JS") // JS, CSS, HTML
+  placement    String    @default("HEAD") // HEAD, BODY_START, BODY_END
+  location     String    @default("HEAD") // HEAD, BODY_START, BODY_END
+  scope        String    @default("GLOBAL")
   pageId       String?
-  conditions   Json? // For F-113: {"pages": [], "devices": []}
-  priority     Int       @default(0) // F-116
-  status       String    @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED (F-114, F-115)
+  code         String
+  priority     Int       @default(10)
+  conditions   Json      @default("[]")
+  status       String    @default("PUBLISHED")
   scheduledFor DateTime?
+  isEnabled    Boolean   @default(true)
   isActive     Boolean   @default(true)
+  isDraft      Boolean   @default(false)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  website   Website              @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  revisions CustomCodeRevision[]
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
-  @@index([websiteId])
   @@map("custom_code_snippets")
 }
 
-model CustomCodeRevision {
+model DesignNote {
   id        String   @id @default(uuid()) @db.Uuid
-  snippetId String   @db.Uuid
-  code      String
-  authorId  String?  @db.Uuid
+  websiteId String   @db.Uuid
+  elementId String?
+  authorId  String   @db.Uuid
+  content   String
+  resolved  Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  snippet CustomCodeSnippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
-  author  User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  @@index([snippetId])
-  @@map("custom_code_revisions")
+  @@map("design_notes")
 }
 
 model PluginCompatibility {
   id                  String   @id @default(uuid()) @db.Uuid
-  websiteId           String   @db.Uuid
-  pluginSlug          String
-  currentVersion      String
-  compatibilityStatus String   @default("UNKNOWN") // SUPPORTED, CONFLICT, UNKNOWN
-  fallbackEnabled     Boolean  @default(false)
-  issues              Json?
+  name                String
+  slug                String   @unique
+  category            String?
+  compatibilityStatus String   @default("SUPPORTED")
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@unique([websiteId, pluginSlug])
-  @@index([websiteId])
-  @@map("plugin_compatibility_records")
+  @@map("plugin_compatibilities")
 }
 
-model DesignNote {
+model DeveloperApiKey {
   id         String    @id @default(uuid()) @db.Uuid
-  websiteId  String    @db.Uuid
-  elementId  String?
-  authorId   String    @db.Uuid
-  content    String    @db.Text
-  status     String    @default("OPEN")
+  userId     String    @db.Uuid
+  name       String
+  tokenHash  String    @unique
+  scopes     Json      @default("[\"websites:read\"]")
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  resolvedAt DateTime?
-  resolvedBy String?   @db.Uuid
 
-  website  Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  author   User    @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  resolver User?   @relation("NoteResolver", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([websiteId])
-  @@index([authorId])
-  @@index([elementId])
-  @@map("design_notes")
+  @@map("developer_api_keys")
 }
 
 model ComponentAccess {
   id          String   @id @default(uuid()) @db.Uuid
   websiteId   String   @db.Uuid
   componentId String
+  elementId   String   @default("")
   userId      String?  @db.Uuid
-  roleId      String?
-  permission  String   @default("EDIT")
+  permission  String   @default("VIEW")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@index([websiteId])
-  @@index([componentId])
-  @@map("component_access")
+  @@unique([websiteId, componentId])
+  @@map("component_accesses")
+}
+
+model WebsiteCollaborator {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  userId     String   @db.Uuid
+  permission String   @default("EDITOR")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, userId])
+  @@map("website_collaborators")
 }

@@ -20,6 +20,9 @@ import componentAccessRoutes from "./componentAccess.routes.js";
 import templateRoutes from "./template.routes.js";
 import formRoutes from "./form.routes.js";
 import integrationRoutes from "./integration.routes.js";
+import sftpRoutes from "./sftp.routes.js";
+import pluginIntegrationRoutes from "./pluginIntegration.routes.js";
+import multisiteRoutes from "./multisite.routes.js";
 
 const apiRouter = Router();
 
@@ -40,6 +43,9 @@ apiRouter.use("/uploads", uploadRoutes);
 apiRouter.use("/api-keys", apiKeysRoutes);
 apiRouter.use("/developer", developerRoutes);
 apiRouter.use("/composer", composerRoutes);
+apiRouter.use("/sftp", sftpRoutes);
+apiRouter.use("/plugins-integration", pluginIntegrationRoutes);
+apiRouter.use("/multisite", multisiteRoutes);
 
 // Custom Types, Code, and Components
 apiRouter.use("/", customPostTypeRoutes);
