@@ -135,37 +135,40 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
     <div className="flex flex-col h-full space-y-4">
       {/* Header & Actions */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <span>📚</span>
-            <span>Template Library</span>
-          </h3>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <span>📚</span>
+              <span>Template Library</span>
+            </h3>
+            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+              {templates.length} Saved
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
             {onOpenSaveTemplate && (
               <button
                 type="button"
                 onClick={onOpenSaveTemplate}
-                className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 hover:border-amber-300 transition shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-800 hover:bg-amber-100 hover:border-amber-300 transition shadow-2xs cursor-pointer"
                 aria-label="Create popup template"
                 title="Create Popup Template"
               >
                 <span>💬</span>
-                <span>+ Create Popup</span>
+                <span>+ Popup</span>
               </button>
             )}
             <button
               type="button"
               onClick={() => setIsImportOpen(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2.5 py-1 text-[11px] font-bold text-purple-700 hover:bg-purple-100 hover:border-purple-300 transition shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-[10px] font-bold text-purple-700 hover:bg-purple-100 hover:border-purple-300 transition shadow-2xs cursor-pointer"
               aria-label="Import template file"
               title="Import Template"
             >
               <span>📥</span>
-              <span>Import Template</span>
+              <span>Import</span>
             </button>
-            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-              {templates.length} Saved
-            </span>
           </div>
         </div>
 
@@ -207,13 +210,13 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex flex-wrap items-center gap-1 max-h-28 overflow-y-auto pr-1">
           {categoryFilterList.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition cursor-pointer ${
+              className={`rounded-lg px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${
                 selectedCategory.toLowerCase() === cat.id.toLowerCase()
                   ? "bg-purple-600 text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"

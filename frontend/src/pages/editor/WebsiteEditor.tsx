@@ -299,7 +299,6 @@ const [popups, setPopups] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
-  const [showHeaderFeatures, setShowHeaderFeatures] = useState<boolean>(true);
 
   // Reusable Components State (F-005)
   const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement }>>({});
@@ -1230,7 +1229,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     e.preventDefault();
     e.stopPropagation();
 
-    const dataString = e.dataTransfer.getData("application/json");
+    const dataString = e.dataTransfer.getData("application/json") || e.dataTransfer.getData("text/plain");
     setDropTargetId(null);
     setDropPosition(null);
     setDraggingId(null);
@@ -4641,7 +4640,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
             ? "bg-white border-b border-slate-200 text-slate-800"
             : "bg-[#0b1329] text-white"
         }`}>
-          {/* Left: Quit Editor, Features Toggle & Site Info */}
+          {/* Left: Quit Editor & Site Info */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -4653,55 +4652,45 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               <span>{t("quitEditor", "Quit Editor")}</span>
             </button>
 
-{/* Header Features Toggle Button (Right side of Quit Editor) */}
+            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-3">
+              {website?.name || "ForgeStudio Project"}
+            </span>
+
             <button
               type="button"
-              onClick={() => setShowHeaderFeatures(!showHeaderFeatures)}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
-                showHeaderFeatures
-                  ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/60 hover:bg-emerald-600/40"
-                  : "bg-amber-600/30 text-amber-300 border-amber-500/60 hover:bg-amber-600/40"
-              }`}
-              title={showHeaderFeatures ? "Header Features: ON (Click to Hide)" : "Header Features: OFF (Click to Show)"}
+              onClick={() => setIsFinderOpen(true)}
+              className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer ml-1"
+              title="Search pages, templates, settings and features (Ctrl+K)"
             >
-              <span>{showHeaderFeatures ? "⚡: ON" : "⚡: OFF"}</span>
+              <span>🔍</span>
+              <span>Search</span>
+              <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">Ctrl+K</kbd>
             </button>
 
-            {showHeaderFeatures && (
-              <>
-                <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-4">
-                  {website?.name || "new 1"}
-                </span>
+            <button
+              type="button"
+              onClick={() => setIsShortcutsHelpOpen(true)}
+              className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+              title="View Keyboard Shortcuts Cheat Sheet (?)"
+            >
+              <span>⌨️</span>
+              <span>Shortcuts</span>
+            </button>
 
-                <button
-                  type="button"
-                  onClick={() => setIsFinderOpen(true)}
-                  className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer ml-2"
-                  title="Search pages, templates, settings and features (Ctrl+K)"
-                >
-                  <span>🔍</span>
-                  <span>Search</span>
-                  <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">Ctrl+K</kbd>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsShortcutsHelpOpen(true)}
-                  className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                  title="View Keyboard Shortcuts Cheat Sheet (?)"
-                >
-                  <span>⌨️</span>
-                  <span>Shortcuts</span>
-                  <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">?</kbd>
-                </button>
-              </>
-            )}
+            {/* Developer Mode Code Export Button */}
+            <button
+              type="button"
+              onClick={() => setDevModalMode("export-code")}
+              className="text-xs font-bold text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 px-3 py-1.5 rounded-lg border border-blue-700/60 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+              title="Export Component Code (.js, .ts, .jsx, .tsx)"
+            >
+              <span>{"</>"}</span>
+              <span>Dev Mode</span>
+            </button>
           </div>
 
-{showHeaderFeatures && (
-            <>
-              {/* Middle: Responsive Device Selector */}
-              <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
+          {/* Middle: Responsive Device Selector */}
+          <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
                 {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
                   <button
                     key={mode}
@@ -4724,199 +4713,129 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               </div>
 
 {/* Right: Actions */}
-              <div className="flex items-center gap-3">
-                {/* Undo / Redo Buttons (F-013) */}
-                <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                {/* History Controls */}
+                <div className="flex items-center gap-0.5 bg-[#16203a] p-1 rounded-lg border border-slate-700/80 shrink-0">
                   <button
                     onClick={handleUndo}
                     disabled={historyIndex <= 0}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
+                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
                     title="Undo (Ctrl+Z)"
                   >
-                    <span>↩</span>
-                    <span>Undo</span>
+                    ↩
                   </button>
                   <button
                     onClick={handleRedo}
                     disabled={historyIndex >= history.length - 1}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
+                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
                     title="Redo (Ctrl+Y)"
                   >
-                    <span>↪</span>
-                    <span>Redo</span>
+                    ↪
                   </button>
                   <button
                     onClick={() => setIsRevisionHistoryOpen(true)}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1 border-l border-slate-700/60 ml-0.5 pl-2"
-                    title="Revision History (F-320)"
+                    className="px-2 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 pl-1.5 cursor-pointer flex items-center gap-1"
+                    title="Revision History"
                   >
                     <span>🕓</span>
-                    <span>History</span>
+                    <span className="hidden md:inline">History</span>
                   </button>
                 </div>
 
-{saveMessage && (
-                  <span className="text-xs font-medium text-emerald-400">
-                    ✓ {saveMessage}
-                  </span>
+                {/* Selected Element Controls (Only active when element selected) */}
+                {selectedId && (
+                  <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-blue-500/30 shrink-0">
+                    <button
+                      onClick={() => handleReorderElement(selectedId, "up")}
+                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                      title="Move Up"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      onClick={() => handleReorderElement(selectedId, "down")}
+                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                      title="Move Down"
+                    >
+                      ▼
+                    </button>
+                    <button
+                      onClick={(e) => handleCopyElement(selectedId, e)}
+                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                      title="Copy (Ctrl+C)"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      onClick={(e) => handleDuplicateElement(selectedId, e)}
+                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                      title="Duplicate (Ctrl+D)"
+                    >
+                      Duplicate
+                    </button>
+                    <button
+                      onClick={() => handleSaveAsComponent(selectedId)}
+                      className="px-2 py-0.5 text-xs font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
+                      title="Save as Reusable Component"
+                    >
+                      🧩 Comp
+                    </button>
+                    <button
+                      onClick={handleOpenReplaceTemplate}
+                      className="px-2 py-0.5 text-xs font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
+                      title="Replace with Template"
+                    >
+                      🔄 Replace
+                    </button>
+                  </div>
                 )}
 
-                {errorMessage && (
-                  <span className="text-xs font-medium text-red-400">
-                    {errorMessage}
-                  </span>
-                )}
+                {/* Status Messages */}
+                {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0">✓ {saveMessage}</span>}
+                {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0">{errorMessage}</span>}
 
-                <button
-                  onClick={() => selectedId && handleReorderElement(selectedId, "up")}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Move selected section/element up"
-                >
-                  Move Up ▲
-                </button>
-
-                <button
-                  onClick={() => selectedId && handleReorderElement(selectedId, "down")}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Move selected section/element down"
-                >
-                  Move Down ▼
-                </button>
-
-                <button
-                  onClick={(e) => handleCopyElement(selectedId, e)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Copy selected element (Ctrl+C)"
-                >
-                  Copy
-                </button>
-
-                <button
-                  onClick={(e) => handlePasteElement(e)}
-                  disabled={!copiedElement}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Paste copied element (Ctrl+V)"
-                >
-                  Paste
-                </button>
-
-                <button
-                  onClick={(e) => handleDuplicateElement(selectedId, e)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Duplicate selected element (Ctrl+D)"
-                >
-                  Duplicate
-                </button>
-
-                <button
-                  onClick={() => selectedId && handleSaveAsComponent(selectedId)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white disabled:opacity-40"
-                  title="Save selected element as a reusable Component"
-                >
-                  Save as Comp 🧩
-                </button>
-
-                <button
-                  onClick={handleOpenReplaceTemplate}
-                  disabled={!selectedId}
-                  className="rounded-full border border-amber-500/60 bg-amber-950/40 px-3 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-800 hover:text-white disabled:opacity-40"
-                  title="Replace selected element/section with another template"
-                >
-                  Replace 🔄
-                </button>
-
-
-                <button
-                  onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                  className={`rounded-full border border-slate-600 bg-transparent px-3.5 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-                    isFullScreenCanvas ? "bg-blue-600/30 text-blue-300 border-blue-500" : ""
-                  }`}
-                  title="Toggle full screen distraction-free canvas mode"
-                >
-                  {isFullScreenCanvas ? "Exit Full Screen" : "Full Screen ⛶"}
-                </button>
-
-                {/* Editor UI Language Selector (F-022) */}
-                <div className="flex items-center gap-1.5 bg-slate-800/80 rounded-full px-2.5 py-1 border border-slate-700">
-                  <span className="text-[11px] text-slate-400">🌐 UI:</span>
-                  <select
-                    value={editorLanguage}
-                    onChange={(e) => setEditorLanguage(e.target.value as "en" | "es" | "fr" | "de")}
-                    className="bg-transparent text-xs font-semibold text-slate-200 outline-none cursor-pointer"
-                    title="Change Editor Interface Language"
+                {/* Kit & Tools Actions */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleExportWebsiteKit}
+                    className="px-2.5 py-1 text-xs font-semibold text-blue-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
+                    title="Export Website Kit JSON"
                   >
-                    <option value="en" className="bg-slate-900 text-white">English (EN)</option>
-                    <option value="es" className="bg-slate-900 text-white">Español (ES)</option>
-                    <option value="fr" className="bg-slate-900 text-white">Français (FR)</option>
-                    <option value="de" className="bg-slate-900 text-white">Deutsch (DE)</option>
-                  </select>
+                    📦 Kit
+                  </button>
+
+                  <button
+                    onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+                    className="px-2 py-1 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
+                    title="Toggle Full Screen Canvas"
+                  >
+                    ⛶
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => setIsPreview(!isPreview)}
-                  className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-                    isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
-                  }`}
-                >
-                  {isPreview ? t("exitPreview", "Exit Preview") : t("preview", "Preview")}
-                </button>
+                {/* Primary Preview & Save */}
+                <div className="flex items-center gap-1.5 ml-1 shrink-0">
+                  <button
+                    onClick={() => setIsPreview(!isPreview)}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg border transition cursor-pointer ${
+                      isPreview
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/60"
+                        : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
+                    }`}
+                  >
+                    {isPreview ? "Exit" : "👁️ Preview"}
+                  </button>
 
-                {/* F-321 Autosave Status Indicator */}
-                <AutosaveStatusIndicator
-                  status={autosaveStatus}
-                  lastSavedAt={autosaveLastSavedAt}
-                  errorMessage={autosaveError}
-                />
-
-                {saveTemplateSuccessMessage && (
-                  <span className="text-xs font-medium text-purple-300 bg-purple-900/40 border border-purple-500/30 px-2.5 py-1 rounded-full">
-                    ✓ {saveTemplateSuccessMessage}
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => openSaveTemplateDialog()}
-                  className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3.5 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Save current design as a reusable Template (F-322)"
-                >
-                  Save as Template
-                </button>
-
-                {/* F-335 & F-336 Website Kit Actions */}
-                <button
-                  type="button"
-                  onClick={handleExportWebsiteKit}
-                  className="rounded-full border border-blue-500/60 bg-blue-950/40 px-3.5 py-1 text-xs font-semibold text-blue-300 transition hover:bg-blue-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Export current project and configurations as a portable Website Kit JSON (F-335)"
-                >
-                  Export Kit 📦
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsImportWebsiteKitOpen(true)}
-                  className="rounded-full border border-cyan-500/60 bg-cyan-950/40 px-3.5 py-1 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Import a Website Kit JSON file to restore project pages and elements (F-336)"
-                >
-                  Import Kit 📥
-                </button>
-
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white shadow hover:bg-blue-700 transition disabled:opacity-50"
-                >
-                  {saving ? t("saving", "Saving...") : t("save", "Save")}
-                </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
+                  >
+                    {saving ? "Saving..." : "💾 Save"}
+                  </button>
+                </div>
               </div>
-            </>
-          )}
         </header>
       )}
 
@@ -4928,8 +4847,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
         {/* Left Sidebar: ELEMENTS                     */}
         {/* ========================================== */}
         {!isPreview && !isFullScreenCanvas && (
-          <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col">
-            <div className="flex items-center gap-1 border-b border-slate-200 pb-2.5 mb-4">
+          <aside className="w-64 md:w-72 shrink-0 border-r border-slate-200 bg-white p-3.5 overflow-y-auto shadow-sm flex flex-col">
+            <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 pb-2 mb-3">
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("elements")}
@@ -4978,22 +4897,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
 
 
             {leftSidebarTab === "elements" ? (
-              <div className="space-y-4">
-                {/* Manage Widgets Trigger Button (F-032) */}
-                <button
-                  type="button"
-                  onClick={() => setIsElementManagerOpen(true)}
-                  className="w-full flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/60 p-2.5 text-xs font-bold text-blue-900 hover:bg-blue-100/70 hover:border-blue-300 transition shadow-xs group"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-sm group-hover:scale-110 transition">⚙️</span>
-                    <span>Manage Widgets</span>
-                  </span>
-                  <span className="text-[10px] font-bold text-blue-700 bg-white border border-blue-200 px-2 py-0.5 rounded-full shadow-xs">
-                    {ALL_WIDGET_REGISTRY.length - disabledWidgets.length}/{ALL_WIDGET_REGISTRY.length} Active
-                  </span>
-                </button>
-
+              <div className="space-y-3">
                 {/* Main Widget Library Search Input */}
                 {!disabledWidgets.includes("search-bar") && (
                   <div className="relative">
@@ -6449,6 +6353,12 @@ onClick={() => importFileInputRef.current?.click()}
             </div>
           )}
           <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.dataTransfer.dropEffect = "copy";
+            }}
+            onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
               backgroundColor: pageSettings.backgroundColor || "#ffffff",
               backgroundImage: userPreferences.gridOverlay
@@ -16288,6 +16198,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         isOpen={!!devModalMode}
         onClose={() => setDevModalMode(null)}
         mode={devModalMode!}
+        targetElement={selectedElement || elements[0]}
         initialValue={
           devModalMode === "element-css" ? selectedElement?.customCss :
             devModalMode === "css-selectors" ? selectedElement?.customSelectors :
