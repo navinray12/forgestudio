@@ -1,9 +1,10 @@
-import {
+import type {
   EditorElement,
   ElementStyles,
   ContainerLayout,
   DeviceMode,
-  ElementState
+  ElementState,
+  Breakpoint
 } from "../types";
 
 // ==========================================
@@ -202,7 +203,7 @@ export function generateElementsHoverCSS(elementsList: EditorElement[], device: 
       for (const k of styleKeys) {
         const hoverVal = getEffectiveHoverStyle(el, device, k);
         if (hoverVal !== undefined && hoverVal !== "") {
-          const cssProp = k.replace(/([A-Z])/g, "-$1").toLowerCase();
+          const cssProp = String(k).replace(/([A-Z])/g, "-$1").toLowerCase();
           hoverRuleProps.push(`${cssProp}: ${hoverVal} !important;`);
         }
       }
@@ -805,4 +806,5 @@ export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperti
   delete (inner as any).scrollMargin;
   return inner;
 }
+
 

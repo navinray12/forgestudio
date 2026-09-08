@@ -1,29 +1,29 @@
-
-import PopupManagerModal from "./components/PopupManagerModal";
-import PopupRuntimePreview from "./components/PopupRuntimePreview";
-import DeveloperModal from "./components/DeveloperModal";
-import SaveTemplateDialog from "../../features/templates/components/SaveTemplateDialog";
-import ReplaceTemplateDialog from "../../features/templates/components/ReplaceTemplateDialog";
-import ImportWebsiteKitDialog from "../../features/templates/components/ImportWebsiteKitDialog";
-import RevisionHistoryPanel from "../../features/revision-history/components/RevisionHistoryPanel";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import {
   Monitor, Smartphone, Tablet, Undo, Redo, Save, Eye, Settings, Plus, Trash2, Copy,
-  ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid, Flex,
+  ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid,
   Sliders, Palette, FileText, Globe, Code, Play, Check, X, Move, Lock, Unlock,
   HelpCircle, ExternalLink, RefreshCw, Database, Server, Cpu, HardDrive, Key,
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
   AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass,
   Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu
 } from "lucide-react";
+import {
+  FacebookEmbedBoxIcon,
+  FacebookCommentsBoxIcon,
+  PayPalButtonBoxIcon,
+  StripeButtonBoxIcon,
+  LottieBoxIcon,
+  MegaMenuBoxIcon,
+  OffCanvasBoxIcon
+} from "./icons";
 
 // ==========================================
 // Types & Interfaces
 // ==========================================
 
 
-import {
+import type {
   ElementType,
   EditorElement,
   ElementStyles,
@@ -43,6 +43,8 @@ import {
   MediaCarouselItem,
   ImageCarouselItem,
   ShareNetworkType,
+  ShareNetworkItem,
+  MegaMenuItem,
   PostItem
 } from "../types";
 import {
@@ -434,11 +436,14 @@ export const FormWidgetRenderer = ({
                   ))}
                 </div>
               ) : field.type === "tel" ? (
-                <PhoneInput
+                <input
+                  type="tel"
                   id={`field_${field.id}`}
                   required={field.required}
+                  placeholder={field.placeholder || "+1 (555) 000-0000"}
                   value={formData[field.id] || ""}
-                  onChange={(val) => setFormData((prev) => ({ ...prev, [field.id]: val.fullNumber }))}
+                  onChange={(e) => setFormData((prev: any) => ({ ...prev, [field.id]: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                 />
               ) : (
                 <div className="relative flex items-center">
@@ -859,7 +864,7 @@ export const NavMenuWidgetRenderer = ({
                   } ${isOpen && !isVertical ? "opacity-100 visible translate-y-0" : ""}`}
                 >
                   <div className="flex flex-col gap-0.5">
-                    {item.submenu!.map((subItem) => (
+                    {item.submenu!.map((subItem: any) => (
                       <a
                         key={subItem.id}
                         href={subItem.url || "#"}
@@ -1168,7 +1173,7 @@ export const PriceTableWidgetRenderer = ({
 
               {/* Feature List */}
               <ul className="mb-8 space-y-3">
-                {plan.features.map((feat) => (
+                {plan.features.map((feat: any) => (
                   <li key={feat.id} className="flex items-center gap-2.5 text-xs">
                     {feat.included ? (
                       <div
@@ -4135,7 +4140,6 @@ export const ReviewsWidgetRenderer = ({
 };
 
 /* Facebook Button Widget Components (F-197) */
-);
 
 /* F-198: Facebook Embed Renderer */
 export const FacebookEmbedWidgetRenderer = ({

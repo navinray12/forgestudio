@@ -1,16 +1,17 @@
 
 import PopupManagerModal from "./components/PopupManagerModal";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
-import DeveloperModal from "./components/DeveloperModal";
-import SaveTemplateDialog from "../../features/templates/components/SaveTemplateDialog";
-import ReplaceTemplateDialog from "../../features/templates/components/ReplaceTemplateDialog";
-import ImportWebsiteKitDialog from "../../features/templates/components/ImportWebsiteKitDialog";
-import RevisionHistoryPanel from "../../features/revision-history/components/RevisionHistoryPanel";
+import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
+import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
+import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
+import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
+import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
+
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Monitor, Smartphone, Tablet, Undo, Redo, Save, Eye, Settings, Plus, Trash2, Copy,
-  ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid, Flex,
+  ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid,
   Sliders, Palette, FileText, Globe, Code, Play, Check, X, Move, Lock, Unlock,
   HelpCircle, ExternalLink, RefreshCw, Database, Server, Cpu, HardDrive, Key,
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
@@ -31,7 +32,7 @@ export * from "./defaults";
 export * from "./widgets";
 export * from "./widgets";
 
-import {
+import type {
   ElementType,
   NavSubmenuItem,
   NavMenuItem,
@@ -63,7 +64,9 @@ import {
   ElementStyles,
   ElementState,
   EditorElement,
-  WebsiteData,
+  WebsiteData
+} from "./types";
+import {
   ALL_WIDGET_REGISTRY,
   DEFAULT_VISIBLE_WIDGETS
 } from "./types";
@@ -80,10 +83,18 @@ import {
   getEffectiveLayout,
   getMergedStyles,
   getMergedLayout,
+  getInnerStyles,
   hasStyleOverride,
   generateElementsHoverCSS,
   findTreeElement,
-  getElementBreadcrumbPath
+  getElementBreadcrumbPath,
+  updateTreeElement,
+  insertTreeElement,
+  insertTreeElementAtPosition,
+  deleteTreeElement,
+  duplicateTreeElement,
+  moveTreeElement,
+  reorderTreeElement
 } from "./utils";
 
 import {
@@ -184,7 +195,6 @@ import {
 import { SpacingControl } from "./inspector";
 
 export default function WebsiteEditor() {
-  const selectedElementAny = (selectedElement as any);
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -200,7 +210,7 @@ export default function WebsiteEditor() {
   });
 
   const [elements, setElements] = useState<EditorElement[]>([]);
-const [popups, setPopups] = useState<PopupConfig[]>([]);
+const [popups, setPopups] = useState<any[]>([]);
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
@@ -227,9 +237,65 @@ const [popups, setPopups] = useState<PopupConfig[]>([]);
   const handleTrackPopupClick = (id: string) => {};
 
 
+  const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
+    if (typeof window !== "undefined" && "EyeDropper" in window) {
+      try {
+        const eyeDropper = new (window as any).EyeDropper();
+        const result = await eyeDropper.open();
+        if (result && result.sRGBHex) {
+          onColorPicked(result.sRGBHex);
+        }
+      } catch (err) {
+        console.warn("EyeDropper error:", err);
+      }
+    }
+  };
+
+  const renderTypographySection = () => null;
+
+  const [breakpoints, setBreakpoints] = useState<any[]>([
+    { id: "desktop", name: "Desktop", minWidth: 1025 },
+    { id: "tablet", name: "Tablet", minWidth: 768, maxWidth: 1024 },
+    { id: "mobile", name: "Mobile", maxWidth: 767 }
+  ]);
+  const activeBreakpointId = "desktop";
+
+  const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
+    if (!element) return undefined;
+    if (element.responsiveStyles && element.responsiveStyles[breakpointId]?.[key]) {
+      return element.responsiveStyles[breakpointId][key];
+    }
+    return element.styles?.[key];
+  };
+
+  const renderResponsiveLabel = (label: string) => (
+    <label className="block text-xs font-semibold text-slate-700 mb-1">{label}</label>
+  );
+
+  const renderAccordion = (title: string, id: string, children: React.ReactNode) => (
+    <details key={id} className="group border border-slate-200 rounded-lg bg-white overflow-hidden my-2">
+      <summary className="flex cursor-pointer items-center justify-between p-3 text-xs font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 select-none">
+        <span>{title}</span>
+        <span className="transition-transform group-open:rotate-180">▼</span>
+      </summary>
+      <div className="p-3 border-t border-slate-200 space-y-3">{children}</div>
+    </details>
+  );
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const findTreeElement = (tree: EditorElement[], targetId: string): EditorElement | null => {
+    for (const item of tree) {
+      if (item.id === targetId) return item;
+      if (item.children && item.children.length > 0) {
+        const found = findTreeElement(item.children, targetId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
+  const selectedElementAny = selectedElement as any;
   const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
-const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
@@ -1411,8 +1477,6 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, selectedIds, copiedElement, elements, historyIndex, history, isFullScreenCanvas, isPreview, saving]);
 
-  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
-
   useEffect(() => {
     if (selectedElement && selectedElement.componentId) {
       syncComponentInstances(selectedElement.componentId, selectedElement);
@@ -1874,6 +1938,45 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     isLinked: boolean,
     setIsLinked: (val: boolean) => void
   ) => {
+    const topKey = (type === "margin" ? "marginTop" : "paddingTop") as keyof ElementStyles;
+    const rightKey = (type === "margin" ? "marginRight" : "paddingRight") as keyof ElementStyles;
+    const bottomKey = (type === "margin" ? "marginBottom" : "paddingBottom") as keyof ElementStyles;
+    const leftKey = (type === "margin" ? "marginLeft" : "paddingLeft") as keyof ElementStyles;
+
+    const handleSideChange = (sideKey: keyof ElementStyles, numVal: string, unitVal: string) => {
+      const formattedVal = numVal.trim() === "" ? "" : `${numVal}${unitVal}`;
+      if (isLinked) {
+        updateSelectedStyle(topKey, formattedVal);
+        updateSelectedStyle(rightKey, formattedVal);
+        updateSelectedStyle(bottomKey, formattedVal);
+        updateSelectedStyle(leftKey, formattedVal);
+      } else {
+        updateSelectedStyle(sideKey, formattedVal);
+      }
+    };
+
+    const handleUnitChange = (newUnit: string) => {
+      const applyUnit = (sideKey: keyof ElementStyles) => {
+        if (!selectedElement) return;
+        const cur = getControlStyleValue(selectedElement, activeDevice, activeElementState, sideKey);
+        const parsed = parseSpacingUnit(String(cur || ""));
+        if (parsed.num) {
+          updateSelectedStyle(sideKey, `${parsed.num}${newUnit}`);
+        }
+      };
+      applyUnit(topKey);
+      applyUnit(rightKey);
+      applyUnit(bottomKey);
+      applyUnit(leftKey);
+    };
+
+    const handleResetAll = () => {
+      resetSelectedStyle(topKey);
+      resetSelectedStyle(rightKey);
+      resetSelectedStyle(bottomKey);
+      resetSelectedStyle(leftKey);
+    };
+
     return (
       <SpacingControl
         title={title}
@@ -3125,7 +3228,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     const isEditingHoverState = isSelected && activeElementState === "hover";
     const mergedStyles = getMergedStyles(el, activeDevice, isEditingHoverState ? "hover" : "normal");
 
-    const customAttrProps = (el.customAttributes || []).reduce((acc, curr) => {
+    const customAttrs = Array.isArray(el.customAttributes) ? el.customAttributes : [];
+    const customAttrProps = customAttrs.reduce((acc, curr) => {
       if (curr.name && curr.name.trim()) acc[curr.name.trim()] = curr.value || "";
       return acc;
     }, {} as any);
@@ -3438,10 +3542,6 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           ...compileBackgroundAndBorderStyles(mergedStyles),
           ...compilePositioningStyles(mergedStyles),
         }}
-        className={`relative rounded-xl transition duration-150 ${el.id} ${el.customClass || ""} ${
-          isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
-        style={{ ...resolvedStyles }}
       >
         {isHovered && !isSelected && !isPreview && (
           <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
@@ -4066,7 +4166,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                     display: "block",
                     width: mergedStyles.width || "100%",
                     height: mergedStyles.height || "auto",
-                    objectFit: mergedStyles.objectFit || "cover",
+                    objectFit: (mergedStyles.objectFit as any) || "cover",
                     objectPosition: mergedStyles.objectPosition || "center",
                     opacity: mergedStyles.opacity !== undefined ? Number(mergedStyles.opacity) : 1,
                     borderRadius: mergedStyles.borderRadius || "8px",
@@ -4127,7 +4227,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                 if (!isPreview) e.preventDefault();
               }}
               className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
-              style={{ ...getInnerStyles(resolvedStyles) }}
+              style={{ ...(getInnerStyles(mergedStyles as any) as any) }}
               {...customAttrProps}
             >
               {el.content}

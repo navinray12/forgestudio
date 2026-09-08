@@ -79,7 +79,7 @@ export default function DeveloperModal({
                 language="css"
                 theme="vs-dark"
                 value={typeof value === 'string' ? value :""}
-                onChange={(val) => setValue(val ||"")}
+                onChange={(val: string | undefined) => setValue(val ||"")}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 13,

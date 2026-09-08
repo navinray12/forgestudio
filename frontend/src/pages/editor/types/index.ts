@@ -5,11 +5,27 @@ import React from "react";
 // ==========================================
 
 export type ElementType =
-  | "container" | "heading" | "text" | "image" | "button"
-  | "video" | "divider" | "spacer" | "icon" | "rating"
-  | "progress-bar" | "counter" | "html" | "shortcode" | "alert"
-  | "social-icons" | "google-maps" | "soundcloud"
-  | "div-block" | "paragraph";
+  | "container" | "heading" | "text" | "image" | "video" | "button"
+  | "divider" | "spacer" | "icon" | "rating" | "progress-bar" | "counter"
+  | "html" | "shortcode" | "alert" | "social-icons" | "google-maps" | "soundcloud"
+  | "div-block" | "paragraph" | "posts" | "share-buttons" | "portfolio"
+  | "slides" | "form" | "login" | "nav-menu" | "animated-headline"
+  | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action"
+  | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel"
+  | "table-of-contents" | "countdown" | "facebook-page" | "blockquote"
+  | "template" | "reviews" | "facebook-button" | "facebook-embed"
+  | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie"
+  | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu"
+  | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets"
+  | "reusable-components" | "basic-media-carousel" | "basic-gallery"
+  | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library"
+  | "wc-product-title" | "wc-product-price" | "wc-product-images"
+  | "wc-add-to-cart" | "wc-product-rating" | "wp-menu" | "menu-widget"
+  | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
+  | "site-search" | "search-form" | "taxonomy-filter"
+  | "facebook-integration" | "facebook-feed" | "facebook-like-button"
+  | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
+  | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration";
 
 export interface NavSubmenuItem {
   id: string;
@@ -37,7 +53,6 @@ export interface PricingPlan {
   description?: string;
   price: string;
   period: string;
-  description?: string;
   isPopular?: boolean;
   badgeText?: string;
   buttonText: string;
@@ -60,10 +75,7 @@ export interface GalleryImageItem {
   altText?: string;
 }
 
-
 export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "flip" | "highlight";
-
-export type ElementType = "container" | "heading" | "text" | "image" | "video" | "button" | "posts" | "share-buttons" | "portfolio" | "slides" | "form" | "login" | "nav-menu" | "animated-headline" | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action" | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel" | "table-of-contents" | "countdown" | "facebook-page" | "blockquote" | "template" | "reviews" | "facebook-button" | "facebook-embed" | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie" | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu" | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets" | "reusable-components" | "basic-media-carousel" | "basic-gallery" | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library" | "wc-product-title" | "wc-product-price" | "wc-product-images" | "wc-add-to-cart" | "wc-product-rating";
 
 export interface WidgetRegistryItem {
   type: ElementType;
@@ -319,6 +331,7 @@ rowGap?: number | string;
 }
 
 export interface ElementStyles {
+  [key: string]: any;
   objectFit?: string;
   backgroundType?: string;
   backgroundSlideshowUrls?: string[] | string;
@@ -389,17 +402,7 @@ export interface ElementStyles {
   borderBottomRightRadius?: string;
   borderBottomLeftRadius?: string;
   boxShadow?: string;
-position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
-  top?: string;
-  right?: string;
-  bottom?: string;
-  left?: string;
-  zIndex?: number | string;
-  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   objectPosition?: string;
-  opacity?: number | string;
-// Opacity & Blend Mode (F-082, F-083)
-  opacity?: string;
   mixBlendMode?: string;
 
   // CSS Filters & Masks (F-084, F-085)
@@ -928,7 +931,7 @@ export interface EditorElement {
   iconBorderRadius?: string;
   iconPadding?: number;
   classes?: string[];
-  styles: ElementStyles;
+  styles?: ElementStyles;
   hoverStyles?: Partial<ElementStyles>;
   layout?: ContainerLayout;
   children?: EditorElement[];
@@ -940,11 +943,20 @@ export interface EditorElement {
     tablet?: Partial<ElementStyles>;
     mobile?: Partial<ElementStyles>;
   };
+  responsiveHoverStyles?: Record<string, Partial<ElementStyles>> & {
+    desktop?: Partial<ElementStyles>;
+    tablet?: Partial<ElementStyles>;
+    mobile?: Partial<ElementStyles>;
+  };
   responsiveLayouts?: Record<string, ContainerLayout>;
+  responsiveLayout?: Record<string, ContainerLayout> & {
+    desktop?: Partial<ContainerLayout>;
+    tablet?: Partial<ContainerLayout>;
+    mobile?: Partial<ContainerLayout>;
+  };
   atomicProps?: Record<string, any>;
-  navigationConfig?: NavigationConfig;
-  integrationConfig?: IntegrationConfig;
-  isProtected?: boolean;
+  navigationConfig?: any;
+  integrationConfig?: any;
   protectedRoles?: string[];
   customId?: string;
   customClass?: string;
@@ -953,7 +965,7 @@ export interface EditorElement {
   customAttributes?: Record<string, string> | any[];
 }
 
-interface WebsiteData {
+export interface WebsiteData {
   id: string;
   name: string;
   slug: string;

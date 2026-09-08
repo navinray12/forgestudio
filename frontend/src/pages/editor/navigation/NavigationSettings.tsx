@@ -16,7 +16,7 @@ export const NavigationSettingsPanel: React.FC<NavigationSettingsProps> = ({
   updateSelectedProp,
   renderResponsiveLabel,
 }) => {
-  const styles = selectedElement.styles;
+  const styles = selectedElement.styles || {};
 
   return (
     <div className="space-y-4 text-xs">

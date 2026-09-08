@@ -1,12 +1,34 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import {
-    resolveElementStyles,
-    getInnerStyles,
-    BackgroundSlideshow
-} from "../editor/WebsiteEditor";
-import type { EditorElement, Breakpoint } from "../editor/WebsiteEditor";
+import { resolveElementStyles, getInnerStyles } from "../editor/utils";
+import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
+
+const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
+    const [index, setIndex] = useState(0);
+    useEffect(() => {
+        if (!urls || urls.length <= 1) return;
+        const timer = setInterval(() => {
+            setIndex((i) => (i + 1) % urls.length);
+        }, interval || 5000);
+        return () => clearInterval(timer);
+    }, [urls, interval]);
+
+    if (!urls || urls.length === 0) return null;
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            {urls.map((url, i) => (
+                <div
+                    key={url + i}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+                        i === index ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{ backgroundImage: `url(${url})` }}
+                />
+            ))}
+        </div>
+    );
+};
 
 export interface PageConfig {
     id: string;
@@ -67,8 +89,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         rootMargin: "400px"
     });
 
-    // Pass attributes securely
-    const customAttrs = el.customAttributes?.filter((a: any) => a.enabled !== false).reduce((acc: any, attr: any) => {
+    const customAttrs = (Array.isArray(el.customAttributes) ? el.customAttributes : []).filter((a: any) => a.enabled !== false).reduce((acc: any, attr: any) => {
         if (attr.name) acc[attr.name] = attr.value || "";
         return acc;
     }, {}) || {};
@@ -129,7 +150,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </React.Fragment>
     );
 
-    if (el.type === "icon") return <React.Fragment key={el.id}><div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center", ...mergedProps.style }}>{renderSvgIcon(el.styles.iconName || "star", el.styles.iconSize || "32", el.styles.iconColor || "#2563eb")}</div></React.Fragment>;
+    if (el.type === "icon") return <React.Fragment key={el.id}><div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center", ...mergedProps.style }}>{renderSvgIcon(el.styles?.iconName || "star", el.styles?.iconSize || "32", el.styles?.iconColor || "#2563eb")}</div></React.Fragment>;
 
     if (el.type === "spacer") return <React.Fragment key={el.id}><div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ height: resolvedStyles.height || "40px", ...mergedProps.style, ...finalInnerStyles }} /></React.Fragment>;
 
@@ -225,7 +246,7 @@ export default function PublishedSite() {
                 if (site?.editorData?.globalSettings) setGlobalSettings(site.editorData.globalSettings);
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
                 if (site?.status) setSiteStatus(site.status);
-                if (site?.themeLocationRules) setThemeRules(site.themeLocationRules);
+                if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
 
             } catch (err: any) {
                 setErrorMessage(err.message || "Failed to boot published runtime");
@@ -237,7 +258,7 @@ export default function PublishedSite() {
     }, [websiteId, apiUrl]);
 
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
-    const [themeRules, setThemeRules] = useState<any[]>([]);
+    const [_themeRules, _setThemeRules] = useState<any[]>([]);
 
     useEffect(() => {
         const handleResize = () => {

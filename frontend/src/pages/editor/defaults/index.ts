@@ -1,7 +1,6 @@
-import {
+import type {
   ElementType,
-  EditorElement,
-  ALL_WIDGET_REGISTRY
+  EditorElement
 } from "../types";
 import { generateId } from "../utils";
 

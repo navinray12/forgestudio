@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import type { EditorElement, ElementStyles } from "../types";
 
 // ==========================================
 // EDITOR WIDGET PALETTE ICONS & UTILITIES
@@ -452,6 +453,7 @@ export const ImageCarouselBoxIcon = () => (
     <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M21 16l-5-5-4 4-3-3-5 5" />
     <path strokeWidth="2" strokeLinecap="round" d="M6 12l-2-2M18 12l2-2" />
   </svg>
+);
 
 // Range 3: General Editor Utility Icons
 export const EmptyPictureIcon = () => (
