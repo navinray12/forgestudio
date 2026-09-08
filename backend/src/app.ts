@@ -123,7 +123,6 @@ app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
 
 // =========================
-<<<<<<< HEAD
 // Team Routes
 // =========================
 
@@ -171,13 +170,13 @@ app.use("/api/v1/design-notes", designNotesRoutes);
 app.use("/api/design-notes", designNotesRoutes);
 app.use("/api/v1/component-access", componentAccessRoutes);
 app.use("/api/component-access", componentAccessRoutes);
-=======
+
+// =========================
 // Template Routes (F-322)
 // =========================
 
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
->>>>>>> origin/main
 
 // =========================
 // Global Error Handler

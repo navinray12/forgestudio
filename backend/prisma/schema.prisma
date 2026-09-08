@@ -7,6 +7,165 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                  String               @id @default(uuid()) @db.Uuid
+  fullName            String?
+  email               String?              @unique
+  phone               String?              @unique
+  passwordHash        String?
+  verificationMethod  VerificationMethod?
+  emailVerified       Boolean              @default(false)
+  phoneVerified       Boolean              @default(false)
+  status              UserStatus           @default(ACTIVE)
+  role                UserRole             @default(USER)
+  lastLoginAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  identities          Identity[]
+  otpVerifications    OtpVerification[]
+  passwordResetTokens PasswordResetToken[]
+  sessions            Session[]
+  templates           templates[]
+  subscription        UserSubscription?
+  websites            Website[]
+  codeRevisions       CustomCodeRevision[]
+
+  @@index([status])
+  @@index([role])
+  @@map("users")
+}
+
+model Website {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @db.Uuid
+  name       String   @db.VarChar(255)
+  slug       String   @db.VarChar(255)
+  status     String   @default("DRAFT") @db.VarChar(50)
+  editorData Json     @default("{\"version\": 1, \"elements\": []}")
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customCodeSnippets CustomCodeSnippet[]
+
+  @@index([userId], map: "idx_websites_user_id")
+  @@map("websites")
+}
+
+model OtpVerification {
+  id         String      @id @default(uuid()) @db.Uuid
+  userId     String?     @db.Uuid
+  otpHash    String
+  purpose    OtpPurpose
+  attempts   Int         @default(0)
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  createdAt  DateTime    @default(now())
+  email      String?
+  channel    OtpChannel? @default(EMAIL)
+  user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([purpose])
+  @@map("otp_verifications")
+}
+
+model Identity {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @db.Uuid
+  provider       IdentityProvider
+  providerUserId String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("identities")
+}
+
+model Session {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model SubscriptionPlan {
+  id              String             @id @default(uuid()) @db.Uuid
+  name            String
+  slug            String             @unique
+  price           Int
+  currency        String             @default("INR")
+  billingInterval String             @default("monthly")
+  websiteLimit    Int
+  storageLimitMb  Int                @default(100)
+  aiCreditLimit   Int                @default(0)
+  features        Json
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  subscriptions   UserSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                 String           @id @default(uuid()) @db.Uuid
+  userId             String           @unique @db.Uuid
+  planId             String           @db.Uuid
+  status             String           @default("ACTIVE")
+  currentPeriodStart DateTime         @default(now())
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_subscriptions")
+}
+
+model templates {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?
+  type         String   @default("PAGE") @db.VarChar(50)
+  templateData Json     @default("{\"elements\": [], \"pageSettings\": {}}")
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @db.Timestamptz(6)
+  category     String   @default("Other") @db.VarChar(100)
+  isFavorite   Boolean  @default(false)
+  isShared     Boolean  @default(false)
+  shareToken   String?  @db.VarChar(255)
+  users        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([shareToken], map: "idx_templates_share_token")
+  @@index([userId], map: "idx_templates_user_id")
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -45,147 +204,40 @@ enum OtpChannel {
   WHATSAPP
 }
 
-model User {
-  id                  String              @id @default(uuid()) @db.Uuid
-  fullName            String?
-  email               String?             @unique
-  phone               String?             @unique
-  passwordHash        String?
-  verificationMethod  VerificationMethod?
-  emailVerified       Boolean             @default(false)
-  phoneVerified       Boolean             @default(false)
-  status              UserStatus          @default(ACTIVE)
-  role                UserRole            @default(USER)
-  lastLoginAt         DateTime?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+model CustomCodeSnippet {
+  id           String               @id @default(uuid()) @db.Uuid
+  websiteId    String               @db.Uuid
+  title        String
+  language     String               // HTML, CSS, JS
+  code         String
+  placement    String               // HEAD, BODY_TOP, BODY_BOTTOM
+  scope        String               @default("GLOBAL") // GLOBAL, PAGE
+  pageId       String?
+  conditions   Json?                // For F-113: {"pages": [], "devices": []}
+  priority     Int                  @default(0) // F-116
+  status       String               @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED (F-114, F-115)
+  scheduledFor DateTime?
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
-  identities          Identity[]
-  sessions            Session[]
-  otpVerifications    OtpVerification[]
-  passwordResetTokens PasswordResetToken[]
-  subscription        UserSubscription?
-  websites            Website[]
+  website   Website              @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  revisions CustomCodeRevision[]
 
-  @@index([status])
-  @@index([role])
-  @@map("users")
+  @@index([websiteId])
+  @@map("custom_code_snippets")
 }
 
-model Website {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @db.Uuid
-  name       String
-  slug       String
-  status     String   @default("DRAFT")
-  editorData Json     @default("{\"version\":1,\"elements\":[]}")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model CustomCodeRevision {
+  id        String            @id @default(uuid()) @db.Uuid
+  snippetId String            @db.Uuid
+  code      String
+  authorId  String?           @db.Uuid
+  createdAt DateTime          @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snippet CustomCodeSnippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  author  User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
-  @@map("websites")
-}
-
-model OtpVerification {
-  id         String      @id @default(uuid()) @db.Uuid
-  userId     String?     @db.Uuid
-  email      String?
-  otpHash    String
-  purpose    OtpPurpose
-  channel    OtpChannel  @default(EMAIL)
-  attempts   Int         @default(0)
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  createdAt  DateTime    @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([purpose])
-  @@map("otp_verifications")
-}
-
-model Identity {
-  id             String           @id @default(uuid()) @db.Uuid
-  userId         String           @db.Uuid
-  provider       IdentityProvider
-  providerUserId String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerUserId])
-  @@index([userId])
-  @@map("identities")
-}
-
-model Session {
-  id         String    @id @default(uuid()) @db.Uuid
-  userId     String    @db.Uuid
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("sessions")
-}
-
-model PasswordResetToken {
-  id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("password_reset_tokens")
-}
-
-model SubscriptionPlan {
-  id              String             @id @default(uuid()) @db.Uuid
-  name            String
-  slug            String             @unique
-  price           Int
-  currency        String             @default("INR")
-  billingInterval String             @default("monthly")
-  websiteLimit    Int
-  storageLimitMb  Int                @default(100)
-  aiCreditLimit   Int                @default(0)
-  features        Json
-  isActive        Boolean            @default(true)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-
-  subscriptions   UserSubscription[]
-
-  @@map("subscription_plans")
-}
-
-model UserSubscription {
-  id                 String           @id @default(uuid()) @db.Uuid
-  userId             String           @unique @db.Uuid
-  planId             String           @db.Uuid
-  status             String           @default("ACTIVE")
-  currentPeriodStart DateTime         @default(now())
-  currentPeriodEnd   DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan SubscriptionPlan @relation(fields: [planId], references: [id])
-
-  @@map("user_subscriptions")
+  @@index([snippetId])
+  @@map("custom_code_revisions")
 }

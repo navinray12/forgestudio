@@ -1,17 +1,11 @@
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import type { PopupConfig } from "../../types/popup.types";
 import PopupManagerModal from "./components/PopupManagerModal";
-import PopupSettingsPanel from "./components/PopupSettingsPanel";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
-import DeveloperModal from "./components/DeveloperModal";
 import NotesPanel from "./components/NotesPanel";
 import ComponentAccessModal from "./components/ComponentAccessModal";
 import type { DeveloperModalMode } from "./components/DeveloperModal";
-=======
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { useSaveTemplate, SaveTemplateDialog, TemplateLibrary, ReplaceTemplateDialog, useTemplateLibrary, type Template } from "../../features/templates";
@@ -20,20 +14,10 @@ import { ImportWebsiteKitDialog } from "../../features/templates/components/Impo
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { PhoneInput } from "../../components/phone-input";
 
->>>>>>> origin/main
-
 // ==========================================
 // Types & Interfaces
 // ==========================================
 
-<<<<<<< HEAD
-export type ElementType =
-  | "container" | "heading" | "text" | "image" | "button"
-  | "video" | "divider" | "spacer" | "icon" | "rating"
-  | "progress-bar" | "counter" | "html" | "shortcode" | "alert"
-  | "social-icons" | "google-maps" | "soundcloud"
-  | "div-block" | "paragraph";
-=======
 export interface NavSubmenuItem {
   id: string;
   label: string;
@@ -82,10 +66,9 @@ export interface GalleryImageItem {
   altText?: string;
 }
 
-
 export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "flip" | "highlight";
 
-export type ElementType = "container" | "heading" | "text" | "image" | "video" | "button" | "posts" | "share-buttons" | "portfolio" | "slides" | "form" | "login" | "nav-menu" | "animated-headline" | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action" | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel" | "table-of-contents" | "countdown" | "facebook-page" | "blockquote" | "template" | "reviews" | "facebook-button" | "facebook-embed" | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie" | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu" | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets" | "reusable-components" | "basic-media-carousel" | "basic-gallery" | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library";
+export type ElementType = "container" | "heading" | "text" | "image" | "video" | "button" | "divider" | "spacer" | "icon" | "rating" | "progress-bar" | "counter" | "html" | "shortcode" | "alert" | "social-icons" | "google-maps" | "soundcloud" | "div-block" | "paragraph" | "posts" | "share-buttons" | "portfolio" | "slides" | "form" | "login" | "nav-menu" | "animated-headline" | "price-table" | "price-list" | "gallery" | "flip-box" | "call-to-action" | "media-carousel" | "testimonial-carousel" | "nested-carousel" | "loop-carousel" | "table-of-contents" | "countdown" | "facebook-page" | "blockquote" | "template" | "reviews" | "facebook-button" | "facebook-embed" | "facebook-comments" | "paypal-button" | "stripe-button" | "lottie" | "code-highlight" | "video-playlist" | "image-carousel" | "mega-menu" | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets" | "reusable-components" | "basic-media-carousel" | "basic-gallery" | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library";
 
 export interface WidgetRegistryItem {
   type: ElementType;
@@ -162,7 +145,6 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
->>>>>>> origin/main
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
 
@@ -318,7 +300,6 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
-<<<<<<< HEAD
   rowGap?: number | string;
   columnGap?: number | string;
 
@@ -331,13 +312,13 @@ export interface ContainerLayout {
   // Masonry Controls
   masonryColumns?: number;
   masonryGap?: number | string;
-=======
->>>>>>> origin/main
 }
 
 export interface ElementStyles {
   color?: string;
   fontSize?: string;
+  backgroundSlideshowUrls?: string[] | string;
+  backgroundSlideshowSpeed?: number;
   fontWeight?: string;
   textAlign?: "left" | "center" | "right" | "justify";
   backgroundColor?: string;
@@ -349,12 +330,15 @@ export interface ElementStyles {
   borderRadius?: string;
   width?: string;
   height?: string;
+  minWidth?: string;
+  maxWidth?: string;
+  minHeight?: string;
+  maxHeight?: string;
   marginTop?: string;
   marginRight?: string;
   marginBottom?: string;
   marginLeft?: string;
   lineHeight?: string;
-<<<<<<< HEAD
 
   // Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
@@ -385,15 +369,17 @@ export interface ElementStyles {
   overflowY?: "visible" | "hidden" | "scroll" | "auto";
 
   // Typography Controls (F-070, F-089)
-=======
->>>>>>> origin/main
   fontFamily?: string;
   fontStyle?: "normal" | "italic";
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
   textDecoration?: "none" | "underline" | "overline" | "line-through";
   letterSpacing?: string;
+  wordSpacing?: string;
   textShadow?: string;
   backgroundImage?: string;
+  backgroundType?: string;
+  backgroundGradient?: string;
+  backgroundImageUrl?: string;
   backgroundPosition?: "center" | "top" | "bottom" | "left" | "right";
   backgroundSize?: "cover" | "contain" | "auto";
   backgroundRepeat?: "no-repeat" | "repeat" | "repeat-x" | "repeat-y";
@@ -405,11 +391,12 @@ export interface ElementStyles {
   borderBottomRightRadius?: string;
   borderBottomLeftRadius?: string;
   boxShadow?: string;
-<<<<<<< HEAD
 
   // Opacity & Blend Mode (F-082, F-083)
-  opacity?: string;
+  opacity?: number | string;
   mixBlendMode?: string;
+  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+  objectPosition?: string;
 
   // CSS Filters & Masks (F-084, F-085)
   filterBlur?: string;
@@ -508,17 +495,17 @@ export interface ElementStyles {
   socialYoutube?: string;
   socialIconSize?: string;
   socialIconColor?: string;
-=======
-  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
-  top?: string;
-  right?: string;
-  bottom?: string;
-  left?: string;
-  zIndex?: number | string;
-  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
-  objectPosition?: string;
-  opacity?: number | string;
->>>>>>> origin/main
+}
+
+export interface Breakpoint {
+  id: string;
+  name?: string;
+  label?: string;
+  width: number;
+  minWidth?: number;
+  maxWidth?: number;
+  icon?: string;
+  active?: boolean;
 }
 
 export type ElementState = "normal" | "hover";
@@ -555,6 +542,8 @@ export interface EditorElement {
   portfolioShowCategory?: boolean;
   portfolioShowDescription?: boolean;
   portfolioShowLink?: boolean;
+  portfolioShowFilter?: boolean;
+  portfolioCategories?: string[];
   slidesItems?: SlideItem[];
   slidesActiveIndex?: number;
   slidesAutoplay?: boolean;
@@ -955,33 +944,44 @@ export interface EditorElement {
   componentId?: string;
   isComponent?: boolean;
   componentName?: string;
-<<<<<<< HEAD
-  responsiveStyles?: Record<string, ElementStyles>;
-  responsiveLayouts?: Record<string, ContainerLayout>;
+  responsiveStyles?: {
+    desktop?: Partial<ElementStyles>;
+    tablet?: Partial<ElementStyles>;
+    mobile?: Partial<ElementStyles>;
+  } & Record<string, any>;
+  responsiveHoverStyles?: {
+    desktop?: Partial<ElementStyles>;
+    tablet?: Partial<ElementStyles>;
+    mobile?: Partial<ElementStyles>;
+  } & Record<string, any>;
+  responsiveLayout?: {
+    desktop?: Partial<ContainerLayout>;
+    tablet?: Partial<ContainerLayout>;
+    mobile?: Partial<ContainerLayout>;
+  } & Record<string, any>;
+  responsiveLayouts?: {
+    desktop?: Partial<ContainerLayout>;
+    tablet?: Partial<ContainerLayout>;
+    mobile?: Partial<ContainerLayout>;
+  } & Record<string, any>;
   hiddenDevices?: Record<string, boolean>;
 
   // Developer/Advanced (F-102, F-105 to F-109)
   customId?: string;
   customCss?: string;
+  customClass?: string;
   customSelectors?: string;
   customAttributes?: { name: string; value: string }[];
-=======
-  responsiveStyles?: {
-    desktop?: Partial<ElementStyles>;
-    tablet?: Partial<ElementStyles>;
-    mobile?: Partial<ElementStyles>;
-  };
-  responsiveHoverStyles?: {
-    desktop?: Partial<ElementStyles>;
-    tablet?: Partial<ElementStyles>;
-    mobile?: Partial<ElementStyles>;
-  };
-  responsiveLayout?: {
-    desktop?: Partial<ContainerLayout>;
-    tablet?: Partial<ContainerLayout>;
-    mobile?: Partial<ContainerLayout>;
-  };
->>>>>>> origin/main
+}
+
+export interface PageConfig {
+  id: string;
+  name: string;
+  slug: string;
+  elements: EditorElement[];
+  pageSettings?: any;
+  customCss?: string;
+  isHome?: boolean;
 }
 
 interface WebsiteData {
@@ -993,6 +993,12 @@ interface WebsiteData {
   editorData?: {
     version: number;
     elements: EditorElement[];
+    pages?: PageConfig[];
+    pageSettings?: any;
+    breakpoints?: any[];
+    globalSettings?: any;
+    popups?: any[];
+    pageCss?: string;
   };
 }
 
@@ -1498,7 +1504,6 @@ function moveTreeElement(
 }
 
 // ==========================================
-<<<<<<< HEAD
 // CSS Helper (F-102, F-103, F-104, F-107)
 // ==========================================
 export function getDeveloperCss(elements: EditorElement[]): string {
@@ -1823,11 +1828,8 @@ export function BackgroundSlideshow({ urls, interval }: { urls: string[]; interv
 }
 
 // Icons & Widgets Helpers
-=======
 // Sidebar Vector Icons (Matching Screenshot)
 // ==========================================
-
->>>>>>> origin/main
 const ContainerBoxIcon = () => (
   <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-50 text-blue-600">
     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -8337,8 +8339,7 @@ const EmptyPictureIcon = () => (
   </div>
 );
 
-<<<<<<< HEAD
-function renderSvgIcon(name: string, size: string, color: string) {
+export function renderSvgIcon(name: string, size: string, color: string) {
   const sizePx = `${size || 24}px`;
   const fill = color || "currentColor";
   switch (name) {
@@ -8351,14 +8352,14 @@ function renderSvgIcon(name: string, size: string, color: string) {
     case "alert":
       return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>;
     case "globe":
-      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>;
+      return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z" /></svg>;
     case "star":
     default:
       return <svg style={{ width: sizePx, height: sizePx }} viewBox="0 0 24 24" fill={fill}><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>;
   }
 }
 
-function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: number; end: number; prefix: string; suffix: string; duration: number }) {
+export function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: number; end: number; prefix: string; suffix: string; duration: number }) {
   const [count, setCount] = useState(start);
 
   useEffect(() => {
@@ -8380,7 +8381,7 @@ function AnimatedCounter({ start, end, prefix, suffix, duration }: { start: numb
 
   return <span>{prefix}{count}{suffix}</span>;
 }
-=======
+
 // Upload Icon
 const UploadCloudIcon = () => (
   <svg className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -8389,7 +8390,6 @@ const UploadCloudIcon = () => (
     <line x1="12" y1="3" x2="12" y2="15" />
   </svg>
 );
->>>>>>> origin/main
 
 // ==========================================
 // Default Elements Creator
@@ -8598,17 +8598,20 @@ function createDefaultElement(type: ElementType): EditorElement {
     case "portfolio":
       return {
         id,
-<<<<<<< HEAD
-        type: "rating",
-        content: "Rating",
+        type: "portfolio",
+        content: "Portfolio Showcase",
+        portfolioColumns: 3,
+        portfolioShowFilter: true,
+        portfolioCategories: ["All", "Web Design", "Branding", "Mobile Apps"],
+        portfolioItems: [
+          { id: "pf_1", title: "Project Alpha", category: "Web Design", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80", description: "E-commerce platform redesign for retail brand." },
+          { id: "pf_2", title: "Brand Identity", category: "Branding", image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80", description: "Complete brand guidelines and collateral design." },
+          { id: "pf_3", title: "Mobile App UI", category: "Mobile Apps", image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&q=80", description: "iOS and Android fitness tracking application." }
+        ],
         styles: {
-          ratingStarsCount: "5",
-          ratingValue: "4.5",
-          ratingColor: "#f59e0b",
-          ratingSize: "20",
-          textAlign: "left",
-          marginTop: "12px",
-          marginBottom: "12px",
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
         },
       };
     case "progress-bar":
@@ -8698,7 +8701,16 @@ function createDefaultElement(type: ElementType): EditorElement {
         type: "google-maps",
         content: "Google Map",
         src: "https://maps.google.com/maps?q=London&t=&z=13&ie=UTF8&iwloc=&output=embed",
-=======
+        styles: {
+          width: "100%",
+          height: "350px",
+          marginTop: "16px",
+          marginBottom: "16px",
+        },
+      };
+    case "portfolio":
+      return {
+        id,
         type: "portfolio",
         content: "Portfolio Projects",
         portfolioColumns: 3,
@@ -8708,6 +8720,8 @@ function createDefaultElement(type: ElementType): EditorElement {
         portfolioShowCategory: true,
         portfolioShowDescription: true,
         portfolioShowLink: true,
+        portfolioShowFilter: true,
+        portfolioCategories: ["All", "Mobile App", "Web Design", "Branding"],
         portfolioItems: [
           {
             id: "port_1",
@@ -8734,7 +8748,6 @@ function createDefaultElement(type: ElementType): EditorElement {
             url: "#",
           },
         ],
->>>>>>> origin/main
         styles: {
           width: "100%",
           marginTop: "16px",
@@ -10174,7 +10187,6 @@ export default function WebsiteEditor() {
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
   const [elements, setElements] = useState<EditorElement[]>([]);
-<<<<<<< HEAD
   const [popups, setPopups] = useState<PopupConfig[]>([]);
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -10182,15 +10194,70 @@ export default function WebsiteEditor() {
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
   const [activePopupId, setActivePopupId] = useState<string | null>(null);
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
-=======
+  const activePopup = activePopupId ? popups.find((p) => p.id === activePopupId) || null : null;
+  const _currentElementList = activeCanvasMode === "popup" && activePopup ? activePopup.elements || [] : elements;
+
+  const _setUnifiedElements = (updater: (prev: EditorElement[]) => EditorElement[]) => {
+    if (activeCanvasMode === "popup" && activePopupId) {
+      setPopups((prev) =>
+        prev.map((p) => (p.id === activePopupId ? { ...p, elements: updater(p.elements || []) } : p))
+      );
+    } else {
+      setElements(updater);
+    }
+  };
+
+  const handleCreatePopup = (newPopup: PopupConfig) => {
+    setPopups((prev) => [...prev, newPopup]);
+  };
+
+  const handleUpdatePopup = (popupId: string, updater: (p: PopupConfig) => PopupConfig) => {
+    setPopups((prev) => prev.map((p) => (p.id === popupId ? updater(p) : p)));
+  };
+
+  const handleDeletePopup = (popupId: string) => {
+    setPopups((prev) => prev.filter((p) => p.id !== popupId));
+    if (activePopupId === popupId) {
+      setActivePopupId(null);
+      setActiveCanvasMode("page");
+    }
+  };
+
+  const handleDuplicatePopup = (popupId: string) => {
+    const target = popups.find((p) => p.id === popupId);
+    if (!target) return;
+    const cloned: PopupConfig = JSON.parse(JSON.stringify(target));
+    cloned.id = "pop_" + Math.random().toString(36).substring(2, 9);
+    cloned.name = `${target.name} (Copy)`;
+    cloned.viewsCount = 0;
+    cloned.clicksCount = 0;
+    setPopups((prev) => [...prev, cloned]);
+  };
+
+  const handleSelectPopupForEdit = (popupId: string) => {
+    setActivePopupId(popupId);
+    setActiveCanvasMode("popup");
+    setSelectedId(null);
+  };
+
+  const handleTrackPopupView = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
+    );
+  };
+
+  const handleTrackPopupClick = (popupId: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === popupId ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
+    );
+  };
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
   const [showHeaderFeatures, setShowHeaderFeatures] = useState<boolean>(true);
->>>>>>> origin/main
+  const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
 
   // Reusable Components State (F-005)
   const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement }>>({});
@@ -10584,14 +10651,285 @@ export default function WebsiteEditor() {
     siteLanguage: "en",
   });
 
-<<<<<<< HEAD
-  const [pageCss, setPageCss] = useState<string>("");
+  // Multi-Page Management & Preview States
+  const [pages, setPages] = useState<PageConfig[]>([]);
+  const [activePageId, setActivePageId] = useState<string>("home");
+  const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+  const [newPageName, setNewPageName] = useState<string>("");
+  const [newPageSlug, setNewPageSlug] = useState<string>("");
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editPageName, setEditPageName] = useState<string>("");
+  const [editPageSlug, setEditPageSlug] = useState<string>("");
+  const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup" | "advanced">("global");
-  const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
-=======
+  // Sync live editor state (elements & pageSettings) with the active page entry in pages array
+  useEffect(() => {
+    if (!activePageId) return;
+    setPages((prevPages) => {
+      if (!prevPages || prevPages.length === 0) return prevPages;
+      const exists = prevPages.some((p) => p.id === activePageId);
+      if (!exists) return prevPages;
+      return prevPages.map((p) => {
+        if (p.id === activePageId) {
+          const updatedName = pageSettings.title || p.name;
+          const updatedSlug = pageSettings.path || p.slug;
+          if (
+            p.elements === elements &&
+            p.pageSettings === pageSettings &&
+            p.name === updatedName &&
+            p.slug === updatedSlug
+          ) {
+            return p;
+          }
+          return {
+            ...p,
+            name: updatedName,
+            slug: updatedSlug,
+            elements,
+            pageSettings,
+          };
+        }
+        return p;
+      });
+    });
+  }, [elements, pageSettings, activePageId]);
+
+  // Sync preview active page with URL query parameter "?page=..." and popstate listener
+  useEffect(() => {
+    if (!isPreview || pages.length === 0) return;
+
+    const syncFromUrl = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlPageParam = searchParams.get("page") || searchParams.get("previewPage");
+      if (urlPageParam) {
+        const found = pages.find(
+          (p) =>
+            p.id === urlPageParam ||
+            p.slug === urlPageParam ||
+            p.slug === `/${urlPageParam}` ||
+            p.name.toLowerCase() === urlPageParam.toLowerCase()
+        );
+        if (found) {
+          setActivePreviewPageId(found.id);
+          return;
+        }
+      }
+      const homePage = pages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || pages[0];
+      if (homePage) {
+        setActivePreviewPageId(homePage.id);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [isPreview, pages]);
+
+  const handlePreviewPageNavigate = (targetPage: PageConfig) => {
+    setActivePreviewPageId(targetPage.id);
+    const newUrl = new URL(window.location.href);
+    const cleanSlug = targetPage.slug === "/" ? "home" : targetPage.slug.replace(/^\//, "");
+    newUrl.searchParams.set("page", cleanSlug);
+    window.history.pushState({}, "", newUrl.toString());
+  };
+
+  const handleSwitchEditingPage = (targetPageId: string) => {
+    const target = pages.find((p) => p.id === targetPageId);
+    if (!target) return;
+    setPages((prev) =>
+      prev.map((p) =>
+        p.id === activePageId
+          ? { ...p, elements, pageSettings, name: pageSettings.title || p.name, slug: pageSettings.path || p.slug }
+          : p
+      )
+    );
+    setActivePageId(target.id);
+    setElements(target.elements || []);
+    setPageSettings(target.pageSettings || { title: target.name, path: target.slug });
+    setSelectedId(null);
+    setSelectedIds([]);
+    setIsPageSelectorOpen(false);
+  };
+
+  const handleCreateNewPage = () => {
+    const rawTitle = newPageName.trim() || `Page ${pages.length + 1}`;
+    const formattedSlug = newPageSlug.trim()
+      ? newPageSlug.startsWith("/")
+        ? newPageSlug
+        : `/${newPageSlug}`
+      : `/${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
+
+    const newPageObj: PageConfig = {
+      id: `page_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      name: rawTitle,
+      slug: formattedSlug,
+      elements: [],
+      pageSettings: {
+        title: rawTitle,
+        path: formattedSlug,
+        description: "",
+        backgroundColor: "#ffffff",
+        isMaintenanceMode: false,
+        siteLanguage: "en",
+      },
+      isHome: pages.length === 0,
+    };
+
+    const updatedPages = [...pages, newPageObj];
+    setPages(updatedPages);
+    setActivePageId(newPageObj.id);
+    setElements([]);
+    setPageSettings(newPageObj.pageSettings);
+    setSelectedId(null);
+    setSelectedIds([]);
+    setNewPageName("");
+    setNewPageSlug("");
+    setIsAddPageModalOpen(false);
+    setIsPageSelectorOpen(false);
+    setSaveMessage(`Page "${rawTitle}" created!`);
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const handleDeletePage = (pageIdToDelete: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (pages.length <= 1) {
+      setErrorMessage("Cannot delete the only remaining page.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+    const target = pages.find((p) => p.id === pageIdToDelete);
+    if (!target) return;
+    if (!window.confirm(`Are you sure you want to delete page "${target.name}"?`)) return;
+
+    const remainingPages = pages
+      .filter((p) => p.id !== pageIdToDelete)
+      .map((p, idx) => ({
+        ...p,
+        isHome: idx === 0,
+      }));
+
+    setPages(remainingPages);
+    if (activePageId === pageIdToDelete) {
+      const nextActive = remainingPages[0];
+      setActivePageId(nextActive.id);
+      setElements(nextActive.elements || []);
+      setPageSettings(nextActive.pageSettings || { title: nextActive.name, path: nextActive.slug });
+    }
+    setSaveMessage(`Deleted page "${target.name}".`);
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const openEditPageModal = (page: PageConfig, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingPageId(page.id);
+    setEditPageName(page.name);
+    setEditPageSlug(page.slug);
+    setIsEditPageModalOpen(true);
+    setIsPageSelectorOpen(false);
+  };
+
+  const handleSaveEditPage = () => {
+    if (!editingPageId) return;
+    const rawTitle = editPageName.trim();
+    if (!rawTitle) return;
+
+    const formattedSlug = editPageSlug.trim()
+      ? editPageSlug.startsWith("/")
+        ? editPageSlug
+        : `/${editPageSlug}`
+      : `/${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
+
+    setPages((prev) =>
+      prev.map((p) => {
+        if (p.id === editingPageId) {
+          const updatedSettings = {
+            ...(p.pageSettings || {}),
+            title: rawTitle,
+            path: formattedSlug,
+          };
+          return {
+            ...p,
+            name: rawTitle,
+            slug: formattedSlug,
+            pageSettings: updatedSettings,
+          };
+        }
+        return p;
+      })
+    );
+
+    if (activePageId === editingPageId) {
+      setPageSettings((prev) => ({
+        ...prev,
+        title: rawTitle,
+        path: formattedSlug,
+      }));
+    }
+
+    setIsEditPageModalOpen(false);
+    setEditingPageId(null);
+    setSaveMessage(`Page updated to "${rawTitle}"!`);
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const [pageCss, setPageCss] = useState<string>("");
+  const [_activeSidebarTab, _setActiveSidebarTab] = useState<"element" | "global" | "popup" | "advanced">("global");
+  const [_devModalMode, _setDevModalMode] = useState<DeveloperModalMode | null>(null);
   const navigate = useNavigate();
->>>>>>> origin/main
+
+  // Missing State & Helpers Reconnected
+  const [globalSettings, setGlobalSettings] = useState<any>({
+    siteIdentity: { name: "My Website" },
+    backToTop: { enabled: true, position: "bottom-right", offset: 300 },
+  });
+
+  const [breakpoints, setBreakpoints] = useState<Array<{ id: string; name: string; minWidth?: number; maxWidth?: number }>>([
+    { id: "desktop", name: "Desktop" },
+    { id: "tablet", name: "Tablet", maxWidth: 1024 },
+    { id: "mobile", name: "Mobile", maxWidth: 768 },
+  ]);
+  const [_activeBreakpointId, _setActiveBreakpointId] = useState<string>("desktop");
+
+  const _renderResponsiveLabel = (label: string) => (
+    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+      {label}
+    </label>
+  );
+
+  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
+    layout: true,
+    typography: true,
+    background: true,
+    border: true,
+  });
+
+  const _renderAccordion = (title: string, sectionKey: string, content: React.ReactNode) => {
+    const isOpen = openAccordions[sectionKey] !== false;
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+        <button
+          type="button"
+          onClick={() => setOpenAccordions((prev) => ({ ...prev, [sectionKey]: !isOpen }))}
+          className="w-full flex items-center justify-between p-3 bg-slate-50/80 hover:bg-slate-100/80 transition text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">{title}</span>
+          <span className="text-xs text-slate-400">{isOpen ? "▲" : "▼"}</span>
+        </button>
+        {isOpen && <div className="p-3 border-t border-slate-100">{content}</div>}
+      </div>
+    );
+  };
+
+  const _getStyleVal = (el: EditorElement, key: keyof ElementStyles, _breakpointId?: string, _bps?: any) => {
+    return el.styles?.[key];
+  };
+
+  const _getLayoutVal = (el: EditorElement, key: keyof ContainerLayout, _breakpointId?: string, _bps?: any) => {
+    return el.layout?.[key];
+  };
 
   // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
@@ -10771,18 +11109,53 @@ export default function WebsiteEditor() {
           console.error("Failed to fetch accesses", e);
         }
 
-        if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
+        // Initialize multi-page website pages
+        let initialPages: PageConfig[] = [];
+        if (loadedSite?.editorData?.pages && Array.isArray(loadedSite.editorData.pages) && loadedSite.editorData.pages.length > 0) {
+          initialPages = loadedSite.editorData.pages.map((p: any, idx: number) => ({
+            id: p.id || `page_${idx + 1}`,
+            name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
+            slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
+            elements: Array.isArray(p.elements) ? p.elements : [],
+            pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
+            customCss: p.customCss || "",
+            isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
+          }));
+        } else {
+          const defaultPageTitle = loadedSite?.editorData?.pageSettings?.title || loadedSite?.name || "Home";
+          const defaultPagePath = loadedSite?.editorData?.pageSettings?.path || "/";
+          initialPages = [
+            {
+              id: "home",
+              name: defaultPageTitle,
+              slug: defaultPagePath,
+              elements: loadedSite?.editorData?.elements || [],
+              pageSettings: loadedSite?.editorData?.pageSettings || { title: defaultPageTitle, path: defaultPagePath },
+              isHome: true,
+            },
+          ];
+        }
+        setPages(initialPages);
+
+        const initialHome = initialPages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || initialPages[0];
+        setActivePageId(initialHome.id);
+        setActivePreviewPageId(initialHome.id);
+
+        if (initialHome.elements && Array.isArray(initialHome.elements)) {
+          setElements(initialHome.elements);
+        } else if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
           setElements(loadedSite.editorData.elements);
         } else {
           setElements([]);
         }
 
-        if (loadedSite?.editorData?.pageSettings) {
+        if (initialHome.pageSettings) {
+          setPageSettings((prev) => ({ ...prev, ...initialHome.pageSettings }));
+        } else if (loadedSite?.editorData?.pageSettings) {
           setPageSettings((prev) => ({ ...prev, ...loadedSite.editorData.pageSettings }));
         } else if (loadedSite?.name) {
           setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
         }
-<<<<<<< HEAD
 
         if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
           setBreakpoints(loadedSite.editorData.breakpoints);
@@ -10795,13 +11168,9 @@ export default function WebsiteEditor() {
         if (loadedSite?.editorData?.pageCss) {
           setPageCss(loadedSite.editorData.pageCss);
         }
-      } catch (err) {
-        console.error("Error loading website:", err);
-        setErrorMessage(err instanceof Error ? err.message : "Error loading website");
-=======
       } catch (err: any) {
+        console.error("Error loading website:", err);
         setErrorMessage(err.message || "Failed to load website data.");
->>>>>>> origin/main
       } finally {
         setLoading(false);
       }
@@ -10820,6 +11189,7 @@ export default function WebsiteEditor() {
     websiteId,
     elements,
     pageSettings,
+    pages,
     apiUrl,
     isLoadingWebsite: loading,
   });
@@ -10876,7 +11246,18 @@ export default function WebsiteEditor() {
     templates: any[];
   }) => {
     if (kitData.pages && kitData.pages.length > 0) {
-      const mainPage = kitData.pages[0];
+      const importedPages: PageConfig[] = kitData.pages.map((p, idx) => ({
+        id: p.id || `page_${idx + 1}`,
+        name: p.title || `Page ${idx + 1}`,
+        slug: p.path || (idx === 0 ? "/" : `/${p.title?.toLowerCase().replace(/\s+/g, "-")}`),
+        elements: p.elements || [],
+        pageSettings: p.pageSettings || {},
+        isHome: idx === 0,
+      }));
+      setPages(importedPages);
+      const mainPage = importedPages[0];
+      setActivePageId(mainPage.id);
+      setActivePreviewPageId(mainPage.id);
       setElements(JSON.parse(JSON.stringify(mainPage.elements || [])));
       if (mainPage.pageSettings) {
         setPageSettings((prev) => ({ ...prev, ...mainPage.pageSettings }));
@@ -11071,14 +11452,12 @@ export default function WebsiteEditor() {
         editorData: {
           version: 1,
           elements,
-<<<<<<< HEAD
+          pages,
           breakpoints,
           globalSettings,
           popups,
           pageCss,
-=======
           pageSettings,
->>>>>>> origin/main
         },
       };
 
@@ -11098,7 +11477,7 @@ export default function WebsiteEditor() {
       }
 
       // Update F-321 Autosave baseline on successful manual save
-      updateAutosaveBaseline(elements, pageSettings);
+      updateAutosaveBaseline(elements, pageSettings, pages);
 
       // Create F-320 Revision History snapshot
       try {
@@ -13562,10 +13941,8 @@ export default function WebsiteEditor() {
       return (
         <div
           key={el.id}
-<<<<<<< HEAD
           id={el.customId || undefined}
           {...customAttrProps}
-=======
           data-el-id={el.id}
           draggable={!isPreview}
           onDragStart={(e) => {
@@ -13582,16 +13959,10 @@ export default function WebsiteEditor() {
           }}
           onDragOver={(e) => handleDragOverElement(e, el.id, true)}
           onDrop={(e) => handleDropElement(e, el.id, dropPosition)}
->>>>>>> origin/main
           onClick={(e) => {
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
-<<<<<<< HEAD
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-            } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"
-            }`}
-=======
           onContextMenu={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -13608,7 +13979,7 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             if (!isPreview && hoveredId === el.id) setHoveredId(null);
           }}
-          className={`relative transition-all duration-150 ${
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
             draggingId === el.id ? "opacity-50 scale-95" : ""
           } ${
             isPreview
@@ -13631,7 +14002,6 @@ export default function WebsiteEditor() {
               ? "outline outline-2 outline-blue-500 bg-blue-50/20"
               : ""
           }`}
->>>>>>> origin/main
           style={{
             boxSizing: "border-box",
             display: "flex",
@@ -13828,10 +14198,8 @@ export default function WebsiteEditor() {
     return (
       <div
         key={el.id}
-<<<<<<< HEAD
         id={el.customId || undefined}
         {...customAttrProps}
-=======
         data-el-id={el.id}
         draggable={!isPreview}
         onDragStart={(e) => {
@@ -13848,7 +14216,6 @@ export default function WebsiteEditor() {
         }}
         onDragOver={(e) => handleDragOverElement(e, el.id, false)}
         onDrop={(e) => handleDropElement(e, el.id, dropPosition)}
->>>>>>> origin/main
         onClick={(e) => {
           e.stopPropagation();
           if (!isPreview) handleSelectElement(el.id, e);
@@ -13869,7 +14236,7 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
           draggingId === el.id ? "opacity-50 scale-95" : ""
         } ${
           isPreview
@@ -13904,12 +14271,6 @@ export default function WebsiteEditor() {
           ...compileBackgroundAndBorderStyles(mergedStyles),
           ...compilePositioningStyles(mergedStyles),
         }}
-<<<<<<< HEAD
-        className={`relative rounded-xl transition duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${isSelected ? "border-2 border-blue-500 p-2.5" : "p-2.5 border border-transparent"}`}
-        style={{ ...resolvedStyles }}
-=======
->>>>>>> origin/main
       >
         {isHovered && !isSelected && !isPreview && (
           <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
@@ -14587,12 +14948,7 @@ export default function WebsiteEditor() {
           <div style={{ textAlign: mergedStyles.textAlign || "left", width: "100%", boxSizing: "border-box" }}>
             <a
               href={el.href || "#"}
-<<<<<<< HEAD
               {...customAttrProps}
-              onClick={(e) => !isPreview && e.preventDefault()}
-              className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
-              style={{ ...getInnerStyles(resolvedStyles) }}
-=======
               contentEditable={!isPreview}
               suppressContentEditableWarning
               onFocus={() => handleSelectElement(el.id)}
@@ -14621,7 +14977,6 @@ export default function WebsiteEditor() {
                 letterSpacing: mergedStyles.letterSpacing,
                 textShadow: mergedStyles.textShadow,
               }}
->>>>>>> origin/main
             >
               {el.content}
             </a>
@@ -15026,7 +15381,7 @@ export default function WebsiteEditor() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* ========================================== */}
-      {/* Top Header Bar (Dark Navy, matching screenshot) */}
+      {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
         <header className={`flex h-12 shrink-0 items-center justify-between px-5 shadow-md transition ${
@@ -15046,31 +15401,7 @@ export default function WebsiteEditor() {
               <span>{t("quitEditor", "Quit Editor")}</span>
             </button>
 
-<<<<<<< HEAD
-          {/* Mode Switcher */}
-          <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
-            <button
-              onClick={() => {
-                setActiveCanvasMode("page");
-                setSelectedId(null);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "page"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-300 hover:text-white"
-                }`}
-            >
-              <span>📄</span> Page Canvas
-            </button>
-            <button
-              onClick={() => setIsPopupManagerOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "popup"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-300 hover:text-white"
-                }`}
-            >
-              <span>✨</span> Popups ({popups.length})
-=======
-            {/* Header Features Toggle Button (Right side of Quit Editor) */}
+            {/* Header Features Toggle Button */}
             <button
               type="button"
               onClick={() => setShowHeaderFeatures(!showHeaderFeatures)}
@@ -15082,14 +15413,121 @@ export default function WebsiteEditor() {
               title={showHeaderFeatures ? "Header Features: ON (Click to Hide)" : "Header Features: OFF (Click to Show)"}
             >
               <span>{showHeaderFeatures ? "⚡: ON" : "⚡: OFF"}</span>
->>>>>>> origin/main
             </button>
+
+            {/* Mode Switcher */}
+            <div className="flex items-center gap-1 rounded-lg bg-[#16223f] p-0.5 border border-slate-700/60 ml-2">
+              <button
+                onClick={() => {
+                  setActiveCanvasMode("page");
+                  setSelectedId(null);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "page"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+                  }`}
+              >
+                <span>📄</span> Page Canvas
+              </button>
+              <button
+                onClick={() => setIsPopupManagerOpen(true)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${activeCanvasMode === "popup"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white"
+                  }`}
+              >
+                <span>✨</span> Popups ({popups.length})
+              </button>
+            </div>
 
             {showHeaderFeatures && (
               <>
-                <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-4">
-                  {website?.name || "new 1"}
-                </span>
+                {/* Website Name & Page Selector Dropdown */}
+                <div className="flex items-center gap-2 border-l border-slate-700 pl-3">
+                  <span className="text-xs font-bold text-slate-300 hidden sm:inline-block">
+                    {website?.name || "My Website"}
+                  </span>
+
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsPageSelectorOpen(!isPageSelectorOpen)}
+                      className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-blue-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer shadow-sm"
+                      title="Select or manage website pages"
+                    >
+                      <span>📄</span>
+                      <span className="max-w-[120px] truncate">
+                        {pages.find((p) => p.id === activePageId)?.name || pageSettings.title || "Home"}
+                      </span>
+                      <span className="text-[10px]">▼</span>
+                    </button>
+
+                    {isPageSelectorOpen && (
+                      <div className="absolute left-0 top-full mt-1.5 w-64 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl z-50 animate-fadeIn space-y-1">
+                        <div className="px-2 py-1 flex items-center justify-between border-b border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          <span>Website Pages ({pages.length})</span>
+                          <span className="text-blue-400 font-mono">Editor</span>
+                        </div>
+
+                        <div className="max-h-48 overflow-y-auto space-y-1 py-1">
+                          {pages.map((p) => {
+                            const isActive = p.id === activePageId;
+                            return (
+                              <div
+                                key={p.id}
+                                onClick={() => handleSwitchEditingPage(p.id)}
+                                className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                                  isActive
+                                    ? "bg-blue-600 text-white font-bold"
+                                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  <span>{p.isHome ? "🏠" : "📄"}</span>
+                                  <span className="truncate">{p.name}</span>
+                                </div>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => openEditPageModal(p, e)}
+                                    className="text-slate-400 hover:text-blue-300 text-xs px-1.5 py-0.5 hover:bg-slate-700/80 rounded transition cursor-pointer"
+                                    title="Rename / Edit Page Name and Slug"
+                                  >
+                                    ✏️
+                                  </button>
+                                  {pages.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleDeletePage(p.id, e)}
+                                      className="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 hover:bg-slate-700/80 rounded transition cursor-pointer"
+                                      title="Delete page"
+                                    >
+                                      🗑️
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="border-t border-slate-800 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsPageSelectorOpen(false);
+                              setIsAddPageModalOpen(true);
+                            }}
+                            className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-400 hover:text-white bg-blue-950/50 hover:bg-blue-900/60 rounded-lg border border-blue-800/60 transition cursor-pointer"
+                          >
+                            <span>＋</span>
+                            <span>Add New Page</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 <button
                   type="button"
@@ -15116,108 +15554,8 @@ export default function WebsiteEditor() {
             )}
           </div>
 
-<<<<<<< HEAD
-          {activeCanvasMode === "popup" && activePopup && (
-            <div className="flex items-center gap-2 rounded-lg bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 text-xs">
-              <span className="text-amber-300 font-bold">Popup Mode:</span>
-              <span className="text-white font-medium truncate max-w-[140px]">{activePopup.name}</span>
-              <button
-                onClick={() => {
-                  setActiveCanvasMode("page");
-                  setSelectedId(null);
-                }}
-                className="text-amber-300 hover:text-white font-bold ml-1"
-                title="Return to Page Canvas"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
-
-        {!isPreview && (
-          <div className="flex items-center gap-1 rounded-full bg-[#16223f] p-1 border border-slate-700/50">
-            {breakpoints.filter((b) => b.active).map((bp) => (
-              <button
-                key={bp.id}
-                onClick={() => setActiveBreakpointId(bp.id)}
-                className={`flex h-7 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition ${bp.id === activeBreakpointId
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-slate-300 hover:bg-slate-800"
-                  }`}
-              >
-                {bp.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsComponentAccessOpen(!isComponentAccessOpen)}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border bg-transparent text-slate-300 border-slate-600 hover:text-white"
-          >
-            🔒 Access
-          </button>
-          <button
-            onClick={() => setIsNotesOpen(!isNotesOpen)}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border ${isNotesOpen ? "bg-slate-700 text-white border-slate-600 shadow-sm" : "bg-transparent text-slate-300 border-slate-600 hover:text-white"}`}
-          >
-            💬 Notes (F-404)
-          </button>
-
-          {saveMessage && <span className="text-xs text-emerald-400">✓ {saveMessage}</span>}
-          {errorMessage && <span className="text-xs text-red-400">{errorMessage}</span>}
-          <button
-            onClick={() => setIsPreview(!isPreview)}
-            className={`rounded-full border px-4 py-1 text-xs font-semibold transition ${isPreview
-              ? "bg-amber-500 border-amber-400 text-slate-950 font-bold"
-              : "border-slate-600 text-slate-300 hover:bg-slate-800"
-              }`}
-          >
-            {isPreview ? "Exit Preview" : "Preview Site & Popups"}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-        </div>
-      </header>
-
-      {/* Main Workspace Body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Palette */}
-        {!isPreview && (
-          <aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-4 overflow-y-auto shadow-sm flex flex-col gap-5">
-            <div>
-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 mb-3">
-                Structure
-              </h2>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setIsStructureModalOpen(true)}
-                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
-                >
-                  <ContainerBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Container</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const newEl = createGridPrimitive();
-                    setUnifiedElements((prev) => insertTreeElement(prev, selectedId, newEl));
-                    setSelectedId(newEl.id);
-                  }}
-                  className="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3 hover:border-blue-400 transition"
-                >
-                  <GridBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold text-slate-700">Grid</span>
-                </button>
-=======
           {showHeaderFeatures && (
-            <>
+            <div className="flex items-center gap-3 overflow-x-auto py-1">
               {/* Middle: Responsive Device Selector */}
               <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
                 {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
@@ -15239,314 +15577,217 @@ export default function WebsiteEditor() {
                     <span>{mode}</span>
                   </button>
                 ))}
->>>>>>> origin/main
               </div>
 
-<<<<<<< HEAD
-            <div>
-              <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">
-                Basic Elements
-              </h2>
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => handleAddElement("heading")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <HeadingBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold">Heading</span>
+              {/* Undo / Redo Buttons */}
+              <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
+                <button
+                  onClick={handleUndo}
+                  disabled={historyIndex <= 0}
+                  className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
+                  title="Undo (Ctrl+Z)"
+                >
+                  <span>↩</span>
+                  <span>Undo</span>
                 </button>
-                <button onClick={() => handleAddElement("text")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <TextBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold">Text</span>
+                <button
+                  onClick={handleRedo}
+                  disabled={historyIndex >= history.length - 1}
+                  className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
+                  title="Redo (Ctrl+Y)"
+                >
+                  <span>↪</span>
+                  <span>Redo</span>
                 </button>
-                <button onClick={() => handleAddElement("image")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <ImageBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold">Image</span>
-                </button>
-                <button onClick={() => handleAddElement("button")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <ButtonBoxIcon />
-                  <span className="mt-1.5 text-xs font-semibold">Button</span>
-                </button>
-                <button onClick={() => handleAddElement("video")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <span className="text-xl">📹</span>
-                  <span className="mt-1.5 text-xs font-semibold">Video</span>
-                </button>
-                <button onClick={() => handleAddElement("icon")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <span className="text-xl">★</span>
-                  <span className="mt-1.5 text-xs font-semibold">Icon</span>
-                </button>
-                <button onClick={() => handleAddElement("html")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <span className="text-xl font-mono text-blue-500">{"</>"}</span>
-                  <span className="mt-1.5 text-xs font-semibold">HTML</span>
-                </button>
-                <button onClick={() => handleAddElement("shortcode")} className="flex flex-col items-center p-3 border rounded-xl hover:border-blue-400">
-                  <span className="text-xl font-mono text-amber-500">[ ]</span>
-                  <span className="mt-1.5 text-xs font-semibold">Shortcode</span>
+                <button
+                  onClick={() => setIsRevisionHistoryOpen(true)}
+                  className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1 border-l border-slate-700/60 ml-0.5 pl-2"
+                  title="Revision History (F-320)"
+                >
+                  <span>🕓</span>
+                  <span>History</span>
                 </button>
               </div>
-            </div>
-          </aside>
-        )}
 
-        {/* Center Canvas */}
-        <main
-          onClick={() => setSelectedId(null)}
-          className="flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10 relative"
-        >
-          <style>
-            {`
-                /* Global CSS */
-                ${globalSettings.customCss || ""}
-                
-                /* Page CSS */
-                ${pageCss || ""}
-                
-                /* Elements CSS */
-                ${getDeveloperCss(elements)}
-                ${getDeveloperCss(popups.flatMap(p => p.elements))}
-             `}
-          </style>
-
-          {activeCanvasMode === "popup" && activePopup ? (
-            /* Popup Visual Editing Canvas */
-            <div className="flex flex-col items-center justify-center w-full my-auto">
-              <div className="mb-3 flex items-center justify-between w-full max-w-2xl px-2">
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 uppercase">
-                    {activePopup.layoutMode} Mode
-                  </span>
-                  <span className="text-xs font-bold text-slate-700">{activePopup.name}</span>
-=======
-              {/* Right: Actions */}
-              <div className="flex items-center gap-3">
-                {/* Undo / Redo Buttons (F-013) */}
-                <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
-                  <button
-                    onClick={handleUndo}
-                    disabled={historyIndex <= 0}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
-                    title="Undo (Ctrl+Z)"
-                  >
-                    <span>↩</span>
-                    <span>Undo</span>
-                  </button>
-                  <button
-                    onClick={handleRedo}
-                    disabled={historyIndex >= history.length - 1}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition flex items-center gap-1"
-                    title="Redo (Ctrl+Y)"
-                  >
-                    <span>↪</span>
-                    <span>Redo</span>
-                  </button>
-                  <button
-                    onClick={() => setIsRevisionHistoryOpen(true)}
-                    className="px-2.5 py-1 text-xs font-bold rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1 border-l border-slate-700/60 ml-0.5 pl-2"
-                    title="Revision History (F-320)"
-                  >
-                    <span>🕓</span>
-                    <span>History</span>
-                  </button>
->>>>>>> origin/main
-                </div>
-
-<<<<<<< HEAD
-              {/* Backdrop Frame Simulation */}
-              <div
-                className="w-full max-w-4xl min-h-[550px] rounded-3xl p-8 flex items-center justify-center relative transition-all duration-200 border border-slate-300 shadow-inner"
-                style={{
-                  backgroundColor: activePopup.backdropOverlay ? activePopup.backdropColor : "#e2e8f0",
-                }}
+              {/* Access & Notes */}
+              <button
+                onClick={() => setIsComponentAccessOpen(!isComponentAccessOpen)}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border bg-transparent text-slate-300 border-slate-600 hover:text-white"
               >
-                {/* Popup Container Box */}
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    width: activePopup.width || "580px",
-                    maxWidth: "100%",
-                    minHeight: activePopup.height === "auto" ? "200px" : activePopup.height || "auto",
-                  }}
-                  className={`bg-white shadow-2xl relative transition-all duration-150 ${activePopup.layoutMode === "hello-bar"
-                    ? "rounded-none w-full shadow-md"
-                    : "rounded-2xl"
-                    }`}
+                🔒 Access
+              </button>
+              <button
+                onClick={() => setIsNotesOpen(!isNotesOpen)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition border ${isNotesOpen ? "bg-slate-700 text-white border-slate-600 shadow-sm" : "bg-transparent text-slate-300 border-slate-600 hover:text-white"}`}
+              >
+                💬 Notes
+              </button>
+
+              {saveMessage && (
+                <span className="text-xs font-medium text-emerald-400">
+                  ✓ {saveMessage}
+                </span>
+              )}
+
+              {errorMessage && (
+                <span className="text-xs font-medium text-red-400">
+                  {errorMessage}
+                </span>
+              )}
+
+              <button
+                onClick={() => selectedId && handleReorderElement(selectedId, "up")}
+                disabled={!selectedId}
+                className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+                title="Move selected section/element up"
+              >
+                Move Up ▲
+              </button>
+
+              <button
+                onClick={() => selectedId && handleReorderElement(selectedId, "down")}
+                disabled={!selectedId}
+                className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+                title="Move selected section/element down"
+              >
+                Move Down ▼
+              </button>
+
+              <button
+                onClick={(e) => handleCopyElement(selectedId, e)}
+                disabled={!selectedId}
+                className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+                title="Copy selected element (Ctrl+C)"
+              >
+                Copy
+              </button>
+
+              <button
+                onClick={(e) => handlePasteElement(e)}
+                disabled={!copiedElement}
+                className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+                title="Paste copied element (Ctrl+V)"
+              >
+                Paste
+              </button>
+
+              <button
+                onClick={(e) => handleDuplicateElement(selectedId, e)}
+                disabled={!selectedId}
+                className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
+                title="Duplicate selected element (Ctrl+D)"
+              >
+                Duplicate
+              </button>
+
+              <button
+                onClick={() => selectedId && handleSaveAsComponent(selectedId)}
+                disabled={!selectedId}
+                className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white disabled:opacity-40"
+                title="Save selected element as a reusable Component"
+              >
+                Save as Comp 🧩
+              </button>
+
+              <button
+                onClick={handleOpenReplaceTemplate}
+                disabled={!selectedId}
+                className="rounded-full border border-amber-500/60 bg-amber-950/40 px-3 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-800 hover:text-white disabled:opacity-40"
+                title="Replace selected element/section with another template"
+              >
+                Replace 🔄
+              </button>
+
+              <button
+                onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+                className={`rounded-full border border-slate-600 bg-transparent px-3.5 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
+                  isFullScreenCanvas ? "bg-blue-600/30 text-blue-300 border-blue-500" : ""
+                }`}
+                title="Toggle full screen distraction-free canvas mode"
+              >
+                {isFullScreenCanvas ? "Exit Full Screen" : "Full Screen ⛶"}
+              </button>
+
+              {/* Language Selector */}
+              <div className="flex items-center gap-1.5 bg-slate-800/80 rounded-full px-2.5 py-1 border border-slate-700">
+                <span className="text-[11px] text-slate-400">🌐 UI:</span>
+                <select
+                  value={editorLanguage}
+                  onChange={(e) => setEditorLanguage(e.target.value as "en" | "es" | "fr" | "de")}
+                  className="bg-transparent text-xs font-semibold text-slate-200 outline-none cursor-pointer"
+                  title="Change Editor Interface Language"
                 >
-                  {/* Close button badge */}
-                  {activePopup.closeButton && (
-                    <div
-                      className={`absolute z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white text-xs font-bold ${activePopup.closeButtonPosition === "outside"
-                        ? "-top-3 -right-3"
-                        : "top-3 right-3"
-                        }`}
-                    >
-                      ✕
-                    </div>
-                  )}
-=======
-                {saveMessage && (
-                  <span className="text-xs font-medium text-emerald-400">
-                    ✓ {saveMessage}
-                  </span>
-                )}
-
-                {errorMessage && (
-                  <span className="text-xs font-medium text-red-400">
-                    {errorMessage}
-                  </span>
-                )}
-
-                <button
-                  onClick={() => selectedId && handleReorderElement(selectedId, "up")}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Move selected section/element up"
-                >
-                  Move Up ▲
-                </button>
-
-                <button
-                  onClick={() => selectedId && handleReorderElement(selectedId, "down")}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Move selected section/element down"
-                >
-                  Move Down ▼
-                </button>
-
-                <button
-                  onClick={(e) => handleCopyElement(selectedId, e)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Copy selected element (Ctrl+C)"
-                >
-                  Copy
-                </button>
-
-                <button
-                  onClick={(e) => handlePasteElement(e)}
-                  disabled={!copiedElement}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Paste copied element (Ctrl+V)"
-                >
-                  Paste
-                </button>
-
-                <button
-                  onClick={(e) => handleDuplicateElement(selectedId, e)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-slate-600 bg-transparent px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-40"
-                  title="Duplicate selected element (Ctrl+D)"
-                >
-                  Duplicate
-                </button>
-
-                <button
-                  onClick={() => selectedId && handleSaveAsComponent(selectedId)}
-                  disabled={!selectedId}
-                  className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white disabled:opacity-40"
-                  title="Save selected element as a reusable Component"
-                >
-                  Save as Comp 🧩
-                </button>
-
-                <button
-                  onClick={handleOpenReplaceTemplate}
-                  disabled={!selectedId}
-                  className="rounded-full border border-amber-500/60 bg-amber-950/40 px-3 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-800 hover:text-white disabled:opacity-40"
-                  title="Replace selected element/section with another template"
-                >
-                  Replace 🔄
-                </button>
-
-
-                <button
-                  onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                  className={`rounded-full border border-slate-600 bg-transparent px-3.5 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-                    isFullScreenCanvas ? "bg-blue-600/30 text-blue-300 border-blue-500" : ""
-                  }`}
-                  title="Toggle full screen distraction-free canvas mode"
-                >
-                  {isFullScreenCanvas ? "Exit Full Screen" : "Full Screen ⛶"}
-                </button>
-
-                {/* Editor UI Language Selector (F-022) */}
-                <div className="flex items-center gap-1.5 bg-slate-800/80 rounded-full px-2.5 py-1 border border-slate-700">
-                  <span className="text-[11px] text-slate-400">🌐 UI:</span>
-                  <select
-                    value={editorLanguage}
-                    onChange={(e) => setEditorLanguage(e.target.value as "en" | "es" | "fr" | "de")}
-                    className="bg-transparent text-xs font-semibold text-slate-200 outline-none cursor-pointer"
-                    title="Change Editor Interface Language"
-                  >
-                    <option value="en" className="bg-slate-900 text-white">English (EN)</option>
-                    <option value="es" className="bg-slate-900 text-white">Español (ES)</option>
-                    <option value="fr" className="bg-slate-900 text-white">Français (FR)</option>
-                    <option value="de" className="bg-slate-900 text-white">Deutsch (DE)</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={() => setIsPreview(!isPreview)}
-                  className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
-                    isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
-                  }`}
-                >
-                  {isPreview ? t("exitPreview", "Exit Preview") : t("preview", "Preview")}
-                </button>
->>>>>>> origin/main
-
-                {/* F-321 Autosave Status Indicator */}
-                <AutosaveStatusIndicator
-                  status={autosaveStatus}
-                  lastSavedAt={autosaveLastSavedAt}
-                  errorMessage={autosaveError}
-                />
-
-                {saveTemplateSuccessMessage && (
-                  <span className="text-xs font-medium text-purple-300 bg-purple-900/40 border border-purple-500/30 px-2.5 py-1 rounded-full">
-                    ✓ {saveTemplateSuccessMessage}
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => openSaveTemplateDialog()}
-                  className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3.5 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Save current design as a reusable Template (F-322)"
-                >
-                  Save as Template
-                </button>
-
-                {/* F-335 & F-336 Website Kit Actions */}
-                <button
-                  type="button"
-                  onClick={handleExportWebsiteKit}
-                  className="rounded-full border border-blue-500/60 bg-blue-950/40 px-3.5 py-1 text-xs font-semibold text-blue-300 transition hover:bg-blue-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Export current project and configurations as a portable Website Kit JSON (F-335)"
-                >
-                  Export Kit 📦
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsImportWebsiteKitOpen(true)}
-                  className="rounded-full border border-cyan-500/60 bg-cyan-950/40 px-3.5 py-1 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-800 hover:text-white shadow-sm cursor-pointer"
-                  title="Import a Website Kit JSON file to restore project pages and elements (F-336)"
-                >
-                  Import Kit 📥
-                </button>
-
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white shadow hover:bg-blue-700 transition disabled:opacity-50"
-                >
-                  {saving ? t("saving", "Saving...") : t("save", "Save")}
-                </button>
+                  <option value="en" className="bg-slate-900 text-white">English (EN)</option>
+                  <option value="es" className="bg-slate-900 text-white">Español (ES)</option>
+                  <option value="fr" className="bg-slate-900 text-white">Français (FR)</option>
+                  <option value="de" className="bg-slate-900 text-white">Deutsch (DE)</option>
+                </select>
               </div>
-            </>
+
+              <button
+                onClick={() => setIsPreview(!isPreview)}
+                className={`rounded-full border border-slate-600 bg-transparent px-4 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white ${
+                  isPreview ? "bg-amber-500/20 text-amber-300 border-amber-500/50" : ""
+                }`}
+              >
+                {isPreview ? t("exitPreview", "Exit Preview") : t("preview", "Preview")}
+              </button>
+
+              {/* F-321 Autosave Status Indicator */}
+              <AutosaveStatusIndicator
+                status={autosaveStatus}
+                lastSavedAt={autosaveLastSavedAt}
+                errorMessage={autosaveError}
+              />
+
+              {saveTemplateSuccessMessage && (
+                <span className="text-xs font-medium text-purple-300 bg-purple-900/40 border border-purple-500/30 px-2.5 py-1 rounded-full">
+                  ✓ {saveTemplateSuccessMessage}
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={() => openSaveTemplateDialog()}
+                className="rounded-full border border-purple-500/60 bg-purple-900/30 px-3.5 py-1 text-xs font-semibold text-purple-300 transition hover:bg-purple-800 hover:text-white shadow-sm cursor-pointer"
+                title="Save current design as a reusable Template (F-322)"
+              >
+                Save as Template
+              </button>
+
+              {/* F-335 & F-336 Website Kit Actions */}
+              <button
+                type="button"
+                onClick={handleExportWebsiteKit}
+                className="rounded-full border border-blue-500/60 bg-blue-950/40 px-3.5 py-1 text-xs font-semibold text-blue-300 transition hover:bg-blue-800 hover:text-white shadow-sm cursor-pointer"
+                title="Export current project and configurations as a portable Website Kit JSON (F-335)"
+              >
+                Export Kit 📦
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsImportWebsiteKitOpen(true)}
+                className="rounded-full border border-cyan-500/60 bg-cyan-950/40 px-3.5 py-1 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-800 hover:text-white shadow-sm cursor-pointer"
+                title="Import a Website Kit JSON file to restore project pages and elements (F-336)"
+              >
+                Import Kit 📥
+              </button>
+
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="rounded-full bg-blue-600 px-5 py-1 text-xs font-bold text-white shadow hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {saving ? t("saving", "Saving...") : t("save", "Save")}
+              </button>
+            </div>
           )}
         </header>
       )}
 
-<<<<<<< HEAD
+
+
         {/* F-404 Notes Panel overlay */}
         <NotesPanel
           isOpen={isNotesOpen}
@@ -15563,30 +15804,9 @@ export default function WebsiteEditor() {
           websiteId={websiteId || ""}
           apiUrl={apiUrl}
           elements={elements}
-          onUpdateElement={(id, updates) => setUnifiedElements((prev) => updateTreeElement(prev, id, el => ({ ...el, ...updates })))}
+          onUpdateElement={(id, updates) => setElements((prev) => updateTreeElement(prev, id, el => ({ ...el, ...updates })))}
         />
 
-        {/* Right Settings Inspector */}
-        {!isPreview && (
-          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full shadow-sm overflow-hidden">
-            {activeCanvasMode === "popup" && activePopup && !selectedElement ? (
-              <PopupSettingsPanel
-                popup={activePopup}
-                onUpdatePopup={(updater) => handleUpdatePopup(activePopup.id, updater)}
-                onExitPopupEdit={() => {
-                  setActiveCanvasMode("page");
-                  setSelectedId(null);
-                }}
-              />
-            ) : (
-              <>
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                      Settings & Design
-                    </h2>
-                    {activeCanvasMode === "popup" && (
-=======
       {/* ========================================== */}
       {/* Main Workspace Body                         */}
       {/* ========================================== */}
@@ -15643,7 +15863,6 @@ export default function WebsiteEditor() {
               </button>
             </div>
 
-
             {leftSidebarTab === "elements" ? (
               <div className="space-y-4">
                 {/* Manage Widgets Trigger Button (F-032) */}
@@ -15673,7 +15892,6 @@ export default function WebsiteEditor() {
                     />
                     <span className="absolute left-2.5 top-2 text-xs text-slate-400">🔍</span>
                     {widgetLibrarySearch && (
->>>>>>> origin/main
                       <button
                         type="button"
                         onClick={() => setWidgetLibrarySearch("")}
@@ -15701,18 +15919,9 @@ export default function WebsiteEditor() {
                     />
                     <button
                       type="button"
-<<<<<<< HEAD
-                      onClick={() => selectedElement && setActiveSidebarTab("element")}
-                      disabled={!selectedElement}
-                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "element"
-                        ? "bg-white text-slate-800 shadow-sm"
-                        : "text-slate-500"
-                        }`}
-=======
                       onClick={() => importFileInputRef.current?.click()}
                       disabled={isUploading}
                       className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 p-2.5 text-xs font-bold text-blue-700 hover:border-blue-500 hover:bg-blue-100/60 transition disabled:opacity-50 shadow-xs"
->>>>>>> origin/main
                     >
                       <span>📁</span>
                       <span>{isUploading ? "Importing Asset..." : "Import Asset / File"}</span>
@@ -17141,55 +17350,177 @@ export default function WebsiteEditor() {
                 : "max-w-[1024px]"
             }`}
           >
-            {/* Blank Page Layout Bar (F-016) */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <span>📄</span>
-                <span>Blank Page Canvas Layout</span>
-              </span>
-              <span className="text-[10px] font-medium text-slate-400">
-                Page Editor (No Theme Chrome)
-              </span>
-            </div>
+            {/* Dynamic Website Navigation Header in Preview Mode */}
+            {isPreview ? (
+              <div className="space-y-6">
+                <header className="sticky top-0 z-30 w-full rounded-xl border border-slate-200/80 bg-white/95 backdrop-blur-md shadow-sm transition-all overflow-hidden">
+                  <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+                    {/* Website Brand / Logo */}
+                    <div
+                      className="flex items-center gap-2.5 cursor-pointer"
+                      onClick={() => {
+                        const homePage = pages.find((p) => p.isHome || p.slug === "/") || pages[0];
+                        if (homePage) handlePreviewPageNavigate(homePage);
+                      }}
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs shadow-md">
+                        {(website?.name || pageSettings?.title || "W").charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <span className="text-sm font-extrabold tracking-tight text-slate-900 block leading-tight">
+                          {globalSettings?.siteIdentity?.name || website?.name || "My Website"}
+                        </span>
+                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
+                          Website Preview
+                        </span>
+                      </div>
+                    </div>
 
-            {/* Maintenance Mode Public / Preview Screen (F-019) */}
-            {isPreview && pageSettings.isMaintenanceMode ? (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl bg-amber-50/60 border border-amber-200/80 p-8 sm:p-12 text-center shadow-inner my-6">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 text-amber-600 shadow-md mb-6 animate-pulse">
-                  <span className="text-4xl">🛠️</span>
-                </div>
-                <span className="inline-block rounded-full bg-amber-200/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 mb-3">
-                  Temporary Maintenance State
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-                  Website Under Maintenance
-                </h2>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-600">
-                  This website is currently undergoing scheduled maintenance and upgrades. Please check back shortly!
-                </p>
-                <div className="mt-8 flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsPreview(false)}
-                    className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-black transition"
-                  >
-                    Return to Editor
-                  </button>
-                </div>
-              </div>
-            ) : elements.length === 0 ? (
-              <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
-                <p className="text-sm font-bold text-slate-700">
-                  Your Canvas is Empty
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Click any element from the left panel to start building.
-                </p>
+                    {/* Desktop Navigation Links */}
+                    {pages.length > 0 && (
+                      <nav className="hidden sm:flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/70">
+                        {pages.map((p) => {
+                          const isCurrent = (activePreviewPageId || pages[0]?.id) === p.id;
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => handlePreviewPageNavigate(p)}
+                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                                isCurrent
+                                  ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                              }`}
+                            >
+                              {p.name || p.pageSettings?.title || "Untitled"}
+                            </button>
+                          );
+                        })}
+                      </nav>
+                    )}
+
+                    {/* Mobile Hamburger Toggle Button */}
+                    {pages.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="sm:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                        aria-label="Toggle Navigation Menu"
+                      >
+                        <span className="text-sm">{mobileMenuOpen ? "✕" : "☰"}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Mobile Dropdown Menu Drawer */}
+                  {mobileMenuOpen && pages.length > 0 && (
+                    <div className="sm:hidden border-t border-slate-200 bg-slate-50 p-2.5 space-y-1 animate-fadeIn">
+                      {pages.map((p) => {
+                        const isCurrent = (activePreviewPageId || pages[0]?.id) === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              handlePreviewPageNavigate(p);
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
+                              isCurrent
+                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                                : "text-slate-700 hover:bg-slate-200/70"
+                            }`}
+                          >
+                            <span>{p.name || p.pageSettings?.title || "Untitled"}</span>
+                            <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </header>
+
+                {/* Currently Selected Preview Page Content */}
+                {(() => {
+                  const currentPreviewPage = pages.find((p) => p.id === activePreviewPageId) || pages[0];
+                  const activeElements = currentPreviewPage?.elements || (currentPreviewPage?.id === activePageId ? elements : []);
+
+                  if (pageSettings.isMaintenanceMode) {
+                    return (
+                      <div className="flex min-h-[450px] flex-col items-center justify-center rounded-2xl bg-amber-50/60 border border-amber-200/80 p-8 text-center shadow-inner my-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600 shadow-md mb-4 animate-pulse">
+                          <span className="text-3xl">🛠️</span>
+                        </div>
+                        <span className="inline-block rounded-full bg-amber-200/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-2">
+                          Temporary Maintenance State
+                        </span>
+                        <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">
+                          Website Under Maintenance
+                        </h2>
+                        <p className="mt-2 max-w-md text-xs leading-relaxed text-slate-600">
+                          This website is currently undergoing scheduled maintenance and upgrades. Please check back shortly!
+                        </p>
+                        <div className="mt-6 flex items-center justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsPreview(false)}
+                            className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-black transition"
+                          >
+                            Return to Editor
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (!activeElements || activeElements.length === 0) {
+                    return (
+                      <div className="flex h-80 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8 bg-slate-50/50">
+                        <p className="text-sm font-bold text-slate-700">
+                          Page "{currentPreviewPage?.name || "Untitled"}" is Empty
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Switch back to the editor to add elements to this page.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-4 py-2">
+                      {activeElements.map((el) => renderElementTree(el))}
+                    </div>
+                  );
+                })()}
               </div>
             ) : (
-              <div className="space-y-4">
-                {elements.map((el) => renderElementTree(el))}
-              </div>
+              <>
+                {/* Blank Page Layout Bar (F-016) */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span>📄</span>
+                    <span>Blank Page Canvas Layout ({pages.find((p) => p.id === activePageId)?.name || "Home"})</span>
+                  </span>
+                  <span className="text-[10px] font-medium text-slate-400">
+                    Page Editor (No Theme Chrome)
+                  </span>
+                </div>
+
+                {elements.length === 0 ? (
+                  <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
+                    <p className="text-sm font-bold text-slate-700">
+                      Your Canvas is Empty
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Click any element from the left panel to start building.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {elements.map((el) => renderElementTree(el))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
@@ -17241,32 +17572,10 @@ export default function WebsiteEditor() {
                       Duplicate
                     </button>
                     <button
-<<<<<<< HEAD
-                      type="button"
-                      onClick={() => setActiveSidebarTab("global")}
-                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "global"
-                        ? "bg-white text-slate-800 shadow-sm"
-                        : "text-slate-500"
-                        }`}
-                    >
-                      Site Settings
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => selectedElement && setActiveSidebarTab("advanced")}
-                      disabled={!selectedElement}
-                      className={`flex-1 rounded-md py-1.5 text-center ${activeSidebarTab === "advanced"
-                        ? "bg-white text-slate-800 shadow-sm"
-                        : "text-slate-500"
-                        }`}
-                    >
-                      Advanced
-=======
                       onClick={(e) => handleDeleteElement(selectedElement.id, e)}
                       className="text-red-500 hover:underline"
                     >
                       Delete
->>>>>>> origin/main
                     </button>
                   </div>
                 </div>
@@ -17597,456 +17906,171 @@ export default function WebsiteEditor() {
                             const newPost: PostItem = {
                               id: "post_" + Math.random().toString(36).substring(2, 9),
                               title: "New Blog Article",
-                              excerpt: "Add a brief summary or preview description for this new post entry.",
-                              date: "Today",
-                              author: "Admin",
-                              image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80",
+                              excerpt: "Short excerpt or summary of the blog post.",
+                              date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                              author: "Author",
+                              image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
                               readMoreText: "Read Article →",
                               readMoreUrl: "#",
                             };
                             updateSelectedProp("posts", [...currentPosts, newPost]);
                           }}
-                          className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-blue-700 transition"
+                          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded shadow-xs"
                         >
                           + Add Post
                         </button>
                       </div>
 
-<<<<<<< HEAD
-                      {/* F-405 Protection View */}
-                      {selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg flex flex-col gap-2">
-                          <span className="font-bold flex items-center gap-2">🔒 Editing Restricted</span>
-                          <span className="text-[11px] leading-tight">This component is protected by the administrators.</span>
-                        </div>
-                      )}
-
-                      <div className={`space-y-4 ${selectedElement.isProtected && website?.userPermission !== "OWNER" && website?.userPermission !== "ADMIN" && !allowedComponentIds.has(selectedElement.id) ? "opacity-40 pointer-events-none select-none" : ""}`}>
-                        {selectedElement.type === "container" &&
-                          renderAccordion(
-                            "Layout & Structure",
-                            "layout",
-                            <div className="space-y-3">
-                              <div>
-                                {renderResponsiveLabel("Layout Engine")}
-                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 text-xs">
-                                  {(["flex", "grid", "masonry"] as const).map((mode) => (
-                                    <button
-                                      key={mode}
-                                      onClick={() => updateSelectedLayout("layoutType", mode)}
-                                      className={`py-1 rounded capitalize ${(getLayoutVal(
-                                        selectedElement,
-                                        "layoutType",
-                                        activeBreakpointId,
-                                        breakpoints
-                                      ) || "flex") === mode
-                                        ? "bg-white text-blue-600 shadow"
-                                        : "text-slate-600"
-                                        }`}
-                                    >
-                                      {mode}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div>
-                                {renderResponsiveLabel("Direction")}
-                                <select
-                                  value={
-                                    getLayoutVal(
-                                      selectedElement,
-                                      "direction",
-                                      activeBreakpointId,
-                                      breakpoints
-                                    ) || "column"
-                                  }
-                                  onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                                  className="w-full rounded border px-2 py-1.5 text-xs"
-                                >
-                                  <option value="column">Column (Vertical)</option>
-                                  <option value="row">Row (Horizontal)</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                {renderResponsiveLabel("Spacing Gap (px)")}
-                                <input
-                                  type="number"
-                                  value={
-                                    getLayoutVal(
-                                      selectedElement,
-                                      "gap",
-                                      activeBreakpointId,
-                                      breakpoints
-                                    ) ?? 16
-                                  }
-                                  onChange={(e) => updateSelectedLayout("gap", Number(e.target.value))}
-                                  className="w-full rounded border px-2 py-1 text-xs"
-=======
                       <div className="space-y-3">
-                        {(selectedElement.posts || []).map((post, idx) => (
-                          <div key={post.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                              <span className="text-[11px] font-bold text-slate-800 truncate max-w-[170px]">
-                                Post #{idx + 1}: {post.title || "Untitled"}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updatedPosts = (selectedElement.posts || []).filter((p) => p.id !== post.id);
-                                  updateSelectedProp("posts", updatedPosts);
-                                }}
-                                className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline"
-                              >
-                                Remove
-                              </button>
-                            </div>
+                              {(selectedElement.posts || []).map((post, idx) => (
+                                <div key={post.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2">
+                                  <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                                    <span className="text-[11px] font-bold text-slate-800 truncate max-w-[170px]">
+                                      Post #{idx + 1}: {post.title || "Untitled"}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updatedPosts = (selectedElement.posts || []).filter((p) => p.id !== post.id);
+                                        updateSelectedProp("posts", updatedPosts);
+                                      }}
+                                      className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
 
-                            <div>
-                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                Title
-                              </label>
-                              <input
-                                type="text"
-                                value={post.title}
-                                onChange={(e) => {
-                                  const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                    p.id === post.id ? { ...p, title: e.target.value } : p
-                                  );
-                                  updateSelectedProp("posts", updatedPosts);
-                                }}
-                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                              />
-                            </div>
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Title
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={post.title}
+                                      onChange={(e) => {
+                                        const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                          p.id === post.id ? { ...p, title: e.target.value } : p
+                                        );
+                                        updateSelectedProp("posts", updatedPosts);
+                                      }}
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                    />
+                                  </div>
 
-                            <div>
-                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                Excerpt
-                              </label>
-                              <textarea
-                                rows={2}
-                                value={post.excerpt}
-                                onChange={(e) => {
-                                  const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                    p.id === post.id ? { ...p, excerpt: e.target.value } : p
-                                  );
-                                  updateSelectedProp("posts", updatedPosts);
-                                }}
-                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                              />
-                            </div>
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Excerpt
+                                    </label>
+                                    <textarea
+                                      rows={2}
+                                      value={post.excerpt}
+                                      onChange={(e) => {
+                                        const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                          p.id === post.id ? { ...p, excerpt: e.target.value } : p
+                                        );
+                                        updateSelectedProp("posts", updatedPosts);
+                                      }}
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                    />
+                                  </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                  Date
-                                </label>
-                                <input
-                                  type="text"
-                                  value={post.date || ""}
-                                  onChange={(e) => {
-                                    const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                      p.id === post.id ? { ...p, date: e.target.value } : p
-                                    );
-                                    updateSelectedProp("posts", updatedPosts);
-                                  }}
-                                  placeholder="Sep 1, 2026"
-                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                                />
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                        Date
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={post.date || ""}
+                                        onChange={(e) => {
+                                          const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                            p.id === post.id ? { ...p, date: e.target.value } : p
+                                          );
+                                          updateSelectedProp("posts", updatedPosts);
+                                        }}
+                                        placeholder="Sep 1, 2026"
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                        Author
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={post.author || ""}
+                                        onChange={(e) => {
+                                          const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                            p.id === post.id ? { ...p, author: e.target.value } : p
+                                          );
+                                          updateSelectedProp("posts", updatedPosts);
+                                        }}
+                                        placeholder="Jane Doe"
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Featured Image URL
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={post.image || ""}
+                                      onChange={(e) => {
+                                        const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                          p.id === post.id ? { ...p, image: e.target.value } : p
+                                        );
+                                        updateSelectedProp("posts", updatedPosts);
+                                      }}
+                                      placeholder="https://images.unsplash.com/..."
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                    />
+                                  </div>
+
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                        Read More Text
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={post.readMoreText || ""}
+                                        onChange={(e) => {
+                                          const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                            p.id === post.id ? { ...p, readMoreText: e.target.value } : p
+                                          );
+                                          updateSelectedProp("posts", updatedPosts);
+                                        }}
+                                        placeholder="Read Article →"
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                        Read More Link
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={post.readMoreUrl || ""}
+                                        onChange={(e) => {
+                                          const updatedPosts = (selectedElement.posts || []).map((p) =>
+                                            p.id === post.id ? { ...p, readMoreUrl: e.target.value } : p
+                                          );
+                                          updateSelectedProp("posts", updatedPosts);
+                                        }}
+                                        placeholder="#"
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                      />
+                                    </div>
+                                  </div>
                               </div>
-                              <div>
-                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                  Author
-                                </label>
-                                <input
-                                  type="text"
-                                  value={post.author || ""}
-                                  onChange={(e) => {
-                                    const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                      p.id === post.id ? { ...p, author: e.target.value } : p
-                                    );
-                                    updateSelectedProp("posts", updatedPosts);
-                                  }}
-                                  placeholder="Jane Doe"
-                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
->>>>>>> origin/main
-                                />
-                              </div>
-                            </div>
-                          )}
-
-<<<<<<< HEAD
-                        {selectedElement.type !== "container" && selectedElement.type !== "image" && selectedElement.type !== "video" && selectedElement.type !== "spacer" && selectedElement.type !== "divider" && selectedElement.type !== "icon" && selectedElement.type !== "counter" && (
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                              {selectedElement.type === "html" ? "Raw HTML Editor (F-110)" : selectedElement.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
-                            </label>
-                            {selectedElement.type === "html" || selectedElement.type === "text" || selectedElement.type === "shortcode" ? (
-                              <textarea
-                                value={selectedElement.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                rows={selectedElement.type === "html" ? 8 : selectedElement.type === "shortcode" ? 3 : 4}
-                                className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElement.type === "html" || selectedElement.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
-                                placeholder={selectedElement.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElement.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
-                              />
-                            ) : (
-                              <input
-                                type="text"
-                                value={selectedElement.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
-                              />
-                            )}
-                          </div>
-                        )}
-
-                        {/* Smart Link & URL Controls */}
-                        {(selectedElement.type === "button" || selectedElement.type === "image" || selectedElement.href !== undefined) && (
-                          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
-                            <label className="block text-[10px] font-bold text-slate-600 uppercase">
-                              Link & Smart Actions
-                            </label>
-                            <input
-                              type="text"
-                              value={selectedElement.href || ""}
-                              onChange={(e) => updateSelectedProp("href", e.target.value)}
-                              placeholder="https://..., popup:open(id), scroll:to(id)"
-                              className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
-                            />
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                              {popups.length > 0 && (
-                                <select
-                                  onChange={(e) => {
-                                    if (e.target.value) {
-                                      updateSelectedProp("href", `popup:open(${e.target.value})`);
-                                      e.target.value = "";
-                                    }
-                                  }}
-                                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
-                                >
-                                  <option value="">+ Open Popup...</option>
-                                  {popups.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                      {p.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => updateSelectedProp("href", "popup:close")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                              >
-                                Close Popup
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => updateSelectedProp("href", "scroll:to(top)")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                              >
-                                Scroll to Top
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {renderAccordion(
-                          "Typography & Colors",
-                          "typography",
-                          <div className="space-y-3">
-                            <div>
-                              {renderResponsiveLabel("Text Color")}
-                              <input
-                                type="color"
-                                value={
-                                  getStyleVal(selectedElement, "color", activeBreakpointId, breakpoints) ||
-                                  "#0f172a"
-                                }
-                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                className="w-full h-8 cursor-pointer rounded border p-0.5"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Font Size (px)")}
-                              <input
-                                type="text"
-                                value={
-                                  getStyleVal(
-                                    selectedElement,
-                                    "fontSize",
-                                    activeBreakpointId,
-                                    breakpoints
-                                  ) || "16px"
-                                }
-                                onChange={(e) =>
-                                  updateSelectedStyle(
-                                    "fontSize",
-                                    e.target.value.endsWith("px")
-                                      ? e.target.value
-                                      : `${e.target.value}px`
-                                  )
-                                }
-                                className="w-full rounded border px-2 py-1 text-xs"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      ) : activeSidebarTab === "advanced" && selectedElement ? (
-                      <div className="space-y-4">
-                        {/* Developer Options for Element (F-102, F-105 to F-109) */}
-                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
-                            <input type="text" value={selectedElement.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
-                            <input type="text" value={selectedElement.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <hr className="border-slate-200" />
-                          <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
-                          </button>
-                          <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
-                          </button>
-                          <button onClick={() => setDevModalMode(selectedElement.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
-                          </button>
+                            ))}
                         </div>
-                      </div>
-                      ) : (
-                      <div className="space-y-4">
-                        {/* Site Identity */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                          <input
-                            type="text"
-                            value={globalSettings.siteIdentity?.name || ""}
-                            onChange={(e) =>
-                              setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
-                              }))
-                            }
-                            placeholder="Site Name"
-                            className="w-full rounded border px-2 py-1 text-xs"
-                          />
-                        </div>
-
-                        {/* Back To Top Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.backToTop?.enabled !== false}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
-                          {globalSettings.backToTop?.enabled !== false && (
-                            <div className="space-y-2 pt-1">
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.backToTop?.position || "bottom-right"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, position: e.target.value },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-right">Bottom Right</option>
-                                  <option value="bottom-left">Bottom Left</option>
-                                </select>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                                <input
-                                  type="number"
-                                  value={globalSettings.backToTop?.offset ?? 300}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                    }))
-                                  }
-                                  className="w-20 rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
-                            </div>
-                          )}
-=======
-                            <div>
-                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                Featured Image URL
-                              </label>
-                              <input
-                                type="text"
-                                value={post.image || ""}
-                                onChange={(e) => {
-                                  const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                    p.id === post.id ? { ...p, image: e.target.value } : p
-                                  );
-                                  updateSelectedProp("posts", updatedPosts);
-                                }}
-                                placeholder="https://images.unsplash.com/..."
-                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                              />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                  Read More Text
-                                </label>
-                                <input
-                                  type="text"
-                                  value={post.readMoreText || ""}
-                                  onChange={(e) => {
-                                    const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                      p.id === post.id ? { ...p, readMoreText: e.target.value } : p
-                                    );
-                                    updateSelectedProp("posts", updatedPosts);
-                                  }}
-                                  placeholder="Read Article →"
-                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                  Read More Link
-                                </label>
-                                <input
-                                  type="text"
-                                  value={post.readMoreUrl || ""}
-                                  onChange={(e) => {
-                                    const updatedPosts = (selectedElement.posts || []).map((p) =>
-                                      p.id === post.id ? { ...p, readMoreUrl: e.target.value } : p
-                                    );
-                                    updateSelectedProp("posts", updatedPosts);
-                                  }}
-                                  placeholder="#"
-                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Share Buttons Specific Controls (F-175) */}
                 {selectedElement.type === "share-buttons" && (
@@ -18597,137 +18621,9 @@ export default function WebsiteEditor() {
                             <option value={5000}>5 Seconds</option>
                             <option value={7000}>7 Seconds (Slow)</option>
                           </select>
->>>>>>> origin/main
                         </div>
-
-                        {/* Floating Action Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.floatingActionButton?.enabled === true}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  floatingActionButton: {
-                                    ...prev.floatingActionButton,
-                                    enabled: e.target.checked,
-                                  },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
-
-                          {globalSettings.floatingActionButton?.enabled && (
-                            <div className="space-y-2 pt-1">
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Icon & Type
-                                </label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        icon: e.target.value,
-                                        backgroundColor:
-                                          e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                      },
-                                    }))
-                                  }
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="whatsapp">WhatsApp Button</option>
-                                  <option value="chat">Live Chat / Message</option>
-                                  <option value="phone">Call Now (Phone)</option>
-                                  <option value="email">Email Us</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Label
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.label || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        label: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="Chat with us"
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Link or Smart Action
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.link || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        link: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="https://wa.me/... or popup:open(id)"
-                                  className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                                />
-                              </div>
-
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        position: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-left">Bottom Left</option>
-                                  <option value="bottom-right">Bottom Right</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      )}
                     </div>
-<<<<<<< HEAD
-                  ) : null}
-
-                  {/* Dev / Global Settings Controls */}
-                  {activeSidebarTab === "global" && (
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3 mt-4">
-                      <h3 className="text-xs font-bold text-slate-700">Developer Options</h3>
-                      <button onClick={() => setDevModalMode("page-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                        <span className="text-blue-500">{"</>"}</span> Edit Page Custom CSS (F-103)
-                      </button>
-                      <button onClick={() => setDevModalMode("global-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                        <span className="text-violet-500">{"</>"}</span> Edit Global Custom CSS (F-104)
-                      </button>
-=======
 
                     {/* Display Navigation Controls */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
@@ -25630,7 +25526,6 @@ export default function WebsiteEditor() {
                           </div>
                         )}
                       </div>
->>>>>>> origin/main
                     </div>
 
                     {/* PLAYBACK SECTION */}
@@ -27657,7 +27552,6 @@ export default function WebsiteEditor() {
         </div>
       )}
 
-<<<<<<< HEAD
       {/* Popup Manager Modal */}
       <PopupManagerModal
         isOpen={isPopupManagerOpen}
@@ -27682,33 +27576,6 @@ export default function WebsiteEditor() {
         />
       )}
 
-      {/* Developer Modal (F-102 - F-109) */}
-      <DeveloperModal
-        isOpen={!!devModalMode}
-        onClose={() => setDevModalMode(null)}
-        mode={devModalMode!}
-        initialValue={
-          devModalMode === "element-css" ? selectedElement?.customCss :
-            devModalMode === "css-selectors" ? selectedElement?.customSelectors :
-              devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
-                devModalMode === "page-css" ? pageCss :
-                  devModalMode === "global-css" ? globalSettings.customCss :
-                    ""
-        }
-        onSave={(val) => {
-          if (devModalMode === "element-css" && selectedElement) {
-            updateSelectedProp("customCss", val);
-          } else if (devModalMode === "css-selectors" && selectedElement) {
-            updateSelectedProp("customSelectors", val);
-          } else if (devModalMode === "custom-attributes" && selectedElement) {
-            updateSelectedProp("customAttributes", val);
-          } else if (devModalMode === "page-css") {
-            setPageCss(val);
-          } else if (devModalMode === "global-css") {
-            setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
-          }
-        }}
-=======
       {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
       <SaveTemplateDialog
         isOpen={isSaveTemplateOpen}
@@ -27752,8 +27619,152 @@ export default function WebsiteEditor() {
         onClose={() => setIsRevisionHistoryOpen(false)}
         websiteId={websiteId || ""}
         onRestore={handleRestoreRevision}
->>>>>>> origin/main
       />
+
+      {/* Modal for Adding New Page */}
+      {isAddPageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <span>✨</span>
+                <span>Add New Website Page</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAddPageModalOpen(false)}
+                className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Page Title / Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. About, Services, Contact, Pricing"
+                  value={newPageName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setNewPageName(val);
+                    if (!newPageSlug || newPageSlug === `/${newPageName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`) {
+                      setNewPageSlug(`/${val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  URL Path / Slug
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. /about, /services, /contact"
+                  value={newPageSlug}
+                  onChange={(e) => setNewPageSlug(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsAddPageModalOpen(false)}
+                className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateNewPage}
+                disabled={!newPageName.trim()}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+              >
+                Create Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Editing Existing Page */}
+      {isEditPageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <span>✏️</span>
+                <span>Edit Page Settings</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsEditPageModalOpen(false)}
+                className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Page Title / Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. About Us, Our Services, Contact"
+                  value={editPageName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditPageName(val);
+                  }}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  URL Path / Slug
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. /about, /services, /contact"
+                  value={editPageSlug}
+                  onChange={(e) => setEditPageSlug(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsEditPageModalOpen(false)}
+                className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditPage}
+                disabled={!editPageName.trim()}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

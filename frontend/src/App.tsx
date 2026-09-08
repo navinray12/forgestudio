@@ -18,15 +18,11 @@ import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
 import WebsiteEditor from "./pages/editor/WebsiteEditor";
-<<<<<<< HEAD
 import CustomPostTypesList from "./pages/dashboard/CustomPostTypesList";
 import CustomPostTypeBuilder from "./pages/dashboard/CustomPostTypeBuilder";
 import CustomEntriesList from "./pages/dashboard/CustomEntriesList";
 import CustomEntryEditor from "./pages/dashboard/CustomEntryEditor";
-
-=======
 import SharedTemplatePreviewPage from "./pages/templates/SharedTemplatePreviewPage";
->>>>>>> origin/main
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 

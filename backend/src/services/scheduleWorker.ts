@@ -7,9 +7,14 @@ const POLL_INTERVAL_MS = 60 * 1000; // Check every 60 seconds
 
 async function processScheduledPublications() {
     try {
+        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
+        if (!customCodeSnippetModel) {
+            return;
+        }
+
         const now = new Date();
 
-        const pendingSnippets = await prisma.customCodeSnippet.findMany({
+        const pendingSnippets = await customCodeSnippetModel.findMany({
             where: {
                 status: 'SCHEDULED',
                 scheduledFor: { lte: now }
@@ -19,7 +24,7 @@ async function processScheduledPublications() {
         if (pendingSnippets.length === 0) return;
 
         for (const snippet of pendingSnippets) {
-            await prisma.customCodeSnippet.update({
+            await customCodeSnippetModel.update({
                 where: { id: snippet.id },
                 data: {
                     status: 'PUBLISHED'

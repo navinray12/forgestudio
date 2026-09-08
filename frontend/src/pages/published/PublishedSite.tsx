@@ -153,7 +153,16 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         <React.Fragment key={el.id}>
             <div ref={assignRefIfTracked as any} {...mergedProps}>
                 {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-                    <BackgroundSlideshow urls={el.styles.backgroundSlideshowUrls.split(",")} interval={Number(el.styles.backgroundSlideshowSpeed) || 5000} />
+                    <BackgroundSlideshow
+                        urls={
+                            Array.isArray(el.styles.backgroundSlideshowUrls)
+                                ? el.styles.backgroundSlideshowUrls
+                                : typeof el.styles.backgroundSlideshowUrls === "string"
+                                ? el.styles.backgroundSlideshowUrls.split(",")
+                                : []
+                        }
+                        interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
+                    />
                 )}
                 {el.children?.map(child => (
                     <RenderNode
@@ -189,6 +198,8 @@ export default function PublishedSite() {
     const [errorMessage, setErrorMessage] = useState("");
     const [elements, setElements] = useState<EditorElement[]>([]);
     const [pages, setPages] = useState<PageConfig[]>([]);
+    const [activePageId, setActivePageId] = useState<string>("home");
+    const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
     const [popups, setPopups] = useState<PopupConfig[]>([]);
     const [globalSettings, setGlobalSettings] = useState<any>({});
     const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
@@ -213,10 +224,13 @@ export default function PublishedSite() {
 
                 if (site?.editorData?.pages && site.editorData.pages.length > 0) {
                     setPages(site.editorData.pages);
-                    // Currently published site loads home page (first page) by default
-                    setElements(site.editorData.pages[0].elements);
+                    const homePage = site.editorData.pages.find((p: any) => p.isHome || p.slug === "/") || site.editorData.pages[0];
+                    setActivePageId(homePage.id || "home");
+                    setElements(homePage.elements || []);
                 } else if (site?.editorData?.elements) {
-                    setPages([{ id: "home", name: "Home", slug: "/", customCss: "", elements: site.editorData.elements }]);
+                    const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: site.editorData.elements };
+                    setPages([defaultPage]);
+                    setActivePageId("home");
                     setElements(site.editorData.elements);
                 }
 
@@ -233,6 +247,11 @@ export default function PublishedSite() {
         };
         fetchWebsite();
     }, [websiteId, apiUrl]);
+
+    const handleSwitchPage = (page: PageConfig) => {
+        setActivePageId(page.id);
+        setElements(page.elements || []);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -270,7 +289,6 @@ export default function PublishedSite() {
             Object.keys(innerProps).forEach(k => delete (outerProps as any)[k]);
 
             // F-355: Strip backgroundImage out of F-353 compiler Hash pipeline.
-            // This forces it to be applied natively via the RenderNode so we can defer its application!
             delete (outerProps as any).backgroundImage;
             delete (innerProps as any).backgroundImage;
 
@@ -297,12 +315,6 @@ export default function PublishedSite() {
                 classMap.set(el.id, styleHashToClass.get(stylePayload)!);
             }
 
-            // F-355: Prevent global CSS from overriding deferred inline background images eagerly
-            // (If they are deferred, we don't dump them into the external CSS. Wait, if F-353 puts background-image in CSS, all instances fetch eagerly!)
-            // We should NOT include `backgroundImage` in outer/inner props if we want to defer it lazily globally?
-            // Actually, if it goes to CSS, it evaluates on parse! 
-            // So we MUST intercept `backgroundImage` from F-353 compiler for lazy elements.
-
             if (el.children) el.children.forEach(processElement);
         };
 
@@ -318,7 +330,7 @@ export default function PublishedSite() {
     if (errorMessage) return <div className="text-red-500 m-4">Error: {errorMessage}</div>;
 
     return (
-        <div data-website-id={websiteId} data-page-id={pages[0]?.id || "home"} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+        <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
             {customCodeSnippets && customCodeSnippets.length > 0 && (
@@ -326,6 +338,83 @@ export default function PublishedSite() {
                     <CodeInjectionRuntime snippets={customCodeSnippets} />
                 </React.Suspense>
             )}
+
+            {/* Dynamic Published Website Navigation Header */}
+            {pages && pages.length > 0 && (
+                <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs transition-all">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
+                        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => {
+                            const home = pages.find(p => p.slug === "/" || p.id === "home") || pages[0];
+                            if (home) handleSwitchPage(home);
+                        }}>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-sm shadow-md">
+                                {(pages[0]?.name || "W").charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-base font-extrabold tracking-tight text-slate-900">
+                                {globalSettings?.siteIdentity?.name || pages[0]?.name || "My Website"}
+                            </span>
+                        </div>
+
+                        {/* Desktop Header Navigation Links */}
+                        <nav className="hidden sm:flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/70">
+                            {pages.map((p) => {
+                                const isCurrent = activePageId === p.id;
+                                return (
+                                    <button
+                                        key={p.id}
+                                        type="button"
+                                        onClick={() => handleSwitchPage(p)}
+                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                                            isCurrent
+                                                ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                        }`}
+                                    >
+                                        {p.name || "Untitled"}
+                                    </button>
+                                );
+                            })}
+                        </nav>
+
+                        {/* Mobile Hamburger Toggle Button */}
+                        <button
+                            type="button"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="sm:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                        >
+                            <span className="text-base">{mobileMenuOpen ? "✕" : "☰"}</span>
+                        </button>
+                    </div>
+
+                    {/* Mobile Drawer */}
+                    {mobileMenuOpen && (
+                        <div className="sm:hidden border-t border-slate-200 bg-slate-50 p-3 space-y-1">
+                            {pages.map((p) => {
+                                const isCurrent = activePageId === p.id;
+                                return (
+                                    <button
+                                        key={p.id}
+                                        type="button"
+                                        onClick={() => {
+                                            handleSwitchPage(p);
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
+                                            isCurrent
+                                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                                                : "text-slate-700 hover:bg-slate-200/70"
+                                        }`}
+                                    >
+                                        <span>{p.name}</span>
+                                        <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </header>
+            )}
+
             {elements.map((el, index) => (
                 <RenderNode
                     key={el.id}

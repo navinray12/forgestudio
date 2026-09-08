@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-<<<<<<< HEAD
 import { RoleManagerModal } from "./components/RoleManagerModal";
 import { TeamSwitcher } from "./components/TeamSwitcher";
 import { TeamDashboardView } from "./components/TeamDashboardView";
@@ -12,10 +11,8 @@ import CustomCodePanel from "./components/CustomCodePanel";
 import AdvancedCodePanel from "./components/AdvancedCodePanel";
 import CustomPostTypesPanel from "./components/CustomPostTypesPanel";
 import PerformancePanel from "./components/PerformancePanel";
-=======
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
->>>>>>> origin/main
 
 interface Website {
   id: string; name: string; slug: string; status: string; createdAt: string; updatedAt: string;
@@ -74,13 +71,13 @@ function UserDashboard() {
   const [error, setError] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-<<<<<<< HEAD
   const [roleManagerSite, setRoleManagerSite] = useState<Website | null>(null);
   const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-=======
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
+
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const handleExportDashboardKit = async (site: Website) => {
     try {
@@ -155,7 +152,6 @@ function UserDashboard() {
       alert("Error importing website kit.");
     }
   };
->>>>>>> origin/main
 
   const query = new URLSearchParams(location.search);
   const activeTab = (query.get("tab") as Tab) || "websites";
@@ -164,8 +160,6 @@ function UserDashboard() {
     navigate(tab === "websites" ? "/dashboard" : `/dashboard?tab=${tab}`);
     setSidebarOpen(false);
   };
-
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchWebsites = async () => {
     setWLoading(true);
@@ -239,12 +233,8 @@ function UserDashboard() {
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mt-0.5">Projects</div>
             </div>
           </div>
-<<<<<<< HEAD
-          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-2">
+          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
             <TeamSwitcher apiUrl={apiUrl} currentTeamId={currentTeamId} onSelectTeam={setCurrentTeamId} />
-=======
-
-          <div className="flex items-center gap-3">
             <Link
               to="/subscriptions"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100"
@@ -277,7 +267,6 @@ function UserDashboard() {
             >
               <span>Logout</span>
             </button>
->>>>>>> origin/main
           </div>
         </div>
 
@@ -289,8 +278,7 @@ function UserDashboard() {
               <h3 className="text-base font-bold text-slate-900">Your Websites</h3>
               <button onClick={() => { setError(""); setWebsiteName(""); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-700 transition shadow-sm">+ New Website</button>
             </div>
-<<<<<<< HEAD
-            <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm flex flex-col gap-2 min-h-[300px]">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-2 min-h-[300px]">
               {wLoading ? (
                 <div className="flex items-center justify-center text-xs font-semibold text-slate-400 p-8 text-center h-64">Loading your websites…</div>
               ) : websites.length === 0 ? (
@@ -299,103 +287,68 @@ function UserDashboard() {
                   <h3 className="font-bold text-slate-700 text-sm">No websites yet</h3>
                   <p className="text-xs text-slate-500 mt-1 mb-4 max-w-[200px]">Create your first website to see it appear here.</p>
                   <button onClick={() => { setError(""); setWebsiteName(""); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-700 transition shadow-sm">+ Create Website</button>
-=======
-          ) : websites.length === 0 ? (
-            <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 text-xl font-bold">
-                🌐
-              </div>
-              <h3 className="mt-4 text-base font-bold text-slate-800">
-                No websites created yet
-              </h3>
-              <p className="mt-1 text-xs text-slate-500 max-w-sm">
-                Get started by creating your first website. Drag, drop, and edit in seconds.
-              </p>
-              <button
-                onClick={() => {
-                  setError("");
-                  setWebsiteName("");
-                  setIsModalOpen(true);
-                }}
-                className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
-              >
-                Create New Website
-              </button>
-            </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {websites.map((site) => (
-                <div
-                  key={site.id}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:shadow-md hover:border-slate-300"
-                >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
-                        {site.status}
-                      </span>
-                      <span className="text-[11px] text-slate-400">
-                        {new Date(site.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-4 text-lg font-bold text-slate-900 truncate">
-                      {site.name}
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-400 font-mono">
-                      /{site.slug}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <button
-                      onClick={() => setDeleteTargetId(site.id)}
-                      className="text-xs font-semibold text-red-500 hover:text-red-700 transition"
-                    >
-                      Delete
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleExportDashboardKit(site)}
-                        disabled={exportingKitId === site.id}
-                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
-                        title="Export project configuration as a portable Website Kit JSON file"
-                      >
-                        {exportingKitId === site.id ? "Exporting..." : "Export Kit 📦"}
-                      </button>
-
-                      <button
-                        onClick={() => navigate(`/editor/${site.id}`)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
-                      >
-                        <span>Open Editor</span>
-                        <span>→</span>
-                      </button>
-                    </div>
-                  </div>
->>>>>>> origin/main
                 </div>
               ) : (
-                websites.map(site => (
-                  <div key={site.id} className="group flex flex-col justify-between rounded-xl border border-transparent hover:border-slate-200 bg-white p-5 hover:bg-slate-50 transition-all relative overflow-hidden">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${site.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-blue-50 text-blue-700 border border-blue-100"}`}>{site.status}</span>
-                        <span className="text-[11px] font-semibold text-slate-400">{new Date(site.createdAt).toLocaleDateString()}</span>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {websites.map((site) => (
+                    <div
+                      key={site.id}
+                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:shadow-md hover:border-slate-300"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
+                            {site.status}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            {new Date(site.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-4 text-lg font-bold text-slate-900 truncate">
+                          {site.name}
+                        </h3>
+                        <p className="mt-1 text-xs text-slate-400 font-mono">
+                          /{site.slug}
+                        </p>
                       </div>
-                      <h3 className="text-[16px] font-bold tracking-tight text-slate-800 pr-4 truncate">{site.name}</h3>
-                      <p className="mt-0.5 text-xs text-slate-400 font-mono pr-4 truncate">/{site.slug}</p>
-                    </div>
-                    <div className="mt-6 flex flex-wrap items-center gap-y-3 gap-x-2 pt-4 border-t border-slate-100/80">
-                      <button onClick={() => setDeleteTargetId(site.id)} className="mr-auto inline-flex items-center px-2 py-1 text-[11px] font-bold text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors">Delete</button>
-                      <div className="flex gap-2 items-center">
-                        <button onClick={() => setRoleManagerSite(site)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm">Roles</button>
-                        <button onClick={() => navigate(`/editor/${site.id}`)} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-slate-900 px-3 text-[11px] font-bold text-white hover:bg-slate-800 transition shadow-sm">Open Editor <span className="text-slate-400">→</span></button>
+
+                      <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                        <button
+                          onClick={() => setDeleteTargetId(site.id)}
+                          className="text-xs font-semibold text-red-500 hover:text-red-700 transition"
+                        >
+                          Delete
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setRoleManagerSite(site)}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
+                          >
+                            Roles
+                          </button>
+                          <button
+                            onClick={() => handleExportDashboardKit(site)}
+                            disabled={exportingKitId === site.id}
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
+                            title="Export project configuration as a portable Website Kit JSON file"
+                          >
+                            {exportingKitId === site.id ? "Exporting..." : "Export Kit 📦"}
+                          </button>
+
+                          <button
+                            onClick={() => navigate(`/editor/${site.id}`)}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
+                          >
+                            <span>Open Editor</span>
+                            <span>→</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -511,18 +464,15 @@ function UserDashboard() {
         </div>
       )}
 
-<<<<<<< HEAD
       {roleManagerSite && (
         <RoleManagerModal websiteId={roleManagerSite.id} websiteName={roleManagerSite.name} onClose={() => setRoleManagerSite(null)} apiUrl={apiUrl} />
       )}
-=======
-      {/* Import Website Kit Dialog */}
+
       <ImportWebsiteKitDialog
         isOpen={isImportKitOpen}
         onClose={() => setIsImportKitOpen(false)}
         onImportKit={handleImportDashboardKit}
       />
->>>>>>> origin/main
     </div>
   );
 }

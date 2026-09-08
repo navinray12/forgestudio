@@ -8,6 +8,7 @@ interface UseAutosaveParams {
   websiteId: string | undefined;
   elements: EditorElement[];
   pageSettings: PageSettingsData;
+  pages?: any[];
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
@@ -17,12 +18,14 @@ interface SavePayload {
   snapshot: string;
   elements: EditorElement[];
   pageSettings: PageSettingsData;
+  pages?: any[];
 }
 
 export function useAutosave({
   websiteId,
   elements,
   pageSettings,
+  pages = [],
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
@@ -39,20 +42,21 @@ export function useAutosave({
   const queuedPayloadRef = useRef<SavePayload | null>(null);
 
   // Latest props stored in refs for access inside async callbacks
-  const latestPropsRef = useRef({ websiteId, elements, pageSettings, apiUrl });
+  const latestPropsRef = useRef({ websiteId, elements, pageSettings, pages, apiUrl });
   useEffect(() => {
-    latestPropsRef.current = { websiteId, elements, pageSettings, apiUrl };
-  }, [websiteId, elements, pageSettings, apiUrl]);
+    latestPropsRef.current = { websiteId, elements, pageSettings, pages, apiUrl };
+  }, [websiteId, elements, pageSettings, pages, apiUrl]);
 
   /**
    * Helper to serialize meaningful editor data to a JSON string comparison key
    */
   const serializeState = useCallback(
-    (currentElements: EditorElement[], currentPageSettings: PageSettingsData): string => {
+    (currentElements: EditorElement[], currentPageSettings: PageSettingsData, currentPages: any[] = []): string => {
       try {
         return JSON.stringify({
           elements: currentElements || [],
           pageSettings: currentPageSettings || {},
+          pages: currentPages || [],
         });
       } catch (err) {
         console.error("Failed to serialize editor state for autosave:", err);
@@ -66,13 +70,13 @@ export function useAutosave({
    * Method to manually update the baseline (e.g. after manual save or revision restore)
    */
   const updateBaseline = useCallback(
-    (newElements: EditorElement[], newPageSettings?: PageSettingsData) => {
+    (newElements: EditorElement[], newPageSettings?: PageSettingsData, newPages?: any[]) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
       queuedPayloadRef.current = null;
-      const snapshot = serializeState(newElements, newPageSettings || {});
+      const snapshot = serializeState(newElements, newPageSettings || {}, newPages || []);
       baselineRef.current = snapshot;
       isInitializedRef.current = true;
       setStatus("saved");
@@ -104,6 +108,7 @@ export function useAutosave({
             version: 1,
             elements: payload.elements,
             pageSettings: payload.pageSettings,
+            pages: payload.pages || [],
           },
         };
 
@@ -149,7 +154,8 @@ export function useAutosave({
         } else {
           const currentLiveSnapshot = serializeState(
             latestPropsRef.current.elements,
-            latestPropsRef.current.pageSettings
+            latestPropsRef.current.pageSettings,
+            latestPropsRef.current.pages
           );
 
           if (currentLiveSnapshot !== baselineRef.current) {
@@ -177,12 +183,12 @@ export function useAutosave({
 
     // Establish initial baseline on first load completion
     if (!isInitializedRef.current || baselineRef.current === null) {
-      const initialSnapshot = serializeState(elements, pageSettings);
+      const initialSnapshot = serializeState(elements, pageSettings, pages);
       baselineRef.current = initialSnapshot;
       isInitializedRef.current = true;
       setStatus("saved");
     }
-  }, [isLoadingWebsite, websiteId, elements, pageSettings, serializeState]);
+  }, [isLoadingWebsite, websiteId, elements, pageSettings, pages, serializeState]);
 
   // Change Detection & Debouncing
   useEffect(() => {
@@ -190,7 +196,7 @@ export function useAutosave({
       return;
     }
 
-    const currentSnapshot = serializeState(elements, pageSettings);
+    const currentSnapshot = serializeState(elements, pageSettings, pages);
 
     // If current state matches baseline, status is saved
     if (currentSnapshot === baselineRef.current) {
@@ -216,7 +222,8 @@ export function useAutosave({
     timerRef.current = setTimeout(() => {
       const snapshotToSave = serializeState(
         latestPropsRef.current.elements,
-        latestPropsRef.current.pageSettings
+        latestPropsRef.current.pageSettings,
+        latestPropsRef.current.pages
       );
 
       if (snapshotToSave === baselineRef.current) {
@@ -227,6 +234,7 @@ export function useAutosave({
         snapshot: snapshotToSave,
         elements: JSON.parse(JSON.stringify(latestPropsRef.current.elements)),
         pageSettings: JSON.parse(JSON.stringify(latestPropsRef.current.pageSettings)),
+        pages: JSON.parse(JSON.stringify(latestPropsRef.current.pages || [])),
       };
 
       if (isSavingRef.current) {
@@ -241,7 +249,7 @@ export function useAutosave({
         clearTimeout(timerRef.current);
       }
     };
-  }, [elements, pageSettings, websiteId, isLoadingWebsite, debounceMs, serializeState, performSave, status]);
+  }, [elements, pageSettings, pages, websiteId, isLoadingWebsite, debounceMs, serializeState, performSave, status]);
 
   // Cleanup on unmount
   useEffect(() => {
