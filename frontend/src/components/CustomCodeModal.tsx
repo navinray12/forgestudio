@@ -202,7 +202,7 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
                                                         const el = document.getElementById('add-page-input') as HTMLInputElement;
                                                         if (el.value) {
                                                             const existing = editingSnippet.conditions?.pages || [];
-                                                            setEditingSnippet(p => ({ ...p, conditions: { ...p.conditions, pages: [...existing, el.value] } }));
+                                                            setEditingSnippet(p => p ? ({ ...p, conditions: { ...p.conditions, pages: [...existing, el.value] } }) : p);
                                                             el.value = '';
                                                         }
                                                     }} className="px-3 py-2 bg-slate-800 text-white rounded font-semibold text-sm">Add</button>
@@ -212,9 +212,9 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
                                                         <span key={p} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-indigo-500/20 text-indigo-300 text-xs font-mono border border-indigo-500/30">
                                                             {p}
                                                             <button onClick={() => {
-                                                                setEditingSnippet(prev => ({
+                                                                setEditingSnippet(prev => prev ? ({
                                                                     ...prev, conditions: { ...prev.conditions, pages: prev.conditions?.pages?.filter(x => x !== p) }
-                                                                }))
+                                                                }) : prev)
                                                             }} className="hover:text-white">×</button>
                                                         </span>
                                                     ))}
@@ -237,7 +237,7 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
                                                                     let next = current;
                                                                     if (next.includes(device)) next = next.filter(d => d !== device);
                                                                     else next = [...next, device];
-                                                                    setEditingSnippet(p => ({ ...p, conditions: { ...p.conditions, devices: next } }));
+                                                                    setEditingSnippet(p => p ? ({ ...p, conditions: { ...p.conditions, devices: next } }) : p);
                                                                 }}
                                                                 className={`flex-1 py-3 border rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${isEnabled ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-600'}`}
                                                             >

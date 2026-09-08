@@ -42,7 +42,7 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
 
-  const styles = element.styles;
+  const styles = element.styles || {};
   const isMobile = activeBreakpointId === "mobile" || activeBreakpointId === "mobile-portrait";
   const isTablet = activeBreakpointId === "tablet" || activeBreakpointId === "tablet-portrait";
   const triggerMobile =
@@ -252,7 +252,7 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
 export const WpMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_WP_MENU_ITEMS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   return (
     <div className="w-full relative select-none">
@@ -345,7 +345,7 @@ export const WpMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) =
 export const MenuWidgetRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   return (
     <div className="w-full relative select-none">
@@ -433,7 +433,7 @@ export const MenuWidgetRenderer: React.FC<NavigationRendererProps> = ({ element 
 export const MegaMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [isOpen, setIsOpen] = useState(false);
   const columns = parseJson<MegaMenuColumn[]>(element.content, DEFAULT_MEGA_MENU_COLUMNS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   const colCount = Number(styles.megaMenuColumns || 3);
   const gridClass =
@@ -559,7 +559,7 @@ export const MegaMenuRenderer: React.FC<NavigationRendererProps> = ({ element })
 // ==========================================================
 export const BreadcrumbsRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const items = parseJson<BreadcrumbItem[]>(element.content, DEFAULT_BREADCRUMBS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   const renderSeparator = () => {
     switch (styles.breadcrumbSeparator) {
@@ -633,7 +633,7 @@ export const BreadcrumbsRenderer: React.FC<NavigationRendererProps> = ({ element
 // 6. F-228: Menu Anchor Renderer
 // ==========================================================
 export const MenuAnchorRenderer: React.FC<NavigationRendererProps> = ({ element, isPreview }) => {
-  const styles = element.styles;
+  const styles = element.styles || {};
   const anchorId = styles.anchorId || "features-section";
 
   if (isPreview) {
@@ -686,7 +686,7 @@ export const MenuAnchorRenderer: React.FC<NavigationRendererProps> = ({ element,
 // 7. F-229: Post Navigation Renderer
 // ==========================================================
 export const PostNavigationRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   return (
     <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 select-none">
@@ -745,7 +745,7 @@ export const PostNavigationRenderer: React.FC<NavigationRendererProps> = ({ elem
 export const OffCanvasNavRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [isOpen, setIsOpen] = useState(false);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   return (
     <div className="relative inline-block select-none">
@@ -847,7 +847,7 @@ export const SiteSearchRenderer: React.FC<NavigationRendererProps> = ({ element 
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const sampleResults = parseJson<SearchSampleResult[]>(element.content, DEFAULT_SEARCH_RESULTS);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   const filtered = query.trim()
     ? sampleResults.filter((r) =>
@@ -923,7 +923,7 @@ export const SiteSearchRenderer: React.FC<NavigationRendererProps> = ({ element 
 // 10. F-232: Search Form Renderer
 // ==========================================================
 export const SearchFormRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   return (
     <form
@@ -966,7 +966,7 @@ export const SearchFormRenderer: React.FC<NavigationRendererProps> = ({ element 
 export const TaxonomyFilterRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const items = parseJson<TaxonomyItem[]>(element.content, DEFAULT_TAXONOMY_ITEMS);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>(["all"]);
-  const styles = element.styles;
+  const styles = element.styles || {};
 
   const handleToggle = (slug: string) => {
     if (styles.taxonomySelectionMode === "multi") {

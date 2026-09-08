@@ -32,7 +32,8 @@ export function requireApiScope(requiredScope: string) {
                 throw new AppError("API key has been revoked.", 401, "UNAUTHORIZED");
             }
 
-            if (!apiKeyRecord.scopes.includes(requiredScope)) {
+            const scopes = (apiKeyRecord.scopes as string[]) || [];
+            if (!scopes.includes(requiredScope)) {
                 throw new AppError(`Insufficient permissions. Required scope: ${requiredScope}`, 403, "FORBIDDEN");
             }
 
@@ -40,7 +41,7 @@ export function requireApiScope(requiredScope: string) {
             db.developerApiKey.update({
                 where: { id: apiKeyRecord.id },
                 data: { lastUsedAt: new Date() }
-            }).catch(e => console.error("Failed to track lastUsedAt API KEY:", e));
+            }).catch((e: any) => console.error("Failed to track lastUsedAt API KEY:", e));
 
             // Set user on response locals so standard website controllers can reuse ownership validation smoothly!
             res.locals.user = apiKeyRecord.user;

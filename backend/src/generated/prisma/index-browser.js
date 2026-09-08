@@ -36,27 +36,32 @@ Prisma.PrismaClientKnownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)};
+  )
+};
 Prisma.PrismaClientUnknownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.PrismaClientRustPanicError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.PrismaClientInitializationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.PrismaClientValidationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.Decimal = Decimal
 
 /**
@@ -66,22 +71,26 @@ Prisma.sql = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.empty = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.join = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.raw = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.validator = Public.validator
 
 /**
@@ -91,12 +100,14 @@ Prisma.getExtensionContext = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 Prisma.defineExtension = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
+  )
+}
 
 /**
  * Shorthand utilities for JSON filtering
@@ -215,6 +226,180 @@ exports.Prisma.UserSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FormSubmissionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  formId: 'formId',
+  data: 'data',
+  ipAddress: 'ipAddress',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomPostTypeScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  supports: 'supports',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ThemeLocationRuleScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  locationType: 'locationType',
+  templateId: 'templateId',
+  conditions: 'conditions',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  targetResource: 'targetResource',
+  details: 'details',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SftpConnectionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  host: 'host',
+  port: 'port',
+  username: 'username',
+  remotePath: 'remotePath',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PluginIntegrationScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  pluginSlug: 'pluginSlug',
+  config: 'config',
+  isEnabled: 'isEnabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MultisiteNetworkScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  domain: 'domain',
+  networkType: 'networkType',
+  config: 'config',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomFieldScalarFieldEnum = {
+  id: 'id',
+  postTypeId: 'postTypeId',
+  name: 'name',
+  slug: 'slug',
+  type: 'type',
+  order: 'order',
+  config: 'config',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomEntryScalarFieldEnum = {
+  id: 'id',
+  postTypeId: 'postTypeId',
+  title: 'title',
+  slug: 'slug',
+  data: 'data',
+  status: 'status',
+  authorId: 'authorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomCodeSnippetScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  name: 'name',
+  title: 'title',
+  language: 'language',
+  codeType: 'codeType',
+  placement: 'placement',
+  location: 'location',
+  scope: 'scope',
+  pageId: 'pageId',
+  code: 'code',
+  priority: 'priority',
+  conditions: 'conditions',
+  status: 'status',
+  scheduledFor: 'scheduledFor',
+  isEnabled: 'isEnabled',
+  isActive: 'isActive',
+  isDraft: 'isDraft',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DesignNoteScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  elementId: 'elementId',
+  authorId: 'authorId',
+  content: 'content',
+  resolved: 'resolved',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PluginCompatibilityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  category: 'category',
+  compatibilityStatus: 'compatibilityStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DeveloperApiKeyScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  tokenHash: 'tokenHash',
+  scopes: 'scopes',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ComponentAccessScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  componentId: 'componentId',
+  elementId: 'elementId',
+  userId: 'userId',
+  permission: 'permission',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WebsiteCollaboratorScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  userId: 'userId',
+  permission: 'permission',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -285,7 +470,22 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
   SubscriptionPlan: 'SubscriptionPlan',
-  UserSubscription: 'UserSubscription'
+  UserSubscription: 'UserSubscription',
+  FormSubmission: 'FormSubmission',
+  CustomPostType: 'CustomPostType',
+  ThemeLocationRule: 'ThemeLocationRule',
+  AuditLog: 'AuditLog',
+  SftpConnection: 'SftpConnection',
+  PluginIntegration: 'PluginIntegration',
+  MultisiteNetwork: 'MultisiteNetwork',
+  CustomField: 'CustomField',
+  CustomEntry: 'CustomEntry',
+  CustomCodeSnippet: 'CustomCodeSnippet',
+  DesignNote: 'DesignNote',
+  PluginCompatibility: 'PluginCompatibility',
+  DeveloperApiKey: 'DeveloperApiKey',
+  ComponentAccess: 'ComponentAccess',
+  WebsiteCollaborator: 'WebsiteCollaborator'
 };
 
 /**
