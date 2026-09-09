@@ -13,12 +13,12 @@ export type InteractionAction =
   | { type: "focus" };
 
 export interface InteractionCondition {
-  targetId?: string;
   mediaQuery?: string;
 }
 
 export interface InteractionDefinition {
   id: string;
+  sourceId: string;
   trigger: InteractionTrigger;
   action: InteractionAction;
   targetId?: string;
@@ -34,13 +34,13 @@ export interface InteractionValidationResult {
 
 const SAFE_ATTRIBUTE_NAME = /^(?:data-[a-z0-9_.:-]+|aria-[a-z0-9_.:-]+)$/i;
 
-function isSafeTargetId(value: unknown): value is string {
+function isSafeElementId(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.length <= 200;
 }
 
 function resolveTarget(root: HTMLElement, targetId?: string): HTMLElement | null {
   if (!targetId) return root;
-  if (!isSafeTargetId(targetId)) return null;
+  if (!isSafeElementId(targetId)) return null;
   const escaped = typeof CSS !== "undefined" && typeof CSS.escape === "function"
     ? CSS.escape(targetId)
     : targetId.replace(/[^a-zA-Z0-9_-]/g, "\\$&");
@@ -59,8 +59,9 @@ function mediaConditionMatches(condition?: InteractionCondition): boolean {
 }
 
 function runAction(source: HTMLElement, definition: InteractionDefinition, root: HTMLElement): void {
+  if (!mediaConditionMatches(definition.condition)) return;
   const target = resolveTarget(root, definition.targetId) ?? source;
-  if (!target || !mediaConditionMatches(definition.condition)) return;
+  if (!target) return;
 
   switch (definition.action.type) {
     case "toggle-class":
@@ -96,10 +97,15 @@ function runAction(source: HTMLElement, definition: InteractionDefinition, root:
 export function validateInteraction(definition: InteractionDefinition): InteractionValidationResult {
   const errors: string[] = [];
 
-  if (!definition.id || definition.id.length > 200) errors.push("Interaction id is required and must be <= 200 characters.");
+  if (!definition.id || definition.id.length > 200) {
+    errors.push("Interaction id is required and must be <= 200 characters.");
+  }
+  if (!isSafeElementId(definition.sourceId)) {
+    errors.push("Interaction sourceId is required and must be <= 200 characters.");
+  }
   if (!definition.trigger) errors.push("Interaction trigger is required.");
   if (!definition.action?.type) errors.push("Interaction action is required.");
-  if (definition.targetId !== undefined && !isSafeTargetId(definition.targetId)) {
+  if (definition.targetId !== undefined && !isSafeElementId(definition.targetId)) {
     errors.push("Target id must be a non-empty string <= 200 characters.");
   }
   if (definition.action?.type === "toggle-class" && !definition.action.className.trim()) {
@@ -123,14 +129,20 @@ export function attachInteractions(
     ? new IntersectionObserver((entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const target = entry.target as HTMLElement;
+          const source = entry.target as HTMLElement;
+          const sourceId = source.dataset.elId || source.id;
+          if (!sourceId) continue;
+
           const interactions = definitions.filter(
-            (definition) => definition.enabled !== false && definition.trigger === "viewport"
-              && (!definition.targetId || definition.targetId === target.dataset.elId || definition.targetId === target.id),
+            (definition) =>
+              definition.enabled !== false &&
+              definition.trigger === "viewport" &&
+              definition.sourceId === sourceId,
           );
+
           for (const definition of interactions) {
-            runAction(target, definition, root);
-            if (definition.once !== false) viewportObserver?.unobserve(target);
+            runAction(source, definition, root);
+            if (definition.once !== false) viewportObserver?.unobserve(source);
           }
         }
       }, { threshold: 0.15 })
@@ -141,11 +153,11 @@ export function attachInteractions(
 
   for (const source of sourceElements) {
     const sourceId = source.dataset.elId || source.id;
-    const sourceDefinitions = definitions.filter((definition) => {
-      if (definition.enabled === false) return false;
-      if (definition.trigger === "viewport") return !definition.targetId || definition.targetId === sourceId;
-      return !definition.condition?.targetId || definition.condition.targetId === sourceId;
-    });
+    if (!sourceId) continue;
+
+    const sourceDefinitions = definitions.filter(
+      (definition) => definition.enabled !== false && definition.sourceId === sourceId,
+    );
 
     for (const definition of sourceDefinitions) {
       if (definition.trigger === "viewport") {
@@ -153,11 +165,9 @@ export function attachInteractions(
         continue;
       }
 
-      const eventName = definition.trigger === "mouseenter" || definition.trigger === "mouseleave"
-        ? definition.trigger
-        : definition.trigger;
       const handler = () => runAction(source, definition, root);
-      source.addEventListener(eventName, handler);
+      const eventName: "click" | "dblclick" | "mouseenter" | "mouseleave" = definition.trigger;
+      source.addEventListener(eventName, handler, { once: definition.once === true });
       cleanups.push(() => source.removeEventListener(eventName, handler));
     }
   }
