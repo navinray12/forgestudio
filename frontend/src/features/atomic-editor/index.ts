@@ -75,4 +75,5 @@ export * from "./components/LoopPreview";
 export * from "./components/LoopDataSourceSelector";
 export * from "./components/LoopItemSettings";
 export * from "./components/AtomicLoopPanel";
+export * from "./components/InteractionRuntime";
 export * from "./components/AtomicEditor";
