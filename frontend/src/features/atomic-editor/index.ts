@@ -22,6 +22,7 @@ export * from "./utils/formField.utils";
 export * from "./utils/formValidation.utils";
 export * from "./utils/loopData.utils";
 export * from "./utils/loopValidation.utils";
+export * from "./utils/interactionEngine";
 export * from "./services/atomicEditorService";
 export * from "./services/variableService";
 export * from "./services/classService";
