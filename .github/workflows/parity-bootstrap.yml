@@ -1,0 +1,49 @@
+name: parity-branch-bootstrap
+
+on:
+  push:
+    branches:
+      - feature/elementor-parity-foundation
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply safe editor fix
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('frontend/src/pages/editor/defaults/index.ts')
+          s = p.read_text(encoding='utf-8')
+          old = '''case "portfolio":\n      return { id, type: "rating", content: "4.8 / 5", styles: { ...baseStyles, textAlign: "center", fontSize: 24, fontWeight: 700, color: "#111827" } };'''
+          new = '''case "rating":\n      return { id, type: "rating", content: "4.8 / 5", styles: { ...baseStyles, textAlign: "center", fontSize: 24, fontWeight: 700, color: "#111827" } };'''
+          if old not in s:
+              raise SystemExit('Expected duplicate portfolio/rating factory pattern was not found; refusing to mutate source.')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Typecheck and build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Commit validated fix and remove bootstrap workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/parity-bootstrap.yml
+          git add frontend/src/pages/editor/defaults/index.ts .github/workflows/parity-bootstrap.yml
+          git commit -m 'fix(editor): correct rating default factory case'
+          git push origin HEAD:feature/elementor-parity-foundation
