@@ -23,6 +23,7 @@ export * from "./utils/formValidation.utils";
 export * from "./utils/loopData.utils";
 export * from "./utils/loopValidation.utils";
 export * from "./utils/interactionEngine";
+export * from "./utils/interactionModel";
 export * from "./utils/displayConditions";
 export * from "./services/atomicEditorService";
 export * from "./services/variableService";
