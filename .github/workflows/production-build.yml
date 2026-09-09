@@ -35,11 +35,16 @@ jobs:
         run: npm run build
 
   backend:
-    name: Backend TypeScript build
+    name: Backend TypeScript + Prisma build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+    env:
+      # Prisma 7 reads DATABASE_URL from prisma.config.ts even for `prisma generate`.
+      # Generation does not connect to the database, so CI uses a syntactically valid
+      # placeholder instead of requiring production credentials or network access.
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/forgestudio_ci
     steps:
       - name: Checkout
         uses: actions/checkout@v4
