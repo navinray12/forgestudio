@@ -1,171 +1,225 @@
 import crypto from "crypto";
+import dns from "node:dns/promises";
+import net from "node:net";
 
-// ==========================================
-// In-Memory Cache for Dynamic Data (O(1) lookup, space-bounded)
-// ==========================================
 interface CacheEntry {
-  data: any;
+  data: unknown;
   timestamp: number;
 }
 
 const DYNAMIC_DATA_CACHE = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
+const CACHE_TTL_MS = 60_000;
+const CACHE_MAX_ENTRIES = 500;
+const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+
+const PRIVATE_HOSTNAMES = new Set(["localhost", "localhost.localdomain"]);
+
+function isPrivateIp(address: string): boolean {
+  const version = net.isIP(address);
+  if (version === 4) {
+    const [a, b] = address.split(".").map(Number);
+    return a === 10 || a === 127 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ||
+      (a === 100 && b >= 64 && b <= 127) || a === 0;
+  }
+  if (version === 6) {
+    const normalized = address.toLowerCase();
+    return normalized === "::1" || normalized === "::" ||
+      normalized.startsWith("fc") || normalized.startsWith("fd") ||
+      normalized.startsWith("fe8") || normalized.startsWith("fe9") ||
+      normalized.startsWith("fea") || normalized.startsWith("feb") ||
+      normalized.startsWith("::ffff:127.") || normalized.startsWith("::ffff:10.") ||
+      normalized.startsWith("::ffff:192.168.") || normalized.startsWith("::ffff:172.");
+  }
+  return true;
+}
+
+async function assertSafeExternalUrl(rawUrl: string): Promise<URL> {
+  let url: URL;
+  try { url = new URL(rawUrl); } catch { throw new Error("Invalid integration URL"); }
+  if (!["https:", "http:"].includes(url.protocol)) throw new Error("Only HTTP(S) integration URLs are allowed");
+
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
+  if (PRIVATE_HOSTNAMES.has(hostname) || hostname.endsWith(".localhost") || hostname.endsWith(".local") || hostname.endsWith(".internal")) {
+    throw new Error("Private or local integration targets are not allowed");
+  }
+  if (isPrivateIp(hostname)) throw new Error("Private or local integration targets are not allowed");
+
+  const resolved = await dns.lookup(hostname, { all: true, verbatim: true });
+  if (!resolved.length || resolved.some(({ address }) => isPrivateIp(address))) {
+    throw new Error("Integration target resolves to a private or local address");
+  }
+  return url;
+}
+
+function withTimeout(): AbortSignal { return AbortSignal.timeout(REQUEST_TIMEOUT_MS); }
+
+async function readJsonResponse(response: Response): Promise<any> {
+  const contentLength = Number(response.headers.get("content-length") || 0);
+  if (contentLength > MAX_RESPONSE_BYTES) throw new Error("External response exceeds the allowed size");
+  const text = await response.text();
+  if (Buffer.byteLength(text, "utf8") > MAX_RESPONSE_BYTES) throw new Error("External response exceeds the allowed size");
+  try { return JSON.parse(text); } catch { throw new Error("External service returned invalid JSON"); }
+}
+
+function validateMoney(amount: string, currency: string): { amount: string; currency: string } {
+  const normalizedAmount = String(amount).trim();
+  const normalizedCurrency = String(currency).trim().toUpperCase();
+  if (!/^\d+(?:\.\d{1,2})?$/.test(normalizedAmount) || Number(normalizedAmount) <= 0) {
+    throw new Error("Amount must be a positive value with at most two decimal places");
+  }
+  if (!/^[A-Z]{3}$/.test(normalizedCurrency)) throw new Error("Currency must be a three-letter ISO currency code");
+  return { amount: normalizedAmount, currency: normalizedCurrency };
+}
+
+async function paypalAccessToken(): Promise<{ token: string; baseUrl: string }> {
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  if (!clientId || !clientSecret) throw new Error("PayPal integration is not configured");
+  const sandbox = process.env.PAYPAL_ENV !== "production";
+  const baseUrl = sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
+  const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+    method: "POST",
+    headers: { Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`, "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=client_credentials",
+    signal: withTimeout(),
+  });
+  if (!response.ok) throw new Error(`PayPal authentication failed (${response.status})`);
+  const data = await readJsonResponse(response);
+  if (!data.access_token) throw new Error("PayPal did not return an access token");
+  return { token: data.access_token, baseUrl };
+}
 
 export class IntegrationService {
-  // ==========================================
-  // F-418: PayPal Payment Integration
-  // ==========================================
   public static async createPayPalOrder(amount: string, currency: string, itemName: string) {
-    const orderId = "PAYPAL-ORD-" + crypto.randomBytes(8).toString("hex");
-    return {
-      success: true,
-      orderId,
-      amount,
-      currency,
-      itemName,
-      approveUrl: `https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`,
-    };
+    const money = validateMoney(amount, currency);
+    const { token, baseUrl } = await paypalAccessToken();
+    const response = await fetch(`${baseUrl}/v2/checkout/orders`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: money.currency, value: money.amount }, description: String(itemName || "Subscription").slice(0, 127) }] }),
+      signal: withTimeout(),
+    });
+    const data = await readJsonResponse(response);
+    if (!response.ok) throw new Error(data?.message || `PayPal order creation failed (${response.status})`);
+    const approveUrl = data.links?.find((link: any) => link.rel === "approve")?.href;
+    if (!approveUrl) throw new Error("PayPal did not return an approval URL");
+    return { success: true, orderId: data.id, status: data.status, amount: money.amount, currency: money.currency, itemName, approveUrl };
   }
 
   public static async capturePayPalOrder(orderId: string) {
-    return {
-      success: true,
-      orderId,
-      status: "COMPLETED",
-      capturedAt: new Date().toISOString(),
-    };
+    if (!/^[A-Z0-9_-]{5,80}$/i.test(orderId)) throw new Error("Invalid PayPal order ID");
+    const { token, baseUrl } = await paypalAccessToken();
+    const response = await fetch(`${baseUrl}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      signal: withTimeout(),
+    });
+    const data = await readJsonResponse(response);
+    if (!response.ok) throw new Error(data?.message || `PayPal capture failed (${response.status})`);
+    return { success: true, orderId: data.id, status: data.status, capturedAt: new Date().toISOString() };
   }
 
-  // ==========================================
-  // F-419: Stripe Payment Integration
-  // ==========================================
   public static async createStripeCheckoutSession(amount: string, currency: string, itemName: string) {
-    const sessionId = "cs_test_" + crypto.randomBytes(12).toString("hex");
-    return {
-      success: true,
-      sessionId,
-      amount,
-      currency,
-      itemName,
-      sessionUrl: `https://checkout.stripe.com/c/pay/${sessionId}`,
-    };
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    const successUrl = process.env.STRIPE_SUCCESS_URL;
+    const cancelUrl = process.env.STRIPE_CANCEL_URL;
+    if (!secretKey || !successUrl || !cancelUrl) throw new Error("Stripe integration is not configured");
+    const money = validateMoney(amount, currency);
+    const amountMinor = Math.round(Number(money.amount) * 100);
+    if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0) throw new Error("Amount is out of range");
+
+    const form = new URLSearchParams({
+      mode: "payment", success_url: successUrl, cancel_url: cancelUrl,
+      "line_items[0][price_data][currency]": money.currency.toLowerCase(),
+      "line_items[0][price_data][product_data][name]": String(itemName || "Subscription").slice(0, 250),
+      "line_items[0][price_data][unit_amount]": String(amountMinor),
+      "line_items[0][quantity]": "1",
+    });
+    const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST", headers: { Authorization: `Bearer ${secretKey}`, "Content-Type": "application/x-www-form-urlencoded" },
+      body: form, signal: withTimeout(),
+    });
+    const data = await readJsonResponse(response);
+    if (!response.ok) throw new Error(data?.error?.message || `Stripe checkout creation failed (${response.status})`);
+    if (!data.id || !data.url) throw new Error("Stripe did not return a checkout URL");
+    return { success: true, sessionId: data.id, sessionUrl: data.url, amount: money.amount, currency: money.currency, itemName };
   }
 
-  // ==========================================
-  // F-422: Dynamic Data Source Fetcher & Binder
-  // ==========================================
   public static async fetchDynamicData(targetUrl: string, jsonPath?: string) {
-    const cacheKey = `${targetUrl}:${jsonPath || ""}`;
+    const safeUrl = await assertSafeExternalUrl(targetUrl);
+    const normalizedPath = (jsonPath || "").trim();
+    const cacheKey = `${safeUrl.toString()}:${normalizedPath}`;
     const now = Date.now();
+    const cached = DYNAMIC_DATA_CACHE.get(cacheKey);
+    if (cached && now - cached.timestamp < CACHE_TTL_MS) return cached.data;
+    if (cached) DYNAMIC_DATA_CACHE.delete(cacheKey);
 
-    // Check in-memory cache for optimal performance
-    if (DYNAMIC_DATA_CACHE.has(cacheKey)) {
-      const entry = DYNAMIC_DATA_CACHE.get(cacheKey)!;
-      if (now - entry.timestamp < CACHE_TTL_MS) {
-        return entry.data;
+    const response = await fetch(safeUrl, {
+      headers: { Accept: "application/json", "User-Agent": "ForgeStudio-Integration/1.0" },
+      redirect: "error", signal: withTimeout(),
+    });
+    if (!response.ok) throw new Error(`External API responded with status ${response.status}`);
+    const json = await readJsonResponse(response);
+    let value: unknown = json;
+    if (normalizedPath) {
+      const parts = normalizedPath.split(".").filter(Boolean);
+      if (parts.length > 20 || parts.some((part) => ["__proto__", "prototype", "constructor"].includes(part))) throw new Error("Invalid JSON path");
+      let current: any = json;
+      for (const part of parts) {
+        if (current !== null && typeof current === "object" && Object.prototype.hasOwnProperty.call(current, part)) current = current[part];
+        else { current = undefined; break; }
       }
+      value = current;
     }
-
-    try {
-      const response = await fetch(targetUrl, {
-        headers: { "User-Agent": "ForgeStudio-Integration-Proxy/1.0" },
-      });
-
-      if (!response.ok) {
-        throw new Error(`External API responded with status ${response.status}`);
-      }
-
-      const json = await response.json();
-      let value = json;
-
-      if (jsonPath && typeof json === "object" && json !== null) {
-        const parts = jsonPath.split(".");
-        let curr: any = json;
-        for (const part of parts) {
-          if (curr && typeof curr === "object" && part in curr) {
-            curr = curr[part];
-          } else {
-            curr = undefined;
-            break;
-          }
-        }
-        value = curr !== undefined ? curr : json;
-      }
-
-      const result = { success: true, value, url: targetUrl, jsonPath };
-      DYNAMIC_DATA_CACHE.set(cacheKey, { data: result, timestamp: now });
-      return result;
-    } catch (err: any) {
-      return {
-        success: false,
-        error: err?.message || "Failed to fetch dynamic data source",
-        url: targetUrl,
-      };
+    const result = { success: true, value, url: safeUrl.toString(), jsonPath: normalizedPath || undefined };
+    if (DYNAMIC_DATA_CACHE.size >= CACHE_MAX_ENTRIES) {
+      const oldestKey = DYNAMIC_DATA_CACHE.keys().next().value;
+      if (oldestKey) DYNAMIC_DATA_CACHE.delete(oldestKey);
     }
+    DYNAMIC_DATA_CACHE.set(cacheKey, { data: result, timestamp: now });
+    return result;
   }
 
-  // ==========================================
-  // F-424: CRM Sync Integration
-  // ==========================================
-  public static async submitLeadToCRM(provider: string, name: string, email: string, customFields?: Record<string, any>) {
-    const syncId = "crm_sync_" + crypto.randomBytes(6).toString("hex");
-    return {
-      success: true,
-      syncId,
-      provider,
-      lead: { name, email, ...customFields },
-      message: `Lead data successfully registered with ${provider.toUpperCase()} CRM.`,
-      timestamp: new Date().toISOString(),
-    };
+  public static async submitLeadToCRM(provider: string, name: string, email: string, customFields?: Record<string, unknown>) {
+    const normalizedProvider = String(provider || "hubspot").toLowerCase();
+    if (normalizedProvider !== "hubspot") throw new Error(`Unsupported CRM provider: ${normalizedProvider}`);
+    const token = process.env.HUBSPOT_ACCESS_TOKEN;
+    if (!token) throw new Error("HubSpot integration is not configured");
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Invalid email address");
+
+    const properties: Record<string, string> = { firstname: String(name).trim().slice(0, 100), email: email.trim().slice(0, 320) };
+    if (customFields && typeof customFields === "object") {
+      for (const [key, value] of Object.entries(customFields)) {
+        if (/^[a-zA-Z0-9_]{1,100}$/.test(key) && value !== undefined && value !== null) properties[key] = String(value).slice(0, 2000);
+      }
+    }
+    const response = await fetch("https://api.hubapi.com/crm/v3/objects/contacts", {
+      method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ properties }), signal: withTimeout(),
+    });
+    const data = await readJsonResponse(response);
+    if (!response.ok) throw new Error(data?.message || `HubSpot sync failed (${response.status})`);
+    return { success: true, syncId: data.id || crypto.randomUUID(), provider: normalizedProvider, lead: { name: properties.firstname, email: properties.email }, timestamp: new Date().toISOString() };
   }
 
-  // ==========================================
-  // F-425: Webhook Dispatcher
-  // ==========================================
-  public static async dispatchWebhook(webhookUrl: string, eventType: string, payload?: any, secret?: string) {
+  public static async dispatchWebhook(webhookUrl: string, eventType: string, payload?: unknown, secret?: string) {
+    const safeUrl = await assertSafeExternalUrl(webhookUrl);
+    const normalizedEvent = String(eventType || "event").trim().slice(0, 100);
     const timestamp = new Date().toISOString();
-    const eventId = "evt_" + crypto.randomBytes(8).toString("hex");
-
-    const bodyData = {
-      eventId,
-      eventType,
-      timestamp,
-      data: payload || {},
-    };
-
-    let signature = "";
-    if (secret) {
-      signature = crypto
-        .createHmac("sha256", secret)
-        .update(JSON.stringify(bodyData))
-        .digest("hex");
-    }
-
-    try {
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-ForgeStudio-Signature": signature,
-          "X-ForgeStudio-Event": eventType,
-        },
-        body: JSON.stringify(bodyData),
-      });
-
-      return {
-        success: response.ok,
-        status: response.status,
-        eventId,
-        message: response.ok ? "Webhook dispatched successfully" : "Webhook server returned non-200 status",
-      };
-    } catch (err: any) {
-      // Return gracefully for client demo triggers
-      return {
-        success: true,
-        status: 200,
-        eventId,
-        message: "Webhook dispatched in simulation mode.",
-      };
-    }
+    const eventId = `evt_${crypto.randomBytes(8).toString("hex")}`;
+    const bodyData = { eventId, eventType: normalizedEvent, timestamp, data: payload ?? {} };
+    const body = JSON.stringify(bodyData);
+    const signature = secret ? crypto.createHmac("sha256", secret).update(body).digest("hex") : "";
+    const response = await fetch(safeUrl, {
+      method: "POST", headers: {
+        "Content-Type": "application/json", "User-Agent": "ForgeStudio-Webhook/1.0",
+        ...(signature ? { "X-ForgeStudio-Signature": signature } : {}),
+        "X-ForgeStudio-Event": normalizedEvent, "X-ForgeStudio-Event-Id": eventId,
+      },
+      body, redirect: "error", signal: withTimeout(),
+    });
+    return { success: response.ok, status: response.status, eventId, message: response.ok ? "Webhook dispatched successfully" : `Webhook server returned status ${response.status}` };
   }
 }
