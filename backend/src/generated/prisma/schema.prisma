@@ -66,6 +66,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   subscription        UserSubscription?
   websites            Website[]
+
   auditLogs           AuditLog[]
   developerApiKeys    DeveloperApiKey[]
   designNotes         DesignNote[]
@@ -88,6 +89,7 @@ model Website {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+
   user               User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   formSubmissions    FormSubmission[]
   customPostTypes    CustomPostType[]
@@ -98,6 +100,7 @@ model Website {
   designNotes        DesignNote[]
   componentAccesses  ComponentAccess[]
   collaborators      WebsiteCollaborator[]
+
 
   @@index([userId])
   @@map("websites")
@@ -204,6 +207,7 @@ model UserSubscription {
 
   @@map("user_subscriptions")
 }
+
 
 model FormSubmission {
   id        String   @id @default(uuid()) @db.Uuid
@@ -449,3 +453,4 @@ model WebsiteCollaborator {
   @@unique([websiteId, userId])
   @@map("website_collaborators")
 }
+

@@ -210,7 +210,9 @@ export default function WebsiteEditor() {
   });
 
   const [elements, setElements] = useState<EditorElement[]>([]);
+
 const [popups, setPopups] = useState<any[]>([]);
+
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
@@ -692,12 +694,449 @@ const [popups, setPopups] = useState<any[]>([]);
     siteLanguage: "en",
   });
 
-  const navigate = useNavigate();
-  const [pageCss, setPageCss] = useState<string>("");
-  const [activeSidebarTab, setActiveSidebarTab] = useState<"element" | "global" | "popup" | "advanced">("global");
-  const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
+// Multi-Page Management & Preview States
+const [pages, setPages] = useState<PageConfig[]>([]);
+const [activePageId, setActivePageId] = useState<string>("home");
+const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+const [newPageName, setNewPageName] = useState<string>("");
+const [newPageSlug, setNewPageSlug] = useState<string>("");
+const [editingPageId, setEditingPageId] = useState<string | null>(null);
+const [editPageName, setEditPageName] = useState<string>("");
+const [editPageSlug, setEditPageSlug] = useState<string>("");
+const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  // Quit Visual Editor Handler (F-024)
+// Sync live editor state (elements & pageSettings) with the active page entry in pages array
+useEffect(() => {
+  if (!activePageId) return;
+
+  setPages((prevPages) => {
+    if (!prevPages || prevPages.length === 0) return prevPages;
+
+    const exists = prevPages.some((p) => p.id === activePageId);
+    if (!exists) return prevPages;
+
+    return prevPages.map((p) => {
+      if (p.id === activePageId) {
+        const updatedName = pageSettings.title || p.name;
+        const updatedSlug = pageSettings.path || p.slug;
+
+        if (
+          p.elements === elements &&
+          p.pageSettings === pageSettings &&
+          p.name === updatedName &&
+          p.slug === updatedSlug
+        ) {
+          return p;
+        }
+
+        return {
+          ...p,
+          name: updatedName,
+          slug: updatedSlug,
+          elements,
+          pageSettings,
+        };
+      }
+
+      return p;
+    });
+  });
+}, [elements, pageSettings, activePageId]);
+
+// Sync preview active page with URL query parameter "?page=..." and popstate listener
+useEffect(() => {
+  if (!isPreview || pages.length === 0) return;
+
+  const syncFromUrl = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlPageParam =
+      searchParams.get("page") || searchParams.get("previewPage");
+
+    if (urlPageParam) {
+      const found = pages.find(
+        (p) =>
+          p.id === urlPageParam ||
+          p.slug === urlPageParam ||
+          p.slug === `/${urlPageParam}` ||
+          p.name.toLowerCase() === urlPageParam.toLowerCase()
+      );
+
+      if (found) {
+        setActivePreviewPageId(found.id);
+        return;
+      }
+    }
+
+    const homePage =
+      pages.find(
+        (p) => p.isHome || p.slug === "/" || p.id === "home"
+      ) || pages[0];
+
+    if (homePage) {
+      setActivePreviewPageId(homePage.id);
+    }
+  };
+
+  syncFromUrl();
+
+  window.addEventListener("popstate", syncFromUrl);
+
+  return () => window.removeEventListener("popstate", syncFromUrl);
+}, [isPreview, pages]);
+
+const handlePreviewPageNavigate = (targetPage: PageConfig) => {
+  setActivePreviewPageId(targetPage.id);
+
+  const newUrl = new URL(window.location.href);
+
+  const cleanSlug =
+    targetPage.slug === "/"
+      ? "home"
+      : targetPage.slug.replace(/^\//, "");
+
+  newUrl.searchParams.set("page", cleanSlug);
+
+  window.history.pushState({}, "", newUrl.toString());
+};
+
+const handleSwitchEditingPage = (targetPageId: string) => {
+  const target = pages.find((p) => p.id === targetPageId);
+
+  if (!target) return;
+
+  setPages((prev) =>
+    prev.map((p) =>
+      p.id === activePageId
+        ? {
+            ...p,
+            elements,
+            pageSettings,
+            name: pageSettings.title || p.name,
+            slug: pageSettings.path || p.slug,
+          }
+        : p
+    )
+  );
+
+  setActivePageId(target.id);
+  setElements(target.elements || []);
+
+  setPageSettings(
+    target.pageSettings || {
+      title: target.name,
+      path: target.slug,
+    }
+  );
+
+  setSelectedId(null);
+  setSelectedIds([]);
+  setIsPageSelectorOpen(false);
+};
+
+const handleCreateNewPage = () => {
+  const rawTitle =
+    newPageName.trim() || `Page ${pages.length + 1}`;
+
+  const formattedSlug = newPageSlug.trim()
+    ? newPageSlug.startsWith("/")
+      ? newPageSlug
+      : `/${newPageSlug}`
+    : `/${rawTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")}`;
+
+  const newPageObj: PageConfig = {
+    id: `page_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 6)}`,
+
+    name: rawTitle,
+    slug: formattedSlug,
+
+    elements: [],
+
+    pageSettings: {
+      title: rawTitle,
+      path: formattedSlug,
+      description: "",
+      backgroundColor: "#ffffff",
+      isMaintenanceMode: false,
+      siteLanguage: "en",
+    },
+
+    isHome: pages.length === 0,
+  };
+
+  const updatedPages = [...pages, newPageObj];
+
+  setPages(updatedPages);
+  setActivePageId(newPageObj.id);
+
+  setElements([]);
+  setPageSettings(newPageObj.pageSettings);
+
+  setSelectedId(null);
+  setSelectedIds([]);
+
+  setNewPageName("");
+  setNewPageSlug("");
+
+  setIsAddPageModalOpen(false);
+  setIsPageSelectorOpen(false);
+
+  setSaveMessage(`Page "${rawTitle}" created!`);
+
+  setTimeout(() => setSaveMessage(""), 3000);
+};
+
+const handleDeletePage = (
+  pageIdToDelete: string,
+  e: React.MouseEvent
+) => {
+  e.stopPropagation();
+
+  if (pages.length <= 1) {
+    setErrorMessage("Cannot delete the only remaining page.");
+
+    setTimeout(() => setErrorMessage(""), 3000);
+
+    return;
+  }
+
+  const target = pages.find(
+    (p) => p.id === pageIdToDelete
+  );
+
+  if (!target) return;
+
+  if (
+    !window.confirm(
+      `Are you sure you want to delete page "${target.name}"?`
+    )
+  ) {
+    return;
+  }
+
+  const remainingPages = pages
+    .filter((p) => p.id !== pageIdToDelete)
+    .map((p, idx) => ({
+      ...p,
+      isHome: idx === 0,
+    }));
+
+  setPages(remainingPages);
+
+  if (activePageId === pageIdToDelete) {
+    const nextActive = remainingPages[0];
+
+    setActivePageId(nextActive.id);
+    setElements(nextActive.elements || []);
+
+    setPageSettings(
+      nextActive.pageSettings || {
+        title: nextActive.name,
+        path: nextActive.slug,
+      }
+    );
+  }
+
+  setSaveMessage(`Deleted page "${target.name}".`);
+
+  setTimeout(() => setSaveMessage(""), 3000);
+};
+
+const openEditPageModal = (
+  page: PageConfig,
+  e: React.MouseEvent
+) => {
+  e.stopPropagation();
+
+  setEditingPageId(page.id);
+  setEditPageName(page.name);
+  setEditPageSlug(page.slug);
+
+  setIsEditPageModalOpen(true);
+  setIsPageSelectorOpen(false);
+};
+
+const handleSaveEditPage = () => {
+  if (!editingPageId) return;
+
+  const rawTitle = editPageName.trim();
+
+  if (!rawTitle) return;
+
+  const formattedSlug = editPageSlug.trim()
+    ? editPageSlug.startsWith("/")
+      ? editPageSlug
+      : `/${editPageSlug}`
+    : `/${rawTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")}`;
+
+  setPages((prev) =>
+    prev.map((p) => {
+      if (p.id === editingPageId) {
+        const updatedSettings = {
+          ...(p.pageSettings || {}),
+          title: rawTitle,
+          path: formattedSlug,
+        };
+
+        return {
+          ...p,
+          name: rawTitle,
+          slug: formattedSlug,
+          pageSettings: updatedSettings,
+        };
+      }
+
+      return p;
+    })
+  );
+
+  if (activePageId === editingPageId) {
+    setPageSettings((prev) => ({
+      ...prev,
+      title: rawTitle,
+      path: formattedSlug,
+    }));
+  }
+
+  setIsEditPageModalOpen(false);
+  setEditingPageId(null);
+
+  setSaveMessage(`Page updated to "${rawTitle}"!`);
+
+  setTimeout(() => setSaveMessage(""), 3000);
+};
+
+const [pageCss, setPageCss] = useState<string>("");
+
+const [_activeSidebarTab, _setActiveSidebarTab] =
+  useState<
+    "element" | "global" | "popup" | "advanced"
+  >("global");
+
+const [_devModalMode, _setDevModalMode] =
+  useState<DeveloperModalMode | null>(null);
+
+const navigate = useNavigate();
+
+// Missing State & Helpers Reconnected
+const [globalSettings, setGlobalSettings] = useState<any>({
+  siteIdentity: {
+    name: "My Website",
+  },
+
+  backToTop: {
+    enabled: true,
+    position: "bottom-right",
+    offset: 300,
+  },
+});
+
+const [breakpoints, setBreakpoints] = useState<
+  Array<{
+    id: string;
+    name: string;
+    minWidth?: number;
+    maxWidth?: number;
+  }>
+>([
+  {
+    id: "desktop",
+    name: "Desktop",
+  },
+  {
+    id: "tablet",
+    name: "Tablet",
+    maxWidth: 1024,
+  },
+  {
+    id: "mobile",
+    name: "Mobile",
+    maxWidth: 768,
+  },
+]);
+
+const [_activeBreakpointId, _setActiveBreakpointId] =
+  useState<string>("desktop");
+
+const _renderResponsiveLabel = (label: string) => (
+  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+    {label}
+  </label>
+);
+
+const [openAccordions, setOpenAccordions] =
+  useState<Record<string, boolean>>({
+    layout: true,
+    typography: true,
+    background: true,
+    border: true,
+  });
+
+const _renderAccordion = (
+  title: string,
+  sectionKey: string,
+  content: React.ReactNode
+) => {
+  const isOpen =
+    openAccordions[sectionKey] !== false;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+      <button
+        type="button"
+        onClick={() =>
+          setOpenAccordions((prev) => ({
+            ...prev,
+            [sectionKey]: !isOpen,
+          }))
+        }
+        className="w-full flex items-center justify-between p-3 bg-slate-50/80 hover:bg-slate-100/80 transition text-left"
+      >
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+          {title}
+        </span>
+
+        <span className="text-xs text-slate-400">
+          {isOpen ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="p-3 border-t border-slate-100">
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const _getStyleVal = (
+  el: EditorElement,
+  key: keyof ElementStyles,
+  _breakpointId?: string,
+  _bps?: any
+) => {
+  return el.styles?.[key];
+};
+
+const _getLayoutVal = (
+  el: EditorElement,
+  key: keyof ContainerLayout,
+  _breakpointId?: string,
+  _bps?: any
+) => {
+  return el.layout?.[key];
+};  // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
     navigate("/dashboard");
   };
@@ -875,13 +1314,49 @@ const [popups, setPopups] = useState<any[]>([]);
           console.error("Failed to fetch accesses", e);
         }
 
-        if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
+        // Initialize multi-page website pages
+        let initialPages: PageConfig[] = [];
+        if (loadedSite?.editorData?.pages && Array.isArray(loadedSite.editorData.pages) && loadedSite.editorData.pages.length > 0) {
+          initialPages = loadedSite.editorData.pages.map((p: any, idx: number) => ({
+            id: p.id || `page_${idx + 1}`,
+            name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
+            slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
+            elements: Array.isArray(p.elements) ? p.elements : [],
+            pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
+            customCss: p.customCss || "",
+            isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
+          }));
+        } else {
+          const defaultPageTitle = loadedSite?.editorData?.pageSettings?.title || loadedSite?.name || "Home";
+          const defaultPagePath = loadedSite?.editorData?.pageSettings?.path || "/";
+          initialPages = [
+            {
+              id: "home",
+              name: defaultPageTitle,
+              slug: defaultPagePath,
+              elements: loadedSite?.editorData?.elements || [],
+              pageSettings: loadedSite?.editorData?.pageSettings || { title: defaultPageTitle, path: defaultPagePath },
+              isHome: true,
+            },
+          ];
+        }
+        setPages(initialPages);
+
+        const initialHome = initialPages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || initialPages[0];
+        setActivePageId(initialHome.id);
+        setActivePreviewPageId(initialHome.id);
+
+        if (initialHome.elements && Array.isArray(initialHome.elements)) {
+          setElements(initialHome.elements);
+        } else if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
           setElements(loadedSite.editorData.elements);
         } else {
           setElements([]);
         }
 
-        if (loadedSite?.editorData?.pageSettings) {
+        if (initialHome.pageSettings) {
+          setPageSettings((prev) => ({ ...prev, ...initialHome.pageSettings }));
+        } else if (loadedSite?.editorData?.pageSettings) {
           setPageSettings((prev) => ({ ...prev, ...loadedSite.editorData.pageSettings }));
         } else if (loadedSite?.name) {
           setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
@@ -918,6 +1393,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     websiteId,
     elements,
     pageSettings,
+    pages,
     apiUrl,
     isLoadingWebsite: loading,
   });
@@ -974,7 +1450,18 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     templates: any[];
   }) => {
     if (kitData.pages && kitData.pages.length > 0) {
-      const mainPage = kitData.pages[0];
+      const importedPages: PageConfig[] = kitData.pages.map((p, idx) => ({
+        id: p.id || `page_${idx + 1}`,
+        name: p.title || `Page ${idx + 1}`,
+        slug: p.path || (idx === 0 ? "/" : `/${p.title?.toLowerCase().replace(/\s+/g, "-")}`),
+        elements: p.elements || [],
+        pageSettings: p.pageSettings || {},
+        isHome: idx === 0,
+      }));
+      setPages(importedPages);
+      const mainPage = importedPages[0];
+      setActivePageId(mainPage.id);
+      setActivePreviewPageId(mainPage.id);
       setElements(JSON.parse(JSON.stringify(mainPage.elements || [])));
       if (mainPage.pageSettings) {
         setPageSettings((prev) => ({ ...prev, ...mainPage.pageSettings }));
@@ -1169,6 +1656,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
         editorData: {
           version: 1,
           elements,
+          pages,
           breakpoints,
           globalSettings,
           popups,
@@ -1193,7 +1681,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
       }
 
       // Update F-321 Autosave baseline on successful manual save
-      updateAutosaveBaseline(elements, pageSettings);
+      updateAutosaveBaseline(elements, pageSettings, pages);
 
       // Create F-320 Revision History snapshot
       try {
@@ -3244,6 +3732,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
         <div
           key={el.id}
           id={el.customId || undefined}
+          {...customAttrProps}
           data-el-id={el.id}
           draggable={!isPreview}
           onDragStart={(e) => {
@@ -3471,6 +3960,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
       <div
         key={el.id}
         id={el.customId || undefined}
+        {...customAttrProps}
         data-el-id={el.id}
         draggable={!isPreview}
         onDragStart={(e) => {
@@ -3506,7 +3996,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
           draggingId === el.id ? "opacity-50 scale-95" : ""
         } ${
           isPreview
@@ -4632,7 +5122,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* ========================================== */}
-      {/* Top Header Bar (Dark Navy, matching screenshot) */}
+      {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
         <header className={`flex h-12 shrink-0 items-center justify-between px-5 shadow-md transition ${
@@ -4894,7 +5384,6 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                 ⚛️ Atomic
               </button>
             </div>
-
 
             {leftSidebarTab === "elements" ? (
               <div className="space-y-3">
@@ -6374,55 +6863,177 @@ onClick={() => importFileInputRef.current?.click()}
                 : "max-w-[1024px]"
             }`}
           >
-            {/* Blank Page Layout Bar (F-016) */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <span>📄</span>
-                <span>Blank Page Canvas Layout</span>
-              </span>
-              <span className="text-[10px] font-medium text-slate-400">
-                Page Editor (No Theme Chrome)
-              </span>
-            </div>
+            {/* Dynamic Website Navigation Header in Preview Mode */}
+            {isPreview ? (
+              <div className="space-y-6">
+                <header className="sticky top-0 z-30 w-full rounded-xl border border-slate-200/80 bg-white/95 backdrop-blur-md shadow-sm transition-all overflow-hidden">
+                  <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+                    {/* Website Brand / Logo */}
+                    <div
+                      className="flex items-center gap-2.5 cursor-pointer"
+                      onClick={() => {
+                        const homePage = pages.find((p) => p.isHome || p.slug === "/") || pages[0];
+                        if (homePage) handlePreviewPageNavigate(homePage);
+                      }}
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs shadow-md">
+                        {(website?.name || pageSettings?.title || "W").charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <span className="text-sm font-extrabold tracking-tight text-slate-900 block leading-tight">
+                          {globalSettings?.siteIdentity?.name || website?.name || "My Website"}
+                        </span>
+                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
+                          Website Preview
+                        </span>
+                      </div>
+                    </div>
 
-            {/* Maintenance Mode Public / Preview Screen (F-019) */}
-            {isPreview && pageSettings.isMaintenanceMode ? (
-              <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl bg-amber-50/60 border border-amber-200/80 p-8 sm:p-12 text-center shadow-inner my-6">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 text-amber-600 shadow-md mb-6 animate-pulse">
-                  <span className="text-4xl">🛠️</span>
-                </div>
-                <span className="inline-block rounded-full bg-amber-200/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 mb-3">
-                  Temporary Maintenance State
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-                  Website Under Maintenance
-                </h2>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-600">
-                  This website is currently undergoing scheduled maintenance and upgrades. Please check back shortly!
-                </p>
-                <div className="mt-8 flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsPreview(false)}
-                    className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-black transition"
-                  >
-                    Return to Editor
-                  </button>
-                </div>
-              </div>
-            ) : elements.length === 0 ? (
-              <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
-                <p className="text-sm font-bold text-slate-700">
-                  Your Canvas is Empty
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  Click any element from the left panel to start building.
-                </p>
+                    {/* Desktop Navigation Links */}
+                    {pages.length > 0 && (
+                      <nav className="hidden sm:flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/70">
+                        {pages.map((p) => {
+                          const isCurrent = (activePreviewPageId || pages[0]?.id) === p.id;
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => handlePreviewPageNavigate(p)}
+                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                                isCurrent
+                                  ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                              }`}
+                            >
+                              {p.name || p.pageSettings?.title || "Untitled"}
+                            </button>
+                          );
+                        })}
+                      </nav>
+                    )}
+
+                    {/* Mobile Hamburger Toggle Button */}
+                    {pages.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="sm:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                        aria-label="Toggle Navigation Menu"
+                      >
+                        <span className="text-sm">{mobileMenuOpen ? "✕" : "☰"}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Mobile Dropdown Menu Drawer */}
+                  {mobileMenuOpen && pages.length > 0 && (
+                    <div className="sm:hidden border-t border-slate-200 bg-slate-50 p-2.5 space-y-1 animate-fadeIn">
+                      {pages.map((p) => {
+                        const isCurrent = (activePreviewPageId || pages[0]?.id) === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              handlePreviewPageNavigate(p);
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
+                              isCurrent
+                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                                : "text-slate-700 hover:bg-slate-200/70"
+                            }`}
+                          >
+                            <span>{p.name || p.pageSettings?.title || "Untitled"}</span>
+                            <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </header>
+
+                {/* Currently Selected Preview Page Content */}
+                {(() => {
+                  const currentPreviewPage = pages.find((p) => p.id === activePreviewPageId) || pages[0];
+                  const activeElements = currentPreviewPage?.elements || (currentPreviewPage?.id === activePageId ? elements : []);
+
+                  if (pageSettings.isMaintenanceMode) {
+                    return (
+                      <div className="flex min-h-[450px] flex-col items-center justify-center rounded-2xl bg-amber-50/60 border border-amber-200/80 p-8 text-center shadow-inner my-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600 shadow-md mb-4 animate-pulse">
+                          <span className="text-3xl">🛠️</span>
+                        </div>
+                        <span className="inline-block rounded-full bg-amber-200/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-2">
+                          Temporary Maintenance State
+                        </span>
+                        <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">
+                          Website Under Maintenance
+                        </h2>
+                        <p className="mt-2 max-w-md text-xs leading-relaxed text-slate-600">
+                          This website is currently undergoing scheduled maintenance and upgrades. Please check back shortly!
+                        </p>
+                        <div className="mt-6 flex items-center justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsPreview(false)}
+                            className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-black transition"
+                          >
+                            Return to Editor
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (!activeElements || activeElements.length === 0) {
+                    return (
+                      <div className="flex h-80 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8 bg-slate-50/50">
+                        <p className="text-sm font-bold text-slate-700">
+                          Page "{currentPreviewPage?.name || "Untitled"}" is Empty
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Switch back to the editor to add elements to this page.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-4 py-2">
+                      {activeElements.map((el) => renderElementTree(el))}
+                    </div>
+                  );
+                })()}
               </div>
             ) : (
-              <div className="space-y-4">
-                {elements.map((el) => renderElementTree(el))}
-              </div>
+              <>
+                {/* Blank Page Layout Bar (F-016) */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span>📄</span>
+                    <span>Blank Page Canvas Layout ({pages.find((p) => p.id === activePageId)?.name || "Home"})</span>
+                  </span>
+                  <span className="text-[10px] font-medium text-slate-400">
+                    Page Editor (No Theme Chrome)
+                  </span>
+                </div>
+
+                {elements.length === 0 ? (
+                  <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
+                    <p className="text-sm font-bold text-slate-700">
+                      Your Canvas is Empty
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Click any element from the left panel to start building.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {elements.map((el) => renderElementTree(el))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
@@ -6808,16 +7419,16 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             const newPost: PostItem = {
                               id: "post_" + Math.random().toString(36).substring(2, 9),
                               title: "New Blog Article",
-                              excerpt: "Add a brief summary or preview description for this new post entry.",
-                              date: "Today",
-                              author: "Admin",
-                              image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&auto=format&fit=crop&q=80",
+                              excerpt: "Short excerpt or summary of the blog post.",
+                              date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+                              author: "Author",
+                              image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
                               readMoreText: "Read Article →",
                               readMoreUrl: "#",
                             };
                             updateSelectedProp("posts", [...currentPosts, newPost]);
                           }}
-                          className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-blue-700 transition"
+                          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded shadow-xs"
                         >
                           + Add Post
                         </button>
@@ -16266,6 +16877,151 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         websiteId={websiteId || ""}
         onRestore={handleRestoreRevision}
       />
+
+      {/* Modal for Adding New Page */}
+      {isAddPageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <span>✨</span>
+                <span>Add New Website Page</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAddPageModalOpen(false)}
+                className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Page Title / Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. About, Services, Contact, Pricing"
+                  value={newPageName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setNewPageName(val);
+                    if (!newPageSlug || newPageSlug === `/${newPageName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`) {
+                      setNewPageSlug(`/${val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  URL Path / Slug
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. /about, /services, /contact"
+                  value={newPageSlug}
+                  onChange={(e) => setNewPageSlug(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsAddPageModalOpen(false)}
+                className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateNewPage}
+                disabled={!newPageName.trim()}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+              >
+                Create Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Editing Existing Page */}
+      {isEditPageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <span>✏️</span>
+                <span>Edit Page Settings</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsEditPageModalOpen(false)}
+                className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Page Title / Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. About Us, Our Services, Contact"
+                  value={editPageName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditPageName(val);
+                  }}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  URL Path / Slug
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. /about, /services, /contact"
+                  value={editPageSlug}
+                  onChange={(e) => setEditPageSlug(e.target.value)}
+                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsEditPageModalOpen(false)}
+                className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditPage}
+                disabled={!editPageName.trim()}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

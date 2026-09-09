@@ -10,7 +10,12 @@ export const getCustomCodeSnippets = async (req: Request, res: Response) => {
             return res.status(400).json({ success: false, message: 'Website ID is required' });
         }
 
-        const snippets = await prisma.customCodeSnippet.findMany({
+        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
+        if (!customCodeSnippetModel) {
+            return res.status(200).json({ success: true, snippets: [] });
+        }
+
+        const snippets = await customCodeSnippetModel.findMany({
             where: {
                 websiteId: websiteId as string,
                 // Ensure implicit verification that user has access to website
@@ -56,7 +61,12 @@ export const createCustomCodeSnippet = async (req: Request, res: Response) => {
             return res.status(403).json({ success: false, message: 'Unauthorized access to website' });
         }
 
-        const newSnippet = await prisma.customCodeSnippet.create({
+        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
+        if (!customCodeSnippetModel) {
+            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
+        }
+
+        const newSnippet = await customCodeSnippetModel.create({
             data: {
                 websiteId: websiteId as string,
                 title,
@@ -93,8 +103,13 @@ export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
             }
         }
 
+        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
+        if (!customCodeSnippetModel) {
+            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
+        }
+
         // Verify snippet exists and user owns it via website
-        const existingSnippet = await prisma.customCodeSnippet.findUnique({
+        const existingSnippet = await customCodeSnippetModel.findUnique({
             where: { id: id as string },
             include: { website: true }
         });
@@ -103,7 +118,7 @@ export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
             return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
         }
 
-        const updatedSnippet = await prisma.customCodeSnippet.update({
+        const updatedSnippet = await customCodeSnippetModel.update({
             where: { id: id as string },
             data: {
                 title: title !== undefined ? title : existingSnippet.title,
@@ -131,7 +146,12 @@ export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        const existingSnippet = await prisma.customCodeSnippet.findUnique({
+        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
+        if (!customCodeSnippetModel) {
+            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
+        }
+
+        const existingSnippet = await customCodeSnippetModel.findUnique({
             where: { id: id as string },
             include: { website: true }
         });
@@ -140,7 +160,7 @@ export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
             return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
         }
 
-        await prisma.customCodeSnippet.delete({
+        await customCodeSnippetModel.delete({
             where: { id: id as string }
         });
 

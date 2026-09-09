@@ -1,5 +1,7 @@
 {
+
   "name": "prisma-client-0f9da7c638816ab743ed8716860fda82937b57230a51ee4a04c32f890eaf4a0e",
+
   "main": "index.js",
   "types": "index.d.ts",
   "browser": "default.js",

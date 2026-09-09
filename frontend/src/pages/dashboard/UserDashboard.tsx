@@ -77,6 +77,8 @@ function UserDashboard() {
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
 
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   const handleExportDashboardKit = async (site: Website) => {
     try {
       setExportingKitId(site.id);
@@ -158,8 +160,6 @@ function UserDashboard() {
     navigate(tab === "websites" ? "/dashboard" : `/dashboard?tab=${tab}`);
     setSidebarOpen(false);
   };
-
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchWebsites = async () => {
     setWLoading(true);
@@ -278,10 +278,21 @@ function UserDashboard() {
               <h3 className="text-base font-bold text-slate-900">Your Websites</h3>
               <button onClick={() => { setError(""); setWebsiteName(""); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-700 transition shadow-sm">+ New Website</button>
             </div>
+<<<<<<< HEAD
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-2 min-h-[300px]">
+=======
             <div className="mt-6">
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
               {wLoading ? (
                 <div className="flex items-center justify-center text-xs font-semibold text-slate-400 p-12 text-center bg-white rounded-2xl border border-slate-200">Loading your websites…</div>
               ) : websites.length === 0 ? (
+<<<<<<< HEAD
+                <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl m-2 h-64">
+                  <div className="text-3xl border mb-3 border-slate-200 bg-white shadow-sm h-12 w-12 flex items-center justify-center rounded-full text-slate-400">🌐</div>
+                  <h3 className="font-bold text-slate-700 text-sm">No websites yet</h3>
+                  <p className="text-xs text-slate-500 mt-1 mb-4 max-w-[200px]">Create your first website to see it appear here.</p>
+                  <button onClick={() => { setError(""); setWebsiteName(""); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-700 transition shadow-sm">+ Create Website</button>
+=======
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 text-xl font-bold">
                     🌐
@@ -302,6 +313,7 @@ function UserDashboard() {
                   >
                     Create New Website
                   </button>
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -312,7 +324,11 @@ function UserDashboard() {
                     >
                       <div>
                         <div className="flex items-center justify-between">
+<<<<<<< HEAD
+                          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
+=======
                           <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${site.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                             {site.status}
                           </span>
                           <span className="text-[11px] text-slate-400">
@@ -338,6 +354,15 @@ function UserDashboard() {
 
                         <div className="flex items-center gap-2">
                           <button
+<<<<<<< HEAD
+                            onClick={() => setRoleManagerSite(site)}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
+                          >
+                            Roles
+                          </button>
+                          <button
+=======
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                             onClick={() => handleExportDashboardKit(site)}
                             disabled={exportingKitId === site.id}
                             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
@@ -347,6 +372,8 @@ function UserDashboard() {
                           </button>
 
                           <button
+<<<<<<< HEAD
+=======
                             onClick={() => setRoleManagerSite(site)}
                             className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
                           >
@@ -354,6 +381,7 @@ function UserDashboard() {
                           </button>
 
                           <button
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                             onClick={() => navigate(`/editor/${site.id}`)}
                             className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
                           >
@@ -484,7 +512,10 @@ function UserDashboard() {
         <RoleManagerModal websiteId={roleManagerSite.id} websiteName={roleManagerSite.name} onClose={() => setRoleManagerSite(null)} apiUrl={apiUrl} />
       )}
 
+<<<<<<< HEAD
+=======
       {/* Import Website Kit Dialog */}
+>>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
       <ImportWebsiteKitDialog
         isOpen={isImportKitOpen}
         onClose={() => setIsImportKitOpen(false)}

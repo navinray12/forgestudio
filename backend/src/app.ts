@@ -101,6 +101,9 @@ app.use("/api/v1/design-notes", designNotesRoutes);
 app.use("/api/design-notes", designNotesRoutes);
 app.use("/api/v1/component-access", componentAccessRoutes);
 app.use("/api/component-access", componentAccessRoutes);
+
+
+
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
 
