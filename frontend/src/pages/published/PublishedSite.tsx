@@ -174,7 +174,6 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         <React.Fragment key={el.id}>
             <div ref={assignRefIfTracked as any} {...mergedProps}>
                 {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-<<<<<<< HEAD
                     <BackgroundSlideshow
                         urls={
                             Array.isArray(el.styles.backgroundSlideshowUrls)
@@ -185,9 +184,6 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         }
                         interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
                     />
-=======
-                    <BackgroundSlideshow urls={Array.isArray(el.styles.backgroundSlideshowUrls) ? el.styles.backgroundSlideshowUrls : String(el.styles.backgroundSlideshowUrls).split(",")} interval={Number(el.styles.backgroundSlideshowSpeed) || 5000} />
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                 )}
                 {el.children?.map(child => (
                     <RenderNode
@@ -275,15 +271,12 @@ export default function PublishedSite() {
         fetchWebsite();
     }, [websiteId, apiUrl]);
 
-<<<<<<< HEAD
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
     };
-=======
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
 
     useEffect(() => {
         const handleResize = () => {
@@ -320,10 +313,7 @@ export default function PublishedSite() {
             const outerProps = { ...resolved };
             Object.keys(innerProps).forEach(k => delete (outerProps as any)[k]);
 
-<<<<<<< HEAD
             // F-355: Strip backgroundImage out of F-353 compiler Hash pipeline.
-=======
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
             delete (outerProps as any).backgroundImage;
             delete (innerProps as any).backgroundImage;
 

@@ -32,7 +32,11 @@ async function processScheduledPublications() {
             });
             console.log(`[Scheduler] F-115 Executed pending snippet: ${snippet.title} (${snippet.id}) into PUBLISHED mode.`);
         }
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.code === 'P2021' || error?.message?.includes("does not exist")) {
+            console.log("[Scheduler] Table 'custom_code_snippets' does not exist in database yet. Skipping scheduled publication check.");
+            return;
+        }
         console.error("[Scheduler] Error running background schedule task:", error);
     }
 }

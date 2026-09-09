@@ -436,15 +436,49 @@ export const FormWidgetRenderer = ({
                   ))}
                 </div>
               ) : field.type === "tel" ? (
-                <input
-                  type="tel"
-                  id={`field_${field.id}`}
-                  required={field.required}
-                  placeholder={field.placeholder || "+1 (555) 000-0000"}
-                  value={formData[field.id] || ""}
-                  onChange={(e) => setFormData((prev: any) => ({ ...prev, [field.id]: e.target.value }))}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={formData[`${field.id}_country`] || "+91"}
+                    onChange={(e) => {
+                      const selectedDial = e.target.value;
+                      const selectedCountry = [
+                        { code: "IN", dial: "+91", placeholder: "98765 43210" },
+                        { code: "US", dial: "+1", placeholder: "(555) 000-0000" },
+                        { code: "GB", dial: "+44", placeholder: "7911 123456" },
+                        { code: "CA", dial: "+1", placeholder: "(555) 000-0000" },
+                        { code: "AU", dial: "+61", placeholder: "412 345 678" },
+                        { code: "DE", dial: "+49", placeholder: "151 12345678" },
+                        { code: "FR", dial: "+33", placeholder: "6 12 34 56 78" },
+                        { code: "JP", dial: "+81", placeholder: "90 1234 5678" },
+                        { code: "AE", dial: "+971", placeholder: "50 123 4567" },
+                      ].find((c) => c.dial === selectedDial);
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        [`${field.id}_country`]: selectedDial,
+                        [`${field.id}_placeholder`]: selectedCountry?.placeholder,
+                      }));
+                    }}
+                    className="rounded-2xl border border-slate-200 bg-slate-50/60 px-3 py-3 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white"
+                  >
+                    <option value="+91">🇮🇳 India (+91)</option>
+                    <option value="+1">🇺🇸 US / CA (+1)</option>
+                    <option value="+44">🇬🇧 UK (+44)</option>
+                    <option value="+61">🇦🇺 Australia (+61)</option>
+                    <option value="+49">🇩🇪 Germany (+49)</option>
+                    <option value="+33">🇫🇷 France (+33)</option>
+                    <option value="+81">🇯🇵 Japan (+81)</option>
+                    <option value="+971">🇦🇪 UAE (+971)</option>
+                  </select>
+                  <input
+                    type="tel"
+                    id={`field_${field.id}`}
+                    required={field.required}
+                    placeholder={formData[`${field.id}_placeholder`] || field.placeholder || "Enter phone number"}
+                    value={formData[field.id] || ""}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, [field.id]: e.target.value }))}
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                  />
+                </div>
               ) : (
                 <div className="relative flex items-center">
                   <input

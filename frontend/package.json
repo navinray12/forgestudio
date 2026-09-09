@@ -12,13 +12,10 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/vite": "^4.3.3",
-<<<<<<< HEAD
-    "monaco-editor": "^0.56.0",
-=======
     "@types/dompurify": "^3.0.5",
     "dompurify": "^3.4.15",
-    "lucide-react": "^1.42.0",
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
+    "lucide-react": "^1.43.0",
+    "monaco-editor": "^0.56.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",

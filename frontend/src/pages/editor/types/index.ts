@@ -163,6 +163,16 @@ export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w
 export type DeviceMode = "desktop" | "tablet" | "mobile";
 export interface Breakpoint { id: string; name: string; width: number; active?: boolean; }
 
+export interface PageConfig {
+  id: string;
+  name: string;
+  slug: string;
+  customCss?: string;
+  isHome?: boolean;
+  pageSettings?: any;
+  elements: EditorElement[];
+}
+
 export interface PlaylistItem {
   id: string;
   title: string;
