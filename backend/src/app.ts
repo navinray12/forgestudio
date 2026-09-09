@@ -25,16 +25,15 @@ import {
   componentAccessRoutes,
   templateRoutes,
   formRoutes,
-  integrationRoutes
+  integrationRoutes,
+  sftpRoutes,
+  pluginIntegrationRoutes,
+  multisiteRoutes,
 } from "./routes/index.js";
 
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
-
-// =========================
-// Security & Static Files
-// =========================
 
 app.use(
   helmet({
@@ -44,10 +43,6 @@ app.use(
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// =========================
-// CORS & Parsers
-// =========================
-
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -55,19 +50,10 @@ app.use(
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
-
-// =========================
-// Passport Authentication
-// =========================
-
 app.use(passport.initialize());
-
-// =========================
-// Health Check
-// =========================
 
 app.get("/api/v1/health", (_req: Request, res: Response) => {
   res.status(200).json({
@@ -75,10 +61,6 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
     message: "API is healthy",
   });
 });
-
-// =========================
-// API Route Endpoints
-// =========================
 
 // Auth & Session
 app.use("/api/v1/auth", loginRoutes);
@@ -122,13 +104,23 @@ app.use("/api/component-access", componentAccessRoutes);
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
 
-// Plugins & Integrations
+// Forms: public submission + protected owner operations are enforced by the router.
+app.use("/api/v1/forms", formRoutes);
+app.use("/api/forms", formRoutes);
+
+// Plugin compatibility and integrations.
 app.use("/api/v1/plugins", pluginCompatRoutes);
 app.use("/api/plugins", pluginCompatRoutes);
+app.use("/api/v1/plugins-integration", pluginIntegrationRoutes);
+app.use("/api/plugins-integration", pluginIntegrationRoutes);
 
-// =========================
-// Global Error Handler
-// =========================
+// Deployment, multisite and external integrations.
+app.use("/api/v1/sftp", sftpRoutes);
+app.use("/api/sftp", sftpRoutes);
+app.use("/api/v1/multisite", multisiteRoutes);
+app.use("/api/multisite", multisiteRoutes);
+app.use("/api/v1/integrations", integrationRoutes);
+app.use("/api/integrations", integrationRoutes);
 
 app.use(errorMiddleware);
 
