@@ -188,8 +188,6 @@ exports.Prisma.UserSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-<<<<<<< HEAD
-=======
 exports.Prisma.FormSubmissionScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -364,7 +362,6 @@ exports.Prisma.WebsiteCollaboratorScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -435,9 +432,6 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
   SubscriptionPlan: 'SubscriptionPlan',
-
-  UserSubscription: 'UserSubscription'
-
   UserSubscription: 'UserSubscription',
   FormSubmission: 'FormSubmission',
   CustomPostType: 'CustomPostType',

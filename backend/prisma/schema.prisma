@@ -29,6 +29,12 @@ model User {
   subscription        UserSubscription?
   websites            Website[]
   codeRevisions       CustomCodeRevision[]
+  auditLogs           AuditLog[]
+  developerApiKeys    DeveloperApiKey[]
+  designNotes         DesignNote[]
+  collaborations      WebsiteCollaborator[]
+  componentAccesses   ComponentAccess[]
+  customEntries       CustomEntry[]
 
   @@index([status])
   @@index([role])
@@ -36,16 +42,24 @@ model User {
 }
 
 model Website {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @db.Uuid
-  name       String   @db.VarChar(255)
-  slug       String   @db.VarChar(255)
-  status     String   @default("DRAFT") @db.VarChar(50)
-  editorData Json     @default("{\"version\": 1, \"elements\": []}")
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String                @db.Uuid
+  name               String                @db.VarChar(255)
+  slug               String                @db.VarChar(255)
+  status             String                @default("DRAFT") @db.VarChar(50)
+  editorData         Json                  @default("{\"version\": 1, \"elements\": []}")
+  createdAt          DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  user               User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   customCodeSnippets CustomCodeSnippet[]
+  formSubmissions    FormSubmission[]
+  customPostTypes    CustomPostType[]
+  themeLocationRules ThemeLocationRule[]
+  sftpConnections    SftpConnection[]
+  pluginIntegrations PluginIntegration[]
+  designNotes        DesignNote[]
+  componentAccesses  ComponentAccess[]
+  collaborators      WebsiteCollaborator[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@map("websites")
@@ -54,14 +68,14 @@ model Website {
 model OtpVerification {
   id         String      @id @default(uuid()) @db.Uuid
   userId     String?     @db.Uuid
+  email      String?
   otpHash    String
   purpose    OtpPurpose
+  channel    OtpChannel? @default(EMAIL)
   attempts   Int         @default(0)
   expiresAt  DateTime
   verifiedAt DateTime?
   createdAt  DateTime    @default(now())
-  email      String?
-  channel    OtpChannel? @default(EMAIL)
   user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -207,32 +221,27 @@ enum OtpChannel {
 model CustomCodeSnippet {
   id           String               @id @default(uuid()) @db.Uuid
   websiteId    String               @db.Uuid
-  title        String
-  language     String               // HTML, CSS, JS
+  name         String?
+  title        String?
+  language     String               @default("JS") // JS, CSS, HTML
+  codeType     String               @default("JS") // JS, CSS, HTML
   code         String
-  placement    String               // HEAD, BODY_TOP, BODY_BOTTOM
+  placement    String               @default("HEAD") // HEAD, BODY_TOP, BODY_BOTTOM, BODY_START, BODY_END
+  location     String               @default("HEAD")
   scope        String               @default("GLOBAL") // GLOBAL, PAGE
   pageId       String?
-  conditions   Json?                // For F-113: {"pages": [], "devices": []}
-  priority     Int                  @default(0) // F-116
-  status       String               @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED (F-114, F-115)
+  conditions   Json?                @default("[]")
+  priority     Int                  @default(10)
+  status       String               @default("PUBLISHED") // DRAFT, PUBLISHED, SCHEDULED
   scheduledFor DateTime?
+  isEnabled    Boolean              @default(true)
   isActive     Boolean              @default(true)
+  isDraft      Boolean              @default(false)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
 
-  identities          Identity[]
-  sessions            Session[]
-  otpVerifications    OtpVerification[]
-  passwordResetTokens PasswordResetToken[]
-  subscription        UserSubscription?
-  websites            Website[]
-  auditLogs           AuditLog[]
-  developerApiKeys    DeveloperApiKey[]
-  designNotes         DesignNote[]
-  collaborations      WebsiteCollaborator[]
-  componentAccesses   ComponentAccess[]
-  customEntries       CustomEntry[]
+  website   Website              @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  revisions CustomCodeRevision[]
 
   @@index([websiteId])
   @@map("custom_code_snippets")
@@ -245,131 +254,21 @@ model CustomCodeRevision {
   authorId  String?           @db.Uuid
   createdAt DateTime          @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  formSubmissions    FormSubmission[]
-  customPostTypes    CustomPostType[]
-  themeLocationRules ThemeLocationRule[]
-  sftpConnections    SftpConnection[]
-  pluginIntegrations PluginIntegration[]
-  customCodeSnippets CustomCodeSnippet[]
-  designNotes        DesignNote[]
-  componentAccesses  ComponentAccess[]
-  collaborators      WebsiteCollaborator[]
+  snippet CustomCodeSnippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  author  User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([snippetId])
   @@map("custom_code_revisions")
 }
 
-model OtpVerification {
-  id         String      @id @default(uuid()) @db.Uuid
-  userId     String?     @db.Uuid
-  email      String?
-  otpHash    String
-  purpose    OtpPurpose
-  channel    OtpChannel  @default(EMAIL)
-  attempts   Int         @default(0)
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  createdAt  DateTime    @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([purpose])
-  @@map("otp_verifications")
-}
-
-model Identity {
-  id             String           @id @default(uuid()) @db.Uuid
-  userId         String           @db.Uuid
-  provider       IdentityProvider
-  providerUserId String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerUserId])
-  @@index([userId])
-  @@map("identities")
-}
-
-model Session {
-  id         String    @id @default(uuid()) @db.Uuid
-  userId     String    @db.Uuid
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("sessions")
-}
-
-model PasswordResetToken {
-  id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("password_reset_tokens")
-}
-
-model SubscriptionPlan {
-  id              String             @id @default(uuid()) @db.Uuid
-  name            String
-  slug            String             @unique
-  price           Int
-  currency        String             @default("INR")
-  billingInterval String             @default("monthly")
-  websiteLimit    Int
-  storageLimitMb  Int                @default(100)
-  aiCreditLimit   Int                @default(0)
-  features        Json
-  isActive        Boolean            @default(true)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-
-  subscriptions   UserSubscription[]
-
-  @@map("subscription_plans")
-}
-
-model UserSubscription {
-  id                 String           @id @default(uuid()) @db.Uuid
-  userId             String           @unique @db.Uuid
-  planId             String           @db.Uuid
-  status             String           @default("ACTIVE")
-  currentPeriodStart DateTime         @default(now())
-  currentPeriodEnd   DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan SubscriptionPlan @relation(fields: [planId], references: [id])
-
-  @@map("user_subscriptions")
-}
-
 model FormSubmission {
-  id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
-  formId     String
-  data       Json
-  ipAddress  String?
-  status     String   @default("NEW")
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  websiteId String   @db.Uuid
+  formId    String
+  data      Json
+  ipAddress String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
@@ -388,7 +287,7 @@ model CustomPostType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  website Website       @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   fields  CustomField[]
   entries CustomEntry[]
 
@@ -399,7 +298,7 @@ model CustomPostType {
 model ThemeLocationRule {
   id           String   @id @default(uuid()) @db.Uuid
   websiteId    String   @db.Uuid
-  locationType String   // HEADER, FOOTER, SINGLE, ARCHIVE, ERROR404
+  locationType String // HEADER, FOOTER, SINGLE, ARCHIVE, ERROR404
   templateId   String
   conditions   Json     @default("[]")
   isActive     Boolean  @default(true)
@@ -445,13 +344,13 @@ model SftpConnection {
 }
 
 model PluginIntegration {
-  id          String   @id @default(uuid()) @db.Uuid
-  websiteId   String   @db.Uuid
-  pluginSlug  String   // acf, toolset, pods, learndash, lifterlms
-  config      Json     @default("{}")
-  isEnabled   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  pluginSlug String // acf, toolset, pods, learndash, lifterlms
+  config     Json     @default("{}")
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
@@ -504,42 +403,15 @@ model CustomEntry {
   @@map("custom_entries")
 }
 
-model CustomCodeSnippet {
-  id           String    @id @default(uuid()) @db.Uuid
-  websiteId    String    @db.Uuid
-  name         String?
-  title        String?
-  language     String    @default("JS") // JS, CSS, HTML
-  codeType     String    @default("JS") // JS, CSS, HTML
-  placement    String    @default("HEAD") // HEAD, BODY_START, BODY_END
-  location     String    @default("HEAD") // HEAD, BODY_START, BODY_END
-  scope        String    @default("GLOBAL")
-  pageId       String?
-  code         String
-  priority     Int       @default(10)
-  conditions   Json      @default("[]")
-  status       String    @default("PUBLISHED")
-  scheduledFor DateTime?
-  isEnabled    Boolean   @default(true)
-  isActive     Boolean   @default(true)
-  isDraft      Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@map("custom_code_snippets")
-}
-
 model DesignNote {
-  id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
-  elementId  String?
-  authorId   String   @db.Uuid
-  content    String
-  resolved   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  websiteId String   @db.Uuid
+  elementId String?
+  authorId  String   @db.Uuid
+  content   String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)

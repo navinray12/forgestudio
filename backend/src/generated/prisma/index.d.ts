@@ -1018,9 +1018,6 @@ export namespace Prisma {
     Session: 'Session',
     PasswordResetToken: 'PasswordResetToken',
     SubscriptionPlan: 'SubscriptionPlan',
-<<<<<<< HEAD
-    UserSubscription: 'UserSubscription'
-=======
     UserSubscription: 'UserSubscription',
     FormSubmission: 'FormSubmission',
     CustomPostType: 'CustomPostType',
@@ -1037,7 +1034,6 @@ export namespace Prisma {
     DeveloperApiKey: 'DeveloperApiKey',
     ComponentAccess: 'ComponentAccess',
     WebsiteCollaborator: 'WebsiteCollaborator'
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2890,8 +2886,6 @@ export namespace Prisma {
     passwordResetToken?: PasswordResetTokenOmit
     subscriptionPlan?: SubscriptionPlanOmit
     userSubscription?: UserSubscriptionOmit
-<<<<<<< HEAD
-=======
     formSubmission?: FormSubmissionOmit
     customPostType?: CustomPostTypeOmit
     themeLocationRule?: ThemeLocationRuleOmit
@@ -2907,7 +2901,6 @@ export namespace Prisma {
     developerApiKey?: DeveloperApiKeyOmit
     componentAccess?: ComponentAccessOmit
     websiteCollaborator?: WebsiteCollaboratorOmit
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   /* Types for Logging */
@@ -2993,15 +2986,12 @@ export namespace Prisma {
     otpVerifications: number
     passwordResetTokens: number
     websites: number
-<<<<<<< HEAD
-=======
     auditLogs: number
     developerApiKeys: number
     designNotes: number
     collaborations: number
     componentAccesses: number
     customEntries: number
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3010,15 +3000,12 @@ export namespace Prisma {
     otpVerifications?: boolean | UserCountOutputTypeCountOtpVerificationsArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
     websites?: boolean | UserCountOutputTypeCountWebsitesArgs
-<<<<<<< HEAD
-=======
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
     developerApiKeys?: boolean | UserCountOutputTypeCountDeveloperApiKeysArgs
     designNotes?: boolean | UserCountOutputTypeCountDesignNotesArgs
     collaborations?: boolean | UserCountOutputTypeCountCollaborationsArgs
     componentAccesses?: boolean | UserCountOutputTypeCountComponentAccessesArgs
     customEntries?: boolean | UserCountOutputTypeCountCustomEntriesArgs
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   // Custom InputTypes
@@ -3067,8 +3054,6 @@ export namespace Prisma {
     where?: WebsiteWhereInput
   }
 
-<<<<<<< HEAD
-=======
   /**
    * UserCountOutputType without action
    */
@@ -3214,7 +3199,6 @@ export namespace Prisma {
     where?: WebsiteCollaboratorWhereInput
   }
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
 
   /**
    * Count Type SubscriptionPlanCountOutputType
@@ -3248,8 +3232,6 @@ export namespace Prisma {
 
 
   /**
-<<<<<<< HEAD
-=======
    * Count Type CustomPostTypeCountOutputType
    */
 
@@ -3290,7 +3272,6 @@ export namespace Prisma {
 
 
   /**
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
    * Models
    */
 
@@ -3528,15 +3509,12 @@ export namespace Prisma {
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     websites?: boolean | User$websitesArgs<ExtArgs>
-<<<<<<< HEAD
-=======
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     developerApiKeys?: boolean | User$developerApiKeysArgs<ExtArgs>
     designNotes?: boolean | User$designNotesArgs<ExtArgs>
     collaborations?: boolean | User$collaborationsArgs<ExtArgs>
     componentAccesses?: boolean | User$componentAccessesArgs<ExtArgs>
     customEntries?: boolean | User$customEntriesArgs<ExtArgs>
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3596,15 +3574,12 @@ export namespace Prisma {
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     websites?: boolean | User$websitesArgs<ExtArgs>
-<<<<<<< HEAD
-=======
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
     developerApiKeys?: boolean | User$developerApiKeysArgs<ExtArgs>
     designNotes?: boolean | User$designNotesArgs<ExtArgs>
     collaborations?: boolean | User$collaborationsArgs<ExtArgs>
     componentAccesses?: boolean | User$componentAccessesArgs<ExtArgs>
     customEntries?: boolean | User$customEntriesArgs<ExtArgs>
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3619,15 +3594,12 @@ export namespace Prisma {
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
       subscription: Prisma.$UserSubscriptionPayload<ExtArgs> | null
       websites: Prisma.$WebsitePayload<ExtArgs>[]
-<<<<<<< HEAD
-=======
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       developerApiKeys: Prisma.$DeveloperApiKeyPayload<ExtArgs>[]
       designNotes: Prisma.$DesignNotePayload<ExtArgs>[]
       collaborations: Prisma.$WebsiteCollaboratorPayload<ExtArgs>[]
       componentAccesses: Prisma.$ComponentAccessPayload<ExtArgs>[]
       customEntries: Prisma.$CustomEntryPayload<ExtArgs>[]
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4623,8 +4595,6 @@ export namespace Prisma {
   }
 
   /**
-<<<<<<< HEAD
-=======
    * User.auditLogs
    */
   export type User$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4769,7 +4739,6 @@ export namespace Prisma {
   }
 
   /**
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4973,8 +4942,6 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-<<<<<<< HEAD
-=======
     formSubmissions?: boolean | Website$formSubmissionsArgs<ExtArgs>
     customPostTypes?: boolean | Website$customPostTypesArgs<ExtArgs>
     themeLocationRules?: boolean | Website$themeLocationRulesArgs<ExtArgs>
@@ -4985,7 +4952,6 @@ export namespace Prisma {
     componentAccesses?: boolean | Website$componentAccessesArgs<ExtArgs>
     collaborators?: boolean | Website$collaboratorsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }, ExtArgs["result"]["website"]>
 
   export type WebsiteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5026,8 +4992,6 @@ export namespace Prisma {
   export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "createdAt" | "updatedAt", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-<<<<<<< HEAD
-=======
     formSubmissions?: boolean | Website$formSubmissionsArgs<ExtArgs>
     customPostTypes?: boolean | Website$customPostTypesArgs<ExtArgs>
     themeLocationRules?: boolean | Website$themeLocationRulesArgs<ExtArgs>
@@ -5038,7 +5002,6 @@ export namespace Prisma {
     componentAccesses?: boolean | Website$componentAccessesArgs<ExtArgs>
     collaborators?: boolean | Website$collaboratorsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
   export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5051,8 +5014,6 @@ export namespace Prisma {
     name: "Website"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
-<<<<<<< HEAD
-=======
       formSubmissions: Prisma.$FormSubmissionPayload<ExtArgs>[]
       customPostTypes: Prisma.$CustomPostTypePayload<ExtArgs>[]
       themeLocationRules: Prisma.$ThemeLocationRulePayload<ExtArgs>[]
@@ -5062,7 +5023,6 @@ export namespace Prisma {
       designNotes: Prisma.$DesignNotePayload<ExtArgs>[]
       componentAccesses: Prisma.$ComponentAccessPayload<ExtArgs>[]
       collaborators: Prisma.$WebsiteCollaboratorPayload<ExtArgs>[]
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5468,8 +5428,6 @@ export namespace Prisma {
   export interface Prisma__WebsiteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-<<<<<<< HEAD
-=======
     formSubmissions<T extends Website$formSubmissionsArgs<ExtArgs> = {}>(args?: Subset<T, Website$formSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FormSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customPostTypes<T extends Website$customPostTypesArgs<ExtArgs> = {}>(args?: Subset<T, Website$customPostTypesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomPostTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     themeLocationRules<T extends Website$themeLocationRulesArgs<ExtArgs> = {}>(args?: Subset<T, Website$themeLocationRulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ThemeLocationRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5479,7 +5437,6 @@ export namespace Prisma {
     designNotes<T extends Website$designNotesArgs<ExtArgs> = {}>(args?: Subset<T, Website$designNotesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DesignNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     componentAccesses<T extends Website$componentAccessesArgs<ExtArgs> = {}>(args?: Subset<T, Website$componentAccessesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     collaborators<T extends Website$collaboratorsArgs<ExtArgs> = {}>(args?: Subset<T, Website$collaboratorsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsiteCollaboratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5918,8 +5875,6 @@ export namespace Prisma {
   }
 
   /**
-<<<<<<< HEAD
-=======
    * Website.formSubmissions
    */
   export type Website$formSubmissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6136,7 +6091,6 @@ export namespace Prisma {
   }
 
   /**
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
    * Website without action
    */
   export type WebsiteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12909,8 +12863,6 @@ export namespace Prisma {
 
 
   /**
-<<<<<<< HEAD
-=======
    * Model FormSubmission
    */
 
@@ -29641,7 +29593,6 @@ export namespace Prisma {
 
 
   /**
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
    * Enums
    */
 
@@ -29774,8 +29725,6 @@ export namespace Prisma {
   export type UserSubscriptionScalarFieldEnum = (typeof UserSubscriptionScalarFieldEnum)[keyof typeof UserSubscriptionScalarFieldEnum]
 
 
-<<<<<<< HEAD
-=======
   export const FormSubmissionScalarFieldEnum: {
     id: 'id',
     websiteId: 'websiteId',
@@ -29995,7 +29944,6 @@ export namespace Prisma {
   export type WebsiteCollaboratorScalarFieldEnum = (typeof WebsiteCollaboratorScalarFieldEnum)[keyof typeof WebsiteCollaboratorScalarFieldEnum]
 
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -30228,15 +30176,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenListRelationFilter
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
     websites?: WebsiteListRelationFilter
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogListRelationFilter
     developerApiKeys?: DeveloperApiKeyListRelationFilter
     designNotes?: DesignNoteListRelationFilter
     collaborations?: WebsiteCollaboratorListRelationFilter
     componentAccesses?: ComponentAccessListRelationFilter
     customEntries?: CustomEntryListRelationFilter
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserOrderByWithRelationInput = {
@@ -30259,15 +30204,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
     subscription?: UserSubscriptionOrderByWithRelationInput
     websites?: WebsiteOrderByRelationAggregateInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogOrderByRelationAggregateInput
     developerApiKeys?: DeveloperApiKeyOrderByRelationAggregateInput
     designNotes?: DesignNoteOrderByRelationAggregateInput
     collaborations?: WebsiteCollaboratorOrderByRelationAggregateInput
     componentAccesses?: ComponentAccessOrderByRelationAggregateInput
     customEntries?: CustomEntryOrderByRelationAggregateInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -30293,15 +30235,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenListRelationFilter
     subscription?: XOR<UserSubscriptionNullableScalarRelationFilter, UserSubscriptionWhereInput> | null
     websites?: WebsiteListRelationFilter
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogListRelationFilter
     developerApiKeys?: DeveloperApiKeyListRelationFilter
     designNotes?: DesignNoteListRelationFilter
     collaborations?: WebsiteCollaboratorListRelationFilter
     componentAccesses?: ComponentAccessListRelationFilter
     customEntries?: CustomEntryListRelationFilter
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -30355,8 +30294,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionListRelationFilter
     customPostTypes?: CustomPostTypeListRelationFilter
     themeLocationRules?: ThemeLocationRuleListRelationFilter
@@ -30366,7 +30303,6 @@ export namespace Prisma {
     designNotes?: DesignNoteListRelationFilter
     componentAccesses?: ComponentAccessListRelationFilter
     collaborators?: WebsiteCollaboratorListRelationFilter
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteOrderByWithRelationInput = {
@@ -30379,8 +30315,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionOrderByRelationAggregateInput
     customPostTypes?: CustomPostTypeOrderByRelationAggregateInput
     themeLocationRules?: ThemeLocationRuleOrderByRelationAggregateInput
@@ -30390,7 +30324,6 @@ export namespace Prisma {
     designNotes?: DesignNoteOrderByRelationAggregateInput
     componentAccesses?: ComponentAccessOrderByRelationAggregateInput
     collaborators?: WebsiteCollaboratorOrderByRelationAggregateInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteWhereUniqueInput = Prisma.AtLeast<{
@@ -30406,8 +30339,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionListRelationFilter
     customPostTypes?: CustomPostTypeListRelationFilter
     themeLocationRules?: ThemeLocationRuleListRelationFilter
@@ -30417,7 +30348,6 @@ export namespace Prisma {
     designNotes?: DesignNoteListRelationFilter
     componentAccesses?: ComponentAccessListRelationFilter
     collaborators?: WebsiteCollaboratorListRelationFilter
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }, "id">
 
   export type WebsiteOrderByWithAggregationInput = {
@@ -32023,15 +31953,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
     websites?: WebsiteCreateNestedManyWithoutUserInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
     designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
     collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
     componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
     customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserUncheckedCreateInput = {
@@ -32054,15 +31981,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
     designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
     collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
     componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
     customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserUpdateInput = {
@@ -32085,15 +32009,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
     websites?: WebsiteUpdateManyWithoutUserNestedInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
     developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
     designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
     collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
     componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
     customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserUncheckedUpdateInput = {
@@ -32116,15 +32037,12 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
     developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
     designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
     collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
     componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
     customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserCreateManyInput = {
@@ -32184,8 +32102,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWebsitesInput
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
     themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
@@ -32195,7 +32111,6 @@ export namespace Prisma {
     designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
     componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
     collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteUncheckedCreateInput = {
@@ -32207,8 +32122,6 @@ export namespace Prisma {
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
     themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
@@ -32218,7 +32131,6 @@ export namespace Prisma {
     designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
     componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
     collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteUpdateInput = {
@@ -32230,8 +32142,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
     themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
@@ -32241,7 +32151,6 @@ export namespace Prisma {
     designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
     componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
     collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteUncheckedUpdateInput = {
@@ -32253,8 +32162,6 @@ export namespace Prisma {
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-<<<<<<< HEAD
-=======
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
     themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -32264,7 +32171,6 @@ export namespace Prisma {
     designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
     componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
     collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type WebsiteCreateManyInput = {
@@ -34092,8 +33998,6 @@ export namespace Prisma {
     none?: WebsiteWhereInput
   }
 
-<<<<<<< HEAD
-=======
   export type AuditLogListRelationFilter = {
     every?: AuditLogWhereInput
     some?: AuditLogWhereInput
@@ -34130,7 +34034,6 @@ export namespace Prisma {
     none?: CustomEntryWhereInput
   }
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -34156,8 +34059,6 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-<<<<<<< HEAD
-=======
   export type AuditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -34182,7 +34083,6 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     fullName?: SortOrder
@@ -34862,8 +34762,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-<<<<<<< HEAD
-=======
   export type WebsiteScalarRelationFilter = {
     is?: WebsiteWhereInput
     isNot?: WebsiteWhereInput
@@ -34975,9 +34873,9 @@ export namespace Prisma {
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
+      Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+      Required<JsonNullableFilterBase<$PrismaModel>>
+    >
     | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
 
   export type JsonNullableFilterBase<$PrismaModel = never> = {
@@ -35026,9 +34924,9 @@ export namespace Prisma {
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
+      Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+      Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+    >
     | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
 
   export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
@@ -35479,7 +35377,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -37789,8 +37686,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Website"> | Date | string
   }
 
-<<<<<<< HEAD
-=======
   export type AuditLogUpsertWithWhereUniqueWithoutUserInput = {
     where: AuditLogWhereUniqueInput
     update: XOR<AuditLogUpdateWithoutUserInput, AuditLogUncheckedUpdateWithoutUserInput>
@@ -37970,7 +37865,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CustomEntry"> | Date | string
   }
 
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -37990,15 +37884,12 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogCreateNestedManyWithoutUserInput
     developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
     designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
     collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
     componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
     customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -38020,15 +37911,12 @@ export namespace Prisma {
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-<<<<<<< HEAD
-=======
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
     developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
     designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
     collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
     componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
     customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -38036,8 +37924,7 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
   }
 
-<<<<<<< HEAD
-=======
+
   export type FormSubmissionCreateWithoutWebsiteInput = {
     id?: string
     formId: string

@@ -30,9 +30,9 @@ export * from "./types";
 export * from "./utils";
 export * from "./defaults";
 export * from "./widgets";
-export * from "./widgets";
 
 import type {
+  PageConfig,
   ElementType,
   NavSubmenuItem,
   NavMenuItem,
@@ -218,6 +218,9 @@ const [popups, setPopups] = useState<any[]>([]);
   const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
   const [activePopupId, setActivePopupId] = useState<string | null>(null);
+  const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
+  const [activeSidebarTab, setActiveSidebarTab] = useState<string>("widgets");
+  const [pageCss, setPageCss] = useState<string>("");
 
   const handleSelectPopupForEdit = (popup: any) => {
     setActivePopupId(popup.id);
@@ -1016,127 +1019,9 @@ const handleSaveEditPage = () => {
   setTimeout(() => setSaveMessage(""), 3000);
 };
 
-const [pageCss, setPageCss] = useState<string>("");
-
-const [_activeSidebarTab, _setActiveSidebarTab] =
-  useState<
-    "element" | "global" | "popup" | "advanced"
-  >("global");
-
-const [_devModalMode, _setDevModalMode] =
-  useState<DeveloperModalMode | null>(null);
-
 const navigate = useNavigate();
 
-// Missing State & Helpers Reconnected
-const [globalSettings, setGlobalSettings] = useState<any>({
-  siteIdentity: {
-    name: "My Website",
-  },
-
-  backToTop: {
-    enabled: true,
-    position: "bottom-right",
-    offset: 300,
-  },
-});
-
-const [breakpoints, setBreakpoints] = useState<
-  Array<{
-    id: string;
-    name: string;
-    minWidth?: number;
-    maxWidth?: number;
-  }>
->([
-  {
-    id: "desktop",
-    name: "Desktop",
-  },
-  {
-    id: "tablet",
-    name: "Tablet",
-    maxWidth: 1024,
-  },
-  {
-    id: "mobile",
-    name: "Mobile",
-    maxWidth: 768,
-  },
-]);
-
-const [_activeBreakpointId, _setActiveBreakpointId] =
-  useState<string>("desktop");
-
-const _renderResponsiveLabel = (label: string) => (
-  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-    {label}
-  </label>
-);
-
-const [openAccordions, setOpenAccordions] =
-  useState<Record<string, boolean>>({
-    layout: true,
-    typography: true,
-    background: true,
-    border: true,
-  });
-
-const _renderAccordion = (
-  title: string,
-  sectionKey: string,
-  content: React.ReactNode
-) => {
-  const isOpen =
-    openAccordions[sectionKey] !== false;
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
-      <button
-        type="button"
-        onClick={() =>
-          setOpenAccordions((prev) => ({
-            ...prev,
-            [sectionKey]: !isOpen,
-          }))
-        }
-        className="w-full flex items-center justify-between p-3 bg-slate-50/80 hover:bg-slate-100/80 transition text-left"
-      >
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-          {title}
-        </span>
-
-        <span className="text-xs text-slate-400">
-          {isOpen ? "▲" : "▼"}
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="p-3 border-t border-slate-100">
-          {content}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const _getStyleVal = (
-  el: EditorElement,
-  key: keyof ElementStyles,
-  _breakpointId?: string,
-  _bps?: any
-) => {
-  return el.styles?.[key];
-};
-
-const _getLayoutVal = (
-  el: EditorElement,
-  key: keyof ContainerLayout,
-  _breakpointId?: string,
-  _bps?: any
-) => {
-  return el.layout?.[key];
-};  // Quit Visual Editor Handler (F-024)
+  // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
     navigate("/dashboard");
   };
@@ -7131,7 +7016,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 </div>
 
-                {/* Container Specific Layout Controls */}
+                {/* Container Specific Flexbox Layout Controls */}
                 {selectedElementAny.type === "container" && (
                   <div className="space-y-4">
                     {/* Direction */}
@@ -7198,92 +7083,145 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                       />
                     </div>
-
-                    {/* Width & Height */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Width
-                        </label>
-                        <select
-                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "100%"}
-                          onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="100%">100%</option>
-                          <option value="75%">75%</option>
-                          <option value="50%">50%</option>
-                          <option value="33%">33%</option>
-                          <option value="25%">25%</option>
-                          <option value="auto">Auto</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                          Height
-                        </label>
-                        <select
-                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
-                          onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                        >
-                          <option value="auto">Auto</option>
-                          <option value="200px">200px</option>
-                          <option value="300px">300px</option>
-                          <option value="400px">400px</option>
-                          <option value="500px">500px</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Container Background Color */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-semibold text-slate-700">
-                          Background Color
-                        </label>
-                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
-                          <button
-                            type="button"
-                            onClick={() => resetSelectedStyle("backgroundColor")}
-                            title="Reset Background Color to Default"
-                            className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                          >
-                            ↺ Reset
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#f8fafc"}
-                          onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                          className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                        />
-                        <input
-                          type="text"
-                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#f8fafc"}
-                          onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
-                          title="Sample Color from Screen / Image"
-                          className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-                        >
-                          <span>🧪</span>
-                          <span className="text-[10px]">Sample</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Advanced Spacing Controls for Containers */}
-                    {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
-                    {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
                   </div>
                 )}
+
+                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) */}
+                <div className="space-y-4 pt-2">
+                  {/* Width & Height */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Width
+                      </label>
+                      <select
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "auto"}
+                        onChange={(e) => updateSelectedStyle("width", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="auto">Auto</option>
+                        <option value="100%">100%</option>
+                        <option value="75%">75%</option>
+                        <option value="50%">50%</option>
+                        <option value="33%">33%</option>
+                        <option value="25%">25%</option>
+                        <option value="fit-content">Fit Content</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Height
+                      </label>
+                      <select
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
+                        onChange={(e) => updateSelectedStyle("height", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="auto">Auto</option>
+                        <option value="100px">100px</option>
+                        <option value="200px">200px</option>
+                        <option value="300px">300px</option>
+                        <option value="400px">400px</option>
+                        <option value="500px">500px</option>
+                        <option value="100%">100%</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Universal Alignment Control (For ALL Elements & Widgets including Mega Menu) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Alignment
+                    </label>
+                    <div className="grid grid-cols-4 gap-1 rounded-lg bg-slate-100 p-1 border border-slate-200">
+                      {(["left", "center", "right", "justify"] as const).map((align) => {
+                        const currentAlign =
+                          getControlStyleValue(
+                            selectedElementAny,
+                            activeDevice,
+                            activeElementState,
+                            "textAlign"
+                          ) || "left";
+                        const isActive = currentAlign === align;
+                        return (
+                          <button
+                            key={align}
+                            type="button"
+                            onClick={() => {
+                              updateSelectedStyle("textAlign", align);
+                              const flexJustify =
+                                align === "left"
+                                  ? "flex-start"
+                                  : align === "right"
+                                  ? "flex-end"
+                                  : align === "center"
+                                  ? "center"
+                                  : "space-between";
+                              updateSelectedStyle("justifyContent", flexJustify);
+                              if (selectedElementAny.type === "container" || selectedElementAny.layout) {
+                                updateSelectedLayout("justifyContent", flexJustify);
+                              }
+                            }}
+                            className={`rounded py-1 text-xs font-bold capitalize transition ${
+                              isActive
+                                ? "bg-white text-blue-600 shadow-xs"
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            {align}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Background Color */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Background Color
+                      </label>
+                      {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
+                        <button
+                          type="button"
+                          onClick={() => resetSelectedStyle("backgroundColor")}
+                          title="Reset Background Color to Default"
+                          className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                        >
+                          ↺ Reset
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#ffffff"}
+                        onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#ffffff"}
+                        onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
+                        title="Sample Color from Screen / Image"
+                        className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
+                      >
+                        <span>🧪</span>
+                        <span className="text-[10px]">Sample</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Advanced Spacing Controls for ALL Elements */}
+                  {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
+                  {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
+                </div>
 
                 {/* Posts Specific Layout & Content Controls (F-174) */}
                 {selectedElementAny.type === "posts" && (
@@ -7608,39 +7546,324 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           "Typography & Colors",
                           "typography",
                           <div className="space-y-3">
+                            {/* Font Family */}
                             <div>
-                              {renderResponsiveLabel("Text Color")}
-                              <input
-                                type="color"
-                                value={
-                                  getStyleVal(selectedElementAny, "color", activeBreakpointId, breakpoints) ||
-                                  "#0f172a"
-                                }
-                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                className="w-full h-8 cursor-pointer rounded border p-0.5"
-                              />
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Font Family
+                              </label>
+                              <select
+                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily") || "inherit"}
+                                onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="inherit">Default / Theme Font</option>
+                                <option value="'Inter', sans-serif">Inter</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="'Outfit', sans-serif">Outfit</option>
+                                <option value="'Playfair Display', serif">Playfair Display</option>
+                                <option value="'Open Sans', sans-serif">Open Sans</option>
+                                <option value="'Montserrat', sans-serif">Montserrat</option>
+                                <option value="system-ui, sans-serif">System UI</option>
+                                <option value="monospace">Monospace</option>
+                              </select>
                             </div>
+
+                            {/* Font Size & Weight */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                {renderResponsiveLabel("Font Size")}
+                                <input
+                                  type="text"
+                                  value={
+                                    getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"
+                                  }
+                                  onChange={(e) =>
+                                    updateSelectedStyle(
+                                      "fontSize",
+                                      e.target.value.endsWith("px") || e.target.value.endsWith("rem")
+                                        ? e.target.value
+                                        : `${e.target.value}px`
+                                    )
+                                  }
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                  placeholder="16px"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Font Weight
+                                </label>
+                                <select
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
+                                  onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="inherit">Default</option>
+                                  <option value="300">300 Light</option>
+                                  <option value="400">400 Normal</option>
+                                  <option value="500">500 Medium</option>
+                                  <option value="600">600 Semi-Bold</option>
+                                  <option value="700">700 Bold</option>
+                                  <option value="800">800 Extra Bold</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Font Style & Alignment */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Font Style
+                                </label>
+                                <select
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
+                                  onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="normal">Normal</option>
+                                  <option value="italic">Italic</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Text Align
+                                </label>
+                                <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+                                  {(["left", "center", "right", "justify"] as const).map((align) => {
+                                    const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
+                                    const isActive = currentAlign === align;
+                                    return (
+                                      <button
+                                        key={align}
+                                        type="button"
+                                        onClick={() => updateSelectedStyle("textAlign", align)}
+                                        className={`rounded py-1 text-[10px] font-bold uppercase transition ${
+                                          isActive
+                                            ? "bg-white text-blue-600 shadow-xs"
+                                            : "text-slate-500 hover:text-slate-900"
+                                        }`}
+                                      >
+                                        {align.slice(0, 1).toUpperCase()}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Line Height & Letter Spacing */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Line Height
+                                </label>
+                                <input
+                                  type="text"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
+                                  onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
+                                  placeholder="e.g. 1.5 or 24px"
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Letter Spacing
+                                </label>
+                                <input
+                                  type="text"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "letterSpacing") || ""}
+                                  onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value)}
+                                  placeholder="e.g. 0.5px"
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Text Transform & Decoration */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Text Transform
+                                </label>
+                                <select
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textTransform") || "none"}
+                                  onChange={(e) => updateSelectedStyle("textTransform", e.target.value as any)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="none">None</option>
+                                  <option value="capitalize">Capitalize</option>
+                                  <option value="uppercase">Uppercase</option>
+                                  <option value="lowercase">Lowercase</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Decoration
+                                </label>
+                                <select
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textDecoration") || "none"}
+                                  onChange={(e) => updateSelectedStyle("textDecoration", e.target.value as any)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="none">None</option>
+                                  <option value="underline">Underline</option>
+                                  <option value="line-through">Line-Through</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Text Color Picker */}
                             <div>
-                              {renderResponsiveLabel("Font Size (px)")}
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="block text-xs font-semibold text-slate-700">
+                                  Text Color
+                                </label>
+                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => resetSelectedStyle("color")}
+                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                  >
+                                    ↺ Reset
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {renderAccordion(
+                          "Borders & Radius",
+                          "borders",
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Border Style
+                                </label>
+                                <select
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderStyle") || "none"}
+                                  onChange={(e) => updateSelectedStyle("borderStyle", e.target.value as any)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                >
+                                  <option value="none">None</option>
+                                  <option value="solid">Solid</option>
+                                  <option value="dashed">Dashed</option>
+                                  <option value="dotted">Dotted</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                  Border Width
+                                </label>
+                                <input
+                                  type="text"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderWidth") || "1px"}
+                                  onChange={(e) =>
+                                    updateSelectedStyle(
+                                      "borderWidth",
+                                      e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`
+                                    )
+                                  }
+                                  placeholder="1px"
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Border Color */}
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="block text-xs font-semibold text-slate-700">
+                                  Border Color
+                                </label>
+                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "borderColor") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => resetSelectedStyle("borderColor")}
+                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                  >
+                                    ↺ Reset
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
+                                  onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                                />
+                                <input
+                                  type="text"
+                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
+                                  onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Border Radius */}
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Border Radius
+                              </label>
                               <input
                                 type="text"
-                                value={
-                                  getStyleVal(
-                                    selectedElementAny,
-                                    "fontSize",
-                                    activeBreakpointId,
-                                    breakpoints
-                                  ) || "16px"
-                                }
-                                onChange={(e) =>
-                                  updateSelectedStyle(
-                                    "fontSize",
-                                    e.target.value.endsWith("px")
-                                      ? e.target.value
-                                      : `${e.target.value}px`
-                                  )
-                                }
-                                className="w-full rounded border px-2 py-1 text-xs"
+                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || ""}
+                                onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
+                                placeholder="e.g. 8px or 50%"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {renderAccordion(
+                          "Box Shadow & Effects",
+                          "box-shadow",
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Box Shadow Presets
+                              </label>
+                              <select
+                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "boxShadow") || "none"}
+                                onChange={(e) => updateSelectedStyle("boxShadow", e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="none">None</option>
+                                <option value="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">Subtle (SM)</option>
+                                <option value="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)">Soft (MD)</option>
+                                <option value="0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)">Medium (LG)</option>
+                                <option value="0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)">Large (XL)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Opacity
+                              </label>
+                              <input
+                                type="text"
+                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? "1"}
+                                onChange={(e) => updateSelectedStyle("opacity", e.target.value)}
+                                placeholder="0.0 - 1.0"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                               />
                             </div>
                           </div>
