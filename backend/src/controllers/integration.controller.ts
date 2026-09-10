@@ -5,8 +5,12 @@ export class IntegrationController {
   // POST /api/integrations/paypal/create-order
   public static async createPayPalOrder(req: Request, res: Response) {
     try {
-      const { amount = "29.99", currency = "USD", itemName = "Subscription" } = req.body;
-      const result = await IntegrationService.createPayPalOrder(amount, currency, itemName);
+      const { amount = "19.99", currency = "USD", itemName = "Digital Product", itemDescription = "", quantity = 1, env = "sandbox" } = req.body;
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        return res.status(400).json({ success: false, message: "Invalid amount. Amount must be a positive number greater than 0." });
+      }
+      const result = await IntegrationService.createPayPalOrder(amount, currency, itemName, itemDescription, quantity, env);
       return res.status(200).json(result);
     } catch (error: any) {
       return res.status(500).json({ success: false, message: error?.message || "PayPal order creation failed" });

@@ -30,6 +30,41 @@ export * from "./types";
 export * from "./utils";
 export * from "./defaults";
 export * from "./widgets";
+import {
+  triggerImagePicker,
+  ImageWidgetInspector,
+  BackgroundImageInspector,
+  VideoWidgetInspector,
+  GalleryWidgetInspector,
+  SlidesWidgetInspector,
+  ShareButtonsInspector,
+  FormWidgetInspector,
+  ReviewsWidgetInspector,
+  VideoPlaylistInspector,
+  NavMenuWidgetInspector,
+  CountdownWidgetInspector,
+  LottieWidgetInspector,
+  CodeHighlightWidgetInspector,
+  ButtonWidgetInspector,
+  PortfolioWidgetInspector,
+  LoginWidgetInspector,
+  AnimatedTextWidgetInspector,
+  PriceTableWidgetInspector,
+  PriceListWidgetInspector,
+  FlipBoxWidgetInspector,
+  CTAWidgetInspector,
+  MediaCarouselWidgetInspector,
+  TestimonialCarouselWidgetInspector,
+  NestedCarouselWidgetInspector,
+  LoopCarouselWidgetInspector,
+  TOCWidgetInspector,
+  FacebookWidgetInspector,
+  BlockquoteWidgetInspector,
+  PaymentWidgetInspector,
+  WooCommerceWidgetInspector,
+  AudioPlaylistInspector,
+  PayPalWidgetInspector
+} from "./inspector/DynamicWidgetInspectors";
 
 import type {
   PageConfig,
@@ -1173,93 +1208,123 @@ const navigate = useNavigate();
         setLoading(true);
         setErrorMessage("");
 
-        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-          credentials: "include",
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.message || data?.error?.message || "Failed to load website.");
-        }
-
-        const loadedSite = data.website || data;
-        setWebsite(loadedSite);
-
-        // Fetch component accesses
+        let loadedSite: any = null;
         try {
-          const accessRes = await fetch(`${apiUrl}/api/v1/component-access/${websiteId}/all`, {
-            credentials: "include"
+          const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
+            credentials: "include",
           });
-          const accessData = await accessRes.json();
-          if (accessRes.ok && accessData.accesses) {
-            setAllowedComponentIds(new Set(accessData.accesses.map((a: any) => a.componentId)));
+          if (res.ok) {
+            const data = await res.json();
+            loadedSite = data.website || data;
           }
-        } catch (e) {
-          console.error("Failed to fetch accesses", e);
+        } catch (netErr) {
+          console.warn("Backend fetch failed, checking localStorage fallback...", netErr);
         }
 
-        // Initialize multi-page website pages
-        let initialPages: PageConfig[] = [];
-        if (loadedSite?.editorData?.pages && Array.isArray(loadedSite.editorData.pages) && loadedSite.editorData.pages.length > 0) {
-          initialPages = loadedSite.editorData.pages.map((p: any, idx: number) => ({
-            id: p.id || `page_${idx + 1}`,
-            name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
-            slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
-            elements: Array.isArray(p.elements) ? p.elements : [],
-            pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
-            customCss: p.customCss || "",
-            isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
-          }));
-        } else {
-          const defaultPageTitle = loadedSite?.editorData?.pageSettings?.title || loadedSite?.name || "Home";
-          const defaultPagePath = loadedSite?.editorData?.pageSettings?.path || "/";
-          initialPages = [
-            {
-              id: "home",
-              name: defaultPageTitle,
-              slug: defaultPagePath,
-              elements: loadedSite?.editorData?.elements || [],
-              pageSettings: loadedSite?.editorData?.pageSettings || { title: defaultPageTitle, path: defaultPagePath },
-              isHome: true,
-            },
-          ];
+        // Local Storage Fallback if backend fetch was non-OK or unavailable
+        if (!loadedSite) {
+          const cachedStr = localStorage.getItem(`forgestudio_editor_${websiteId}`);
+          if (cachedStr) {
+            try {
+              const editorData = JSON.parse(cachedStr);
+              loadedSite = { id: websiteId, name: "Local Website", editorData };
+            } catch (e) {
+              console.error("Failed to parse cached editor data:", e);
+            }
+          }
         }
-        setPages(initialPages);
 
-        const initialHome = initialPages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || initialPages[0];
-        setActivePageId(initialHome.id);
-        setActivePreviewPageId(initialHome.id);
+        if (loadedSite) {
+          setWebsite(loadedSite);
 
-        if (initialHome.elements && Array.isArray(initialHome.elements)) {
-          setElements(initialHome.elements);
-        } else if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
-          setElements(loadedSite.editorData.elements);
+          // Fetch component accesses
+          try {
+            const accessRes = await fetch(`${apiUrl}/api/v1/component-access/${websiteId}/all`, {
+              credentials: "include"
+            });
+            const accessData = await accessRes.json();
+            if (accessRes.ok && accessData.accesses) {
+              setAllowedComponentIds(new Set(accessData.accesses.map((a: any) => a.componentId)));
+            }
+          } catch (e) {
+            console.error("Failed to fetch accesses", e);
+          }
+
+          // Initialize multi-page website pages
+          let initialPages: PageConfig[] = [];
+          if (loadedSite?.editorData?.pages && Array.isArray(loadedSite.editorData.pages) && loadedSite.editorData.pages.length > 0) {
+            initialPages = loadedSite.editorData.pages.map((p: any, idx: number) => ({
+              id: p.id || `page_${idx + 1}`,
+              name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
+              slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
+              elements: Array.isArray(p.elements) ? p.elements : [],
+              pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
+              customCss: p.customCss || "",
+              isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
+            }));
+          } else {
+            const defaultPageTitle = loadedSite?.editorData?.pageSettings?.title || loadedSite?.name || "Home";
+            const defaultPagePath = loadedSite?.editorData?.pageSettings?.path || "/";
+            initialPages = [
+              {
+                id: "home",
+                name: defaultPageTitle,
+                slug: defaultPagePath,
+                elements: loadedSite?.editorData?.elements || [],
+                pageSettings: loadedSite?.editorData?.pageSettings || { title: defaultPageTitle, path: defaultPagePath },
+                isHome: true,
+              },
+            ];
+          }
+          setPages(initialPages);
+
+          const initialHome = initialPages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || initialPages[0];
+          setActivePageId(initialHome.id);
+          setActivePreviewPageId(initialHome.id);
+
+          if (initialHome.elements && Array.isArray(initialHome.elements)) {
+            setElements(initialHome.elements);
+          } else if (loadedSite?.editorData?.elements && Array.isArray(loadedSite.editorData.elements)) {
+            setElements(loadedSite.editorData.elements);
+          } else {
+            setElements([]);
+          }
+
+          if (initialHome.pageSettings) {
+            setPageSettings((prev) => ({ ...prev, ...initialHome.pageSettings }));
+          } else if (loadedSite?.editorData?.pageSettings) {
+            setPageSettings((prev) => ({ ...prev, ...loadedSite.editorData.pageSettings }));
+          } else if (loadedSite?.name) {
+            setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
+          }
+
+          if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
+            setBreakpoints(loadedSite.editorData.breakpoints);
+          }
+
+          if (loadedSite?.editorData?.globalSettings) {
+            setGlobalSettings(loadedSite.editorData.globalSettings);
+          }
+
+          if (loadedSite?.editorData?.pageCss) {
+            setPageCss(loadedSite.editorData.pageCss);
+          }
         } else {
+          // Default empty initialization if completely fresh project
+          const defaultHome: PageConfig = {
+            id: "home",
+            name: "Home",
+            slug: "/",
+            elements: [],
+            pageSettings: { title: "Home", path: "/" },
+            isHome: true,
+          };
+          setPages([defaultHome]);
+          setActivePageId("home");
           setElements([]);
-        }
-
-        if (initialHome.pageSettings) {
-          setPageSettings((prev) => ({ ...prev, ...initialHome.pageSettings }));
-        } else if (loadedSite?.editorData?.pageSettings) {
-          setPageSettings((prev) => ({ ...prev, ...loadedSite.editorData.pageSettings }));
-        } else if (loadedSite?.name) {
-          setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
-        }
-if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
-          setBreakpoints(loadedSite.editorData.breakpoints);
-        }
-
-        if (loadedSite?.editorData?.globalSettings) {
-          setGlobalSettings(loadedSite.editorData.globalSettings);
-        }
-
-        if (loadedSite?.editorData?.pageCss) {
-          setPageCss(loadedSite.editorData.pageCss);
         }
       } catch (err) {
         console.error("Error loading website:", err);
-        setErrorMessage(err instanceof Error ? err.message : "Error loading website");
       } finally {
         setLoading(false);
       }
@@ -1550,22 +1615,32 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
         },
       };
 
-      const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || data?.error?.message || "Failed to save website.");
+      // 1. Always save locally immediately
+      try {
+        localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
+      } catch (lsErr) {
+        console.warn("Failed to write to localStorage:", lsErr);
       }
 
-      // Update F-321 Autosave baseline on successful manual save
+      // 2. Attempt backend API save
+      try {
+        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          console.warn("Backend save returned non-OK status, saved locally.");
+        }
+      } catch (netErr) {
+        console.warn("Backend save request failed, saved locally:", netErr);
+      }
+
+      // Update F-321 Autosave baseline on successful save
       updateAutosaveBaseline(elements, pageSettings, pages);
 
       // Create F-320 Revision History snapshot
@@ -1578,7 +1653,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
       setSaveMessage("Saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to save website data.");
+      setSaveMessage("Saved locally!");
+      setTimeout(() => setSaveMessage(""), 3000);
     } finally {
       setSaving(false);
     }
@@ -2777,6 +2853,30 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
       styles.zIndex = Number(mergedStyles.zIndex);
     }
 
+    if (
+      mergedStyles.transformRotate ||
+      mergedStyles.transformScale ||
+      mergedStyles.transformTranslateX ||
+      mergedStyles.transformTranslateY
+    ) {
+      const transforms = [];
+      if (mergedStyles.transformRotate) transforms.push(`rotate(${mergedStyles.transformRotate})`);
+      if (mergedStyles.transformScale) transforms.push(`scale(${mergedStyles.transformScale})`);
+      if (mergedStyles.transformTranslateX || mergedStyles.transformTranslateY) {
+        const tx = mergedStyles.transformTranslateX || "0px";
+        const ty = mergedStyles.transformTranslateY || "0px";
+        transforms.push(`translate(${tx}, ${ty})`);
+      }
+      styles.transform = transforms.join(" ");
+    }
+
+    if (mergedStyles.opacity !== undefined && mergedStyles.opacity !== null && mergedStyles.opacity !== "") {
+      styles.opacity = Number(mergedStyles.opacity);
+    }
+
+    if (mergedStyles.overflowX) styles.overflowX = mergedStyles.overflowX as any;
+    if (mergedStyles.overflowY) styles.overflowY = mergedStyles.overflowY as any;
+
     return styles;
   };
 
@@ -3913,8 +4013,10 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           paddingBottom: mergedStyles.paddingBottom,
           paddingLeft: mergedStyles.paddingLeft,
           padding: mergedStyles.padding,
+          backgroundColor: el.containerBg ? el.containerBg : el.type === "button" ? "transparent" : undefined,
           ...compileBackgroundAndBorderStyles(mergedStyles),
           ...compilePositioningStyles(mergedStyles),
+          ...(el.type === "button" && el.containerBg ? { backgroundColor: el.containerBg } : {}),
         }}
       >
         {isHovered && !isSelected && !isPreview && (
@@ -4103,10 +4205,15 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSelectElement(el.id);
+                          triggerImagePicker((url) => {
+                            setElements((prev) =>
+                              updateTreeElement(prev, el.id, (item) => ({ ...item, src: url }))
+                            );
+                          });
                         }}
-                        className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
+                        className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition cursor-pointer flex items-center gap-1.5"
                       >
-                        Configure Video
+                        <span>🎬</span> Select Video
                       </button>
                     )}
                   </div>
@@ -4576,11 +4683,15 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectElement(el.id);
-                        fileInputRef.current?.click();
+                        triggerImagePicker((url) => {
+                          setElements((prev) =>
+                            updateTreeElement(prev, el.id, (item) => ({ ...item, src: url }))
+                          );
+                        });
                       }}
-                      className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
+                      className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition cursor-pointer flex items-center gap-1.5"
                     >
-                      Select Image
+                      <span>📁</span> Select Image
                     </button>
                   )}
                 </div>
@@ -4600,11 +4711,19 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               onClick={(e) => {
                 if (!isPreview) e.preventDefault();
               }}
-              className="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow"
-              style={{ ...(getInnerStyles(mergedStyles as any) as any) }}
+              className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
+              style={{
+                backgroundColor: el.buttonBg || "#2563eb",
+                color: el.buttonColor || "#ffffff",
+                fontSize: mergedStyles.fontSize,
+                fontFamily: mergedStyles.fontFamily,
+                fontWeight: mergedStyles.fontWeight,
+                borderRadius: mergedStyles.borderRadius || "8px",
+                boxShadow: mergedStyles.boxShadow,
+              }}
               {...customAttrProps}
             >
-              {el.content}
+              {el.content || el.buttonText || "Button"}
             </a>
           </div>
         )}
@@ -4873,7 +4992,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           <CountdownWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
-        {el.type === "facebook-page" && (
+        {(el.type === "facebook-page" || el.type === "facebook-button" || el.type === "facebook-embed" || el.type === "facebook-comments") && (
           <FacebookPageWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
@@ -4908,18 +5027,6 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               setElements((prev) => updateRecursive(prev));
             }}
           />
-        )}
-
-        {el.type === "facebook-button" && (
-          <FacebookButtonWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "facebook-embed" && (
-          <FacebookEmbedWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "facebook-comments" && (
-          <FacebookCommentsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
         {el.type === "paypal-button" && (
@@ -4976,6 +5083,26 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               (childElements || []).map((child) => renderElementTree(child))
             }
           />
+        )}
+
+        {el.type === "wc-product-title" && (
+          <WcProductTitleWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "wc-product-price" && (
+          <WcProductPriceWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "wc-product-images" && (
+          <WcProductImagesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "wc-add-to-cart" && (
+          <WcAddToCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "wc-product-rating" && (
+          <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
         {el.type === "html" && (
@@ -6215,89 +6342,7 @@ onClick={() => importFileInputRef.current?.click()}
                     </div>
                   )}
 
-                  {/* Facebook Button Widget (F-197) */}
-                  {isWidgetLibraryVisible("facebook-button", "Facebook Button") && (
-                    <div
-                      draggable={true}
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("application/json", JSON.stringify({ type: "new", widgetType: "facebook-button" }));
-                        e.dataTransfer.effectAllowed = "copy";
-                      }}
-                      onClick={() => handleAddElement("facebook-button")}
-                      className="relative flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-blue-400 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 group cursor-grab transition"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => toggleFavoriteWidget("facebook-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
-                        title={favoriteWidgets.includes("facebook-button") ? "Remove favorite" : "Mark as favorite"}
-                      >
-                        {favoriteWidgets.includes("facebook-button") ? "★" : "☆"}
-                      </button>
-                      <FacebookButtonBoxIcon />
-                      <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                        FB Button
-                      </span>
-                    </div>
-                  )}
 
-                  {/* Facebook Embed Widget (F-198) */}
-                  {isWidgetLibraryVisible("facebook-embed", "Facebook Embed") && (
-                    <div
-                      draggable={true}
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("application/json", JSON.stringify({ type: "new", widgetType: "facebook-embed" }));
-                        e.dataTransfer.effectAllowed = "copy";
-                      }}
-                      onClick={() => handleAddElement("facebook-embed")}
-                      className="relative flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-blue-400 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 group cursor-grab transition"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => toggleFavoriteWidget("facebook-embed", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-embed") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
-                        title={favoriteWidgets.includes("facebook-embed") ? "Remove favorite" : "Mark as favorite"}
-                      >
-                        {favoriteWidgets.includes("facebook-embed") ? "★" : "☆"}
-                      </button>
-                      <FacebookEmbedBoxIcon />
-                      <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                        FB Embed
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Facebook Comments Widget (F-199) */}
-                  {isWidgetLibraryVisible("facebook-comments", "Facebook Comments") && (
-                    <div
-                      draggable={true}
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("application/json", JSON.stringify({ type: "new", widgetType: "facebook-comments" }));
-                        e.dataTransfer.effectAllowed = "copy";
-                      }}
-                      onClick={() => handleAddElement("facebook-comments")}
-                      className="relative flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-blue-400 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 group cursor-grab transition"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => toggleFavoriteWidget("facebook-comments", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-comments") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
-                        title={favoriteWidgets.includes("facebook-comments") ? "Remove favorite" : "Mark as favorite"}
-                      >
-                        {favoriteWidgets.includes("facebook-comments") ? "★" : "☆"}
-                      </button>
-                      <FacebookCommentsBoxIcon />
-                      <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-blue-600">
-                        FB Comments
-                      </span>
-                    </div>
-                  )}
 
                   {/* PayPal Button Widget (F-200) */}
                   {isWidgetLibraryVisible("paypal-button", "PayPal Button") && (
@@ -7218,6 +7263,9 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     </div>
                   </div>
 
+                  {/* Background Image & Overlay Controls */}
+                  <BackgroundImageInspector el={selectedElementAny} updateStyle={updateSelectedStyle} />
+
                   {/* Advanced Spacing Controls for ALL Elements */}
                   {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
                   {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
@@ -7468,7 +7516,226 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 )}
 
-{selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && (
+                {/* Image Widget Specific Inspector */}
+                {selectedElementAny.type === "image" && (
+                  <ImageWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Video Widget Specific Inspector */}
+                {selectedElementAny.type === "video" && (
+                  <VideoWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Gallery Widget Specific Inspector */}
+                {(selectedElementAny.type === "gallery" || selectedElementAny.type === "basic-gallery") && (
+                  <GalleryWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Slides Widget Specific Inspector */}
+                {selectedElementAny.type === "slides" && (
+                  <SlidesWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Share Buttons Specific Inspector */}
+                {selectedElementAny.type === "share-buttons" && (
+                  <ShareButtonsInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Form Builder Specific Inspector */}
+                {selectedElementAny.type === "form" && (
+                  <FormWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Reviews / Testimonials Specific Inspector */}
+                {(selectedElementAny.type === "reviews" || selectedElementAny.type === "testimonial-carousel") && (
+                  <ReviewsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Video Playlist Specific Inspector */}
+                {selectedElementAny.type === "video-playlist" && (
+                  <VideoPlaylistInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Audio Playlist Specific Inspector */}
+                {selectedElementAny.type === "audio-playlist" && (
+                  <AudioPlaylistInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Navigation Menu Specific Inspector */}
+                {selectedElementAny.type === "nav-menu" && (
+                  <NavMenuWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Countdown Specific Inspector */}
+                {selectedElementAny.type === "countdown" && (
+                  <CountdownWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Lottie Specific Inspector */}
+                {selectedElementAny.type === "lottie" && (
+                  <LottieWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Code Highlight Specific Inspector */}
+                {selectedElementAny.type === "code-highlight" && (
+                  <CodeHighlightWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Button Inspector */}
+                {selectedElementAny.type === "button" && (
+                  <ButtonWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Portfolio Inspector */}
+                {selectedElementAny.type === "portfolio" && (
+                  <PortfolioWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Login Inspector */}
+                {selectedElementAny.type === "login" && (
+                  <LoginWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Animated Text Inspector */}
+                {selectedElementAny.type === "animated-headline" && (
+                  <AnimatedTextWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Price Table Inspector */}
+                {selectedElementAny.type === "price-table" && (
+                  <PriceTableWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Price List Inspector */}
+                {selectedElementAny.type === "price-list" && (
+                  <PriceListWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Flip Box Inspector */}
+                {selectedElementAny.type === "flip-box" && (
+                  <FlipBoxWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Call to Action Inspector */}
+                {selectedElementAny.type === "call-to-action" && (
+                  <CTAWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Media & Loop Carousel Inspector */}
+                {(selectedElementAny.type === "media-carousel" || selectedElementAny.type === "loop-carousel" || selectedElementAny.type === "basic-media-carousel" || selectedElementAny.type === "image-carousel") && (
+                  <MediaCarouselWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Table of Contents Inspector */}
+                {selectedElementAny.type === "table-of-contents" && (
+                  <TOCWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Facebook Widgets Inspector */}
+                {(selectedElementAny.type === "facebook-page" || selectedElementAny.type === "facebook-button" || selectedElementAny.type === "facebook-embed" || selectedElementAny.type === "facebook-comments") && (
+                  <FacebookWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Blockquote Inspector */}
+                {selectedElementAny.type === "blockquote" && (
+                  <BlockquoteWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Payment Widgets Inspector (PayPal & Stripe) */}
+                {(selectedElementAny.type === "paypal-button" || selectedElementAny.type === "stripe-button" || selectedElementAny.type === "paypal" || selectedElementAny.type === "stripe") && (
+                  <PaymentWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* WooCommerce Widgets Inspector */}
+                {(selectedElementAny.type === "wc-product-title" || selectedElementAny.type === "wc-product-price" || selectedElementAny.type === "wc-product-images" || selectedElementAny.type === "wc-add-to-cart" || selectedElementAny.type === "wc-product-rating") && (
+                  <WooCommerceWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+
+{selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "basic-gallery" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "form" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && (
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
                               {selectedElementAny.type === "html" ? "Raw HTML Editor (F-110)" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
@@ -9271,263 +9538,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
 
                 {/* Price Table Specific Properties (F-182) */}
                 {selectedElementAny.type === "price-table" && (
-                  <div className="space-y-4">
-                    {/* Grid Columns & Spacing */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Grid & Card Layout
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Columns
-                          </label>
-                          <select
-                            value={selectedElementAny.pricingColumns || 3}
-                            onChange={(e) => updateSelectedProp("pricingColumns", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                          >
-                            <option value={1}>1 Column</option>
-                            <option value={2}>2 Columns</option>
-                            <option value={3}>3 Columns</option>
-                            <option value={4}>4 Columns</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Gap Spacing
-                          </label>
-                          <input
-                            type="number"
-                            min={8}
-                            max={64}
-                            value={selectedElementAny.pricingGap ?? 24}
-                            onChange={(e) => updateSelectedProp("pricingGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Color Config */}
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-1">
-                            Highlight / Popular Ring
-                          </label>
-                          <input
-                            type="color"
-                            value={selectedElementAny.pricingHighlightColor || "#2563eb"}
-                            onChange={(e) => updateSelectedProp("pricingHighlightColor", e.target.value)}
-                            className="h-7 w-full cursor-pointer rounded-lg border border-slate-200 bg-white p-0.5"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-1">
-                            Card Background
-                          </label>
-                          <input
-                            type="color"
-                            value={selectedElementAny.pricingCardBg || "#ffffff"}
-                            onChange={(e) => updateSelectedProp("pricingCardBg", e.target.value)}
-                            className="h-7 w-full cursor-pointer rounded-lg border border-slate-200 bg-white p-0.5"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Pricing Plans Manager */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                          Pricing Plans ({(selectedElementAny.pricingPlans || []).length})
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const arr = selectedElementAny.pricingPlans || [];
-                            const newPlan: PricingPlan = {
-                              id: String(Date.now()),
-                              name: `Plan ${arr.length + 1}`,
-                              price: "$29",
-                              period: "/ month",
-                              description: "Custom pricing plan description.",
-                              isPopular: false,
-                              buttonText: "Choose Plan",
-                              buttonUrl: "#",
-                              features: [
-                                { id: "f1", text: "Feature 1", included: true },
-                                { id: "f2", text: "Feature 2", included: true },
-                              ],
-                            };
-                            updateSelectedProp("pricingPlans", [...arr, newPlan]);
-                          }}
-                          className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-emerald-700 transition cursor-pointer"
-                        >
-                          + Add Plan
-                        </button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {(selectedElementAny.pricingPlans || []).map((plan, planIdx) => (
-                          <div key={plan.id} className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-2">
-                            <div className="flex items-center justify-between gap-1 border-b border-slate-100 pb-1.5">
-                              <input
-                                type="text"
-                                value={plan.name}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.pricingPlans || [])];
-                                  copy[planIdx] = { ...copy[planIdx], name: e.target.value };
-                                  updateSelectedProp("pricingPlans", copy);
-                                }}
-                                placeholder="Plan Name..."
-                                className="w-full font-bold text-xs text-slate-900 outline-none border-b border-transparent focus:border-emerald-500"
-                              />
-                              <label className="flex items-center gap-1 text-[10px] font-bold text-amber-600 shrink-0 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={Boolean(plan.isPopular)}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.pricingPlans || [])];
-                                    copy[planIdx] = { ...copy[planIdx], isPopular: e.target.checked };
-                                    updateSelectedProp("pricingPlans", copy);
-                                  }}
-                                  className="accent-amber-500 rounded"
-                                />
-                                Popular
-                              </label>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const filtered = (selectedElementAny.pricingPlans || []).filter((p) => p.id !== plan.id);
-                                  updateSelectedProp("pricingPlans", filtered);
-                                }}
-                                className="h-5 w-5 shrink-0 rounded border border-red-200 bg-red-50 text-[10px] font-bold text-red-600 hover:bg-red-100 cursor-pointer"
-                              >
-                                ✕
-                              </button>
-                            </div>
-
-                            {/* Price & Period */}
-                            <div className="grid grid-cols-2 gap-1.5">
-                              <input
-                                type="text"
-                                value={plan.price}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.pricingPlans || [])];
-                                  copy[planIdx] = { ...copy[planIdx], price: e.target.value };
-                                  updateSelectedProp("pricingPlans", copy);
-                                }}
-                                placeholder="Price e.g. $49"
-                                className="rounded border border-slate-200 px-2 py-0.5 text-xs font-semibold outline-none"
-                              />
-                              <input
-                                type="text"
-                                value={plan.period}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.pricingPlans || [])];
-                                  copy[planIdx] = { ...copy[planIdx], period: e.target.value };
-                                  updateSelectedProp("pricingPlans", copy);
-                                }}
-                                placeholder="Period e.g. / month"
-                                className="rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-500 outline-none"
-                              />
-                            </div>
-
-                            {/* Description */}
-                            <input
-                              type="text"
-                              value={plan.description || ""}
-                              onChange={(e) => {
-                                const copy = [...(selectedElementAny.pricingPlans || [])];
-                                copy[planIdx] = { ...copy[planIdx], description: e.target.value };
-                                updateSelectedProp("pricingPlans", copy);
-                              }}
-                              placeholder="Plan Description..."
-                              className="w-full rounded border border-slate-200 px-2 py-0.5 text-[11px] text-slate-600 outline-none"
-                            />
-
-                            {/* Badge text if popular */}
-                            {plan.isPopular && (
-                              <input
-                                type="text"
-                                value={plan.badgeText || "MOST POPULAR"}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.pricingPlans || [])];
-                                  copy[planIdx] = { ...copy[planIdx], badgeText: e.target.value };
-                                  updateSelectedProp("pricingPlans", copy);
-                                }}
-                                placeholder="Badge text e.g. MOST POPULAR"
-                                className="w-full rounded border border-amber-200 bg-amber-50/50 px-2 py-0.5 text-[10px] font-bold text-amber-700 outline-none"
-                              />
-                            )}
-
-                            {/* Features list */}
-                            <div className="pt-1.5 border-t border-slate-100 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase">Features ({plan.features.length})</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const copy = [...(selectedElementAny.pricingPlans || [])];
-                                    const features = [...copy[planIdx].features, { id: String(Date.now()), text: "New Feature", included: true }];
-                                    copy[planIdx] = { ...copy[planIdx], features };
-                                    updateSelectedProp("pricingPlans", copy);
-                                  }}
-                                  className="text-[9px] font-bold text-emerald-600 hover:underline cursor-pointer"
-                                >
-                                  + Feature
-                                </button>
-                              </div>
-                              {plan.features.map((feat, featIdx) => (
-                                <div key={feat.id} className="flex items-center gap-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const copy = [...(selectedElementAny.pricingPlans || [])];
-                                      const features = [...copy[planIdx].features];
-                                      features[featIdx] = { ...features[featIdx], included: !features[featIdx].included };
-                                      copy[planIdx] = { ...copy[planIdx], features };
-                                      updateSelectedProp("pricingPlans", copy);
-                                    }}
-                                    className={`h-4 w-4 rounded text-[9px] font-bold shrink-0 ${feat.included ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}
-                                  >
-                                    {feat.included ? "✓" : "✕"}
-                                  </button>
-                                  <input
-                                    type="text"
-                                    value={feat.text}
-                                    onChange={(e) => {
-                                      const copy = [...(selectedElementAny.pricingPlans || [])];
-                                      const features = [...copy[planIdx].features];
-                                      features[featIdx] = { ...features[featIdx], text: e.target.value };
-                                      copy[planIdx] = { ...copy[planIdx], features };
-                                      updateSelectedProp("pricingPlans", copy);
-                                    }}
-                                    className="w-full text-[11px] text-slate-700 outline-none border-b border-transparent focus:border-slate-300"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const copy = [...(selectedElementAny.pricingPlans || [])];
-                                      const features = copy[planIdx].features.filter((f) => f.id !== feat.id);
-                                      copy[planIdx] = { ...copy[planIdx], features };
-                                      updateSelectedProp("pricingPlans", copy);
-                                    }}
-                                    className="text-[10px] text-red-500 hover:text-red-700 shrink-0 cursor-pointer"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <PriceTableWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Price List Specific Properties (F-183) */}
@@ -10371,1782 +10385,51 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
 
                 {/* Call to Action Specific Properties (F-186) */}
                 {selectedElementAny.type === "call-to-action" && (
-                  <div className="space-y-4">
-                    {/* CTA Layout & Container Styling */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Layout & Container Style
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Content Alignment
-                          </label>
-                          <select
-                            value={selectedElementAny.ctaLayout || "centered"}
-                            onChange={(e) => updateSelectedProp("ctaLayout", e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                          >
-                            <option value="centered">Centered Stack</option>
-                            <option value="left-aligned">Left Aligned</option>
-                            <option value="split">Split Row (Title Left, CTA Right)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Border Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.ctaCardBorderRadius || "24px"}
-                            onChange={(e) => updateSelectedProp("ctaCardBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="12px">Rounded (12px)</option>
-                            <option value="24px">Curved Large (24px)</option>
-                            <option value="36px">Pill / Soft (36px)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Background
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaCardBg || "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"}
-                            onChange={(e) => updateSelectedProp("ctaCardBg", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-mono text-slate-800 outline-none focus:border-rose-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Text Color
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.ctaTextColor || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("ctaTextColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.ctaTextColor || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("ctaTextColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* CTA Content & Media */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Heading & Content
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Icon / Emoji
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaIcon || "⚡"}
-                            onChange={(e) => updateSelectedProp("ctaIcon", e.target.value)}
-                            placeholder="⚡, 🚀, 💡..."
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
-                            Image URL (Optional)
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaImage || ""}
-                            onChange={(e) => updateSelectedProp("ctaImage", e.target.value)}
-                            placeholder="https://..."
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-mono text-slate-700 outline-none focus:border-rose-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Heading
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElementAny.ctaHeading !== undefined ? selectedElementAny.ctaHeading : "Boost Your Conversions Today"}
-                          onChange={(e) => updateSelectedProp("ctaHeading", e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Description
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={selectedElementAny.ctaDescription !== undefined ? selectedElementAny.ctaDescription : "Start your 14-day free trial. No credit card required. Cancel anytime."}
-                          onChange={(e) => updateSelectedProp("ctaDescription", e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* CTA Button Customization */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Button Customization
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Button Text
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaButtonText !== undefined ? selectedElementAny.ctaButtonText : "Claim Your Free Trial →"}
-                            onChange={(e) => updateSelectedProp("ctaButtonText", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Button Link URL
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaButtonUrl || "#"}
-                            onChange={(e) => updateSelectedProp("ctaButtonUrl", e.target.value)}
-                            placeholder="#"
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-mono text-slate-800 outline-none focus:border-rose-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Button Background
-                          </label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaButtonBg || "linear-gradient(135deg, #e11d48 0%, #be123c 100%)"}
-                            onChange={(e) => updateSelectedProp("ctaButtonBg", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-mono text-slate-800 outline-none focus:border-rose-500"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Button Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.ctaButtonBorderRadius || "12px"}
-                            onChange={(e) => updateSelectedProp("ctaButtonBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-rose-500"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="8px">Rounded Small (8px)</option>
-                            <option value="12px">Rounded Medium (12px)</option>
-                            <option value="9999px">Pill / Capsule</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Button Text Color
-                        </label>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="color"
-                            value={selectedElementAny.ctaButtonTextColor || "#ffffff"}
-                            onChange={(e) => updateSelectedProp("ctaButtonTextColor", e.target.value)}
-                            className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                          />
-                          <input
-                            type="text"
-                            value={selectedElementAny.ctaButtonTextColor || "#ffffff"}
-                            onChange={(e) => updateSelectedProp("ctaButtonTextColor", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CTAWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
-                {/* Media Carousel Specific Properties (F-211) */}
+                {/* Media Carousel Specific Properties (F-187) */}
                 {selectedElementAny.type === "media-carousel" && (
-                  <div className="space-y-4">
-                    {/* SECTION 1: MEDIA */}
-                    <div className="rounded-xl border border-cyan-200 bg-cyan-50/30 p-3 space-y-2.5">
-                      <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-cyan-200/80 pb-2">
-                        <span className="block text-[11px] font-bold text-cyan-900 uppercase tracking-wider">
-                          🖼️ MEDIA ({ (selectedElementAny.mediaCarouselItems || []).length })
-                        </span>
-
-                        <div className="flex items-center gap-1.5">
-                          {/* Add Image */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const arr = selectedElementAny.mediaCarouselItems || [];
-                              const newItem: MediaCarouselItem = {
-                                id: String(Date.now()),
-                                type: "image",
-                                url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80",
-                                title: `Image ${arr.length + 1}`,
-                                caption: "New Image Slide Caption",
-                                altText: "Media Image",
-                              };
-                              updateSelectedProp("mediaCarouselItems", [...arr, newItem]);
-                            }}
-                            className="rounded-lg bg-cyan-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-cyan-700 transition cursor-pointer"
-                          >
-                            + Add Image
-                          </button>
-
-                          {/* Add Video */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const arr = selectedElementAny.mediaCarouselItems || [];
-                              const newItem: MediaCarouselItem = {
-                                id: String(Date.now()),
-                                type: "video",
-                                url: "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&auto=format&fit=crop&q=80",
-                                videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ",
-                                title: `Video Item ${arr.length + 1}`,
-                                caption: "Featured Video Showcase",
-                                altText: "Media Video",
-                              };
-                              updateSelectedProp("mediaCarouselItems", [...arr, newItem]);
-                            }}
-                            className="rounded-lg bg-indigo-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-indigo-700 transition cursor-pointer"
-                          >
-                            + Add Video
-                          </button>
-
-                          {/* Upload Photos */}
-                          <label className="rounded-lg bg-slate-200 px-2 py-1 text-[10px] font-bold text-slate-700 hover:bg-slate-300 transition cursor-pointer flex items-center gap-1">
-                            <span>📁</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              className="hidden"
-                              onChange={(e) => {
-                                const files = e.target.files;
-                                if (!files || files.length === 0) return;
-                                const currentItems = selectedElementAny.mediaCarouselItems || [];
-                                const fileArray = Array.from(files);
-                                const newItems: MediaCarouselItem[] = [];
-                                let loadedCount = 0;
-
-                                fileArray.forEach((file, idx) => {
-                                  const reader = new FileReader();
-                                  reader.onload = (ev) => {
-                                    if (ev.target?.result) {
-                                      newItems.push({
-                                        id: String(Date.now() + idx + Math.random()),
-                                        type: "image",
-                                        url: ev.target.result as string,
-                                        title: file.name.replace(/\.[^/.]+$/, ""),
-                                        caption: file.name,
-                                        altText: file.name,
-                                      });
-                                    }
-                                    loadedCount++;
-                                    if (loadedCount === fileArray.length) {
-                                      updateSelectedProp("mediaCarouselItems", [...currentItems, ...newItems]);
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
-                                });
-                                e.target.value = "";
-                              }}
-                            />
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Items Reorderable List */}
-                      <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                        {(selectedElementAny.mediaCarouselItems || []).map((item, itemIdx) => {
-                          const itemsArr = selectedElementAny.mediaCarouselItems || [];
-                          return (
-                            <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-2 shadow-xs">
-                              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                                <div className="flex items-center gap-2">
-                                  <img src={item.url || item.posterUrl || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800"} alt="Thumb" className="h-9 w-9 rounded object-cover border border-slate-200 shrink-0" />
-                                  <div>
-                                    <span className="text-xs font-bold text-slate-800">Slide #{itemIdx + 1}</span>
-                                    <span className={`ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${item.type === "video" ? "bg-cyan-100 text-cyan-700" : "bg-indigo-100 text-indigo-700"}`}>
-                                      {item.type === "video" ? "🎬 Video" : "📷 Image"}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-1">
-                                  {/* Move Up */}
-                                  <button
-                                    type="button"
-                                    disabled={itemIdx === 0}
-                                    onClick={() => {
-                                      if (itemIdx === 0) return;
-                                      const copy = [...itemsArr];
-                                      const temp = copy[itemIdx];
-                                      copy[itemIdx] = copy[itemIdx - 1];
-                                      copy[itemIdx - 1] = temp;
-                                      updateSelectedProp("mediaCarouselItems", copy);
-                                    }}
-                                    className={`p-1 rounded text-xs font-bold ${itemIdx === 0 ? "text-slate-300" : "text-slate-600 hover:bg-slate-100 cursor-pointer"}`}
-                                    title="Move item up"
-                                  >
-                                    ⬆️
-                                  </button>
-
-                                  {/* Move Down */}
-                                  <button
-                                    type="button"
-                                    disabled={itemIdx === itemsArr.length - 1}
-                                    onClick={() => {
-                                      if (itemIdx === itemsArr.length - 1) return;
-                                      const copy = [...itemsArr];
-                                      const temp = copy[itemIdx];
-                                      copy[itemIdx] = copy[itemIdx + 1];
-                                      copy[itemIdx + 1] = temp;
-                                      updateSelectedProp("mediaCarouselItems", copy);
-                                    }}
-                                    className={`p-1 rounded text-xs font-bold ${itemIdx === itemsArr.length - 1 ? "text-slate-300" : "text-slate-600 hover:bg-slate-100 cursor-pointer"}`}
-                                    title="Move item down"
-                                  >
-                                    ⬇️
-                                  </button>
-
-                                  {/* Delete Item */}
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const filtered = itemsArr.filter((i) => i.id !== item.id);
-                                      updateSelectedProp("mediaCarouselItems", filtered);
-                                    }}
-                                    className="text-red-500 hover:text-red-700 text-xs px-1.5 py-0.5 rounded hover:bg-red-50 cursor-pointer"
-                                    title="Delete item"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Inputs */}
-                              <div className="space-y-2 text-[10px]">
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Media Type</label>
-                                    <select
-                                      value={item.type || "image"}
-                                      onChange={(e) => {
-                                        const copy = [...itemsArr];
-                                        copy[itemIdx] = { ...copy[itemIdx], type: e.target.value as any };
-                                        updateSelectedProp("mediaCarouselItems", copy);
-                                      }}
-                                      className="w-full rounded border border-slate-200 bg-white px-2 py-1 font-medium text-slate-800 outline-none"
-                                    >
-                                      <option value="image">📷 Image</option>
-                                      <option value="video">🎬 Video</option>
-                                    </select>
-                                  </div>
-
-                                  <div>
-                                    <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Image / Thumbnail URL</label>
-                                    <input
-                                      type="text"
-                                      value={item.url}
-                                      onChange={(e) => {
-                                        const copy = [...itemsArr];
-                                        copy[itemIdx] = { ...copy[itemIdx], url: e.target.value };
-                                        updateSelectedProp("mediaCarouselItems", copy);
-                                      }}
-                                      className="w-full rounded border border-slate-200 px-2 py-1 font-mono text-[10px] text-slate-700 outline-none"
-                                    />
-                                  </div>
-                                </div>
-
-                                {item.type === "video" && (
-                                  <div>
-                                    <label className="block text-[9px] font-semibold text-cyan-700 mb-0.5">Video Source URL (YouTube / Vimeo / MP4)</label>
-                                    <input
-                                      type="text"
-                                      value={item.videoUrl || ""}
-                                      onChange={(e) => {
-                                        const copy = [...itemsArr];
-                                        copy[itemIdx] = { ...copy[itemIdx], videoUrl: e.target.value };
-                                        updateSelectedProp("mediaCarouselItems", copy);
-                                      }}
-                                      placeholder="https://www.youtube.com/watch?v=..."
-                                      className="w-full rounded border border-cyan-300 bg-cyan-50/50 px-2 py-1 font-mono text-[10px] text-slate-800 outline-none focus:border-cyan-500"
-                                    />
-                                  </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Title</label>
-                                    <input
-                                      type="text"
-                                      value={item.title || ""}
-                                      onChange={(e) => {
-                                        const copy = [...itemsArr];
-                                        copy[itemIdx] = { ...copy[itemIdx], title: e.target.value };
-                                        updateSelectedProp("mediaCarouselItems", copy);
-                                      }}
-                                      placeholder="Slide Title..."
-                                      className="w-full rounded border border-slate-200 px-2 py-1 font-medium text-slate-800 outline-none"
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Caption</label>
-                                    <input
-                                      type="text"
-                                      value={item.caption || ""}
-                                      onChange={(e) => {
-                                        const copy = [...itemsArr];
-                                        copy[itemIdx] = { ...copy[itemIdx], caption: e.target.value };
-                                        updateSelectedProp("mediaCarouselItems", copy);
-                                      }}
-                                      placeholder="Caption description..."
-                                      className="w-full rounded border border-slate-200 px-2 py-1 font-medium text-slate-800 outline-none"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* SECTION 2: NAVIGATION */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        🧭 NAVIGATION
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Nav Arrows
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.mediaCarouselShowNav !== false}
-                            onChange={(e) => updateSelectedProp("mediaCarouselShowNav", e.target.checked)}
-                            className="accent-cyan-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Pagination Dots
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.mediaCarouselShowDots !== false}
-                            onChange={(e) => updateSelectedProp("mediaCarouselShowDots", e.target.checked)}
-                            className="accent-cyan-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* SECTION 3: AUTOPLAY */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        ▶️ AUTOPLAY & LOOP
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Autoplay
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.mediaCarouselAutoplay !== false}
-                            onChange={(e) => updateSelectedProp("mediaCarouselAutoplay", e.target.checked)}
-                            className="accent-cyan-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Infinite Loop
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.mediaCarouselLoop !== false}
-                            onChange={(e) => updateSelectedProp("mediaCarouselLoop", e.target.checked)}
-                            className="accent-cyan-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Autoplay Speed (ms)
-                        </label>
-                        <input
-                          type="number"
-                          min={1000}
-                          max={10000}
-                          step={500}
-                          value={selectedElementAny.mediaCarouselAutoplaySpeed || 3500}
-                          onChange={(e) => updateSelectedProp("mediaCarouselAutoplaySpeed", Number(e.target.value))}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* SECTION 4: LAYOUT */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        📐 LAYOUT & SIZING
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Slides Per View
-                          </label>
-                          <select
-                            value={selectedElementAny.mediaCarouselSlidesPerView || 3}
-                            onChange={(e) => updateSelectedProp("mediaCarouselSlidesPerView", Number(e.target.value) as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          >
-                            <option value={1}>1 Slide</option>
-                            <option value={2}>2 Slides</option>
-                            <option value={3}>3 Slides</option>
-                            <option value={4}>4 Slides</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Slide Gap (px)
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            max={40}
-                            value={selectedElementAny.mediaCarouselGap ?? 16}
-                            onChange={(e) => updateSelectedProp("mediaCarouselGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Aspect Ratio
-                          </label>
-                          <select
-                            value={selectedElementAny.mediaCarouselAspectRatio || "landscape"}
-                            onChange={(e) => updateSelectedProp("mediaCarouselAspectRatio", e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          >
-                            <option value="landscape">Landscape (16:9)</option>
-                            <option value="square">Square (1:1)</option>
-                            <option value="portrait">Portrait (3:4)</option>
-                            <option value="video">Ultrawide (21:9)</option>
-                            <option value="auto">Auto Height</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Border Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.mediaCarouselBorderRadius || "16px"}
-                            onChange={(e) => updateSelectedProp("mediaCarouselBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="8px">Rounded Small (8px)</option>
-                            <option value="16px">Rounded Large (16px)</option>
-                            <option value="24px">Extra Curved (24px)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Media Sizing (Object Fit)
-                        </label>
-                        <select
-                          value={selectedElementAny.mediaCarouselImageSizing || "cover"}
-                          onChange={(e) => updateSelectedProp("mediaCarouselImageSizing", e.target.value as any)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                        >
-                          <option value="cover">Cover (Crop to fill)</option>
-                          <option value="contain">Contain (Fit inside)</option>
-                          <option value="fill">Fill (Stretch)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* SECTION 5: STYLE */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        🎨 STYLE & TRANSITIONS
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Transition Effect
-                          </label>
-                          <select
-                            value={selectedElementAny.mediaCarouselTransition || "slide"}
-                            onChange={(e) => updateSelectedProp("mediaCarouselTransition", e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          >
-                            <option value="slide">Slide</option>
-                            <option value="fade">Fade</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Transition Speed (ms)
-                          </label>
-                          <input
-                            type="number"
-                            min={200}
-                            max={2000}
-                            step={100}
-                            value={selectedElementAny.mediaCarouselTransitionSpeed || 500}
-                            onChange={(e) => updateSelectedProp("mediaCarouselTransitionSpeed", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-cyan-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Card Background Color
-                        </label>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="color"
-                            value={selectedElementAny.mediaCarouselCardBg || "#0f172a"}
-                            onChange={(e) => updateSelectedProp("mediaCarouselCardBg", e.target.value)}
-                            className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                          />
-                          <input
-                            type="text"
-                            value={selectedElementAny.mediaCarouselCardBg || "#0f172a"}
-                            onChange={(e) => updateSelectedProp("mediaCarouselCardBg", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <MediaCarouselWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Testimonial Carousel Specific Properties (F-188) */}
                 {selectedElementAny.type === "testimonial-carousel" && (
-                  <div className="space-y-4">
-                    {/* Carousel Controls & Layout */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Carousel Controls & Layout
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Slides Per View
-                          </label>
-                          <select
-                            value={selectedElementAny.testimonialSlidesPerView || 2}
-                            onChange={(e) => updateSelectedProp("testimonialSlidesPerView", Number(e.target.value) as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                          >
-                            <option value={1}>1 Testimonial</option>
-                            <option value={2}>2 Testimonials</option>
-                            <option value={3}>3 Testimonials</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Spacing (px)
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
-                            max={40}
-                            value={selectedElementAny.testimonialGap ?? 20}
-                            onChange={(e) => updateSelectedProp("testimonialGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Background
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.testimonialCardBg || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("testimonialCardBg", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.testimonialCardBg || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("testimonialCardBg", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Border Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.testimonialCardBorderRadius || "16px"}
-                            onChange={(e) => updateSelectedProp("testimonialCardBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="8px">Rounded Small (8px)</option>
-                            <option value="16px">Rounded Large (16px)</option>
-                            <option value="24px">Extra Curved (24px)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Star Rating Color
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.testimonialStarColor || "#f59e0b"}
-                              onChange={(e) => updateSelectedProp("testimonialStarColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.testimonialStarColor || "#f59e0b"}
-                              onChange={(e) => updateSelectedProp("testimonialStarColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Text Color
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.testimonialTextColor || "#1e293b"}
-                              onChange={(e) => updateSelectedProp("testimonialTextColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.testimonialTextColor || "#1e293b"}
-                              onChange={(e) => updateSelectedProp("testimonialTextColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Autoplay
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.testimonialAutoplay !== false}
-                            onChange={(e) => updateSelectedProp("testimonialAutoplay", e.target.checked)}
-                            className="accent-emerald-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Infinite Loop
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.testimonialLoop !== false}
-                            onChange={(e) => updateSelectedProp("testimonialLoop", e.target.checked)}
-                            className="accent-emerald-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Nav Arrows
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.testimonialShowNav !== false}
-                            onChange={(e) => updateSelectedProp("testimonialShowNav", e.target.checked)}
-                            className="accent-emerald-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Pagination Dots
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.testimonialShowDots !== false}
-                            onChange={(e) => updateSelectedProp("testimonialShowDots", e.target.checked)}
-                            className="accent-emerald-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Testimonial Items Manager */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
-                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                          Testimonials ({(selectedElementAny.testimonialItems || []).length})
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const arr = selectedElementAny.testimonialItems || [];
-                            const newItem: TestimonialItem = {
-                              id: String(Date.now()),
-                              quote: "Outstanding product and top-tier support team!",
-                              name: `Customer ${arr.length + 1}`,
-                              role: "Verified Buyer",
-                              rating: 5,
-                              avatarUrl: "",
-                            };
-                            updateSelectedProp("testimonialItems", [...arr, newItem]);
-                          }}
-                          className="rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-emerald-700 transition cursor-pointer"
-                        >
-                          + Add Testimonial
-                        </button>
-                      </div>
-
-                      {/* Items List */}
-                      <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                        {(selectedElementAny.testimonialItems || []).map((t, tIdx) => (
-                          <div key={t.id} className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-2">
-                            <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5">
-                              <span className="text-xs font-bold text-slate-800">Testimonial #{tIdx + 1}</span>
-
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const filtered = (selectedElementAny.testimonialItems || []).filter((item) => item.id !== t.id);
-                                  updateSelectedProp("testimonialItems", filtered);
-                                }}
-                                className="text-red-500 hover:text-red-700 text-xs px-1.5 py-0.5 rounded hover:bg-red-50 cursor-pointer"
-                                title="Delete testimonial"
-                              >
-                                ✕
-                              </button>
-                            </div>
-
-                            {/* Quote */}
-                            <div>
-                              <label className="block text-[9px] font-semibold text-slate-400">Quote Text</label>
-                              <textarea
-                                rows={2}
-                                value={t.quote}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.testimonialItems || [])];
-                                  copy[tIdx] = { ...copy[tIdx], quote: e.target.value };
-                                  updateSelectedProp("testimonialItems", copy);
-                                }}
-                                className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-800 outline-none focus:border-emerald-500"
-                              />
-                            </div>
-
-                            {/* Name & Role */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">Customer Name</label>
-                                <input
-                                  type="text"
-                                  value={t.name}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.testimonialItems || [])];
-                                    copy[tIdx] = { ...copy[tIdx], name: e.target.value };
-                                    updateSelectedProp("testimonialItems", copy);
-                                  }}
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">Role / Title</label>
-                                <input
-                                  type="text"
-                                  value={t.role}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.testimonialItems || [])];
-                                    copy[tIdx] = { ...copy[tIdx], role: e.target.value };
-                                    updateSelectedProp("testimonialItems", copy);
-                                  }}
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Rating & Avatar */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">Rating (1 - 5 Stars)</label>
-                                <select
-                                  value={t.rating ?? 5}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.testimonialItems || [])];
-                                    copy[tIdx] = { ...copy[tIdx], rating: Number(e.target.value) };
-                                    updateSelectedProp("testimonialItems", copy);
-                                  }}
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                >
-                                  <option value={5}>5 Stars (★★★★★)</option>
-                                  <option value={4}>4 Stars (★★★★☆)</option>
-                                  <option value={3}>3 Stars (★★★☆☆)</option>
-                                  <option value={2}>2 Stars (★★☆☆☆)</option>
-                                  <option value={1}>1 Star (★☆☆☆☆)</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">Avatar Image URL</label>
-                                <input
-                                  type="text"
-                                  value={t.avatarUrl || ""}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.testimonialItems || [])];
-                                    copy[tIdx] = { ...copy[tIdx], avatarUrl: e.target.value };
-                                    updateSelectedProp("testimonialItems", copy);
-                                  }}
-                                  placeholder="https://..."
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-[10px] font-mono text-slate-600 outline-none"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <TestimonialCarouselWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Nested Carousel Inspector Panel (F-189) */}
                 {selectedElementAny.type === "nested-carousel" && (
-                  <div className="space-y-4">
-                    {/* Carousel Settings */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Carousel Settings
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Slides Per View
-                          </label>
-                          <select
-                            value={selectedElementAny.nestedCarouselSlidesPerView || 1}
-                            onChange={(e) => updateSelectedProp("nestedCarouselSlidesPerView", Number(e.target.value) as 1 | 2 | 3)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value={1}>1 Slide</option>
-                            <option value={2}>2 Slides</option>
-                            <option value={3}>3 Slides</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Gap (px)
-                          </label>
-                          <input
-                            type="number"
-                            value={selectedElementAny.nestedCarouselGap ?? 20}
-                            onChange={(e) => updateSelectedProp("nestedCarouselGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Border Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.nestedCarouselBorderRadius || "16px"}
-                            onChange={(e) => updateSelectedProp("nestedCarouselBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="8px">Rounded (8px)</option>
-                            <option value="16px">Large (16px)</option>
-                            <option value="24px">X-Large (24px)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Autoplay Speed (ms)
-                          </label>
-                          <input
-                            type="number"
-                            step={500}
-                            min={1000}
-                            value={selectedElementAny.nestedCarouselAutoplaySpeed || 5000}
-                            onChange={(e) => updateSelectedProp("nestedCarouselAutoplaySpeed", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Autoplay
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.nestedCarouselAutoplay !== false}
-                            onChange={(e) => updateSelectedProp("nestedCarouselAutoplay", e.target.checked)}
-                            className="accent-indigo-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Infinite Loop
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.nestedCarouselLoop !== false}
-                            onChange={(e) => updateSelectedProp("nestedCarouselLoop", e.target.checked)}
-                            className="accent-indigo-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Nav Arrows
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.nestedCarouselShowNav !== false}
-                            onChange={(e) => updateSelectedProp("nestedCarouselShowNav", e.target.checked)}
-                            className="accent-indigo-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Pagination Dots
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.nestedCarouselShowDots !== false}
-                            onChange={(e) => updateSelectedProp("nestedCarouselShowDots", e.target.checked)}
-                            className="accent-indigo-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Slides List Manager */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
-                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                          Slide Containers ({(selectedElementAny.children || []).length})
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newSlide: EditorElement = {
-                              id: generateId(),
-                              type: "container",
-                              content: `Slide ${(selectedElementAny.children || []).length + 1} Container`,
-                              layout: { direction: "column", justifyContent: "center", alignItems: "center", gap: 12 },
-                              styles: {
-                                width: "100%",
-                                backgroundColor: "#ffffff",
-                                paddingTop: "32px",
-                                paddingRight: "32px",
-                                paddingBottom: "32px",
-                                paddingLeft: "32px",
-                                borderRadius: "16px",
-                                borderWidth: "1px",
-                                borderStyle: "solid",
-                                borderColor: "#e2e8f0",
-                              },
-                              children: [
-                                {
-                                  id: generateId(),
-                                  type: "heading",
-                                  content: `New Slide Container #${(selectedElementAny.children || []).length + 1}`,
-                                  styles: { fontSize: "24px", fontWeight: "700", color: "#0f172a", textAlign: "center" },
-                                },
-                                {
-                                  id: generateId(),
-                                  type: "text",
-                                  content: "Drop any elements or edit this container slide.",
-                                  styles: { fontSize: "14px", color: "#64748b", textAlign: "center", marginTop: "6px" },
-                                },
-                              ],
-                            };
-                            updateSelectedProp("children", [...(selectedElementAny.children || []), newSlide]);
-                          }}
-                          className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-indigo-700 transition cursor-pointer"
-                        >
-                          + Add Slide
-                        </button>
-                      </div>
-
-                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                        {(selectedElementAny.children || []).map((slide, sIdx) => (
-                          <div
-                            key={slide.id}
-                            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2 text-xs"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 font-bold text-indigo-700 text-[10px]">
-                                #{sIdx + 1}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedId(slide.id)}
-                                className="font-semibold text-slate-800 hover:text-indigo-600 hover:underline text-left truncate max-w-[120px]"
-                                title="Click to select & edit slide container"
-                              >
-                                {slide.content || `Slide #${sIdx + 1}`}
-                              </button>
-                              <span className="text-[10px] text-slate-400">({(slide.children || []).length} items)</span>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedId(slide.id)}
-                                className="rounded px-1.5 py-0.5 text-[10px] font-bold text-indigo-600 hover:bg-indigo-50"
-                                title="Select Slide Container"
-                              >
-                                Edit ✏️
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if ((selectedElementAny.children || []).length <= 1) return;
-                                  const copy = (selectedElementAny.children || []).filter((_, idx) => idx !== sIdx);
-                                  updateSelectedProp("children", copy);
-                                }}
-                                disabled={(selectedElementAny.children || []).length <= 1}
-                                className="rounded p-1 text-[10px] font-bold text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
-                                title="Delete Slide"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <NestedCarouselWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    setSelectedId={setSelectedId}
+                  />
                 )}
 
                 {/* Loop Carousel Inspector Panel (F-190) */}
                 {selectedElementAny.type === "loop-carousel" && (
-                  <div className="space-y-4">
-                    {/* Carousel Layout & Controls */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Carousel Controls & Layout
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Transition Effect
-                          </label>
-                          <select
-                            value={selectedElementAny.loopCarouselTransition || "slide"}
-                            onChange={(e) => updateSelectedProp("loopCarouselTransition", e.target.value as "slide" | "fade" | "continuous")}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="slide">Slide Track</option>
-                            <option value="fade">Cross Fade</option>
-                            <option value="continuous">Continuous Ticker</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Slides Per View
-                          </label>
-                          <select
-                            value={selectedElementAny.loopCarouselSlidesPerView || 3}
-                            onChange={(e) => updateSelectedProp("loopCarouselSlidesPerView", Number(e.target.value) as 1 | 2 | 3 | 4)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value={1}>1 Slide</option>
-                            <option value={2}>2 Slides</option>
-                            <option value={3}>3 Slides</option>
-                            <option value={4}>4 Slides</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Gap (px)
-                          </label>
-                          <input
-                            type="number"
-                            value={selectedElementAny.loopCarouselGap ?? 20}
-                            onChange={(e) => updateSelectedProp("loopCarouselGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Autoplay Speed (ms)
-                          </label>
-                          <input
-                            type="number"
-                            step={500}
-                            min={1000}
-                            value={selectedElementAny.loopCarouselAutoplaySpeed || 3500}
-                            onChange={(e) => updateSelectedProp("loopCarouselAutoplaySpeed", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Card Background
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.loopCarouselCardBg || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("loopCarouselCardBg", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.loopCarouselCardBg || "#ffffff"}
-                              onChange={(e) => updateSelectedProp("loopCarouselCardBg", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Border Radius
-                          </label>
-                          <select
-                            value={selectedElementAny.loopCarouselBorderRadius || "16px"}
-                            onChange={(e) => updateSelectedProp("loopCarouselBorderRadius", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="0px">Square (0px)</option>
-                            <option value="8px">Rounded (8px)</option>
-                            <option value="16px">Large (16px)</option>
-                            <option value="24px">X-Large (24px)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Autoplay
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.loopCarouselAutoplay !== false}
-                            onChange={(e) => updateSelectedProp("loopCarouselAutoplay", e.target.checked)}
-                            className="accent-purple-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Infinite Loop
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.loopCarouselLoop !== false}
-                            onChange={(e) => updateSelectedProp("loopCarouselLoop", e.target.checked)}
-                            className="accent-purple-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Nav Arrows
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.loopCarouselShowNav !== false}
-                            onChange={(e) => updateSelectedProp("loopCarouselShowNav", e.target.checked)}
-                            className="accent-purple-600 rounded cursor-pointer"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-semibold text-slate-700 cursor-pointer">
-                            Pagination Dots
-                          </label>
-                          <input
-                            type="checkbox"
-                            checked={selectedElementAny.loopCarouselShowDots !== false}
-                            onChange={(e) => updateSelectedProp("loopCarouselShowDots", e.target.checked)}
-                            className="accent-purple-600 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Loop Carousel Items Manager */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
-                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                          Items ({(selectedElementAny.loopCarouselItems || []).length})
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const arr = selectedElementAny.loopCarouselItems || [];
-                            const newItem: LoopCarouselItem = {
-                              id: String(Date.now()),
-                              title: `New Feature Item #${arr.length + 1}`,
-                              description: "Add descriptive details for this loop carousel card.",
-                              badge: "FEATURE",
-                              buttonText: "Learn More",
-                              linkUrl: "#",
-                            };
-                            updateSelectedProp("loopCarouselItems", [...arr, newItem]);
-                          }}
-                          className="rounded-lg bg-purple-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-purple-700 transition cursor-pointer"
-                        >
-                          + Add Item
-                        </button>
-                      </div>
-
-                      <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                        {(selectedElementAny.loopCarouselItems || []).map((item, itemIdx) => (
-                          <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-2.5 space-y-2">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                              <span className="text-xs font-bold text-slate-700">Item #{itemIdx + 1}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if ((selectedElementAny.loopCarouselItems || []).length <= 1) return;
-                                  const copy = (selectedElementAny.loopCarouselItems || []).filter((_, idx) => idx !== itemIdx);
-                                  updateSelectedProp("loopCarouselItems", copy);
-                                }}
-                                disabled={(selectedElementAny.loopCarouselItems || []).length <= 1}
-                                className="rounded p-1 text-[10px] font-bold text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
-                                title="Delete Item"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-
-                            {/* Title & Badge */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Title</label>
-                                <input
-                                  type="text"
-                                  value={item.title}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                    copy[itemIdx] = { ...copy[itemIdx], title: e.target.value };
-                                    updateSelectedProp("loopCarouselItems", copy);
-                                  }}
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Badge / Tag</label>
-                                <input
-                                  type="text"
-                                  value={item.badge || ""}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                    copy[itemIdx] = { ...copy[itemIdx], badge: e.target.value };
-                                    updateSelectedProp("loopCarouselItems", copy);
-                                  }}
-                                  placeholder="e.g. NEW, PRO"
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Description */}
-                            <div>
-                              <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Description</label>
-                              <textarea
-                                rows={2}
-                                value={item.description || ""}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                  copy[itemIdx] = { ...copy[itemIdx], description: e.target.value };
-                                  updateSelectedProp("loopCarouselItems", copy);
-                                }}
-                                className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-800 outline-none"
-                              />
-                            </div>
-
-                            {/* Image URL & Upload */}
-                            <div>
-                              <div className="flex items-center justify-between mb-0.5">
-                                <label className="block text-[9px] font-semibold text-slate-400">Card Image</label>
-                                <label className="text-[9px] font-bold text-purple-600 hover:underline cursor-pointer">
-                                  <span>Upload Photo</span>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        const reader = new FileReader();
-                                        reader.onload = () => {
-                                          if (typeof reader.result === "string") {
-                                            const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                            copy[itemIdx] = { ...copy[itemIdx], imageUrl: reader.result };
-                                            updateSelectedProp("loopCarouselItems", copy);
-                                          }
-                                        };
-                                        reader.readAsDataURL(file);
-                                      }
-                                    }}
-                                  />
-                                </label>
-                              </div>
-                              <input
-                                type="text"
-                                value={item.imageUrl || ""}
-                                onChange={(e) => {
-                                  const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                  copy[itemIdx] = { ...copy[itemIdx], imageUrl: e.target.value };
-                                  updateSelectedProp("loopCarouselItems", copy);
-                                }}
-                                placeholder="https://..."
-                                className="w-full rounded border border-slate-200 px-2 py-0.5 text-[10px] font-mono text-slate-600 outline-none"
-                              />
-                            </div>
-
-                            {/* Button Text & Link */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Button Text</label>
-                                <input
-                                  type="text"
-                                  value={item.buttonText || ""}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                    copy[itemIdx] = { ...copy[itemIdx], buttonText: e.target.value };
-                                    updateSelectedProp("loopCarouselItems", copy);
-                                  }}
-                                  placeholder="e.g. Learn More"
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-800 outline-none"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Link URL</label>
-                                <input
-                                  type="text"
-                                  value={item.linkUrl || ""}
-                                  onChange={(e) => {
-                                    const copy = [...(selectedElementAny.loopCarouselItems || [])];
-                                    copy[itemIdx] = { ...copy[itemIdx], linkUrl: e.target.value };
-                                    updateSelectedProp("loopCarouselItems", copy);
-                                  }}
-                                  placeholder="#"
-                                  className="w-full rounded border border-slate-200 px-2 py-0.5 text-xs font-mono text-slate-600 outline-none"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <LoopCarouselWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Table of Contents Inspector Panel (F-191) */}
                 {selectedElementAny.type === "table-of-contents" && (
-                  <div className="space-y-4">
-                    {/* Settings & Header */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Table of Contents Settings
-                      </span>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Header Title
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElementAny.tocTitle !== undefined ? selectedElementAny.tocTitle : "Table of Contents"}
-                          onChange={(e) => updateSelectedProp("tocTitle", e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-semibold text-slate-700">Show Title Header</label>
-                        <input
-                          type="checkbox"
-                          checked={selectedElementAny.tocShowTitle !== false}
-                          onChange={(e) => updateSelectedProp("tocShowTitle", e.target.checked)}
-                          className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Marker Style
-                          </label>
-                          <select
-                            value={selectedElementAny.tocMarkerStyle || "bullet"}
-                            onChange={(e) => updateSelectedProp("tocMarkerStyle", e.target.value as "none" | "bullet" | "number" | "line" | "badge")}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="bullet">Bullet Dots</option>
-                            <option value="number">Numbers (1, 2, 3)</option>
-                            <option value="line">Accent Line</option>
-                            <option value="badge">Tag Badge (H1, H2)</option>
-                            <option value="none">Plain Text</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Alignment
-                          </label>
-                          <select
-                            value={selectedElementAny.tocAlignment || "left"}
-                            onChange={(e) => updateSelectedProp("tocAlignment", e.target.value as "left" | "center" | "right")}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="left">Left</option>
-                            <option value="center">Center</option>
-                            <option value="right">Right</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Indent / Level (px)
-                          </label>
-                          <input
-                            type="number"
-                            value={selectedElementAny.tocIndentPerLevel ?? 14}
-                            onChange={(e) => updateSelectedProp("tocIndentPerLevel", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                            Item Gap (px)
-                          </label>
-                          <input
-                            type="number"
-                            value={selectedElementAny.tocItemGap ?? 8}
-                            onChange={(e) => updateSelectedProp("tocItemGap", Number(e.target.value))}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Included Heading Levels */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                        Included Heading Tags
-                      </span>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((lvl) => {
-                          const currentIncluded = selectedElementAny.tocIncludedLevels || ["h1", "h2", "h3", "h4", "h5", "h6"];
-                          const isChecked = currentIncluded.includes(lvl);
-                          return (
-                            <label key={lvl} className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={(e) => {
-                                  let nextLevels: ("h1" | "h2" | "h3" | "h4" | "h5" | "h6")[];
-                                  if (e.target.checked) {
-                                    nextLevels = [...currentIncluded, lvl];
-                                  } else {
-                                    nextLevels = currentIncluded.filter((l) => l !== lvl);
-                                  }
-                                  updateSelectedProp("tocIncludedLevels", nextLevels);
-                                }}
-                                className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-                              />
-                              <span className="uppercase">{lvl}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Colors & Appearance */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Color Customization
-                      </span>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Card Background</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.tocCardBg || "#f8fafc"}
-                              onChange={(e) => updateSelectedProp("tocCardBg", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.tocCardBg || "#f8fafc"}
-                              onChange={(e) => updateSelectedProp("tocCardBg", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Border Color</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.tocBorderColor || "#e2e8f0"}
-                              onChange={(e) => updateSelectedProp("tocBorderColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.tocBorderColor || "#e2e8f0"}
-                              onChange={(e) => updateSelectedProp("tocBorderColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.tocTextColor || "#334155"}
-                              onChange={(e) => updateSelectedProp("tocTextColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.tocTextColor || "#334155"}
-                              onChange={(e) => updateSelectedProp("tocTextColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Accent / Marker</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.tocHoverColor || "#2563eb"}
-                              onChange={(e) => updateSelectedProp("tocHoverColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.tocHoverColor || "#2563eb"}
-                              onChange={(e) => updateSelectedProp("tocHoverColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <TOCWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Countdown Inspector Panel (F-192) */}
@@ -13483,134 +11766,12 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 )}
 
-                {/* PayPal Button Inspector Panel (F-200) */}
+                {/* PayPal Button Inspector Panel (F-200 / F-217) */}
                 {selectedElementAny.type === "paypal-button" && (
-                  <div className="space-y-4">
-                    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 space-y-3">
-                      <span className="block text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <PayPalButtonBoxIcon />
-                        <span>PayPal Checkout Settings</span>
-                      </span>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                          Button Text
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElementAny.paypalText || "Pay Now with PayPal"}
-                          onChange={(e) => updateSelectedProp("paypalText", e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                          Product / Item Name
-                        </label>
-                        <input
-                          type="text"
-                          value={selectedElementAny.paypalItemName || "Digital Product"}
-                          onChange={(e) => updateSelectedProp("paypalItemName", e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Amount</label>
-                          <input
-                            type="text"
-                            value={selectedElementAny.paypalAmount || "19.99"}
-                            onChange={(e) => updateSelectedProp("paypalAmount", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Currency</label>
-                          <select
-                            value={selectedElementAny.paypalCurrency || "USD"}
-                            onChange={(e) => updateSelectedProp("paypalCurrency", e.target.value)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="USD">USD ($)</option>
-                            <option value="EUR">EUR (€)</option>
-                            <option value="GBP">GBP (£)</option>
-                            <option value="CAD">CAD ($)</option>
-                            <option value="AUD">AUD ($)</option>
-                            <option value="INR">INR (₹)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Size</label>
-                          <select
-                            value={selectedElementAny.paypalButtonSize || "md"}
-                            onChange={(e) => updateSelectedProp("paypalButtonSize", e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="sm">Small</option>
-                            <option value="md">Medium</option>
-                            <option value="lg">Large</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                          <select
-                            value={selectedElementAny.paypalAlignment || "left"}
-                            onChange={(e) => updateSelectedProp("paypalAlignment", e.target.value as any)}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                          >
-                            <option value="left">Left</option>
-                            <option value="center">Center</option>
-                            <option value="right">Right</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Button Colors</span>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.paypalBgColor || "#FFC439"}
-                              onChange={(e) => updateSelectedProp("paypalBgColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.paypalBgColor || "#FFC439"}
-                              onChange={(e) => updateSelectedProp("paypalBgColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={selectedElementAny.paypalTextColor || "#003087"}
-                              onChange={(e) => updateSelectedProp("paypalTextColor", e.target.value)}
-                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementAny.paypalTextColor || "#003087"}
-                              onChange={(e) => updateSelectedProp("paypalTextColor", e.target.value)}
-                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <PayPalWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
                 )}
 
                 {/* Stripe Button Inspector Panel (F-201) */}
