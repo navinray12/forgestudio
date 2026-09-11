@@ -15213,6 +15213,12 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
             setPageCss(val);
           } else if (devModalMode === "global-css") {
             setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
+          } else if (devModalMode === "export-code") {
+            const target = selectedElement || elements[0];
+            if (target && val) {
+              setElements((prev) => updateTreeElement(prev, target.id, () => val));
+              setSelectedId(val.id);
+            }
           }
         }}
       />

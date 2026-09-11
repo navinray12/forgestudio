@@ -305,9 +305,10 @@ export interface SlideItem {
 export interface PortfolioItem {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image: string;
   url?: string;
+  link?: string;
   category?: string;
 }
 
@@ -335,6 +336,8 @@ export interface PostItem {
   date?: string;
   author?: string;
   image?: string;
+  category?: string;
+  link?: string;
   readMoreText?: string;
   readMoreUrl?: string;
 }
