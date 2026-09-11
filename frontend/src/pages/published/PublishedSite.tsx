@@ -51,6 +51,50 @@ const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
 
+import {
+    SlidesWidgetRenderer,
+    FormWidgetRenderer,
+    LoginWidgetRenderer,
+    NavMenuWidgetRenderer,
+    AnimatedHeadlineWidgetRenderer,
+    PriceTableWidgetRenderer,
+    PriceListWidgetRenderer,
+    GalleryWidgetRenderer,
+    FlipBoxWidgetRenderer,
+    CtaWidgetRenderer,
+    MediaCarouselWidgetRenderer,
+    TestimonialCarouselWidgetRenderer,
+    NestedCarouselWidgetRenderer,
+    LoopCarouselWidgetRenderer,
+    ImageCarouselWidgetRenderer,
+    TocWidgetRenderer,
+    CountdownWidgetRenderer,
+    FacebookPageWidgetRenderer,
+    BlockquoteWidgetRenderer,
+    ReviewsWidgetRenderer,
+    FacebookButtonWidgetRenderer,
+    FacebookEmbedWidgetRenderer,
+    FacebookCommentsWidgetRenderer,
+    PayPalButtonWidgetRenderer,
+    StripeButtonWidgetRenderer,
+    LottieWidgetRenderer,
+    CodeHighlightWidgetRenderer,
+    BasicMediaCarouselWidgetRenderer,
+    BasicGalleryWidgetRenderer,
+    AudioPlaylistWidgetRenderer,
+    DynamicLightboxWidgetRenderer,
+    CustomSvgWidgetRenderer,
+    IconLibraryWidgetRenderer,
+    MegaMenuWidgetRenderer,
+    OffCanvasWidgetRenderer,
+    ShareButtonsWidgetRenderer,
+    WcProductTitleWidgetRenderer,
+    WcProductPriceWidgetRenderer,
+    WcProductImagesWidgetRenderer,
+    WcAddToCartWidgetRenderer,
+    WcProductRatingWidgetRenderer
+} from "../editor/widgets";
+
 // Default breakpoints (mirror core for stability)
 const DEFAULT_BREAKPOINTS: Breakpoint[] = [
     { id: "widescreen", name: "Widescreen", width: 1440, active: false },
@@ -74,10 +118,11 @@ interface RenderNodeProps {
     globalSettings: any;
     elementClassMap: Map<string, string>;
     apiUrl: string;
+    allElements?: EditorElement[];
 }
 
 // F-358: Safely caches execution overhead per Element in PublishedSite skipping massive style hashing recalculations
-const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl }) => {
+const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, allElements }) => {
     // F-351 logic exactly as website outputs
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
@@ -170,6 +215,93 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </React.Fragment>
     );
 
+    // Dynamic Widgets
+    if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "login") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoginWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "nav-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><NavMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "animated-headline") return <div ref={assignRefIfTracked as any} {...mergedProps}><AnimatedHeadlineWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "price-table") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceTableWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "price-list") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceListWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><GalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "basic-gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicGalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "flip-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><FlipBoxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "call-to-action") return <div ref={assignRefIfTracked as any} {...mergedProps}><CtaWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><MediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "basic-media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicMediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "testimonial-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><TestimonialCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "loop-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "image-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><ImageCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "table-of-contents") return <div ref={assignRefIfTracked as any} {...mergedProps}><TocWidgetRenderer el={el} elements={allElements || []} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "countdown") return <div ref={assignRefIfTracked as any} {...mergedProps}><CountdownWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "facebook-page" || el.type === "facebook-button" || el.type === "facebook-embed" || el.type === "facebook-comments") return <div ref={assignRefIfTracked as any} {...mergedProps}><FacebookPageWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "blockquote") return <div ref={assignRefIfTracked as any} {...mergedProps}><BlockquoteWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "reviews") return <div ref={assignRefIfTracked as any} {...mergedProps}><ReviewsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "paypal-button") return <div ref={assignRefIfTracked as any} {...mergedProps}><PayPalButtonWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "stripe-button") return <div ref={assignRefIfTracked as any} {...mergedProps}><StripeButtonWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "lottie") return <div ref={assignRefIfTracked as any} {...mergedProps}><LottieWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "code-highlight") return <div ref={assignRefIfTracked as any} {...mergedProps}><CodeHighlightWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "audio-playlist") return <div ref={assignRefIfTracked as any} {...mergedProps}><AudioPlaylistWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "dynamic-lightbox") return <div ref={assignRefIfTracked as any} {...mergedProps}><DynamicLightboxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "custom-svg") return <div ref={assignRefIfTracked as any} {...mergedProps}><CustomSvgWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "icon-library") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconLibraryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "mega-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><MegaMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+
+    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+
+    if (el.type === "nested-carousel") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <NestedCarouselWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                renderElementTree={(childEl) => (
+                    <RenderNode
+                        key={childEl.id}
+                        el={childEl}
+                        isCritical={false}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={allElements}
+                    />
+                )}
+            />
+        </div>
+    );
+
+    if (el.type === "off-canvas") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <OffCanvasWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                renderChildren={(childElements) =>
+                    (childElements || []).map((child) => (
+                        <RenderNode
+                            key={child.id}
+                            el={child}
+                            isCritical={false}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={allElements}
+                        />
+                    ))
+                }
+            />
+        </div>
+    );
+
     if (el.type === "container" || el.type === "div-block") return (
         <React.Fragment key={el.id}>
             <div ref={assignRefIfTracked as any} {...mergedProps}>
@@ -195,6 +327,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         globalSettings={globalSettings}
                         elementClassMap={elementClassMap}
                         apiUrl={apiUrl}
+                        allElements={allElements}
                     />
                 ))}
             </div>
@@ -460,6 +593,7 @@ export default function PublishedSite() {
                     globalSettings={globalSettings}
                     elementClassMap={elementClassMap}
                     apiUrl={apiUrl}
+                    allElements={elements}
                 />
             ))}
         </div>

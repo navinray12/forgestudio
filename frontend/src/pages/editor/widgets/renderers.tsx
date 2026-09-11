@@ -34,6 +34,7 @@ import type {
   NavMenuItem,
   NavSubmenuItem,
   PricingPlan,
+  PricePlanFeature,
   PriceListItem,
   GalleryImageItem,
   TestimonialItem,
@@ -257,25 +258,104 @@ export const FormWidgetRenderer = ({
   mergedStyles: ElementStyles;
 }) => {
   const fields = el.formFields || [];
+  const formMode = el.formMode || "simple";
+  const defaultSteps = [
+    { id: "step_1", title: "Step 1: Basic Info" },
+    { id: "step_2", title: "Step 2: Message Details" }
+  ];
+  const steps = (el.formSteps && el.formSteps.length > 0) ? el.formSteps : defaultSteps;
+
   const columns = el.formLayoutColumns || 2;
   const gap = el.formFieldGap !== undefined ? el.formFieldGap : 16;
   const showLabels = el.formShowLabels !== false;
   const title = el.formTitle || "Get in Touch";
   const subtitle = el.formSubtitle || "Fill out the form below and our team will get back to you within 24 hours.";
   const submitText = el.formSubmitText || "Send Message";
+  const nextText = el.formNextText || "Next Step →";
+  const backText = el.formBackText || "← Back";
   const successMsg = el.formSubmitSuccessMsg || "Thank you! Your message has been sent successfully.";
   const btnBg = el.formSubmitBtnBg || "#2563eb";
   const btnColor = el.formSubmitBtnColor || "#ffffff";
+  const backBtnBg = el.formBackBtnBg || "#f1f5f9";
+  const backBtnColor = el.formBackBtnColor || "#334155";
   const btnFullWidth = el.formSubmitBtnFullWidth !== false;
   const cardBg = el.formCardBg || "#ffffff";
   const cardBorder = el.formCardBorder || "#f1f5f9";
 
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Active step fields
+  const activeStep = steps[currentStepIndex] || steps[0];
+  const isMultiStep = formMode === "step-by-step" && steps.length > 1;
+
+  const visibleFields = isMultiStep
+    ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
+    : fields;
+
+  const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
+    setValidationError(null);
+    for (const field of fieldsToValidate) {
+      const val = formData[field.id];
+      if (field.required && (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0))) {
+        return `Please fill in the required field: "${field.label}"`;
+      }
+      if (val && field.type === "email") {
+        const emailRegex = /^\S+@\S+\.\S+$/;
+        if (!emailRegex.test(String(val))) {
+          return `Please enter a valid email address for "${field.label}"`;
+        }
+      }
+      if (val && field.type === "number") {
+        if (isNaN(Number(val))) {
+          return `Please enter a valid number for "${field.label}"`;
+        }
+      }
+      if (val && field.type === "tel") {
+        const phoneRegex = /[0-9]/;
+        if (!phoneRegex.test(String(val))) {
+          return `Please enter a valid phone number for "${field.label}"`;
+        }
+      }
+    }
+    return null;
+  };
+
+  const handleNextStep = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const error = validateStepFields(visibleFields);
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevStep = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setValidationError(null);
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex((prev) => prev - 1);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    const fieldsToValidate = isMultiStep ? visibleFields : fields;
+    const error = validateStepFields(fieldsToValidate);
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
     setSubmitted(true);
   };
 
@@ -312,7 +392,10 @@ export const FormWidgetRenderer = ({
         <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto leading-relaxed">{successMsg}</p>
         <button
           type="button"
-          onClick={() => setSubmitted(false)}
+          onClick={() => {
+            setSubmitted(false);
+            setCurrentStepIndex(0);
+          }}
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-5 py-2.5 text-xs font-bold text-slate-800 transition hover:bg-slate-200 active:scale-95 cursor-pointer shadow-xs"
         >
           <span>Send Another Response</span>
@@ -323,6 +406,8 @@ export const FormWidgetRenderer = ({
       </div>
     );
   }
+
+  const isFinalStep = !isMultiStep || currentStepIndex === steps.length - 1;
 
   return (
     <form
@@ -336,7 +421,7 @@ export const FormWidgetRenderer = ({
     >
       {/* Form Header Title & Subtitle */}
       {(title || subtitle) && (
-        <div className="mb-8">
+        <div className="mb-6">
           {title && (
             <h3
               className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight"
@@ -356,14 +441,69 @@ export const FormWidgetRenderer = ({
         </div>
       )}
 
-      {/* Grid Fields */}
+      {/* Multi-Step Indicator Header */}
+      {isMultiStep && (
+        <div className="mb-8 rounded-2xl bg-slate-50 p-4 border border-slate-200/80 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
+              Step {currentStepIndex + 1} of {steps.length}: {activeStep.title}
+            </span>
+            <span className="text-xs font-semibold text-slate-500">
+              {Math.round(((currentStepIndex + 1) / steps.length) * 100)}% Complete
+            </span>
+          </div>
+
+          {/* Progress Bar & Pills */}
+          <div className="relative flex items-center justify-between gap-2">
+            <div className="absolute left-0 top-1/2 -z-0 h-1 w-full -translate-y-1/2 bg-slate-200 rounded-full" />
+            <div
+              className="absolute left-0 top-1/2 -z-0 h-1 -translate-y-1/2 bg-indigo-600 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+            />
+            {steps.map((step, sIdx) => {
+              const isPast = sIdx < currentStepIndex;
+              const isCurrent = sIdx === currentStepIndex;
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => setCurrentStepIndex(sIdx)}
+                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    isCurrent
+                      ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md scale-110"
+                      : isPast
+                      ? "bg-emerald-500 text-white"
+                      : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                  }`}
+                >
+                  {isPast ? "✓" : sIdx + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Validation Error Alert Banner */}
+      {validationError && (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-semibold text-red-600 flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
+          <svg className="h-4 w-4 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{validationError}</span>
+        </div>
+      )}
+
+      {/* Visible Form Fields */}
       <div
         className="grid grid-cols-1 sm:grid-cols-2"
         style={{
           gap: `${gap}px`,
         }}
       >
-        {fields.map((field) => {
+        {visibleFields.map((field) => {
           const isHalf = columns === 2 && field.width === "half";
           const colClass = isHalf ? "sm:col-span-1 col-span-1" : "sm:col-span-2 col-span-1";
 
@@ -495,24 +635,57 @@ export const FormWidgetRenderer = ({
           );
         })}
 
-        {/* Submit Button with Hover Arrow Animation */}
-        <div className="col-span-1 sm:col-span-2 pt-4">
-          <button
-            type="submit"
-            className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer ${
-              btnFullWidth ? "w-full" : "w-auto"
-            }`}
-            style={{
-              backgroundColor: btnBg,
-              color: btnColor,
-            }}
-          >
-            <span>{submitText}</span>
-            <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+        {/* Buttons Row (Back, Next, Submit) */}
+        <div className="col-span-1 sm:col-span-2 pt-6 flex items-center gap-3">
+          {/* Back Button for Multi-Step */}
+          {isMultiStep && currentStepIndex > 0 && (
+            <button
+              type="button"
+              onClick={handlePrevStep}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-xs sm:text-sm font-bold shadow-xs transition duration-200 hover:bg-slate-200 cursor-pointer"
+              style={{
+                backgroundColor: backBtnBg,
+                color: backBtnColor,
+              }}
+            >
+              <span>{backText}</span>
+            </button>
+          )}
+
+          {/* Next Button for Multi-Step */}
+          {isMultiStep && !isFinalStep && (
+            <button
+              type="button"
+              onClick={handleNextStep}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition duration-200 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
+              style={{
+                backgroundColor: btnBg,
+                color: btnColor,
+              }}
+            >
+              <span>{nextText}</span>
+            </button>
+          )}
+
+          {/* Submit Button */}
+          {isFinalStep && (
+            <button
+              type="submit"
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer ${
+                btnFullWidth ? "w-full" : "w-auto"
+              }`}
+              style={{
+                backgroundColor: btnBg,
+                color: btnColor,
+              }}
+            >
+              <span>{submitText}</span>
+              <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </form>
@@ -555,6 +728,13 @@ export const LoginWidgetRenderer = ({
     e.preventDefault();
     e.stopPropagation();
     setLoggedIn(true);
+  };
+
+  const handleGoogleLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const apiUrl = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000";
+    window.location.href = `${apiUrl}/api/v1/auth/google`;
   };
 
   if (loggedIn) {
@@ -630,6 +810,7 @@ export const LoginWidgetRenderer = ({
         <div className="space-y-3 mb-6">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-3 px-4 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 active:scale-98 cursor-pointer"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -767,7 +948,7 @@ export const LoginWidgetRenderer = ({
 
 export const NavMenuWidgetRenderer = ({
   el,
-  isPreview: _isPreview,
+  isPreview,
   mergedStyles,
 }: {
   el: EditorElement;
@@ -802,11 +983,14 @@ export const NavMenuWidgetRenderer = ({
   const itemActiveBg = el.navItemActiveBg || "rgba(239, 246, 255, 1)";
   const fontSize = el.navFontSize || "14px";
   const fontWeight = el.navFontWeight || "600";
+  const textTransform = el.navTextTransform || "none";
+  const submenuBg = el.navSubmenuBg || "#ffffff";
+  const submenuTextColor = el.navSubmenuTextColor || "#334155";
 
   const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(
-    items.find((i) => i.isActive)?.id || null
+    items.find((i) => i.isActive)?.id || items[0]?.id || null
   );
 
   let justifyClass = "justify-start";
@@ -860,9 +1044,13 @@ export const NavMenuWidgetRenderer = ({
             >
               <a
                 href={item.url || "#"}
+                target={item.target || "_self"}
+                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  if (!isPreview) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
                   setActiveItemId(item.id);
                 }}
                 className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
@@ -871,6 +1059,7 @@ export const NavMenuWidgetRenderer = ({
                   color: currentColor,
                   fontSize: fontSize,
                   fontWeight: fontWeight,
+                  textTransform: textTransform as any,
                   fontFamily: mergedStyles.fontFamily,
                 }}
               >
@@ -891,23 +1080,33 @@ export const NavMenuWidgetRenderer = ({
               {/* Submenu Dropdown */}
               {hasSubmenu && (
                 <div
-                  className={`z-50 min-w-[200px] rounded-2xl border border-slate-100 bg-white/95 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
+                  className={`z-50 min-w-[200px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
                     isVertical
                       ? "static mt-1 ml-4"
                       : "absolute left-0 top-full mt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 translate-y-1"
                   } ${isOpen && !isVertical ? "opacity-100 visible translate-y-0" : ""}`}
+                  style={{
+                    backgroundColor: submenuBg,
+                  }}
                 >
                   <div className="flex flex-col gap-0.5">
                     {item.submenu!.map((subItem: any) => (
                       <a
                         key={subItem.id}
                         href={subItem.url || "#"}
+                        target={subItem.target || "_self"}
+                        rel={subItem.target === "_blank" ? "noopener noreferrer" : undefined}
                         onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                          if (!isPreview) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }
                         }}
-                        className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition duration-150 cursor-pointer block"
-                        style={{ fontFamily: mergedStyles.fontFamily }}
+                        className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
+                        style={{
+                          color: submenuTextColor,
+                          fontFamily: mergedStyles.fontFamily,
+                        }}
                       >
                         {subItem.label}
                       </a>
@@ -1083,12 +1282,16 @@ export const PriceTableWidgetRenderer = ({
         {
           id: "1",
           name: "Starter",
-          price: "$19",
+          price: "19",
+          currency: "$",
           period: "/ month",
           description: "Essential tools for personal projects & freelancers.",
           isPopular: false,
-          buttonText: "Get Started",
+          isRecommended: false,
+          showBadge: false,
+          buttonText: "Start Free Trial",
           buttonUrl: "#",
+          buttonAlignment: "full",
           features: [
             { id: "f1", text: "5 Projects included", included: true },
             { id: "f2", text: "10GB SSD Storage", included: true },
@@ -1100,13 +1303,17 @@ export const PriceTableWidgetRenderer = ({
         {
           id: "2",
           name: "Professional",
-          price: "$49",
+          price: "49",
+          currency: "$",
           period: "/ month",
           description: "Best for growing teams & expanding SaaS startups.",
           isPopular: true,
+          isRecommended: true,
           badgeText: "MOST POPULAR",
-          buttonText: "Start Free Trial",
+          showBadge: true,
+          buttonText: "Get Pro Now",
           buttonUrl: "#",
+          buttonAlignment: "full",
           features: [
             { id: "f1", text: "Unlimited Projects", included: true },
             { id: "f2", text: "100GB SSD Storage", included: true },
@@ -1118,12 +1325,16 @@ export const PriceTableWidgetRenderer = ({
         {
           id: "3",
           name: "Enterprise",
-          price: "$99",
+          price: "99",
+          currency: "$",
           period: "/ month",
           description: "Advanced security, custom SLA, and dedicated scale.",
           isPopular: false,
+          isRecommended: false,
+          showBadge: false,
           buttonText: "Contact Sales",
           buttonUrl: "#",
+          buttonAlignment: "full",
           features: [
             { id: "f1", text: "Unlimited Everything", included: true },
             { id: "f2", text: "1TB High Speed Storage", included: true },
@@ -1138,15 +1349,26 @@ export const PriceTableWidgetRenderer = ({
   const gap = el.pricingGap ?? 24;
   const cardBg = el.pricingCardBg || "#ffffff";
   const cardBorder = el.pricingCardBorder || "#e2e8f0";
+  const cardRadius = el.pricingCardRadius || "24px";
   const highlightColor = el.pricingHighlightColor || "#2563eb";
   const btnBg = el.pricingBtnBg || "#2563eb";
   const btnColor = el.pricingBtnColor || "#ffffff";
+  const btnHoverBg = el.pricingBtnHoverBg || "#1d4ed8";
+  const contentAlign = el.pricingAlignment || "center";
 
   let gridColsClass = "grid-cols-1 md:grid-cols-3";
   if (cols === 1) gridColsClass = "grid-cols-1";
   else if (cols === 2) gridColsClass = "grid-cols-1 md:grid-cols-2";
   else if (cols === 3) gridColsClass = "grid-cols-1 md:grid-cols-3";
   else if (cols === 4) gridColsClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+
+  const alignClassMap = {
+    left: "text-left items-start",
+    center: "text-center items-center",
+    right: "text-right items-end",
+  };
+
+  const currentAlignClass = alignClassMap[contentAlign] || alignClassMap.center;
 
   return (
     <div
@@ -1157,26 +1379,36 @@ export const PriceTableWidgetRenderer = ({
       }}
     >
       {plans.map((plan) => {
-        const isHighlight = Boolean(plan.isPopular);
+        const isHighlight = Boolean(plan.isPopular || plan.isRecommended);
+        const effectiveCardBg = plan.cardBg || cardBg;
+        const effectiveCardBorder = plan.cardBorder || (isHighlight ? highlightColor : cardBorder);
+
+        const currencySymbol = plan.currency ?? "$";
+        const priceStr = String(plan.price || "0");
+        const hasSymbolInPrice = /^[$€£₹]/.test(priceStr.trim());
+        const displayPrice = hasSymbolInPrice ? priceStr : `${currencySymbol}${priceStr}`;
+
+        const featuresList = Array.isArray(plan.features) ? plan.features : [];
 
         return (
           <div
             key={plan.id}
-            className={`relative flex flex-col justify-between rounded-3xl p-6 transition-all duration-300 ${
+            className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${
               isHighlight
                 ? "shadow-2xl ring-2 scale-[1.02] z-10"
                 : "shadow-md hover:shadow-lg border"
             }`}
             style={{
-              backgroundColor: cardBg,
-              borderColor: isHighlight ? highlightColor : cardBorder,
+              backgroundColor: effectiveCardBg,
+              borderColor: effectiveCardBorder,
+              borderRadius: cardRadius,
             }}
           >
             {/* Optional Popular/Custom Badge */}
-            {(isHighlight || plan.badgeText) && (
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+            {plan.showBadge !== false && (isHighlight || plan.badgeText) && (
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
                 <span
-                  className="inline-block rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-md"
+                  className="inline-block rounded-full px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-md"
                   style={{ backgroundColor: highlightColor }}
                 >
                   {plan.badgeText || "MOST POPULAR"}
@@ -1184,9 +1416,9 @@ export const PriceTableWidgetRenderer = ({
               </div>
             )}
 
-            <div>
+            <div className={`flex flex-col ${currentAlignClass}`}>
               {/* Header */}
-              <div className="mb-4">
+              <div className="mb-4 w-full">
                 <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
                 {plan.description && (
                   <p className="mt-1 text-xs text-slate-500 leading-relaxed">
@@ -1196,9 +1428,9 @@ export const PriceTableWidgetRenderer = ({
               </div>
 
               {/* Price Display */}
-              <div className="mb-6 flex items-baseline gap-1 border-b border-slate-100 pb-6">
+              <div className={`mb-6 flex items-baseline gap-1 border-b border-slate-100 pb-6 w-full ${contentAlign === "center" ? "justify-center" : contentAlign === "right" ? "justify-end" : "justify-start"}`}>
                 <span className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                  {plan.price}
+                  {displayPrice}
                 </span>
                 {plan.period && (
                   <span className="text-xs font-medium text-slate-500">{plan.period}</span>
@@ -1206,14 +1438,14 @@ export const PriceTableWidgetRenderer = ({
               </div>
 
               {/* Feature List */}
-              <ul className="mb-8 space-y-3">
-                {plan.features.map((feat: any) => (
+              <ul className="mb-8 space-y-3 w-full text-left">
+                {featuresList.map((feat: PricePlanFeature) => (
                   <li key={feat.id} className="flex items-center gap-2.5 text-xs">
                     {feat.included ? (
                       <div
                         className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
                         style={{
-                          backgroundColor: isHighlight ? `${highlightColor}15` : "#ecfdf5",
+                          backgroundColor: isHighlight ? `${highlightColor}18` : "#ecfdf5",
                           color: isHighlight ? highlightColor : "#059669",
                         }}
                       >
@@ -1239,19 +1471,31 @@ export const PriceTableWidgetRenderer = ({
             </div>
 
             {/* Call To Action Button */}
-            <a
-              href={plan.buttonUrl || "#"}
-              onClick={(e) => {
-                if (!isPreview) e.preventDefault();
-              }}
-              className="w-full rounded-2xl py-3 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow"
-              style={{
-                backgroundColor: isHighlight ? highlightColor : btnBg,
-                color: btnColor,
-              }}
-            >
-              {plan.buttonText || "Get Started"}
-            </a>
+            <div className={`w-full flex ${plan.buttonAlignment === "center" ? "justify-center" : plan.buttonAlignment === "right" ? "justify-end" : plan.buttonAlignment === "left" ? "justify-start" : "justify-stretch"}`}>
+              <a
+                href={plan.buttonUrl || "#"}
+                onClick={(e) => {
+                  if (!isPreview) e.preventDefault();
+                }}
+                className={`rounded-xl py-3 px-5 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow active:scale-[0.98] ${
+                  plan.buttonAlignment === "left" || plan.buttonAlignment === "center" || plan.buttonAlignment === "right"
+                    ? "w-auto min-w-[140px]"
+                    : "w-full"
+                }`}
+                style={{
+                  backgroundColor: isHighlight ? highlightColor : btnBg,
+                  color: btnColor,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = btnHoverBg;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isHighlight ? highlightColor : btnBg;
+                }}
+              >
+                {plan.buttonText || "Get Started"}
+              </a>
+            </div>
           </div>
         );
       })}
@@ -1277,6 +1521,7 @@ export const PriceListWidgetRenderer = ({
           price: "$4.50",
           description: "Freshly roasted double shot arabica blend with velvety microfoam.",
           imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150&auto=format&fit=crop&q=80",
+          icon: "☕",
         },
         {
           id: "2",
@@ -1284,6 +1529,7 @@ export const PriceListWidgetRenderer = ({
           price: "$35.00",
           description: "Precision scissor cut, wash, scalp massage, and hot towel finish.",
           imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150&auto=format&fit=crop&q=80",
+          icon: "✂️",
         },
         {
           id: "3",
@@ -1291,6 +1537,7 @@ export const PriceListWidgetRenderer = ({
           price: "$499.00",
           description: "Custom responsive website design with SEO optimization & CMS integration.",
           imageUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=150&auto=format&fit=crop&q=80",
+          icon: "💻",
         },
         {
           id: "4",
@@ -1298,6 +1545,7 @@ export const PriceListWidgetRenderer = ({
           price: "$85.00",
           description: "Deep cleansing facial treatment with organic botanicals & anti-aging serum.",
           imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=150&auto=format&fit=crop&q=80",
+          icon: "🌿",
         },
       ];
 
@@ -1308,84 +1556,101 @@ export const PriceListWidgetRenderer = ({
   const titleColor = el.priceListTitleColor || "#0f172a";
   const priceColor = el.priceListPriceColor || "#2563eb";
   const priceBg = el.priceListPriceBg || "#eff6ff";
+  const align = el.priceListAlignment || "left";
+
+  let textAlignClass = "text-left";
+  if (align === "center") textAlignClass = "text-center";
+  else if (align === "right") textAlignClass = "text-right";
 
   return (
     <div
-      className="w-full flex flex-col"
+      className={`w-full flex flex-col ${textAlignClass}`}
       style={{
         gap: `${gap}px`,
         fontFamily: mergedStyles.fontFamily,
       }}
     >
-      {items.map((item) => (
-        <div key={item.id} className="flex items-start gap-3.5 group">
-          {/* Optional Thumbnail Image */}
-          {showImages && (
-            <div
-              className="relative shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80 shadow-xs"
-              style={{ width: `${imgSize}px`, height: `${imgSize}px` }}
-            >
-              {item.imageUrl ? (
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-slate-400 bg-slate-100">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </div>
-              )}
-            </div>
-          )}
+      {items.map((item) => {
+        const hasImg = Boolean(item.imageUrl);
+        const hasIcon = Boolean(item.icon);
+        const isRightImg = item.imagePos === "right";
 
-          {/* Details & Price Header */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline justify-between gap-2">
-              <span
-                className="font-bold text-sm sm:text-base tracking-tight shrink-0"
-                style={{ color: titleColor }}
-              >
-                {item.name}
-              </span>
-
-              {/* Separator / Leader Line */}
-              {separatorStyle !== "none" && (
-                <div
-                  className="flex-1 mx-1.5 self-center"
-                  style={{
-                    borderBottomWidth: "1px",
-                    borderBottomStyle: separatorStyle,
-                    borderColor: "#cbd5e1",
-                  }}
-                />
-              )}
-
-              {/* Price Pill */}
-              <span
-                className="inline-block shrink-0 font-extrabold text-xs sm:text-sm px-2.5 py-0.5 rounded-full tracking-tight shadow-2xs"
-                style={{
-                  color: priceColor,
-                  backgroundColor: priceBg,
-                }}
-              >
-                {item.price}
-              </span>
-            </div>
-
-            {/* Description */}
-            {item.description && (
-              <p className="mt-1 text-xs text-slate-500 leading-relaxed line-clamp-2">
-                {item.description}
-              </p>
+        const mediaNode = showImages && (hasImg || hasIcon) && (
+          <div
+            className="relative shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200/80 shadow-xs flex items-center justify-center"
+            style={{ width: `${imgSize}px`, height: `${imgSize}px` }}
+          >
+            {hasImg ? (
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            ) : hasIcon ? (
+              <span className="text-xl">{item.icon}</span>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-slate-400 bg-slate-100">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
             )}
           </div>
-        </div>
-      ))}
+        );
+
+        return (
+          <div key={item.id} className="flex items-start gap-3.5 group">
+            {!isRightImg && mediaNode}
+
+            {/* Details & Price Header */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <span
+                  className="font-bold text-sm sm:text-base tracking-tight shrink-0 flex items-center gap-1.5"
+                  style={{ color: titleColor }}
+                >
+                  {hasIcon && !hasImg && <span className="text-sm">{item.icon}</span>}
+                  {item.name}
+                </span>
+
+                {/* Separator / Leader Line */}
+                {separatorStyle !== "none" && (
+                  <div
+                    className="flex-1 mx-1.5 self-center"
+                    style={{
+                      borderBottomWidth: "1px",
+                      borderBottomStyle: separatorStyle,
+                      borderColor: "#cbd5e1",
+                    }}
+                  />
+                )}
+
+                {/* Price Pill */}
+                <span
+                  className="inline-block shrink-0 font-extrabold text-xs sm:text-sm px-2.5 py-0.5 rounded-full tracking-tight shadow-2xs"
+                  style={{
+                    color: priceColor,
+                    backgroundColor: priceBg,
+                  }}
+                >
+                  {item.price}
+                </span>
+              </div>
+
+              {/* Description */}
+              {item.description && (
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed line-clamp-2">
+                  {item.description}
+                </p>
+              )}
+            </div>
+
+            {isRightImg && mediaNode}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -2363,7 +2628,7 @@ export const TestimonialCarouselWidgetRenderer = ({
         },
       ];
 
-  const slidesPerView = el.testimonialSlidesPerView || 2;
+  const rawSlidesPerView = el.testimonialSlidesPerView || 2;
   const gap = el.testimonialGap ?? 20;
   const autoplay = el.testimonialAutoplay !== false;
   const autoplaySpeed = el.testimonialAutoplaySpeed || 4000;
@@ -2378,12 +2643,34 @@ export const TestimonialCarouselWidgetRenderer = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Responsive slides per view calculation
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [effectiveSlidesPerView, setEffectiveSlidesPerView] = useState<number>(rawSlidesPerView);
+
+  useEffect(() => {
+    const updateResponsiveSlides = () => {
+      if (!containerRef.current) return;
+      const width = containerRef.current.clientWidth;
+      if (width < 640) {
+        setEffectiveSlidesPerView(1);
+      } else if (width < 1024) {
+        setEffectiveSlidesPerView(Math.min(rawSlidesPerView, 2));
+      } else {
+        setEffectiveSlidesPerView(rawSlidesPerView);
+      }
+    };
+
+    updateResponsiveSlides();
+    window.addEventListener("resize", updateResponsiveSlides);
+    return () => window.removeEventListener("resize", updateResponsiveSlides);
+  }, [rawSlidesPerView]);
+
   // Drag / Swipe State
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState(false);
 
-  const maxIndex = Math.max(0, items.length - slidesPerView);
+  const maxIndex = Math.max(0, items.length - effectiveSlidesPerView);
 
   const handleNext = () => {
     setCurrentIndex((prev) => {
@@ -2439,6 +2726,7 @@ export const TestimonialCarouselWidgetRenderer = ({
 
   return (
     <div
+      ref={containerRef}
       className="w-full relative group overflow-hidden select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -2464,7 +2752,7 @@ export const TestimonialCarouselWidgetRenderer = ({
           className={`flex ${isMouseDown ? "transition-none" : "transition-transform duration-500 ease-out"}`}
           style={{
             gap: `${gap}px`,
-            transform: `translateX(calc(-${currentIndex * (100 / slidesPerView)}% - ${currentIndex * (gap / slidesPerView)}px + ${dragOffset}px))`,
+            transform: `translateX(calc(-${currentIndex * (100 / effectiveSlidesPerView)}% - ${currentIndex * (gap / effectiveSlidesPerView)}px + ${dragOffset}px))`,
           }}
         >
           {items.map((item) => (
@@ -2472,7 +2760,7 @@ export const TestimonialCarouselWidgetRenderer = ({
               key={item.id}
               className="shrink-0 flex flex-col justify-between p-6 shadow-md hover:shadow-xl border border-slate-200/80 transition-all duration-300 relative group/card"
               style={{
-                width: `calc((100% - ${(slidesPerView - 1) * gap}px) / ${slidesPerView})`,
+                width: `calc((100% - ${(effectiveSlidesPerView - 1) * gap}px) / ${effectiveSlidesPerView})`,
                 backgroundColor: cardBg,
                 borderRadius,
                 color: textColor,
@@ -3511,7 +3799,125 @@ export const FacebookPageWidgetRenderer = ({
   isPreview: boolean;
   mergedStyles: ElementStyles;
 }) => {
-  const url = el.facebookPageUrl ? el.facebookPageUrl.trim() : "";
+  const mode = el.facebookMode || (
+    el.type === "facebook-button" ? "button" :
+    el.type === "facebook-embed" ? "embed" :
+    el.type === "facebook-comments" ? "comments" : "page"
+  );
+
+  const alignment = el.facebookAlignment || el.fbButtonAlignment || "center";
+  const justifyClass = alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
+
+  // MODE: LIKE / SHARE BUTTON
+  if (mode === "button") {
+    const targetUrl = el.fbButtonUrl || el.facebookUrl || "https://facebook.com";
+    const action = el.fbButtonAction || "like";
+    const label = el.fbButtonLabel || "Like Page";
+    const size = el.fbButtonSize || "md";
+    const sizeClasses = size === "sm" ? "px-3 py-1.5 text-xs" : size === "lg" ? "px-6 py-3 text-sm" : "px-4.5 py-2 text-xs";
+
+    return (
+      <div
+        className={`w-full flex ${justifyClass}`}
+        style={{
+          marginTop: mergedStyles.marginTop,
+          marginBottom: mergedStyles.marginBottom,
+          fontFamily: mergedStyles.fontFamily,
+        }}
+      >
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md transition-all active:scale-95 ${sizeClasses}`}
+        >
+          <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+          </svg>
+          <span>{action === "share" ? "🔗 Share" : action === "follow" ? "➕ Follow" : `👍 ${label}`}</span>
+        </a>
+      </div>
+    );
+  }
+
+  // MODE: POST EMBED
+  if (mode === "embed") {
+    const embedPostUrl = el.fbEmbedUrl || el.facebookUrl || "https://www.facebook.com/20531316728/posts/10154009968286729/";
+    const embedWidth = el.fbEmbedWidth || "100%";
+    const embedHeight = el.fbEmbedHeight || "450px";
+
+    const pluginUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(embedPostUrl)}&show_text=true&width=500`;
+
+    return (
+      <div
+        className={`w-full flex ${justifyClass}`}
+        style={{
+          marginTop: mergedStyles.marginTop,
+          marginBottom: mergedStyles.marginBottom,
+        }}
+      >
+        <div
+          className="rounded-2xl border border-slate-200 bg-white p-2 shadow-xs overflow-hidden"
+          style={{ width: embedWidth, height: embedHeight, maxWidth: "100%" }}
+        >
+          <iframe
+            src={pluginUrl}
+            width="100%"
+            height="100%"
+            style={{ border: "none", overflow: "hidden" }}
+            scrolling="no"
+            frameBorder="0"
+            allowFullScreen={true}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            title="Facebook Post Embed"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // MODE: COMMENTS BOX
+  if (mode === "comments") {
+    const targetUrl = el.fbCommentsUrl || el.facebookUrl || "https://facebook.com";
+    const numPosts = el.fbCommentsNumPosts || 5;
+    const boxWidth = el.fbCommentsWidth || "100%";
+
+    const pluginUrl = `https://www.facebook.com/plugins/comments.php?href=${encodeURIComponent(targetUrl)}&numposts=${numPosts}&width=100%25`;
+
+    return (
+      <div
+        className={`w-full flex flex-col ${justifyClass}`}
+        style={{
+          marginTop: mergedStyles.marginTop,
+          marginBottom: mergedStyles.marginBottom,
+        }}
+      >
+        <div
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs overflow-hidden space-y-3"
+          style={{ width: boxWidth, maxWidth: "100%" }}
+        >
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span>💬</span> Facebook Discussion Thread
+            </h4>
+            <span className="text-[10px] text-slate-400 font-mono">Showing max {numPosts} comments</span>
+          </div>
+          <iframe
+            src={pluginUrl}
+            width="100%"
+            height="350px"
+            style={{ border: "none", overflow: "hidden" }}
+            scrolling="no"
+            frameBorder="0"
+            title="Facebook Comments Box"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // MODE: PAGE FEED (DEFAULT)
+  const url = el.facebookPageUrl ? el.facebookPageUrl.trim() : (el.facebookUrl ? el.facebookUrl.trim() : "");
   const tabs = el.facebookTabs || "timeline";
   const width = el.facebookWidth ?? 340;
   const height = el.facebookHeight ?? 500;
@@ -3519,16 +3925,12 @@ export const FacebookPageWidgetRenderer = ({
   const adaptContainerWidth = el.facebookAdaptContainerWidth !== false ? true : false;
   const hideCover = el.facebookHideCover ? true : false;
   const showFacepile = el.facebookShowFacepile !== false ? true : false;
-  const alignment = el.facebookAlignment || "center";
 
   const isValidUrl = Boolean(
     url &&
       (url.startsWith("http://") || url.startsWith("https://")) &&
       (url.includes("facebook.com") || url.includes("fb.com"))
   );
-
-  const justifyClass =
-    alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
 
   if (!isValidUrl) {
     return (
@@ -4318,42 +4720,124 @@ export const PayPalButtonWidgetRenderer = ({
   mergedStyles: ElementStyles;
 }) => {
   const text = el.paypalText || "Pay Now with PayPal";
-  const amount = el.paypalAmount || "19.99";
+  const rawAmount = el.paypalAmount || "19.99";
   const currency = el.paypalCurrency || "USD";
+  const itemName = el.paypalItemName || "Digital Product";
+  const itemDescription = el.paypalItemDescription || "";
+  const quantity = el.paypalQuantity || 1;
+  const env = el.paypalEnv || "sandbox";
   const alignment = el.paypalAlignment || "left";
   const size = el.paypalButtonSize || "md";
+  const shape = el.paypalButtonShape || "pill";
   const bgColor = el.paypalBgColor || "#FFC439";
   const textColor = el.paypalTextColor || "#003087";
   const hoverBgColor = el.paypalHoverBgColor || "#f2b522";
 
   const [isHovered, setIsHovered] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "processing" | "success" | "cancelled" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [receipt, setReceipt] = useState<{ orderId: string; status: string; transactionId?: string; capturedAt?: string } | null>(null);
+
+  // Amount validation check
+  const numAmount = parseFloat(rawAmount);
+  const isValidAmount = !isNaN(numAmount) && numAmount > 0;
 
   const alignClass =
     alignment === "center" ? "justify-center text-center" : alignment === "right" ? "justify-end text-right" : "justify-start text-left";
 
   const sizeStyles =
     size === "sm"
-      ? "px-3.5 py-1.5 text-xs gap-1.5"
+      ? "px-4 py-2 text-xs gap-1.5"
       : size === "lg"
-      ? "px-7 py-3.5 text-base gap-3 font-extrabold"
-      : "px-5 py-2.5 text-sm gap-2 font-bold";
+      ? "px-8 py-4 text-base gap-3 font-extrabold"
+      : "px-6 py-3 text-sm gap-2 font-bold";
 
-  const handleClick = (e: React.MouseEvent) => {
+  const roundedClass = shape === "rect" ? "rounded-lg" : "rounded-full";
+
+  const currencySymbol =
+    currency === "EUR" ? "€" : currency === "GBP" ? "£" : currency === "INR" ? "₹" : currency === "CAD" || currency === "AUD" || currency === "USD" ? "$" : `${currency} `;
+
+  const handleCheckoutClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isPreview) {
-      window.open(
-        `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&amount=${encodeURIComponent(
-          amount
-        )}&currency_code=${encodeURIComponent(currency)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+    if (!isValidAmount) return;
+    if (status === "loading" || status === "processing") return;
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/integrations/paypal/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: rawAmount,
+          currency,
+          itemName,
+          itemDescription,
+          quantity,
+          env,
+        }),
+      });
+
+      const orderData = await res.json();
+
+      if (!res.ok || !orderData.success) {
+        throw new Error(orderData.message || "Failed to create PayPal checkout order.");
+      }
+
+      setStatus("processing");
+
+      // Open PayPal approval window or handle sandbox simulation
+      let popupWindow: Window | null = null;
+      if (orderData.approveUrl) {
+        popupWindow = window.open(orderData.approveUrl, "PayPalCheckout", "width=600,height=700");
+      }
+
+      // Execute capture API
+      const captureRes = await fetch("/api/integrations/paypal/capture-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderData.orderId }),
+      });
+
+      const captureData = await captureRes.json();
+
+      if (popupWindow && !popupWindow.closed) {
+        try {
+          popupWindow.close();
+        } catch (_) {}
+      }
+
+      if (captureRes.ok && captureData.success) {
+        setReceipt({
+          orderId: orderData.orderId,
+          status: captureData.status || "COMPLETED",
+          transactionId: captureData.transactionId || "TXN-" + orderData.orderId,
+          capturedAt: captureData.capturedAt || new Date().toISOString(),
+        });
+
+        if (el.paypalSuccessAction === "redirect" && el.paypalSuccessRedirectUrl) {
+          window.location.href = el.paypalSuccessRedirectUrl;
+        } else {
+          setStatus("success");
+        }
+      } else {
+        throw new Error(captureData.message || "Payment capture was not completed.");
+      }
+    } catch (err: any) {
+      console.error("[PayPal Checkout Error]", err);
+      if (err?.message?.includes("cancel")) {
+        setStatus("cancelled");
+      } else {
+        setErrorMsg(err?.message || "An unexpected error occurred during PayPal checkout.");
+        setStatus("error");
+      }
     }
   };
 
   return (
     <div
-      className={`w-full flex ${alignClass} transition-all`}
+      className={`w-full flex flex-col ${alignClass} transition-all`}
       style={{
         marginTop: mergedStyles.marginTop,
         marginBottom: mergedStyles.marginBottom,
@@ -4363,22 +4847,109 @@ export const PayPalButtonWidgetRenderer = ({
         paddingLeft: mergedStyles.paddingLeft,
       }}
     >
-      <button
-        type="button"
-        onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={`inline-flex items-center rounded-full font-sans shadow-xs transition-all duration-200 cursor-pointer hover:shadow-md active:scale-95 ${sizeStyles}`}
-        style={{
-          backgroundColor: isHovered ? hoverBgColor : bgColor,
-          color: textColor,
-          borderRadius: mergedStyles.borderRadius,
-        }}
-      >
-        <PayPalButtonBoxIcon />
-        <span>{text}</span>
-        <span className="text-[11px] opacity-80">({currency} {amount})</span>
-      </button>
+      {/* Validation Warning */}
+      {!isValidAmount && (
+        <div className="mb-2 max-w-sm rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900 flex items-center gap-2">
+          <span>⚠️</span>
+          <span><strong>Invalid Amount:</strong> Please enter a positive numerical amount in the PayPal Inspector panel.</span>
+        </div>
+      )}
+
+      {/* State: Success Card */}
+      {status === "success" && (
+        <div className="max-w-md w-full rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-emerald-950 shadow-md space-y-2 text-left">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 font-extrabold text-emerald-700 text-sm">
+              <span>✅</span> Payment Successful!
+            </span>
+            <span className="text-[10px] font-semibold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full uppercase">
+              {env === "live" ? "Live" : "Sandbox"}
+            </span>
+          </div>
+          <p className="text-xs font-medium">{el.paypalSuccessMessage || "🎉 Payment received! Thank you for your order."}</p>
+          <div className="pt-2 border-t border-emerald-200/60 text-[11px] font-mono text-emerald-800 space-y-0.5">
+            <div><span className="font-semibold text-emerald-900">Item:</span> {itemName} (x{quantity})</div>
+            <div><span className="font-semibold text-emerald-900">Amount Paid:</span> {currencySymbol}{numAmount.toFixed(2)} {currency}</div>
+            <div><span className="font-semibold text-emerald-900">Order ID:</span> {receipt?.orderId}</div>
+            {receipt?.transactionId && <div><span className="font-semibold text-emerald-900">Txn ID:</span> {receipt.transactionId}</div>}
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatus("idle")}
+            className="mt-2 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline cursor-pointer"
+          >
+            ← Pay Again / Test Reset
+          </button>
+        </div>
+      )}
+
+      {/* State: Cancelled Message */}
+      {status === "cancelled" && (
+        <div className="max-w-md w-full rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-900 text-xs flex items-center justify-between gap-2">
+          <span>{el.paypalCancelMessage || "Payment was cancelled. You can retry whenever you are ready."}</span>
+          <button
+            type="button"
+            onClick={() => setStatus("idle")}
+            className="px-2.5 py-1 text-[11px] font-bold bg-amber-600 text-white rounded-md hover:bg-amber-700 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* State: Error Box */}
+      {status === "error" && (
+        <div className="max-w-md w-full rounded-xl border border-red-200 bg-red-50 p-3 text-red-900 text-xs space-y-2">
+          <div className="flex items-center gap-1.5 font-bold text-red-700">
+            <span>❌</span> Payment Failed
+          </div>
+          <p>{errorMsg || "PayPal transaction could not be completed."}</p>
+          <button
+            type="button"
+            onClick={() => setStatus("idle")}
+            className="px-3 py-1 text-xs font-bold bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer transition"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
+      {/* State: Default / Idle / Loading Button */}
+      {status !== "success" && (
+        <div className={`inline-flex ${alignClass}`}>
+          <button
+            type="button"
+            onClick={handleCheckoutClick}
+            disabled={!isValidAmount || status === "loading" || status === "processing"}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={`inline-flex items-center font-sans shadow-xs transition-all duration-200 cursor-pointer hover:shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${roundedClass} ${sizeStyles}`}
+            style={{
+              backgroundColor: isHovered ? hoverBgColor : bgColor,
+              color: textColor,
+              borderRadius: mergedStyles.borderRadius,
+            }}
+          >
+            {status === "loading" || status === "processing" ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{status === "loading" ? "Initializing PayPal..." : "Processing Order..."}</span>
+              </>
+            ) : (
+              <>
+                <PayPalButtonBoxIcon />
+                <span>{text}</span>
+                {isValidAmount && (
+                  <span className="text-[11px] opacity-85 font-mono ml-0.5">({currencySymbol}{numAmount.toFixed(2)})</span>
+                )}
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -5362,12 +5933,14 @@ export const BasicGalleryWidgetRenderer = ({
 /* F-215: Audio Playlist Renderer */
 export const AudioPlaylistWidgetRenderer = ({
   el,
-  isPreview: _isPreview,
+  isPreview,
   mergedStyles,
+  onUpdateTracks
 }: {
   el: EditorElement;
-  isPreview: boolean;
-  mergedStyles: ElementStyles;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles;
+  onUpdateTracks?: (newTracks: any[]) => void;
 }) => {
   const tracks = el.audioPlaylistTracks && el.audioPlaylistTracks.length > 0 ? el.audioPlaylistTracks : [
     { id: "tr-1", title: "01. Ambient Solar Echoes", artist: "ForgeStudio Soundscapes", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", duration: "06:12" },
@@ -5377,6 +5950,9 @@ export const AudioPlaylistWidgetRenderer = ({
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [showAddUrlInput, setShowAddUrlInput] = useState(false);
+  const [customTrackTitle, setCustomTrackTitle] = useState("");
+  const [customTrackUrl, setCustomTrackUrl] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const activeTrack = tracks[activeTrackIndex] || tracks[0];
@@ -5407,14 +5983,36 @@ export const AudioPlaylistWidgetRenderer = ({
     setIsPlaying(true);
   };
 
+  const handleAddManualTrack = (url: string, title?: string) => {
+    const trackTitle = title || `Custom Audio #${tracks.length + 1}`;
+    const newTrack = {
+      id: "audio_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+      title: trackTitle,
+      artist: "Manual Audio Track",
+      url,
+      duration: "03:30"
+    };
+    const updated = [...tracks, newTrack];
+    if (onUpdateTracks) {
+      onUpdateTracks(updated);
+    } else if (el) {
+      el.audioPlaylistTracks = updated;
+    }
+    setActiveTrackIndex(updated.length - 1);
+    setIsPlaying(true);
+    setShowAddUrlInput(false);
+    setCustomTrackTitle("");
+    setCustomTrackUrl("");
+  };
+
   return (
     <div
-      className="w-full rounded-2xl p-5 shadow-xl transition-all"
+      className="w-full rounded-2xl p-5 shadow-xl transition-all relative"
       style={{
         backgroundColor: cardBg,
         color: textColor,
-        marginTop: mergedStyles.marginTop,
-        marginBottom: mergedStyles.marginBottom,
+        marginTop: mergedStyles?.marginTop,
+        marginBottom: mergedStyles?.marginBottom,
       }}
     >
       <audio
@@ -5426,7 +6024,7 @@ export const AudioPlaylistWidgetRenderer = ({
       {/* Current Active Track Header */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accentColor }}>
+          <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ color: accentColor }}>
             🎵 Audio Player
           </span>
           <h4 className="text-sm font-bold mt-0.5">{activeTrack?.title || "No Track Selected"}</h4>
@@ -5436,12 +6034,14 @@ export const AudioPlaylistWidgetRenderer = ({
         {/* Player Controls */}
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handlePrev}
             className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xs font-bold transition cursor-pointer"
           >
             ⏮
           </button>
           <button
+            type="button"
             onClick={togglePlay}
             className="h-10 w-10 rounded-full flex items-center justify-center text-slate-900 font-bold transition shadow-md hover:scale-105 active:scale-95 cursor-pointer"
             style={{ backgroundColor: accentColor }}
@@ -5449,6 +6049,7 @@ export const AudioPlaylistWidgetRenderer = ({
             {isPlaying ? "⏸" : "▶"}
           </button>
           <button
+            type="button"
             onClick={handleNext}
             className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xs font-bold transition cursor-pointer"
           >
@@ -5458,8 +6059,8 @@ export const AudioPlaylistWidgetRenderer = ({
       </div>
 
       {hasError && (
-        <div className="p-2 mb-3 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-medium text-center border border-rose-500/30">
-          ⚠️ Unable to load audio stream URL
+        <div className="p-2.5 mb-3 rounded-xl bg-rose-500/20 text-rose-300 text-xs font-medium text-center border border-rose-500/30">
+          ⚠️ Unable to load audio stream file. Use <strong>"Select Local Audio"</strong> or enter a valid HTTP URL.
         </div>
       )}
 
@@ -5488,6 +6089,75 @@ export const AudioPlaylistWidgetRenderer = ({
           );
         })}
       </div>
+
+      {/* Canvas Manual Audio Add Bar (Editor Only) */}
+      {!isPreview && (
+        <div className="mt-4 pt-3 border-t border-white/10 flex flex-col gap-2">
+          {!showAddUrlInput ? (
+            <div className="flex items-center justify-between gap-2">
+              <label className="shrink-0 cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 shadow transition flex items-center gap-1.5">
+                📁 Upload / Select Local Audio File
+                <input
+                  type="file"
+                  accept="audio/*,.mp3,.wav,.aac,.m4a,.ogg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const objectUrl = URL.createObjectURL(file);
+                    handleAddManualTrack(objectUrl, file.name.replace(/\.[^/.]+$/, ""));
+                  }}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setShowAddUrlInput(true)}
+                className="rounded-xl px-3 py-1.5 text-xs font-semibold text-white/90 bg-white/10 hover:bg-white/20 transition cursor-pointer flex items-center gap-1"
+              >
+                🔗 Enter Audio URL
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white/10 p-2.5 rounded-xl space-y-2">
+              <input
+                type="text"
+                placeholder="Track Title (e.g. My Song)"
+                value={customTrackTitle}
+                onChange={(e) => setCustomTrackTitle(e.target.value)}
+                className="w-full rounded-lg bg-black/40 px-2.5 py-1 text-xs text-white placeholder-white/50 border border-white/20 outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Audio URL (https://... .mp3)"
+                value={customTrackUrl}
+                onChange={(e) => setCustomTrackUrl(e.target.value)}
+                className="w-full rounded-lg bg-black/40 px-2.5 py-1 text-xs font-mono text-white placeholder-white/50 border border-white/20 outline-none"
+              />
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAddUrlInput(false)}
+                  className="px-2.5 py-1 text-xs text-white/70 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (customTrackUrl.trim()) {
+                      handleAddManualTrack(customTrackUrl.trim(), customTrackTitle.trim());
+                    }
+                  }}
+                  className="px-3 py-1 rounded-lg text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white shadow"
+                >
+                  Add Track
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -5951,39 +6621,63 @@ export const ShareButtonsWidgetRenderer = ({
 // WOOCOMMERCE STORE WIDGET RENDERERS
 // ==========================================
 
-export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
-  const styles = getMergedStyles(el, activeDevice);
-  return <h2 style={styles} className="font-bold text-slate-900">{el.content || "Sample Product Title"}</h2>;
+export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  return <h2 style={styles as React.CSSProperties} className="font-bold text-slate-900">{el.content || el.productTitle || "Sample Product Title"}</h2>;
 };
 
-export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
-  const styles = getMergedStyles(el, activeDevice);
-  return <div style={styles} className="text-xl font-bold text-emerald-600">{el.content || "$99.99"}</div>;
+export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  return <div style={styles as React.CSSProperties} className="text-xl font-bold text-emerald-600">{el.content || el.productPrice || "$99.99"}</div>;
 };
 
-export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
-  const styles = getMergedStyles(el, activeDevice);
+export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const imgSrc = el.src || el.productImage || (el.content && (el.content.startsWith("http") || el.content.startsWith("blob:")) ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+
+  const handleLocalImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      el.src = url;
+      el.productImage = url;
+      el.content = url;
+    }
+  };
+
   return (
-    <div style={styles} className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
-      <img src={el.content || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600"} alt="Product" className="h-auto w-full rounded-lg object-cover" />
+    <div style={styles as React.CSSProperties} className="relative group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 transition">
+      <img src={imgSrc} alt={el.alt || "Product"} className="h-auto w-full rounded-lg object-cover shadow-xs" />
+
+      {!isPreview && (
+        <div className="absolute inset-2 rounded-lg bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2 p-2">
+          <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-bold shadow-md hover:bg-slate-100 cursor-pointer transition active:scale-95">
+            <span>📁 Change Product Image</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleLocalImageSelect} />
+          </label>
+          <span className="text-[10px] font-medium text-white/90 drop-shadow">Upload local file or edit in Inspector</span>
+        </div>
+      )}
     </div>
   );
 };
 
-export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
-  const styles = getMergedStyles(el, activeDevice);
+export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   return (
-    <button style={styles} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white shadow-md transition hover:bg-slate-800">
-      🛒 {el.content || "Add to Cart"}
+    <button type="button" style={styles as React.CSSProperties} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white shadow-md transition hover:bg-slate-800 cursor-pointer">
+      🛒 {el.content || el.buttonText || "Add to Cart"}
     </button>
   );
 };
 
-export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles: any; activeDevice: DeviceMode }> = ({ el, getMergedStyles, activeDevice }) => {
-  const styles = getMergedStyles(el, activeDevice);
+export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const rating = el.productRating ?? 5;
+  const stars = "⭐".repeat(Math.min(5, Math.max(1, Math.round(rating))));
   return (
-    <div style={styles} className="flex items-center gap-1 text-amber-400 font-bold">
-      ⭐⭐⭐⭐⭐ <span className="text-xs text-slate-500 ml-1">(4.9 / 5.0 - 128 Reviews)</span>
+    <div style={styles as React.CSSProperties} className="flex items-center gap-1 text-amber-400 font-bold">
+      {stars} <span className="text-xs text-slate-500 ml-1">({el.productRatingText || "4.9 / 5.0 - 128 Reviews"})</span>
     </div>
   );
 };

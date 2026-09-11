@@ -31,13 +31,16 @@ export interface NavSubmenuItem {
   id: string;
   label: string;
   url: string;
+  target?: "_self" | "_blank";
 }
 
 export interface NavMenuItem {
   id: string;
   label: string;
   url: string;
+  linkType?: "page" | "url";
   isActive?: boolean;
+  target?: "_self" | "_blank";
   submenu?: NavSubmenuItem[];
 }
 
@@ -52,20 +55,31 @@ export interface PricingPlan {
   name: string;
   description?: string;
   price: string;
+  currency?: string;
   period: string;
   isPopular?: boolean;
+  isRecommended?: boolean;
   badgeText?: string;
+  showBadge?: boolean;
   buttonText: string;
   buttonUrl: string;
+  buttonAlignment?: "left" | "center" | "right" | "full";
+  buttonWidth?: "auto" | "full";
+  cardBg?: string;
+  cardBorder?: string;
+  cardTextColor?: string;
   features: PricePlanFeature[];
 }
 
 export interface PriceListItem {
   id: string;
   name: string;
+  title?: string;
   description?: string;
   price: string;
   imageUrl?: string;
+  icon?: string;
+  imagePos?: "left" | "right";
 }
 
 export interface GalleryImageItem {
@@ -152,10 +166,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 
   // Social
   { type: "share-buttons", name: "Share Buttons", category: "Social", icon: "🔗", description: "Social media sharing action buttons" },
-  { type: "facebook-page", name: "Facebook Page", category: "Social", icon: "📘", description: "Facebook page feed embed widget" },
-  { type: "facebook-button", name: "FB Like Button", category: "Social", icon: "👍", description: "Facebook like & share action button" },
-  { type: "facebook-embed", name: "FB Post Embed", category: "Social", icon: "📌", description: "Facebook post or video embed iframe" },
-  { type: "facebook-comments", name: "FB Comments", category: "Social", icon: "💬", description: "Facebook discussion comments widget" },
+  { type: "facebook-page", name: "Facebook Integration", category: "Social", icon: "📘", description: "Facebook Page feed, Like button, Post embed & Comments widget" },
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
@@ -196,6 +207,7 @@ export interface MediaCarouselItem {
   id: string;
   type?: "image" | "video";
   url: string;
+  image?: string;
   videoUrl?: string;
   posterUrl?: string;
   title?: string;
@@ -262,6 +274,12 @@ export type FormFieldType =
   | "checkbox"
   | "radio";
 
+export interface FormStepItem {
+  id: string;
+  title: string;
+  description?: string;
+}
+
 export interface FormFieldItem {
   id: string;
   type: FormFieldType;
@@ -271,6 +289,7 @@ export interface FormFieldItem {
   options?: string[];
   defaultValue?: string;
   width?: "full" | "half";
+  stepId?: string;
 }
 
 export interface SlideItem {
@@ -557,6 +576,12 @@ export interface EditorElement {
   slidesAlignment?: "left" | "center" | "right";
   slidesShowArrows?: boolean;
   slidesShowDots?: boolean;
+  formMode?: "simple" | "step-by-step";
+  formSteps?: FormStepItem[];
+  formNextText?: string;
+  formBackText?: string;
+  formBackBtnBg?: string;
+  formBackBtnColor?: string;
   formTitle?: string;
   formSubtitle?: string;
   formCardBg?: string;
@@ -598,6 +623,11 @@ export interface EditorElement {
   navItemActiveBg?: string;
   navFontSize?: string;
   navFontWeight?: string;
+  navTextTransform?: "none" | "uppercase" | "capitalize";
+  navSubmenuBg?: string;
+  navSubmenuTextColor?: string;
+  navSubmenuHoverBg?: string;
+  navSubmenuHoverColor?: string;
   headlinePrefix?: string;
   headlineAnimatedTexts?: string[];
   headlineSuffix?: string;
@@ -609,11 +639,15 @@ export interface EditorElement {
   pricingPlans?: PricingPlan[];
   pricingColumns?: 1 | 2 | 3 | 4;
   pricingGap?: number;
+  pricingAlignment?: "left" | "center" | "right";
   pricingCardBg?: string;
   pricingCardBorder?: string;
+  pricingCardRadius?: string;
   pricingHighlightColor?: string;
   pricingBtnBg?: string;
   pricingBtnColor?: string;
+  pricingBtnHoverBg?: string;
+  pricingBtnHoverColor?: string;
   priceListItems?: PriceListItem[];
   priceListGap?: number;
   priceListShowImages?: boolean;
@@ -622,18 +656,24 @@ export interface EditorElement {
   priceListTitleColor?: string;
   priceListPriceColor?: string;
   priceListPriceBg?: string;
+  priceListAlignment?: "left" | "center" | "right";
+  priceListIconColor?: string;
   galleryImages?: GalleryImageItem[];
   galleryColumns?: 1 | 2 | 3 | 4 | 5 | 6;
   galleryGap?: number;
+  galleryRowGap?: number;
   galleryAspectRatio?: "square" | "landscape" | "portrait" | "auto";
   galleryShowCaptions?: boolean;
   galleryCaptionPosition?: "overlay" | "below";
+  galleryCaptionColor?: string;
   galleryHoverEffect?: "zoom" | "fade" | "lift" | "none";
   galleryBorderRadius?: string;
+  galleryObjectFit?: "cover" | "contain" | "fill";
   flipDirection?: "flip-right" | "flip-left" | "flip-up" | "flip-down";
   flipDuration?: string;
   flipCardHeight?: string;
   flipBorderRadius?: string;
+  flipAlignment?: "left" | "center" | "right";
   flipFrontTitle?: string;
   flipFrontDescription?: string;
   flipFrontIcon?: string;
@@ -643,11 +683,14 @@ export interface EditorElement {
   flipBackTitle?: string;
   flipBackDescription?: string;
   flipBackBg?: string;
+  flipBackImage?: string;
   flipBackTextColor?: string;
   flipBackBtnText?: string;
   flipBackBtnUrl?: string;
   flipBackBtnBg?: string;
   flipBackBtnTextColor?: string;
+  flipBackBtnHoverBg?: string;
+  flipBackBtnHoverTextColor?: string;
   flipIsFlippedManual?: boolean;
   ctaHeading?: string;
   ctaDescription?: string;
@@ -761,6 +804,7 @@ export interface EditorElement {
   countdownMinutesLabel?: string;
   countdownSecondsLabel?: string;
   facebookPageUrl?: string;
+  facebookMode?: "page" | "button" | "embed" | "comments";
   facebookTabs?: string;
   facebookWidth?: number;
   facebookHeight?: number;
@@ -820,12 +864,24 @@ export interface EditorElement {
   paypalAmount?: string;
   paypalCurrency?: string;
   paypalItemName?: string;
+  paypalItemDescription?: string;
+  paypalItemImage?: string;
+  paypalQuantity?: number;
+  paypalEnv?: "sandbox" | "live";
+  paypalClientId?: string;
+  paypalButtonStyle?: "express" | "custom";
+  paypalButtonShape?: "pill" | "rect";
+  paypalLayout?: "horizontal" | "vertical";
   paypalButtonType?: "checkout" | "donate" | "subscribe";
   paypalButtonSize?: "sm" | "md" | "lg";
   paypalAlignment?: "left" | "center" | "right";
   paypalBgColor?: string;
   paypalTextColor?: string;
   paypalHoverBgColor?: string;
+  paypalSuccessAction?: "message" | "redirect";
+  paypalSuccessMessage?: string;
+  paypalSuccessRedirectUrl?: string;
+  paypalCancelMessage?: string;
   // F-201 Stripe Button
   stripeText?: string;
   stripeCheckoutUrl?: string;
@@ -848,6 +904,41 @@ export interface EditorElement {
   codeLanguage?: string;
   codeShowLineNumbers?: boolean;
   codeTheme?: "dark" | "light" | "dracula" | "github";
+  // Convenience & Alias fields for dynamic inspectors
+  buttonText?: string;
+  linkUrl?: string;
+  iconPosition?: string;
+  target?: string;
+  loginUserLabel?: string;
+  loginPassLabel?: string;
+  animatedStyle?: string;
+  animatedPrefix?: string;
+  animatedWords?: string[];
+  pricePlans?: any[];
+  flipFrontDesc?: string;
+  flipBackDesc?: string;
+  flipButtonText?: string;
+  flipButtonUrl?: string;
+  ctaDesc?: string;
+  carouselPerView?: number;
+  carouselAutoplay?: boolean;
+  facebookUrl?: string;
+  quoteText?: string;
+  paymentAmount?: string;
+  paymentCurrency?: string;
+  paymentProductTitle?: string;
+  paymentButtonText?: string;
+  buttonBg?: string;
+  containerBg?: string;
+  buttonColor?: string;
+  wooProductTitle?: string;
+  wooPrice?: string;
+  wooRating?: number;
+  productTitle?: string;
+  productPrice?: string;
+  productImage?: string;
+  productRating?: number;
+  productRatingText?: string;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";
