@@ -1,5 +1,6 @@
 
 import PopupManagerModal from "./components/PopupManagerModal";
+import IconPickerModal from "./components/IconPickerModal";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
@@ -27,7 +28,9 @@ import {
 
 // Extracted Modular Imports
 export * from "./types";
+import { type SiteProduct } from "./types";
 export * from "./utils";
+import { IconRenderer } from "./widgets/icons";
 export * from "./defaults";
 export * from "./widgets";
 import {
@@ -46,6 +49,8 @@ import {
   LottieWidgetInspector,
   CodeHighlightWidgetInspector,
   ButtonWidgetInspector,
+  IconLibraryWidgetInspector,
+  UniversalIconControls,
   PortfolioWidgetInspector,
   LoginWidgetInspector,
   AnimatedTextWidgetInspector,
@@ -65,6 +70,10 @@ import {
   AudioPlaylistInspector,
   PayPalWidgetInspector
 } from "./inspector/DynamicWidgetInspectors";
+import { FontPickerModal } from "../../components/FontPickerModal";
+import { FontPickerControl } from "../../components/FontPickerControl";
+import { FontService } from "../../features/fonts/FontService";
+import { syncDocumentFonts } from "../../features/fonts/FontManager";
 
 import type {
   PageConfig,
@@ -81,13 +90,10 @@ import type {
   Breakpoint,
   PlaylistItem,
   ImageCarouselItem,
-  MediaCarouselItem,
   MegaMenuColumnLink,
   MegaMenuColumn,
   MegaMenuItem,
-  TestimonialItem,
   ReviewItem,
-  LoopCarouselItem,
   FormFieldType,
   FormFieldItem,
   SlideItem,
@@ -224,7 +230,12 @@ import {
   WcProductPriceWidgetRenderer,
   WcProductImagesWidgetRenderer,
   WcAddToCartWidgetRenderer,
-  WcProductRatingWidgetRenderer
+  WcProductRatingWidgetRenderer,
+  SearchBarWidgetRenderer,
+  ImportAssetWidgetRenderer,
+  ReusableComponentWidgetRenderer,
+  FavoriteWidgetsWidgetRenderer,
+  resolveButtonHref
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
@@ -341,7 +352,58 @@ const [popups, setPopups] = useState<any[]>([]);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
 
   // Reusable Components State (F-005)
-  const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement }>>({});
+  const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement; isFavorite?: boolean }>>(() => {
+    try {
+      const saved = localStorage.getItem("forgestudio_reusable_components");
+      if (saved) return JSON.parse(saved);
+      const serviceComps = ReusableComponentService.getComponents();
+      const compMap: Record<string, { name: string; element: EditorElement; isFavorite?: boolean }> = {};
+      serviceComps.forEach((c) => {
+        compMap[c.id] = {
+          name: c.name,
+          element: {
+            id: c.rootElement.id || c.id,
+            type: (c.rootElement.type as ElementType) || "container",
+            content: c.name,
+            styles: c.rootElement.styles || {},
+          },
+          isFavorite: false,
+        };
+      });
+      return compMap;
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("forgestudio_reusable_components", JSON.stringify(components));
+    } catch (err) {
+      console.error("Failed to save reusable components:", err);
+    }
+  }, [components]);
+
+  const toggleFavoriteComponent = (compId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setComponents((prev) => {
+      const target = prev[compId];
+      if (!target) return prev;
+      const updated = {
+        ...prev,
+        [compId]: {
+          ...target,
+          isFavorite: !target.isFavorite,
+        },
+      };
+      try {
+        localStorage.setItem("forgestudio_reusable_components", JSON.stringify(updated));
+      } catch (err) {
+        console.error("Failed to save favorite component:", err);
+      }
+      return updated;
+    });
+  };
 
   const syncComponentInstances = (compId: string, updatedSource: EditorElement) => {
     const updateMatching = (list: EditorElement[]): EditorElement[] => {
@@ -746,6 +808,64 @@ const [editPageSlug, setEditPageSlug] = useState<string>("");
 const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
 const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
+// Advanced Icon Library Modal State
+const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
+const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
+
+const handleOpenIconPicker = (targetField = "iconName") => {
+  setIconPickerTargetField(targetField);
+  setIsIconPickerOpen(true);
+};
+
+// Dynamic Font System Modal State
+const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
+const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
+
+const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
+  if (onSelect) setFontPickerCallback(() => onSelect);
+  setIsFontPickerModalOpen(true);
+};
+
+// Global Site Products Catalog State (WooCommerce & Dynamic Navigation Data Engine)
+const [siteProducts, setSiteProducts] = useState<SiteProduct[]>([
+  {
+    id: "prod_1",
+    name: "Premium Wireless Headphones",
+    price: "$199.99",
+    regularPrice: "$249.99",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+    rating: 5,
+    category: "Electronics",
+    inStock: true,
+    url: "#product-headphones",
+    description: "High fidelity noise-canceling wireless headphones."
+  },
+  {
+    id: "prod_2",
+    name: "Ergonomic Smart Watch",
+    price: "$149.00",
+    regularPrice: "$179.00",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+    rating: 4.8,
+    category: "Wearables",
+    inStock: true,
+    url: "#product-watch",
+    description: "Track fitness, health metrics, and smart notifications."
+  },
+  {
+    id: "prod_3",
+    name: "Minimalist Leather Backpack",
+    price: "$89.50",
+    regularPrice: "$110.00",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
+    rating: 4.6,
+    category: "Accessories",
+    inStock: true,
+    url: "#product-backpack",
+    description: "Crafted from genuine full-grain leather for everyday carry."
+  }
+]);
+
 // Sync live editor state (elements & pageSettings) with the active page entry in pages array
 useEffect(() => {
   if (!activePageId) return;
@@ -929,6 +1049,31 @@ const handleCreateNewPage = () => {
   setSaveMessage(`Page "${rawTitle}" created!`);
 
   setTimeout(() => setSaveMessage(""), 3000);
+};
+
+const handleCreatePageQuick = (customName?: string): PageConfig => {
+  const count = pages.length + 1;
+  const rawTitle = customName || `New Page ${count}`;
+  const formattedSlug = `/${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
+  const newPageObj: PageConfig = {
+    id: `page_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    name: rawTitle,
+    slug: formattedSlug,
+    elements: [],
+    pageSettings: {
+      title: rawTitle,
+      path: formattedSlug,
+      description: "",
+      backgroundColor: "#ffffff",
+      isMaintenanceMode: false,
+      siteLanguage: "en",
+    },
+    isHome: pages.length === 0,
+  };
+  setPages((prev) => [...prev, newPageObj]);
+  setSaveMessage(`Page "${rawTitle}" created!`);
+  setTimeout(() => setSaveMessage(""), 3000);
+  return newPageObj;
 };
 
 const handleDeletePage = (
@@ -1665,6 +1810,17 @@ const navigate = useNavigate();
     if (disabledWidgets.includes(type)) return;
     const effectiveTargetId = targetId || selectedId;
     const newEl = createDefaultElement(type);
+    if (newEl.type === "button") {
+      const defaultPage = pages.find((p) => p.id === activePageId) || pages.find((p) => p.isHome || p.id === "home") || pages[0];
+      if (defaultPage) {
+        newEl.pageId = defaultPage.id;
+        newEl.href = defaultPage.slug.startsWith("/") ? defaultPage.slug : `/${defaultPage.slug}`;
+        newEl.linkUrl = newEl.href;
+        newEl.destinationType = "page";
+        newEl.linkType = "page";
+        newEl.target = "_self";
+      }
+    }
     setElements((prev) => insertTreeElement(prev, effectiveTargetId, newEl));
     setSelectedId(newEl.id);
     setSelectedIds([newEl.id]);
@@ -1690,6 +1846,17 @@ const navigate = useNavigate();
       if (data.type === "new" && data.widgetType) {
         if (disabledWidgets.includes(data.widgetType as ElementType)) return;
         const newEl = createDefaultElement(data.widgetType as ElementType);
+        if (newEl.type === "button") {
+          const defaultPage = pages.find((p) => p.id === activePageId) || pages.find((p) => p.isHome || p.id === "home") || pages[0];
+          if (defaultPage) {
+            newEl.pageId = defaultPage.id;
+            newEl.href = defaultPage.slug.startsWith("/") ? defaultPage.slug : `/${defaultPage.slug}`;
+            newEl.linkUrl = newEl.href;
+            newEl.destinationType = "page";
+            newEl.linkType = "page";
+            newEl.target = "_self";
+          }
+        }
         setElements((prev) => insertTreeElementAtPosition(prev, targetId, position || "after", newEl));
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
@@ -2740,30 +2907,52 @@ const navigate = useNavigate();
         });
       }
 
+      // Store in local asset history
+      try {
+        const historyRaw = localStorage.getItem("forgestudio_imported_assets");
+        const history = historyRaw ? JSON.parse(historyRaw) : [];
+        history.unshift({ name: file.name, url: finalUrl, type: file.type, date: new Date().toISOString() });
+        localStorage.setItem("forgestudio_imported_assets", JSON.stringify(history.slice(0, 50)));
+      } catch {}
+
       if (selectedId) {
         const selected = findTreeElement(elements, selectedId);
-        if (selected && selected.type === "image") {
+        if (selected && (selected.type === "image" || selected.type === "import-asset")) {
           updateSelectedProp("src", finalUrl);
+          updateSelectedProp("href", finalUrl);
           return;
         }
       }
 
-      const newImgEl: EditorElement = {
+      let detectedType: ElementType = "image";
+      if (file.type.startsWith("video/")) {
+        detectedType = "video" as ElementType;
+      } else if (file.type.startsWith("audio/")) {
+        detectedType = "audio-playlist";
+      } else if (file.name.endsWith(".json")) {
+        detectedType = "lottie";
+      } else if (!file.type.startsWith("image/")) {
+        detectedType = "import-asset";
+      }
+
+      const newAssetEl: EditorElement = {
         id: generateId(),
-        type: "image",
+        type: detectedType,
         content: file.name || "Imported Asset",
         src: finalUrl,
+        href: finalUrl,
         alt: file.name || "Imported Asset",
+        assetType: file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : file.type.startsWith("audio/") ? "audio" : "file",
         styles: {
           width: "100%",
-          borderRadius: "8px",
+          borderRadius: "12px",
           marginTop: "16px",
           marginBottom: "16px",
         },
       };
-      setElements((prev) => [...prev, newImgEl]);
-      setSelectedId(newImgEl.id);
-      setSelectedIds([newImgEl.id]);
+      setElements((prev) => [...prev, newAssetEl]);
+      setSelectedId(newAssetEl.id);
+      setSelectedIds([newAssetEl.id]);
     } catch (err: any) {
       console.error("Asset import error:", err);
       setUploadError(err.message || "Failed to import asset.");
@@ -4700,33 +4889,112 @@ const navigate = useNavigate();
           );
         })()}
 
-        {el.type === "button" && (
-          <div style={{ textAlign: mergedStyles.textAlign || "left", width: "100%", boxSizing: "border-box" }}>
-            <a
-              href={el.href || "#"}
-              contentEditable={!isPreview}
-              suppressContentEditableWarning
-              onFocus={() => handleSelectElement(el.id)}
-              onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-              onClick={(e) => {
-                if (!isPreview) e.preventDefault();
-              }}
-              className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
-              style={{
-                backgroundColor: el.buttonBg || "#2563eb",
-                color: el.buttonColor || "#ffffff",
-                fontSize: mergedStyles.fontSize,
-                fontFamily: mergedStyles.fontFamily,
-                fontWeight: mergedStyles.fontWeight,
-                borderRadius: mergedStyles.borderRadius || "8px",
-                boxShadow: mergedStyles.boxShadow,
-              }}
-              {...customAttrProps}
-            >
-              {el.content || el.buttonText || "Button"}
-            </a>
-          </div>
-        )}
+        {el.type === "button" && (() => {
+          const resolvedHref = resolveButtonHref(el, pages);
+          const target = el.target || "_self";
+          const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+          const isDownload = el.download;
+
+          const iconName = el.iconName || el.icon || "";
+          const iconPos = el.iconPosition || "left";
+          const gap = el.iconGap ?? el.iconSpacing ?? 8;
+          const iconSize = el.iconSize || 18;
+          const iconColor = el.iconColor || el.buttonColor || "#ffffff";
+          const textLabel = el.content || el.buttonText || "Button";
+
+          const isFlexCol = iconPos === "top" || iconPos === "bottom";
+          const isReverse = iconPos === "right" || iconPos === "bottom";
+
+          const renderIcon = iconName ? (
+            <IconRenderer
+              iconName={iconName}
+              size={iconSize}
+              color={iconColor}
+              rotate={el.iconRotate || 0}
+              flipH={Boolean(el.iconFlipH)}
+              flipV={Boolean(el.iconFlipV)}
+              strokeWidth={el.iconStrokeWidth || 2}
+            />
+          ) : null;
+
+          return (
+            <div style={{ textAlign: mergedStyles.textAlign || "left", width: "100%", boxSizing: "border-box" }}>
+              <a
+                href={resolvedHref}
+                target={target}
+                rel={rel}
+                download={isDownload ? true : undefined}
+                contentEditable={!isPreview}
+                suppressContentEditableWarning
+                onFocus={() => handleSelectElement(el.id)}
+                onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
+                onClick={(e) => {
+                  if (!isPreview) {
+                    e.preventDefault();
+                    return;
+                  }
+
+                  // Preview Mode navigation handler
+                  let targetPage: PageConfig | undefined;
+
+                  if (el.pageId) {
+                    targetPage = pages.find((p) => p.id === el.pageId);
+                  }
+                  if (!targetPage && resolvedHref) {
+                    const clean = resolvedHref.replace(/^\//, "");
+                    targetPage = pages.find(
+                      (p) => p.slug === resolvedHref || p.slug === clean || p.id === clean || (resolvedHref === "/" && (p.isHome || p.id === "home"))
+                    );
+                  }
+
+                  if (targetPage && target !== "_blank") {
+                    e.preventDefault();
+                    handlePreviewPageNavigate(targetPage);
+                  } else if (resolvedHref.startsWith("popup:open(")) {
+                    e.preventDefault();
+                    const popupId = resolvedHref.match(/popup:open\(([^)]+)\)/)?.[1];
+                    if (popupId) setActivePopupId(popupId);
+                  } else if (resolvedHref === "popup:close") {
+                    e.preventDefault();
+                    setActivePopupId(null);
+                  } else if (resolvedHref === "scroll:to(top)") {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  } else if (resolvedHref.startsWith("scroll:to(")) {
+                    e.preventDefault();
+                    const targetId = resolvedHref.match(/scroll:to\(([^)]+)\)/)?.[1];
+                    if (targetId) {
+                      const targetEl = document.getElementById(targetId);
+                      targetEl?.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }
+                }}
+                className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
+                style={{
+                  backgroundColor: el.buttonBg || "#2563eb",
+                  color: el.buttonColor || "#ffffff",
+                  fontSize: mergedStyles.fontSize,
+                  fontFamily: mergedStyles.fontFamily,
+                  fontWeight: mergedStyles.fontWeight,
+                  borderRadius: mergedStyles.borderRadius || "8px",
+                  boxShadow: mergedStyles.boxShadow,
+                }}
+                {...customAttrProps}
+              >
+                <span
+                  className={`inline-flex items-center justify-center ${
+                    isFlexCol ? "flex-col" : "flex-row"
+                  } ${isReverse ? "flex-col-reverse" : ""}`}
+                  style={{ gap: `${gap}px` }}
+                >
+                  {!isReverse && renderIcon}
+                  <span>{textLabel}</span>
+                  {isReverse && renderIcon}
+                </span>
+              </a>
+            </div>
+          );
+        })()}
 
         {el.type === "posts" && (() => {
           const postsList = el.posts && el.posts.length > 0 ? el.posts : [];
@@ -4814,7 +5082,13 @@ const navigate = useNavigate();
         })()}
 
         {el.type === "share-buttons" && (
-          <ShareButtonsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <ShareButtonsWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            pages={pages}
+            activePageId={isPreview ? activePreviewPageId : activePageId}
+          />
         )}
 
         {el.type === "portfolio" && (() => {
@@ -5043,6 +5317,22 @@ const navigate = useNavigate();
 
         {el.type === "code-highlight" && (
           <CodeHighlightWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {(el.type === "search-bar" || el.type === "site-search" || el.type === "search-form") && (
+          <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "import-asset" && (
+          <ImportAssetWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "reusable-components" && (
+          <ReusableComponentWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {(el.type === "favorite-widgets" || (el.type as string) === "favorite") && (
+          <FavoriteWidgetsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
 
@@ -5428,7 +5718,7 @@ const navigate = useNavigate();
                     <input
                       ref={importFileInputRef}
                       type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                      accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.json,.svg"
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
@@ -5448,17 +5738,30 @@ onClick={() => importFileInputRef.current?.click()}
                   </>
                 )}
 
-                {/* Pinned Favorite Widgets (F-012) */}
-                {!disabledWidgets.includes("favorite-widgets") && favoriteWidgets.filter((type) => !disabledWidgets.includes(type)).length > 0 && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3">
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2 flex items-center justify-between">
-                      <span>⭐ Favorite Widgets</span>
-                      <span className="text-[9px] text-amber-600/70 font-normal">Quick Access</span>
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {favoriteWidgets
-                        .filter((type) => !disabledWidgets.includes(type))
-                        .map((type) => {
+                {/* Pinned Favorite Widgets & Reusable Components (F-012) */}
+                {!disabledWidgets.includes("favorite-widgets") && (() => {
+                  const visibleFavTypes = favoriteWidgets.filter(
+                    (type) => !disabledWidgets.includes(type) && isWidgetLibraryVisible(type)
+                  );
+                  const visibleFavComps = Object.entries(components).filter(
+                    ([_compId, comp]) => comp.isFavorite && (!widgetLibrarySearch || comp.name.toLowerCase().includes(widgetLibrarySearch.toLowerCase()))
+                  );
+
+                  if (visibleFavTypes.length === 0 && visibleFavComps.length === 0) {
+                    return null;
+                  }
+
+                  return (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 shadow-xs">
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1">⭐ Favorite Widgets</span>
+                        <span className="text-[9px] text-amber-600/70 font-normal">Quick Access ({visibleFavTypes.length + visibleFavComps.length})</span>
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Core Favorite Widgets */}
+                        {visibleFavTypes.map((type) => {
+                          const widgetDef = ALL_WIDGET_REGISTRY.find((w) => w.type === type);
+                          const name = widgetDef?.name || type;
                           return (
                             <div
                               key={`fav_${type}`}
@@ -5473,89 +5776,81 @@ onClick={() => importFileInputRef.current?.click()}
                               <button
                                 type="button"
                                 onClick={(e) => toggleFavoriteWidget(type, e)}
-                                className="absolute top-1 right-1 text-amber-500 text-[10px] hover:scale-125 transition"
+                                className="absolute top-1 right-1 text-amber-500 text-[11px] hover:scale-125 transition cursor-pointer p-0.5"
                                 title="Remove from favorites"
                               >
                                 ★
                               </button>
-                              {type === "container" && <ContainerBoxIcon />}
-                              {type === "heading" && <HeadingBoxIcon />}
-                              {type === "text" && <TextBoxIcon />}
-                              {type === "image" && <ImageBoxIcon />}
-                              {type === "button" && <ButtonBoxIcon />}
-                              {type === "posts" && <PostsBoxIcon />}
-                              {type === "share-buttons" && <ShareButtonsBoxIcon />}
-                              {type === "portfolio" && <PortfolioBoxIcon />}
-                              {type === "slides" && <SlidesBoxIcon />}
-                              {type === "form" && <FormBoxIcon />}
-                              {type === "login" && <LoginBoxIcon />}
-                              {type === "nav-menu" && <NavMenuBoxIcon />}
-                              {type === "animated-headline" && <AnimatedHeadlineBoxIcon />}
-                              {type === "price-table" && <PriceTableBoxIcon />}
-                              {type === "price-list" && <PriceListBoxIcon />}
-                              {type === "gallery" && <GalleryBoxIcon />}
-                              {type === "flip-box" && <FlipBoxIcon />}
-                              {type === "call-to-action" && <CtaBoxIcon />}
-                              {type === "media-carousel" && <MediaCarouselBoxIcon />}
-                              {type === "testimonial-carousel" && <TestimonialBoxIcon />}
-                              {type === "nested-carousel" && <NestedCarouselBoxIcon />}
-                              {type === "loop-carousel" && <LoopCarouselBoxIcon />}
-                              {type === "facebook-page" && <FacebookPageBoxIcon />}
-                              {type === "blockquote" && <BlockquoteBoxIcon />}
-                              {type === "template" && <TemplateBoxIcon />}
-                              {type === "reviews" && <ReviewsBoxIcon />}
-                              {type === "facebook-button" && <FacebookButtonBoxIcon />}
-                              {type === "facebook-embed" && <FacebookEmbedBoxIcon />}
-                              {type === "facebook-comments" && <FacebookCommentsBoxIcon />}
-                              {type === "paypal-button" && <PayPalButtonBoxIcon />}
-                              {type === "stripe-button" && <StripeButtonBoxIcon />}
-                              {type === "lottie" && <LottieBoxIcon />}
-                              {type === "code-highlight" && <CodeHighlightBoxIcon />}
-                              {type === "video-playlist" && <VideoPlaylistBoxIcon />}
-                              {type === "mega-menu" && <MegaMenuBoxIcon />}
-                              {type === "off-canvas" && <OffCanvasBoxIcon />}
-                              {type === "image-carousel" && <ImageCarouselBoxIcon />}
-                              <span className="mt-1 text-[11px] font-semibold text-slate-700 capitalize group-hover:text-amber-700">
-                                {type === "facebook-page"
-                                  ? "Facebook Page"
-                                  : type === "facebook-button"
-                                  ? "FB Button"
-                                  : type === "facebook-embed"
-                                  ? "FB Embed"
-                                  : type === "facebook-comments"
-                                  ? "FB Comments"
-                                  : type === "paypal-button"
-                                  ? "PayPal"
-                                  : type === "stripe-button"
-                                  ? "Stripe"
-                                  : type === "lottie"
-                                  ? "Lottie"
-                                  : type === "code-highlight"
-                                  ? "Code Highlight"
-                                  : type === "video-playlist"
-                                  ? "Video Playlist"
-                                  : type === "mega-menu"
-                                  ? "Mega Menu"
-                                  : type === "off-canvas"
-                                  ? "Off Canvas"
-                                  : type === "image-carousel"
-                                  ? "Image Carousel"
-                                  : type === "blockquote"
-                                  ? "Blockquote"
-                                  : type === "template"
-                                  ? "Template"
-                                  : type === "reviews"
-                                  ? "Reviews"
-                                  : type === "share-buttons"
-                                  ? "Share"
-                                  : type}
+                              {type === "container" ? <ContainerBoxIcon /> :
+                               type === "heading" ? <HeadingBoxIcon /> :
+                               type === "text" ? <TextBoxIcon /> :
+                               type === "image" ? <ImageBoxIcon /> :
+                               type === "button" ? <ButtonBoxIcon /> :
+                               type === "posts" ? <PostsBoxIcon /> :
+                               type === "share-buttons" ? <ShareButtonsBoxIcon /> :
+                               type === "portfolio" ? <PortfolioBoxIcon /> :
+                               type === "slides" ? <SlidesBoxIcon /> :
+                               type === "form" ? <FormBoxIcon /> :
+                               type === "login" ? <LoginBoxIcon /> :
+                               type === "nav-menu" ? <NavMenuBoxIcon /> :
+                               type === "animated-headline" ? <AnimatedHeadlineBoxIcon /> :
+                               type === "price-table" ? <PriceTableBoxIcon /> :
+                               type === "price-list" ? <PriceListBoxIcon /> :
+                               type === "gallery" ? <GalleryBoxIcon /> :
+                               type === "flip-box" ? <FlipBoxIcon /> :
+                               type === "call-to-action" ? <CtaBoxIcon /> :
+                               type === "media-carousel" ? <MediaCarouselBoxIcon /> :
+                               type === "testimonial-carousel" ? <TestimonialBoxIcon /> :
+                               type === "nested-carousel" ? <NestedCarouselBoxIcon /> :
+                               type === "loop-carousel" ? <LoopCarouselBoxIcon /> :
+                               type === "facebook-page" ? <FacebookPageBoxIcon /> :
+                               type === "blockquote" ? <BlockquoteBoxIcon /> :
+                               type === "template" ? <TemplateBoxIcon /> :
+                               type === "reviews" ? <ReviewsBoxIcon /> :
+                               type === "facebook-button" ? <FacebookButtonBoxIcon /> :
+                               type === "facebook-embed" ? <FacebookEmbedBoxIcon /> :
+                               type === "facebook-comments" ? <FacebookCommentsBoxIcon /> :
+                               type === "paypal-button" ? <PayPalButtonBoxIcon /> :
+                               type === "stripe-button" ? <StripeButtonBoxIcon /> :
+                               type === "lottie" ? <LottieBoxIcon /> :
+                               type === "code-highlight" ? <CodeHighlightBoxIcon /> :
+                               type === "video-playlist" ? <VideoPlaylistBoxIcon /> :
+                               type === "mega-menu" ? <MegaMenuBoxIcon /> :
+                               type === "off-canvas" ? <OffCanvasBoxIcon /> :
+                               type === "image-carousel" ? <ImageCarouselBoxIcon /> :
+                               <span className="text-xl">{widgetDef?.icon || "📦"}</span>}
+                              <span className="mt-1 text-[11px] font-semibold text-slate-700 text-center line-clamp-1 group-hover:text-amber-700">
+                                {name}
                               </span>
                             </div>
                           );
                         })}
+
+                        {/* Favorite Reusable Components */}
+                        {visibleFavComps.map(([compId, comp]) => (
+                          <div
+                            key={`fav_comp_${compId}`}
+                            onClick={() => handleAddInstanceFromComponent(compId)}
+                            className="relative flex flex-col items-center justify-center rounded-lg border border-purple-200 bg-purple-50/70 p-2.5 shadow-xs hover:border-purple-400 hover:bg-purple-100/70 hover:-translate-y-0.5 active:scale-95 group cursor-pointer transition"
+                          >
+                            <button
+                              type="button"
+                              onClick={(e) => toggleFavoriteComponent(compId, e)}
+                              className="absolute top-1 right-1 text-amber-500 text-[11px] hover:scale-125 transition cursor-pointer p-0.5"
+                              title="Remove favorite component"
+                            >
+                              ★
+                            </button>
+                            <span className="text-lg">🧩</span>
+                            <span className="mt-1 text-[11px] font-semibold text-purple-900 text-center line-clamp-1 group-hover:text-purple-950">
+                              {comp.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Container */}
@@ -6620,19 +6915,33 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
                     ) : (
                       <div className="space-y-1.5">
-                        {Object.entries(components).map(([compId, comp]) => (
-                          <button
-                            key={compId}
-                            type="button"
-                            onClick={() => handleAddInstanceFromComponent(compId)}
-                            className="w-full flex items-center justify-between rounded-lg border border-purple-200 bg-purple-50/50 px-2.5 py-1.5 text-xs font-semibold text-purple-800 transition hover:bg-purple-100 hover:border-purple-300"
-                          >
-                            <span className="truncate">{comp.name}</span>
-                            <span className="text-[10px] font-bold text-purple-600 bg-purple-200/60 px-1.5 py-0.5 rounded">
-                              + Add Instance
-                            </span>
-                          </button>
-                        ))}
+                        {Object.entries(components)
+                          .filter(([_id, comp]) => !widgetLibrarySearch || comp.name.toLowerCase().includes(widgetLibrarySearch.toLowerCase()))
+                          .map(([compId, comp]) => (
+                            <div
+                              key={compId}
+                              className="w-full flex items-center justify-between gap-2 rounded-lg border border-purple-200 bg-purple-50/50 px-2.5 py-1.5 text-xs font-semibold text-purple-800 transition hover:bg-purple-100 hover:border-purple-300"
+                            >
+                              <button
+                                type="button"
+                                onClick={(e) => toggleFavoriteComponent(compId, e)}
+                                className={`text-xs transition hover:scale-125 cursor-pointer ${comp.isFavorite ? "text-amber-500" : "text-slate-300 hover:text-amber-400"}`}
+                                title={comp.isFavorite ? "Remove favorite" : "Mark favorite"}
+                              >
+                                {comp.isFavorite ? "★" : "☆"}
+                              </button>
+                              <span className="truncate flex-1 text-left cursor-pointer" onClick={() => handleAddInstanceFromComponent(compId)}>
+                                {comp.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleAddInstanceFromComponent(compId)}
+                                className="text-[10px] font-bold text-purple-600 bg-purple-200/60 hover:bg-purple-300/80 px-1.5 py-0.5 rounded cursor-pointer"
+                              >
+                                + Add Instance
+                              </button>
+                            </div>
+                          ))}
                       </div>
                     )}
                   </div>
@@ -6886,7 +7195,7 @@ onClick={() => importFileInputRef.current?.click()}
                 {/* Currently Selected Preview Page Content */}
                 {(() => {
                   const currentPreviewPage = pages.find((p) => p.id === activePreviewPageId) || pages[0];
-                  const activeElements = currentPreviewPage?.elements || (currentPreviewPage?.id === activePageId ? elements : []);
+                  const activeElements = currentPreviewPage?.id === activePageId ? elements : (currentPreviewPage?.elements || []);
 
                   if (pageSettings.isMaintenanceMode) {
                     return (
@@ -7204,6 +7513,36 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                   ? "center"
                                   : "space-between";
                               updateSelectedStyle("justifyContent", flexJustify);
+                              if (selectedElementAny.type === "nav-menu") {
+                                updateSelectedProp("navAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "mega-menu") {
+                                updateSelectedProp("megaMenuAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "share-buttons") {
+                                updateSelectedProp("shareAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "posts") {
+                                updateSelectedProp("postsAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "portfolio") {
+                                updateSelectedProp("portfolioAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "slides") {
+                                updateSelectedProp("slidesAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "price-table") {
+                                updateSelectedProp("pricingAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "price-list") {
+                                updateSelectedProp("priceListAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "table-of-contents") {
+                                updateSelectedProp("tocAlignment", align as any);
+                              }
+                              if (selectedElementAny.type === "image-carousel") {
+                                updateSelectedProp("imageCarouselAlignment", align as any);
+                              }
                               if (selectedElementAny.type === "container" || selectedElementAny.layout) {
                                 updateSelectedLayout("justifyContent", flexJustify);
                               }
@@ -7554,6 +7893,8 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   <ShareButtonsInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
+                    pages={pages}
+                    activePageId={activePageId}
                   />
                 )}
 
@@ -7594,6 +7935,9 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   <NavMenuWidgetInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
+                    pages={pages}
+                    siteProducts={siteProducts}
+                    onCreatePage={handleCreatePageQuick}
                   />
                 )}
 
@@ -7627,6 +7971,21 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
                     updateStyle={updateSelectedStyle}
+                    pages={pages}
+                    activePageId={activePageId}
+                    onCreatePage={handleCreatePageQuick}
+                    siteProducts={siteProducts}
+                    onOpenIconPicker={() => handleOpenIconPicker("iconName")}
+                  />
+                )}
+
+                {/* Icon Library Inspector */}
+                {selectedElementAny.type === "icon-library" && (
+                  <IconLibraryWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                    onOpenIconPicker={() => handleOpenIconPicker("iconName")}
                   />
                 )}
 
@@ -7731,6 +8090,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   <WooCommerceWidgetInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
+                    siteProducts={siteProducts}
                   />
                 )}
 
@@ -7760,7 +8120,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         )}
 
                         {/* Smart Link & URL Controls */}
-                        {(selectedElementAny.type === "button" || selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
+                        {selectedElementAny.type !== "button" && (selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
                           <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
                             <label className="block text-[10px] font-bold text-slate-600 uppercase">
                               Link & Smart Actions
@@ -7812,86 +8172,92 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         {renderAccordion(
                           "Typography & Colors",
                           "typography",
-                          <div className="space-y-3">
-                            {/* Font Family */}
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                Font Family
-                              </label>
-                              <select
-                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily") || "inherit"}
-                                onChange={(e) => updateSelectedStyle("fontFamily", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                              >
-                                <option value="inherit">Default / Theme Font</option>
-                                <option value="'Inter', sans-serif">Inter</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="'Outfit', sans-serif">Outfit</option>
-                                <option value="'Playfair Display', serif">Playfair Display</option>
-                                <option value="'Open Sans', sans-serif">Open Sans</option>
-                                <option value="'Montserrat', sans-serif">Montserrat</option>
-                                <option value="system-ui, sans-serif">System UI</option>
-                                <option value="monospace">Monospace</option>
-                              </select>
-                            </div>
+                          (() => {
+                            const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
+                            const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
+                            const hasItalic = FontService.hasItalic(currentFontFamily);
 
-                            {/* Font Size & Weight */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                {renderResponsiveLabel("Font Size")}
-                                <input
-                                  type="text"
-                                  value={
-                                    getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"
-                                  }
-                                  onChange={(e) =>
-                                    updateSelectedStyle(
-                                      "fontSize",
-                                      e.target.value.endsWith("px") || e.target.value.endsWith("rem")
-                                        ? e.target.value
-                                        : `${e.target.value}px`
-                                    )
-                                  }
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                  placeholder="16px"
+                            const weightLabels: Record<number, string> = {
+                              100: "100 Thin",
+                              200: "200 Extra Light",
+                              300: "300 Light",
+                              400: "400 Normal",
+                              500: "500 Medium",
+                              600: "600 Semi-Bold",
+                              700: "700 Bold",
+                              800: "800 Extra Bold",
+                              900: "900 Black"
+                            };
+
+                            return (
+                              <div className="space-y-3">
+                                {/* Font Family */}
+                                <FontPickerControl
+                                  value={currentFontFamily}
+                                  onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
+                                  onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
+                                  onReset={() => resetSelectedStyle("fontFamily")}
+                                  isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
                                 />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Font Weight
-                                </label>
-                                <select
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
-                                  onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                >
-                                  <option value="inherit">Default</option>
-                                  <option value="300">300 Light</option>
-                                  <option value="400">400 Normal</option>
-                                  <option value="500">500 Medium</option>
-                                  <option value="600">600 Semi-Bold</option>
-                                  <option value="700">700 Bold</option>
-                                  <option value="800">800 Extra Bold</option>
-                                </select>
-                              </div>
-                            </div>
 
-                            {/* Font Style & Alignment */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Font Style
-                                </label>
-                                <select
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
-                                  onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                >
-                                  <option value="normal">Normal</option>
-                                  <option value="italic">Italic</option>
-                                </select>
-                              </div>
-                              <div>
+                                {/* Font Size & Weight */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    {renderResponsiveLabel("Font Size")}
+                                    <input
+                                      type="text"
+                                      value={
+                                        getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedStyle(
+                                          "fontSize",
+                                          e.target.value.endsWith("px") || e.target.value.endsWith("rem")
+                                            ? e.target.value
+                                            : `${e.target.value}px`
+                                        )
+                                      }
+                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                      placeholder="16px"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                      Font Weight
+                                    </label>
+                                    <select
+                                      value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
+                                      onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                    >
+                                      <option value="inherit">Default</option>
+                                      {supportedWeights.map((w) => (
+                                        <option key={w} value={String(w)}>
+                                          {weightLabels[w] || `${w}`}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+
+                                {/* Font Style & Alignment */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                      Font Style
+                                    </label>
+                                    <select
+                                      value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
+                                      onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
+                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                    >
+                                      <option value="normal">Normal</option>
+                                      <option value="italic" disabled={!hasItalic}>
+                                        Italic {!hasItalic ? "(N/A)" : ""}
+                                      </option>
+                                    </select>
+                                  </div>
+                                </div>
                                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                                   Text Align
                                 </label>
@@ -7915,8 +8281,6 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     );
                                   })}
                                 </div>
-                              </div>
-                            </div>
 
                             {/* Line Height & Letter Spacing */}
                             <div className="grid grid-cols-2 gap-2">
@@ -8011,7 +8375,8 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               </div>
                             </div>
                           </div>
-                        )}
+                        );
+                      })())}
 
                         {renderAccordion(
                           "Borders & Radius",
@@ -9138,23 +9503,32 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     </div>
 
                     {/* Menu Items Manager */}
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                        <span className="block text-[11px] font-bold text-amber-900 uppercase tracking-wider">
                           Menu Items ({selectedElementAny.navMenuItems?.length || 5})
                         </span>
                         <button
                           type="button"
                           onClick={() => {
-                            const current = selectedElementAny.navMenuItems || [];
+                            const current = selectedElementAny.navMenuItems || [
+                              { id: "1", label: "Home", url: "/", isActive: true },
+                              { id: "2", label: "About", url: "/about" },
+                              { id: "3", label: "Services", url: "/services" },
+                              { id: "4", label: "Pricing", url: "/pricing" },
+                              { id: "5", label: "Contact", url: "/contact" },
+                            ];
                             const newItem: NavMenuItem = {
                               id: `nav_${Date.now()}`,
                               label: `New Link ${current.length + 1}`,
                               url: "#",
+                              linkType: "url",
+                              dropdownEnabled: true,
+                              trigger: "hover",
                             };
                             updateSelectedProp("navMenuItems", [...current, newItem]);
                           }}
-                          className="rounded bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-amber-600 transition cursor-pointer"
+                          className="rounded bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-amber-600 transition cursor-pointer shadow-xs"
                         >
                           + Add Item
                         </button>
@@ -9168,9 +9542,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             id: "3",
                             label: "Services",
                             url: "/services",
+                            dropdownEnabled: true,
                             submenu: [
-                              { id: "s1", label: "Web Design", url: "/services/web-design" },
-                              { id: "s2", label: "App Development", url: "/services/app-dev" },
+                              { id: "s1", label: "Web Design", url: "/services/web-design", description: "Responsive web design" },
+                              { id: "s2", label: "App Development", url: "/services/app-dev", description: "Native & cross-platform apps" },
                             ],
                           },
                           { id: "4", label: "Pricing", url: "/pricing" },
@@ -9178,11 +9553,13 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         ]).map((item, index, arr) => (
                           <div
                             key={item.id}
-                            className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-xs space-y-2"
+                            className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5"
                           >
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-[11px] font-bold text-slate-700">
-                                #{index + 1} {item.label}
+                            <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
+                              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+                                <span className="text-amber-500">#{index + 1}</span>
+                                {item.icon && <span>{item.icon}</span>}
+                                <span>{item.label}</span>
                               </span>
 
                               <div className="flex items-center gap-1">
@@ -9197,6 +9574,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     updateSelectedProp("navMenuItems", copy);
                                   }}
                                   className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                  title="Move Up"
                                 >
                                   ↑
                                 </button>
@@ -9211,8 +9589,26 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     updateSelectedProp("navMenuItems", copy);
                                   }}
                                   className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                  title="Move Down"
                                 >
                                   ↓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const dupItem: NavMenuItem = {
+                                      ...item,
+                                      id: `nav_${Date.now()}`,
+                                      label: `${item.label} (Copy)`,
+                                    };
+                                    const copy = [...arr];
+                                    copy.splice(index + 1, 0, dupItem);
+                                    updateSelectedProp("navMenuItems", copy);
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                  title="Duplicate Item"
+                                >
+                                  ⧉
                                 </button>
                                 <button
                                   type="button"
@@ -9221,15 +9617,17 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     updateSelectedProp("navMenuItems", filtered);
                                   }}
                                   className="h-5 w-5 rounded border border-red-200 bg-red-50 text-[10px] font-bold text-red-600 hover:bg-red-100 cursor-pointer"
+                                  title="Delete Item"
                                 >
                                   ✕
                                 </button>
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-1.5">
+                            {/* Label & Link Type */}
+                            <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">Label</label>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Label</label>
                                 <input
                                   type="text"
                                   value={item.label}
@@ -9239,12 +9637,52 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     );
                                     updateSelectedProp("navMenuItems", updated);
                                   }}
-                                  className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-800 outline-none"
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-amber-500"
                                 />
                               </div>
 
                               <div>
-                                <label className="block text-[9px] font-semibold text-slate-400">URL Target</label>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Link Type</label>
+                                <select
+                                  value={item.linkType || "url"}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, linkType: e.target.value as any } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-amber-500"
+                                >
+                                  <option value="url">External URL</option>
+                                  <option value="page">Website Page</option>
+                                  <option value="anchor">Anchor (#id)</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* URL Target / Page Picker */}
+                            <div>
+                              <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">
+                                {item.linkType === "page" ? "Select Page" : "URL Destination"}
+                              </label>
+                              {item.linkType === "page" && pages.length > 0 ? (
+                                <select
+                                  value={item.url}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, url: e.target.value } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-amber-500"
+                                >
+                                  {pages.map((p) => (
+                                    <option key={p.id} value={p.isHome ? "/" : `/${p.slug}`}>
+                                      {p.name} ({p.isHome ? "/" : `/${p.slug}`})
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
                                 <input
                                   type="text"
                                   value={item.url}
@@ -9254,13 +9692,68 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     );
                                     updateSelectedProp("navMenuItems", updated);
                                   }}
-                                  className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-mono text-slate-800 outline-none"
+                                  placeholder={item.linkType === "anchor" ? "#section-id" : "https://example.com"}
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-amber-500"
                                 />
+                              )}
+                            </div>
+
+                            {/* Target & Icon */}
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Target</label>
+                                <select
+                                  value={item.target || "_self"}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, target: e.target.value as any } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-800 outline-none"
+                                >
+                                  <option value="_self">Same Tab</option>
+                                  <option value="_blank">New Tab</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Icon / Emoji</label>
+                                <input
+                                  type="text"
+                                  value={item.icon || ""}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, icon: e.target.value } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  placeholder="e.g. 🏠"
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Icon Pos</label>
+                                <select
+                                  value={item.iconPosition || "left"}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, iconPosition: e.target.value as any } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-1.5 py-1 text-xs font-medium text-slate-800 outline-none"
+                                >
+                                  <option value="left">Left</option>
+                                  <option value="right">Right</option>
+                                </select>
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                              <label className="flex items-center gap-1.5 text-[10px] text-slate-600 cursor-pointer">
+                            {/* Toggles: Active, Disabled, Dropdown Enabled */}
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 gap-2 flex-wrap">
+                              <label className="flex items-center gap-1.5 text-[10px] text-slate-700 cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={!!item.isActive}
@@ -9272,7 +9765,22 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                   }}
                                   className="rounded border-slate-300 text-amber-500 cursor-pointer"
                                 />
-                                <span>Active Link</span>
+                                <span>Active</span>
+                              </label>
+
+                              <label className="flex items-center gap-1.5 text-[10px] text-slate-700 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={!!item.isDisabled}
+                                  onChange={(e) => {
+                                    const updated = arr.map((i) =>
+                                      i.id === item.id ? { ...i, isDisabled: e.target.checked } : i
+                                    );
+                                    updateSelectedProp("navMenuItems", updated);
+                                  }}
+                                  className="rounded border-slate-300 text-amber-500 cursor-pointer"
+                                />
+                                <span>Disabled</span>
                               </label>
 
                               <button
@@ -9285,11 +9793,11 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     url: "#",
                                   };
                                   const updated = arr.map((i) =>
-                                    i.id === item.id ? { ...i, submenu: [...sub, newSub] } : i
+                                    i.id === item.id ? { ...i, submenu: [...sub, newSub], dropdownEnabled: true } : i
                                   );
                                   updateSelectedProp("navMenuItems", updated);
                                 }}
-                                className="text-[10px] font-bold text-amber-600 hover:underline cursor-pointer"
+                                className="text-[10px] font-bold text-amber-600 hover:underline cursor-pointer ml-auto"
                               >
                                 + Add Submenu
                               </button>
@@ -9297,55 +9805,93 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
 
                             {/* Submenu List */}
                             {item.submenu && item.submenu.length > 0 && (
-                              <div className="mt-2 pl-3 border-l-2 border-amber-300 space-y-1.5">
-                                <span className="block text-[9px] font-bold text-slate-500 uppercase">
-                                  Submenu Items
+                              <div className="mt-2 pl-3 border-l-2 border-amber-300 space-y-2 bg-amber-50/30 p-2 rounded-r-xl">
+                                <span className="block text-[9px] font-bold text-amber-900 uppercase tracking-wider">
+                                  Submenu Items ({item.submenu.length})
                                 </span>
-                                {item.submenu.map((sub) => (
-                                  <div key={sub.id} className="flex items-center gap-1">
-                                    <input
-                                      type="text"
-                                      value={sub.label}
-                                      onChange={(e) => {
-                                        const newSub = item.submenu!.map((s) =>
-                                          s.id === sub.id ? { ...s, label: e.target.value } : s
-                                        );
-                                        const updated = arr.map((i) =>
-                                          i.id === item.id ? { ...i, submenu: newSub } : i
-                                        );
-                                        updateSelectedProp("navMenuItems", updated);
-                                      }}
-                                      placeholder="Submenu Label"
-                                      className="w-1/2 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[11px] text-slate-800 outline-none"
-                                    />
-                                    <input
-                                      type="text"
-                                      value={sub.url}
-                                      onChange={(e) => {
-                                        const newSub = item.submenu!.map((s) =>
-                                          s.id === sub.id ? { ...s, url: e.target.value } : s
-                                        );
-                                        const updated = arr.map((i) =>
-                                          i.id === item.id ? { ...i, submenu: newSub } : i
-                                        );
-                                        updateSelectedProp("navMenuItems", updated);
-                                      }}
-                                      placeholder="URL"
-                                      className="w-1/2 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[11px] font-mono text-slate-800 outline-none"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const newSub = item.submenu!.filter((s) => s.id !== sub.id);
-                                        const updated = arr.map((i) =>
-                                          i.id === item.id ? { ...i, submenu: newSub } : i
-                                        );
-                                        updateSelectedProp("navMenuItems", updated);
-                                      }}
-                                      className="h-5 w-5 shrink-0 rounded border border-red-200 bg-red-50 text-[10px] text-red-600 hover:bg-red-100 cursor-pointer"
-                                    >
-                                      ✕
-                                    </button>
+                                {item.submenu.map((sub, sIdx) => (
+                                  <div key={sub.id} className="rounded-lg border border-slate-200 bg-white p-2 space-y-1.5">
+                                    <div className="flex items-center justify-between gap-1">
+                                      <span className="text-[10px] font-bold text-slate-700">Sub #{sIdx + 1}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const newSub = item.submenu!.filter((s) => s.id !== sub.id);
+                                          const updated = arr.map((i) =>
+                                            i.id === item.id ? { ...i, submenu: newSub } : i
+                                          );
+                                          updateSelectedProp("navMenuItems", updated);
+                                        }}
+                                        className="h-4 w-4 shrink-0 rounded border border-red-200 bg-red-50 text-[9px] font-bold text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                                        title="Delete Submenu Item"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-1">
+                                      <input
+                                        type="text"
+                                        value={sub.label}
+                                        onChange={(e) => {
+                                          const newSub = item.submenu!.map((s) =>
+                                            s.id === sub.id ? { ...s, label: e.target.value } : s
+                                          );
+                                          const updated = arr.map((i) =>
+                                            i.id === item.id ? { ...i, submenu: newSub } : i
+                                          );
+                                          updateSelectedProp("navMenuItems", updated);
+                                        }}
+                                        placeholder="Submenu Label"
+                                        className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-800 outline-none"
+                                      />
+                                      <input
+                                        type="text"
+                                        value={sub.url}
+                                        onChange={(e) => {
+                                          const newSub = item.submenu!.map((s) =>
+                                            s.id === sub.id ? { ...s, url: e.target.value } : s
+                                          );
+                                          const updated = arr.map((i) =>
+                                            i.id === item.id ? { ...i, submenu: newSub } : i
+                                          );
+                                          updateSelectedProp("navMenuItems", updated);
+                                        }}
+                                        placeholder="URL"
+                                        className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs font-mono text-slate-800 outline-none"
+                                      />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-1">
+                                      <input
+                                        type="text"
+                                        value={sub.description || ""}
+                                        onChange={(e) => {
+                                          const newSub = item.submenu!.map((s) =>
+                                            s.id === sub.id ? { ...s, description: e.target.value } : s
+                                          );
+                                          const updated = arr.map((i) =>
+                                            i.id === item.id ? { ...i, submenu: newSub } : i
+                                          );
+                                          updateSelectedProp("navMenuItems", updated);
+                                        }}
+                                        placeholder="Description (optional)"
+                                        className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                      />
+                                      <input
+                                        type="text"
+                                        value={sub.badge || ""}
+                                        onChange={(e) => {
+                                          const newSub = item.submenu!.map((s) =>
+                                            s.id === sub.id ? { ...s, badge: e.target.value } : s
+                                          );
+                                          const updated = arr.map((i) =>
+                                            i.id === item.id ? { ...i, submenu: newSub } : i
+                                          );
+                                          updateSelectedProp("navMenuItems", updated);
+                                        }}
+                                        placeholder="Badge (e.g. New)"
+                                        className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                      />
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -12215,6 +12761,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 {/* Mega Menu Inspector Panel (F-205) */}
                 {selectedElementAny.type === "mega-menu" && (
                   <div className="space-y-4">
+                    {/* General Settings */}
                     <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
                       <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
                         <MegaMenuBoxIcon />
@@ -12228,7 +12775,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             type="color"
                             value={selectedElementAny.megaMenuBgColor || "#ffffff"}
                             onChange={(e) => updateSelectedProp("megaMenuBgColor", e.target.value)}
-                            className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5"
+                            className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
                           />
                         </div>
                         <div>
@@ -12237,9 +12784,670 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             type="color"
                             value={selectedElementAny.megaMenuTextColor || "#0f172a"}
                             onChange={(e) => updateSelectedProp("megaMenuTextColor", e.target.value)}
-                            className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5"
+                            className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
                           />
                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
+                          <select
+                            value={selectedElementAny.megaMenuAlignment || "center"}
+                            onChange={(e) => updateSelectedProp("megaMenuAlignment", e.target.value as any)}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="left">Left Align</option>
+                            <option value="center">Center Align</option>
+                            <option value="right">Right Align</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Menu Trigger</label>
+                          <select
+                            value={selectedElementAny.megaMenuTrigger || "hover"}
+                            onChange={(e) => updateSelectedProp("megaMenuTrigger", e.target.value as any)}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                          >
+                            <option value="hover">On Hover</option>
+                            <option value="click">On Click</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mega Menu Items Manager */}
+                    <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider">
+                          Categories ({selectedElementAny.megaMenuItems?.length || 3})
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const defaultItems: MegaMenuItem[] = [
+                              { id: "1", title: "Products" },
+                              { id: "2", title: "Resources" },
+                              { id: "3", title: "Pricing", href: "#pricing" },
+                            ];
+                            const current = selectedElementAny.megaMenuItems?.length ? selectedElementAny.megaMenuItems : defaultItems;
+                            const newItem: MegaMenuItem = {
+                              id: `mega_${Date.now()}`,
+                              title: `New Category ${current.length + 1}`,
+                              trigger: "hover",
+                              columns: [
+                                {
+                                  id: `col_${Date.now()}`,
+                                  title: "Category Section",
+                                  links: [
+                                    { label: "New Link 1", href: "#" },
+                                    { label: "New Link 2", href: "#" },
+                                  ],
+                                },
+                              ],
+                            };
+                            updateSelectedProp("megaMenuItems", [...current, newItem]);
+                          }}
+                          className="rounded bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-blue-700 transition cursor-pointer shadow-xs"
+                        >
+                          + Add Category
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(selectedElementAny.megaMenuItems || [
+                          {
+                            id: "1",
+                            title: "Products",
+                            columns: [
+                              {
+                                id: "col_1",
+                                title: "Core Platform",
+                                links: [
+                                  { label: "Visual Builder", href: "#", badge: "New", description: "Drag & drop visual builder" },
+                                  { label: "Design System", href: "#", description: "Design tokens & components" },
+                                ],
+                              },
+                              {
+                                id: "col_2",
+                                title: "Solutions",
+                                links: [
+                                  { label: "SaaS Agencies", href: "#", description: "White-label builder" },
+                                  { label: "E-Commerce Stores", href: "#", badge: "Pro", description: "Product & Woo integration" },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            id: "2",
+                            title: "Resources",
+                            columns: [
+                              {
+                                id: "col_3",
+                                title: "Documentation",
+                                links: [
+                                  { label: "Getting Started Guide", href: "#" },
+                                  { label: "API Reference", href: "#" },
+                                ],
+                              },
+                            ],
+                          },
+                          { id: "3", title: "Pricing", href: "#pricing" },
+                        ]).map((catItem, cIdx, catArr) => (
+                          <div
+                            key={catItem.id}
+                            className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5"
+                          >
+                            <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
+                              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+                                <span className="text-blue-600">#{cIdx + 1}</span>
+                                {catItem.icon && <span>{catItem.icon}</span>}
+                                <span>{catItem.title}</span>
+                              </span>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  disabled={cIdx === 0}
+                                  onClick={() => {
+                                    const copy = [...catArr];
+                                    const temp = copy[cIdx - 1];
+                                    copy[cIdx - 1] = copy[cIdx];
+                                    copy[cIdx] = temp;
+                                    updateSelectedProp("megaMenuItems", copy);
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                  title="Move Up"
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={cIdx === catArr.length - 1}
+                                  onClick={() => {
+                                    const copy = [...catArr];
+                                    const temp = copy[cIdx + 1];
+                                    copy[cIdx + 1] = copy[cIdx];
+                                    copy[cIdx] = temp;
+                                    updateSelectedProp("megaMenuItems", copy);
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                  title="Move Down"
+                                >
+                                  ↓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const dup: MegaMenuItem = {
+                                      ...catItem,
+                                      id: `mega_${Date.now()}`,
+                                      title: `${catItem.title} (Copy)`,
+                                    };
+                                    const copy = [...catArr];
+                                    copy.splice(cIdx + 1, 0, dup);
+                                    updateSelectedProp("megaMenuItems", copy);
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                  title="Duplicate Category"
+                                >
+                                  ⧉
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const filtered = catArr.filter((i) => i.id !== catItem.id);
+                                    updateSelectedProp("megaMenuItems", filtered);
+                                  }}
+                                  className="h-5 w-5 rounded border border-red-200 bg-red-50 text-[10px] font-bold text-red-600 hover:bg-red-100 cursor-pointer"
+                                  title="Delete Category"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Category Details */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Category Title</label>
+                                <input
+                                  type="text"
+                                  value={catItem.title}
+                                  onChange={(e) => {
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, title: e.target.value } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Destination Type</label>
+                                <select
+                                  value={catItem.destinationType || (catItem.pageId ? "page" : catItem.productId ? "product" : "url")}
+                                  onChange={(e) => {
+                                    const val = e.target.value as "url" | "page" | "product";
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, destinationType: val, linkType: val } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                >
+                                  <option value="url">URL / Anchor</option>
+                                  <option value="page">📄 Site Page</option>
+                                  <option value="product">🛍️ Product</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Category Dynamic Destination Target */}
+                            {(catItem.destinationType === "page" || (!catItem.destinationType && catItem.pageId)) && (
+                              <div className="space-y-1 rounded-lg border border-blue-100 bg-blue-50/40 p-2">
+                                <div className="flex items-center justify-between">
+                                  <label className="block text-[9px] font-bold text-blue-900 uppercase">Target Page</label>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const created = handleCreatePageQuick();
+                                      const updated = catArr.map((i) =>
+                                        i.id === catItem.id ? { ...i, pageId: created.id, href: created.slug, destinationType: "page" } : i
+                                      );
+                                      updateSelectedProp("megaMenuItems", updated);
+                                    }}
+                                    className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                  >
+                                    + Create Page
+                                  </button>
+                                </div>
+                                <select
+                                  value={catItem.pageId || ""}
+                                  onChange={(e) => {
+                                    const pId = e.target.value;
+                                    const pObj = pages.find(p => p.id === pId);
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, pageId: pId, href: pObj?.slug || i.href, destinationType: "page" } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  className="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                >
+                                  <option value="">-- Select Page --</option>
+                                  {pages.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.name} ({p.slug})</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {(catItem.destinationType === "product" || (!catItem.destinationType && catItem.productId)) && (
+                              <div className="space-y-1 rounded-lg border border-purple-100 bg-purple-50/40 p-2">
+                                <label className="block text-[9px] font-bold text-purple-900 uppercase">Target Product</label>
+                                <select
+                                  value={catItem.productId || ""}
+                                  onChange={(e) => {
+                                    const prId = e.target.value;
+                                    const prObj = siteProducts.find(p => p.id === prId);
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, productId: prId, href: prObj?.url || i.href, destinationType: "product" } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  className="w-full rounded border border-purple-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                >
+                                  <option value="">-- Select Product --</option>
+                                  {siteProducts.map((prod) => (
+                                    <option key={prod.id} value={prod.id}>{prod.name} ({prod.price})</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {(!catItem.destinationType || catItem.destinationType === "url") && (
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Link Href / URL</label>
+                                <input
+                                  type="text"
+                                  value={catItem.href || ""}
+                                  onChange={(e) => {
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, href: e.target.value } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  placeholder="# (optional direct link)"
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                />
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Badge (e.g. New)</label>
+                                <input
+                                  type="text"
+                                  value={catItem.badge || ""}
+                                  onChange={(e) => {
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, badge: e.target.value } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  placeholder="New / Pro"
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Icon / Emoji</label>
+                                <input
+                                  type="text"
+                                  value={catItem.icon || ""}
+                                  onChange={(e) => {
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, icon: e.target.value } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  placeholder="e.g. 📦"
+                                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Columns Manager */}
+                            <div className="mt-3 pl-3 border-l-2 border-blue-400 space-y-2 bg-blue-50/20 p-2.5 rounded-r-xl">
+                              <div className="flex items-center justify-between">
+                                <span className="block text-[10px] font-bold text-blue-900 uppercase tracking-wider">
+                                  Mega Columns ({catItem.columns?.length || 0})
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cols = catItem.columns || [];
+                                    const newCol: MegaMenuColumn = {
+                                      id: `col_${Date.now()}`,
+                                      title: `Column ${cols.length + 1}`,
+                                      links: [
+                                        { label: "New Column Link", href: "#" },
+                                      ],
+                                    };
+                                    const updated = catArr.map((i) =>
+                                      i.id === catItem.id ? { ...i, columns: [...cols, newCol] } : i
+                                    );
+                                    updateSelectedProp("megaMenuItems", updated);
+                                  }}
+                                  className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                >
+                                  + Add Column
+                                </button>
+                              </div>
+
+                              {catItem.columns?.map((col, colIdx) => (
+                                <div key={col.id || `col_${colIdx}`} className="rounded-xl border border-slate-200 bg-white p-2.5 space-y-2">
+                                  <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
+                                    <span className="text-[10px] font-bold text-slate-700">Column #{colIdx + 1}</span>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        type="button"
+                                        disabled={colIdx === 0}
+                                        onClick={() => {
+                                          const cols = [...catItem.columns!];
+                                          const temp = cols[colIdx - 1];
+                                          cols[colIdx - 1] = cols[colIdx];
+                                          cols[colIdx] = temp;
+                                          const updated = catArr.map((i) =>
+                                            i.id === catItem.id ? { ...i, columns: cols } : i
+                                          );
+                                          updateSelectedProp("megaMenuItems", updated);
+                                        }}
+                                        className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                      >
+                                        ↑
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={colIdx === catItem.columns!.length - 1}
+                                        onClick={() => {
+                                          const cols = [...catItem.columns!];
+                                          const temp = cols[colIdx + 1];
+                                          cols[colIdx + 1] = cols[colIdx];
+                                          cols[colIdx] = temp;
+                                          const updated = catArr.map((i) =>
+                                            i.id === catItem.id ? { ...i, columns: cols } : i
+                                          );
+                                          updateSelectedProp("megaMenuItems", updated);
+                                        }}
+                                        className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                      >
+                                        ↓
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const cols = catItem.columns!.filter((_, idx) => idx !== colIdx);
+                                          const updated = catArr.map((i) =>
+                                            i.id === catItem.id ? { ...i, columns: cols } : i
+                                          );
+                                          updateSelectedProp("megaMenuItems", updated);
+                                        }}
+                                        className="h-4 w-4 shrink-0 rounded border border-red-200 bg-red-50 text-[9px] font-bold text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                                        title="Delete Column"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Column Header Title</label>
+                                    <input
+                                      type="text"
+                                      value={col.title}
+                                      onChange={(e) => {
+                                        const cols = catItem.columns!.map((c, idx) =>
+                                          idx === colIdx ? { ...c, title: e.target.value } : c
+                                        );
+                                        const updated = catArr.map((i) =>
+                                          i.id === catItem.id ? { ...i, columns: cols } : i
+                                        );
+                                        updateSelectedProp("megaMenuItems", updated);
+                                      }}
+                                      className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-800 outline-none"
+                                    />
+                                  </div>
+
+                                  {/* Column Links */}
+                                  <div className="space-y-1.5 pt-1">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[9px] font-bold text-slate-500 uppercase">
+                                        Links ({col.links.length})
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const newLink: MegaMenuColumnLink = {
+                                            id: `link_${Date.now()}`,
+                                            label: `New Link ${col.links.length + 1}`,
+                                            href: "#",
+                                          };
+                                          const cols = catItem.columns!.map((c, idx) =>
+                                            idx === colIdx ? { ...c, links: [...c.links, newLink] } : c
+                                          );
+                                          const updated = catArr.map((i) =>
+                                            i.id === catItem.id ? { ...i, columns: cols } : i
+                                          );
+                                          updateSelectedProp("megaMenuItems", updated);
+                                        }}
+                                        className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                      >
+                                        + Add Link
+                                      </button>
+                                    </div>
+
+                                    {col.links.map((link, lIdx) => (
+                                      <div key={link.id || `l_${lIdx}`} className="rounded border border-slate-100 bg-slate-50 p-2 space-y-1">
+                                        <div className="flex items-center justify-between gap-1">
+                                          <span className="text-[9px] font-bold text-slate-600">Link #{lIdx + 1}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const newLinks = col.links.filter((_, idx) => idx !== lIdx);
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            className="h-3.5 w-3.5 rounded border border-red-200 bg-red-50 text-[8px] text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                                            title="Delete Link"
+                                          >
+                                            ✕
+                                          </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-1">
+                                          <input
+                                            type="text"
+                                            value={link.label}
+                                            onChange={(e) => {
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, label: e.target.value } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            placeholder="Link Label"
+                                            className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-800 outline-none"
+                                          />
+                                          <select
+                                            value={link.destinationType || (link.pageId ? "page" : link.productId ? "product" : "url")}
+                                            onChange={(e) => {
+                                              const val = e.target.value as "url" | "page" | "product";
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, destinationType: val, linkType: val } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            className="rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px] font-semibold text-slate-800 outline-none"
+                                          >
+                                            <option value="url">URL</option>
+                                            <option value="page">Page</option>
+                                            <option value="product">Product</option>
+                                          </select>
+                                        </div>
+
+                                        {link.destinationType === "page" ? (
+                                          <select
+                                            value={link.pageId || ""}
+                                            onChange={(e) => {
+                                              const pId = e.target.value;
+                                              const pObj = pages.find(p => p.id === pId);
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, pageId: pId, href: pObj?.slug || l.href } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            className="w-full rounded border border-blue-200 bg-blue-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
+                                          >
+                                            <option value="">-- Select Page --</option>
+                                            {pages.map((p) => (
+                                              <option key={p.id} value={p.id}>{p.name}</option>
+                                            ))}
+                                          </select>
+                                        ) : link.destinationType === "product" ? (
+                                          <select
+                                            value={link.productId || ""}
+                                            onChange={(e) => {
+                                              const prId = e.target.value;
+                                              const prObj = siteProducts.find(p => p.id === prId);
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, productId: prId, href: prObj?.url || l.href } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            className="w-full rounded border border-purple-200 bg-purple-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
+                                          >
+                                            <option value="">-- Select Product --</option>
+                                            {siteProducts.map((p) => (
+                                              <option key={p.id} value={p.id}>{p.name}</option>
+                                            ))}
+                                          </select>
+                                        ) : (
+                                          <input
+                                            type="text"
+                                            value={link.href}
+                                            onChange={(e) => {
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, href: e.target.value } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            placeholder="Href / URL"
+                                            className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs font-mono text-slate-800 outline-none"
+                                          />
+                                        )}
+
+                                        <div className="grid grid-cols-2 gap-1">
+                                          <input
+                                            type="text"
+                                            value={link.description || ""}
+                                            onChange={(e) => {
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, description: e.target.value } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            placeholder="Description (optional)"
+                                            className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                          />
+                                          <input
+                                            type="text"
+                                            value={link.badge || ""}
+                                            onChange={(e) => {
+                                              const newLinks = col.links.map((l, idx) =>
+                                                idx === lIdx ? { ...l, badge: e.target.value } : l
+                                              );
+                                              const cols = catItem.columns!.map((c, idx) =>
+                                                idx === colIdx ? { ...c, links: newLinks } : c
+                                              );
+                                              const updated = catArr.map((i) =>
+                                                i.id === catItem.id ? { ...i, columns: cols } : i
+                                              );
+                                              updateSelectedProp("megaMenuItems", updated);
+                                            }}
+                                            placeholder="Badge (e.g. New)"
+                                            className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                          />
+                                        </div>
+
+                                        <input
+                                          type="text"
+                                          value={link.image || ""}
+                                          onChange={(e) => {
+                                            const newLinks = col.links.map((l, idx) =>
+                                              idx === lIdx ? { ...l, image: e.target.value } : l
+                                            );
+                                            const cols = catItem.columns!.map((c, idx) =>
+                                              idx === colIdx ? { ...c, links: newLinks } : c
+                                            );
+                                            const updated = catArr.map((i) =>
+                                              i.id === catItem.id ? { ...i, columns: cols } : i
+                                            );
+                                            updateSelectedProp("megaMenuItems", updated);
+                                          }}
+                                          placeholder="Image URL (optional)"
+                                          className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-mono text-slate-700 outline-none"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -14029,6 +15237,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             placeholder="Site Name"
                             className="w-full rounded border px-2 py-1 text-xs"
                           />
+                        </div>
 
                         {/* Back To Top Button Settings */}
                         <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
@@ -14438,7 +15647,6 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     </div>
                   </div>
                 </div>
-              </div>
               </div>
             )}
           </aside>
@@ -15412,6 +16620,47 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
           </div>
         </div>
       )}
+
+      {/* Advanced Icon Library Modal */}
+      <IconPickerModal
+        isOpen={isIconPickerOpen}
+        onClose={() => setIsIconPickerOpen(false)}
+        currentIcon={
+          selectedElementAny
+            ? (selectedElementAny as any)[iconPickerTargetField] || selectedElementAny.iconName || selectedElementAny.icon || ""
+            : ""
+        }
+        onSelectIcon={(iconName, iconProvider) => {
+          if (selectedElementAny) {
+            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, iconName);
+            if (iconProvider) {
+              updateSelectedProp("iconProvider", iconProvider);
+            }
+            updateSelectedProp("icon", iconName);
+          }
+        }}
+        onRemoveIcon={() => {
+          if (selectedElementAny) {
+            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, "");
+            updateSelectedProp("icon", "");
+          }
+        }}
+      />
+
+      {/* Dynamic Font System Modal */}
+      <FontPickerModal
+        isOpen={isFontPickerModalOpen}
+        onClose={() => setIsFontPickerModalOpen(false)}
+        selectedFont={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+        onSelectFont={(fontFamily) => {
+          if (fontPickerCallback) {
+            fontPickerCallback(fontFamily);
+          } else {
+            updateSelectedStyle("fontFamily", fontFamily);
+          }
+          setIsFontPickerModalOpen(false);
+        }}
+      />
     </div>
   );
 }

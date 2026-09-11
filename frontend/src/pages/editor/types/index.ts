@@ -27,20 +27,57 @@ export type ElementType =
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration";
 
+export interface SiteProduct {
+  id: string;
+  name: string;
+  price: string;
+  regularPrice?: string;
+  image?: string;
+  description?: string;
+  rating?: number;
+  ratingCount?: number;
+  badge?: string;
+  category?: string;
+  inStock?: boolean;
+  url?: string;
+}
+
 export interface NavSubmenuItem {
   id: string;
   label: string;
   url: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
   target?: "_self" | "_blank";
+  icon?: string;
+  description?: string;
+  badge?: string;
+  image?: string;
+  isDisabled?: boolean;
 }
 
 export interface NavMenuItem {
   id: string;
   label: string;
   url: string;
-  linkType?: "page" | "url";
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
   isActive?: boolean;
+  isDisabled?: boolean;
   target?: "_self" | "_blank";
+  icon?: string;
+  iconPosition?: "left" | "right";
+  dropdownEnabled?: boolean;
+  trigger?: "click" | "hover";
+  visibility?: {
+    desktop?: boolean;
+    tablet?: boolean;
+    mobile?: boolean;
+  };
   submenu?: NavSubmenuItem[];
 }
 
@@ -216,13 +253,23 @@ export interface MediaCarouselItem {
 }
 
 export interface MegaMenuColumnLink {
+  id?: string;
   label: string;
   href: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  target?: "_self" | "_blank";
   icon?: string;
   badge?: string;
+  description?: string;
+  image?: string;
+  children?: MegaMenuColumnLink[];
 }
 
 export interface MegaMenuColumn {
+  id?: string;
   title: string;
   links: MegaMenuColumnLink[];
 }
@@ -231,7 +278,14 @@ export interface MegaMenuItem {
   id: string;
   title: string;
   href?: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  target?: "_self" | "_blank";
   badge?: string;
+  icon?: string;
+  trigger?: "click" | "hover";
   columns?: MegaMenuColumn[];
 }
 
@@ -326,7 +380,11 @@ export interface ShareNetworkItem {
   id: string;
   network: ShareNetworkType;
   label?: string;
+  urlSource?: "inherit" | "custom";
   customUrl?: string;
+  shareText?: string;
+  hashtags?: string;
+  isDisabled?: boolean;
 }
 
 export interface PostItem {
@@ -546,6 +604,18 @@ export interface EditorElement {
   src?: string;
   alt?: string;
   href?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  rel?: string;
+  download?: boolean;
+  assetType?: "image" | "video" | "audio" | "file";
+  searchPlaceholder?: string;
+  searchButtonText?: string;
+  searchIcon?: string;
+  searchAction?: "modal" | "redirect" | "filter";
+  searchRedirectUrl?: string;
+  searchShowButton?: boolean;
   posts?: PostItem[];
   postsColumns?: number;
   postsGap?: number;
@@ -555,6 +625,10 @@ export interface EditorElement {
   postsShowExcerpt?: boolean;
   postsShowReadMore?: boolean;
   postsAlignment?: "left" | "center" | "right";
+  shareUrlSource?: "current-page" | "custom";
+  shareUrl?: string;
+  shareText?: string;
+  shareHashtags?: string;
   shareNetworks?: ShareNetworkItem[];
   shareLayout?: "horizontal" | "vertical";
   shareAlignment?: "left" | "center" | "right";
@@ -910,7 +984,16 @@ export interface EditorElement {
   // Convenience & Alias fields for dynamic inspectors
   buttonText?: string;
   linkUrl?: string;
-  iconPosition?: string;
+  icon?: string;
+  iconProvider?: string;
+  iconPosition?: "left" | "right" | "top" | "bottom" | string;
+  iconGap?: number;
+  iconSpacing?: number;
+  iconRotate?: number;
+  iconFlipH?: boolean;
+  iconFlipV?: boolean;
+  iconStrokeWidth?: number;
+  iconStyle?: "outline" | "filled" | "duotone" | "regular" | string;
   target?: string;
   loginUserLabel?: string;
   loginPassLabel?: string;
@@ -942,6 +1025,11 @@ export interface EditorElement {
   productImage?: string;
   productRating?: number;
   productRatingText?: string;
+  productRatingCount?: number;
+  productStarSize?: string;
+  productStarColor?: string;
+  productSource?: "manual" | "existing";
+  productId?: string;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";
@@ -951,11 +1039,18 @@ export interface EditorElement {
   playlistPosition?: "right" | "bottom";
   playlistPlayerWidth?: string;
   playlistAlignment?: "left" | "center" | "right";
+  // F-180 Nav Menu
+  navTrigger?: "click" | "hover";
+  navMobileBreakpoint?: "mobile" | "tablet" | "none";
   // F-205 Mega Menu
+  showMegaMenuLogo?: boolean;
   megaMenuItems?: MegaMenuItem[];
   megaMenuBgColor?: string;
   megaMenuTextColor?: string;
-  megaMenuAlignment?: "left" | "center" | "right";
+  megaMenuHoverColor?: string;
+  megaMenuAccentColor?: string;
+  megaMenuAlignment?: "left" | "center" | "right" | "between";
+  megaMenuTrigger?: "click" | "hover";
   // F-206 Off Canvas
   offCanvasButtonText?: string;
   offCanvasTitle?: string;

@@ -36,6 +36,7 @@ export interface PageConfig {
     slug: string;
     customCss: string;
     elements: EditorElement[];
+    isHome?: boolean;
 }
 
 export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _styles: any) {
@@ -92,8 +93,10 @@ import {
     WcProductPriceWidgetRenderer,
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
-    WcProductRatingWidgetRenderer
+    WcProductRatingWidgetRenderer,
+    resolveButtonHref
 } from "../editor/widgets";
+import { IconRenderer } from "../editor/widgets/icons";
 
 // Default breakpoints (mirror core for stability)
 const DEFAULT_BREAKPOINTS: Breakpoint[] = [
@@ -119,10 +122,12 @@ interface RenderNodeProps {
     elementClassMap: Map<string, string>;
     apiUrl: string;
     allElements?: EditorElement[];
+    pages?: PageConfig[];
+    onSwitchPage?: (page: PageConfig) => void;
 }
 
 // F-358: Safely caches execution overhead per Element in PublishedSite skipping massive style hashing recalculations
-const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, allElements }) => {
+const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, allElements, pages, onSwitchPage }) => {
     // F-351 logic exactly as website outputs
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
@@ -179,13 +184,81 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </React.Fragment>
     );
 
-    if (el.type === "button") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} style={{ ...mergedProps.style, textAlign: (resolvedStyles.textAlign as any) || "left" }}>
-                <a href={el.href || "#"} className={`inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow ${optInnerClass}`} style={finalInnerStyles}>{el.content}</a>
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "button") {
+        const resolvedHref = resolveButtonHref(el, pages || []);
+        const target = el.target || "_self";
+        const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+        const isDownload = el.download;
+
+        const iconName = el.iconName || el.icon || "";
+        const iconPos = el.iconPosition || "left";
+        const gap = el.iconGap ?? el.iconSpacing ?? 8;
+        const iconSize = el.iconSize || 18;
+        const iconColor = el.iconColor || el.buttonColor || "#ffffff";
+        const textLabel = el.content || el.buttonText || "Button";
+
+        const isFlexCol = iconPos === "top" || iconPos === "bottom";
+        const isReverse = iconPos === "right" || iconPos === "bottom";
+
+        const renderIcon = iconName ? (
+            <IconRenderer
+                iconName={iconName}
+                size={iconSize}
+                color={iconColor}
+                rotate={el.iconRotate || 0}
+                flipH={Boolean(el.iconFlipH)}
+                flipV={Boolean(el.iconFlipV)}
+                strokeWidth={el.iconStrokeWidth || 2}
+            />
+        ) : null;
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} style={{ ...mergedProps.style, textAlign: (resolvedStyles.textAlign as any) || "left" }}>
+                    <a
+                        href={resolvedHref}
+                        target={target}
+                        rel={rel}
+                        download={isDownload ? true : undefined}
+                        onClick={(e) => {
+                            let targetPage: PageConfig | undefined;
+                            if (el.pageId && pages) {
+                                targetPage = pages.find((p) => p.id === el.pageId);
+                            }
+                            if (!targetPage && resolvedHref && pages) {
+                                const clean = resolvedHref.replace(/^\//, "");
+                                targetPage = pages.find(
+                                    (p) => p.slug === resolvedHref || p.slug === clean || p.id === clean || (resolvedHref === "/" && (p.isHome || p.id === "home"))
+                                );
+                            }
+
+                            if (targetPage && target !== "_blank" && onSwitchPage) {
+                                e.preventDefault();
+                                onSwitchPage(targetPage);
+                            } else if (resolvedHref.startsWith("#") && resolvedHref.length > 1) {
+                                e.preventDefault();
+                                const targetEl = document.querySelector(resolvedHref);
+                                if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+                            }
+                        }}
+                        className={`inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow ${optInnerClass}`}
+                        style={finalInnerStyles}
+                    >
+                        <span
+                            className={`inline-flex items-center justify-center ${
+                                isFlexCol ? "flex-col" : "flex-row"
+                            } ${isReverse ? "flex-col-reverse" : ""}`}
+                            style={{ gap: `${gap}px` }}
+                        >
+                            {!isReverse && renderIcon}
+                            <span>{textLabel}</span>
+                            {isReverse && renderIcon}
+                        </span>
+                    </a>
+                </div>
+            </React.Fragment>
+        );
+    }
 
     if (el.type === "video") return (
         <React.Fragment key={el.id}>
@@ -594,6 +667,8 @@ export default function PublishedSite() {
                     elementClassMap={elementClassMap}
                     apiUrl={apiUrl}
                     allElements={elements}
+                    pages={pages}
+                    onSwitchPage={handleSwitchPage}
                 />
             ))}
         </div>

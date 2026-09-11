@@ -1,3 +1,5 @@
+import { isSafeShareUrl, getCurrentResolvedPageUrl, resolveButtonHref, getLinkedPageStatus } from "../widgets/renderers";
+import { IconRenderer } from "../widgets/icons";
 import React from "react";
 import type {
   EditorElement,
@@ -14,12 +16,13 @@ import type {
   NavSubmenuItem,
   MegaMenuItem,
   MediaCarouselItem,
-  ImageCarouselItem,
   LoopCarouselItem,
   PortfolioItem,
   PriceListItem,
   PricingPlan,
-  PricePlanFeature
+  PricePlanFeature,
+  PageConfig,
+  SiteProduct
 } from "../types";
 
 // Programmatically opens the OS File Picker dialog (100% reliable click trigger)
@@ -831,79 +834,390 @@ export function SlidesWidgetInspector({
 // 6. Share Buttons Inspector
 export function ShareButtonsInspector({
   el,
-  updateProp
+  updateProp,
+  pages,
+  activePageId,
 }: {
   el: EditorElement;
   updateProp: (key: string, val: any) => void;
+  pages?: PageConfig[];
+  activePageId?: string;
 }) {
   const networks = el.shareNetworks || [];
+  const shareUrlSource = el.shareUrlSource || "current-page";
+  const shareUrl = el.shareUrl || "";
+  const shareText = el.shareText || "";
+  const shareHashtags = el.shareHashtags || "";
+
+  const resolvedPageUrl = getCurrentResolvedPageUrl(pages, activePageId);
+  const activePageObj = pages?.find((p) => p.id === activePageId || p.slug === activePageId);
+  const activePageName = activePageObj?.name || "Current Page";
+
+  // URL Safety & Validation
+  const isValidUrl = isSafeShareUrl(shareUrl);
+  const isHttpOrRelative = !shareUrl || shareUrl.startsWith("http://") || shareUrl.startsWith("https://") || shareUrl.startsWith("/") || shareUrl.startsWith("#");
+
+  const handleUseCurrentPage = () => {
+    updateProp("shareUrlSource", "current-page");
+    updateProp("shareUrl", resolvedPageUrl);
+  };
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Layout</label>
-          <select
-            value={el.shareLayout || "horizontal"}
-            onChange={(e) => updateProp("shareLayout", e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
-          >
-            <option value="horizontal">Horizontal</option>
-            <option value="vertical">Vertical</option>
-          </select>
+    <div className="space-y-4">
+      {/* 1. DESTINATION URL & METADATA CONFIGURATION */}
+      <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider">
+            🔗 SHARE DESTINATION & URL
+          </span>
+          {shareUrlSource === "current-page" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">
+              ⚡ Current Page
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+              🎯 Custom URL
+            </span>
+          )}
         </div>
+
+        {/* URL Source Radio / Toggle */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Button Style</label>
-          <select
-            value={el.shareButtonStyle || "brand"}
-            onChange={(e) => updateProp("shareButtonStyle", e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
-          >
-            <option value="brand">Brand Colors</option>
-            <option value="solid">Solid Slate</option>
-            <option value="outline">Outline</option>
-          </select>
+          <label className="block text-[10px] font-semibold text-slate-500 mb-1">
+            URL Source Mode
+          </label>
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-white border border-slate-200 rounded-lg">
+            <button
+              type="button"
+              onClick={() => updateProp("shareUrlSource", "current-page")}
+              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${
+                shareUrlSource === "current-page"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <span>📄 Current Page</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateProp("shareUrlSource", "custom")}
+              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${
+                shareUrlSource === "custom"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <span>🌐 Custom URL</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Current Page Mode Preview info */}
+        {shareUrlSource === "current-page" && (
+          <div className="rounded-lg bg-white border border-blue-100 p-2.5 space-y-1">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-700">
+              <span>Active Page: <strong className="text-blue-600">{activePageName}</strong></span>
+              <span className="text-[10px] font-mono text-slate-400">ID: {activePageId || "home"}</span>
+            </div>
+            <div className="text-[10px] font-mono text-slate-500 truncate bg-slate-50 p-1.5 rounded border border-slate-200/60">
+              {resolvedPageUrl}
+            </div>
+            <p className="text-[10px] text-slate-400">
+              Shares automatically update to match whatever page the user is viewing.
+            </p>
+          </div>
+        )}
+
+        {/* Custom URL Input Field */}
+        {shareUrlSource === "custom" && (
+          <div className="space-y-2">
+            <div>
+              <div className="flex items-center justify-between mb-0.5">
+                <label className="block text-[10px] font-semibold text-slate-600">
+                  Destination URL
+                </label>
+                <button
+                  type="button"
+                  onClick={handleUseCurrentPage}
+                  className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                >
+                  [ Use Current Page ]
+                </button>
+              </div>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  onChange={(e) => updateProp("shareUrl", e.target.value)}
+                  placeholder="https://example.com/about or /pricing"
+                  className={`w-full rounded-lg border bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none transition ${
+                    !isValidUrl
+                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
+                      : "border-slate-300 focus:border-blue-500"
+                  }`}
+                />
+                {shareUrl && (
+                  <button
+                    type="button"
+                    onClick={() => updateProp("shareUrl", "")}
+                    className="absolute right-2 text-xs text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                    title="Clear URL"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* URL Validation helper badges */}
+            {!isValidUrl ? (
+              <div className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-md p-1.5 flex items-center gap-1">
+                <span>⚠️ Unsafe URL protocol (javascript:, data: are blocked).</span>
+              </div>
+            ) : !isHttpOrRelative && shareUrl.trim() !== "" ? (
+              <div className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-1 flex items-center gap-1">
+                <span>ℹ️ Note: Consider adding http:// or https:// for external links.</span>
+              </div>
+            ) : shareUrl.trim() !== "" ? (
+              <div className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1 flex items-center justify-between">
+                <span>✓ Valid Destination URL</span>
+                <span className="font-mono text-[9px] truncate max-w-[150px]">{shareUrl}</span>
+              </div>
+            ) : null}
+          </div>
+        )}
+
+        {/* Share Text & Hashtags Fields */}
+        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-blue-100">
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">
+              Share Text / Caption
+            </label>
+            <input
+              type="text"
+              value={shareText}
+              onChange={(e) => updateProp("shareText", e.target.value)}
+              placeholder="Check out this page!"
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">
+              Hashtags (Comma separated)
+            </label>
+            <input
+              type="text"
+              value={shareHashtags}
+              onChange={(e) => updateProp("shareHashtags", e.target.value)}
+              placeholder="ForgeStudio, WebsiteBuilder"
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            />
+          </div>
         </div>
       </div>
 
+      {/* 2. LAYOUT & APPEARANCE */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
+        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+          Layout & Appearance
+        </span>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Layout</label>
+            <select
+              value={el.shareLayout || "horizontal"}
+              onChange={(e) => updateProp("shareLayout", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="horizontal">Horizontal Row</option>
+              <option value="vertical">Vertical Column</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Button Style</label>
+            <select
+              value={el.shareButtonStyle || "brand"}
+              onChange={(e) => updateProp("shareButtonStyle", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="brand">Brand Colors</option>
+              <option value="solid">Solid Palette</option>
+              <option value="outline">Outline Border</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
+            <select
+              value={el.shareAlignment || "left"}
+              onChange={(e) => updateProp("shareAlignment", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Size</label>
+            <select
+              value={el.shareButtonSize || "md"}
+              onChange={(e) => updateProp("shareButtonSize", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="sm">Small</option>
+              <option value="md">Medium</option>
+              <option value="lg">Large</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Gap (px)</label>
+            <input
+              type="number"
+              min={0}
+              max={50}
+              value={el.shareGap ?? 10}
+              onChange={(e) => updateProp("shareGap", Number(e.target.value))}
+              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+          <label className="text-[11px] font-semibold text-slate-700 cursor-pointer">
+            Show Button Text Labels
+          </label>
+          <input
+            type="checkbox"
+            checked={el.shareShowLabels !== false}
+            onChange={(e) => updateProp("shareShowLabels", e.target.checked)}
+            className="accent-blue-600 rounded cursor-pointer"
+          />
+        </div>
+      </div>
+
+      {/* 3. INDIVIDUAL SOCIAL NETWORKS MANAGER */}
       <UniversalItemManager<ShareNetworkItem>
-        title="Social Networks"
+        title={`Social Networks (${networks.length})`}
         items={networks}
         onUpdate={(newItems) => updateProp("shareNetworks", newItems)}
         createDefaultItem={() => ({
           id: "net_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
           network: "facebook",
-          label: "Share"
+          label: "Share",
+          urlSource: "inherit"
         })}
         getItemHeaderLabel={(item) => (item.label ? `${item.network} (${item.label})` : item.network)}
         renderItemFields={(item, idx, updateItem) => (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Network</label>
-              <select
-                value={item.network}
-                onChange={(e) => updateItem({ network: e.target.value as ShareNetworkType })}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium"
-              >
-                <option value="facebook">Facebook</option>
-                <option value="twitter">X / Twitter</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="pinterest">Pinterest</option>
-                <option value="reddit">Reddit</option>
-                <option value="email">Email</option>
-                <option value="copy">Copy Link</option>
-              </select>
+          <div className="space-y-2.5">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Network</label>
+                <select
+                  value={item.network}
+                  onChange={(e) => updateItem({ network: e.target.value as ShareNetworkType })}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                >
+                  <option value="facebook">Facebook</option>
+                  <option value="twitter">X / Twitter</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="pinterest">Pinterest</option>
+                  <option value="reddit">Reddit</option>
+                  <option value="email">Email</option>
+                  <option value="copy">Copy Link</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Label</label>
+                <input
+                  type="text"
+                  value={item.label || ""}
+                  onChange={(e) => updateItem({ label: e.target.value })}
+                  placeholder="Label..."
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Label</label>
-              <input
-                type="text"
-                value={item.label || ""}
-                onChange={(e) => updateItem({ label: e.target.value })}
-                placeholder="Label..."
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-              />
+
+            {/* Individual Button URL Source */}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-2 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                  Button URL Source
+                </label>
+                <select
+                  value={item.urlSource || "inherit"}
+                  onChange={(e) => updateItem({ urlSource: e.target.value as "inherit" | "custom" })}
+                  className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700"
+                >
+                  <option value="inherit">Inherit Widget URL</option>
+                  <option value="custom">Button-Specific Custom URL</option>
+                </select>
+              </div>
+
+              {item.urlSource === "custom" && (
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                    Button Custom URL
+                  </label>
+                  <input
+                    type="text"
+                    value={item.customUrl || ""}
+                    onChange={(e) => updateItem({ customUrl: e.target.value })}
+                    placeholder="https://example.com/custom-page"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Custom text/hashtags per button */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Share Text</label>
+                <input
+                  type="text"
+                  value={item.shareText || ""}
+                  onChange={(e) => updateItem({ shareText: e.target.value })}
+                  placeholder="Override text..."
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Hashtags</label>
+                <input
+                  type="text"
+                  value={item.hashtags || ""}
+                  onChange={(e) => updateItem({ hashtags: e.target.value })}
+                  placeholder="tag1, tag2..."
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Enable/Disable Toggle */}
+            <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!item.isDisabled}
+                  onChange={(e) => updateItem({ isDisabled: !e.target.checked })}
+                  className="accent-blue-600 rounded cursor-pointer"
+                />
+                <span>Enable Button</span>
+              </label>
+              {item.isDisabled && (
+                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                  Hidden / Disabled
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -1389,14 +1703,19 @@ export function VideoPlaylistInspector({
   );
 }
 
-// 10. Nav Menu Inspector
-// 10. Navigation Menu Inspector (F-180)
+// 10. Nav Menu Inspector (F-180 & F-205 Dynamic)
 export function NavMenuWidgetInspector({
   el,
-  updateProp
+  updateProp,
+  pages,
+  siteProducts,
+  onCreatePage,
 }: {
   el: EditorElement;
   updateProp: (key: string, val: any) => void;
+  pages?: PageConfig[];
+  siteProducts?: SiteProduct[];
+  onCreatePage?: (customName?: string) => PageConfig;
 }) {
   const items = el.navMenuItems || [];
   const layout = el.navLayout || "horizontal";
@@ -1608,118 +1927,279 @@ export function NavMenuWidgetInspector({
           linkType: "url",
           target: "_self"
         })}
-        getItemHeaderLabel={(item) => `${item.label}${item.submenu && item.submenu.length > 0 ? ` (${item.submenu.length} sub-items)` : ""}`}
-        renderItemFields={(item, idx, updateItem) => (
-          <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Link Label</label>
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => updateItem({ label: e.target.value })}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Destination URL</label>
-                <input
-                  type="text"
-                  value={item.url}
-                  onChange={(e) => updateItem({ url: e.target.value })}
-                  placeholder="/page or https://..."
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                />
-              </div>
-            </div>
+        getItemHeaderLabel={(item) => {
+          let destInfo = "";
+          if (item.destinationType === "page" || item.linkType === "page") {
+            const page = pages?.find(p => p.id === item.pageId);
+            destInfo = page ? ` [Page: ${page.name}]` : ` [Page: Orphaned ⚠️]`;
+          } else if (item.destinationType === "product" || item.linkType === "product") {
+            const prod = siteProducts?.find(p => p.id === item.productId);
+            destInfo = prod ? ` [Product: ${prod.name}]` : ` [Product: Orphaned ⚠️]`;
+          }
+          return `${item.label}${destInfo}${item.submenu && item.submenu.length > 0 ? ` (${item.submenu.length} sub-items)` : ""}`;
+        }}
+        renderItemFields={(item, idx, updateItem) => {
+          const activeDest = item.destinationType || (item.linkType === "page" ? "page" : item.linkType === "product" ? "product" : "url");
 
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-1.5 text-[11px] text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={item.target === "_blank"}
-                  onChange={(e) => updateItem({ target: e.target.checked ? "_blank" : "_self" })}
-                  className="rounded border-slate-300 text-blue-600"
-                />
-                <span>Open in new tab</span>
-              </label>
-
-              <button
-                type="button"
-                onClick={() => handleDuplicateItem(item)}
-                className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 underline cursor-pointer"
-              >
-                Duplicate
-              </button>
-            </div>
-
-            {/* Submenu Management */}
-            <div className="mt-2 pt-2 border-t border-slate-100 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                  Submenu Dropdown
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const currentSub = item.submenu || [];
-                    const newSubItem: NavSubmenuItem = {
-                      id: "sub_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5),
-                      label: `Sub Item ${currentSub.length + 1}`,
-                      url: "#"
-                    };
-                    updateItem({ submenu: [...currentSub, newSubItem] });
-                  }}
-                  className="px-2 py-0.5 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded transition cursor-pointer"
-                >
-                  + ADD SUBMENU ITEM
-                </button>
+          return (
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Link Label</label>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => updateItem({ label: e.target.value })}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Destination Type</label>
+                  <select
+                    value={activeDest}
+                    onChange={(e) => {
+                      const typeVal = e.target.value as "url" | "page" | "product";
+                      updateItem({
+                        destinationType: typeVal,
+                        linkType: typeVal === "url" ? "url" : typeVal
+                      });
+                    }}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  >
+                    <option value="url">Custom URL / Anchor</option>
+                    <option value="page">📄 Site Page</option>
+                    <option value="product">🛍️ Site Product</option>
+                  </select>
+                </div>
               </div>
 
-              {item.submenu && item.submenu.length > 0 ? (
-                <div className="space-y-1.5 pl-2 border-l-2 border-blue-200">
-                  {item.submenu.map((sub, sIdx) => (
-                    <div key={sub.id} className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-md border border-slate-200">
-                      <input
-                        type="text"
-                        value={sub.label}
-                        onChange={(e) => {
-                          const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, label: e.target.value } : s));
-                          updateItem({ submenu: newSub });
-                        }}
-                        placeholder="Sub Label"
-                        className="w-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium"
-                      />
-                      <input
-                        type="text"
-                        value={sub.url}
-                        onChange={(e) => {
-                          const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, url: e.target.value } : s));
-                          updateItem({ submenu: newSub });
-                        }}
-                        placeholder="Sub URL"
-                        className="w-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium"
-                      />
+              {/* Dynamic Destination Inputs */}
+              {activeDest === "url" && (
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Destination URL / Anchor</label>
+                  <input
+                    type="text"
+                    value={item.url}
+                    onChange={(e) => updateItem({ url: e.target.value })}
+                    placeholder="/page or #section or https://..."
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+              )}
+
+              {activeDest === "page" && (
+                <div className="space-y-1 rounded-xl border border-blue-100 bg-blue-50/50 p-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-[10px] font-bold text-blue-900 uppercase">Target Page</label>
+                    {onCreatePage && (
                       <button
                         type="button"
                         onClick={() => {
-                          const newSub = item.submenu!.filter((s) => s.id !== sub.id);
-                          updateItem({ submenu: newSub.length > 0 ? newSub : undefined });
+                          const created = onCreatePage();
+                          updateItem({
+                            pageId: created.id,
+                            label: item.label === "New Link" ? created.name : item.label,
+                            url: created.slug
+                          });
                         }}
-                        className="text-red-400 hover:text-red-600 text-xs px-1"
-                        title="Delete Submenu Item"
+                        className="text-[10px] font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                       >
-                        ✕
+                        + Create New Page
                       </button>
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                  <select
+                    value={item.pageId || ""}
+                    onChange={(e) => {
+                      const selectedP = pages?.find(p => p.id === e.target.value);
+                      updateItem({
+                        pageId: e.target.value,
+                        url: selectedP ? selectedP.slug : item.url,
+                        label: item.label === "New Link" && selectedP ? selectedP.name : item.label
+                      });
+                    }}
+                    className="w-full rounded-lg border border-blue-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                  >
+                    <option value="">-- Select Page --</option>
+                    {(pages || []).map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.slug}){p.isHome ? " [Home]" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {item.pageId && !pages?.some(p => p.id === item.pageId) && (
+                    <span className="block text-[10px] font-bold text-amber-600 bg-amber-50 p-1 rounded border border-amber-200 mt-1">
+                      ⚠️ Referenced page no longer exists. Select another or recreate.
+                    </span>
+                  )}
                 </div>
-              ) : (
-                <p className="text-[10px] text-slate-400 italic">No submenu items attached.</p>
               )}
+
+              {activeDest === "product" && (
+                <div className="space-y-1 rounded-xl border border-purple-100 bg-purple-50/50 p-2">
+                  <label className="block text-[10px] font-bold text-purple-900 uppercase">Target Product</label>
+                  <select
+                    value={item.productId || ""}
+                    onChange={(e) => {
+                      const selectedProd = siteProducts?.find(p => p.id === e.target.value);
+                      updateItem({
+                        productId: e.target.value,
+                        url: selectedProd ? (selectedProd.url || `#product-${selectedProd.id}`) : item.url,
+                        label: item.label === "New Link" && selectedProd ? selectedProd.name : item.label
+                      });
+                    }}
+                    className="w-full rounded-lg border border-purple-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                  >
+                    <option value="">-- Select Product --</option>
+                    {(siteProducts || []).map((prod) => (
+                      <option key={prod.id} value={prod.id}>
+                        {prod.name} ({prod.price})
+                      </option>
+                    ))}
+                  </select>
+                  {item.productId && !siteProducts?.some(p => p.id === item.productId) && (
+                    <span className="block text-[10px] font-bold text-amber-600 bg-amber-50 p-1 rounded border border-amber-200 mt-1">
+                      ⚠️ Referenced product no longer exists.
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-1.5 text-[11px] text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={item.target === "_blank"}
+                    onChange={(e) => updateItem({ target: e.target.checked ? "_blank" : "_self" })}
+                    className="rounded border-slate-300 text-blue-600"
+                  />
+                  <span>Open in new tab</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => handleDuplicateItem(item)}
+                  className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                >
+                  Duplicate
+                </button>
+              </div>
+
+              {/* Submenu Management */}
+              <div className="mt-2 pt-2 border-t border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                    Submenu Dropdown
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentSub = item.submenu || [];
+                      const newSubItem: NavSubmenuItem = {
+                        id: "sub_" + Date.now() + "_" + Math.random().toString(36).substring(2, 5),
+                        label: `Sub Item ${currentSub.length + 1}`,
+                        url: "#"
+                      };
+                      updateItem({ submenu: [...currentSub, newSubItem] });
+                    }}
+                    className="px-2 py-0.5 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded transition cursor-pointer"
+                  >
+                    + ADD SUBMENU ITEM
+                  </button>
+                </div>
+
+                {item.submenu && item.submenu.length > 0 ? (
+                  <div className="space-y-1.5 pl-2 border-l-2 border-blue-200">
+                    {item.submenu.map((sub) => (
+                      <div key={sub.id} className="flex flex-col gap-1 bg-slate-50 p-2 rounded-md border border-slate-200">
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            value={sub.label}
+                            onChange={(e) => {
+                              const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, label: e.target.value } : s));
+                              updateItem({ submenu: newSub });
+                            }}
+                            placeholder="Sub Label"
+                            className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium"
+                          />
+                          <select
+                            value={sub.destinationType || (sub.pageId ? "page" : sub.productId ? "product" : "url")}
+                            onChange={(e) => {
+                              const val = e.target.value as "url" | "page" | "product";
+                              const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, destinationType: val } : s));
+                              updateItem({ submenu: newSub });
+                            }}
+                            className="rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px] font-semibold"
+                          >
+                            <option value="url">URL</option>
+                            <option value="page">Page</option>
+                            <option value="product">Product</option>
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newSub = item.submenu!.filter((s) => s.id !== sub.id);
+                              updateItem({ submenu: newSub.length > 0 ? newSub : undefined });
+                            }}
+                            className="text-red-400 hover:text-red-600 text-xs px-1"
+                            title="Delete Submenu Item"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        {sub.destinationType === "page" ? (
+                          <select
+                            value={sub.pageId || ""}
+                            onChange={(e) => {
+                              const selectedP = pages?.find(p => p.id === e.target.value);
+                              const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, pageId: e.target.value, url: selectedP?.slug || s.url } : s));
+                              updateItem({ submenu: newSub });
+                            }}
+                            className="w-full rounded border border-blue-200 bg-blue-50/40 px-1.5 py-0.5 text-[10px] font-medium"
+                          >
+                            <option value="">-- Select Page --</option>
+                            {(pages || []).map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                        ) : sub.destinationType === "product" ? (
+                          <select
+                            value={sub.productId || ""}
+                            onChange={(e) => {
+                              const selectedProd = siteProducts?.find(p => p.id === e.target.value);
+                              const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, productId: e.target.value, url: selectedProd?.url || s.url } : s));
+                              updateItem({ submenu: newSub });
+                            }}
+                            className="w-full rounded border border-purple-200 bg-purple-50/40 px-1.5 py-0.5 text-[10px] font-medium"
+                          >
+                            <option value="">-- Select Product --</option>
+                            {(siteProducts || []).map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={sub.url}
+                            onChange={(e) => {
+                              const newSub = item.submenu!.map((s) => (s.id === sub.id ? { ...s, url: e.target.value } : s));
+                              updateItem({ submenu: newSub });
+                            }}
+                            placeholder="Sub URL"
+                            className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-mono text-slate-700"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-slate-400 italic">No submenu items attached.</p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        }}
       />
     </div>
   );
@@ -1876,19 +2356,354 @@ export function CodeHighlightWidgetInspector({
   );
 }
 
-// 14. Button Widget Inspector
-export function ButtonWidgetInspector({
+// ==========================================
+// UNIVERSAL ICON CONTROLS & INSPECTOR
+// ==========================================
+
+export function UniversalIconControls({
   el,
   updateProp,
-  updateStyle
+  onOpenIconPicker,
+  showContainerControls = false,
 }: {
   el: EditorElement;
   updateProp: (key: string, val: any) => void;
   updateStyle?: (key: string, val: any) => void;
+  onOpenIconPicker?: () => void;
+  showContainerControls?: boolean;
+}) {
+  const currentIconName = el.iconName || el.icon || "Star";
+  const iconSize = el.iconSize || 24;
+  const iconColor = el.iconColor || el.styles?.color || "#2563eb";
+  const iconGap = el.iconGap ?? el.iconSpacing ?? 8;
+  const iconPosition = el.iconPosition || "left";
+  const iconRotate = el.iconRotate || 0;
+  const iconFlipH = Boolean(el.iconFlipH);
+  const iconFlipV = Boolean(el.iconFlipV);
+  const iconStrokeWidth = el.iconStrokeWidth || 2;
+  const iconBgColor = el.iconBgColor || "#eff6ff";
+  const iconBorderRadius = el.iconBorderRadius || "8px";
+  const iconPadding = el.iconPadding || 8;
+
+  return (
+    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+      {/* Icon Picker Trigger */}
+      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+          <span>🎨</span> Icon Selector
+        </label>
+        <span className="text-[10px] font-mono text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 truncate max-w-[110px]">
+          {currentIconName}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-slate-200 shadow-xs">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 shrink-0">
+          <IconRenderer
+            iconName={currentIconName}
+            size={Math.min(iconSize, 32)}
+            color={iconColor}
+            rotate={iconRotate}
+            flipH={iconFlipH}
+            flipV={iconFlipV}
+            strokeWidth={iconStrokeWidth}
+          />
+        </div>
+
+        <div className="flex-1 space-y-1">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={onOpenIconPicker}
+              className="w-full rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer flex items-center justify-center gap-1"
+            >
+              <span>✨</span> Change Icon
+            </button>
+            {(el.iconName || el.icon) && (
+              <button
+                type="button"
+                onClick={() => {
+                  updateProp("iconName", "");
+                  updateProp("icon", "");
+                }}
+                title="Remove Icon"
+                className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-100 transition cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <p className="text-[10px] text-slate-400 leading-tight">
+            Select vector icon from 100+ organized categories.
+          </p>
+        </div>
+      </div>
+
+      {/* Icon Position */}
+      <div>
+        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
+          Icon Position
+        </label>
+        <div className="grid grid-cols-4 gap-1 rounded-lg border border-slate-200 bg-white p-1">
+          {(["left", "right", "top", "bottom"] as const).map((pos) => (
+            <button
+              key={pos}
+              type="button"
+              onClick={() => updateProp("iconPosition", pos)}
+              className={`rounded py-1 text-[11px] font-bold capitalize transition cursor-pointer ${
+                iconPosition === pos ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {pos}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Icon Size & Spacing (Gap) */}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Size (px)</label>
+            <button
+              type="button"
+              onClick={() => updateProp("iconSize", 24)}
+              className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+            >
+              Reset
+            </button>
+          </div>
+          <input
+            type="number"
+            min={10}
+            max={120}
+            value={iconSize}
+            onChange={(e) => updateProp("iconSize", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Spacing (px)</label>
+            <button
+              type="button"
+              onClick={() => {
+                updateProp("iconGap", 8);
+                updateProp("iconSpacing", 8);
+              }}
+              className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+            >
+              Reset
+            </button>
+          </div>
+          <input
+            type="number"
+            min={0}
+            max={64}
+            value={iconGap}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              updateProp("iconGap", val);
+              updateProp("iconSpacing", val);
+            }}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Icon Color */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Icon Color</label>
+          <button
+            type="button"
+            onClick={() => updateProp("iconColor", "#2563eb")}
+            className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+          >
+            Reset Color
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={iconColor.startsWith("#") ? iconColor : "#2563eb"}
+            onChange={(e) => updateProp("iconColor", e.target.value)}
+            className="h-7 w-9 rounded border border-slate-300 bg-white p-0.5 cursor-pointer"
+          />
+          <input
+            type="text"
+            value={iconColor}
+            onChange={(e) => updateProp("iconColor", e.target.value)}
+            className="flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-mono font-semibold text-slate-800 outline-none focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Rotation & Flips */}
+      <div className="pt-2 border-t border-slate-200/80 space-y-2">
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          Rotation & Flip Transforms
+        </label>
+        <div className="grid grid-cols-5 gap-1">
+          {[0, 45, 90, 180, 270].map((deg) => (
+            <button
+              key={deg}
+              type="button"
+              onClick={() => updateProp("iconRotate", deg)}
+              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${
+                iconRotate === deg ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {deg}°
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => updateProp("iconFlipH", !iconFlipH)}
+            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${
+              iconFlipH ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <span>↔️</span> Flip Horiz
+          </button>
+          <button
+            type="button"
+            onClick={() => updateProp("iconFlipV", !iconFlipV)}
+            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${
+              iconFlipV ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+            }`}
+          >
+            <span>↕️</span> Flip Vert
+          </button>
+        </div>
+      </div>
+
+      {/* Stroke Width */}
+      <div>
+        <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
+          Stroke Width
+        </label>
+        <div className="grid grid-cols-5 gap-1">
+          {[1, 1.5, 2, 2.5, 3].map((sw) => (
+            <button
+              key={sw}
+              type="button"
+              onClick={() => updateProp("iconStrokeWidth", sw)}
+              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${
+                iconStrokeWidth === sw ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {sw}px
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Container controls */}
+      {showContainerControls && (
+        <div className="pt-2 border-t border-slate-200/80 space-y-2">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            Icon Container Styling
+          </label>
+          <div>
+            <label className="block text-[10px] text-slate-500 mb-0.5">Container Background</label>
+            <input
+              type="color"
+              value={iconBgColor.startsWith("#") ? iconBgColor : "#eff6ff"}
+              onChange={(e) => updateProp("iconBgColor", e.target.value)}
+              className="h-7 w-full rounded border border-slate-300 bg-white p-0.5 cursor-pointer"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[10px] text-slate-500 mb-0.5">Border Radius</label>
+              <input
+                type="text"
+                value={iconBorderRadius}
+                onChange={(e) => updateProp("iconBorderRadius", e.target.value)}
+                placeholder="8px"
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-500 mb-0.5">Padding (px)</label>
+              <input
+                type="number"
+                value={iconPadding}
+                onChange={(e) => updateProp("iconPadding", Number(e.target.value))}
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Icon Library Inspector
+export function IconLibraryWidgetInspector({
+  el,
+  updateProp,
+  updateStyle,
+  onOpenIconPicker,
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateStyle?: (key: string, val: any) => void;
+  onOpenIconPicker?: () => void;
+}) {
+  return (
+    <div className="space-y-4 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+        <span>🎨</span> Icon Library Configuration
+      </h3>
+
+      <UniversalIconControls
+        el={el}
+        updateProp={updateProp}
+        updateStyle={updateStyle}
+        onOpenIconPicker={onOpenIconPicker}
+        showContainerControls={true}
+      />
+    </div>
+  );
+}
+
+// 14. Button Widget Inspector
+export function ButtonWidgetInspector({
+  el,
+  updateProp,
+  updateStyle,
+  pages,
+  activePageId,
+  onCreatePage,
+  siteProducts,
+  onOpenIconPicker,
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateStyle?: (key: string, val: any) => void;
+  pages?: PageConfig[];
+  activePageId?: string;
+  onCreatePage?: (customName?: string) => PageConfig;
+  siteProducts?: SiteProduct[];
+  onOpenIconPicker?: () => void;
 }) {
   const currentButtonColor = el.styles?.backgroundColor || el.buttonBg || "#2563eb";
   const currentContainerBg = el.containerBg || "transparent";
   const currentTextColor = el.styles?.color || el.buttonColor || "#ffffff";
+
+  // Destination mode inference
+  const activeDest = el.destinationType || el.linkType || (el.pageId ? "page" : "url");
+
+  // Linked Page Status
+  const pageStatus = getLinkedPageStatus(el, pages);
+  const resolvedHref = resolveButtonHref(el, pages);
 
   // Independent Button Color (Button Fill) ONLY
   const handleButtonColorChange = (color: string) => {
@@ -1918,7 +2733,7 @@ export function ButtonWidgetInspector({
   };
 
   return (
-    <div className="space-y-3 pt-2 border-t border-slate-100">
+    <div className="space-y-4 pt-2 border-t border-slate-100">
       <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
         <span>🔘</span> Button Configuration
       </h3>
@@ -1933,23 +2748,239 @@ export function ButtonWidgetInspector({
             updateProp("content", e.target.value);
             updateProp("buttonText", e.target.value);
           }}
+          placeholder="Click Me"
           className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
         />
       </div>
 
-      {/* Link URL */}
-      <div>
-        <label className="block text-xs font-semibold text-slate-700 mb-1">Link URL</label>
-        <input
-          type="text"
-          value={el.href || el.linkUrl || ""}
-          onChange={(e) => {
-            updateProp("href", e.target.value);
-            updateProp("linkUrl", e.target.value);
-          }}
-          placeholder="https://example.com"
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-        />
+      {/* Universal Icon Controls */}
+      <UniversalIconControls
+        el={el}
+        updateProp={updateProp}
+        updateStyle={updateStyle}
+        onOpenIconPicker={onOpenIconPicker}
+        showContainerControls={false}
+      />
+
+      {/* Link / Navigation Controls */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+            <span>🔗</span> Destination Link
+          </label>
+          <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]" title={resolvedHref}>
+            {resolvedHref}
+          </span>
+        </div>
+
+        {/* Link Type Selector */}
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
+            Link Destination Type
+          </label>
+          <div className="grid grid-cols-2 gap-1 rounded-lg border border-slate-200 bg-white p-1">
+            <button
+              type="button"
+              onClick={() => {
+                const defaultPage = pages?.find((p) => p.isHome || p.id === "home") || pages?.[0];
+                updateProp("destinationType", "page");
+                updateProp("linkType", "page");
+                if (defaultPage) {
+                  updateProp("pageId", defaultPage.id);
+                  updateProp("href", defaultPage.slug);
+                  updateProp("linkUrl", defaultPage.slug);
+                }
+              }}
+              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                activeDest === "page"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <span>📄</span> Internal Page
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                updateProp("destinationType", "url");
+                updateProp("linkType", "url");
+              }}
+              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                activeDest === "url"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <span>🌐</span> Custom URL
+            </button>
+          </div>
+        </div>
+
+        {/* INTERNAL PAGE MODE */}
+        {activeDest === "page" && (
+          <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/50 p-2.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-bold text-blue-900 uppercase">Target Page</label>
+              {onCreatePage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const created = onCreatePage();
+                    updateProp("pageId", created.id);
+                    updateProp("href", created.slug);
+                    updateProp("linkUrl", created.slug);
+                  }}
+                  className="text-[10px] font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                >
+                  + Create New Page
+                </button>
+              )}
+            </div>
+
+            <select
+              value={el.pageId || ""}
+              onChange={(e) => {
+                const selectedP = pages?.find((p) => p.id === e.target.value);
+                updateProp("pageId", e.target.value);
+                updateProp("destinationType", "page");
+                updateProp("linkType", "page");
+                if (selectedP) {
+                  updateProp("href", selectedP.slug);
+                  updateProp("linkUrl", selectedP.slug);
+                }
+              }}
+              className="w-full rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="">-- Select Project Page --</option>
+              {(pages || []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.slug}){p.isHome ? " [Home]" : ""}
+                </option>
+              ))}
+            </select>
+
+            {/* Warning Alert if referenced page was deleted */}
+            {el.pageId && !pageStatus.pageExists && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-[11px] font-medium text-amber-800 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                  <span>⚠️</span> Linked page no longer exists
+                </div>
+                <p className="text-[10px] leading-tight text-amber-700">
+                  The referenced page has been deleted. Please select another available page or switch to a custom URL.
+                </p>
+              </div>
+            )}
+
+            {pageStatus.pageExists && pageStatus.pageName && (
+              <div className="flex items-center justify-between text-[10px] text-blue-700 bg-blue-100/60 px-2 py-1 rounded font-medium">
+                <span>Route: <strong className="font-mono">{resolvedHref}</strong></span>
+                <span className="text-[9px] bg-blue-200 px-1.5 py-0.5 rounded font-bold uppercase">Dynamic</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* CUSTOM URL MODE */}
+        {activeDest === "url" && (
+          <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-2.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-bold text-slate-600 uppercase">Custom Link URL</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const currPage = getCurrentResolvedPageUrl(pages, activePageId);
+                  updateProp("href", currPage);
+                  updateProp("linkUrl", currPage);
+                }}
+                className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+              >
+                Use Current Page
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={el.href || el.linkUrl || ""}
+                onChange={(e) => {
+                  updateProp("href", e.target.value);
+                  updateProp("linkUrl", e.target.value);
+                }}
+                placeholder="https://example.com or /about or #section"
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+              />
+              {(el.href || el.linkUrl) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateProp("href", "");
+                    updateProp("linkUrl", "");
+                  }}
+                  title="Clear URL"
+                  className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="text-[10px] text-slate-400">
+              Enter absolute URL (<code className="font-mono">https://...</code>), relative path (<code className="font-mono">/about</code>), anchor (<code className="font-mono">#contact</code>), or action (<code className="font-mono">popup:open(id)</code>).
+            </div>
+          </div>
+        )}
+
+        {/* Target & Link Attributes */}
+        <div className="pt-2 border-t border-slate-200/60 space-y-2">
+          <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={el.target === "_blank"}
+              onChange={(e) => updateProp("target", e.target.checked ? "_blank" : "_self")}
+              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Open link in new tab (<code className="text-[10px] font-mono text-slate-500">target="_blank"</code>)</span>
+          </label>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 mb-0.5 uppercase tracking-wider">
+                Rel Attributes
+              </label>
+              <input
+                type="text"
+                value={el.rel || ""}
+                onChange={(e) => updateProp("rel", e.target.value)}
+                placeholder="noopener noreferrer"
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 mb-0.5 uppercase tracking-wider">
+                Icon Position
+              </label>
+              <select
+                value={el.iconPosition || "left"}
+                onChange={(e) => updateProp("iconPosition", e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+              >
+                <option value="left">Left of Text</option>
+                <option value="right">Right of Text</option>
+              </select>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer pt-1">
+            <input
+              type="checkbox"
+              checked={Boolean(el.download)}
+              onChange={(e) => updateProp("download", e.target.checked)}
+              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Trigger file download (<code className="text-[10px] font-mono text-slate-500">download</code> attribute)</span>
+          </label>
+        </div>
       </div>
 
       {/* Independent Manual Color Controls */}
@@ -1960,7 +2991,7 @@ export function ButtonWidgetInspector({
           {/* Button Color ONLY */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
-              Button Color
+              Button Fill Color
             </label>
             <div className="flex items-center gap-1.5">
               <input
@@ -1982,7 +3013,7 @@ export function ButtonWidgetInspector({
           {/* Background Color ONLY */}
           <div>
             <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">
-              Background Color
+              Container Bg
             </label>
             <div className="flex items-center gap-1.5">
               <input
@@ -2071,30 +3102,6 @@ export function ButtonWidgetInspector({
               Royal Violet
             </button>
           </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
-        <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={el.target === "_blank"}
-            onChange={(e) => updateProp("target", e.target.checked ? "_blank" : "_self")}
-            className="rounded border-slate-300 text-blue-600"
-          />
-          <span>Open in New Tab</span>
-        </label>
-
-        <div>
-          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Icon Position</label>
-          <select
-            value={el.iconPosition || "left"}
-            onChange={(e) => updateProp("iconPosition", e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium"
-          >
-            <option value="left">Left of Text</option>
-            <option value="right">Right of Text</option>
-          </select>
         </div>
       </div>
     </div>
@@ -5402,16 +6409,19 @@ export function PaymentWidgetInspector({
   );
 }
 
-// 27. WooCommerce Widget Inspector
-// 27. WooCommerce Widget Inspector
+// 27. WooCommerce Widget Inspector (Dynamic & Data-Bound)
 export function WooCommerceWidgetInspector({
   el,
-  updateProp
+  updateProp,
+  siteProducts,
 }: {
   el: EditorElement;
   updateProp: (key: string, val: any) => void;
+  siteProducts?: SiteProduct[];
 }) {
   const currentImg = el.src || el.productImage || (el.type === "wc-product-images" ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+  const productSource = el.productSource || (el.productId ? "site" : "manual");
+  const connectedProduct = siteProducts?.find(p => p.id === el.productId);
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -5426,13 +6436,80 @@ export function WooCommerceWidgetInspector({
   return (
     <div className="space-y-3.5 pt-2 border-t border-slate-100">
       <h3 className="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
-        <span>🛍️</span> WooCommerce Product Details
+        <span>🛍️</span> WooCommerce Product Connection
       </h3>
+
+      {/* Product Connection Mode */}
+      <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 space-y-2.5">
+        <label className="block text-[10px] font-bold text-purple-900 uppercase tracking-wider">
+          Data Source Mode
+        </label>
+        <select
+          value={productSource}
+          onChange={(e) => {
+            const mode = e.target.value as "site" | "manual";
+            updateProp("productSource", mode);
+          }}
+          className="w-full rounded-lg border border-purple-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-purple-900 outline-none"
+        >
+          <option value="site">🔗 Connected Store Product (Dynamic)</option>
+          <option value="manual">✏️ Custom / Static Override Data</option>
+        </select>
+
+        {productSource === "site" && (
+          <div className="space-y-2 pt-1">
+            <label className="block text-[10px] font-bold text-slate-700 uppercase">
+              Select Connected Product
+            </label>
+            <select
+              value={el.productId || ""}
+              onChange={(e) => {
+                const prodId = e.target.value;
+                updateProp("productId", prodId);
+                const prod = siteProducts?.find(p => p.id === prodId);
+                if (prod) {
+                  if (prod.image) {
+                    updateProp("src", prod.image);
+                    updateProp("productImage", prod.image);
+                  }
+                  updateProp("wooProductTitle", prod.name);
+                  updateProp("wooPrice", prod.price);
+                  if (prod.rating) updateProp("wooRating", prod.rating);
+                }
+              }}
+              className="w-full rounded-lg border border-purple-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none"
+            >
+              <option value="">-- Choose Product --</option>
+              {(siteProducts || []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.price})
+                </option>
+              ))}
+            </select>
+
+            {connectedProduct ? (
+              <div className="flex items-center gap-2 bg-purple-100/70 p-2 rounded-lg border border-purple-200 text-xs">
+                <span className="text-emerald-600 font-extrabold text-sm">✓</span>
+                <div>
+                  <span className="font-bold text-purple-900 block">{connectedProduct.name}</span>
+                  <span className="text-[10px] text-purple-700">{connectedProduct.price} • Rating: {connectedProduct.rating || 5}★</span>
+                </div>
+              </div>
+            ) : el.productId ? (
+              <div className="bg-amber-50 p-2 rounded-lg border border-amber-200 text-[11px] font-bold text-amber-700">
+                ⚠️ Connected product ID "{el.productId}" no longer exists in store catalog.
+              </div>
+            ) : (
+              <p className="text-[10px] text-purple-600 italic">Select a product from the list above to bind widget data dynamically.</p>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Manual Product Image Uploader */}
       <div className="rounded-xl border border-purple-100 bg-purple-50/50 p-3 space-y-2.5">
         <label className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center justify-between">
-          <span>🖼️ Manual Product Image</span>
+          <span>🖼️ Product Image</span>
           <span className="text-[10px] text-purple-600 font-normal">Local File or URL</span>
         </label>
 
