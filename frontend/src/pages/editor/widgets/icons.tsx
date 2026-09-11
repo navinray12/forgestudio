@@ -1,5 +1,268 @@
 import React, { useState, useEffect } from "react";
+import * as LucideIcons from "lucide-react";
 import type { EditorElement, ElementStyles } from "../types";
+
+// ==========================================
+// ADVANCED PROVIDER-BASED ICON SYSTEM
+// ==========================================
+
+export interface IconDefinition {
+  id: string;
+  name: string;
+  provider: "lucide" | "custom" | "svg";
+  category: string;
+  tags: string[];
+  lucideName?: string;
+}
+
+export const ICON_CATEGORIES = [
+  "All",
+  "Favorites",
+  "Recently Used",
+  "Arrows",
+  "Communication",
+  "Social",
+  "Navigation",
+  "Media",
+  "Files",
+  "Users",
+  "Commerce",
+  "Interface",
+  "Security",
+  "Devices",
+  "Education",
+  "Weather",
+  "Brands",
+  "Other",
+] as const;
+
+export const ICON_REGISTRY: IconDefinition[] = [
+  // ARROWS
+  { id: "arrow-right", name: "Arrow Right", provider: "lucide", category: "Arrows", tags: ["arrow", "right", "next", "forward"], lucideName: "ArrowRight" },
+  { id: "arrow-left", name: "Arrow Left", provider: "lucide", category: "Arrows", tags: ["arrow", "left", "back", "previous"], lucideName: "ArrowLeft" },
+  { id: "arrow-up", name: "Arrow Up", provider: "lucide", category: "Arrows", tags: ["arrow", "up", "top"], lucideName: "ArrowUp" },
+  { id: "arrow-down", name: "Arrow Down", provider: "lucide", category: "Arrows", tags: ["arrow", "down", "bottom"], lucideName: "ArrowDown" },
+  { id: "chevron-right", name: "Chevron Right", provider: "lucide", category: "Arrows", tags: ["chevron", "right", "next"], lucideName: "ChevronRight" },
+  { id: "chevron-left", name: "Chevron Left", provider: "lucide", category: "Arrows", tags: ["chevron", "left", "back"], lucideName: "ChevronLeft" },
+  { id: "chevron-up", name: "Chevron Up", provider: "lucide", category: "Arrows", tags: ["chevron", "up", "top"], lucideName: "ChevronUp" },
+  { id: "chevron-down", name: "Chevron Down", provider: "lucide", category: "Arrows", tags: ["chevron", "down", "dropdown"], lucideName: "ChevronDown" },
+  { id: "repeat", name: "Repeat / Refresh", provider: "lucide", category: "Arrows", tags: ["repeat", "sync", "loop"], lucideName: "Repeat" },
+  { id: "refresh-cw", name: "Refresh Clockwise", provider: "lucide", category: "Arrows", tags: ["refresh", "reload", "update"], lucideName: "RefreshCw" },
+  { id: "external-link", name: "External Link", provider: "lucide", category: "Arrows", tags: ["open", "out", "new tab"], lucideName: "ExternalLink" },
+  { id: "move", name: "Move / Drag", provider: "lucide", category: "Arrows", tags: ["move", "drag", "direction"], lucideName: "Move" },
+
+  // COMMUNICATION
+  { id: "mail", name: "Mail / Email", provider: "lucide", category: "Communication", tags: ["email", "letter", "envelope", "contact"], lucideName: "Mail" },
+  { id: "phone", name: "Phone", provider: "lucide", category: "Communication", tags: ["call", "telephone", "mobile", "contact"], lucideName: "Phone" },
+  { id: "message-square", name: "Message Square", provider: "lucide", category: "Communication", tags: ["chat", "comment", "discussion", "talk"], lucideName: "MessageSquare" },
+  { id: "send", name: "Send", provider: "lucide", category: "Communication", tags: ["paper plane", "submit", "deliver"], lucideName: "Send" },
+  { id: "bell", name: "Notification Bell", provider: "lucide", category: "Communication", tags: ["alert", "notice", "alarm", "ring"], lucideName: "Bell" },
+  { id: "share-2", name: "Share", provider: "lucide", category: "Communication", tags: ["share", "social", "distribute"], lucideName: "Share2" },
+  { id: "at-sign", name: "At Sign", provider: "lucide", category: "Communication", tags: ["at", "mention", "email"], lucideName: "AtSign" },
+  { id: "inbox", name: "Inbox", provider: "lucide", category: "Communication", tags: ["mailbox", "messages", "receive"], lucideName: "Inbox" },
+
+  // SOCIAL & BRANDS
+  { id: "facebook", name: "Facebook", provider: "lucide", category: "Social", tags: ["social", "meta", "fb"], lucideName: "Facebook" },
+  { id: "twitter", name: "Twitter / X", provider: "lucide", category: "Social", tags: ["social", "tweet", "x"], lucideName: "Twitter" },
+  { id: "instagram", name: "Instagram", provider: "lucide", category: "Social", tags: ["social", "photo", "ig"], lucideName: "Instagram" },
+  { id: "linkedin", name: "LinkedIn", provider: "lucide", category: "Social", tags: ["social", "business", "career"], lucideName: "Linkedin" },
+  { id: "youtube", name: "YouTube", provider: "lucide", category: "Social", tags: ["social", "video", "yt"], lucideName: "Youtube" },
+  { id: "github", name: "GitHub", provider: "lucide", category: "Social", tags: ["code", "repo", "git"], lucideName: "Github" },
+  { id: "globe", name: "Globe / Web", provider: "lucide", category: "Social", tags: ["internet", "website", "world"], lucideName: "Globe" },
+
+  // NAVIGATION
+  { id: "home", name: "Home", provider: "lucide", category: "Navigation", tags: ["house", "main", "dashboard"], lucideName: "Home" },
+  { id: "menu", name: "Menu", provider: "lucide", category: "Navigation", tags: ["hamburger", "nav", "sidebar"], lucideName: "Menu" },
+  { id: "search", name: "Search", provider: "lucide", category: "Navigation", tags: ["find", "magnifier", "lookup"], lucideName: "Search" },
+  { id: "compass", name: "Compass", provider: "lucide", category: "Navigation", tags: ["direction", "navigate", "location"], lucideName: "Compass" },
+  { id: "map-pin", name: "Map Pin", provider: "lucide", category: "Navigation", tags: ["location", "place", "gps", "address"], lucideName: "MapPin" },
+  { id: "grid", name: "Grid Layout", provider: "lucide", category: "Navigation", tags: ["layout", "cards", "apps"], lucideName: "Grid" },
+  { id: "list", name: "List View", provider: "lucide", category: "Navigation", tags: ["lines", "rows", "items"], lucideName: "List" },
+  { id: "more-horizontal", name: "More Horizontal", provider: "lucide", category: "Navigation", tags: ["dots", "options", "menu"], lucideName: "MoreHorizontal" },
+  { id: "more-vertical", name: "More Vertical", provider: "lucide", category: "Navigation", tags: ["dots", "options", "kebab"], lucideName: "MoreVertical" },
+  { id: "link", name: "Link / Anchor", provider: "lucide", category: "Navigation", tags: ["url", "chain", "connect"], lucideName: "Link" },
+
+  // MEDIA
+  { id: "image", name: "Image / Photo", provider: "lucide", category: "Media", tags: ["picture", "media", "photo"], lucideName: "Image" },
+  { id: "film", name: "Film / Movie", provider: "lucide", category: "Media", tags: ["video", "cinema", "show"], lucideName: "Film" },
+  { id: "play", name: "Play", provider: "lucide", category: "Media", tags: ["start", "player", "audio", "video"], lucideName: "Play" },
+  { id: "pause", name: "Pause", provider: "lucide", category: "Media", tags: ["stop", "player", "hold"], lucideName: "Pause" },
+  { id: "music", name: "Music Note", provider: "lucide", category: "Media", tags: ["audio", "song", "sound"], lucideName: "Music" },
+  { id: "volume-2", name: "Volume High", provider: "lucide", category: "Media", tags: ["sound", "audio", "speaker"], lucideName: "Volume2" },
+  { id: "mic", name: "Microphone", provider: "lucide", category: "Media", tags: ["voice", "record", "audio"], lucideName: "Mic" },
+  { id: "camera", name: "Camera", provider: "lucide", category: "Media", tags: ["photo", "snapshot", "picture"], lucideName: "Camera" },
+
+  // FILES & EDITING
+  { id: "file-text", name: "File Text", provider: "lucide", category: "Files", tags: ["document", "page", "note", "paper"], lucideName: "FileText" },
+  { id: "folder", name: "Folder", provider: "lucide", category: "Files", tags: ["directory", "files", "archive"], lucideName: "Folder" },
+  { id: "download", name: "Download", provider: "lucide", category: "Files", tags: ["save", "export", "get"], lucideName: "Download" },
+  { id: "upload", name: "Upload", provider: "lucide", category: "Files", tags: ["import", "cloud", "post"], lucideName: "Upload" },
+  { id: "copy", name: "Copy", provider: "lucide", category: "Files", tags: ["duplicate", "clipboard", "clone"], lucideName: "Copy" },
+  { id: "save", name: "Save", provider: "lucide", category: "Files", tags: ["disk", "floppy", "store"], lucideName: "Save" },
+  { id: "trash-2", name: "Trash / Delete", provider: "lucide", category: "Files", tags: ["remove", "bin", "garbage"], lucideName: "Trash2" },
+  { id: "edit-3", name: "Edit / Pencil", provider: "lucide", category: "Files", tags: ["modify", "pencil", "write"], lucideName: "Edit3" },
+
+  // USERS & PEOPLE
+  { id: "user", name: "User Profile", provider: "lucide", category: "Users", tags: ["person", "account", "profile", "avatar"], lucideName: "User" },
+  { id: "users", name: "Users / Team", provider: "lucide", category: "Users", tags: ["group", "people", "team", "community"], lucideName: "Users" },
+  { id: "user-plus", name: "Add User", provider: "lucide", category: "Users", tags: ["invite", "friend", "new user"], lucideName: "UserPlus" },
+  { id: "heart", name: "Heart / Like", provider: "lucide", category: "Users", tags: ["love", "favorite", "like"], lucideName: "Heart" },
+  { id: "smile", name: "Smile / Happy", provider: "lucide", category: "Users", tags: ["emoji", "face", "happy"], lucideName: "Smile" },
+
+  // COMMERCE & MONEY
+  { id: "shopping-cart", name: "Shopping Cart", provider: "lucide", category: "Commerce", tags: ["cart", "buy", "store", "ecommerce"], lucideName: "ShoppingCart" },
+  { id: "shopping-bag", name: "Shopping Bag", provider: "lucide", category: "Commerce", tags: ["bag", "purchase", "store"], lucideName: "ShoppingBag" },
+  { id: "credit-card", name: "Credit Card", provider: "lucide", category: "Commerce", tags: ["payment", "card", "pay", "checkout"], lucideName: "CreditCard" },
+  { id: "dollar-sign", name: "Dollar / Price", provider: "lucide", category: "Commerce", tags: ["currency", "money", "cash"], lucideName: "DollarSign" },
+  { id: "tag", name: "Price Tag", provider: "lucide", category: "Commerce", tags: ["label", "sale", "discount", "offer"], lucideName: "Tag" },
+  { id: "gift", name: "Gift / Reward", provider: "lucide", category: "Commerce", tags: ["present", "bonus", "prize"], lucideName: "Gift" },
+  { id: "percent", name: "Percent / Discount", provider: "lucide", category: "Commerce", tags: ["sale", "offer", "discount"], lucideName: "Percent" },
+  { id: "zap", name: "Zap / Lightning", provider: "lucide", category: "Commerce", tags: ["flash", "fast", "power", "bolt"], lucideName: "Zap" },
+  { id: "star", name: "Star / Rating", provider: "lucide", category: "Commerce", tags: ["rating", "badge", "bookmark", "score"], lucideName: "Star" },
+
+  // INTERFACE & CONTROL
+  { id: "check", name: "Checkmark", provider: "lucide", category: "Interface", tags: ["tick", "correct", "success", "done"], lucideName: "Check" },
+  { id: "x", name: "Close / Cancel", provider: "lucide", category: "Interface", tags: ["cross", "exit", "remove"], lucideName: "X" },
+  { id: "plus", name: "Plus / Add", provider: "lucide", category: "Interface", tags: ["create", "new", "positive"], lucideName: "Plus" },
+  { id: "minus", name: "Minus / Remove", provider: "lucide", category: "Interface", tags: ["substract", "negative", "less"], lucideName: "Minus" },
+  { id: "info", name: "Info / Notice", provider: "lucide", category: "Interface", tags: ["help", "information", "detail"], lucideName: "Info" },
+  { id: "alert-triangle", name: "Warning Triangle", provider: "lucide", category: "Interface", tags: ["caution", "alert", "warning"], lucideName: "AlertTriangle" },
+  { id: "help-circle", name: "Help Circle", provider: "lucide", category: "Interface", tags: ["question", "support", "faq"], lucideName: "HelpCircle" },
+  { id: "eye", name: "Eye / View", provider: "lucide", category: "Interface", tags: ["visible", "preview", "show"], lucideName: "Eye" },
+  { id: "eye-off", name: "Eye Off / Hide", provider: "lucide", category: "Interface", tags: ["hidden", "invisible", "mask"], lucideName: "EyeOff" },
+  { id: "settings", name: "Settings / Gear", provider: "lucide", category: "Interface", tags: ["config", "cog", "preferences"], lucideName: "Settings" },
+  { id: "sparkles", name: "Sparkles / AI", provider: "lucide", category: "Interface", tags: ["magic", "stars", "feature", "ai"], lucideName: "Sparkles" },
+
+  // SECURITY
+  { id: "shield", name: "Shield Security", provider: "lucide", category: "Security", tags: ["protect", "safe", "guard", "security"], lucideName: "Shield" },
+  { id: "lock", name: "Padlock Locked", provider: "lucide", category: "Security", tags: ["secure", "password", "private"], lucideName: "Lock" },
+  { id: "unlock", name: "Padlock Unlocked", provider: "lucide", category: "Security", tags: ["open", "access", "public"], lucideName: "Unlock" },
+  { id: "key", name: "Key Access", provider: "lucide", category: "Security", tags: ["passcode", "login", "auth"], lucideName: "Key" },
+
+  // DEVICES
+  { id: "laptop", name: "Laptop Computer", provider: "lucide", category: "Devices", tags: ["pc", "screen", "macbook"], lucideName: "Laptop" },
+  { id: "smartphone", name: "Smartphone", provider: "lucide", category: "Devices", tags: ["mobile", "cell", "phone"], lucideName: "Smartphone" },
+  { id: "tablet", name: "Tablet Device", provider: "lucide", category: "Devices", tags: ["ipad", "screen", "mobile"], lucideName: "Tablet" },
+  { id: "monitor", name: "Desktop Monitor", provider: "lucide", category: "Devices", tags: ["display", "tv", "screen"], lucideName: "Monitor" },
+  { id: "wifi", name: "WiFi Signal", provider: "lucide", category: "Devices", tags: ["network", "internet", "wireless"], lucideName: "Wifi" },
+
+  // EDUCATION & WORK
+  { id: "graduation-cap", name: "Graduation Cap", provider: "lucide", category: "Education", tags: ["school", "college", "degree", "education"], lucideName: "GraduationCap" },
+  { id: "book-open", name: "Book Open", provider: "lucide", category: "Education", tags: ["read", "study", "library"], lucideName: "BookOpen" },
+  { id: "award", name: "Award Medal", provider: "lucide", category: "Education", tags: ["trophy", "badge", "winner"], lucideName: "Award" },
+  { id: "lightbulb", name: "Lightbulb / Idea", provider: "lucide", category: "Education", tags: ["creative", "solution", "think"], lucideName: "Lightbulb" },
+
+  // WEATHER & NATURE
+  { id: "sun", name: "Sun / Light", provider: "lucide", category: "Weather", tags: ["bright", "day", "solar"], lucideName: "Sun" },
+  { id: "moon", name: "Moon / Dark", provider: "lucide", category: "Weather", tags: ["night", "dark mode", "lunar"], lucideName: "Moon" },
+  { id: "cloud", name: "Cloud", provider: "lucide", category: "Weather", tags: ["sky", "weather", "storage"], lucideName: "Cloud" },
+];
+
+/** Search icons dynamically by term, category, or alias */
+export function searchIcons(query: string, category: string = "All", favorites: string[] = [], recents: string[] = []): IconDefinition[] {
+  let list = ICON_REGISTRY;
+
+  if (category === "Favorites") {
+    return list.filter((item) => favorites.includes(item.id) || favorites.includes(item.name) || (item.lucideName && favorites.includes(item.lucideName)));
+  }
+
+  if (category === "Recently Used") {
+    const recentSet = new Set(recents);
+    return list.filter((item) => recentSet.has(item.id) || recentSet.has(item.name) || (item.lucideName && recentSet.has(item.lucideName)));
+  }
+
+  if (category !== "All") {
+    list = list.filter((item) => item.category === category);
+  }
+
+  const cleanQuery = query.trim().toLowerCase();
+  if (!cleanQuery) return list;
+
+  return list.filter((item) => {
+    const matchName = item.name.toLowerCase().includes(cleanQuery);
+    const matchCat = item.category.toLowerCase().includes(cleanQuery);
+    const matchId = item.id.toLowerCase().includes(cleanQuery);
+    const matchLucide = item.lucideName ? item.lucideName.toLowerCase().includes(cleanQuery) : false;
+    const matchTags = item.tags.some((t) => t.toLowerCase().includes(cleanQuery));
+    return matchName || matchCat || matchId || matchLucide || matchTags;
+  });
+}
+
+/** Central Icon Renderer Component */
+export interface IconRendererProps {
+  icon?: string;
+  iconName?: string;
+  iconProvider?: string;
+  size?: number | string;
+  color?: string;
+  rotate?: number;
+  flipH?: boolean;
+  flipV?: boolean;
+  strokeWidth?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  ariaHidden?: boolean;
+}
+
+export const IconRenderer: React.FC<IconRendererProps> = ({
+  icon,
+  iconName,
+  size = 24,
+  color,
+  rotate = 0,
+  flipH = false,
+  flipV = false,
+  strokeWidth = 2,
+  className = "",
+  style = {},
+  ariaHidden = true,
+}) => {
+  const targetKey = (iconName || icon || "Star").trim();
+  const numericSize = typeof size === "number" ? size : parseInt(size as string, 10) || 24;
+
+  // Find in registry or match by Lucide name directly
+  const foundDef = ICON_REGISTRY.find(
+    (item) =>
+      item.id === targetKey ||
+      item.name.toLowerCase() === targetKey.toLowerCase() ||
+      (item.lucideName && item.lucideName.toLowerCase() === targetKey.toLowerCase())
+  );
+
+  const lucideName = foundDef?.lucideName || targetKey;
+
+  // Dynamic Lucide lookup
+  const iconsRecord = LucideIcons as unknown as Record<string, React.ComponentType<any>>;
+  const LucideComp =
+    iconsRecord[lucideName] ||
+    iconsRecord[lucideName.charAt(0).toUpperCase() + lucideName.slice(1)] ||
+    LucideIcons.Star;
+
+  // CSS transform for rotation & flip
+  const transforms: string[] = [];
+  if (rotate) transforms.push(`rotate(${rotate}deg)`);
+  if (flipH) transforms.push(`scaleX(-1)`);
+  if (flipV) transforms.push(`scaleY(-1)`);
+
+  const combinedStyle: React.CSSProperties = {
+    color: color || "currentColor",
+    transform: transforms.length > 0 ? transforms.join(" ") : undefined,
+    display: "inline-block",
+    verticalAlign: "middle",
+    transition: "transform 0.15s ease, color 0.15s ease",
+    ...style,
+  };
+
+  return (
+    <LucideComp
+      size={numericSize}
+      color={color || "currentColor"}
+      strokeWidth={strokeWidth}
+      className={`shrink-0 ${className}`}
+      style={combinedStyle}
+      aria-hidden={ariaHidden ? "true" : undefined}
+    />
+  );
+};
 
 // ==========================================
 // EDITOR WIDGET PALETTE ICONS & UTILITIES

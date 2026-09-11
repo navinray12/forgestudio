@@ -15,7 +15,8 @@ import {
   StripeButtonBoxIcon,
   LottieBoxIcon,
   MegaMenuBoxIcon,
-  OffCanvasBoxIcon
+  OffCanvasBoxIcon,
+  IconRenderer
 } from "./icons";
 
 // ==========================================
@@ -46,6 +47,10 @@ import type {
   ShareNetworkType,
   ShareNetworkItem,
   MegaMenuItem,
+  MegaMenuColumn,
+  MegaMenuColumnLink,
+  PageConfig,
+  SiteProduct,
   PostItem
 } from "../types";
 import {
@@ -950,30 +955,39 @@ export const NavMenuWidgetRenderer = ({
   el,
   isPreview,
   mergedStyles,
+  pages,
+  siteProducts,
+  onNavigatePage,
 }: {
   el: EditorElement;
-  isPreview: boolean;
-  mergedStyles: ElementStyles;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+  pages?: PageConfig[];
+  siteProducts?: SiteProduct[];
+  onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
-  const items: NavMenuItem[] = el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : [
+  const defaultNavItems: NavMenuItem[] = [
     { id: "1", label: "Home", url: "/", isActive: true },
     { id: "2", label: "About", url: "/about" },
     {
       id: "3",
       label: "Services",
       url: "/services",
+      dropdownEnabled: true,
       submenu: [
-        { id: "s1", label: "Web Design", url: "/services/web-design" },
-        { id: "s2", label: "App Development", url: "/services/app-dev" },
-        { id: "s3", label: "SEO & Growth", url: "/services/seo" },
+        { id: "s1", label: "Web Design", url: "/services/web-design", description: "Modern responsive web designs" },
+        { id: "s2", label: "App Development", url: "/services/app-dev", description: "iOS and Android apps" },
+        { id: "s3", label: "SEO & Growth", url: "/services/seo", description: "Search engine optimization" },
       ],
     },
     { id: "4", label: "Pricing", url: "/pricing" },
     { id: "5", label: "Contact", url: "/contact" },
   ];
 
+  const items: NavMenuItem[] = el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : defaultNavItems;
+
   const isVertical = el.navLayout === "vertical";
-  const alignment = el.navAlignment || "left";
+  const alignment = el.navAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "left";
   const gap = el.navGap ?? 24;
   const itemColor = el.navItemColor || "#334155";
   const itemHoverColor = el.navItemHoverColor || "#2563eb";
@@ -986,84 +1000,153 @@ export const NavMenuWidgetRenderer = ({
   const textTransform = el.navTextTransform || "none";
   const submenuBg = el.navSubmenuBg || "#ffffff";
   const submenuTextColor = el.navSubmenuTextColor || "#334155";
+  const globalTrigger = el.navTrigger || "hover";
 
   const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
   );
 
   let justifyClass = "justify-start";
   if (alignment === "center") justifyClass = "justify-center";
-  else if (alignment === "right") justifyClass = "justify-end";
-  else if (alignment === "between") justifyClass = "justify-between";
+  else if (alignment === "right" || alignment === "flex-end") justifyClass = "justify-end";
+  else if (alignment === "between" || alignment === "space-between") justifyClass = "justify-between";
+
+  const resolveItem = (item: NavMenuItem | NavSubmenuItem) => {
+    let displayLabel = item.label;
+    let displayUrl = item.url || "#";
+    let isOrphaned = false;
+
+    if (item.destinationType === "page" || item.linkType === "page" || item.pageId) {
+      if (item.pageId) {
+        const found = pages?.find((p) => p.id === item.pageId);
+        if (found) {
+          displayLabel = item.label || found.name;
+          displayUrl = found.slug.startsWith("/") ? found.slug : `/${found.slug}`;
+        } else {
+          isOrphaned = true;
+          displayLabel = `${item.label || "Page"} (Unavailable)`;
+        }
+      }
+    } else if (item.destinationType === "product" || item.linkType === "product" || item.productId) {
+      if (item.productId) {
+        const found = siteProducts?.find((p) => p.id === item.productId);
+        if (found) {
+          displayLabel = item.label || found.name;
+          displayUrl = found.url || `#product-${found.id}`;
+        } else {
+          isOrphaned = true;
+          displayLabel = `${item.label || "Product"} (Unavailable)`;
+        }
+      }
+    }
+
+    return { displayLabel, displayUrl, isOrphaned };
+  };
+
+  const handleLinkClick = (e: React.MouseEvent, item: NavMenuItem) => {
+    const { displayUrl } = resolveItem(item);
+    setActiveItemId(item.id);
+
+    const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
+    const triggerMode = item.trigger || globalTrigger;
+
+    if (!isPreview) {
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
+      if (item.pageId && onNavigatePage) {
+        e.preventDefault();
+        onNavigatePage(item.pageId);
+      } else if (displayUrl.startsWith("#") && displayUrl.length > 1) {
+        const targetEl = document.querySelector(displayUrl);
+        if (targetEl) {
+          e.preventDefault();
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+
+    if (hasSubmenu && (triggerMode === "click" || !isPreview)) {
+      setOpenSubmenuId(openSubmenuId === item.id ? null : item.id);
+    }
+  };
 
   return (
-    <nav
-      className="w-full transition-all"
-      style={{
-        boxSizing: "border-box",
-      }}
-    >
+    <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily }}>
+      {/* Mobile Hamburger Button */}
+      <div className="flex sm:hidden items-center justify-between p-2 w-full">
+        <span className="text-xs font-bold text-slate-700">Navigation Menu</span>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+        >
+          {mobileMenuOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* Main Desktop & Tablet Nav List */}
       <ul
-        className={`flex ${isVertical ? "flex-col items-stretch" : `flex-row items-center ${justifyClass}`} wrap`}
-        style={{
-          gap: `${gap}px`,
-        }}
+        className={`flex w-full ${
+          mobileMenuOpen
+            ? "flex-col items-stretch mt-2"
+            : isVertical
+            ? "flex-col items-stretch"
+            : `hidden sm:flex flex-row items-center ${justifyClass}`
+        } wrap`}
+        style={{ gap: `${gap}px` }}
       >
         {items.map((item) => {
-          const hasSubmenu = item.submenu && item.submenu.length > 0;
+          const { displayLabel, displayUrl, isOrphaned } = resolveItem(item);
+          const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
+          const triggerMode = item.trigger || globalTrigger;
           const isItemHovered = hoveredItemId === item.id;
-          const isOpen = openSubmenuId === item.id || isItemHovered;
+          const isOpen = openSubmenuId === item.id || (triggerMode === "hover" && isItemHovered);
           const isItemActive = item.isActive || activeItemId === item.id;
 
-          const currentBg = isItemActive
-            ? itemActiveBg
-            : isItemHovered
-            ? itemHoverBg
-            : itemBg;
-
-          const currentColor = isItemActive
-            ? itemActiveColor
-            : isItemHovered
-            ? itemHoverColor
-            : itemColor;
+          const currentBg = isItemActive ? itemActiveBg : isItemHovered ? itemHoverBg : itemBg;
+          const currentColor = isItemActive ? itemActiveColor : isItemHovered ? itemHoverColor : itemColor;
 
           return (
             <li
               key={item.id}
-              className="relative group list-none"
+              className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
-                if (hasSubmenu) setOpenSubmenuId(item.id);
+                if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(item.id);
               }}
               onMouseLeave={() => {
                 setHoveredItemId(null);
-                setOpenSubmenuId(null);
+                if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(null);
               }}
             >
               <a
-                href={item.url || "#"}
+                href={displayUrl}
                 target={item.target || "_self"}
                 rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                onClick={(e) => {
-                  if (!isPreview) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                  setActiveItemId(item.id);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
+                onClick={(e) => handleLinkClick(e, item)}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none ${
+                  isOrphaned ? "border border-amber-300 bg-amber-50 text-amber-800" : ""
+                }`}
                 style={{
-                  backgroundColor: currentBg,
-                  color: currentColor,
+                  backgroundColor: isOrphaned ? undefined : currentBg,
+                  color: isOrphaned ? undefined : currentColor,
                   fontSize: fontSize,
                   fontWeight: fontWeight,
                   textTransform: textTransform as any,
-                  fontFamily: mergedStyles.fontFamily,
+                  fontFamily: mergedStyles?.fontFamily,
                 }}
               >
-                <span>{item.label}</span>
+                {item.icon && item.iconPosition !== "right" && (
+                  <span className="text-base">{item.icon}</span>
+                )}
+                <span>{displayLabel}</span>
+                {item.icon && item.iconPosition === "right" && (
+                  <span className="text-base">{item.icon}</span>
+                )}
                 {hasSubmenu && (
                   <svg
                     className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
@@ -1078,39 +1161,60 @@ export const NavMenuWidgetRenderer = ({
               </a>
 
               {/* Submenu Dropdown */}
-              {hasSubmenu && (
+              {hasSubmenu && isOpen && (
                 <div
-                  className={`z-50 min-w-[200px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
-                    isVertical
+                  className={`z-50 min-w-[220px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
+                    isVertical || mobileMenuOpen
                       ? "static mt-1 ml-4"
-                      : "absolute left-0 top-full mt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 translate-y-1"
-                  } ${isOpen && !isVertical ? "opacity-100 visible translate-y-0" : ""}`}
-                  style={{
-                    backgroundColor: submenuBg,
-                  }}
+                      : alignment === "right" || alignment === "flex-end"
+                      ? "absolute right-0 top-full mt-1.5 animate-fadeIn"
+                      : "absolute left-0 top-full mt-1.5 animate-fadeIn"
+                  }`}
+                  style={{ backgroundColor: submenuBg }}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    {item.submenu!.map((subItem: any) => (
-                      <a
-                        key={subItem.id}
-                        href={subItem.url || "#"}
-                        target={subItem.target || "_self"}
-                        rel={subItem.target === "_blank" ? "noopener noreferrer" : undefined}
-                        onClick={(e) => {
-                          if (!isPreview) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }
-                        }}
-                        className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
-                        style={{
-                          color: submenuTextColor,
-                          fontFamily: mergedStyles.fontFamily,
-                        }}
-                      >
-                        {subItem.label}
-                      </a>
-                    ))}
+                  <div className="flex flex-col gap-1">
+                    {item.submenu!.map((subItem) => {
+                      const subRes = resolveItem(subItem);
+                      return (
+                        <a
+                          key={subItem.id}
+                          href={subRes.displayUrl}
+                          target={subItem.target || "_self"}
+                          rel={subItem.target === "_blank" ? "noopener noreferrer" : undefined}
+                          onClick={(e) => {
+                            if (!isPreview) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            } else if (subItem.pageId && onNavigatePage) {
+                              e.preventDefault();
+                              onNavigatePage(subItem.pageId);
+                            }
+                          }}
+                          className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${
+                            subItem.isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-slate-100/80"
+                          } ${subRes.isOrphaned ? "bg-amber-50 text-amber-800" : ""}`}
+                          style={{
+                            color: subRes.isOrphaned ? undefined : submenuTextColor,
+                            fontFamily: mergedStyles?.fontFamily,
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            {subItem.icon && <span className="text-base">{subItem.icon}</span>}
+                            <div>
+                              <span className="block text-xs font-semibold">{subRes.displayLabel}</span>
+                              {subItem.description && (
+                                <span className="block text-[10px] text-slate-400 font-normal">{subItem.description}</span>
+                              )}
+                            </div>
+                          </div>
+                          {subItem.badge && (
+                            <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">
+                              {subItem.badge}
+                            </span>
+                          )}
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -5540,10 +5644,16 @@ export const MegaMenuWidgetRenderer = ({
   el,
   isPreview,
   mergedStyles,
+  pages,
+  siteProducts,
+  onNavigatePage,
 }: {
   el: EditorElement;
-  isPreview: boolean;
-  mergedStyles: ElementStyles;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+  pages?: PageConfig[];
+  siteProducts?: SiteProduct[];
+  onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
   const defaultItems: MegaMenuItem[] = [
     {
@@ -5551,19 +5661,21 @@ export const MegaMenuWidgetRenderer = ({
       title: "Products",
       columns: [
         {
+          id: "col_1",
           title: "Core Platform",
           links: [
-            { label: "Visual Builder", href: "#", badge: "New" },
-            { label: "Design System", href: "#" },
-            { label: "SEO & Analytics", href: "#" },
+            { id: "l1", label: "Visual Builder", href: "#", badge: "New", description: "Drag & drop visual builder" },
+            { id: "l2", label: "Design System", href: "#", description: "Design tokens & components" },
+            { id: "l3", label: "SEO & Analytics", href: "#", description: "Optimization & tracking" },
           ],
         },
         {
+          id: "col_2",
           title: "Solutions",
           links: [
-            { label: "SaaS Agencies", href: "#" },
-            { label: "E-Commerce Stores", href: "#" },
-            { label: "Enterprise Teams", href: "#", badge: "Pro" },
+            { id: "l4", label: "SaaS Agencies", href: "#", description: "White-label builder" },
+            { id: "l5", label: "E-Commerce Stores", href: "#", description: "Product & WooCommerce integration" },
+            { id: "l6", label: "Enterprise Teams", href: "#", badge: "Pro", description: "Team collaboration" },
           ],
         },
       ],
@@ -5573,11 +5685,12 @@ export const MegaMenuWidgetRenderer = ({
       title: "Resources",
       columns: [
         {
+          id: "col_3",
           title: "Documentation",
           links: [
-            { label: "Getting Started Guide", href: "#" },
-            { label: "API Reference", href: "#" },
-            { label: "Widget Showcase", href: "#" },
+            { id: "l7", label: "Getting Started Guide", href: "#" },
+            { id: "l8", label: "API Reference", href: "#" },
+            { id: "l9", label: "Widget Showcase", href: "#" },
           ],
         },
       ],
@@ -5588,85 +5701,310 @@ export const MegaMenuWidgetRenderer = ({
   const items = el.megaMenuItems?.length ? el.megaMenuItems : defaultItems;
   const bgColor = el.megaMenuBgColor || "#ffffff";
   const textColor = el.megaMenuTextColor || "#0f172a";
-  const alignment = el.megaMenuAlignment || "center";
+  const alignment = el.megaMenuAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "center";
+  const globalTrigger = el.megaMenuTrigger || "hover";
 
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   const alignClass =
-    alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
+    alignment === "left" || alignment === "flex-start"
+      ? "justify-start"
+      : alignment === "right" || alignment === "flex-end"
+      ? "justify-end"
+      : alignment === "between" || alignment === "space-between"
+      ? "justify-between"
+      : "justify-center";
+
+  const resolveMegaCategory = (cat: MegaMenuItem) => {
+    let displayTitle = cat.title;
+    let displayHref = cat.href || "#";
+
+    if (cat.destinationType === "page" || cat.linkType === "page" || cat.pageId) {
+      if (cat.pageId) {
+        const found = pages?.find((p) => p.id === cat.pageId);
+        if (found) {
+          displayTitle = cat.title || found.name;
+          displayHref = found.slug.startsWith("/") ? found.slug : `/${found.slug}`;
+        }
+      }
+    } else if (cat.destinationType === "product" || cat.linkType === "product" || cat.productId) {
+      if (cat.productId) {
+        const found = siteProducts?.find((p) => p.id === cat.productId);
+        if (found) {
+          displayTitle = cat.title || found.name;
+          displayHref = found.url || `#product-${found.id}`;
+        }
+      }
+    }
+
+    return { displayTitle, displayHref };
+  };
+
+  const resolveMegaLink = (link: MegaMenuColumnLink) => {
+    let displayLabel = link.label;
+    let displayUrl = link.href || "#";
+    let displayDesc = link.description;
+    let displayBadge = link.badge;
+    let displayImage = link.image;
+
+    if (link.destinationType === "page" || link.linkType === "page" || link.pageId) {
+      if (link.pageId) {
+        const page = pages?.find((p) => p.id === link.pageId);
+        if (page) {
+          displayLabel = link.label || page.name;
+          displayUrl = page.slug.startsWith("/") ? page.slug : `/${page.slug}`;
+        } else {
+          displayLabel = `${link.label || "Page"} (Unavailable)`;
+        }
+      }
+    } else if (link.destinationType === "product" || link.linkType === "product" || link.productId) {
+      if (link.productId) {
+        const prod = siteProducts?.find((p) => p.id === link.productId);
+        if (prod) {
+          displayLabel = link.label || prod.name;
+          displayUrl = prod.url || `#product-${prod.id}`;
+          if (!displayDesc && prod.description) displayDesc = prod.description;
+          if (!displayImage && prod.image) displayImage = prod.image;
+          if (!displayBadge && prod.badge) displayBadge = prod.badge;
+        } else {
+          displayLabel = `${link.label || "Product"} (Unavailable)`;
+        }
+      }
+    }
+
+    return { displayLabel, displayUrl, displayDesc, displayBadge, displayImage };
+  };
+
+  const handleCategoryClick = (e: React.MouseEvent, item: MegaMenuItem) => {
+    const { displayHref } = resolveMegaCategory(item);
+    if (!isPreview) {
+      e.preventDefault();
+      e.stopPropagation();
+    } else if (item.pageId && onNavigatePage) {
+      e.preventDefault();
+      onNavigatePage(item.pageId);
+    } else if (displayHref.startsWith("#") && displayHref.length > 1) {
+      const targetEl = document.querySelector(displayHref);
+      if (targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    const hasColumns = item.columns && item.columns.length > 0;
+    const triggerMode = item.trigger || globalTrigger;
+
+    if (hasColumns && (triggerMode === "click" || !isPreview)) {
+      setActiveMenuId(activeMenuId === item.id ? null : item.id);
+    }
+  };
 
   return (
     <div
       className={`w-full flex ${alignClass} transition-all`}
       style={{
-        marginTop: mergedStyles.marginTop,
-        marginBottom: mergedStyles.marginBottom,
-        paddingTop: mergedStyles.paddingTop,
-        paddingRight: mergedStyles.paddingRight,
-        paddingBottom: mergedStyles.paddingBottom,
-        paddingLeft: mergedStyles.paddingLeft,
+        marginTop: mergedStyles?.marginTop,
+        marginBottom: mergedStyles?.marginBottom,
+        paddingTop: mergedStyles?.paddingTop,
+        paddingRight: mergedStyles?.paddingRight,
+        paddingBottom: mergedStyles?.paddingBottom,
+        paddingLeft: mergedStyles?.paddingLeft,
       }}
     >
       <nav
         className="relative w-full max-w-6xl rounded-2xl border border-slate-200 shadow-sm font-sans"
-        style={{ backgroundColor: bgColor, color: textColor, borderRadius: mergedStyles.borderRadius }}
+        style={{ backgroundColor: bgColor, color: textColor, borderRadius: mergedStyles?.borderRadius }}
       >
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3 font-extrabold text-sm tracking-tight text-blue-600">
-            <MegaMenuBoxIcon />
-            <span>MegaMenu</span>
-          </div>
+        <div className={`flex items-center ${alignClass} w-full px-6 py-3 gap-6`}>
+          {el.showMegaMenuLogo && (
+            <div className="flex items-center gap-3 font-extrabold text-sm tracking-tight text-blue-600 shrink-0">
+              <MegaMenuBoxIcon />
+              <span>MegaMenu</span>
+            </div>
+          )}
 
-          <ul className="flex items-center gap-1 sm:gap-4 text-xs font-semibold">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="relative py-2 px-3 rounded-lg hover:bg-slate-100/70 transition cursor-pointer"
-                onMouseEnter={() => setActiveMenuId(item.id)}
-                onMouseLeave={() => setActiveMenuId(null)}
-              >
-                <a href={item.href || "#"} className="flex items-center gap-1" onClick={(e) => !isPreview && e.preventDefault()}>
-                  <span>{item.title}</span>
-                  {item.columns && item.columns.length > 0 && <span className="text-[10px] opacity-60">▼</span>}
-                </a>
+          {/* Mobile Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="sm:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer"
+          >
+            {mobileMenuOpen ? "✕" : "☰"}
+          </button>
 
-                {/* Mega Dropdown Panel */}
-                {activeMenuId === item.id && item.columns && item.columns.length > 0 && (
-                  <div
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 min-w-[480px] rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 grid grid-cols-2 gap-6 animate-fadeIn"
-                    style={{ backgroundColor: "#ffffff" }}
+          {/* Desktop Navigation Categories */}
+          <ul className={`hidden sm:flex items-center ${alignClass} w-full gap-1 sm:gap-4 text-xs font-semibold`}>
+            {items.map((item) => {
+              const { displayTitle, displayHref } = resolveMegaCategory(item);
+              const hasColumns = item.columns && item.columns.length > 0;
+              const triggerMode = item.trigger || globalTrigger;
+              const isOpen = activeMenuId === item.id;
+
+              return (
+                <li
+                  key={item.id}
+                  className="relative py-2 px-3 rounded-lg hover:bg-slate-100/70 transition cursor-pointer select-none"
+                  onMouseEnter={() => {
+                    if (hasColumns && triggerMode === "hover") setActiveMenuId(item.id);
+                  }}
+                  onMouseLeave={() => {
+                    if (hasColumns && triggerMode === "hover") setActiveMenuId(null);
+                  }}
+                >
+                  <a
+                    href={displayHref}
+                    target={item.target || "_self"}
+                    rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                    className="flex items-center gap-1.5"
+                    onClick={(e) => handleCategoryClick(e, item)}
                   >
-                    {item.columns.map((col, cIdx) => (
-                      <div key={cIdx} className="flex flex-col gap-2">
-                        <h5 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 border-b pb-1.5 border-slate-100">
-                          {col.title}
-                        </h5>
-                        <ul className="flex flex-col gap-1.5 mt-1">
-                          {col.links.map((link, lIdx) => (
-                            <li key={lIdx}>
-                              <a
-                                href={link.href}
-                                onClick={(e) => !isPreview && e.preventDefault()}
-                                className="flex items-center justify-between p-1.5 rounded-lg hover:bg-blue-50 text-slate-700 hover:text-blue-600 transition"
-                              >
-                                <span>{link.label}</span>
-                                {link.badge && (
-                                  <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">
-                                    {link.badge}
-                                  </span>
-                                )}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
+                    {item.icon && <span className="text-base">{item.icon}</span>}
+                    <span>{displayTitle}</span>
+                    {item.badge && (
+                      <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                    {hasColumns && <span className="text-[10px] opacity-60">▼</span>}
+                  </a>
+
+                  {/* Mega Dropdown Panel */}
+                  {isOpen && hasColumns && (
+                    <div
+                      className={`absolute top-full ${
+                        alignment === "right" || alignment === "flex-end"
+                          ? "right-0 left-auto translate-x-0"
+                          : alignment === "left" || alignment === "flex-start"
+                          ? "left-0 right-auto translate-x-0"
+                          : "left-1/2 -translate-x-1/2"
+                      } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${
+                        item.columns!.length === 1
+                          ? "w-[300px] grid grid-cols-1"
+                          : item.columns!.length === 2
+                          ? "w-[540px] grid grid-cols-2"
+                          : item.columns!.length === 3
+                          ? "w-[720px] grid grid-cols-3"
+                          : "w-[880px] grid grid-cols-4"
+                      }`}
+                      style={{ backgroundColor: "#ffffff" }}
+                    >
+                      {item.columns!.map((col, cIdx) => (
+                        <div key={col.id || `col_${cIdx}`} className="flex flex-col gap-2">
+                          <h5 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 border-b pb-1.5 border-slate-100">
+                            {col.title}
+                          </h5>
+                          <ul className="flex flex-col gap-2 mt-1">
+                            {col.links.map((link, lIdx) => {
+                              const lRes = resolveMegaLink(link);
+                              return (
+                                <li key={link.id || `link_${lIdx}`}>
+                                  <a
+                                    href={lRes.displayUrl}
+                                    target={link.target || "_self"}
+                                    rel={link.target === "_blank" ? "noopener noreferrer" : undefined}
+                                    onClick={(e) => {
+                                      if (!isPreview) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                      } else if (link.pageId && onNavigatePage) {
+                                        e.preventDefault();
+                                        onNavigatePage(link.pageId);
+                                      }
+                                    }}
+                                    className="flex items-start gap-3 p-2 rounded-xl hover:bg-blue-50/80 text-slate-700 hover:text-blue-700 transition group/link"
+                                  >
+                                    {lRes.displayImage ? (
+                                      <img src={lRes.displayImage} alt={lRes.displayLabel} className="h-9 w-9 rounded-lg object-cover border border-slate-200 shrink-0" />
+                                    ) : link.icon ? (
+                                      <span className="text-lg shrink-0 mt-0.5">{link.icon}</span>
+                                    ) : null}
+
+                                    <div className="flex-1 overflow-hidden">
+                                      <div className="flex items-center justify-between gap-1">
+                                        <span className="text-xs font-bold text-slate-800 group-hover/link:text-blue-700">{lRes.displayLabel}</span>
+                                        {lRes.displayBadge && (
+                                          <span className="text-[9px] font-extrabold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full">
+                                            {lRes.displayBadge}
+                                          </span>
+                                        )}
+                                      </div>
+                                      {lRes.displayDesc && (
+                                        <p className="text-[10px] text-slate-400 font-normal line-clamp-2 mt-0.5 leading-tight">
+                                          {lRes.displayDesc}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </a>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-slate-100 p-4 space-y-3 bg-white rounded-b-2xl animate-fadeIn">
+            {items.map((item) => {
+              const { displayTitle, displayHref } = resolveMegaCategory(item);
+              const hasColumns = item.columns && item.columns.length > 0;
+              return (
+                <div key={`m_${item.id}`} className="space-y-1.5">
+                  <a
+                    href={displayHref}
+                    onClick={(e) => handleCategoryClick(e, item)}
+                    className="flex items-center justify-between font-bold text-xs text-slate-800 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      {item.icon && <span>{item.icon}</span>}
+                      <span>{displayTitle}</span>
+                    </span>
+                    {hasColumns && <span>▼</span>}
+                  </a>
+
+                  {hasColumns && (
+                    <div className="pl-3 space-y-2 border-l-2 border-blue-200">
+                      {item.columns!.map((col) => (
+                        <div key={`m_col_${col.id || col.title}`} className="space-y-1">
+                          <span className="block text-[10px] font-bold text-slate-400 uppercase">{col.title}</span>
+                          {col.links.map((link) => {
+                            const lRes = resolveMegaLink(link);
+                            return (
+                              <a
+                                key={`m_link_${link.label}`}
+                                href={lRes.displayUrl}
+                                onClick={(e) => {
+                                  if (!isPreview) {
+                                    e.preventDefault();
+                                  } else if (link.pageId && onNavigatePage) {
+                                    e.preventDefault();
+                                    onNavigatePage(link.pageId);
+                                  }
+                                }}
+                                className="flex items-center gap-2 text-xs font-medium text-slate-700 p-1 rounded hover:bg-blue-50"
+                              >
+                                {link.icon && <span>{link.icon}</span>}
+                                <span>{lRes.displayLabel}</span>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </nav>
     </div>
   );
@@ -6300,7 +6638,7 @@ export const CustomSvgWidgetRenderer = ({
   );
 };
 
-/* F-222: Icon Library Renderer */
+/* F-222: Advanced Icon Library Renderer */
 export const IconLibraryWidgetRenderer = ({
   el,
   isPreview: _isPreview,
@@ -6310,13 +6648,24 @@ export const IconLibraryWidgetRenderer = ({
   isPreview: boolean;
   mergedStyles: ElementStyles;
 }) => {
-  const iconSize = el.iconSize || 48;
-  const iconColor = el.iconColor || "#e11d48";
-  const iconBgColor = el.iconBgColor || "#ffe4e6";
-  const iconBorderRadius = el.iconBorderRadius || "16px";
+  const iconName = el.iconName || el.icon || "Star";
+  const iconSize = el.iconSize || 36;
+  const iconColor = el.iconColor || mergedStyles.color || "#2563eb";
+  const iconBgColor = el.iconBgColor || "transparent";
+  const iconBorderRadius = el.iconBorderRadius || "8px";
+  const iconPadding = el.iconPadding ?? 8;
   const alignment = el.iconAlignment || "center";
+  const rotate = el.iconRotate || 0;
+  const flipH = Boolean(el.iconFlipH);
+  const flipV = Boolean(el.iconFlipV);
+  const strokeWidth = el.iconStrokeWidth || 2;
 
-  const alignClass = alignment === "left" ? "justify-start" : alignment === "right" ? "justify-end" : "justify-center";
+  const alignClass =
+    alignment === "left"
+      ? "justify-start"
+      : alignment === "right"
+      ? "justify-end"
+      : "justify-center";
 
   return (
     <div
@@ -6327,16 +6676,22 @@ export const IconLibraryWidgetRenderer = ({
       }}
     >
       <div
-        className="inline-flex items-center justify-center p-3 shadow-xs hover:shadow-md transition hover:scale-105"
+        className="inline-flex items-center justify-center transition-transform hover:scale-105"
         style={{
-          width: `${iconSize + 24}px`,
-          height: `${iconSize + 24}px`,
           backgroundColor: iconBgColor,
-          color: iconColor,
           borderRadius: iconBorderRadius,
+          padding: `${iconPadding}px`,
         }}
       >
-        <span style={{ fontSize: `${iconSize}px` }}>✨</span>
+        <IconRenderer
+          iconName={iconName}
+          size={iconSize}
+          color={iconColor}
+          rotate={rotate}
+          flipH={flipH}
+          flipV={flipV}
+          strokeWidth={strokeWidth}
+        />
       </div>
     </div>
   );
@@ -6417,24 +6772,183 @@ export const renderSocialNetworkIcon = (network: ShareNetworkType, className: st
   }
 };
 
-export const getSocialShareUrl = (network: ShareNetworkType, targetUrl: string, shareTitle?: string): string => {
-  const currentLoc = typeof window !== "undefined" ? window.location.href : "";
-  const rawTarget = (targetUrl && targetUrl.trim() !== "#" && targetUrl.trim() !== "") ? targetUrl.trim() : currentLoc;
-  const url = encodeURIComponent(rawTarget);
-  const titleText = shareTitle || (typeof document !== "undefined" && document.title ? document.title : "Check this out");
-  const title = encodeURIComponent(titleText);
-  const whatsappMsg = encodeURIComponent(`${titleText}\n${rawTarget}`);
-  const emailBody = encodeURIComponent(`Check this page: ${rawTarget}`);
+/**
+ * Validates whether a URL is safe to use in social share links.
+ * Blocks javascript:, data:, vbscript:, and file: protocols.
+ */
+export const isSafeShareUrl = (url?: string): boolean => {
+  if (!url) return true;
+  const trimmed = url.trim().toLowerCase();
+  if (
+    trimmed.startsWith("javascript:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("vbscript:") ||
+    trimmed.startsWith("file:")
+  ) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Resolves current page URL from editor pages state or window.location
+ */
+export const getCurrentResolvedPageUrl = (pages?: PageConfig[], activePageId?: string): string => {
+  if (pages && pages.length > 0) {
+    const activePage = pages.find((p) => p.id === activePageId || p.slug === activePageId) || pages[0];
+    if (activePage) {
+      const pagePath = (activePage.slug === "home" || activePage.slug === "/" || activePage.isHome)
+        ? "/"
+        : (activePage.slug.startsWith("/") ? activePage.slug : `/${activePage.slug}`);
+      if (typeof window !== "undefined" && window.location.origin) {
+        return `${window.location.origin}${pagePath}`;
+      }
+      return pagePath;
+    }
+  }
+
+  if (typeof window !== "undefined" && window.location && window.location.href) {
+    return window.location.href;
+  }
+
+  return "https://example.com";
+};
+
+export interface LinkedPageStatus {
+  isLinkedToPage: boolean;
+  pageExists: boolean;
+  pageName?: string;
+  pageSlug?: string;
+}
+
+/**
+ * Resolves destination URL for buttons & link elements dynamically.
+ * Prioritizes stable pageId matching over static hrefs.
+ */
+export const resolveButtonHref = (el: EditorElement, pages?: PageConfig[]): string => {
+  const isCustomUrl = el.destinationType === "url" || el.linkType === "url";
+  const rawUrl = el.href || el.linkUrl;
+
+  // 1. Explicit Custom URL mode with non-empty URL
+  if (isCustomUrl && rawUrl && rawUrl.trim() !== "") {
+    return rawUrl.trim();
+  }
+
+  // 2. Bound to internal page by pageId
+  if (el.pageId && pages && pages.length > 0) {
+    const page = pages.find((p) => p.id === el.pageId);
+    if (page) {
+      return page.slug === "home" || page.isHome ? "/" : (page.slug.startsWith("/") ? page.slug : `/${page.slug}`);
+    }
+  }
+
+  // 3. Fallback raw URL if available
+  if (rawUrl && rawUrl.trim() !== "") {
+    const trimmed = rawUrl.trim();
+    if (pages && pages.length > 0) {
+      const pageBySlug = pages.find((p) => p.slug === trimmed || (trimmed.startsWith("/") && p.slug === trimmed));
+      if (pageBySlug) {
+        return pageBySlug.slug === "home" || pageBySlug.isHome ? "/" : (pageBySlug.slug.startsWith("/") ? pageBySlug.slug : `/${pageBySlug.slug}`);
+      }
+    }
+    return trimmed;
+  }
+
+  // 4. Default Home page route fallback
+  const homePage = pages?.find((p) => p.isHome || p.id === "home") || pages?.[0];
+  if (homePage) {
+    return homePage.slug === "home" || homePage.isHome ? "/" : (homePage.slug.startsWith("/") ? homePage.slug : `/${homePage.slug}`);
+  }
+
+  return "/";
+};
+
+/**
+ * Evaluates whether a button or link points to a valid internal page.
+ */
+export const getLinkedPageStatus = (el: EditorElement, pages?: PageConfig[]): LinkedPageStatus => {
+  const isPageLink = el.destinationType === "page" || el.linkType === "page" || Boolean(el.pageId);
+  if (!isPageLink) {
+    return { isLinkedToPage: false, pageExists: true };
+  }
+
+  if (el.pageId) {
+    const page = pages?.find((p) => p.id === el.pageId);
+    if (page) {
+      return { isLinkedToPage: true, pageExists: true, pageName: page.name, pageSlug: page.slug };
+    }
+    return { isLinkedToPage: true, pageExists: false };
+  }
+
+  const rawUrl = el.href || el.linkUrl;
+  if (rawUrl && pages) {
+    const page = pages.find((p) => p.slug === rawUrl || (rawUrl.startsWith("/") && p.slug === rawUrl));
+    if (page) {
+      return { isLinkedToPage: true, pageExists: true, pageName: page.name, pageSlug: page.slug };
+    }
+  }
+
+  return { isLinkedToPage: true, pageExists: false };
+};
+
+/**
+ * Dynamically resolves target destination URL for Share Buttons element
+ */
+export const resolveShareDestinationUrl = (
+  el: EditorElement,
+  netItem?: ShareNetworkItem,
+  pages?: PageConfig[],
+  activePageId?: string
+): string => {
+  // 1. Individual Button-level Custom URL override
+  if (netItem?.urlSource === "custom" && netItem?.customUrl && netItem.customUrl.trim() !== "") {
+    const raw = netItem.customUrl.trim();
+    return isSafeShareUrl(raw) ? raw : getCurrentResolvedPageUrl(pages, activePageId);
+  }
+
+  // 2. Element-level Custom URL
+  if (el.shareUrlSource === "custom" && el.shareUrl && el.shareUrl.trim() !== "") {
+    const raw = el.shareUrl.trim();
+    return isSafeShareUrl(raw) ? raw : getCurrentResolvedPageUrl(pages, activePageId);
+  }
+
+  // 3. Fallback to Current Page URL
+  return getCurrentResolvedPageUrl(pages, activePageId);
+};
+
+export const getSocialShareUrl = (
+  network: ShareNetworkType,
+  targetUrl: string,
+  shareText?: string,
+  hashtags?: string
+): string => {
+  const safeTarget = isSafeShareUrl(targetUrl) ? targetUrl.trim() : "https://example.com";
+  const url = encodeURIComponent(safeTarget);
+  
+  const textVal = shareText && shareText.trim() !== ""
+    ? shareText.trim()
+    : (typeof document !== "undefined" && document.title ? document.title : "Check this out!");
+  const title = encodeURIComponent(textVal);
+
+  const tagsVal = hashtags && hashtags.trim() !== ""
+    ? hashtags.split(",").map((t) => t.trim().replace(/^#/, "")).filter(Boolean).join(",")
+    : "";
+  const encodedTags = encodeURIComponent(tagsVal);
+
+  const whatsappMsg = encodeURIComponent(`${textVal}\n${safeTarget}`);
+  const emailBody = encodeURIComponent(`${textVal}\n\n${safeTarget}`);
 
   switch (network) {
     case "facebook":
-      return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+      return `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`;
     case "twitter":
-      return `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+      let tw = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+      if (tagsVal) tw += `&hashtags=${encodedTags}`;
+      return tw;
     case "linkedin":
       return `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
     case "whatsapp":
-      return `https://wa.me/?text=${whatsappMsg}`;
+      return `https://api.whatsapp.com/send?text=${whatsappMsg}`;
     case "pinterest":
       return `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`;
     case "reddit":
@@ -6450,16 +6964,22 @@ export const getSocialShareUrl = (network: ShareNetworkType, targetUrl: string, 
 
 export const ShareButtonsWidgetRenderer = ({
   el,
-  isPreview: _isPreview,
+  isPreview,
   mergedStyles,
+  pages,
+  activePageId,
 }: {
   el: EditorElement;
   isPreview?: boolean;
   mergedStyles: ElementStyles;
+  pages?: PageConfig[];
+  activePageId?: string;
 }) => {
-  const networks = el.shareNetworks && el.shareNetworks.length > 0 ? el.shareNetworks : [];
+  const rawNetworks = el.shareNetworks && el.shareNetworks.length > 0 ? el.shareNetworks : [];
+  // Filter out disabled buttons
+  const networks = rawNetworks.filter((n) => !n.isDisabled);
   const layout = el.shareLayout || "horizontal";
-  const align = el.shareAlignment || "left";
+  const align = el.shareAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "left";
   const gap = el.shareGap ?? 10;
   const showLabels = el.shareShowLabels !== false;
   const buttonStyle = el.shareButtonStyle || "brand";
@@ -6484,18 +7004,23 @@ export const ShareButtonsWidgetRenderer = ({
 
   const getFlexJustify = (alignment: string) => {
     if (alignment === "center") return "center";
-    if (alignment === "right") return "flex-end";
+    if (alignment === "right" || alignment === "flex-end") return "flex-end";
+    if (alignment === "between" || alignment === "space-between") return "space-between";
     return "flex-start";
   };
 
   const handleShareClick = async (net: ShareNetworkItem, e: React.MouseEvent) => {
+    // In Editor mode, clicking selects element and does NOT trigger share action or navigate away
+    if (!isPreview) {
+      e.preventDefault();
+      return;
+    }
+
     e.preventDefault();
 
-    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
-    const targetUrl = (net.customUrl && net.customUrl.trim() !== "#" && net.customUrl.trim() !== "")
-      ? net.customUrl.trim()
-      : pageUrl;
-    const shareTitle = (typeof document !== "undefined" && document.title) ? document.title : "Check this out";
+    const targetUrl = resolveShareDestinationUrl(el, net, pages, activePageId);
+    const shareText = net.shareText || el.shareText || "Check this out!";
+    const hashtags = net.hashtags || el.shareHashtags || "";
 
     if (net.network === "copy") {
       try {
@@ -6513,11 +7038,11 @@ export const ShareButtonsWidgetRenderer = ({
           document.body.removeChild(textArea);
         }
         setCopiedNetId(net.id);
-        setToastMessage("Link copied!");
+        setToastMessage(`Link copied! (${targetUrl})`);
         setTimeout(() => {
           setCopiedNetId(null);
           setToastMessage(null);
-        }, 2000);
+        }, 2500);
       } catch {
         setToastMessage("Unable to copy link.");
         setTimeout(() => setToastMessage(null), 3000);
@@ -6525,7 +7050,7 @@ export const ShareButtonsWidgetRenderer = ({
       return;
     }
 
-    const shareUrl = getSocialShareUrl(net.network, targetUrl, shareTitle);
+    const shareUrl = getSocialShareUrl(net.network, targetUrl, shareText, hashtags);
 
     if (net.network === "email") {
       window.location.href = shareUrl;
@@ -6544,71 +7069,84 @@ export const ShareButtonsWidgetRenderer = ({
     }
   };
 
+  const currentResolvedUrl = resolveShareDestinationUrl(el, undefined, pages, activePageId);
+
   return (
-    <div style={{ width: "100%", boxSizing: "border-box" }} className="relative">
+    <div style={{ width: "100%", boxSizing: "border-box" }} className={`w-full flex justify-${getFlexJustify(align) === "flex-end" ? "end" : getFlexJustify(align) === "center" ? "center" : getFlexJustify(align) === "space-between" ? "between" : "start"} relative select-none`}>
       {toastMessage && (
         <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-50 rounded-lg bg-slate-900 text-white px-3 py-1 text-[11px] font-bold shadow-lg animate-in fade-in zoom-in-95">
           {toastMessage}
         </div>
       )}
       {networks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-6 text-center bg-slate-50/50">
-          <p className="text-xs font-bold text-slate-600">No Share Buttons Configured</p>
-          <p className="text-[10px] text-slate-400 mt-1">Use the right properties panel to add social networks.</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-6 text-center bg-slate-50/50 w-full">
+          <p className="text-xs font-bold text-slate-600">No Active Share Buttons</p>
+          <p className="text-[10px] text-slate-400 mt-1">Use the properties inspector to add or enable social share buttons.</p>
         </div>
       ) : (
-        <div
-          className={`flex ${layout === "vertical" ? "flex-col" : "flex-row flex-wrap"}`}
-          style={{
-            gap: `${gap}px`,
-            justifyContent: getFlexJustify(align),
-            alignItems: layout === "vertical" ? (align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start") : "center",
-          }}
-        >
-          {networks.map((net) => {
-            const brand = NETWORK_BRAND_COLORS[net.network] || { bg: "#475569", text: "#ffffff", hoverBg: "#334155" };
+        <div className="space-y-1.5 w-full">
+          {/* Subtle Editor Warning when Custom URL is empty */}
+          {!isPreview && el.shareUrlSource === "custom" && (!el.shareUrl || !el.shareUrl.trim()) && (
+            <div className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-0.5 text-center">
+              ⚠️ Custom URL is empty — using current page ({currentResolvedUrl})
+            </div>
+          )}
 
-            let btnBg = brand.bg;
-            let btnText = brand.text;
-            let btnBorder = "1px solid transparent";
+          <div
+            className={`flex w-full ${layout === "vertical" ? "flex-col" : "flex-row flex-wrap"}`}
+            style={{
+              gap: `${gap}px`,
+              justifyContent: getFlexJustify(align),
+              alignItems: layout === "vertical" ? (align === "center" ? "center" : align === "right" || align === "flex-end" ? "flex-end" : "flex-start") : "center",
+            }}
+          >
+            {networks.map((net) => {
+              const brand = NETWORK_BRAND_COLORS[net.network] || { bg: "#475569", text: "#ffffff", hoverBg: "#334155" };
 
-            if (buttonStyle === "solid") {
-              btnBg = mergedStyles.backgroundColor || "#2563eb";
-              btnText = mergedStyles.color || "#ffffff";
-            } else if (buttonStyle === "outline") {
-              btnBg = "transparent";
-              btnText = brand.bg;
-              btnBorder = `1px solid ${brand.bg}`;
-            }
+              let btnBg = brand.bg;
+              let btnText = brand.text;
+              let btnBorder = "1px solid transparent";
 
-            const isCopied = net.id === copiedNetId;
-            const displayLabel = isCopied
-              ? "Link copied!"
-              : (net.label || (net.network === "twitter" ? "Tweet" : net.network === "copy" ? "Copy Link" : net.network));
+              if (buttonStyle === "solid") {
+                btnBg = mergedStyles.backgroundColor || "#2563eb";
+                btnText = mergedStyles.color || "#ffffff";
+              } else if (buttonStyle === "outline") {
+                btnBg = "transparent";
+                btnText = brand.bg;
+                btnBorder = `1px solid ${brand.bg}`;
+              }
 
-            return (
-              <a
-                key={net.id}
-                href="#"
-                onClick={(e) => handleShareClick(net, e)}
-                className="inline-flex items-center gap-2 rounded-lg font-semibold transition shadow-xs hover:opacity-90 active:scale-95 cursor-pointer"
-                style={{
-                  padding: sizePadding,
-                  fontSize: sizeFontSize,
-                  backgroundColor: isCopied ? "#059669" : btnBg,
-                  color: btnText,
-                  border: btnBorder,
-                  fontFamily: mergedStyles.fontFamily,
-                  borderRadius: mergedStyles.borderRadius || "8px",
-                  textDecoration: "none",
-                }}
-                title={isCopied ? "Link copied!" : `Share on ${net.network}`}
-              >
-                {renderSocialNetworkIcon(net.network, iconSizeClass)}
-                {showLabels && <span>{displayLabel}</span>}
-              </a>
-            );
-          })}
+              const isCopied = net.id === copiedNetId;
+              const displayLabel = isCopied
+                ? "Copied!"
+                : (net.label || (net.network === "twitter" ? "Tweet" : net.network === "copy" ? "Copy Link" : net.network));
+
+              const itemResolvedUrl = resolveShareDestinationUrl(el, net, pages, activePageId);
+
+              return (
+                <a
+                  key={net.id}
+                  href={isPreview ? getSocialShareUrl(net.network, itemResolvedUrl, net.shareText || el.shareText, net.hashtags || el.shareHashtags) : "#"}
+                  onClick={(e) => handleShareClick(net, e)}
+                  className="inline-flex items-center gap-2 rounded-lg font-semibold transition shadow-xs hover:opacity-90 active:scale-95 cursor-pointer"
+                  style={{
+                    padding: sizePadding,
+                    fontSize: sizeFontSize,
+                    backgroundColor: isCopied ? "#059669" : btnBg,
+                    color: btnText,
+                    border: btnBorder,
+                    fontFamily: mergedStyles.fontFamily,
+                    borderRadius: mergedStyles.borderRadius || "8px",
+                    textDecoration: "none",
+                  }}
+                  title={isPreview ? `Share on ${net.network} (${itemResolvedUrl})` : `Share Button: ${net.network}`}
+                >
+                  {renderSocialNetworkIcon(net.network, iconSizeClass)}
+                  {showLabels && <span>{displayLabel}</span>}
+                </a>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -6621,19 +7159,55 @@ export const ShareButtonsWidgetRenderer = ({
 // WOOCOMMERCE STORE WIDGET RENDERERS
 // ==========================================
 
-export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  return <h2 style={styles as React.CSSProperties} className="font-bold text-slate-900">{el.content || el.productTitle || "Sample Product Title"}</h2>;
+  let title = el.content || el.productTitle || "Sample Product Title";
+
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      title = prod.name;
+    } else {
+      title = "⚠️ Product Unavailable";
+    }
+  }
+
+  return <h2 style={styles as React.CSSProperties} className="font-bold text-slate-900">{title}</h2>;
 };
 
-export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  return <div style={styles as React.CSSProperties} className="text-xl font-bold text-emerald-600">{el.content || el.productPrice || "$99.99"}</div>;
+  let price = el.content || el.productPrice || "$99.99";
+  let regularPrice = "";
+
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      price = prod.price;
+      regularPrice = prod.regularPrice || "";
+    } else {
+      price = "$0.00";
+    }
+  }
+
+  return (
+    <div style={styles as React.CSSProperties} className="flex items-baseline gap-2 font-bold text-emerald-600">
+      <span className="text-xl">{price}</span>
+      {regularPrice && <span className="text-xs text-slate-400 line-through font-normal">{regularPrice}</span>}
+    </div>
+  );
 };
 
-export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles }) => {
+export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const imgSrc = el.src || el.productImage || (el.content && (el.content.startsWith("http") || el.content.startsWith("blob:")) ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+  let imgSrc = el.src || el.productImage || (el.content && (el.content.startsWith("http") || el.content.startsWith("blob:")) ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
+
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod && prod.image) {
+      imgSrc = prod.image;
+    }
+  }
 
   const handleLocalImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -6671,13 +7245,421 @@ export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedS
   );
 };
 
-export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const rating = el.productRating ?? 5;
-  const stars = "⭐".repeat(Math.min(5, Math.max(1, Math.round(rating))));
+  let rating = el.productRating ?? 5;
+  let count = el.productRatingCount ?? 128;
+  let text = el.productRatingText;
+
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      rating = prod.rating ?? 5;
+      count = prod.ratingCount ?? 0;
+    }
+  }
+
+  const roundedRating = Math.min(5, Math.max(1, rating));
+  const fullStars = Math.floor(roundedRating);
+  const hasHalfStar = roundedRating % 1 >= 0.5;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
+
+  const starColor = el.productStarColor || "#f59e0b";
+  const starSize = el.productStarSize || "14px";
+
   return (
-    <div style={styles as React.CSSProperties} className="flex items-center gap-1 text-amber-400 font-bold">
-      {stars} <span className="text-xs text-slate-500 ml-1">({el.productRatingText || "4.9 / 5.0 - 128 Reviews"})</span>
+    <div style={styles as React.CSSProperties} className="flex items-center gap-1 font-bold">
+      <span className="flex items-center" style={{ color: starColor, fontSize: starSize }}>
+        {"★".repeat(fullStars)}
+        {hasHalfStar && "½"}
+        {"☆".repeat(emptyStars)}
+      </span>
+      <span className="text-xs text-slate-600 ml-1 font-semibold">
+        {rating.toFixed(1)} <span className="text-slate-400 font-normal">({text || `${count} Reviews`})</span>
+      </span>
     </div>
   );
 };
+
+// ==========================================
+// SEARCH BAR WIDGET RENDERER
+// ==========================================
+export const SearchBarWidgetRenderer = ({
+  el,
+  isPreview,
+  mergedStyles,
+}: {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+}) => {
+  const placeholder = el.searchPlaceholder || el.content || "Search site content, pages & items...";
+  const buttonText = el.searchButtonText || "Search";
+  const icon = el.searchIcon || "🔍";
+  const actionType = el.searchAction || "modal";
+  const redirectUrl = el.searchRedirectUrl || "/search?q=";
+  const showButton = el.searchShowButton !== false;
+
+  const [query, setQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<{ title: string; snippet: string; category: string }[]>([]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    if (actionType === "redirect") {
+      if (isPreview) {
+        window.location.href = `${redirectUrl}${encodeURIComponent(query.trim())}`;
+      } else {
+        alert(`Search triggered for: "${query}". Would redirect to: ${redirectUrl}${encodeURIComponent(query.trim())}`);
+      }
+    } else {
+      const mockMatches = [
+        { title: `Search result for "${query}"`, snippet: "Match found in main website content block.", category: "Page Content" },
+        { title: "Documentation & Resources", snippet: `Articles and help items containing "${query}".`, category: "Guides" },
+        { title: "Product Showcase", snippet: `Catalog items relevant to "${query}".`, category: "Products" },
+      ];
+      setSearchResults(mockMatches);
+      setIsModalOpen(true);
+    }
+  };
+
+  return (
+    <div className="w-full relative select-none">
+      <form
+        onSubmit={handleSearchSubmit}
+        className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm transition hover:border-blue-400 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+        style={mergedStyles as React.CSSProperties}
+      >
+        <span className="pl-2 text-base text-slate-400 shrink-0">{icon}</span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-transparent px-2 py-1 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="text-xs text-slate-400 hover:text-slate-600 px-1 cursor-pointer"
+            title="Clear"
+          >
+            ✕
+          </button>
+        )}
+        {showButton && (
+          <button
+            type="submit"
+            className="shrink-0 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700 active:scale-95 cursor-pointer"
+          >
+            {buttonText}
+          </button>
+        )}
+      </form>
+
+      {/* Interactive Live Search Modal */}
+      {isModalOpen && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl animate-in fade-in zoom-in-95">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+            <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span>🔍 Search Results</span>
+              <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-semibold">"{query}"</span>
+            </h4>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="text-xs text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            {searchResults.map((res, i) => (
+              <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/50 p-2.5 hover:bg-blue-50/50 hover:border-blue-200 transition cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800">{res.title}</span>
+                  <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{res.category}</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">{res.snippet}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
+// IMPORT ASSET WIDGET RENDERER
+// ==========================================
+export const ImportAssetWidgetRenderer = ({
+  el,
+  isPreview,
+  mergedStyles,
+}: {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+}) => {
+  const [assetUrl, setAssetUrl] = useState<string>(el.src || el.href || "");
+  const [assetName, setAssetName] = useState<string>(el.content || el.alt || "Uploaded Asset");
+  const [assetType, setAssetType] = useState<string>(el.assetType || "image");
+  const [isHovered, setIsHovered] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAssetUrl(url);
+      setAssetName(file.name);
+      el.src = url;
+      el.href = url;
+      el.content = file.name;
+
+      if (file.type.startsWith("image/")) {
+        setAssetType("image");
+      } else if (file.type.startsWith("video/")) {
+        setAssetType("video");
+      } else if (file.type.startsWith("audio/")) {
+        setAssetType("audio");
+      } else {
+        setAssetType("file");
+      }
+    }
+  };
+
+  return (
+    <div
+      className="w-full relative rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/30 p-6 text-center transition hover:border-blue-500 hover:bg-blue-50/60"
+      style={mergedStyles as React.CSSProperties}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.json"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {assetUrl ? (
+        <div className="flex flex-col items-center justify-center gap-3">
+          {assetType === "image" && (
+            <img src={assetUrl} alt={assetName} className="max-h-48 rounded-xl object-contain shadow-md" />
+          )}
+          {assetType === "video" && (
+            <video src={assetUrl} controls className="max-h-48 w-full rounded-xl shadow-md" />
+          )}
+          {assetType === "audio" && (
+            <audio src={assetUrl} controls className="w-full" />
+          )}
+          {assetType === "file" && (
+            <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+              <span className="text-2xl">📄</span>
+              <div className="text-left">
+                <span className="block text-xs font-bold text-slate-800">{assetName}</span>
+                <a href={assetUrl} download className="text-[11px] font-semibold text-blue-600 hover:underline">Download Asset</a>
+              </div>
+            </div>
+          )}
+
+          {!isPreview && isHovered && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+            >
+              <span>📁 Replace Asset</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-2 cursor-pointer" onClick={() => !isPreview && fileInputRef.current?.click()}>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 text-xl font-bold">
+            📁
+          </div>
+          <h4 className="text-sm font-bold text-slate-800">Import Asset / Upload File</h4>
+          <p className="text-xs text-slate-500 max-w-xs">Click to browse or drop images, vectors, videos & document assets here.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
+// REUSABLE COMPONENT WIDGET RENDERER
+// ==========================================
+export const ReusableComponentWidgetRenderer = ({
+  el,
+  isPreview: _isPreview,
+  mergedStyles,
+}: {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+}) => {
+  const compName = el.componentName || el.content || "Saved Reusable Component";
+
+  return (
+    <div
+      className="w-full rounded-2xl border border-purple-300 bg-purple-50/40 p-5 transition shadow-xs hover:border-purple-400"
+      style={mergedStyles as React.CSSProperties}
+    >
+      <div className="flex items-center justify-between mb-3 border-b border-purple-200/60 pb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🧩</span>
+          <span className="text-xs font-bold text-purple-900">{compName}</span>
+        </div>
+        <span className="text-[9px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-200/60 px-2 py-0.5 rounded-full">
+          Reusable Block
+        </span>
+      </div>
+
+      <div className="text-xs text-purple-800 leading-relaxed font-medium">
+        {el.content || "Dynamic Reusable Component instance rendered on canvas."}
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// FAVORITE WIDGETS WIDGET RENDERER
+// ==========================================
+export const FavoriteWidgetsWidgetRenderer = ({
+  el: _el,
+  isPreview: _isPreview,
+  mergedStyles,
+}: {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+}) => {
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("forgestudio_favorite_widgets");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return ["heading", "text", "button", "image"];
+  });
+
+  const [favComponents, setFavComponents] = useState<Array<{ id: string; name: string }>>(() => {
+    try {
+      const saved = localStorage.getItem("forgestudio_reusable_components");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Object.entries(parsed)
+          .filter(([_id, c]: any) => c.isFavorite)
+          .map(([id, c]: any) => ({ id, name: c.name }));
+      }
+    } catch {}
+    return [];
+  });
+
+  useEffect(() => {
+    const handleStorage = () => {
+      try {
+        const savedFavs = localStorage.getItem("forgestudio_favorite_widgets");
+        if (savedFavs) setFavorites(JSON.parse(savedFavs));
+        const savedComps = localStorage.getItem("forgestudio_reusable_components");
+        if (savedComps) {
+          const parsed = JSON.parse(savedComps);
+          setFavComponents(
+            Object.entries(parsed)
+              .filter(([_id, c]: any) => c.isFavorite)
+              .map(([id, c]: any) => ({ id, name: c.name }))
+          );
+        }
+      } catch {}
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const widgetIcons: Record<string, string> = {
+    container: "📦",
+    heading: "🔤",
+    text: "📝",
+    image: "🖼️",
+    button: "🔘",
+    posts: "📰",
+    "share-buttons": "🔗",
+    portfolio: "💼",
+    slides: "🎞️",
+    form: "📋",
+    login: "🔐",
+    "nav-menu": "🧭",
+    "animated-headline": "✨",
+    "price-table": "🏷️",
+    "price-list": "📋",
+    gallery: "🖼️",
+    "flip-box": "🔄",
+    "call-to-action": "🎯",
+    "media-carousel": "🎡",
+    "testimonial-carousel": "💬",
+    "search-bar": "🔍",
+    "import-asset": "📁",
+    lottie: "🎨",
+    "code-highlight": "💻",
+    "video-playlist": "📺",
+    "mega-menu": "📑",
+    "off-canvas": "🚪",
+  };
+
+  return (
+    <div
+      className="w-full rounded-2xl border border-amber-300 bg-amber-50/40 p-5 shadow-sm transition hover:border-amber-400"
+      style={mergedStyles as React.CSSProperties}
+    >
+      <div className="flex items-center justify-between border-b border-amber-200/80 pb-3 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white text-base shadow-sm">
+            ⭐
+          </span>
+          <div>
+            <h3 className="text-sm font-bold text-amber-950">Favorite Widgets & Quick Access</h3>
+            <p className="text-[11px] font-medium text-amber-700/80">Pinned website widgets and custom components</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-amber-200/80 px-2.5 py-1 text-[10px] font-extrabold text-amber-900 uppercase tracking-wider">
+          {favorites.length + favComponents.length} Pinned Items
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {favorites.map((type) => (
+          <div
+            key={`canvas_fav_${type}`}
+            className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-white p-3 shadow-xs hover:border-amber-400 hover:shadow-sm transition"
+          >
+            <span className="text-xl">{widgetIcons[type] || "📦"}</span>
+            <div className="overflow-hidden">
+              <span className="block text-xs font-bold text-slate-800 capitalize truncate">{type.replace("-", " ")}</span>
+              <span className="block text-[9px] font-semibold text-amber-600">Favorite Widget</span>
+            </div>
+          </div>
+        ))}
+
+        {favComponents.map((comp) => (
+          <div
+            key={`canvas_fav_comp_${comp.id}`}
+            className="flex items-center gap-2.5 rounded-xl border border-purple-200 bg-purple-50/80 p-3 shadow-xs hover:border-purple-400 hover:shadow-sm transition"
+          >
+            <span className="text-xl">🧩</span>
+            <div className="overflow-hidden">
+              <span className="block text-xs font-bold text-purple-900 truncate">{comp.name}</span>
+              <span className="block text-[9px] font-semibold text-purple-600">Reusable Component</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
