@@ -1,0 +1,62 @@
+name: Production Build Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feature/elementor-parity-foundation]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend TypeScript + Vite build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+
+  backend:
+    name: Backend TypeScript + Prisma build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Prisma 7 reads DATABASE_URL from prisma.config.ts even for `prisma generate`.
+      # Generation does not connect to the database, so CI uses a syntactically valid
+      # placeholder instead of requiring production credentials or network access.
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/forgestudio_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Build
+        run: npm run build
