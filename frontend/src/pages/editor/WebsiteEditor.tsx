@@ -31,12 +31,9 @@ import {
 
 
 // Extracted Modular Imports
-export * from "./types";
+export type { EditorElement, ElementStyles, ContainerLayout, Breakpoint, ElementType } from "./types";
 import { type SiteProduct } from "./types";
-export * from "./utils";
 import { IconRenderer } from "./widgets/icons";
-export * from "./defaults";
-export * from "./widgets";
 import {
   triggerImagePicker,
   ImageWidgetInspector,
@@ -817,17 +814,17 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
 // F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
 const [siteParts, setSiteParts] = useState<SitePartsConfig>({
-  header: { isEnabled: true, elements: [] },
-  footer: { isEnabled: true, elements: [] },
+  header: { enabled: true, elements: [] },
+  footer: { enabled: true, elements: [] },
 });
 
 // F-PUBLISH: Publishing State & Deployment Configuration (Comment 8)
 const [publishing, setPublishing] = useState<PublishingState>({
   status: "DRAFT",
-  version: 1,
+  publishedVersion: 1,
 });
 const [deployment, setDeployment] = useState<DeploymentConfig>({
-  provider: "none",
+  provider: "static",
 });
 
 // Canvas Editing Target Mode: "page" | "header" | "footer"
@@ -1581,13 +1578,13 @@ const navigate = useNavigate();
           if (loadedSite?.editorData?.siteParts) {
             setSiteParts({
               header: {
-                isEnabled: loadedSite.editorData.siteParts.header?.isEnabled ?? true,
+                enabled: loadedSite.editorData.siteParts.header?.enabled ?? true,
                 elements: Array.isArray(loadedSite.editorData.siteParts.header?.elements)
                   ? loadedSite.editorData.siteParts.header.elements
                   : [],
               },
               footer: {
-                isEnabled: loadedSite.editorData.siteParts.footer?.isEnabled ?? true,
+                enabled: loadedSite.editorData.siteParts.footer?.enabled ?? true,
                 elements: Array.isArray(loadedSite.editorData.siteParts.footer?.elements)
                   ? loadedSite.editorData.siteParts.footer.elements
                   : [],
@@ -1914,11 +1911,11 @@ const navigate = useNavigate();
   const handlePublishWebsite = async () => {
     if (!websiteId) return;
     const now = new Date().toISOString();
-    const nextVer = (publishing.version || 1) + 1;
+    const nextVer = (publishing.publishedVersion || 1) + 1;
     const updatedPub: PublishingState = {
       ...publishing,
       status: "PUBLISHED",
-      version: nextVer,
+      publishedVersion: nextVer,
       publishedAt: now,
       publishedBy: (website as any)?.userId,
     };
@@ -1940,11 +1937,11 @@ const navigate = useNavigate();
         homePageId,
         siteParts: {
           header: {
-            isEnabled: siteParts.header?.isEnabled ?? true,
+            enabled: siteParts.header?.enabled ?? true,
             elements: canonicalHeaderElements,
           },
           footer: {
-            isEnabled: siteParts.footer?.isEnabled ?? true,
+            enabled: siteParts.footer?.enabled ?? true,
             elements: canonicalFooterElements,
           },
         },
@@ -2002,11 +1999,11 @@ const navigate = useNavigate();
           homePageId,
           siteParts: {
             header: {
-              isEnabled: siteParts.header?.isEnabled ?? true,
+              enabled: siteParts.header?.enabled ?? true,
               elements: canonicalHeaderElements,
             },
             footer: {
-              isEnabled: siteParts.footer?.isEnabled ?? true,
+              enabled: siteParts.footer?.enabled ?? true,
               elements: canonicalFooterElements,
             },
           },
@@ -7641,7 +7638,7 @@ onClick={() => importFileInputRef.current?.click()}
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
-                      {siteParts.header?.isEnabled && siteParts.header.elements.length > 0 && (
+                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -7666,7 +7663,7 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
-                      {siteParts.footer?.isEnabled && siteParts.footer.elements.length > 0 && (
+                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -7731,7 +7728,7 @@ onClick={() => importFileInputRef.current?.click()}
                 {canvasMode === "page" && (
                   <>
                     {/* Shared Global Header Preview Banner in Page Mode */}
-                    {siteParts.header?.isEnabled && (
+                    {siteParts.header?.enabled && (
                       <div className="mb-6 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
                         <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
                           <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -7796,7 +7793,7 @@ onClick={() => importFileInputRef.current?.click()}
                 )}
 
                 {/* Shared Global Footer Preview Banner in Page Mode */}
-                {canvasMode === "page" && siteParts.footer?.isEnabled && (
+                {canvasMode === "page" && siteParts.footer?.enabled && (
                   <div className="mt-8 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
                     <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
                       <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -17203,6 +17200,9 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         onOpenPreview={() => {
           setIsPublishModalOpen(false);
           setIsPreview(true);
+        }}
+      />
+
       {/* Advanced Icon Library Modal */}
       <IconPickerModal
         isOpen={isIconPickerOpen}

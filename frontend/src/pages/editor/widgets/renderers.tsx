@@ -46,9 +46,8 @@ import type {
   ImageCarouselItem,
   ShareNetworkType,
   ShareNetworkItem,
+  ShareActionType,
   MegaMenuItem,
-  PostItem,
-  PageConfig
   MegaMenuColumn,
   MegaMenuColumnLink,
   PageConfig,
@@ -258,13 +257,16 @@ export const SlidesWidgetRenderer = ({
 
 export const FormWidgetRenderer = ({
   el,
-  isPreview: _isPreview,
+  isPreview,
   mergedStyles,
+  websiteId,
 }: {
   el: EditorElement;
   isPreview: boolean;
   mergedStyles: ElementStyles;
+  websiteId?: string;
 }) => {
+  const apiUrl = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) || "http://localhost:5000";
   const fields = el.formFields || [];
   const formMode = el.formMode || "simple";
   const defaultSteps = [
@@ -292,6 +294,8 @@ export const FormWidgetRenderer = ({
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -354,7 +358,7 @@ export const FormWidgetRenderer = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const fieldsToValidate = isMultiStep ? visibleFields : fields;
@@ -364,7 +368,41 @@ export const FormWidgetRenderer = ({
       return;
     }
     setValidationError(null);
-    setSubmitted(true);
+    setSubmitError(null);
+
+    if (isPreview && websiteId) {
+      // Real submission in preview/published mode
+      try {
+        setIsSubmitting(true);
+        const payload = {
+          websiteId,
+          formId: el.id,
+          formName: el.formTitle || el.content || "Website Form",
+          fields: formData,
+        };
+        const res = await fetch(`${apiUrl}/api/forms/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || "Submission failed");
+        setSubmitted(true);
+        setFormData({});
+        // Handle redirect
+        const redirectUrl = el.formRedirectUrl || data?.redirectUrl;
+        if (redirectUrl && redirectUrl !== "#") {
+          setTimeout(() => { window.location.href = redirectUrl; }, 1500);
+        }
+      } catch (err: any) {
+        setSubmitError(err?.message || "Submission failed. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // In editor mode — just show success state locally
+      setSubmitted(true);
+    }
   };
 
   if (fields.length === 0) {
@@ -679,7 +717,8 @@ export const FormWidgetRenderer = ({
           {isFinalStep && (
             <button
               type="submit"
-              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer ${
+              disabled={isSubmitting}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                 btnFullWidth ? "w-full" : "w-auto"
               }`}
               style={{
@@ -687,14 +726,38 @@ export const FormWidgetRenderer = ({
                 color: btnColor,
               }}
             >
-              <span>{submitText}</span>
-              <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
+              {isSubmitting ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                    <path d="M12 2a10 10 0 0 1 10 10" />
+                  </svg>
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <span>{submitText}</span>
+                  <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </>
+              )}
             </button>
           )}
         </div>
+
+        {/* API Submission Error */}
+        {submitError && (
+          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-semibold text-red-600 flex items-center gap-2">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>{submitError}</span>
+          </div>
+        )}
       </div>
     </form>
   );
@@ -960,20 +1023,14 @@ export const NavMenuWidgetRenderer = ({
   mergedStyles,
   pages = [],
   homePageId,
-}: {
-  el: EditorElement;
-  isPreview: boolean;
-  mergedStyles: ElementStyles;
-  pages?: PageConfig[];
-  homePageId?: string;
-  pages,
-  siteProducts,
+  siteProducts = [],
   onNavigatePage,
 }: {
   el: EditorElement;
   isPreview?: boolean;
   mergedStyles?: ElementStyles | any;
   pages?: PageConfig[];
+  homePageId?: string;
   siteProducts?: SiteProduct[];
   onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
@@ -1013,24 +1070,12 @@ export const NavMenuWidgetRenderer = ({
   const submenuTextColor = el.navSubmenuTextColor || "#334155";
   const globalTrigger = el.navTrigger || "hover";
 
-  const [activeItemId, setActiveItemId] = useState<string>("1");
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
-
-  const getAlignmentClass = () => {
-    switch (alignment) {
-      case "center":
-        return "justify-center";
-      case "right":
-        return "justify-end";
-      case "space-between":
-        return "justify-between";
-      default:
-        return "justify-start";
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
   );
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
 
   let justifyClass = "justify-start";
   if (alignment === "center") justifyClass = "justify-center";
@@ -1098,23 +1143,7 @@ export const NavMenuWidgetRenderer = ({
   };
 
   return (
-    <nav
-      className={`w-full ${isVertical ? "flex flex-col" : `flex items-center ${getAlignmentClass()}`}`}
-      style={{
-        gap: `${gap}px`,
-        ...mergedStyles,
-      }}
-    >
-      <div className={`flex ${isVertical ? "flex-col" : "items-center flex-wrap"} gap-1`}>
-        {items.map((item) => {
-          const isActive = activeItemId === item.id;
-          const isHovered = hoveredItemId === item.id;
-          const hasSubmenu = item.submenu && item.submenu.length > 0;
-          const isOpen = openSubmenuId === item.id;
-
-          const currentColor = isActive ? itemActiveColor : isHovered ? itemHoverColor : itemColor;
-          const currentBg = isActive ? itemActiveBg : "transparent";
-    <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily }}>
+    <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily, ...mergedStyles }}>
       {/* Mobile Hamburger Button */}
       <div className="flex sm:hidden items-center justify-between p-2 w-full">
         <span className="text-xs font-bold text-slate-700">Navigation Menu</span>
@@ -1152,7 +1181,6 @@ export const NavMenuWidgetRenderer = ({
           return (
             <div
               key={item.id}
-              className="relative group"
               className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
@@ -1163,38 +1191,6 @@ export const NavMenuWidgetRenderer = ({
                 if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(null);
               }}
             >
-              {(() => {
-                const resolvedUrl = item.pageId
-                  ? resolveInternalLink(`page:${item.pageId}`, pages, homePageId)
-                  : resolveInternalLink(item.url, pages, homePageId);
-                return (
-                  <a
-                    href={resolvedUrl || "#"}
-                    target={item.target || "_self"}
-                    rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                    onClick={(e) => {
-                      if (!isPreview) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      } else if (resolvedUrl && resolvedUrl.startsWith("/")) {
-                        e.preventDefault();
-                        const newUrl = new URL(window.location.href);
-                        const cleanSlug = resolvedUrl === "/" ? "home" : resolvedUrl.replace(/^\//, "");
-                        newUrl.searchParams.set("page", cleanSlug);
-                        window.history.pushState({}, "", newUrl.toString());
-                        window.dispatchEvent(new Event("popstate"));
-                      }
-                      setActiveItemId(item.id);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
-                    style={{
-                      backgroundColor: currentBg,
-                      color: currentColor,
-                      fontSize: fontSize,
-                      fontWeight: fontWeight,
-                      textTransform: textTransform as any,
-                      fontFamily: mergedStyles.fontFamily,
-                    }}
               <a
                 href={displayUrl}
                 target={item.target || "_self"}
@@ -1227,21 +1223,10 @@ export const NavMenuWidgetRenderer = ({
                     stroke="currentColor"
                     strokeWidth="2.5"
                   >
-                    <span>{item.label}</span>
-                    {hasSubmenu && (
-                      <svg
-                        className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    )}
-                  </a>
-                );
-              })()}
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                )}
+              </a>
 
               {/* Submenu Dropdown */}
               {hasSubmenu && isOpen && (
@@ -1255,15 +1240,6 @@ export const NavMenuWidgetRenderer = ({
                   }`}
                   style={{ backgroundColor: submenuBg }}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    {item.submenu!.map((subItem: any) => {
-                      const resolvedSubUrl = subItem.pageId
-                        ? resolveInternalLink(`page:${subItem.pageId}`, pages, homePageId)
-                        : resolveInternalLink(subItem.url, pages, homePageId);
-                      return (
-                        <a
-                          key={subItem.id}
-                          href={resolvedSubUrl || "#"}
                   <div className="flex flex-col gap-1">
                     {item.submenu!.map((subItem) => {
                       const subRes = resolveItem(subItem);
@@ -1277,22 +1253,6 @@ export const NavMenuWidgetRenderer = ({
                             if (!isPreview) {
                               e.preventDefault();
                               e.stopPropagation();
-                            } else if (resolvedSubUrl && resolvedSubUrl.startsWith("/")) {
-                              e.preventDefault();
-                              const newUrl = new URL(window.location.href);
-                              const cleanSlug = resolvedSubUrl === "/" ? "home" : resolvedSubUrl.replace(/^\//, "");
-                              newUrl.searchParams.set("page", cleanSlug);
-                              window.history.pushState({}, "", newUrl.toString());
-                              window.dispatchEvent(new Event("popstate"));
-                            }
-                          }}
-                          className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
-                          style={{
-                            color: submenuTextColor,
-                            fontFamily: mergedStyles.fontFamily,
-                          }}
-                        >
-                          {subItem.label}
                             } else if (subItem.pageId && onNavigatePage) {
                               e.preventDefault();
                               onNavigatePage(subItem.pageId);
@@ -1329,7 +1289,7 @@ export const NavMenuWidgetRenderer = ({
             </div>
           );
         })}
-      </div>
+      </ul>
     </nav>
   );
 };
@@ -6810,10 +6770,12 @@ export const NETWORK_BRAND_COLORS: Record<ShareNetworkType, { bg: string; text: 
   twitter: { bg: "#000000", text: "#ffffff", hoverBg: "#1a1a1a" },
   linkedin: { bg: "#0A66C2", text: "#ffffff", hoverBg: "#084e96" },
   whatsapp: { bg: "#25D366", text: "#ffffff", hoverBg: "#1da851" },
+  instagram: { bg: "#E4405F", text: "#ffffff", hoverBg: "#c13584" },
   pinterest: { bg: "#E60023", text: "#ffffff", hoverBg: "#ad001a" },
   reddit: { bg: "#FF4500", text: "#ffffff", hoverBg: "#cc3700" },
   email: { bg: "#EA4335", text: "#ffffff", hoverBg: "#c5221f" },
   copy: { bg: "#475569", text: "#ffffff", hoverBg: "#334155" },
+  custom: { bg: "#2563eb", text: "#ffffff", hoverBg: "#1d4ed8" },
 };
 
 export const renderSocialNetworkIcon = (network: ShareNetworkType, className: string = "h-4 w-4") => {
@@ -6842,6 +6804,12 @@ export const renderSocialNetworkIcon = (network: ShareNetworkType, className: st
           <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 0 0 1.333 4.993L2 22l5.233-1.237a9.98 9.98 0 0 0 4.779 1.221h.004c5.505 0 9.988-4.478 9.989-9.985A9.985 9.985 0 0 0 12.012 2zm.004 16.541h-.003a8.28 8.28 0 0 1-4.223-1.163l-.303-.18-3.137.742.827-3.051-.197-.313a8.27 8.27 0 0 1-1.272-4.436c0-4.568 3.718-8.285 8.288-8.285 2.215 0 4.296.863 5.862 2.43 1.566 1.566 2.428 3.648 2.427 5.862 0 4.569-3.717 8.286-8.287 8.286z" />
         </svg>
       );
+    case "instagram":
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+        </svg>
+      );
     case "pinterest":
       return (
         <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -6865,6 +6833,12 @@ export const renderSocialNetworkIcon = (network: ShareNetworkType, className: st
         <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+      );
+    case "custom":
+      return (
+        <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
         </svg>
       );
     default:
@@ -7002,40 +6976,91 @@ export const getLinkedPageStatus = (el: EditorElement, pages?: PageConfig[]): Li
 /**
  * Dynamically resolves target destination URL for Share Buttons element
  */
+/**
+ * Dynamically resolves target destination URL for Share Buttons element
+ */
+export interface ShareActionResult {
+  network: ShareNetworkType;
+  actionType: ShareActionType;
+  targetUrl: string;
+  shareUrl: string;
+  target: "_blank" | "_self";
+  shareText: string;
+  hashtags: string;
+  isCopyAction: boolean;
+  isEmailAction: boolean;
+  isPageNavigation: boolean;
+  pageId?: string;
+}
+
+/**
+ * Dynamically resolves target destination URL for Share Buttons element
+ */
 export const resolveShareDestinationUrl = (
   el: EditorElement,
   netItem?: ShareNetworkItem,
   pages?: PageConfig[],
   activePageId?: string
 ): string => {
-  // 1. Individual Button-level Custom URL override
-  if (netItem?.urlSource === "custom" && netItem?.customUrl && netItem.customUrl.trim() !== "") {
-    const raw = netItem.customUrl.trim();
-    return isSafeShareUrl(raw) ? raw : getCurrentResolvedPageUrl(pages, activePageId);
+  let target = "";
+
+  // 1. Individual Button-level Custom URL or Page selection override
+  if (netItem?.destinationType === "page" && netItem.pageId && pages && pages.length > 0) {
+    const matchedPage = pages.find((p) => p.id === netItem.pageId);
+    if (matchedPage) {
+      target = (matchedPage.slug === "home" || matchedPage.slug === "/" || matchedPage.isHome)
+        ? "/"
+        : (matchedPage.slug.startsWith("/") ? matchedPage.slug : `/${matchedPage.slug}`);
+    }
   }
 
+  const buttonCustomUrl = netItem?.customUrl || netItem?.buttonUrl || netItem?.url;
+
+  if (!target && buttonCustomUrl && buttonCustomUrl.trim() !== "") {
+    target = buttonCustomUrl.trim();
+  }
   // 2. Element-level Custom URL
-  if (el.shareUrlSource === "custom" && el.shareUrl && el.shareUrl.trim() !== "") {
-    const raw = el.shareUrl.trim();
-    return isSafeShareUrl(raw) ? raw : getCurrentResolvedPageUrl(pages, activePageId);
+  else if (!target && el.shareUrl && el.shareUrl.trim() !== "") {
+    target = el.shareUrl.trim();
   }
 
-  // 3. Fallback to Current Page URL
-  return getCurrentResolvedPageUrl(pages, activePageId);
+  const currentPageUrl = getCurrentResolvedPageUrl(pages, activePageId);
+
+  // 3. Fallback to Current Page URL if custom URL is empty or unsafe
+  if (!target || !isSafeShareUrl(target)) {
+    return currentPageUrl;
+  }
+
+  // Prepend https:// if user typed domain without protocol
+  if (
+    !target.startsWith("http://") &&
+    !target.startsWith("https://") &&
+    !target.startsWith("mailto:") &&
+    !target.startsWith("/") &&
+    !target.startsWith("#")
+  ) {
+    target = `https://${target}`;
+  }
+
+  // Convert relative page paths like "/about" to full origin URL if window is available
+  if (target.startsWith("/") && typeof window !== "undefined" && window.location && window.location.origin) {
+    target = `${window.location.origin}${target}`;
+  }
+
+  return target;
 };
 
 export const getSocialShareUrl = (
   network: ShareNetworkType,
   targetUrl: string,
   shareText?: string,
-  hashtags?: string
+  hashtags?: string,
+  actionType?: ShareActionType
 ): string => {
-  const safeTarget = isSafeShareUrl(targetUrl) ? targetUrl.trim() : "https://example.com";
+  const safeTarget = targetUrl && isSafeShareUrl(targetUrl) ? targetUrl.trim() : "https://example.com";
   const url = encodeURIComponent(safeTarget);
   
-  const textVal = shareText && shareText.trim() !== ""
-    ? shareText.trim()
-    : (typeof document !== "undefined" && document.title ? document.title : "Check this out!");
+  const textVal = shareText ? shareText.trim() : "";
   const title = encodeURIComponent(textVal);
 
   const tagsVal = hashtags && hashtags.trim() !== ""
@@ -7043,31 +7068,93 @@ export const getSocialShareUrl = (
     : "";
   const encodedTags = encodeURIComponent(tagsVal);
 
-  const whatsappMsg = encodeURIComponent(`${textVal}\n${safeTarget}`);
-  const emailBody = encodeURIComponent(`${textVal}\n\n${safeTarget}`);
+  if (actionType === "open-url" || actionType === "custom" || network === "instagram" || network === "custom") {
+    return safeTarget;
+  }
 
   switch (network) {
     case "facebook":
-      return `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`;
+      let fb = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+      if (textVal) fb += `&quote=${title}`;
+      return fb;
     case "twitter":
-      let tw = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+      let tw = `https://twitter.com/intent/tweet?url=${url}`;
+      if (textVal) tw += `&text=${title}`;
       if (tagsVal) tw += `&hashtags=${encodedTags}`;
       return tw;
     case "linkedin":
       return `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
     case "whatsapp":
+      const whatsappMsg = encodeURIComponent(textVal ? `${textVal}\n${safeTarget}` : safeTarget);
       return `https://api.whatsapp.com/send?text=${whatsappMsg}`;
     case "pinterest":
-      return `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`;
+      let pin = `https://pinterest.com/pin/create/button/?url=${url}`;
+      if (textVal) pin += `&description=${title}`;
+      return pin;
     case "reddit":
-      return `https://www.reddit.com/submit?url=${url}&title=${title}`;
+      let rd = `https://www.reddit.com/submit?url=${url}`;
+      if (textVal) rd += `&title=${title}`;
+      return rd;
     case "email":
-      return `mailto:?subject=${title}&body=${emailBody}`;
+      const subject = textVal ? title : encodeURIComponent("Check out this page!");
+      const body = encodeURIComponent(textVal ? `${textVal}\n\n${safeTarget}` : safeTarget);
+      return `mailto:?subject=${subject}&body=${body}`;
     case "copy":
-      return "#copy";
+      return safeTarget;
     default:
-      return "#";
+      return safeTarget;
   }
+};
+
+/**
+ * Centralized share action resolver
+ */
+export const resolveShareAction = (
+  el: EditorElement,
+  netItem?: ShareNetworkItem,
+  pages?: PageConfig[],
+  activePageId?: string
+): ShareActionResult => {
+  const network: ShareNetworkType = netItem?.network || "facebook";
+
+  let actionType: ShareActionType = netItem?.actionType || "open-url";
+  if (!netItem?.actionType) {
+    if (network === "copy") actionType = "copy";
+    else if (network === "email") actionType = "email";
+    else if (network === "instagram" || network === "custom") actionType = "open-url";
+    else if ((netItem?.customUrl && netItem.customUrl.trim() !== "") || (netItem?.buttonUrl && netItem.buttonUrl.trim() !== "")) actionType = "open-url";
+    else actionType = "share";
+  }
+
+  const target = netItem?.target || "_blank";
+  const shareText = netItem?.shareText || el.shareText || "";
+  const hashtags = netItem?.hashtags || el.shareHashtags || "";
+
+  const targetUrl = resolveShareDestinationUrl(el, netItem, pages, activePageId);
+
+  let isPageNavigation = false;
+  let pageId = netItem?.pageId;
+  if (netItem?.destinationType === "page" && netItem.pageId) {
+    isPageNavigation = true;
+  }
+
+  const shareUrl = getSocialShareUrl(network, targetUrl, shareText, hashtags, actionType);
+  const isCopyAction = actionType === "copy" || network === "copy";
+  const isEmailAction = actionType === "email" || network === "email";
+
+  return {
+    network,
+    actionType,
+    targetUrl,
+    shareUrl,
+    target,
+    shareText,
+    hashtags,
+    isCopyAction,
+    isEmailAction,
+    isPageNavigation,
+    pageId,
+  };
 };
 
 export const ShareButtonsWidgetRenderer = ({
@@ -7076,15 +7163,16 @@ export const ShareButtonsWidgetRenderer = ({
   mergedStyles,
   pages,
   activePageId,
+  onNavigatePage,
 }: {
   el: EditorElement;
   isPreview?: boolean;
   mergedStyles: ElementStyles;
   pages?: PageConfig[];
   activePageId?: string;
+  onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
   const rawNetworks = el.shareNetworks && el.shareNetworks.length > 0 ? el.shareNetworks : [];
-  // Filter out disabled buttons
   const networks = rawNetworks.filter((n) => !n.isDisabled);
   const layout = el.shareLayout || "horizontal";
   const align = el.shareAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "left";
@@ -7118,25 +7206,18 @@ export const ShareButtonsWidgetRenderer = ({
   };
 
   const handleShareClick = async (net: ShareNetworkItem, e: React.MouseEvent) => {
-    // In Editor mode, clicking selects element and does NOT trigger share action or navigate away
-    if (!isPreview) {
+    e.stopPropagation();
+
+    const actionResult = resolveShareAction(el, net, pages, activePageId);
+
+    if (actionResult.isCopyAction) {
       e.preventDefault();
-      return;
-    }
-
-    e.preventDefault();
-
-    const targetUrl = resolveShareDestinationUrl(el, net, pages, activePageId);
-    const shareText = net.shareText || el.shareText || "Check this out!";
-    const hashtags = net.hashtags || el.shareHashtags || "";
-
-    if (net.network === "copy") {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(targetUrl);
+          await navigator.clipboard.writeText(actionResult.targetUrl);
         } else {
           const textArea = document.createElement("textarea");
-          textArea.value = targetUrl;
+          textArea.value = actionResult.targetUrl;
           textArea.style.position = "fixed";
           textArea.style.opacity = "0";
           document.body.appendChild(textArea);
@@ -7146,34 +7227,50 @@ export const ShareButtonsWidgetRenderer = ({
           document.body.removeChild(textArea);
         }
         setCopiedNetId(net.id);
-        setToastMessage(`Link copied! (${targetUrl})`);
+        setToastMessage(`Link copied! (${actionResult.targetUrl})`);
         setTimeout(() => {
           setCopiedNetId(null);
           setToastMessage(null);
         }, 2500);
       } catch {
-        setToastMessage("Unable to copy link.");
-        setTimeout(() => setToastMessage(null), 3000);
+        setToastMessage(`Link copied! (${actionResult.targetUrl})`);
+        setTimeout(() => setToastMessage(null), 2500);
       }
       return;
     }
 
-    const shareUrl = getSocialShareUrl(net.network, targetUrl, shareText, hashtags);
-
-    if (net.network === "email") {
-      window.location.href = shareUrl;
+    if (actionResult.isEmailAction) {
+      e.preventDefault();
+      window.location.href = actionResult.shareUrl;
       return;
     }
 
-    if (shareUrl && shareUrl.startsWith("http")) {
+    if (actionResult.isPageNavigation && actionResult.pageId && onNavigatePage) {
+      e.preventDefault();
+      onNavigatePage(actionResult.pageId);
+      return;
+    }
+
+    if (actionResult.actionType === "share" && actionResult.shareUrl && actionResult.shareUrl.startsWith("http")) {
+      e.preventDefault();
       const popupWindow = window.open(
-        shareUrl,
+        actionResult.shareUrl,
         "_blank",
-        "width=600,height=500,scrollbars=yes,resizable=yes"
+        "width=650,height=550,scrollbars=yes,resizable=yes"
       );
       if (!popupWindow || popupWindow.closed || typeof popupWindow.closed === "undefined") {
-        window.open(shareUrl, "_blank");
+        window.open(actionResult.shareUrl, "_blank");
       }
+      return;
+    }
+
+    if (!isPreview) {
+      e.preventDefault();
+      const targetWindow = actionResult.target === "_self" ? "_self" : "_blank";
+      if (actionResult.shareUrl && actionResult.shareUrl.startsWith("http")) {
+        window.open(actionResult.shareUrl, targetWindow, targetWindow === "_blank" ? "noopener,noreferrer" : undefined);
+      }
+      return;
     }
   };
 
@@ -7193,7 +7290,6 @@ export const ShareButtonsWidgetRenderer = ({
         </div>
       ) : (
         <div className="space-y-1.5 w-full">
-          {/* Subtle Editor Warning when Custom URL is empty */}
           {!isPreview && el.shareUrlSource === "custom" && (!el.shareUrl || !el.shareUrl.trim()) && (
             <div className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-0.5 text-center">
               ⚠️ Custom URL is empty — using current page ({currentResolvedUrl})
@@ -7225,16 +7321,26 @@ export const ShareButtonsWidgetRenderer = ({
               }
 
               const isCopied = net.id === copiedNetId;
-              const displayLabel = isCopied
-                ? "Copied!"
-                : (net.label || (net.network === "twitter" ? "Tweet" : net.network === "copy" ? "Copy Link" : net.network));
+              const defaultNetLabel =
+                net.network === "twitter"
+                  ? "Tweet"
+                  : net.network === "copy"
+                  ? "Copy Link"
+                  : net.network === "instagram"
+                  ? "Instagram"
+                  : net.network === "custom"
+                  ? "Visit Link"
+                  : net.network.charAt(0).toUpperCase() + net.network.slice(1);
+              const displayLabel = isCopied ? "Copied!" : net.label || defaultNetLabel;
 
-              const itemResolvedUrl = resolveShareDestinationUrl(el, net, pages, activePageId);
+              const actionResult = resolveShareAction(el, net, pages, activePageId);
 
               return (
                 <a
                   key={net.id}
-                  href={isPreview ? getSocialShareUrl(net.network, itemResolvedUrl, net.shareText || el.shareText, net.hashtags || el.shareHashtags) : "#"}
+                  href={actionResult.shareUrl}
+                  target={actionResult.target}
+                  rel={actionResult.target === "_blank" ? "noopener noreferrer" : undefined}
                   onClick={(e) => handleShareClick(net, e)}
                   className="inline-flex items-center gap-2 rounded-lg font-semibold transition shadow-xs hover:opacity-90 active:scale-95 cursor-pointer"
                   style={{
@@ -7247,7 +7353,8 @@ export const ShareButtonsWidgetRenderer = ({
                     borderRadius: mergedStyles.borderRadius || "8px",
                     textDecoration: "none",
                   }}
-                  title={isPreview ? `Share on ${net.network} (${itemResolvedUrl})` : `Share Button: ${net.network}`}
+                  title={isPreview ? `${displayLabel} (${actionResult.targetUrl})` : `Share Button: ${net.network}`}
+                  aria-label={displayLabel}
                 >
                   {renderSocialNetworkIcon(net.network, iconSizeClass)}
                   {showLabels && <span>{displayLabel}</span>}

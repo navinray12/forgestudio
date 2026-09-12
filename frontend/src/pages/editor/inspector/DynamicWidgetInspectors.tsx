@@ -8,6 +8,7 @@ import type {
   PlaylistItem,
   ShareNetworkItem,
   ShareNetworkType,
+  ShareActionType,
   ReviewItem,
   TestimonialItem,
   FormFieldItem,
@@ -1109,118 +1110,210 @@ export function ShareButtonsInspector({
         createDefaultItem={() => ({
           id: "net_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
           network: "facebook",
-          label: "Share",
-          urlSource: "inherit"
+          actionType: "open-url",
+          destinationType: "url",
+          customUrl: "https://facebook.com",
+          target: "_blank",
+          label: "Facebook",
+          urlSource: "custom"
         })}
         getItemHeaderLabel={(item) => (item.label ? `${item.network} (${item.label})` : item.network)}
-        renderItemFields={(item, idx, updateItem) => (
-          <div className="space-y-2.5">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Network</label>
-                <select
-                  value={item.network}
-                  onChange={(e) => updateItem({ network: e.target.value as ShareNetworkType })}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                >
-                  <option value="facebook">Facebook</option>
-                  <option value="twitter">X / Twitter</option>
-                  <option value="linkedin">LinkedIn</option>
-                  <option value="whatsapp">WhatsApp</option>
-                  <option value="pinterest">Pinterest</option>
-                  <option value="reddit">Reddit</option>
-                  <option value="email">Email</option>
-                  <option value="copy">Copy Link</option>
-                </select>
-              </div>
+        renderItemFields={(item, idx, updateItem) => {
+          const isUrlDest = (item.destinationType || "url") === "url";
+          const isPageDest = item.destinationType === "page";
 
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Label</label>
-                <input
-                  type="text"
-                  value={item.label || ""}
-                  onChange={(e) => updateItem({ label: e.target.value })}
-                  placeholder="Label..."
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                />
-              </div>
-            </div>
-
-            {/* Individual Button URL Source */}
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-2 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="block text-[10px] font-bold text-slate-600 uppercase">
-                  Button URL Source
-                </label>
-                <select
-                  value={item.urlSource || "inherit"}
-                  onChange={(e) => updateItem({ urlSource: e.target.value as "inherit" | "custom" })}
-                  className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700"
-                >
-                  <option value="inherit">Inherit Widget URL</option>
-                  <option value="custom">Button-Specific Custom URL</option>
-                </select>
-              </div>
-
-              {item.urlSource === "custom" && (
+          return (
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                    Button Custom URL
-                  </label>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Network</label>
+                  <select
+                    value={item.network}
+                    onChange={(e) => {
+                      const net = e.target.value as ShareNetworkType;
+                      let defaultAction: ShareActionType = "open-url";
+                      if (net === "copy") defaultAction = "copy";
+                      else if (net === "email") defaultAction = "email";
+                      else if (net === "facebook" || net === "twitter" || net === "linkedin" || net === "whatsapp" || net === "pinterest" || net === "reddit") defaultAction = "share";
+
+                      updateItem({
+                        network: net,
+                        actionType: item.actionType || defaultAction,
+                        label: item.label || (net.charAt(0).toUpperCase() + net.slice(1))
+                      });
+                    }}
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  >
+                    <option value="facebook">Facebook</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="twitter">X / Twitter</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="pinterest">Pinterest</option>
+                    <option value="reddit">Reddit</option>
+                    <option value="email">Email</option>
+                    <option value="copy">Copy Link</option>
+                    <option value="custom">Custom Link / Website</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Label</label>
                   <input
                     type="text"
-                    value={item.customUrl || ""}
-                    onChange={(e) => updateItem({ customUrl: e.target.value })}
-                    placeholder="https://example.com/custom-page"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                    value={item.label || ""}
+                    onChange={(e) => updateItem({ label: e.target.value })}
+                    placeholder="Label..."
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
                   />
                 </div>
-              )}
-            </div>
-
-            {/* Custom text/hashtags per button */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Share Text</label>
-                <input
-                  type="text"
-                  value={item.shareText || ""}
-                  onChange={(e) => updateItem({ shareText: e.target.value })}
-                  placeholder="Override text..."
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                />
               </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Hashtags</label>
-                <input
-                  type="text"
-                  value={item.hashtags || ""}
-                  onChange={(e) => updateItem({ hashtags: e.target.value })}
-                  placeholder="tag1, tag2..."
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
-                />
+
+              {/* Action Type & Target */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Action Type</label>
+                  <select
+                    value={item.actionType || "open-url"}
+                    onChange={(e) => updateItem({ actionType: e.target.value as ShareActionType })}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                  >
+                    <option value="open-url">Open URL / Profile</option>
+                    <option value="share">Social Share Popup</option>
+                    <option value="copy">Copy Link to Clipboard</option>
+                    <option value="email">Send Mail (mailto:)</option>
+                    <option value="custom">Custom Action</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Target Window</label>
+                  <select
+                    value={item.target || "_blank"}
+                    onChange={(e) => updateItem({ target: e.target.value as "_blank" | "_self" })}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                  >
+                    <option value="_blank">New Tab (_blank)</option>
+                    <option value="_self">Same Tab (_self)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Destination Selector: Page vs External URL */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                    Destination Mode
+                  </label>
+                  <select
+                    value={item.destinationType || "url"}
+                    onChange={(e) => updateItem({ destinationType: e.target.value as "url" | "page" })}
+                    className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700"
+                  >
+                    <option value="url">External URL / Custom Link</option>
+                    <option value="page">Internal Website Page</option>
+                  </select>
+                </div>
+
+                {isPageDest && (
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                      Select Page
+                    </label>
+                    <select
+                      value={item.pageId || pages?.[0]?.id || ""}
+                      onChange={(e) => updateItem({ pageId: e.target.value, destinationType: "page" })}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                    >
+                      {pages && pages.length > 0 ? (
+                        pages.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} ({p.slug})
+                          </option>
+                        ))
+                      ) : (
+                        <option value="">No pages available</option>
+                      )}
+                    </select>
+                  </div>
+                )}
+
+                {isUrlDest && (
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <label className="block text-[10px] font-semibold text-slate-500">
+                        Button Custom URL
+                      </label>
+                      <select
+                        value={item.urlSource || (item.customUrl ? "custom" : "inherit")}
+                        onChange={(e) => {
+                          const newSource = e.target.value as "inherit" | "custom";
+                          updateItem({
+                            urlSource: newSource,
+                            customUrl: newSource === "inherit" ? "" : item.customUrl
+                          });
+                        }}
+                        className="text-[10px] font-medium text-slate-500 bg-transparent border-0 underline"
+                      >
+                        <option value="custom">Custom URL</option>
+                        <option value="inherit">Inherit Widget URL</option>
+                      </select>
+                    </div>
+                    <input
+                      type="text"
+                      value={item.customUrl || item.buttonUrl || ""}
+                      onChange={(e) => updateItem({ customUrl: e.target.value, buttonUrl: e.target.value, urlSource: "custom", destinationType: "url" })}
+                      placeholder="https://facebook.com/my-page or /about"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Custom text/hashtags per button */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Share Text</label>
+                  <input
+                    type="text"
+                    value={item.shareText || ""}
+                    onChange={(e) => updateItem({ shareText: e.target.value })}
+                    placeholder="Override text..."
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Hashtags</label>
+                  <input
+                    type="text"
+                    value={item.hashtags || ""}
+                    onChange={(e) => updateItem({ hashtags: e.target.value })}
+                    placeholder="tag1, tag2..."
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Enable/Disable Toggle */}
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!item.isDisabled}
+                    onChange={(e) => updateItem({ isDisabled: !e.target.checked })}
+                    className="accent-blue-600 rounded cursor-pointer"
+                  />
+                  <span>Enable Button</span>
+                </label>
+                {item.isDisabled && (
+                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                    Hidden / Disabled
+                  </span>
+                )}
               </div>
             </div>
-
-            {/* Enable/Disable Toggle */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={!item.isDisabled}
-                  onChange={(e) => updateItem({ isDisabled: !e.target.checked })}
-                  className="accent-blue-600 rounded cursor-pointer"
-                />
-                <span>Enable Button</span>
-              </label>
-              {item.isDisabled && (
-                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                  Hidden / Disabled
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        }}
       />
     </div>
   );

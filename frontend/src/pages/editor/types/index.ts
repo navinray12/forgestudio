@@ -62,18 +62,15 @@ export interface NavMenuItem {
   id: string;
   label: string;
   url: string;
-  linkType?: "page" | "url";
-  pageId?: string;
   destinationType?: "page" | "url" | "anchor" | "product";
+  linkType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
   productId?: string;
-  linkType?: "page" | "url" | "anchor" | "product";
   isActive?: boolean;
   isDisabled?: boolean;
   target?: "_self" | "_blank";
   badge?: string;
   badgeColor?: string;
-  icon?: string;
   icon?: string;
   iconPosition?: "left" | "right";
   dropdownEnabled?: boolean;
@@ -388,20 +385,31 @@ export type ShareNetworkType =
   | "twitter"
   | "linkedin"
   | "whatsapp"
+  | "instagram"
   | "pinterest"
   | "reddit"
   | "email"
-  | "copy";
+  | "copy"
+  | "custom";
+
+export type ShareActionType = "open-url" | "share" | "copy" | "email" | "custom";
 
 export interface ShareNetworkItem {
   id: string;
   network: ShareNetworkType;
   label?: string;
+  actionType?: ShareActionType;
   urlSource?: "inherit" | "custom";
   customUrl?: string;
+  buttonUrl?: string;
+  url?: string;
   shareText?: string;
   hashtags?: string;
+  target?: "_self" | "_blank";
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
   isDisabled?: boolean;
+  icon?: string;
 }
 
 export interface PostItem {
@@ -622,7 +630,6 @@ export interface EditorElement {
   alt?: string;
   href?: string;
   linkPageId?: string;
-  linkType?: string;
   linkType?: "page" | "url" | "anchor" | "product";
   destinationType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
@@ -685,6 +692,7 @@ export interface EditorElement {
   formFields?: FormFieldItem[];
   formSubmitText?: string;
   formSubmitSuccessMsg?: string;
+  formRedirectUrl?: string;
   formLayoutColumns?: 1 | 2;
   formFieldGap?: number;
   formShowLabels?: boolean;
