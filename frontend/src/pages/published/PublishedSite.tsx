@@ -121,13 +121,14 @@ interface RenderNodeProps {
     globalSettings: any;
     elementClassMap: Map<string, string>;
     apiUrl: string;
+    websiteId?: string;
     allElements?: EditorElement[];
     pages?: PageConfig[];
     onSwitchPage?: (page: PageConfig) => void;
 }
 
 // F-358: Safely caches execution overhead per Element in PublishedSite skipping massive style hashing recalculations
-const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, allElements, pages, onSwitchPage }) => {
+const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, websiteId, allElements, pages, onSwitchPage }) => {
     // F-351 logic exactly as website outputs
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
@@ -260,13 +261,73 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         );
     }
 
-    if (el.type === "video") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} aspect-video w-full ${optInnerClass}`}>
-                <iframe src={el.src || "https://www.youtube.com/embed/dQw4w9WgXcQ"} loading={isCritical ? "eager" : "lazy"} className="w-full h-full rounded-lg" />
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "video") {
+        const srcUrl = (el.src || "").trim();
+        const isAutoplay = Boolean(el.videoAutoplay);
+        const isLoop = Boolean(el.videoLoop);
+        const isMuted = Boolean(el.videoMuted);
+        const isControls = el.videoControls !== false;
+
+        const ytMatch = srcUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+        const ytId = ytMatch?.[1];
+        const vimeoMatch = srcUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        const vimeoId = vimeoMatch?.[1];
+
+        let videoEl: React.ReactNode;
+        if (ytId) {
+            const params = [`rel=0`, `modestbranding=1`, isControls ? `controls=1` : `controls=0`, isAutoplay ? `autoplay=1` : `autoplay=0`, isLoop ? `loop=1&playlist=${ytId}` : ``].filter(Boolean).join("&");
+            videoEl = (
+                <div className="relative w-full aspect-video">
+                    <iframe
+                        src={`https://www.youtube.com/embed/${ytId}?${params}`}
+                        title={el.alt || "YouTube video player"}
+                        className="absolute inset-0 w-full h-full border-0 rounded-[inherit]"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        loading={isCritical ? "eager" : "lazy"}
+                    />
+                </div>
+            );
+        } else if (vimeoId) {
+            const params = [isAutoplay ? `autoplay=1` : ``, isLoop ? `loop=1` : ``].filter(Boolean).join("&");
+            videoEl = (
+                <div className="relative w-full aspect-video">
+                    <iframe
+                        src={`https://player.vimeo.com/video/${vimeoId}?${params}`}
+                        title={el.alt || "Vimeo video player"}
+                        className="absolute inset-0 w-full h-full border-0 rounded-[inherit]"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        loading={isCritical ? "eager" : "lazy"}
+                    />
+                </div>
+            );
+        } else {
+            videoEl = (
+                <video
+                    src={srcUrl ? `${apiUrl}${srcUrl.startsWith("/") ? srcUrl : "/" + srcUrl}` : undefined}
+                    poster={el.videoPoster ? `${apiUrl}${el.videoPoster.startsWith("/") ? el.videoPoster : "/" + el.videoPoster}` : undefined}
+                    controls={isControls}
+                    autoPlay={isAutoplay}
+                    loop={isLoop}
+                    muted={isMuted}
+                    playsInline
+                    className="w-full max-w-full rounded-lg"
+                    style={{ maxHeight: "500px" }}
+                >
+                    Your browser does not support HTML5 video playback.
+                </video>
+            );
+        }
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} w-full ${optInnerClass}`}>
+                    {videoEl}
+                </div>
+            </React.Fragment>
+        );
+    }
 
     if (el.type === "icon") return <React.Fragment key={el.id}><div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center", ...mergedProps.style }}>{renderSvgIcon(el.styles?.iconName || "star", el.styles?.iconSize || "32", el.styles?.iconColor || "#2563eb")}</div></React.Fragment>;
 
@@ -290,7 +351,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     // Dynamic Widgets
     if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} websiteId={websiteId} /></div>;
     if (el.type === "login") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoginWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "nav-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><NavMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "animated-headline") return <div ref={assignRefIfTracked as any} {...mergedProps}><AnimatedHeadlineWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;

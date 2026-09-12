@@ -255,13 +255,16 @@ export const SlidesWidgetRenderer = ({
 
 export const FormWidgetRenderer = ({
   el,
-  isPreview: _isPreview,
+  isPreview,
   mergedStyles,
+  websiteId,
 }: {
   el: EditorElement;
   isPreview: boolean;
   mergedStyles: ElementStyles;
+  websiteId?: string;
 }) => {
+  const apiUrl = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_URL) || "http://localhost:5000";
   const fields = el.formFields || [];
   const formMode = el.formMode || "simple";
   const defaultSteps = [
@@ -289,6 +292,8 @@ export const FormWidgetRenderer = ({
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -351,7 +356,7 @@ export const FormWidgetRenderer = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const fieldsToValidate = isMultiStep ? visibleFields : fields;
@@ -361,7 +366,41 @@ export const FormWidgetRenderer = ({
       return;
     }
     setValidationError(null);
-    setSubmitted(true);
+    setSubmitError(null);
+
+    if (isPreview && websiteId) {
+      // Real submission in preview/published mode
+      try {
+        setIsSubmitting(true);
+        const payload = {
+          websiteId,
+          formId: el.id,
+          formName: el.formTitle || el.content || "Website Form",
+          fields: formData,
+        };
+        const res = await fetch(`${apiUrl}/api/forms/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || "Submission failed");
+        setSubmitted(true);
+        setFormData({});
+        // Handle redirect
+        const redirectUrl = el.formRedirectUrl || data?.redirectUrl;
+        if (redirectUrl && redirectUrl !== "#") {
+          setTimeout(() => { window.location.href = redirectUrl; }, 1500);
+        }
+      } catch (err: any) {
+        setSubmitError(err?.message || "Submission failed. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // In editor mode — just show success state locally
+      setSubmitted(true);
+    }
   };
 
   if (fields.length === 0) {
@@ -676,7 +715,8 @@ export const FormWidgetRenderer = ({
           {isFinalStep && (
             <button
               type="submit"
-              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer ${
+              disabled={isSubmitting}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                 btnFullWidth ? "w-full" : "w-auto"
               }`}
               style={{
@@ -684,14 +724,38 @@ export const FormWidgetRenderer = ({
                 color: btnColor,
               }}
             >
-              <span>{submitText}</span>
-              <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
+              {isSubmitting ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                    <path d="M12 2a10 10 0 0 1 10 10" />
+                  </svg>
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <span>{submitText}</span>
+                  <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </>
+              )}
             </button>
           )}
         </div>
+
+        {/* API Submission Error */}
+        {submitError && (
+          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-semibold text-red-600 flex items-center gap-2">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>{submitError}</span>
+          </div>
+        )}
       </div>
     </form>
   );
