@@ -23,6 +23,7 @@ import CustomPostTypeBuilder from "./pages/dashboard/CustomPostTypeBuilder";
 import CustomEntriesList from "./pages/dashboard/CustomEntriesList";
 import CustomEntryEditor from "./pages/dashboard/CustomEntryEditor";
 import SharedTemplatePreviewPage from "./pages/templates/SharedTemplatePreviewPage";
+import PublishedSite from "./pages/published/PublishedSite";
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
@@ -218,6 +219,13 @@ function App() {
           <Route
             path="/template/share/:shareToken"
             element={<SharedTemplatePreviewPage />}
+          />
+
+          {/* ================= PUBLIC PUBLISHED SITE ================= */}
+
+          <Route
+            path="/site/:websiteId"
+            element={<PublishedSite />}
           />
 
           {/* ================= ROOT ================= */}

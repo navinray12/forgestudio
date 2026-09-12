@@ -27,6 +27,11 @@ export interface NavMenuItem {
   badge?: string;
   badgeColor?: string;
   icon?: string;
+  pageId?: string;
+  linkType?: string;
+  destinationType?: string;
+  productId?: string;
+  submenu?: any[];
   children?: Array<{
     id: string;
     label: string;

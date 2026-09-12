@@ -43,18 +43,18 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Developer Tools",
     items: [
-      { id: "developer-api", label: "Developer API", icon: "🔑", badge: "F-118" },
-      { id: "plugin-hub", label: "Plugin Hub", icon: "🔌", badge: "F-119/120" },
-      { id: "custom-code", label: "Custom Code", icon: "⚡", badge: "F-112" },
-      { id: "advanced-code", label: "Code Manager", icon: "🔧", badge: "F-113→117" },
-      { id: "cpts", label: "Custom Post Types", icon: "📝", badge: "F-121" },
-      { id: "composer-installation", label: "Composer", icon: "📦", badge: "F-122" },
+      { id: "developer-api", label: "Developer API", icon: "🔑" },
+      { id: "plugin-hub", label: "Plugin Hub", icon: "🔌" },
+      { id: "custom-code", label: "Custom Code", icon: "⚡" },
+      { id: "advanced-code", label: "Code Manager", icon: "🔧" },
+      { id: "cpts", label: "Custom Post Types", icon: "📝" },
+      { id: "composer-installation", label: "Composer", icon: "📦" },
     ],
   },
   {
     label: "Performance",
     items: [
-      { id: "performance", label: "Performance & SEO", icon: "🚀", badge: "F-351→360" },
+      { id: "performance", label: "Performance & SEO", icon: "🚀" },
     ],
   },
 ];

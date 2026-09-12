@@ -8,6 +8,7 @@ interface PublishModalProps {
   deployment: DeploymentConfig;
   pages: PageConfig[];
   websiteName: string;
+  websiteId?: string;
   onPublish: () => Promise<void>;
   onUpdateDeployment: (config: DeploymentConfig) => void;
   onOpenPreview: () => void;
@@ -20,6 +21,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   deployment,
   pages,
   websiteName,
+  websiteId,
   onPublish,
   onUpdateDeployment,
   onOpenPreview,
@@ -167,6 +169,23 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                 {isPublishing ? "Publishing..." : "🚀 Publish Now"}
               </button>
             </div>
+            {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
+              <div className="pt-3 border-t border-blue-900/40 flex items-center justify-between">
+                <span className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                  Published & Live (v{publishing.version || 1})
+                </span>
+                <a
+                  href={`/site/${websiteId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm"
+                >
+                  <span>Visit Live Site</span>
+                  <span>↗</span>
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Domain & Hosting Configuration (No fake deployment) */}
@@ -226,17 +245,30 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
         {/* Footer */}
         <div className="border-t border-slate-800 bg-slate-950/60 px-6 py-3 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onOpenPreview();
-            }}
-            className="text-xs font-bold text-blue-400 hover:text-blue-300 transition cursor-pointer flex items-center gap-1"
-          >
-            <span>👁️</span>
-            <span>Open Interactive Preview</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenPreview();
+              }}
+              className="text-xs font-bold text-blue-400 hover:text-blue-300 transition cursor-pointer flex items-center gap-1"
+            >
+              <span>👁️</span>
+              <span>Open Interactive Preview</span>
+            </button>
+            {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
+              <a
+                href={`/site/${websiteId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1"
+              >
+                <span>🌐</span>
+                <span>Visit Live Site ↗</span>
+              </a>
+            )}
+          </div>
           <button
             type="button"
             onClick={onClose}

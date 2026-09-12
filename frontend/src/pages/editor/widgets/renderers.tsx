@@ -48,12 +48,10 @@ import type {
   ShareNetworkItem,
   MegaMenuItem,
   PostItem,
-  PageConfig
+  PageConfig,
   MegaMenuColumn,
   MegaMenuColumnLink,
-  PageConfig,
-  SiteProduct,
-  PostItem
+  SiteProduct
 } from "../types";
 import {
   resolveImageUrl,
@@ -960,13 +958,6 @@ export const NavMenuWidgetRenderer = ({
   mergedStyles,
   pages = [],
   homePageId,
-}: {
-  el: EditorElement;
-  isPreview: boolean;
-  mergedStyles: ElementStyles;
-  pages?: PageConfig[];
-  homePageId?: string;
-  pages,
   siteProducts,
   onNavigatePage,
 }: {
@@ -974,6 +965,7 @@ export const NavMenuWidgetRenderer = ({
   isPreview?: boolean;
   mergedStyles?: ElementStyles | any;
   pages?: PageConfig[];
+  homePageId?: string;
   siteProducts?: SiteProduct[];
   onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
@@ -1013,20 +1005,8 @@ export const NavMenuWidgetRenderer = ({
   const submenuTextColor = el.navSubmenuTextColor || "#334155";
   const globalTrigger = el.navTrigger || "hover";
 
-  const [activeItemId, setActiveItemId] = useState<string>("1");
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
-
-  const getAlignmentClass = () => {
-    switch (alignment) {
-      case "center":
-        return "justify-center";
-      case "right":
-        return "justify-end";
-      case "space-between":
-        return "justify-between";
-      default:
-        return "justify-start";
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
@@ -1098,22 +1078,6 @@ export const NavMenuWidgetRenderer = ({
   };
 
   return (
-    <nav
-      className={`w-full ${isVertical ? "flex flex-col" : `flex items-center ${getAlignmentClass()}`}`}
-      style={{
-        gap: `${gap}px`,
-        ...mergedStyles,
-      }}
-    >
-      <div className={`flex ${isVertical ? "flex-col" : "items-center flex-wrap"} gap-1`}>
-        {items.map((item) => {
-          const isActive = activeItemId === item.id;
-          const isHovered = hoveredItemId === item.id;
-          const hasSubmenu = item.submenu && item.submenu.length > 0;
-          const isOpen = openSubmenuId === item.id;
-
-          const currentColor = isActive ? itemActiveColor : isHovered ? itemHoverColor : itemColor;
-          const currentBg = isActive ? itemActiveBg : "transparent";
     <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily }}>
       {/* Mobile Hamburger Button */}
       <div className="flex sm:hidden items-center justify-between p-2 w-full">
@@ -1150,9 +1114,8 @@ export const NavMenuWidgetRenderer = ({
           const currentColor = isItemActive ? itemActiveColor : isItemHovered ? itemHoverColor : itemColor;
 
           return (
-            <div
+            <li
               key={item.id}
-              className="relative group"
               className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
@@ -1163,38 +1126,6 @@ export const NavMenuWidgetRenderer = ({
                 if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(null);
               }}
             >
-              {(() => {
-                const resolvedUrl = item.pageId
-                  ? resolveInternalLink(`page:${item.pageId}`, pages, homePageId)
-                  : resolveInternalLink(item.url, pages, homePageId);
-                return (
-                  <a
-                    href={resolvedUrl || "#"}
-                    target={item.target || "_self"}
-                    rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                    onClick={(e) => {
-                      if (!isPreview) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      } else if (resolvedUrl && resolvedUrl.startsWith("/")) {
-                        e.preventDefault();
-                        const newUrl = new URL(window.location.href);
-                        const cleanSlug = resolvedUrl === "/" ? "home" : resolvedUrl.replace(/^\//, "");
-                        newUrl.searchParams.set("page", cleanSlug);
-                        window.history.pushState({}, "", newUrl.toString());
-                        window.dispatchEvent(new Event("popstate"));
-                      }
-                      setActiveItemId(item.id);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
-                    style={{
-                      backgroundColor: currentBg,
-                      color: currentColor,
-                      fontSize: fontSize,
-                      fontWeight: fontWeight,
-                      textTransform: textTransform as any,
-                      fontFamily: mergedStyles.fontFamily,
-                    }}
               <a
                 href={displayUrl}
                 target={item.target || "_self"}
@@ -1227,21 +1158,10 @@ export const NavMenuWidgetRenderer = ({
                     stroke="currentColor"
                     strokeWidth="2.5"
                   >
-                    <span>{item.label}</span>
-                    {hasSubmenu && (
-                      <svg
-                        className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    )}
-                  </a>
-                );
-              })()}
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                )}
+              </a>
 
               {/* Submenu Dropdown */}
               {hasSubmenu && isOpen && (
@@ -1255,15 +1175,6 @@ export const NavMenuWidgetRenderer = ({
                   }`}
                   style={{ backgroundColor: submenuBg }}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    {item.submenu!.map((subItem: any) => {
-                      const resolvedSubUrl = subItem.pageId
-                        ? resolveInternalLink(`page:${subItem.pageId}`, pages, homePageId)
-                        : resolveInternalLink(subItem.url, pages, homePageId);
-                      return (
-                        <a
-                          key={subItem.id}
-                          href={resolvedSubUrl || "#"}
                   <div className="flex flex-col gap-1">
                     {item.submenu!.map((subItem) => {
                       const subRes = resolveItem(subItem);
@@ -1277,22 +1188,6 @@ export const NavMenuWidgetRenderer = ({
                             if (!isPreview) {
                               e.preventDefault();
                               e.stopPropagation();
-                            } else if (resolvedSubUrl && resolvedSubUrl.startsWith("/")) {
-                              e.preventDefault();
-                              const newUrl = new URL(window.location.href);
-                              const cleanSlug = resolvedSubUrl === "/" ? "home" : resolvedSubUrl.replace(/^\//, "");
-                              newUrl.searchParams.set("page", cleanSlug);
-                              window.history.pushState({}, "", newUrl.toString());
-                              window.dispatchEvent(new Event("popstate"));
-                            }
-                          }}
-                          className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
-                          style={{
-                            color: submenuTextColor,
-                            fontFamily: mergedStyles.fontFamily,
-                          }}
-                        >
-                          {subItem.label}
                             } else if (subItem.pageId && onNavigatePage) {
                               e.preventDefault();
                               onNavigatePage(subItem.pageId);
@@ -1326,10 +1221,10 @@ export const NavMenuWidgetRenderer = ({
                   </div>
                 </div>
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </nav>
   );
 };
