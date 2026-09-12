@@ -79,3 +79,6 @@ export { default as componentAccessRoutes } from "./componentAccess.routes.js";
 export { default as templateRoutes } from "./template.routes.js";
 export { default as formRoutes } from "./form.routes.js";
 export { default as integrationRoutes } from "./integration.routes.js";
+export { default as sftpRoutes } from "./sftp.routes.js";
+export { default as pluginIntegrationRoutes } from "./pluginIntegration.routes.js";
+export { default as multisiteRoutes } from "./multisite.routes.js";

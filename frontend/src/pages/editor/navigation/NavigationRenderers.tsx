@@ -16,12 +16,17 @@ import {
   DEFAULT_SEARCH_RESULTS,
 } from "./navigationDefaults";
 
+import type { PageConfig } from "../types";
+import { resolveInternalLink } from "../utils/pageManagerService";
+
 interface NavigationRendererProps {
   element: EditorElement;
   activeBreakpointId: string;
   breakpoints: Breakpoint[];
   isPreview?: boolean;
   onUpdateElement?: (updater: (el: EditorElement) => EditorElement) => void;
+  pages?: PageConfig[];
+  homePageId?: string;
 }
 
 // Helper to safely parse JSON content with fallback
@@ -37,10 +42,38 @@ function parseJson<T>(content: string, fallback: T): T {
 // ==========================================================
 // 1. F-223: Nav Menu Renderer
 // ==========================================================
-export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, activeBreakpointId }) => {
+export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, activeBreakpointId, isPreview, pages, homePageId }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
+
+  const resolveItemHref = (item: NavMenuItem) => {
+    if (item.pageId) return resolveInternalLink(`page:${item.pageId}`, pages, homePageId);
+    return resolveInternalLink(item.url, pages, homePageId);
+  };
+
+  const resolveSubHref = (sub: NavMenuItem) => {
+    if (sub.pageId) return resolveInternalLink(`page:${sub.pageId}`, pages, homePageId);
+    return resolveInternalLink(sub.url, pages, homePageId);
+  };
+
+  const handleLinkNavigation = (e: React.MouseEvent, resolvedHref: string, hasChildren: boolean, itemId: string) => {
+    if (hasChildren) {
+      e.preventDefault();
+      setActiveDropdown(activeDropdown === itemId ? null : itemId);
+      return;
+    }
+    if (!isPreview) {
+      e.preventDefault();
+    } else if (resolvedHref.startsWith("/")) {
+      e.preventDefault();
+      const newUrl = new URL(window.location.href);
+      const cleanSlug = resolvedHref === "/" ? "home" : resolvedHref.replace(/^\//, "");
+      newUrl.searchParams.set("page", cleanSlug);
+      window.history.pushState({}, "", newUrl.toString());
+      window.dispatchEvent(new Event("popstate"));
+    }
+  };
 
   const styles = element.styles || {};
   const isMobile = activeBreakpointId === "mobile" || activeBreakpointId === "mobile-portrait";
@@ -108,6 +141,7 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
             const isFirst = idx === 0;
             const hasChildren = item.children && item.children.length > 0;
             const isDropdownOpen = activeDropdown === item.id;
+            const itemHref = resolveItemHref(item);
 
             return (
               <div
@@ -117,13 +151,8 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
                 onMouseLeave={() => hasChildren && setActiveDropdown(null)}
               >
                 <a
-                  href={item.url || "#"}
-                  onClick={(e) => {
-                    if (hasChildren) {
-                      e.preventDefault();
-                      setActiveDropdown(isDropdownOpen ? null : item.id);
-                    }
-                  }}
+                  href={itemHref || "#"}
+                  onClick={(e) => handleLinkNavigation(e, itemHref, Boolean(hasChildren), item.id)}
                   className={`flex items-center gap-1.5 text-xs font-semibold cursor-pointer ${hoverClass} ${
                     isFirst && styles.navActiveStyle === "pill"
                       ? "bg-blue-600 text-white rounded-lg px-3 py-1.5 shadow-sm hover:text-white"
@@ -165,36 +194,40 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
                 {/* Submenu Dropdown */}
                 {hasChildren && isDropdownOpen && (
                   <div
-                    className="absolute top-full left-0 z-50 mt-1.5 w-56 rounded-xl border border-slate-100 bg-white p-2 shadow-xl ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-150"
+                    className="absolute top-full left-0 mt-1 min-w-[200px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl z-50 animate-in fade-in slide-in-from-top-1 duration-150"
                     style={{
                       backgroundColor: styles.navDropdownBg || "#ffffff",
                       boxShadow: styles.navDropdownShadow || "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
                     }}
                   >
                     <div className="space-y-1">
-                      {item.children?.map((sub) => (
-                        <a
-                          key={sub.id}
-                          href={sub.url || "#"}
-                          className="flex flex-col rounded-lg px-3 py-2 text-left hover:bg-slate-50 transition group/sub"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-800 group-hover/sub:text-blue-600">
-                              {sub.label}
-                            </span>
-                            {sub.badge && (
-                              <span className="rounded bg-blue-100 px-1 py-0.2 text-[8px] font-extrabold text-blue-700">
-                                {sub.badge}
+                      {item.children?.map((sub) => {
+                        const subHref = resolveSubHref(sub);
+                        return (
+                          <a
+                            key={sub.id}
+                            href={subHref || "#"}
+                            onClick={(e) => handleLinkNavigation(e, subHref, false, sub.id)}
+                            className="flex flex-col rounded-lg px-3 py-2 text-left hover:bg-slate-50 transition group/sub cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-800 group-hover/sub:text-blue-600">
+                                {sub.label}
+                              </span>
+                              {sub.badge && (
+                                <span className="rounded bg-blue-100 px-1 py-0.2 text-[8px] font-extrabold text-blue-700">
+                                  {sub.badge}
+                                </span>
+                              )}
+                            </div>
+                            {sub.description && (
+                              <span className="mt-0.5 text-[10px] text-slate-400 line-clamp-1">
+                                {sub.description}
                               </span>
                             )}
-                          </div>
-                          {sub.description && (
-                            <span className="mt-0.5 text-[10px] text-slate-400 line-clamp-1">
-                              {sub.description}
-                            </span>
-                          )}
-                        </a>
-                      ))}
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -208,37 +241,45 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
       {triggerMobile && mobileMenuOpen && (
         <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="space-y-1 divide-y divide-slate-100">
-            {items.map((item) => (
-              <div key={item.id} className="pt-1.5 first:pt-0">
-                <a
-                  href={item.url || "#"}
-                  className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
-                >
-                  <span className="flex items-center gap-2">
-                    {item.icon && <span>{item.icon}</span>}
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
-                      {item.badge}
+            {items.map((item) => {
+              const itemHref = resolveItemHref(item);
+              return (
+                <div key={item.id} className="pt-1.5 first:pt-0">
+                  <a
+                    href={itemHref || "#"}
+                    onClick={(e) => handleLinkNavigation(e, itemHref, false, item.id)}
+                    className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      {item.icon && <span>{item.icon}</span>}
+                      {item.label}
                     </span>
+                    {item.badge && (
+                      <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        {item.badge}
+                      </span>
+                    )}
+                  </a>
+                  {item.children && (
+                    <div className="ml-4 mt-1 space-y-1 border-l-2 border-slate-100 pl-2">
+                      {item.children.map((sub) => {
+                        const subHref = resolveSubHref(sub);
+                        return (
+                          <a
+                            key={sub.id}
+                            href={subHref || "#"}
+                            onClick={(e) => handleLinkNavigation(e, subHref, false, sub.id)}
+                            className="block rounded px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-blue-600 cursor-pointer"
+                          >
+                            {sub.label}
+                          </a>
+                        );
+                      })}
+                    </div>
                   )}
-                </a>
-                {item.children && (
-                  <div className="ml-4 mt-1 space-y-1 border-l-2 border-slate-100 pl-2">
-                    {item.children.map((sub) => (
-                      <a
-                        key={sub.id}
-                        href={sub.url || "#"}
-                        className="block rounded px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-blue-600"
-                      >
-                        {sub.label}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
