@@ -2,6 +2,10 @@
 import PopupManagerModal from "./components/PopupManagerModal";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
+import { PageManagerModal } from "./components/PageManagerModal";
+import { PublishModal } from "./components/PublishModal";
+import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
+import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -732,11 +736,14 @@ const [popups, setPopups] = useState<any[]>([]);
     siteLanguage: "en",
   });
 
-// Multi-Page Management & Preview States
+// Multi-Page Management, Site Parts & Preview States
 const [pages, setPages] = useState<PageConfig[]>([]);
+const [homePageId, setHomePageId] = useState<string>("home");
 const [activePageId, setActivePageId] = useState<string>("home");
 const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
 const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
+const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
 const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
 const [newPageName, setNewPageName] = useState<string>("");
 const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -746,9 +753,27 @@ const [editPageSlug, setEditPageSlug] = useState<string>("");
 const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
 const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-// Sync live editor state (elements & pageSettings) with the active page entry in pages array
+// F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
+const [siteParts, setSiteParts] = useState<SitePartsConfig>({
+  header: { isEnabled: true, elements: [] },
+  footer: { isEnabled: true, elements: [] },
+});
+
+// F-PUBLISH: Publishing State & Deployment Configuration (Comment 8)
+const [publishing, setPublishing] = useState<PublishingState>({
+  status: "DRAFT",
+  version: 1,
+});
+const [deployment, setDeployment] = useState<DeploymentConfig>({
+  provider: "none",
+});
+
+// Canvas Editing Target Mode: "page" | "header" | "footer"
+const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
+
+// Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
 useEffect(() => {
-  if (!activePageId) return;
+  if (!activePageId || canvasMode !== "page") return;
 
   setPages((prevPages) => {
     if (!prevPages || prevPages.length === 0) return prevPages;
@@ -782,7 +807,22 @@ useEffect(() => {
       return p;
     });
   });
-}, [elements, pageSettings, activePageId]);
+}, [elements, pageSettings, activePageId, canvasMode]);
+
+// Sync active Header/Footer changes into siteParts when in header or footer canvasMode
+useEffect(() => {
+  if (canvasMode === "header") {
+    setSiteParts((prev) => ({
+      ...prev,
+      header: { ...prev.header, elements },
+    }));
+  } else if (canvasMode === "footer") {
+    setSiteParts((prev) => ({
+      ...prev,
+      footer: { ...prev.footer, elements },
+    }));
+  }
+}, [elements, canvasMode]);
 
 // Sync preview active page with URL query parameter "?page=..." and popstate listener
 useEffect(() => {
@@ -810,7 +850,7 @@ useEffect(() => {
 
     const homePage =
       pages.find(
-        (p) => p.isHome || p.slug === "/" || p.id === "home"
+        (p) => p.id === homePageId || p.isHome || p.slug === "/" || p.id === "home"
       ) || pages[0];
 
     if (homePage) {
@@ -823,7 +863,7 @@ useEffect(() => {
   window.addEventListener("popstate", syncFromUrl);
 
   return () => window.removeEventListener("popstate", syncFromUrl);
-}, [isPreview, pages]);
+}, [isPreview, pages, homePageId]);
 
 const handlePreviewPageNavigate = (targetPage: PageConfig) => {
   setActivePreviewPageId(targetPage.id);
@@ -831,7 +871,7 @@ const handlePreviewPageNavigate = (targetPage: PageConfig) => {
   const newUrl = new URL(window.location.href);
 
   const cleanSlug =
-    targetPage.slug === "/"
+    targetPage.id === homePageId || targetPage.slug === "/"
       ? "home"
       : targetPage.slug.replace(/^\//, "");
 
@@ -845,19 +885,31 @@ const handleSwitchEditingPage = (targetPageId: string) => {
 
   if (!target) return;
 
-  setPages((prev) =>
-    prev.map((p) =>
-      p.id === activePageId
-        ? {
-            ...p,
-            elements,
-            pageSettings,
-            name: pageSettings.title || p.name,
-            slug: pageSettings.path || p.slug,
-          }
-        : p
-    )
-  );
+  // 1. Sync current page elements if we were editing a page
+  if (canvasMode === "page") {
+    setPages((prev) =>
+      prev.map((p) =>
+        p.id === activePageId
+          ? {
+              ...p,
+              elements,
+              pageSettings,
+              name: pageSettings.title || p.name,
+              slug: pageSettings.path || p.slug,
+            }
+          : p
+      )
+    );
+  }
+
+  // 2. Clear element selection to isolate inspector across pages (Comment 18)
+  setSelectedId(null);
+  setSelectedIds([]);
+  setCanvasMode("page");
+
+  // 3. Reset undo/redo history to isolate active page history (Comment 6)
+  setHistory([target.elements || []]);
+  setHistoryIndex(0);
 
   setActivePageId(target.id);
   setElements(target.elements || []);
@@ -869,8 +921,54 @@ const handleSwitchEditingPage = (targetPageId: string) => {
     }
   );
 
+  setIsPageSelectorOpen(false);
+};
+
+// Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
+const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
+  if (mode === canvasMode) return;
+
+  // 1. Save current elements into appropriate model
+  if (canvasMode === "page") {
+    setPages((prev) =>
+      prev.map((p) => (p.id === activePageId ? { ...p, elements, pageSettings } : p))
+    );
+  } else if (canvasMode === "header") {
+    setSiteParts((prev) => ({
+      ...prev,
+      header: { ...prev.header, elements },
+    }));
+  } else if (canvasMode === "footer") {
+    setSiteParts((prev) => ({
+      ...prev,
+      footer: { ...prev.footer, elements },
+    }));
+  }
+
+  // 2. Clear selections & reset undo/redo for new target
   setSelectedId(null);
   setSelectedIds([]);
+
+  // 3. Load target elements
+  if (mode === "page") {
+    const activePage = pages.find((p) => p.id === activePageId);
+    const targetEls = activePage?.elements || [];
+    setElements(targetEls);
+    setHistory([targetEls]);
+    setHistoryIndex(0);
+  } else if (mode === "header") {
+    const targetEls = siteParts.header?.elements || [];
+    setElements(targetEls);
+    setHistory([targetEls]);
+    setHistoryIndex(0);
+  } else if (mode === "footer") {
+    const targetEls = siteParts.footer?.elements || [];
+    setElements(targetEls);
+    setHistory([targetEls]);
+    setHistoryIndex(0);
+  }
+
+  setCanvasMode(mode);
   setIsPageSelectorOpen(false);
 };
 
@@ -878,14 +976,15 @@ const handleCreateNewPage = () => {
   const rawTitle =
     newPageName.trim() || `Page ${pages.length + 1}`;
 
-  const formattedSlug = newPageSlug.trim()
-    ? newPageSlug.startsWith("/")
-      ? newPageSlug
-      : `/${newPageSlug}`
-    : `/${rawTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")}`;
+  const existingSlugs = pages.map((p) => p.slug);
+  const initialSlug = newPageSlug.trim() || generateSlug(rawTitle, existingSlugs);
+  const validation = validateSlug(initialSlug, pages);
+
+  if (!validation.isValid) {
+    setErrorMessage(validation.error || "Invalid slug.");
+    setTimeout(() => setErrorMessage(""), 3000);
+    return;
+  }
 
   const newPageObj: PageConfig = {
     id: `page_${Date.now()}_${Math.random()
@@ -893,13 +992,13 @@ const handleCreateNewPage = () => {
       .substring(2, 6)}`,
 
     name: rawTitle,
-    slug: formattedSlug,
+    slug: validation.slug,
 
     elements: [],
 
     pageSettings: {
       title: rawTitle,
-      path: formattedSlug,
+      path: validation.slug,
       description: "",
       backgroundColor: "#ffffff",
       isMaintenanceMode: false,
@@ -959,17 +1058,18 @@ const handleDeletePage = (
     return;
   }
 
-  const remainingPages = pages
-    .filter((p) => p.id !== pageIdToDelete)
-    .map((p, idx) => ({
-      ...p,
-      isHome: idx === 0,
-    }));
+  const res = safeDeletePage(pageIdToDelete, pages, homePageId);
+  if (!res.success) {
+    setErrorMessage(res.error || "Cannot delete page.");
+    setTimeout(() => setErrorMessage(""), 3000);
+    return;
+  }
 
-  setPages(remainingPages);
+  setPages(res.updatedPages);
+  setHomePageId(res.newHomePageId);
 
   if (activePageId === pageIdToDelete) {
-    const nextActive = remainingPages[0];
+    const nextActive = res.updatedPages.find((p) => p.id === res.newHomePageId) || res.updatedPages[0];
 
     setActivePageId(nextActive.id);
     setElements(nextActive.elements || []);
@@ -980,6 +1080,9 @@ const handleDeletePage = (
         path: nextActive.slug,
       }
     );
+
+    setSelectedId(null);
+    setSelectedIds([]);
   }
 
   setSaveMessage(`Deleted page "${target.name}".`);
@@ -1008,14 +1111,21 @@ const handleSaveEditPage = () => {
 
   if (!rawTitle) return;
 
-  const formattedSlug = editPageSlug.trim()
-    ? editPageSlug.startsWith("/")
-      ? editPageSlug
-      : `/${editPageSlug}`
-    : `/${rawTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")}`;
+  const isCurrentHome = editingPageId === homePageId;
+  let targetSlug = editPageSlug.trim();
+
+  if (isCurrentHome && (targetSlug === "/" || targetSlug === "")) {
+    targetSlug = "/";
+  } else {
+    const fallbackSlug = targetSlug || generateSlug(rawTitle, pages.filter((p) => p.id !== editingPageId).map((p) => p.slug));
+    const validation = validateSlug(fallbackSlug, pages, editingPageId);
+    if (!validation.isValid) {
+      setErrorMessage(validation.error || "Invalid slug.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+    targetSlug = validation.slug;
+  }
 
   setPages((prev) =>
     prev.map((p) => {
@@ -1023,13 +1133,13 @@ const handleSaveEditPage = () => {
         const updatedSettings = {
           ...(p.pageSettings || {}),
           title: rawTitle,
-          path: formattedSlug,
+          path: targetSlug,
         };
 
         return {
           ...p,
           name: rawTitle,
-          slug: formattedSlug,
+          slug: targetSlug,
           pageSettings: updatedSettings,
         };
       }
@@ -1042,7 +1152,7 @@ const handleSaveEditPage = () => {
     setPageSettings((prev) => ({
       ...prev,
       title: rawTitle,
-      path: formattedSlug,
+      path: targetSlug,
     }));
   }
 
@@ -1303,11 +1413,48 @@ const navigate = useNavigate();
           }
 
           if (loadedSite?.editorData?.globalSettings) {
-            setGlobalSettings(loadedSite.editorData.globalSettings);
+            const mergedGlobalSettings = { ...loadedSite.editorData.globalSettings };
+            if (loadedSite.editorData.globalStyles && !mergedGlobalSettings.globalStyles) {
+              mergedGlobalSettings.globalStyles = loadedSite.editorData.globalStyles;
+            }
+            setGlobalSettings(mergedGlobalSettings);
+          } else if (loadedSite?.editorData?.globalStyles) {
+            setGlobalSettings((prev: any) => ({ ...prev, globalStyles: loadedSite.editorData.globalStyles }));
           }
 
           if (loadedSite?.editorData?.pageCss) {
             setPageCss(loadedSite.editorData.pageCss);
+          }
+
+          if (loadedSite?.editorData?.homePageId) {
+            setHomePageId(loadedSite.editorData.homePageId);
+          } else {
+            setHomePageId(initialHome.id);
+          }
+
+          if (loadedSite?.editorData?.siteParts) {
+            setSiteParts({
+              header: {
+                isEnabled: loadedSite.editorData.siteParts.header?.isEnabled ?? true,
+                elements: Array.isArray(loadedSite.editorData.siteParts.header?.elements)
+                  ? loadedSite.editorData.siteParts.header.elements
+                  : [],
+              },
+              footer: {
+                isEnabled: loadedSite.editorData.siteParts.footer?.isEnabled ?? true,
+                elements: Array.isArray(loadedSite.editorData.siteParts.footer?.elements)
+                  ? loadedSite.editorData.siteParts.footer.elements
+                  : [],
+              },
+            });
+          }
+
+          if (loadedSite?.editorData?.publishing) {
+            setPublishing(loadedSite.editorData.publishing);
+          }
+
+          if (loadedSite?.editorData?.deployment) {
+            setDeployment(loadedSite.editorData.deployment);
           }
         } else {
           // Default empty initialization if completely fresh project
@@ -1333,6 +1480,21 @@ const navigate = useNavigate();
     fetchWebsite();
   }, [websiteId, apiUrl]);
 
+  // Single source of truth: canonicalPages ensures pages[activePageId] is always up-to-date synchronously
+  const canonicalPages = useMemo(() => {
+    return pages.map((p) =>
+      p.id === activePageId && canvasMode === "page"
+        ? {
+            ...p,
+            elements,
+            pageSettings,
+            name: pageSettings.title || p.name,
+            slug: pageSettings.path || p.slug,
+          }
+        : p
+    );
+  }, [pages, activePageId, canvasMode, elements, pageSettings]);
+
   // F-321 Autosave Integration
   const {
     status: autosaveStatus,
@@ -1343,7 +1505,16 @@ const navigate = useNavigate();
     websiteId,
     elements,
     pageSettings,
-    pages,
+    pages: canonicalPages,
+    homePageId,
+    siteParts,
+    globalSettings,
+    globalStyles: globalSettings?.globalStyles,
+    publishing,
+    deployment,
+    breakpoints,
+    popups,
+    pageCss,
     apiUrl,
     isLoadingWebsite: loading,
   });
@@ -1593,6 +1764,73 @@ const navigate = useNavigate();
 
 
 
+  // F-PUBLISH: Publish Website Handler (Comment 8)
+  const handlePublishWebsite = async () => {
+    if (!websiteId) return;
+    const now = new Date().toISOString();
+    const nextVer = (publishing.version || 1) + 1;
+    const updatedPub: PublishingState = {
+      ...publishing,
+      status: "PUBLISHED",
+      version: nextVer,
+      publishedAt: now,
+      publishedBy: (website as any)?.userId,
+    };
+    setPublishing(updatedPub);
+
+    const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
+    const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+    const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+
+    const payload = {
+      editorData: {
+        version: 1,
+        elements: canonicalPageElements,
+        pages: pages.map((p) =>
+          p.id === activePageId && canvasMode === "page"
+            ? { ...p, elements: canonicalPageElements, pageSettings }
+            : p
+        ),
+        homePageId,
+        siteParts: {
+          header: {
+            isEnabled: siteParts.header?.isEnabled ?? true,
+            elements: canonicalHeaderElements,
+          },
+          footer: {
+            isEnabled: siteParts.footer?.isEnabled ?? true,
+            elements: canonicalFooterElements,
+          },
+        },
+        publishing: updatedPub,
+        deployment,
+        breakpoints,
+        globalSettings,
+        popups,
+        pageCss,
+        pageSettings,
+      },
+    };
+
+    try {
+      localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
+    } catch (e) {}
+
+    const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to persist published website state to server.");
+    }
+
+    setSaveMessage(`Website successfully published (v${nextVer})!`);
+    setTimeout(() => setSaveMessage(""), 3500);
+  };
+
   // Save Website Data
   const handleSave = async () => {
     if (!websiteId) return;
@@ -1602,13 +1840,35 @@ const navigate = useNavigate();
       setSaveMessage("");
       setErrorMessage("");
 
+      const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
+      const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+      const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+
       const payload = {
         editorData: {
           version: 1,
-          elements,
-          pages,
+          elements: canonicalPageElements,
+          pages: pages.map((p) =>
+            p.id === activePageId && canvasMode === "page"
+              ? { ...p, elements: canonicalPageElements, pageSettings }
+              : p
+          ),
+          homePageId,
+          siteParts: {
+            header: {
+              isEnabled: siteParts.header?.isEnabled ?? true,
+              elements: canonicalHeaderElements,
+            },
+            footer: {
+              isEnabled: siteParts.footer?.isEnabled ?? true,
+              elements: canonicalFooterElements,
+            },
+          },
+          publishing,
+          deployment,
           breakpoints,
           globalSettings,
+          globalStyles: globalSettings?.globalStyles,
           popups,
           pageCss,
           pageSettings,
@@ -1641,7 +1901,20 @@ const navigate = useNavigate();
       }
 
       // Update F-321 Autosave baseline on successful save
-      updateAutosaveBaseline(elements, pageSettings, pages);
+      updateAutosaveBaseline(
+        canonicalPageElements,
+        pageSettings,
+        payload.editorData.pages,
+        homePageId,
+        siteParts,
+        globalSettings,
+        globalSettings?.globalStyles,
+        publishing,
+        deployment,
+        breakpoints,
+        popups,
+        pageCss
+      );
 
       // Create F-320 Revision History snapshot
       try {
@@ -4932,7 +5205,7 @@ const navigate = useNavigate();
         )}
 
         {el.type === "nav-menu" && (
-          <NavMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <NavMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} homePageId={homePageId} />
         )}
 
         {el.type === "animated-headline" && (
@@ -5158,6 +5431,117 @@ const navigate = useNavigate();
               {website?.name || "ForgeStudio Project"}
             </span>
 
+            {/* Multi-Page Selector Dropdown & Page Manager Trigger (Comments 3, 6, 11, 22) */}
+            <div className="relative ml-1">
+              <button
+                type="button"
+                onClick={() => setIsPageSelectorOpen(!isPageSelectorOpen)}
+                className="text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                title="Switch Active Page or Manage Site Pages"
+              >
+                <span className="text-amber-400">📄</span>
+                <span className="max-w-[100px] sm:max-w-[130px] truncate font-bold">
+                  {pages.find((p) => p.id === activePageId)?.name || "Page"}
+                </span>
+                {homePageId === activePageId && (
+                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold">Home</span>
+                )}
+                <span className="text-[10px] text-slate-400">▾</span>
+              </button>
+
+              {isPageSelectorOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex items-center justify-between">
+                    <span>Site Pages</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPageSelectorOpen(false);
+                        setIsPageManagerModalOpen(true);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer text-[10px]"
+                    >
+                      Manage All ⚙️
+                    </button>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto py-1">
+                    {pages.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          handleSwitchEditingPage(p.id);
+                          setIsPageSelectorOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-slate-800 transition cursor-pointer ${
+                          p.id === activePageId ? "bg-blue-600/20 text-blue-300 font-bold" : "text-slate-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <span>{p.id === homePageId ? "🏠" : "📄"}</span>
+                          <span className="truncate">{p.name}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-mono">{p.slug}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="p-1.5 border-t border-slate-800 bg-slate-950/40">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPageSelectorOpen(false);
+                        setIsPageManagerModalOpen(true);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 text-xs text-blue-400 hover:bg-blue-900/30 rounded-lg flex items-center gap-1.5 transition font-semibold cursor-pointer"
+                    >
+                      <span>➕</span>
+                      <span>Add / Manage Pages...</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Global Site Parts / Canvas Mode Switcher (Comments 5, 17) */}
+            <div className="hidden lg:flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 ml-1">
+              <button
+                type="button"
+                onClick={() => handleSwitchCanvasMode("page")}
+                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
+                  canvasMode === "page"
+                    ? "bg-blue-600 text-white shadow-xs font-bold"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="Edit Active Page Content"
+              >
+                <span>📄 Page</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchCanvasMode("header")}
+                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
+                  canvasMode === "header"
+                    ? "bg-purple-600 text-white shadow-xs font-bold"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="Edit Global Header (Shared Across All Pages)"
+              >
+                <span>🌐 Header</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchCanvasMode("footer")}
+                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
+                  canvasMode === "footer"
+                    ? "bg-purple-600 text-white shadow-xs font-bold"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="Edit Global Footer (Shared Across All Pages)"
+              >
+                <span>🌐 Footer</span>
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => setIsFinderOpen(true)}
@@ -5335,6 +5719,20 @@ const navigate = useNavigate();
                     className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
                   >
                     {saving ? "Saving..." : "💾 Save"}
+                  </button>
+
+                  {/* F-PUBLISH: Website Publish & Deploy Trigger (Comment 8) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsPublishModalOpen(true)}
+                    className="px-3.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+                    title="Publish or Deploy Full Website"
+                  >
+                    <span>🚀</span>
+                    <span>Publish</span>
+                    {publishing.status === "PUBLISHED" && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -6793,6 +7191,20 @@ onClick={() => importFileInputRef.current?.click()}
                 : "max-w-[1024px]"
             }`}
           >
+            {/* Global Design Tokens / CSS Variables (Comment 14) */}
+            <style>{`
+              :root {
+                --forge-primary: ${globalSettings?.globalStyles?.primaryColor || "#3b82f6"};
+                --forge-secondary: ${globalSettings?.globalStyles?.secondaryColor || "#64748b"};
+                --forge-accent: ${globalSettings?.globalStyles?.accentColor || "#10b981"};
+                --forge-text: ${globalSettings?.globalStyles?.textColor || "#1e293b"};
+                --forge-bg: ${globalSettings?.globalStyles?.backgroundColor || "#ffffff"};
+                --forge-font-heading: ${globalSettings?.globalStyles?.headingFont || "inherit"};
+                --forge-font-body: ${globalSettings?.globalStyles?.bodyFont || "inherit"};
+                --forge-btn-radius: ${globalSettings?.globalStyles?.buttonBorderRadius || "6px"};
+              }
+            `}</style>
+
             {/* Dynamic Website Navigation Header in Preview Mode */}
             {isPreview ? (
               <div className="space-y-6">
@@ -6802,7 +7214,7 @@ onClick={() => importFileInputRef.current?.click()}
                     <div
                       className="flex items-center gap-2.5 cursor-pointer"
                       onClick={() => {
-                        const homePage = pages.find((p) => p.isHome || p.slug === "/") || pages[0];
+                        const homePage = pages.find((p) => p.isHome || p.id === homePageId || p.slug === "/") || pages[0];
                         if (homePage) handlePreviewPageNavigate(homePage);
                       }}
                     >
@@ -6916,51 +7328,189 @@ onClick={() => importFileInputRef.current?.click()}
                     );
                   }
 
-                  if (!activeElements || activeElements.length === 0) {
-                    return (
-                      <div className="flex h-80 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8 bg-slate-50/50">
-                        <p className="text-sm font-bold text-slate-700">
-                          Page "{currentPreviewPage?.name || "Untitled"}" is Empty
-                        </p>
-                        <p className="mt-1 text-xs text-slate-400">
-                          Switch back to the editor to add elements to this page.
-                        </p>
-                      </div>
-                    );
-                  }
-
                   return (
-                    <div className="space-y-4 py-2">
-                      {activeElements.map((el) => renderElementTree(el))}
+                    <div className="space-y-6 py-2">
+                      {/* Global Header in Preview (Comment 5, 21) */}
+                      {siteParts.header?.isEnabled && siteParts.header.elements.length > 0 && (
+                        <div className="site-global-header border-b border-slate-100 pb-4">
+                          {siteParts.header.elements.map((el) => renderElementTree(el))}
+                        </div>
+                      )}
+
+                      {/* Active Page Elements */}
+                      <div className="site-page-content">
+                        {(!activeElements || activeElements.length === 0) ? (
+                          <div className="flex h-72 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8 bg-slate-50/50">
+                            <p className="text-sm font-bold text-slate-700">
+                              Page "{currentPreviewPage?.name || "Untitled"}" is Empty
+                            </p>
+                            <p className="mt-1 text-xs text-slate-400">
+                              Switch back to the editor to add elements to this page.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {activeElements.map((el) => renderElementTree(el))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Global Footer in Preview (Comment 5, 21) */}
+                      {siteParts.footer?.isEnabled && siteParts.footer.elements.length > 0 && (
+                        <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
+                          {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
               </div>
             ) : (
               <>
-                {/* Blank Page Layout Bar (F-016) */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <span>📄</span>
-                    <span>Blank Page Canvas Layout ({pages.find((p) => p.id === activePageId)?.name || "Home"})</span>
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-400">
-                    Page Editor (No Theme Chrome)
-                  </span>
-                </div>
+                {/* Canvas Target Banner: Header Mode */}
+                {canvasMode === "header" && (
+                  <div className="flex items-center justify-between border-b-2 border-purple-500 bg-purple-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🌐</span>
+                      <div>
+                        <span className="text-xs font-bold text-purple-900 block">
+                          Editing Shared Global Header
+                        </span>
+                        <span className="text-[10px] text-purple-600 block">
+                          Changes made here appear across all pages in the website.
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page ({pages.find((p) => p.id === activePageId)?.name || "Page"})</span>
+                    </button>
+                  </div>
+                )}
 
+                {/* Canvas Target Banner: Footer Mode */}
+                {canvasMode === "footer" && (
+                  <div className="flex items-center justify-between border-b-2 border-purple-500 bg-purple-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🌐</span>
+                      <div>
+                        <span className="text-xs font-bold text-purple-900 block">
+                          Editing Shared Global Footer
+                        </span>
+                        <span className="text-[10px] text-purple-600 block">
+                          Changes made here appear across all pages in the website.
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page ({pages.find((p) => p.id === activePageId)?.name || "Page"})</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Blank Page Layout Bar (F-016) - Page Mode */}
+                {canvasMode === "page" && (
+                  <>
+                    {/* Shared Global Header Preview Banner in Page Mode */}
+                    {siteParts.header?.isEnabled && (
+                      <div className="mb-6 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
+                        <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
+                          <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>🌐</span>
+                            <span>Global Header (Shared Across All Pages)</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchCanvasMode("header")}
+                            className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>✏️</span>
+                            <span>Edit Global Header</span>
+                          </button>
+                        </div>
+                        {siteParts.header.elements.length === 0 ? (
+                          <div className="py-2 text-center text-xs text-purple-400 italic">
+                            Global header is empty. Click "Edit Global Header" to add navigation, logo, or banner.
+                          </div>
+                        ) : (
+                          <div className="space-y-3 opacity-95 pointer-events-none select-none">
+                            {siteParts.header.elements.map((el) => renderElementTree(el))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <span>📄</span>
+                        <span>Page Canvas Layout: {pages.find((p) => p.id === activePageId)?.name || "Home"}</span>
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400">
+                        Page Content (Isolated)
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Elements Tree Rendering */}
                 {elements.length === 0 ? (
                   <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 text-center p-8">
                     <p className="text-sm font-bold text-slate-700">
-                      Your Canvas is Empty
+                      {canvasMode === "header"
+                        ? "Global Header is Empty"
+                        : canvasMode === "footer"
+                        ? "Global Footer is Empty"
+                        : "Your Page Canvas is Empty"}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
-                      Click any element from the left panel to start building.
+                      {canvasMode === "header"
+                        ? "Add navigation menu, logo, buttons, or links from the left panel."
+                        : canvasMode === "footer"
+                        ? "Add footer links, copyright text, or social icons from the left panel."
+                        : "Click any element from the left panel to start building."}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {elements.map((el) => renderElementTree(el))}
+                  </div>
+                )}
+
+                {/* Shared Global Footer Preview Banner in Page Mode */}
+                {canvasMode === "page" && siteParts.footer?.isEnabled && (
+                  <div className="mt-8 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
+                    <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
+                      <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <span>🌐</span>
+                        <span>Global Footer (Shared Across All Pages)</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleSwitchCanvasMode("footer")}
+                        className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-xs flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>✏️</span>
+                        <span>Edit Global Footer</span>
+                      </button>
+                    </div>
+                    {siteParts.footer.elements.length === 0 ? (
+                      <div className="py-2 text-center text-xs text-purple-400 italic">
+                        Global footer is empty. Click "Edit Global Footer" to add footer widgets.
+                      </div>
+                    ) : (
+                      <div className="space-y-3 opacity-95 pointer-events-none select-none">
+                        {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                      </div>
+                    )}
                   </div>
                 )}
               </>
@@ -15412,6 +15962,40 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
           </div>
         </div>
       )}
+
+      {/* Multi-Page Management Modal (Comments 10, 11, 23, 36, 37) */}
+      <PageManagerModal
+        isOpen={isPageManagerModalOpen}
+        onClose={() => setIsPageManagerModalOpen(false)}
+        pages={pages}
+        activePageId={activePageId}
+        homePageId={homePageId}
+        onSwitchPage={(pageId) => {
+          handleSwitchEditingPage(pageId);
+          setIsPageManagerModalOpen(false);
+        }}
+        onUpdatePages={(updatedPages, newHomeId) => {
+          setPages(updatedPages);
+          if (newHomeId) setHomePageId(newHomeId);
+        }}
+        siteParts={siteParts}
+      />
+
+      {/* Website Publishing & Deployment Modal (Comment 8) */}
+      <PublishModal
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+        publishing={publishing}
+        deployment={deployment}
+        pages={pages}
+        websiteName={website?.name || "ForgeStudio Project"}
+        onPublish={handlePublishWebsite}
+        onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
+        onOpenPreview={() => {
+          setIsPublishModalOpen(false);
+          setIsPreview(true);
+        }}
+      />
     </div>
   );
 }

@@ -46,7 +46,8 @@ import type {
   ShareNetworkType,
   ShareNetworkItem,
   MegaMenuItem,
-  PostItem
+  PostItem,
+  PageConfig
 } from "../types";
 import {
   resolveImageUrl,
@@ -54,6 +55,7 @@ import {
   getMergedStyles,
   getMergedLayout
 } from "../utils";
+import { resolveInternalLink } from "../utils/pageManagerService";
 import { PRESET_SECTION_TEMPLATES } from "../defaults";
 
 // ==========================================
@@ -950,10 +952,14 @@ export const NavMenuWidgetRenderer = ({
   el,
   isPreview,
   mergedStyles,
+  pages = [],
+  homePageId,
 }: {
   el: EditorElement;
   isPreview: boolean;
   mergedStyles: ElementStyles;
+  pages?: PageConfig[];
+  homePageId?: string;
 }) => {
   const items: NavMenuItem[] = el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : [
     { id: "1", label: "Home", url: "/", isActive: true },
@@ -980,59 +986,52 @@ export const NavMenuWidgetRenderer = ({
   const itemActiveColor = el.navItemActiveColor || "#2563eb";
   const itemBg = el.navItemBg || "transparent";
   const itemHoverBg = el.navItemHoverBg || "rgba(241, 245, 249, 0.8)";
-  const itemActiveBg = el.navItemActiveBg || "rgba(239, 246, 255, 1)";
+  const itemActiveBg = el.navItemActiveBg || "rgba(37, 99, 235, 0.1)";
   const fontSize = el.navFontSize || "14px";
   const fontWeight = el.navFontWeight || "600";
   const textTransform = el.navTextTransform || "none";
   const submenuBg = el.navSubmenuBg || "#ffffff";
   const submenuTextColor = el.navSubmenuTextColor || "#334155";
 
-  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
+  const [activeItemId, setActiveItemId] = useState<string>("1");
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  const [activeItemId, setActiveItemId] = useState<string | null>(
-    items.find((i) => i.isActive)?.id || items[0]?.id || null
-  );
+  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
 
-  let justifyClass = "justify-start";
-  if (alignment === "center") justifyClass = "justify-center";
-  else if (alignment === "right") justifyClass = "justify-end";
-  else if (alignment === "between") justifyClass = "justify-between";
+  const getAlignmentClass = () => {
+    switch (alignment) {
+      case "center":
+        return "justify-center";
+      case "right":
+        return "justify-end";
+      case "space-between":
+        return "justify-between";
+      default:
+        return "justify-start";
+    }
+  };
 
   return (
     <nav
-      className="w-full transition-all"
+      className={`w-full ${isVertical ? "flex flex-col" : `flex items-center ${getAlignmentClass()}`}`}
       style={{
-        boxSizing: "border-box",
+        gap: `${gap}px`,
+        ...mergedStyles,
       }}
     >
-      <ul
-        className={`flex ${isVertical ? "flex-col items-stretch" : `flex-row items-center ${justifyClass}`} wrap`}
-        style={{
-          gap: `${gap}px`,
-        }}
-      >
+      <div className={`flex ${isVertical ? "flex-col" : "items-center flex-wrap"} gap-1`}>
         {items.map((item) => {
+          const isActive = activeItemId === item.id;
+          const isHovered = hoveredItemId === item.id;
           const hasSubmenu = item.submenu && item.submenu.length > 0;
-          const isItemHovered = hoveredItemId === item.id;
-          const isOpen = openSubmenuId === item.id || isItemHovered;
-          const isItemActive = item.isActive || activeItemId === item.id;
+          const isOpen = openSubmenuId === item.id;
 
-          const currentBg = isItemActive
-            ? itemActiveBg
-            : isItemHovered
-            ? itemHoverBg
-            : itemBg;
-
-          const currentColor = isItemActive
-            ? itemActiveColor
-            : isItemHovered
-            ? itemHoverColor
-            : itemColor;
+          const currentColor = isActive ? itemActiveColor : isHovered ? itemHoverColor : itemColor;
+          const currentBg = isActive ? itemActiveBg : "transparent";
 
           return (
-            <li
+            <div
               key={item.id}
-              className="relative group list-none"
+              className="relative group"
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
                 if (hasSubmenu) setOpenSubmenuId(item.id);
@@ -1042,40 +1041,54 @@ export const NavMenuWidgetRenderer = ({
                 setOpenSubmenuId(null);
               }}
             >
-              <a
-                href={item.url || "#"}
-                target={item.target || "_self"}
-                rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                onClick={(e) => {
-                  if (!isPreview) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                  setActiveItemId(item.id);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
-                style={{
-                  backgroundColor: currentBg,
-                  color: currentColor,
-                  fontSize: fontSize,
-                  fontWeight: fontWeight,
-                  textTransform: textTransform as any,
-                  fontFamily: mergedStyles.fontFamily,
-                }}
-              >
-                <span>{item.label}</span>
-                {hasSubmenu && (
-                  <svg
-                    className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
+              {(() => {
+                const resolvedUrl = item.pageId
+                  ? resolveInternalLink(`page:${item.pageId}`, pages, homePageId)
+                  : resolveInternalLink(item.url, pages, homePageId);
+                return (
+                  <a
+                    href={resolvedUrl || "#"}
+                    target={item.target || "_self"}
+                    rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+                    onClick={(e) => {
+                      if (!isPreview) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      } else if (resolvedUrl && resolvedUrl.startsWith("/")) {
+                        e.preventDefault();
+                        const newUrl = new URL(window.location.href);
+                        const cleanSlug = resolvedUrl === "/" ? "home" : resolvedUrl.replace(/^\//, "");
+                        newUrl.searchParams.set("page", cleanSlug);
+                        window.history.pushState({}, "", newUrl.toString());
+                        window.dispatchEvent(new Event("popstate"));
+                      }
+                      setActiveItemId(item.id);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none"
+                    style={{
+                      backgroundColor: currentBg,
+                      color: currentColor,
+                      fontSize: fontSize,
+                      fontWeight: fontWeight,
+                      textTransform: textTransform as any,
+                      fontFamily: mergedStyles.fontFamily,
+                    }}
                   >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                )}
-              </a>
+                    <span>{item.label}</span>
+                    {hasSubmenu && (
+                      <svg
+                        className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    )}
+                  </a>
+                );
+              })()}
 
               {/* Submenu Dropdown */}
               {hasSubmenu && (
@@ -1090,34 +1103,46 @@ export const NavMenuWidgetRenderer = ({
                   }}
                 >
                   <div className="flex flex-col gap-0.5">
-                    {item.submenu!.map((subItem: any) => (
-                      <a
-                        key={subItem.id}
-                        href={subItem.url || "#"}
-                        target={subItem.target || "_self"}
-                        rel={subItem.target === "_blank" ? "noopener noreferrer" : undefined}
-                        onClick={(e) => {
-                          if (!isPreview) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }
-                        }}
-                        className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
-                        style={{
-                          color: submenuTextColor,
-                          fontFamily: mergedStyles.fontFamily,
-                        }}
-                      >
-                        {subItem.label}
-                      </a>
-                    ))}
+                    {item.submenu!.map((subItem: any) => {
+                      const resolvedSubUrl = subItem.pageId
+                        ? resolveInternalLink(`page:${subItem.pageId}`, pages, homePageId)
+                        : resolveInternalLink(subItem.url, pages, homePageId);
+                      return (
+                        <a
+                          key={subItem.id}
+                          href={resolvedSubUrl || "#"}
+                          target={subItem.target || "_self"}
+                          rel={subItem.target === "_blank" ? "noopener noreferrer" : undefined}
+                          onClick={(e) => {
+                            if (!isPreview) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            } else if (resolvedSubUrl && resolvedSubUrl.startsWith("/")) {
+                              e.preventDefault();
+                              const newUrl = new URL(window.location.href);
+                              const cleanSlug = resolvedSubUrl === "/" ? "home" : resolvedSubUrl.replace(/^\//, "");
+                              newUrl.searchParams.set("page", cleanSlug);
+                              window.history.pushState({}, "", newUrl.toString());
+                              window.dispatchEvent(new Event("popstate"));
+                            }
+                          }}
+                          className="rounded-xl px-3 py-2 text-xs font-semibold hover:bg-slate-100/80 transition duration-150 cursor-pointer block"
+                          style={{
+                            color: submenuTextColor,
+                            fontFamily: mergedStyles.fontFamily,
+                          }}
+                        >
+                          {subItem.label}
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}
-            </li>
+            </div>
           );
         })}
-      </ul>
+      </div>
     </nav>
   );
 };
