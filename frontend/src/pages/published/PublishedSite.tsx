@@ -503,10 +503,14 @@ export default function PublishedSite() {
         const fetchWebsite = async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${apiUrl}/api/websites/${websiteId}`);
+                let res = await fetch(`${apiUrl}/api/v1/websites/public/${websiteId}`);
+                if (!res.ok && res.status !== 404) {
+                    const fallback = await fetch(`${apiUrl}/api/websites/public/${websiteId}`);
+                    if (fallback.ok) res = fallback;
+                }
                 const data = await res.json();
 
-                if (!res.ok) throw new Error(data?.message || "Failed to load website runtime.");
+                if (!res.ok) throw new Error("This website is unavailable.");
 
                 const site = data.website || data;
 
@@ -529,8 +533,8 @@ export default function PublishedSite() {
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
 
-            } catch (err: any) {
-                setErrorMessage(err.message || "Failed to boot published runtime");
+            } catch (_err: any) {
+                setErrorMessage("This website is unavailable.");
             } finally {
                 setLoading(false);
             }
@@ -618,8 +622,24 @@ export default function PublishedSite() {
         };
     }, [elements, activeBreakpointId, breakpoints, globalSettings]);
 
-    if (loading) return <div className="min-h-screen text-slate-500 bg-slate-50 text-center flex items-center justify-center">Loading Website...</div>;
-    if (errorMessage) return <div className="text-red-500 m-4">Error: {errorMessage}</div>;
+    if (loading) {
+        return (
+            <div className="min-h-screen text-slate-500 bg-slate-50 flex items-center justify-center text-sm font-medium">
+                Loading...
+            </div>
+        );
+    }
+    if (errorMessage) {
+        return (
+            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center">
+                <div className="text-5xl mb-4">🌐</div>
+                <h1 className="text-2xl font-bold mb-2">This website is unavailable.</h1>
+                <p className="text-slate-500 max-w-md text-sm">
+                    The requested page cannot be found or is not currently published.
+                </p>
+            </div>
+        );
+    }
 
     if (siteStatus === "MAINTENANCE") {
         return (

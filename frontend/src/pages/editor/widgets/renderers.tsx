@@ -48,11 +48,11 @@ import type {
   ShareNetworkItem,
   ShareActionType,
   MegaMenuItem,
+  PostItem,
+  PageConfig,
   MegaMenuColumn,
   MegaMenuColumnLink,
-  PageConfig,
-  SiteProduct,
-  PostItem
+  SiteProduct
 } from "../types";
 import {
   resolveImageUrl,
@@ -1023,6 +1023,7 @@ export const NavMenuWidgetRenderer = ({
   mergedStyles,
   pages = [],
   homePageId,
+  siteProducts,
   siteProducts = [],
   onNavigatePage,
 }: {
@@ -1070,6 +1071,8 @@ export const NavMenuWidgetRenderer = ({
   const submenuTextColor = el.navSubmenuTextColor || "#334155";
   const globalTrigger = el.navTrigger || "hover";
 
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
@@ -1143,6 +1146,7 @@ export const NavMenuWidgetRenderer = ({
   };
 
   return (
+    <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily }}>
     <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily, ...mergedStyles }}>
       {/* Mobile Hamburger Button */}
       <div className="flex sm:hidden items-center justify-between p-2 w-full">
@@ -1179,7 +1183,7 @@ export const NavMenuWidgetRenderer = ({
           const currentColor = isItemActive ? itemActiveColor : isItemHovered ? itemHoverColor : itemColor;
 
           return (
-            <div
+            <li
               key={item.id}
               className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
               onMouseEnter={() => {
@@ -1286,7 +1290,7 @@ export const NavMenuWidgetRenderer = ({
                   </div>
                 </div>
               )}
-            </div>
+            </li>
           );
         })}
       </ul>

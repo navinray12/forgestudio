@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma.js";
 
-// F-115 background worker
+// Background worker
 // Periodically checks editorData JSON for scheduled publication of custom code
 
 const POLL_INTERVAL_MS = 60 * 1000; // Check every 60 seconds
@@ -30,7 +30,7 @@ async function processScheduledPublications() {
                     status: 'PUBLISHED'
                 }
             });
-            console.log(`[Scheduler] F-115 Executed pending snippet: ${snippet.title} (${snippet.id}) into PUBLISHED mode.`);
+            console.log(`[Scheduler] Executed pending snippet: ${snippet.title} (${snippet.id}) into PUBLISHED mode.`);
         }
     } catch (error: any) {
         if (error?.code === 'P2021' || error?.message?.includes("does not exist")) {
@@ -42,7 +42,7 @@ async function processScheduledPublications() {
 }
 
 export function startScheduler() {
-    console.log("[Scheduler] F-115 Scheduled Worker Initialized in Background.");
+    console.log("[Scheduler] Scheduled Worker Initialized in Background.");
     // Run at startup
     processScheduledPublications();
     // Re-run periodically

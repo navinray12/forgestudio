@@ -13,11 +13,15 @@ import {
   removeWebsiteMemberHandler,
   getGranularPermissionsHandler,
   setGranularPermissionHandler,
+  getPublicWebsiteHandler,
 } from "../controllers/website.controller.js";
 
 const router = Router();
 
-// Protect all website endpoints with authentication
+// Public endpoint for published websites (Unauthenticated, Comment 7 & 8)
+router.get("/public/:id", getPublicWebsiteHandler);
+
+// Protect all other website endpoints with authentication
 router.use(requireAuth);
 
 router.get("/", getWebsitesHandler);

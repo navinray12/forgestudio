@@ -630,6 +630,7 @@ export interface EditorElement {
   alt?: string;
   href?: string;
   linkPageId?: string;
+  linkType?: "page" | "url" | "anchor" | "product" | string;
   linkType?: "page" | "url" | "anchor" | "product";
   destinationType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
@@ -670,6 +671,9 @@ export interface EditorElement {
   portfolioShowCategory?: boolean;
   portfolioShowDescription?: boolean;
   portfolioShowLink?: boolean;
+  slides?: any[];
+  testimonials?: any[];
+  reviews?: any[];
   slidesItems?: SlideItem[];
   slidesActiveIndex?: number;
   slidesAutoplay?: boolean;
@@ -1193,12 +1197,14 @@ export interface EditorElement {
 
 export interface SitePartsConfig {
   header?: {
-    enabled: boolean;
+    enabled?: boolean;
+    isEnabled?: boolean;
     elements: EditorElement[];
     customCss?: string;
   };
   footer?: {
-    enabled: boolean;
+    enabled?: boolean;
+    isEnabled?: boolean;
     elements: EditorElement[];
     customCss?: string;
   };
@@ -1228,6 +1234,16 @@ export interface GlobalStylesConfig {
     maxWidth?: string;
     defaultPadding?: string;
   };
+  // Backward compatibility / convenience flat properties
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingFont?: string;
+  bodyFont?: string;
+  borderRadius?: string;
+  containerMaxWidth?: string;
 }
 
 export interface PublishingState {
@@ -1235,17 +1251,23 @@ export interface PublishingState {
   publishedAt?: string;
   publishedVersion?: number;
   publishedBy?: string;
+  version?: number;
 }
 
 export interface DeploymentConfig {
-  provider: "custom" | "vercel" | "netlify" | "sftp" | "static";
+  provider: "none" | "custom" | "vercel" | "netlify" | "sftp" | "static";
   customDomain?: string;
   stagingUrl?: string;
   productionUrl?: string;
   sslActive?: boolean;
+  webhookUrl?: string;
+  deployedAt?: string;
 }
 
 export interface CanonicalWebsiteData {
+  id?: string;
+  name?: string;
+  slug?: string;
   version: number;
   homePageId: string;
   pages: PageConfig[];
@@ -1270,6 +1292,7 @@ export interface CanonicalWebsiteData {
   popups?: any[];
   pageCss?: string;
   globalSettings?: any;
+  publishedData?: any;
 }
 
 export interface WebsiteData {

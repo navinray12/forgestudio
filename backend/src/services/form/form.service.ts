@@ -134,7 +134,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     throw new AppError("Website ID and Form ID are required", 400, "INVALID_FORM_SUBMISSION");
   }
 
-  // 1. Honeypot Spam Check (F-277)
+  // 1. Honeypot Spam Check
   if (spamProtection?.enableHoneypot !== false && honeypotValue && honeypotValue.trim().length > 0) {
     // Silently drop spam submissions without giving bots feedback
     return {
@@ -143,7 +143,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     };
   }
 
-  // 2. IP Rate Limiter Check (F-277)
+  // 2. IP Rate Limiter Check
   const clientIp = metadata?.ip || "unknown";
   const rateLimit = spamProtection?.rateLimitPerMinute ?? 5;
   if (!checkRateLimit(clientIp, rateLimit)) {
@@ -166,7 +166,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
   const activeActions = actions?.activeActions || ["database"];
   const executionResults: Record<string, boolean> = {};
 
-  // 4. Action: Database Persistence (F-276, F-278)
+  // 4. Action: Database Persistence
   if (activeActions.includes("database")) {
     try {
       const dataJsonStr = JSON.stringify(sanitizedFields);
@@ -183,7 +183,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     }
   }
 
-  // 5. Action: Webhook Dispatcher (F-281)
+  // 5. Action: Webhook Dispatcher
   if (activeActions.includes("webhook") && actions?.webhookConfig?.endpointUrl) {
     const endpoint = actions.webhookConfig.endpointUrl.trim();
     if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
@@ -223,7 +223,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     }
   }
 
-  // 6. Action: Email Notification Dispatcher (F-280)
+  // 6. Action: Email Notification Dispatcher
   if (activeActions.includes("email") && actions?.emailConfig?.toEmail) {
     // Log formatted email notification dispatch (production integrates nodemailer/SES)
     console.log(

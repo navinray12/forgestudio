@@ -215,3 +215,26 @@ export async function setGranularPermissionHandler(req: Request, res: Response, 
     return res.status(200).json({ ...result, success: true });
   } catch (error) { next(error); }
 }
+
+/**
+ * GET /api/v1/websites/public/:id
+ * Public unauthenticated endpoint for published website runtime (Comment 7 & 8)
+ */
+export async function getPublicWebsiteHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const websiteId = req.params.id as string;
+    const { getPublicWebsiteById } = await import("../services/website.service.js");
+    const website = await getPublicWebsiteById(websiteId);
+
+    return res.status(200).json({
+      success: true,
+      website,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

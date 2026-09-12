@@ -10,7 +10,7 @@ import {
 
 import { rateLimit } from "express-rate-limit"; // Common default rate limiter
 
-// F-118 Rate limits
+// Developer API Rate limits
 const generalApiLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 100,

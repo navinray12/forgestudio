@@ -90,7 +90,7 @@ export async function getWebsiteById(websiteId: string, userId: string) {
         if (website.userId === userId) {
           permission = "OWNER";
         } else {
-          // F-404: Check WebsiteCollaborator explicitly
+          // Check WebsiteCollaborator explicitly
           const collab = await db.websiteCollaborator.findUnique({
             where: {
               websiteId_userId: { websiteId, userId }
@@ -207,7 +207,7 @@ export async function updateWebsiteEditorData(
   editorData: any,
   performanceSettings?: any
 ) {
-  // Ensure website exists and fetch F-404 permission boundaries
+  // Ensure website exists and fetch permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 
   const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
@@ -217,7 +217,7 @@ export async function updateWebsiteEditorData(
     throw new AppError("You do not have permission to edit this component.", 403, "FORBIDDEN");
   }
 
-  // F-405 / F-404: Safe Component / Content Editing Mode
+  // Safe Component / Content Editing Mode
   const isWebsiteOwner = website.userId === userId;
   const isCollaboratorAdmin = (website as unknown as any).userPermission === "ADMIN";
   const isAdmin = isWebsiteOwner || isCollaboratorAdmin;
@@ -342,10 +342,12 @@ export async function updateWebsiteEditorData(
   };
 
   try {
+    const isPublishing = editorData.publishing?.status === "PUBLISHED";
     if (db?.website?.update) {
       const updateData: any = {
         editorData,
         updatedAt: new Date(),
+        ...(isPublishing ? { status: "PUBLISHED" } : {}),
       };
       if (performanceSettings !== undefined) {
         updateData.performanceSettings = performanceSettings;
@@ -362,19 +364,37 @@ export async function updateWebsiteEditorData(
 
     if (performanceSettings !== undefined) {
       const perfStr = JSON.stringify(performanceSettings);
-      updated = await prisma.$queryRaw`
-         UPDATE websites
-         SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
-         WHERE id = ${websiteId}::uuid
-         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-       `;
+      if (isPublishing) {
+        updated = await prisma.$queryRaw`
+           UPDATE websites
+           SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
+           WHERE id = ${websiteId}::uuid
+           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+         `;
+      } else {
+        updated = await prisma.$queryRaw`
+           UPDATE websites
+           SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
+           WHERE id = ${websiteId}::uuid
+           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+         `;
+      }
     } else {
-      updated = await prisma.$queryRaw`
-         UPDATE websites
-         SET "editorData" = ${jsonStr}::jsonb, "updatedAt" = NOW()
-         WHERE id = ${websiteId}::uuid
-         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-       `;
+      if (isPublishing) {
+        updated = await prisma.$queryRaw`
+           UPDATE websites
+           SET "editorData" = ${jsonStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
+           WHERE id = ${websiteId}::uuid
+           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+         `;
+      } else {
+        updated = await prisma.$queryRaw`
+           UPDATE websites
+           SET "editorData" = ${jsonStr}::jsonb, "updatedAt" = NOW()
+           WHERE id = ${websiteId}::uuid
+           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+         `;
+      }
     }
 
     return updated[0];
@@ -388,7 +408,7 @@ export async function updateWebsiteEditorData(
  * Delete a website with ownership check
  */
 export async function deleteWebsite(websiteId: string, userId: string) {
-  // Extract F-404 permission boundaries
+  // Extract permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 
   if (website.userPermission !== "OWNER") {
@@ -580,4 +600,131 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
   });
 
   return { success: true };
+}
+
+/**
+ * Public Website DTO Projection (Comment 8)
+ * Strictly unauthenticated read endpoint for published websites.
+ * Strips all user IDs, collaborator data, session info, credentials, and internal configs.
+ */
+export interface PublicWebsiteDTO {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  editorData: {
+    version: number;
+    homePageId?: string;
+    pages: any[];
+    elements: any[];
+    siteParts?: any;
+    globalStyles?: any;
+    breakpoints?: any[];
+    popups?: any[];
+    pageCss?: string;
+    globalSettings?: any;
+    siteSettings?: {
+      siteName?: string;
+      siteLogo?: string;
+      favicon?: string;
+      siteLanguage?: string;
+      customHead?: string;
+    };
+    publishing?: {
+      status: string;
+      publishedAt?: string;
+      version?: number;
+    };
+  };
+  customCodeSnippets?: Array<{
+    id: string;
+    title: string | null;
+    placement: string;
+    code: string;
+    priority?: number;
+    language?: string;
+  }>;
+}
+
+export async function getPublicWebsiteById(websiteId: string): Promise<PublicWebsiteDTO> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(websiteId);
+
+  const website = await prisma.website.findFirst({
+    where: isUuid ? { id: websiteId } : { slug: websiteId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      editorData: true,
+      customCodeSnippets: {
+        where: {
+          status: "PUBLISHED",
+        },
+        select: {
+          id: true,
+          title: true,
+          placement: true,
+          code: true,
+          priority: true,
+          language: true,
+        },
+      },
+    },
+  });
+
+  if (!website) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  const rawEditorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  // Check authoritative publishing state (Comment 9)
+  const isPublished =
+    website.status === "PUBLISHED" ||
+    rawEditorData?.publishing?.status === "PUBLISHED";
+
+  if (!isPublished) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
+  const sourceData = rawEditorData.publishedData || rawEditorData;
+
+  // Build explicit sanitized public DTO projection (Comment 8)
+  const publicEditorData = {
+    version: sourceData.version || 1,
+    homePageId: sourceData.homePageId,
+    pages: Array.isArray(sourceData.pages) ? sourceData.pages : [],
+    elements: Array.isArray(sourceData.elements) ? sourceData.elements : [],
+    siteParts: sourceData.siteParts || undefined,
+    globalStyles: sourceData.globalStyles || undefined,
+    breakpoints: sourceData.breakpoints || undefined,
+    popups: sourceData.popups || undefined,
+    pageCss: sourceData.pageCss || undefined,
+    globalSettings: sourceData.globalSettings || undefined,
+    siteSettings: sourceData.siteSettings ? {
+      siteName: sourceData.siteSettings.siteName,
+      siteLogo: sourceData.siteSettings.siteLogo,
+      favicon: sourceData.siteSettings.favicon,
+      siteLanguage: sourceData.siteSettings.siteLanguage,
+      customHead: sourceData.siteSettings.customHead,
+    } : undefined,
+    publishing: {
+      status: "PUBLISHED",
+      publishedAt: sourceData.publishing?.publishedAt,
+      version: sourceData.publishing?.version || sourceData.publishing?.publishedVersion,
+    },
+  };
+
+  return {
+    id: website.id,
+    name: website.name,
+    slug: website.slug,
+    status: "PUBLISHED",
+    editorData: publicEditorData,
+    customCodeSnippets: website.customCodeSnippets,
+  };
 }

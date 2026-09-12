@@ -7,7 +7,7 @@ import { AUTH_COOKIE_NAME, AUTH_COOKIE_OPTIONS } from "../config/auth.js";
 
 const router = Router();
 
-// Generate Temporary Support Token (F-020)
+// Generate Temporary Support Token
 router.post(
   "/support-token",
   requireAuth,
@@ -33,7 +33,7 @@ router.post(
   }
 );
 
-// Login using Support Token (F-020)
+// Login using Support Token
 router.post(
   "/support-login",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -75,7 +75,7 @@ router.post(
   }
 );
 
-// Revoke Support Tokens (F-020)
+// Revoke Support Tokens
 router.post(
   "/revoke-support-tokens",
   requireAuth,

@@ -818,7 +818,7 @@ const [siteParts, setSiteParts] = useState<SitePartsConfig>({
   footer: { enabled: true, elements: [] },
 });
 
-// F-PUBLISH: Publishing State & Deployment Configuration (Comment 8)
+// Publishing State & Deployment Configuration
 const [publishing, setPublishing] = useState<PublishingState>({
   status: "DRAFT",
   publishedVersion: 1,
@@ -826,6 +826,7 @@ const [publishing, setPublishing] = useState<PublishingState>({
 const [deployment, setDeployment] = useState<DeploymentConfig>({
   provider: "static",
 });
+const publishedDataRef = useRef<any>(null);
 
 // Canvas Editing Target Mode: "page" | "header" | "footer"
 const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
@@ -1599,6 +1600,10 @@ const navigate = useNavigate();
           if (loadedSite?.editorData?.deployment) {
             setDeployment(loadedSite.editorData.deployment);
           }
+
+          if (loadedSite?.editorData?.publishedData) {
+            publishedDataRef.current = loadedSite.editorData.publishedData;
+          }
         } else {
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
@@ -1925,8 +1930,40 @@ const navigate = useNavigate();
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
+    const publishedSnapshot = {
+      version: 1,
+      elements: canonicalPageElements,
+      pages: pages.map((p) =>
+        p.id === activePageId && canvasMode === "page"
+          ? { ...p, elements: canonicalPageElements, pageSettings }
+          : p
+      ),
+      homePageId,
+      siteParts: {
+        header: {
+          isEnabled: siteParts.header?.isEnabled ?? true,
+          elements: canonicalHeaderElements,
+        },
+        footer: {
+          isEnabled: siteParts.footer?.isEnabled ?? true,
+          elements: canonicalFooterElements,
+        },
+      },
+      publishing: updatedPub,
+      deployment,
+      breakpoints,
+      globalSettings,
+      popups,
+      pageCss,
+      pageSettings,
+    };
+
+    publishedDataRef.current = publishedSnapshot;
+
     const payload = {
       editorData: {
+        ...publishedSnapshot,
+        publishedData: publishedSnapshot,
         version: 1,
         elements: canonicalPageElements,
         pages: pages.map((p) =>
@@ -2015,6 +2052,7 @@ const navigate = useNavigate();
           popups,
           pageCss,
           pageSettings,
+          ...(publishedDataRef.current ? { publishedData: publishedDataRef.current } : {}),
         },
       };
 
@@ -2369,7 +2407,7 @@ const navigate = useNavigate();
     }
   }, [selectedElement?.content, selectedElement?.src, selectedElement?.styles, selectedElement?.layout, selectedElement?.responsiveStyles, selectedElement?.responsiveLayout]);
 
-  const updateSelectedProp = (key: keyof EditorElement, value: any) => {
+  const updateSelectedProp = (key: keyof EditorElement | string, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => ({ ...el, [key]: value }))
@@ -3319,7 +3357,7 @@ const navigate = useNavigate();
       mergedStyles.transformTranslateX ||
       mergedStyles.transformTranslateY
     ) {
-      const transforms = [];
+      const transforms: string[] = [];
       if (mergedStyles.transformRotate) transforms.push(`rotate(${mergedStyles.transformRotate})`);
       if (mergedStyles.transformScale) transforms.push(`scale(${mergedStyles.transformScale})`);
       if (mergedStyles.transformTranslateX || mergedStyles.transformTranslateY) {
@@ -5667,12 +5705,12 @@ const navigate = useNavigate();
         )}
 
         {el.type === "html" && (
-          <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block (F-110)</p>" }} className="w-full h-full" />
+          <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block</p>" }} className="w-full h-full" />
         )}
 
         {el.type === "shortcode" && (
           <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs font-mono text-amber-800 text-center break-all transition">
-            {el.content ? `[ ${el.content} ]` : "Enter Shortcode here (F-111)"}
+            {el.content ? `[ ${el.content} ]` : "Enter Shortcode here"}
             <div className="opacity-60 text-[9px] mt-1 uppercase font-bold tracking-wider">Renders Dynamically on Publish</div>
           </div>
         )}
@@ -7727,6 +7765,9 @@ onClick={() => importFileInputRef.current?.click()}
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
+                    {/* Shared Global Header Preview Banner in Page Mode (Hidden for now per user request) */}
+                    {/*
+                    {siteParts.header?.isEnabled && (
                     {/* Shared Global Header Preview Banner in Page Mode */}
                     {siteParts.header?.enabled && (
                       <div className="mb-6 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
@@ -7744,17 +7785,18 @@ onClick={() => importFileInputRef.current?.click()}
                             <span>Edit Global Header</span>
                           </button>
                         </div>
-                        {siteParts.header.elements.length === 0 ? (
+                        {siteParts.header?.elements?.length === 0 ? (
                           <div className="py-2 text-center text-xs text-purple-400 italic">
                             Global header is empty. Click "Edit Global Header" to add navigation, logo, or banner.
                           </div>
                         ) : (
                           <div className="space-y-3 opacity-95 pointer-events-none select-none">
-                            {siteParts.header.elements.map((el) => renderElementTree(el))}
+                            {siteParts.header?.elements?.map((el) => renderElementTree(el))}
                           </div>
                         )}
                       </div>
                     )}
+                    */}
 
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -7792,6 +7834,9 @@ onClick={() => importFileInputRef.current?.click()}
                   </div>
                 )}
 
+                {/* Shared Global Footer Preview Banner in Page Mode (Hidden for now per user request) */}
+                {/*
+                {canvasMode === "page" && siteParts.footer?.isEnabled && (
                 {/* Shared Global Footer Preview Banner in Page Mode */}
                 {canvasMode === "page" && siteParts.footer?.enabled && (
                   <div className="mt-8 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
@@ -7809,17 +7854,18 @@ onClick={() => importFileInputRef.current?.click()}
                         <span>Edit Global Footer</span>
                       </button>
                     </div>
-                    {siteParts.footer.elements.length === 0 ? (
+                    {siteParts.footer?.elements?.length === 0 ? (
                       <div className="py-2 text-center text-xs text-purple-400 italic">
                         Global footer is empty. Click "Edit Global Footer" to add footer widgets.
                       </div>
                     ) : (
                       <div className="space-y-3 opacity-95 pointer-events-none select-none">
-                        {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                        {siteParts.footer?.elements?.map((el) => renderElementTree(el))}
                       </div>
                     )}
                   </div>
                 )}
+                */}
               </>
             )}
           </div>
@@ -8646,7 +8692,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
 {selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "basic-gallery" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "form" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && (
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                              {selectedElementAny.type === "html" ? "Raw HTML Editor (F-110)" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
+                              {selectedElementAny.type === "html" ? "Raw HTML Editor" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode" : "Content"}
                             </label>
                             {selectedElementAny.type === "html" || selectedElementAny.type === "text" || selectedElementAny.type === "shortcode" ? (
                               <textarea
@@ -17195,6 +17241,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         deployment={deployment}
         pages={pages}
         websiteName={website?.name || "ForgeStudio Project"}
+        websiteId={websiteId || ""}
         onPublish={handlePublishWebsite}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
         onOpenPreview={() => {
