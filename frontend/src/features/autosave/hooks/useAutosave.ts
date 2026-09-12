@@ -9,6 +9,15 @@ interface UseAutosaveParams {
   elements: EditorElement[];
   pageSettings: PageSettingsData;
   pages?: any[];
+  homePageId?: string;
+  siteParts?: any;
+  globalSettings?: any;
+  globalStyles?: any;
+  publishing?: any;
+  deployment?: any;
+  breakpoints?: any[];
+  popups?: any[];
+  pageCss?: string;
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
@@ -19,6 +28,15 @@ interface SavePayload {
   elements: EditorElement[];
   pageSettings: PageSettingsData;
   pages?: any[];
+  homePageId?: string;
+  siteParts?: any;
+  globalSettings?: any;
+  globalStyles?: any;
+  publishing?: any;
+  deployment?: any;
+  breakpoints?: any[];
+  popups?: any[];
+  pageCss?: string;
 }
 
 export function useAutosave({
@@ -26,6 +44,15 @@ export function useAutosave({
   elements,
   pageSettings,
   pages = [],
+  homePageId,
+  siteParts,
+  globalSettings,
+  globalStyles,
+  publishing,
+  deployment,
+  breakpoints,
+  popups,
+  pageCss,
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
@@ -42,21 +69,89 @@ export function useAutosave({
   const queuedPayloadRef = useRef<SavePayload | null>(null);
 
   // Latest props stored in refs for access inside async callbacks
-  const latestPropsRef = useRef({ websiteId, elements, pageSettings, pages, apiUrl });
+  const latestPropsRef = useRef({
+    websiteId,
+    elements,
+    pageSettings,
+    pages,
+    homePageId,
+    siteParts,
+    globalSettings,
+    globalStyles,
+    publishing,
+    deployment,
+    breakpoints,
+    popups,
+    pageCss,
+    apiUrl,
+  });
+
   useEffect(() => {
-    latestPropsRef.current = { websiteId, elements, pageSettings, pages, apiUrl };
-  }, [websiteId, elements, pageSettings, pages, apiUrl]);
+    latestPropsRef.current = {
+      websiteId,
+      elements,
+      pageSettings,
+      pages,
+      homePageId,
+      siteParts,
+      globalSettings,
+      globalStyles,
+      publishing,
+      deployment,
+      breakpoints,
+      popups,
+      pageCss,
+      apiUrl,
+    };
+  }, [
+    websiteId,
+    elements,
+    pageSettings,
+    pages,
+    homePageId,
+    siteParts,
+    globalSettings,
+    globalStyles,
+    publishing,
+    deployment,
+    breakpoints,
+    popups,
+    pageCss,
+    apiUrl,
+  ]);
 
   /**
    * Helper to serialize meaningful editor data to a JSON string comparison key
    */
   const serializeState = useCallback(
-    (currentElements: EditorElement[], currentPageSettings: PageSettingsData, currentPages: any[] = []): string => {
+    (
+      currentElements: EditorElement[],
+      currentPageSettings: PageSettingsData,
+      currentPages: any[] = [],
+      currentHomePageId?: string,
+      currentSiteParts?: any,
+      currentGlobalSettings?: any,
+      currentGlobalStyles?: any,
+      currentPublishing?: any,
+      currentDeployment?: any,
+      currentBreakpoints?: any[],
+      currentPopups?: any[],
+      currentPageCss?: string
+    ): string => {
       try {
         return JSON.stringify({
           elements: currentElements || [],
           pageSettings: currentPageSettings || {},
           pages: currentPages || [],
+          homePageId: currentHomePageId || "",
+          siteParts: currentSiteParts || null,
+          globalSettings: currentGlobalSettings || null,
+          globalStyles: currentGlobalStyles || currentGlobalSettings?.globalStyles || null,
+          publishing: currentPublishing || null,
+          deployment: currentDeployment || null,
+          breakpoints: currentBreakpoints || null,
+          popups: currentPopups || null,
+          pageCss: currentPageCss || "",
         });
       } catch (err) {
         console.error("Failed to serialize editor state for autosave:", err);
@@ -70,13 +165,39 @@ export function useAutosave({
    * Method to manually update the baseline (e.g. after manual save or revision restore)
    */
   const updateBaseline = useCallback(
-    (newElements: EditorElement[], newPageSettings?: PageSettingsData, newPages?: any[]) => {
+    (
+      newElements: EditorElement[],
+      newPageSettings?: PageSettingsData,
+      newPages?: any[],
+      newHomePageId?: string,
+      newSiteParts?: any,
+      newGlobalSettings?: any,
+      newGlobalStyles?: any,
+      newPublishing?: any,
+      newDeployment?: any,
+      newBreakpoints?: any[],
+      newPopups?: any[],
+      newPageCss?: string
+    ) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
       queuedPayloadRef.current = null;
-      const snapshot = serializeState(newElements, newPageSettings || {}, newPages || []);
+      const snapshot = serializeState(
+        newElements,
+        newPageSettings || {},
+        newPages || [],
+        newHomePageId || latestPropsRef.current.homePageId,
+        newSiteParts || latestPropsRef.current.siteParts,
+        newGlobalSettings || latestPropsRef.current.globalSettings,
+        newGlobalStyles || latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles,
+        newPublishing || latestPropsRef.current.publishing,
+        newDeployment || latestPropsRef.current.deployment,
+        newBreakpoints || latestPropsRef.current.breakpoints,
+        newPopups || latestPropsRef.current.popups,
+        newPageCss !== undefined ? newPageCss : latestPropsRef.current.pageCss
+      );
       baselineRef.current = snapshot;
       isInitializedRef.current = true;
       setStatus("saved");
@@ -109,6 +230,15 @@ export function useAutosave({
             elements: payload.elements,
             pageSettings: payload.pageSettings,
             pages: payload.pages || [],
+            homePageId: payload.homePageId,
+            siteParts: payload.siteParts,
+            globalSettings: payload.globalSettings,
+            globalStyles: payload.globalStyles,
+            publishing: payload.publishing,
+            deployment: payload.deployment,
+            breakpoints: payload.breakpoints,
+            popups: payload.popups,
+            pageCss: payload.pageCss,
           },
         };
 
@@ -166,7 +296,16 @@ export function useAutosave({
           const currentLiveSnapshot = serializeState(
             latestPropsRef.current.elements,
             latestPropsRef.current.pageSettings,
-            latestPropsRef.current.pages
+            latestPropsRef.current.pages,
+            latestPropsRef.current.homePageId,
+            latestPropsRef.current.siteParts,
+            latestPropsRef.current.globalSettings,
+            latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles,
+            latestPropsRef.current.publishing,
+            latestPropsRef.current.deployment,
+            latestPropsRef.current.breakpoints,
+            latestPropsRef.current.popups,
+            latestPropsRef.current.pageCss
           );
 
           if (currentLiveSnapshot !== baselineRef.current) {
@@ -193,12 +332,41 @@ export function useAutosave({
 
     // Establish initial baseline on first load completion
     if (!isInitializedRef.current || baselineRef.current === null) {
-      const initialSnapshot = serializeState(elements, pageSettings, pages);
+      const initialSnapshot = serializeState(
+        elements,
+        pageSettings,
+        pages,
+        homePageId,
+        siteParts,
+        globalSettings,
+        globalStyles || globalSettings?.globalStyles,
+        publishing,
+        deployment,
+        breakpoints,
+        popups,
+        pageCss
+      );
       baselineRef.current = initialSnapshot;
       isInitializedRef.current = true;
       setStatus("saved");
     }
-  }, [isLoadingWebsite, websiteId, elements, pageSettings, pages, serializeState]);
+  }, [
+    isLoadingWebsite,
+    websiteId,
+    elements,
+    pageSettings,
+    pages,
+    homePageId,
+    siteParts,
+    globalSettings,
+    globalStyles,
+    publishing,
+    deployment,
+    breakpoints,
+    popups,
+    pageCss,
+    serializeState,
+  ]);
 
   // Change Detection & Debouncing
   useEffect(() => {
@@ -206,7 +374,20 @@ export function useAutosave({
       return;
     }
 
-    const currentSnapshot = serializeState(elements, pageSettings, pages);
+    const currentSnapshot = serializeState(
+      elements,
+      pageSettings,
+      pages,
+      homePageId,
+      siteParts,
+      globalSettings,
+      globalStyles || globalSettings?.globalStyles,
+      publishing,
+      deployment,
+      breakpoints,
+      popups,
+      pageCss
+    );
 
     // If current state matches baseline, status is saved
     if (currentSnapshot === baselineRef.current) {
@@ -228,12 +409,21 @@ export function useAutosave({
       clearTimeout(timerRef.current);
     }
 
-    // Start 1.5s debounce timer
+    // Start debounce timer
     timerRef.current = setTimeout(() => {
       const snapshotToSave = serializeState(
         latestPropsRef.current.elements,
         latestPropsRef.current.pageSettings,
-        latestPropsRef.current.pages
+        latestPropsRef.current.pages,
+        latestPropsRef.current.homePageId,
+        latestPropsRef.current.siteParts,
+        latestPropsRef.current.globalSettings,
+        latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles,
+        latestPropsRef.current.publishing,
+        latestPropsRef.current.deployment,
+        latestPropsRef.current.breakpoints,
+        latestPropsRef.current.popups,
+        latestPropsRef.current.pageCss
       );
 
       if (snapshotToSave === baselineRef.current) {
@@ -242,9 +432,32 @@ export function useAutosave({
 
       const payloadToSave: SavePayload = {
         snapshot: snapshotToSave,
-        elements: JSON.parse(JSON.stringify(latestPropsRef.current.elements)),
-        pageSettings: JSON.parse(JSON.stringify(latestPropsRef.current.pageSettings)),
+        elements: JSON.parse(JSON.stringify(latestPropsRef.current.elements || [])),
+        pageSettings: JSON.parse(JSON.stringify(latestPropsRef.current.pageSettings || {})),
         pages: JSON.parse(JSON.stringify(latestPropsRef.current.pages || [])),
+        homePageId: latestPropsRef.current.homePageId,
+        siteParts: latestPropsRef.current.siteParts
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.siteParts))
+          : undefined,
+        globalSettings: latestPropsRef.current.globalSettings
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.globalSettings))
+          : undefined,
+        globalStyles: latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles))
+          : undefined,
+        publishing: latestPropsRef.current.publishing
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.publishing))
+          : undefined,
+        deployment: latestPropsRef.current.deployment
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.deployment))
+          : undefined,
+        breakpoints: latestPropsRef.current.breakpoints
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.breakpoints))
+          : undefined,
+        popups: latestPropsRef.current.popups
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.popups))
+          : undefined,
+        pageCss: latestPropsRef.current.pageCss,
       };
 
       if (isSavingRef.current) {
@@ -259,7 +472,26 @@ export function useAutosave({
         clearTimeout(timerRef.current);
       }
     };
-  }, [elements, pageSettings, pages, websiteId, isLoadingWebsite, debounceMs, serializeState, performSave, status]);
+  }, [
+    elements,
+    pageSettings,
+    pages,
+    homePageId,
+    siteParts,
+    globalSettings,
+    globalStyles,
+    publishing,
+    deployment,
+    breakpoints,
+    popups,
+    pageCss,
+    websiteId,
+    isLoadingWebsite,
+    debounceMs,
+    serializeState,
+    performSave,
+    status,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {

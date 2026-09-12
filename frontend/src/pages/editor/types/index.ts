@@ -62,6 +62,8 @@ export interface NavMenuItem {
   id: string;
   label: string;
   url: string;
+  linkType?: "page" | "url";
+  pageId?: string;
   destinationType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
   productId?: string;
@@ -69,6 +71,9 @@ export interface NavMenuItem {
   isActive?: boolean;
   isDisabled?: boolean;
   target?: "_self" | "_blank";
+  badge?: string;
+  badgeColor?: string;
+  icon?: string;
   icon?: string;
   iconPosition?: "left" | "right";
   dropdownEnabled?: boolean;
@@ -79,6 +84,16 @@ export interface NavMenuItem {
     mobile?: boolean;
   };
   submenu?: NavSubmenuItem[];
+  children?: Array<{
+    id: string;
+    label: string;
+    url: string;
+    linkType?: "page" | "url";
+    pageId?: string;
+    target?: "_self" | "_blank";
+    badge?: string;
+    description?: string;
+  }>;
 }
 
 export interface PricePlanFeature {
@@ -219,6 +234,8 @@ export interface PageConfig {
   isHome?: boolean;
   pageSettings?: any;
   elements: EditorElement[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PlaylistItem {
@@ -604,6 +621,8 @@ export interface EditorElement {
   src?: string;
   alt?: string;
   href?: string;
+  linkPageId?: string;
+  linkType?: string;
   linkType?: "page" | "url" | "anchor" | "product";
   destinationType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
@@ -1164,16 +1183,94 @@ export interface EditorElement {
   customAttributes?: Record<string, string> | any[];
 }
 
+export interface SitePartsConfig {
+  header?: {
+    enabled: boolean;
+    elements: EditorElement[];
+    customCss?: string;
+  };
+  footer?: {
+    enabled: boolean;
+    elements: EditorElement[];
+    customCss?: string;
+  };
+}
+
+export interface GlobalStylesConfig {
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    text: string;
+    [key: string]: string;
+  };
+  typography: {
+    fontFamily: string;
+    headingFontFamily: string;
+    baseFontSize: string;
+    [key: string]: string;
+  };
+  buttonStyles: {
+    borderRadius: string;
+    padding: string;
+    [key: string]: string;
+  };
+  containerStyles?: {
+    maxWidth?: string;
+    defaultPadding?: string;
+  };
+}
+
+export interface PublishingState {
+  status: "DRAFT" | "SAVED" | "PREVIEW" | "PUBLISHED" | "UNPUBLISHED_CHANGES";
+  publishedAt?: string;
+  publishedVersion?: number;
+  publishedBy?: string;
+}
+
+export interface DeploymentConfig {
+  provider: "custom" | "vercel" | "netlify" | "sftp" | "static";
+  customDomain?: string;
+  stagingUrl?: string;
+  productionUrl?: string;
+  sslActive?: boolean;
+}
+
+export interface CanonicalWebsiteData {
+  version: number;
+  homePageId: string;
+  pages: PageConfig[];
+  siteSettings: {
+    siteName: string;
+    siteLogo?: string;
+    favicon?: string;
+    siteLanguage?: string;
+    customHead?: string;
+    isMaintenanceMode?: boolean;
+    [key: string]: any;
+  };
+  globalStyles: GlobalStylesConfig;
+  siteParts: SitePartsConfig;
+  navigation: NavMenuItem[];
+  publishing: PublishingState;
+  deployment: DeploymentConfig;
+  // Backward compatibility fields
+  elements: EditorElement[];
+  pageSettings?: any;
+  breakpoints?: Breakpoint[];
+  popups?: any[];
+  pageCss?: string;
+  globalSettings?: any;
+}
+
 export interface WebsiteData {
   id: string;
   name: string;
   slug: string;
   status: string;
   userPermission?: string;
-  editorData?: {
-    version: number;
-    elements: EditorElement[];
-  };
+  editorData?: CanonicalWebsiteData | any;
 }
 
 // ==========================================

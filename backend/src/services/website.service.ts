@@ -293,10 +293,52 @@ export async function updateWebsiteEditorData(
     return p;
   });
 
+  // Preserve multi-page pages and site parts safely without data loss
+  let safePages = editorData.pages;
+  if (Array.isArray(editorData.pages) && editorData.pages.length > 0) {
+    const currentPages = Array.isArray(currentEditorData.pages) ? currentEditorData.pages : [];
+    safePages = editorData.pages.map((p: any) => {
+      const currentP = currentPages.find((cp: any) => cp.id === p.id);
+      if (currentP && Array.isArray(currentP.elements) && Array.isArray(p.elements)) {
+        return {
+          ...p,
+          elements: safeMerge(currentP.elements, p.elements),
+        };
+      }
+      return p;
+    });
+  } else if (currentEditorData.pages) {
+    safePages = currentEditorData.pages;
+  }
+
+  // Preserve siteParts (header and footer)
+  let safeSiteParts = editorData.siteParts || currentEditorData.siteParts;
+  if (safeSiteParts) {
+    safeSiteParts = {
+      ...(currentEditorData.siteParts || {}),
+      ...(editorData.siteParts || {}),
+    };
+    if (editorData.siteParts?.header && currentEditorData.siteParts?.header?.elements && editorData.siteParts.header.elements) {
+      safeSiteParts.header = {
+        ...editorData.siteParts.header,
+        elements: safeMerge(currentEditorData.siteParts.header.elements, editorData.siteParts.header.elements),
+      };
+    }
+    if (editorData.siteParts?.footer && currentEditorData.siteParts?.footer?.elements && editorData.siteParts.footer.elements) {
+      safeSiteParts.footer = {
+        ...editorData.siteParts.footer,
+        elements: safeMerge(currentEditorData.siteParts.footer.elements, editorData.siteParts.footer.elements),
+      };
+    }
+  }
+
   editorData = {
     ...currentEditorData,
+    ...editorData,
     elements: safeElements,
-    popups: safePopups
+    popups: safePopups,
+    ...(safePages !== undefined ? { pages: safePages } : {}),
+    ...(safeSiteParts !== undefined ? { siteParts: safeSiteParts } : {}),
   };
 
   try {
