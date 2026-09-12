@@ -380,7 +380,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "custom-svg") return <div ref={assignRefIfTracked as any} {...mergedProps}><CustomSvgWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "icon-library") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconLibraryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "mega-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><MegaMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} pages={pages} activePageId={pages?.find(p => p.elements?.some(e => e.id === el.id))?.id || pages?.[0]?.id} /></div>;
 
     if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
     if (el.type === "wc-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
