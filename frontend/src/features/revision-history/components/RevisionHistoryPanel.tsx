@@ -7,7 +7,19 @@ interface RevisionHistoryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   websiteId: string;
-  onRestore: (elements: EditorElement[], pageSettings?: PageSettingsData) => void;
+  apiUrl?: string;
+  onRestore: (elements: EditorElement[], pageSettings?: PageSettingsData, fullRestoredState?: any) => void;
+  currentWorkingState?: {
+    elements?: EditorElement[];
+    pageSettings?: PageSettingsData;
+    pages?: any[];
+    siteParts?: any;
+    globalSettings?: any;
+    breakpoints?: any[];
+    popups?: any[];
+    pageCss?: string;
+    homePageId?: string;
+  };
 }
 
 /**
@@ -52,7 +64,9 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
   isOpen,
   onClose,
   websiteId,
+  apiUrl = "",
   onRestore,
+  currentWorkingState,
 }) => {
   const {
     revisions,
@@ -60,14 +74,30 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
     confirmRestoreState,
     isLoading,
     error,
+    createManualCheckpoint,
     setSelectedRevision,
     promptRestore,
     cancelRestore,
     confirmRestore,
     deleteRevision,
-  } = useRevisionHistory(websiteId);
+  } = useRevisionHistory(websiteId, apiUrl);
 
   const [activeFilter, setActiveFilter] = useState<"all" | "today">("all");
+  const [checkpointDesc, setCheckpointDesc] = useState("");
+  const [isSubmittingCheckpoint, setIsSubmittingCheckpoint] = useState(false);
+
+  const handleCreateCheckpoint = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkpointDesc.trim()) return;
+    try {
+      setIsSubmittingCheckpoint(true);
+      await createManualCheckpoint(checkpointDesc.trim(), currentWorkingState);
+      setCheckpointDesc("");
+    } catch (_) {
+    } finally {
+      setIsSubmittingCheckpoint(false);
+    }
+  };
 
   // Keyboard accessibility: ESC key handler
   useEffect(() => {
@@ -139,6 +169,24 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
             </svg>
           </button>
         </div>
+
+        {/* Create Manual Checkpoint Input */}
+        <form onSubmit={handleCreateCheckpoint} className="border-b border-slate-200 dark:border-slate-800 p-3 bg-slate-50/50 dark:bg-slate-900/50 flex gap-2">
+          <input
+            type="text"
+            value={checkpointDesc}
+            onChange={(e) => setCheckpointDesc(e.target.value)}
+            placeholder="Checkpoint note (e.g. Hero update)..."
+            className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={!checkpointDesc.trim() || isSubmittingCheckpoint}
+            className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition shrink-0"
+          >
+            {isSubmittingCheckpoint ? "Saving..." : "Save Checkpoint"}
+          </button>
+        </form>
 
         {/* Filter Controls & Status */}
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-2.5 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/40">
@@ -245,7 +293,23 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
 
                         {/* Revision Meta Header */}
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {rev.version !== undefined && (
+                              <span className="rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                                v{rev.version}
+                              </span>
+                            )}
+                            {rev.revisionType && (
+                              <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                rev.revisionType === "PUBLISH"
+                                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                  : rev.revisionType === "RESTORE"
+                                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+                                  : "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
+                              }`}>
+                                {rev.revisionType}
+                              </span>
+                            )}
                             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                               {formattedTime}
                             </span>
@@ -262,6 +326,11 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
                             <span>{rev.elementCount} elements</span>
                           </span>
                         </div>
+                        {rev.author && (
+                          <div className="text-[10px] text-slate-400">
+                            by {rev.author}
+                          </div>
+                        )}
 
                         {/* Description */}
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-snug">

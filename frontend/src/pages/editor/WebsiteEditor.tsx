@@ -11,6 +11,7 @@ import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useS
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
+import { publishingService } from "../../features/publishing/services/publishingService";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -710,15 +711,34 @@ const [popups, setPopups] = useState<any[]>([]);
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [managerCategoryFilter, setManagerCategoryFilter] = useState<string>("All");
 
-  const handleRestoreRevision = (restoredElements: EditorElement[], restoredPageSettings?: any) => {
+  const handleRestoreRevision = (restoredElements: EditorElement[], restoredPageSettings?: any, fullRestoredState?: any) => {
     if (Array.isArray(restoredElements)) {
       setElements(JSON.parse(JSON.stringify(restoredElements)));
     }
     if (restoredPageSettings) {
       setPageSettings(JSON.parse(JSON.stringify(restoredPageSettings)));
     }
+    if (fullRestoredState?.pages && Array.isArray(fullRestoredState.pages)) {
+      setPages(JSON.parse(JSON.stringify(fullRestoredState.pages)));
+    }
+    if (fullRestoredState?.siteParts) {
+      setSiteParts(JSON.parse(JSON.stringify(fullRestoredState.siteParts)));
+    }
     if (updateAutosaveBaseline) {
-      updateAutosaveBaseline(restoredElements, restoredPageSettings);
+      updateAutosaveBaseline(
+        restoredElements,
+        restoredPageSettings,
+        fullRestoredState?.pages || pages,
+        fullRestoredState?.homePageId || homePageId,
+        fullRestoredState?.siteParts || siteParts,
+        fullRestoredState?.globalSettings || globalSettings,
+        fullRestoredState?.globalStyles || globalSettings?.globalStyles,
+        publishing,
+        deployment,
+        fullRestoredState?.breakpoints || breakpoints,
+        fullRestoredState?.popups || popups,
+        fullRestoredState?.pageCss || pageCss
+      );
     }
     setSelectedId(null);
     setSelectedIds([]);
@@ -1912,25 +1932,17 @@ const navigate = useNavigate();
 
 
 
-  // F-PUBLISH: Publish Website Handler (Comment 8)
-  const handlePublishWebsite = async () => {
+  // F-PUBLISH: Production Publish & Deployment Pipeline Handler (Comment 8)
+  const handlePublishWebsite = async (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => {
     if (!websiteId) return;
-    const now = new Date().toISOString();
-    const nextVer = (publishing.publishedVersion || 1) + 1;
-    const updatedPub: PublishingState = {
-      ...publishing,
-      status: "PUBLISHED",
-      publishedVersion: nextVer,
-      publishedAt: now,
-      publishedBy: (website as any)?.userId,
-    };
-    setPublishing(updatedPub);
+
+    const destType = options?.destinationType || "INTERNAL";
 
     const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
-    const publishedSnapshot = {
+    const workingDraftSnapshot = {
       version: 1,
       elements: canonicalPageElements,
       pages: pages.map((p) =>
@@ -1949,7 +1961,6 @@ const navigate = useNavigate();
           elements: canonicalFooterElements,
         },
       },
-      publishing: updatedPub,
       deployment,
       breakpoints,
       globalSettings,
@@ -1958,57 +1969,64 @@ const navigate = useNavigate();
       pageSettings,
     };
 
-    publishedDataRef.current = publishedSnapshot;
-
     const payload = {
-      editorData: {
-        ...publishedSnapshot,
-        publishedData: publishedSnapshot,
-        version: 1,
-        elements: canonicalPageElements,
-        pages: pages.map((p) =>
-          p.id === activePageId && canvasMode === "page"
-            ? { ...p, elements: canonicalPageElements, pageSettings }
-            : p
-        ),
-        homePageId,
-        siteParts: {
-          header: {
-            enabled: siteParts.header?.enabled ?? true,
-            elements: canonicalHeaderElements,
-          },
-          footer: {
-            enabled: siteParts.footer?.enabled ?? true,
-            elements: canonicalFooterElements,
-          },
-        },
-        publishing: updatedPub,
-        deployment,
-        breakpoints,
-        globalSettings,
-        popups,
-        pageCss,
-        pageSettings,
-      },
+      editorData: workingDraftSnapshot,
+      environment: "PRODUCTION" as const,
+      destinationType: destType,
     };
 
     try {
       localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
     } catch (e) {}
 
-    const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
+    // Call server publishing endpoint
+    const result = await publishingService.publishWebsite(websiteId, payload, apiUrl);
 
-    if (!res.ok) {
-      throw new Error("Failed to persist published website state to server.");
+    if (!result.success) {
+      throw new Error("Publishing failed on server.");
     }
 
-    setSaveMessage(`Website successfully published (v${nextVer})!`);
+    const updatedPub: PublishingState = {
+      ...publishing,
+      status: "PUBLISHED",
+      publishedVersion: result.version,
+      version: result.version,
+      publishedAt: result.publishedAt,
+      deploymentId: result.deploymentId,
+    };
+    setPublishing(updatedPub);
+
+    setDeployment((prev) => ({
+      ...prev,
+      deployedAt: result.publishedAt,
+      productionUrl: result.liveUrl,
+    }));
+
+    publishedDataRef.current = {
+      ...workingDraftSnapshot,
+      version: result.version,
+      publishing: updatedPub,
+    };
+
+    setSaveMessage(`Website successfully published (v${result.version})!`);
     setTimeout(() => setSaveMessage(""), 3500);
+  };
+
+  const handleRollbackDeployment = async (deploymentId: string) => {
+    if (!websiteId) return;
+    const result = await publishingService.rollbackDeployment(websiteId, deploymentId, apiUrl);
+    if (result.success) {
+      setPublishing((prev) => ({
+        ...prev,
+        status: "PUBLISHED",
+        publishedVersion: result.version,
+        version: result.version,
+        publishedAt: result.publishedAt,
+        deploymentId: result.deploymentId,
+      }));
+      setSaveMessage(`Successfully rolled back to deployment v${result.version}!`);
+      setTimeout(() => setSaveMessage(""), 3500);
+    }
   };
 
   // Save Website Data
@@ -2096,13 +2114,6 @@ const navigate = useNavigate();
         popups,
         pageCss
       );
-
-      // Create F-320 Revision History snapshot
-      try {
-        revisionHistoryService.saveRevision(websiteId, elements, pageSettings, "Saved website design");
-      } catch (revErr) {
-        console.error("Failed to save revision snapshot:", revErr);
-      }
 
       setSaveMessage("Saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
@@ -7765,38 +7776,7 @@ onClick={() => importFileInputRef.current?.click()}
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
-                    {/* Shared Global Header Preview Banner in Page Mode (Hidden for now per user request) */}
-                    {/*
-                    {siteParts.header?.isEnabled && (
-                    {/* Shared Global Header Preview Banner in Page Mode */}
-                    {siteParts.header?.enabled && (
-                      <div className="mb-6 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
-                        <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
-                          <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>🌐</span>
-                            <span>Global Header (Shared Across All Pages)</span>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleSwitchCanvasMode("header")}
-                            className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-xs flex items-center gap-1 cursor-pointer"
-                          >
-                            <span>✏️</span>
-                            <span>Edit Global Header</span>
-                          </button>
-                        </div>
-                        {siteParts.header?.elements?.length === 0 ? (
-                          <div className="py-2 text-center text-xs text-purple-400 italic">
-                            Global header is empty. Click "Edit Global Header" to add navigation, logo, or banner.
-                          </div>
-                        ) : (
-                          <div className="space-y-3 opacity-95 pointer-events-none select-none">
-                            {siteParts.header?.elements?.map((el) => renderElementTree(el))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    */}
+                    {/* Shared Global Header Preview Banner in Page Mode (Hidden per user request) */}
 
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -7834,38 +7814,7 @@ onClick={() => importFileInputRef.current?.click()}
                   </div>
                 )}
 
-                {/* Shared Global Footer Preview Banner in Page Mode (Hidden for now per user request) */}
-                {/*
-                {canvasMode === "page" && siteParts.footer?.isEnabled && (
-                {/* Shared Global Footer Preview Banner in Page Mode */}
-                {canvasMode === "page" && siteParts.footer?.enabled && (
-                  <div className="mt-8 rounded-xl border border-dashed border-purple-300/80 bg-purple-50/30 p-3 transition hover:border-purple-400">
-                    <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2">
-                      <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <span>🌐</span>
-                        <span>Global Footer (Shared Across All Pages)</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleSwitchCanvasMode("footer")}
-                        className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-xs flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>✏️</span>
-                        <span>Edit Global Footer</span>
-                      </button>
-                    </div>
-                    {siteParts.footer?.elements?.length === 0 ? (
-                      <div className="py-2 text-center text-xs text-purple-400 italic">
-                        Global footer is empty. Click "Edit Global Footer" to add footer widgets.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 opacity-95 pointer-events-none select-none">
-                        {siteParts.footer?.elements?.map((el) => renderElementTree(el))}
-                      </div>
-                    )}
-                  </div>
-                )}
-                */}
+                {/* Shared Global Footer Preview Banner in Page Mode (Hidden per user request) */}
               </>
             )}
           </div>
@@ -17067,7 +17016,19 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         isOpen={isRevisionHistoryOpen}
         onClose={() => setIsRevisionHistoryOpen(false)}
         websiteId={websiteId || ""}
+        apiUrl={apiUrl}
         onRestore={handleRestoreRevision}
+        currentWorkingState={{
+          elements,
+          pageSettings,
+          pages,
+          siteParts,
+          globalSettings,
+          breakpoints,
+          popups,
+          pageCss,
+          homePageId,
+        }}
       />
 
       {/* Modal for Adding New Page */}
@@ -17243,6 +17204,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         websiteName={website?.name || "ForgeStudio Project"}
         websiteId={websiteId || ""}
         onPublish={handlePublishWebsite}
+        onRollback={handleRollbackDeployment}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
         onOpenPreview={() => {
           setIsPublishModalOpen(false);

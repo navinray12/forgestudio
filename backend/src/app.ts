@@ -31,6 +31,7 @@ import {
   multisiteRoutes,
 } from "./routes/index.js";
 
+import apiV1Routes from "./routes/api-v1.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -73,6 +74,9 @@ app.use("/api/v1/auth", meRoutes);
 // Subscriptions
 app.use("/api/v1/subscriptions", subscriptionRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
+
+// Public API v1 Standardized Endpoints
+app.use("/api/v1", apiV1Routes);
 
 // Websites & Workspace
 app.use("/api/v1/websites", websiteRoutes);
