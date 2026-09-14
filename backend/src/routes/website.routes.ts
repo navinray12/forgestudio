@@ -38,6 +38,10 @@ import {
   syncWordPressPagesHandler,
   handleWordPressWebhook,
 } from "../controllers/wordpress.controller.js";
+import {
+  schedulePublishHandler,
+  promoteDeploymentHandler,
+} from "../controllers/operations.controller.js";
 
 const router = Router();
 
@@ -70,6 +74,8 @@ router.get("/:id/deployments", authorizeCapability("VIEW"), getDeploymentsHandle
 router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDeploymentByIdHandler);
 router.get("/:id/deployments/:deploymentId/export-download", authorizeCapability("VIEW"), downloadStaticExportHandler);
 router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);
+router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
+router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);
