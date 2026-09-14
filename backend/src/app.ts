@@ -32,6 +32,7 @@ import {
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
+import operationsRoutes from "./routes/operations.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -128,6 +129,13 @@ app.use("/api/v1/multisite", multisiteRoutes);
 app.use("/api/multisite", multisiteRoutes);
 app.use("/api/v1/integrations", integrationRoutes);
 app.use("/api/integrations", integrationRoutes);
+
+// Operations, Automation & Monitoring
+app.use("/api/v1/operations", operationsRoutes);
+app.use("/api/operations", operationsRoutes);
+app.get("/api/health", (_req, res) => {
+  res.redirect("/api/operations/health");
+});
 
 app.use(errorMiddleware);
 

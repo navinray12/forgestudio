@@ -5,6 +5,8 @@ import { canUserAccessResource } from "./permission.service.js";
 import { createRevision, getRevisionById } from "./revision.service.js";
 import { publishToWordPress } from "./wordpress/connector.service.js";
 import { destinationRegistry } from "./destinations/registry.js";
+import { enqueueJob } from "./jobs/jobRunner.js";
+import { recordAuditLog } from "./audit.service.js";
 
 const db = prisma as any;
 
@@ -832,4 +834,152 @@ async function updateDeploymentStatus(
 
 function candidatePageHasElements(candidateData: any): boolean {
   return Array.isArray(candidateData.elements) && candidateData.elements.length > 0;
+}
+
+/**
+ * Schedule a publication to be automatically processed at a future target time
+ */
+export async function schedulePublish(
+  websiteId: string,
+  userId: string,
+  options: {
+    publishAt: Date | string;
+    environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
+    destinationType?: "INTERNAL" | "WORDPRESS" | "SFTP" | "STATIC";
+    destinationRef?: string;
+    metadata?: Record<string, any>;
+  }
+) {
+  const website = await getWebsiteById(websiteId, userId);
+  if (!website) {
+    throw new AppError("Website not found or unavailable", 404, "NOT_FOUND");
+  }
+
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("User lacks permission to publish this website", 403, "FORBIDDEN");
+  }
+
+  const publishAtDate = options.publishAt instanceof Date ? options.publishAt : new Date(options.publishAt);
+  if (isNaN(publishAtDate.getTime())) {
+    throw new AppError("Invalid publishAt timestamp", 400, "INVALID_TIMESTAMP");
+  }
+
+  const job = await enqueueJob(
+    "SCHEDULED_PUBLISH",
+    {
+      websiteId,
+      userId,
+      options: {
+        environment: options.environment || "PRODUCTION",
+        destinationType: options.destinationType || "INTERNAL",
+        destinationRef: options.destinationRef,
+        metadata: options.metadata || {},
+      },
+    },
+    { runAt: publishAtDate }
+  );
+
+  await recordAuditLog({
+    userId,
+    action: "PUBLISH_SCHEDULED",
+    targetResource: `website:${websiteId}`,
+    details: {
+      scheduledJobId: job.id,
+      publishAt: publishAtDate.toISOString(),
+      environment: options.environment || "PRODUCTION",
+    },
+  });
+
+  return {
+    success: true,
+    scheduledJobId: job.id,
+    publishAt: publishAtDate.toISOString(),
+    status: "SCHEDULED",
+  };
+}
+
+/**
+ * Promote an existing verified STAGING deployment to PRODUCTION
+ */
+export async function promoteDeployment(
+  websiteId: string,
+  stagingDeploymentId: string,
+  userId: string
+) {
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("User lacks permission to promote deployments", 403, "FORBIDDEN");
+  }
+
+  let stagingDeployment: any = null;
+  if (db?.deployment?.findUnique) {
+    stagingDeployment = await db.deployment.findUnique({
+      where: { id: stagingDeploymentId },
+    });
+  }
+
+  if (!stagingDeployment) {
+    const raw: any[] = await prisma.$queryRaw`
+      SELECT * FROM deployments WHERE id = ${stagingDeploymentId}::uuid LIMIT 1
+    `;
+    stagingDeployment = raw[0];
+  }
+
+  if (!stagingDeployment) {
+    throw new AppError("Staging deployment not found", 404, "DEPLOYMENT_NOT_FOUND");
+  }
+
+  if (stagingDeployment.websiteId !== websiteId) {
+    throw new AppError("Deployment does not belong to this website", 400, "INVALID_DEPLOYMENT");
+  }
+
+  if (stagingDeployment.environment !== "STAGING") {
+    throw new AppError("Only STAGING deployments can be promoted to PRODUCTION", 400, "INVALID_ENVIRONMENT");
+  }
+
+  if (stagingDeployment.status !== "PUBLISHED") {
+    throw new AppError("Only successfully PUBLISHED staging deployments can be promoted", 400, "INVALID_STATUS");
+  }
+
+  // Retrieve data from source revision or website
+  let editorData: any = null;
+  if (stagingDeployment.sourceRevisionId) {
+    const revision = await getRevisionById(websiteId, stagingDeployment.sourceRevisionId, userId);
+    if (revision) {
+      editorData = revision.data;
+    }
+  }
+
+  if (!editorData) {
+    const website = await getWebsiteById(websiteId, userId);
+    editorData = typeof website.editorData === "string" ? JSON.parse(website.editorData) : website.editorData;
+  }
+
+  // Publish to PRODUCTION with linkage to staging
+  const publishResult = await publishWebsite(websiteId, userId, {
+    editorData,
+    environment: "PRODUCTION",
+    destinationType: (stagingDeployment.destinationType as any) || "INTERNAL",
+    metadata: {
+      promotedFrom: stagingDeploymentId,
+      stagingVersion: stagingDeployment.version,
+    },
+  });
+
+  await recordAuditLog({
+    userId,
+    action: "DEPLOYMENT_PROMOTED",
+    targetResource: `website:${websiteId}`,
+    details: {
+      sourceDeploymentId: stagingDeploymentId,
+      newDeploymentId: publishResult.deploymentId,
+      version: publishResult.version,
+    },
+  });
+
+  return {
+    ...publishResult,
+    promotedFrom: stagingDeploymentId,
+  };
 }

@@ -240,6 +240,31 @@ export async function initWebsiteTable() {
 
     try {
       await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS background_jobs (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          type VARCHAR(100) NOT NULL,
+          payload JSONB DEFAULT '{}',
+          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
+          attempts INTEGER NOT NULL DEFAULT 0,
+          "maxAttempts" INTEGER NOT NULL DEFAULT 3,
+          "lastError" VARCHAR(2000),
+          "runAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "startedAt" TIMESTAMP WITH TIME ZONE,
+          "completedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS background_jobs_status_runAt_idx ON background_jobs("status", "runAt");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS background_jobs_type_idx ON background_jobs("type");
+      `);
+    } catch (bjErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS granular_permissions (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
