@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { AutosaveStatus } from "../types/autosave.types";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 import type { PageSettingsData } from "../../revision-history/types/revisionHistory.types";
-import { revisionHistoryService } from "../../revision-history/services/revisionHistoryService";
 
 interface UseAutosaveParams {
   websiteId: string | undefined;
@@ -272,18 +271,6 @@ export function useAutosave({
         baselineRef.current = payload.snapshot;
         const now = Date.now();
         setLastSavedAt(now);
-
-        // Create F-320 Revision History snapshot safely
-        try {
-          revisionHistoryService.saveRevision(
-            currentWebId,
-            payload.elements,
-            payload.pageSettings,
-            "Autosaved design update"
-          );
-        } catch (revErr) {
-          console.error("Autosave: failed to write revision history snapshot:", revErr);
-        }
 
         isSavingRef.current = false;
 

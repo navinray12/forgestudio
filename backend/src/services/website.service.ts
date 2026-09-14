@@ -26,6 +26,110 @@ export async function initWebsiteTable() {
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS idx_websites_user_id ON websites("userId");
     `);
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS website_revisions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          version INTEGER NOT NULL,
+          "revisionType" VARCHAR(50) NOT NULL DEFAULT 'MANUAL',
+          description VARCHAR(500),
+          data JSONB NOT NULL,
+          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE UNIQUE INDEX IF NOT EXISTS website_revisions_websiteId_version_key ON website_revisions("websiteId", version);
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_idx ON website_revisions("websiteId");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_createdAt_idx ON website_revisions("websiteId", "createdAt");
+      `);
+    } catch (revTableErr) {
+      // Table or constraint already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS deployments (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          version INTEGER NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
+          environment VARCHAR(50) NOT NULL DEFAULT 'PRODUCTION',
+          "destinationType" VARCHAR(50) NOT NULL DEFAULT 'INTERNAL',
+          "destinationRef" VARCHAR(500),
+          "sourceRevisionId" UUID,
+          metadata JSONB DEFAULT '{}',
+          error JSONB,
+          "startedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "completedAt" TIMESTAMP WITH TIME ZONE,
+          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_websiteId_idx ON deployments("websiteId");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_websiteId_createdAt_idx ON deployments("websiteId", "createdAt");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_status_idx ON deployments("status");
+      `);
+    } catch (depTableErr) {
+      // Table or index already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS wordpress_connections (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "websiteId" UUID NOT NULL UNIQUE REFERENCES websites(id) ON DELETE CASCADE,
+          "siteUrl" VARCHAR(500) NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'CONNECTED',
+          "wpSiteName" VARCHAR(255),
+          "apiKeyHash" VARCHAR(255) NOT NULL,
+          capabilities JSONB DEFAULT '[]',
+          metadata JSONB DEFAULT '{}',
+          "lastVerifiedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS wordpress_connections_userId_idx ON wordpress_connections("userId");
+      `);
+    } catch (wpConnErr) {
+      // Table already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS wordpress_page_mappings (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "forgePageId" VARCHAR(100) NOT NULL,
+          "wpPostId" INTEGER NOT NULL,
+          "wpPostSlug" VARCHAR(255),
+          "wpPostUrl" VARCHAR(500),
+          "lastSyncedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "wordpress_page_mappings_websiteId_forgePageId_key" UNIQUE ("websiteId", "forgePageId")
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS wordpress_page_mappings_websiteId_idx ON wordpress_page_mappings("websiteId");
+      `);
+    } catch (wpMapErr) {
+      // Table already exists
+    }
   } catch (error) {
     console.error("Website table initialization log:", error);
   }

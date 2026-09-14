@@ -36,32 +36,27 @@ Prisma.PrismaClientKnownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-};
+)};
 Prisma.PrismaClientUnknownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.PrismaClientRustPanicError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.PrismaClientInitializationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.PrismaClientValidationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.Decimal = Decimal
 
 /**
@@ -71,26 +66,22 @@ Prisma.sql = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.empty = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.join = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.raw = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.validator = Public.validator
 
 /**
@@ -100,14 +91,12 @@ Prisma.getExtensionContext = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 Prisma.defineExtension = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-  )
-}
+)}
 
 /**
  * Shorthand utilities for JSON filtering
@@ -226,6 +215,52 @@ exports.Prisma.UserSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TemplatesScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  templateData: 'templateData',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  category: 'category',
+  isFavorite: 'isFavorite',
+  isShared: 'isShared',
+  shareToken: 'shareToken'
+};
+
+exports.Prisma.CustomCodeSnippetScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  name: 'name',
+  title: 'title',
+  language: 'language',
+  codeType: 'codeType',
+  code: 'code',
+  placement: 'placement',
+  location: 'location',
+  scope: 'scope',
+  pageId: 'pageId',
+  conditions: 'conditions',
+  priority: 'priority',
+  status: 'status',
+  scheduledFor: 'scheduledFor',
+  isEnabled: 'isEnabled',
+  isActive: 'isActive',
+  isDraft: 'isDraft',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomCodeRevisionScalarFieldEnum = {
+  id: 'id',
+  snippetId: 'snippetId',
+  code: 'code',
+  authorId: 'authorId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.FormSubmissionScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -324,29 +359,6 @@ exports.Prisma.CustomEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.CustomCodeSnippetScalarFieldEnum = {
-  id: 'id',
-  websiteId: 'websiteId',
-  name: 'name',
-  title: 'title',
-  language: 'language',
-  codeType: 'codeType',
-  placement: 'placement',
-  location: 'location',
-  scope: 'scope',
-  pageId: 'pageId',
-  code: 'code',
-  priority: 'priority',
-  conditions: 'conditions',
-  status: 'status',
-  scheduledFor: 'scheduledFor',
-  isEnabled: 'isEnabled',
-  isActive: 'isActive',
-  isDraft: 'isDraft',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.DesignNoteScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -400,12 +412,73 @@ exports.Prisma.WebsiteCollaboratorScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WebsiteRevisionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  version: 'version',
+  revisionType: 'revisionType',
+  description: 'description',
+  data: 'data',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DeploymentScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  version: 'version',
+  status: 'status',
+  environment: 'environment',
+  destinationType: 'destinationType',
+  destinationRef: 'destinationRef',
+  sourceRevisionId: 'sourceRevisionId',
+  metadata: 'metadata',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WordPressConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  websiteId: 'websiteId',
+  siteUrl: 'siteUrl',
+  status: 'status',
+  wpSiteName: 'wpSiteName',
+  apiKeyHash: 'apiKeyHash',
+  capabilities: 'capabilities',
+  metadata: 'metadata',
+  lastVerifiedAt: 'lastVerifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WordPressPageMappingScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  forgePageId: 'forgePageId',
+  wpPostId: 'wpPostId',
+  wpPostSlug: 'wpPostSlug',
+  wpPostUrl: 'wpPostUrl',
+  lastSyncedAt: 'lastSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -471,6 +544,9 @@ exports.Prisma.ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   SubscriptionPlan: 'SubscriptionPlan',
   UserSubscription: 'UserSubscription',
+  templates: 'templates',
+  CustomCodeSnippet: 'CustomCodeSnippet',
+  CustomCodeRevision: 'CustomCodeRevision',
   FormSubmission: 'FormSubmission',
   CustomPostType: 'CustomPostType',
   ThemeLocationRule: 'ThemeLocationRule',
@@ -480,12 +556,15 @@ exports.Prisma.ModelName = {
   MultisiteNetwork: 'MultisiteNetwork',
   CustomField: 'CustomField',
   CustomEntry: 'CustomEntry',
-  CustomCodeSnippet: 'CustomCodeSnippet',
   DesignNote: 'DesignNote',
   PluginCompatibility: 'PluginCompatibility',
   DeveloperApiKey: 'DeveloperApiKey',
   ComponentAccess: 'ComponentAccess',
-  WebsiteCollaborator: 'WebsiteCollaborator'
+  WebsiteCollaborator: 'WebsiteCollaborator',
+  WebsiteRevision: 'WebsiteRevision',
+  Deployment: 'Deployment',
+  WordPressConnection: 'WordPressConnection',
+  WordPressPageMapping: 'WordPressPageMapping'
 };
 
 /**

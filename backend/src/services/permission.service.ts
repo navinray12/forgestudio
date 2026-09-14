@@ -23,23 +23,25 @@ export async function canUserAccessResource(userId: string, websiteId: string, r
     let isAllowed = DEFAULT_CAPABILITIES[role]?.includes(capability) || false;
 
     // 3. Find Global Overrides (resourceId = "*")
-    const globalOverride = await db.granularPermission.findUnique({
+    if (db?.granularPermission?.findUnique) {
+      const globalOverride = await db.granularPermission.findUnique({
         where: { websiteId_userId_resourceId_capability: { websiteId, userId, resourceId: "*", capability } }
-    });
+      });
 
-    if (globalOverride) {
+      if (globalOverride) {
         isAllowed = (globalOverride.effect === "ALLOW");
-    }
+      }
 
-    // 4. Find Specific Resource Overrides
-    if (resourceId !== "*") {
+      // 4. Find Specific Resource Overrides
+      if (resourceId !== "*") {
         const specificOverride = await db.granularPermission.findUnique({
-            where: { websiteId_userId_resourceId_capability: { websiteId, userId, resourceId, capability } }
+          where: { websiteId_userId_resourceId_capability: { websiteId, userId, resourceId, capability } }
         });
 
         if (specificOverride) {
-            isAllowed = (specificOverride.effect === "ALLOW");
+          isAllowed = (specificOverride.effect === "ALLOW");
         }
+      }
     }
 
     return isAllowed;

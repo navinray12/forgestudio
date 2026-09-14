@@ -1023,7 +1023,6 @@ export const NavMenuWidgetRenderer = ({
   mergedStyles,
   pages = [],
   homePageId,
-  siteProducts,
   siteProducts = [],
   onNavigatePage,
 }: {
@@ -1077,8 +1076,6 @@ export const NavMenuWidgetRenderer = ({
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
   );
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null);
 
   let justifyClass = "justify-start";
   if (alignment === "center") justifyClass = "justify-center";
@@ -1146,7 +1143,6 @@ export const NavMenuWidgetRenderer = ({
   };
 
   return (
-    <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily }}>
     <nav className={`w-full flex ${justifyClass} relative transition-all`} style={{ boxSizing: "border-box", fontFamily: mergedStyles?.fontFamily, ...mergedStyles }}>
       {/* Mobile Hamburger Button */}
       <div className="flex sm:hidden items-center justify-between p-2 w-full">

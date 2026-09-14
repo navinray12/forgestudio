@@ -3,7 +3,7 @@ import type { RevisionItem, RestoreConfirmationState, PageSettingsData } from ".
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 import { revisionHistoryService } from "../services/revisionHistoryService";
 
-export function useRevisionHistory(websiteId: string) {
+export function useRevisionHistory(websiteId: string, apiUrl: string = "") {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
   const [selectedRevision, setSelectedRevision] = useState<RevisionItem | null>(null);
   const [confirmRestoreState, setConfirmRestoreState] = useState<RestoreConfirmationState>({
@@ -14,9 +14,9 @@ export function useRevisionHistory(websiteId: string) {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Refreshes revisions list from storage service
+   * Refreshes revisions list from authoritative server API (with local fallback)
    */
-  const refreshRevisions = useCallback(() => {
+  const refreshRevisions = useCallback(async () => {
     if (!websiteId) {
       setRevisions([]);
       return;
@@ -24,52 +24,75 @@ export function useRevisionHistory(websiteId: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const items = revisionHistoryService.getRevisions(websiteId);
+      const items = await revisionHistoryService.fetchServerRevisions(websiteId, apiUrl);
       setRevisions(items);
     } catch (err: any) {
       setError(err?.message || "Failed to load revision history.");
+      // Resilient fallback
+      setRevisions(revisionHistoryService.getRevisions(websiteId));
     } finally {
       setIsLoading(false);
     }
-  }, [websiteId]);
+  }, [websiteId, apiUrl]);
 
   useEffect(() => {
     refreshRevisions();
   }, [refreshRevisions]);
 
   /**
-   * Creates a new snapshot revision
+   * Creates an explicit manual checkpoint revision on the server
    */
-  const createSnapshot = useCallback(
-    (elements: EditorElement[], pageSettings?: PageSettingsData, description: string = "Saved design change") => {
+  const createManualCheckpoint = useCallback(
+    async (
+      description: string = "Manual checkpoint",
+      snapshotData?: {
+        elements?: EditorElement[];
+        pageSettings?: PageSettingsData;
+        pages?: any[];
+        siteParts?: any;
+        globalSettings?: any;
+        breakpoints?: any[];
+        popups?: any[];
+        pageCss?: string;
+        homePageId?: string;
+      }
+    ) => {
       if (!websiteId) return null;
+      setIsLoading(true);
+      setError(null);
       try {
-        const newRev = revisionHistoryService.saveRevision(websiteId, elements, pageSettings, description);
-        refreshRevisions();
+        const newRev = await revisionHistoryService.createServerRevision(
+          websiteId,
+          {
+            description,
+            revisionType: "MANUAL",
+            ...snapshotData,
+          },
+          apiUrl
+        );
+        await refreshRevisions();
         return newRev;
       } catch (err: any) {
-        setError(err?.message || "Failed to save revision snapshot.");
+        console.error("Failed to create server revision:", err);
+        setError(err?.message || "Failed to save revision checkpoint.");
         return null;
+      } finally {
+        setIsLoading(false);
       }
     },
-    [websiteId, refreshRevisions]
+    [websiteId, apiUrl, refreshRevisions]
   );
 
   /**
-   * Opens restore confirmation prompt after validating revision data
+   * Opens restore confirmation prompt
    */
   const promptRestore = useCallback((revision: RevisionItem) => {
-    const validation = revisionHistoryService.validateRevision(revision, websiteId);
-    if (!validation.valid) {
-      setError(validation.reason || "Invalid revision data.");
-      return;
-    }
     setError(null);
     setConfirmRestoreState({
       isOpen: true,
       revision,
     });
-  }, [websiteId]);
+  }, []);
 
   /**
    * Cancels restore dialog
@@ -82,21 +105,20 @@ export function useRevisionHistory(websiteId: string) {
   }, []);
 
   /**
-   * Confirms and executes safe restoration with deep-cloned immutable objects
+   * Confirms and executes safe restoration on server and editor
+   * INVARIANT: Restore updates working draft ONLY. Does not publish.
    */
   const confirmRestore = useCallback(
-    (onRestoreCallback: (elements: EditorElement[], pageSettings?: PageSettingsData) => void) => {
+    async (
+      onRestoreCallback: (
+        elements: EditorElement[],
+        pageSettings?: PageSettingsData,
+        fullRestoredState?: any
+      ) => void
+    ) => {
       const revToRestore = confirmRestoreState.revision;
       if (!revToRestore) {
         setError("No revision selected for restoration.");
-        return;
-      }
-
-      // Fix 3 — Validate revision data before restore
-      const validation = revisionHistoryService.validateRevision(revToRestore, websiteId);
-      if (!validation.valid) {
-        setError(validation.reason || "Selected revision data is corrupted or invalid.");
-        setConfirmRestoreState({ isOpen: false, revision: null });
         return;
       }
 
@@ -104,18 +126,38 @@ export function useRevisionHistory(websiteId: string) {
         setIsLoading(true);
         setError(null);
 
-        // Fix 4 — Deep clone elements & pageSettings to avoid mutable references
-        const clonedElements: EditorElement[] = JSON.parse(JSON.stringify(revToRestore.elements));
-        const clonedPageSettings: PageSettingsData | undefined = revToRestore.pageSettings
-          ? JSON.parse(JSON.stringify(revToRestore.pageSettings))
+        // 1. Attempt server-side restoration to update database working draft
+        let restoredData: any = null;
+        try {
+          const serverResult = await revisionHistoryService.restoreServerRevision(
+            websiteId,
+            revToRestore.id,
+            apiUrl
+          );
+          restoredData = serverResult?.restoredRevision?.data;
+        } catch (serverErr: any) {
+          console.warn("Server restore API failed, checking local snapshot:", serverErr);
+        }
+
+        // If server returned snapshot data, prefer it; otherwise use local snapshot
+        const elementsSource = restoredData?.elements || revToRestore.elements || [];
+        const pageSettingsSource = restoredData?.pageSettings || revToRestore.pageSettings;
+
+        // Deep clone to avoid mutable references
+        const clonedElements: EditorElement[] = JSON.parse(JSON.stringify(elementsSource));
+        const clonedPageSettings: PageSettingsData | undefined = pageSettingsSource
+          ? JSON.parse(JSON.stringify(pageSettingsSource))
           : undefined;
 
         // Execute safety restore callback to editor
-        onRestoreCallback(clonedElements, clonedPageSettings);
-        
-        // Close modal & update selected revision
+        onRestoreCallback(clonedElements, clonedPageSettings, restoredData);
+
+        // Close modal & update state
         setConfirmRestoreState({ isOpen: false, revision: null });
         setSelectedRevision(revToRestore);
+
+        // Refresh revisions to include the RESTORE checkpoint
+        await refreshRevisions();
       } catch (err: any) {
         console.error("Restoration failed:", err);
         setError(err?.message || "Failed to restore revision state safely.");
@@ -123,7 +165,7 @@ export function useRevisionHistory(websiteId: string) {
         setIsLoading(false);
       }
     },
-    [confirmRestoreState.revision, websiteId]
+    [confirmRestoreState.revision, websiteId, apiUrl, refreshRevisions]
   );
 
   /**
@@ -149,7 +191,7 @@ export function useRevisionHistory(websiteId: string) {
     error,
     setError,
     refreshRevisions,
-    createSnapshot,
+    createManualCheckpoint,
     setSelectedRevision,
     promptRestore,
     cancelRestore,

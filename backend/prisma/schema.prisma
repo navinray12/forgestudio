@@ -35,6 +35,9 @@ model User {
   collaborations      WebsiteCollaborator[]
   componentAccesses   ComponentAccess[]
   customEntries       CustomEntry[]
+  websiteRevisions    WebsiteRevision[]
+  deployments         Deployment[]
+  wpConnections       WordPressConnection[]
 
   @@index([status])
   @@index([role])
@@ -60,6 +63,10 @@ model Website {
   designNotes        DesignNote[]
   componentAccesses  ComponentAccess[]
   collaborators      WebsiteCollaborator[]
+  revisions          WebsiteRevision[]
+  deployments        Deployment[]
+  wpConnection       WordPressConnection?
+  wpPageMappings     WordPressPageMapping[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@map("websites")
@@ -478,3 +485,89 @@ model WebsiteCollaborator {
   @@unique([websiteId, userId])
   @@map("website_collaborators")
 }
+
+model WebsiteRevision {
+  id           String   @id @default(uuid()) @db.Uuid
+  websiteId    String   @db.Uuid
+  version      Int
+  revisionType String   @default("MANUAL") @db.VarChar(50) // MANUAL, PUBLISH, CHECKPOINT, RESTORE
+  description  String?  @db.VarChar(500)
+  data         Json
+  createdBy    String?  @db.Uuid
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  creator User?   @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@unique([websiteId, version])
+  @@index([websiteId])
+  @@index([websiteId, createdAt])
+  @@map("website_revisions")
+}
+
+model Deployment {
+  id               String    @id @default(uuid()) @db.Uuid
+  websiteId        String    @db.Uuid
+  version          Int
+  status           String    @default("QUEUED") @db.VarChar(50) // QUEUED, VALIDATING, BUILDING, PROCESSING, DEPLOYING, VERIFYING, PUBLISHED, RECONCILIATION_REQUIRED, VALIDATION_FAILED, BUILD_FAILED, DEPLOY_FAILED, VERIFICATION_FAILED
+  environment      String    @default("PRODUCTION") @db.VarChar(50) // PRODUCTION, STAGING, DEVELOPMENT
+  destinationType  String    @default("INTERNAL") @db.VarChar(50) // INTERNAL, WORDPRESS, STATIC
+  destinationRef   String?   @db.VarChar(500)
+  sourceRevisionId String?   @db.Uuid
+  metadata         Json?     @default("{}")
+  error            Json?
+  startedAt        DateTime  @default(now()) @db.Timestamptz(6)
+  completedAt      DateTime? @db.Timestamptz(6)
+  createdBy        String?   @db.Uuid
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  creator User?   @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([websiteId])
+  @@index([websiteId, createdAt])
+  @@index([status])
+  @@map("deployments")
+}
+
+model WordPressConnection {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  websiteId      String    @unique @db.Uuid
+  siteUrl        String    @db.VarChar(500)
+  status         String    @default("CONNECTED") @db.VarChar(50) // CONNECTED, DISCONNECTED, ERROR
+  wpSiteName     String?   @db.VarChar(255)
+  apiKeyHash     String    @db.VarChar(255)
+  capabilities   Json?     @default("[]")
+  metadata       Json?     @default("{}")
+  lastVerifiedAt DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("wordpress_connections")
+}
+
+model WordPressPageMapping {
+  id           String   @id @default(uuid()) @db.Uuid
+  websiteId    String   @db.Uuid
+  forgePageId  String   @db.VarChar(100)
+  wpPostId     Int
+  wpPostSlug   String?  @db.VarChar(255)
+  wpPostUrl    String?  @db.VarChar(500)
+  lastSyncedAt DateTime @default(now()) @db.Timestamptz(6)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, forgePageId])
+  @@index([websiteId])
+  @@map("wordpress_page_mappings")
+}
+
+

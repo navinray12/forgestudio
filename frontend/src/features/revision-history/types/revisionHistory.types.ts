@@ -21,6 +21,17 @@ export interface RevisionItem {
   elementCount: number;
   author?: string;
   version?: number;
+  revisionType?: "MANUAL" | "PUBLISH" | "CHECKPOINT" | "RESTORE" | string;
+  createdAt?: string;
+  createdBy?: string;
+  pageCount?: number;
+  pages?: any[];
+  siteParts?: any;
+  globalSettings?: any;
+  breakpoints?: any[];
+  popups?: any[];
+  pageCss?: string;
+  homePageId?: string;
 }
 
 export interface RestoreConfirmationState {

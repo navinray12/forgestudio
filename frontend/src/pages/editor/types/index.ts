@@ -631,7 +631,6 @@ export interface EditorElement {
   href?: string;
   linkPageId?: string;
   linkType?: "page" | "url" | "anchor" | "product" | string;
-  linkType?: "page" | "url" | "anchor" | "product";
   destinationType?: "page" | "url" | "anchor" | "product";
   pageId?: string;
   rel?: string;
@@ -1246,12 +1245,52 @@ export interface GlobalStylesConfig {
   containerMaxWidth?: string;
 }
 
+export type DeploymentStatus =
+  | "DRAFT"
+  | "SAVED"
+  | "PREVIEW"
+  | "QUEUED"
+  | "VALIDATING"
+  | "BUILDING"
+  | "PROCESSING"
+  | "DEPLOYING"
+  | "VERIFYING"
+  | "PUBLISHED"
+  | "RECONCILIATION_REQUIRED"
+  | "VALIDATION_FAILED"
+  | "BUILD_FAILED"
+  | "DEPLOY_FAILED"
+  | "VERIFICATION_FAILED"
+  | "UNPUBLISHED_CHANGES";
+
 export interface PublishingState {
-  status: "DRAFT" | "SAVED" | "PREVIEW" | "PUBLISHED" | "UNPUBLISHED_CHANGES";
+  status: DeploymentStatus;
   publishedAt?: string;
   publishedVersion?: number;
   publishedBy?: string;
   version?: number;
+  deploymentId?: string;
+}
+
+export interface DeploymentRecord {
+  id: string;
+  websiteId: string;
+  version: number;
+  status: DeploymentStatus;
+  environment: string;
+  destinationType: string;
+  destinationRef?: string;
+  sourceRevisionId?: string;
+  metadata?: any;
+  error?: any;
+  startedAt: string;
+  completedAt?: string;
+  createdAt: string;
+  creator?: {
+    id: string;
+    fullName?: string;
+    email?: string;
+  };
 }
 
 export interface DeploymentConfig {
