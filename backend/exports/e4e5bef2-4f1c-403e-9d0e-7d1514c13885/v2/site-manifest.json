@@ -1,0 +1,19 @@
+{
+  "generator": "ForgeStudio v1.0",
+  "websiteId": "e4e5bef2-4f1c-403e-9d0e-7d1514c13885",
+  "version": 2,
+  "generatedAt": "2026-09-14T12:10:09.053Z",
+  "pages": [
+    {
+      "id": "home-page",
+      "title": "Home",
+      "file": "index.html"
+    },
+    {
+      "id": "contact-page",
+      "title": "Contact",
+      "file": "contact.html"
+    }
+  ],
+  "totalFiles": 5
+}

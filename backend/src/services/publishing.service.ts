@@ -4,6 +4,7 @@ import { getWebsiteById } from "./website.service.js";
 import { canUserAccessResource } from "./permission.service.js";
 import { createRevision, getRevisionById } from "./revision.service.js";
 import { publishToWordPress } from "./wordpress/connector.service.js";
+import { destinationRegistry } from "./destinations/registry.js";
 
 const db = prisma as any;
 
@@ -22,7 +23,7 @@ export interface ValidationResult {
 export interface PublishOptions {
   editorData?: any;
   environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-  destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
+  destinationType?: "INTERNAL" | "WORDPRESS" | "SFTP" | "STATIC";
   metadata?: Record<string, any>;
 }
 
@@ -36,6 +37,7 @@ export interface PublishResult {
   publishedAt: string;
   liveUrl: string;
   sourceRevisionId?: string;
+  filesTransferred?: number;
   warnings?: ValidationIssue[];
 }
 
@@ -125,7 +127,8 @@ export async function validateWebsiteForPublish(
         pageIds.add(pId);
       }
 
-      if (!p.name || typeof p.name !== "string" || !p.name.trim()) {
+      const pageName = p.name || p.title;
+      if (!pageName || typeof pageName !== "string" || !pageName.trim()) {
         errors.push({
           field: `pages[${i}].name`,
           message: `Page "${pId || i}" requires a valid name`,
@@ -230,6 +233,17 @@ export async function publishWebsite(
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
 
+  if (destinationType === "SFTP") {
+    const sftpConfig = await db.sftpConnection.findFirst({ where: { websiteId, isActive: true } });
+    if (!sftpConfig) {
+      throw new AppError(
+        "SFTP configuration not found or active for this website. Please configure SFTP settings before publishing.",
+        400,
+        "SFTP_CONFIG_MISSING"
+      );
+    }
+  }
+
   // 2. Resolve working draft / candidate data
   const rawEditorData = typeof website.editorData === "string"
     ? JSON.parse(website.editorData)
@@ -327,6 +341,8 @@ export async function publishWebsite(
     // 7. State Machine: DEPLOYING (Execute destination deployment)
     await updateDeploymentStatus(deployment.id, "DEPLOYING");
     let destinationRef = `/site/${websiteId}`;
+    let destinationMetadata: Record<string, any> = {};
+    let filesTransferred: number | undefined = undefined;
 
     if (destinationType === "INTERNAL") {
       // Store published snapshot into authoritative publishedData field
@@ -357,8 +373,75 @@ export async function publishWebsite(
       // Phase 5 WordPress Publishing
       const wpResult = await publishToWordPress(websiteId, userId, deployment.id, candidateSnapshot);
       destinationRef = wpResult.primaryPageUrl || wpResult.siteUrl;
+      filesTransferred = wpResult.syncedPagesCount;
+      destinationMetadata = {
+        siteUrl: wpResult.siteUrl,
+        primaryPageUrl: wpResult.primaryPageUrl,
+        syncedPagesCount: wpResult.syncedPagesCount,
+        syncedMediaCount: wpResult.syncedMediaCount,
+      };
 
       // Also persist published snapshot in ForgeStudio for offline / parity reference
+      const updatedEditorData = {
+        ...candidateData,
+        ...candidateSnapshot,
+        publishedData: candidateSnapshot,
+        publishing: publishingMeta,
+      };
+
+      if (db?.website?.update) {
+        await db.website.update({
+          where: { id: websiteId },
+          data: {
+            status: "PUBLISHED",
+            editorData: updatedEditorData,
+          },
+        });
+      } else {
+        const jsonStr = JSON.stringify(updatedEditorData);
+        await prisma.$executeRawUnsafe(
+          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
+          jsonStr,
+          websiteId
+        );
+      }
+    } else if (destinationType === "SFTP") {
+      const sftpPublisher = destinationRegistry.getPublisher("SFTP");
+      const sftpResult = await sftpPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
+      destinationRef = sftpResult.destinationRef || `sftp://${websiteId}`;
+      filesTransferred = sftpResult.filesTransferred;
+      destinationMetadata = sftpResult.metadata || {};
+
+      const updatedEditorData = {
+        ...candidateData,
+        ...candidateSnapshot,
+        publishedData: candidateSnapshot,
+        publishing: publishingMeta,
+      };
+
+      if (db?.website?.update) {
+        await db.website.update({
+          where: { id: websiteId },
+          data: {
+            status: "PUBLISHED",
+            editorData: updatedEditorData,
+          },
+        });
+      } else {
+        const jsonStr = JSON.stringify(updatedEditorData);
+        await prisma.$executeRawUnsafe(
+          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
+          jsonStr,
+          websiteId
+        );
+      }
+    } else if (destinationType === "STATIC") {
+      const staticPublisher = destinationRegistry.getPublisher("STATIC");
+      const staticResult = await staticPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
+      destinationRef = staticResult.destinationRef || `/exports/${websiteId}/v${nextVersion}`;
+      filesTransferred = staticResult.filesTransferred;
+      destinationMetadata = staticResult.metadata || {};
+
       const updatedEditorData = {
         ...candidateData,
         ...candidateSnapshot,
@@ -440,6 +523,8 @@ export async function publishWebsite(
       sourceRevisionId: publishRevision?.id || null,
       metadata: {
         ...(options.metadata || {}),
+        ...destinationMetadata,
+        filesTransferred,
         warnings: validation.warnings,
       },
     });
@@ -473,6 +558,7 @@ export async function publishWebsite(
       publishedAt: now,
       liveUrl: destinationRef,
       sourceRevisionId: publishRevision?.id,
+      filesTransferred,
       warnings: validation.warnings,
     };
   } catch (error: any) {

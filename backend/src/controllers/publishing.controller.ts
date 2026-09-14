@@ -88,3 +88,44 @@ export async function rollbackDeploymentHandler(req: Request, res: Response, nex
     next(error);
   }
 }
+
+export async function downloadStaticExportHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const deploymentId = String(req.params.deploymentId);
+    const userId = res.locals.user?.id;
+
+    const deployment = await getDeploymentById(websiteId, deploymentId, userId);
+    const { getWebsiteById } = await import("../services/website.service.js");
+    const website = await getWebsiteById(websiteId, userId);
+
+    const rawEditorData =
+      typeof website.editorData === "string"
+        ? JSON.parse(website.editorData)
+        : website.editorData || {};
+
+    const snapshot = rawEditorData.publishedData || rawEditorData;
+    const { compileCanonicalToStaticBundle } = await import("../services/destinations/staticCompiler.js");
+    const bundle = compileCanonicalToStaticBundle(websiteId, deployment.version, snapshot);
+
+    return res.status(200).json({
+      success: true,
+      websiteId,
+      deploymentId,
+      version: deployment.version,
+      bundle: {
+        totalFiles: bundle.files.length,
+        totalBytes: bundle.totalBytes,
+        pageCount: bundle.pageCount,
+        files: bundle.files.map((f) => ({
+          path: f.path,
+          size: f.size,
+          contentType: f.contentType,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+

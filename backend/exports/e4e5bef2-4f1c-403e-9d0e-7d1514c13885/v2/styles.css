@@ -1,0 +1,51 @@
+/* ForgeStudio Generated CSS */
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #10b981;
+  --background-color: #f8fafc;
+  --text-color: #1f2937;
+  --font-family: Inter, sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.page-content {
+  min-height: calc(100vh - 120px);
+}
+
+.site-header, .site-footer {
+  width: 100%;
+  padding: 1rem 2rem;
+}
+
+/* Custom Page Styles */
+
