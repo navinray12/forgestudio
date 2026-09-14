@@ -144,7 +144,9 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   status: 'status',
   editorData: 'editorData',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  teamId: 'teamId',
+  workspaceId: 'workspaceId'
 };
 
 exports.Prisma.OtpVerificationScalarFieldEnum = {
@@ -468,6 +470,70 @@ exports.Prisma.WordPressPageMappingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.GranularPermissionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  userId: 'userId',
+  resourceId: 'resourceId',
+  capability: 'capability',
+  effect: 'effect',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  ownerId: 'ownerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamMemberScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamInvitationScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  email: 'email',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WebsiteInvitationScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  email: 'email',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkspaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  ownerId: 'ownerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -564,7 +630,13 @@ exports.Prisma.ModelName = {
   WebsiteRevision: 'WebsiteRevision',
   Deployment: 'Deployment',
   WordPressConnection: 'WordPressConnection',
-  WordPressPageMapping: 'WordPressPageMapping'
+  WordPressPageMapping: 'WordPressPageMapping',
+  GranularPermission: 'GranularPermission',
+  Team: 'Team',
+  TeamMember: 'TeamMember',
+  TeamInvitation: 'TeamInvitation',
+  WebsiteInvitation: 'WebsiteInvitation',
+  Workspace: 'Workspace'
 };
 
 /**

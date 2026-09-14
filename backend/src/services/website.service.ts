@@ -130,6 +130,110 @@ export async function initWebsiteTable() {
     } catch (wpMapErr) {
       // Table already exists
     }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS workspaces (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) UNIQUE NOT NULL,
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (wsErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS teams (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          description VARCHAR(500),
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (tmErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'teamId') THEN
+            ALTER TABLE websites ADD COLUMN "teamId" UUID REFERENCES teams(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'workspaceId') THEN
+            ALTER TABLE websites ADD COLUMN "workspaceId" UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+          END IF;
+        END $$;
+      `);
+    } catch (colErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS team_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "team_members_teamId_userId_key" UNIQUE ("teamId", "userId")
+        );
+      `);
+    } catch (tmmErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS team_invitations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+          email VARCHAR(255) NOT NULL,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (tmiErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS website_invitations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          email VARCHAR(255) NOT NULL,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (wsiErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS granular_permissions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "resourceId" VARCHAR(100) NOT NULL DEFAULT '*',
+          capability VARCHAR(100) NOT NULL,
+          effect VARCHAR(20) NOT NULL DEFAULT 'ALLOW',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "granular_permissions_websiteId_userId_resourceId_capability_key" UNIQUE ("websiteId", "userId", "resourceId", "capability")
+        );
+      `);
+    } catch (gpErr) {}
   } catch (error) {
     console.error("Website table initialization log:", error);
   }
@@ -606,6 +710,17 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
     data: { permission: newRole }
   });
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "ROLE_UPDATED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId, newRole, previousRole: existing.permission },
+      },
+    });
+  } catch (e) {}
+
   return { success: true };
 }
 
@@ -647,6 +762,17 @@ export async function inviteWebsiteMember(websiteId: string, inviterId: string, 
     }
   });
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: inviterId,
+        action: "COLLABORATOR_INVITED",
+        targetResource: `website:${websiteId}`,
+        details: { email, role, inviteId: invite.id },
+      },
+    });
+  } catch (e) {}
+
   return { inviteId: invite.id, token };
 }
 
@@ -684,6 +810,17 @@ export async function acceptWebsiteInvitation(token: string, userId: string) {
     })
   ]);
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: "INVITATION_ACCEPTED",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId: invite.id, role: invite.role },
+      },
+    });
+  } catch (e) {}
+
   return { success: true, websiteId: invite.websiteId };
 }
 
@@ -702,6 +839,17 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
   await db.websiteCollaborator.delete({
     where: { websiteId_userId: { websiteId, userId: targetUserId } }
   });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterId,
+        action: "COLLABORATOR_REMOVED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId },
+      },
+    });
+  } catch (e) {}
 
   return { success: true };
 }

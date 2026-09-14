@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
+import { authorizeCapability } from "../services/permission.service.js";
 import {
   getWebsitesHandler,
   getWebsiteByIdHandler,
@@ -50,39 +51,38 @@ router.use(requireAuth);
 
 router.get("/", getWebsitesHandler);
 router.post("/", createWebsiteHandler);
-router.get("/:id", getWebsiteByIdHandler);
-router.put("/:id", updateWebsiteHandler);
-router.delete("/:id", deleteWebsiteHandler);
+router.get("/:id", authorizeCapability("VIEW"), getWebsiteByIdHandler);
+router.put("/:id", authorizeCapability("EDIT"), updateWebsiteHandler);
+router.delete("/:id", authorizeCapability("DELETE"), deleteWebsiteHandler);
 
 // WordPress Connector API
-router.post("/:id/wordpress/connect", connectWordPressHandler);
-router.get("/:id/wordpress/status", getWordPressStatusHandler);
-router.post("/:id/wordpress/verify", verifyWordPressHandler);
-router.post("/:id/wordpress/disconnect", disconnectWordPressHandler);
-router.post("/:id/wordpress/sync-pages", syncWordPressPagesHandler);
+router.post("/:id/wordpress/connect", authorizeCapability("MANAGE_INTEGRATIONS"), connectWordPressHandler);
+router.get("/:id/wordpress/status", authorizeCapability("VIEW"), getWordPressStatusHandler);
+router.post("/:id/wordpress/verify", authorizeCapability("MANAGE_INTEGRATIONS"), verifyWordPressHandler);
+router.post("/:id/wordpress/disconnect", authorizeCapability("MANAGE_INTEGRATIONS"), disconnectWordPressHandler);
+router.post("/:id/wordpress/sync-pages", authorizeCapability("MANAGE_INTEGRATIONS"), syncWordPressPagesHandler);
 
 // Production Publishing & Deployment API
-router.post("/:id/validate-publish", validatePublishHandler);
-router.post("/:id/publish", publishWebsiteHandler);
-router.get("/:id/deployments", getDeploymentsHandler);
-router.get("/:id/deployments/:deploymentId", getDeploymentByIdHandler);
-router.post("/:id/deployments/:deploymentId/rollback", rollbackDeploymentHandler);
+router.post("/:id/validate-publish", authorizeCapability("PUBLISH"), validatePublishHandler);
+router.post("/:id/publish", authorizeCapability("PUBLISH"), publishWebsiteHandler);
+router.get("/:id/deployments", authorizeCapability("VIEW"), getDeploymentsHandler);
+router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDeploymentByIdHandler);
+router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);
 
 // Revisions API
-router.get("/:id/revisions", getWebsiteRevisionsHandler);
-router.get("/:id/revisions/:revisionId", getRevisionByIdHandler);
-router.post("/:id/revisions", createRevisionHandler);
-router.post("/:id/revisions/:revisionId/restore", restoreRevisionHandler);
+router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);
+router.get("/:id/revisions/:revisionId", authorizeCapability("VIEW"), getRevisionByIdHandler);
+router.post("/:id/revisions", authorizeCapability("EDIT"), createRevisionHandler);
+router.post("/:id/revisions/:revisionId/restore", authorizeCapability("EDIT"), restoreRevisionHandler);
 
-router.get("/:id/roles", getWebsiteRolesHandler);
-router.put("/:id/roles/:collaboratorUserId", updateWebsiteRoleHandler);
+router.get("/:id/roles", authorizeCapability("VIEW"), getWebsiteRolesHandler);
+router.put("/:id/roles/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), updateWebsiteRoleHandler);
 
 router.post("/accept", acceptWebsiteInvitationHandler);
-router.post("/:id/invite", inviteWebsiteMemberHandler);
-router.delete("/:id/members/:collaboratorUserId", removeWebsiteMemberHandler);
+router.post("/:id/invite", authorizeCapability("MANAGE_TEAM"), inviteWebsiteMemberHandler);
+router.delete("/:id/members/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), removeWebsiteMemberHandler);
 
-router.get("/:id/permissions", getGranularPermissionsHandler);
-router.post("/:id/permissions", setGranularPermissionHandler);
+router.get("/:id/permissions", authorizeCapability("MANAGE_TEAM"), getGranularPermissionsHandler);
+router.post("/:id/permissions", authorizeCapability("MANAGE_TEAM"), setGranularPermissionHandler);
 
 export default router;
-

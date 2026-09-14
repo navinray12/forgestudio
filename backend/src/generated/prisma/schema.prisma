@@ -8,36 +8,42 @@ datasource db {
 }
 
 model User {
-  id                  String                @id @default(uuid()) @db.Uuid
-  fullName            String?
-  email               String?               @unique
-  phone               String?               @unique
-  passwordHash        String?
-  verificationMethod  VerificationMethod?
-  emailVerified       Boolean               @default(false)
-  phoneVerified       Boolean               @default(false)
-  status              UserStatus            @default(ACTIVE)
-  role                UserRole              @default(USER)
-  lastLoginAt         DateTime?
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  identities          Identity[]
-  otpVerifications    OtpVerification[]
-  passwordResetTokens PasswordResetToken[]
-  sessions            Session[]
-  templates           templates[]
-  subscription        UserSubscription?
-  websites            Website[]
-  codeRevisions       CustomCodeRevision[]
-  auditLogs           AuditLog[]
-  developerApiKeys    DeveloperApiKey[]
-  designNotes         DesignNote[]
-  collaborations      WebsiteCollaborator[]
-  componentAccesses   ComponentAccess[]
-  customEntries       CustomEntry[]
-  websiteRevisions    WebsiteRevision[]
-  deployments         Deployment[]
-  wpConnections       WordPressConnection[]
+  id                     String                @id @default(uuid()) @db.Uuid
+  fullName               String?
+  email                  String?               @unique
+  phone                  String?               @unique
+  passwordHash           String?
+  verificationMethod     VerificationMethod?
+  emailVerified          Boolean               @default(false)
+  phoneVerified          Boolean               @default(false)
+  status                 UserStatus            @default(ACTIVE)
+  role                   UserRole              @default(USER)
+  lastLoginAt            DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  identities             Identity[]
+  otpVerifications       OtpVerification[]
+  passwordResetTokens    PasswordResetToken[]
+  sessions               Session[]
+  templates              templates[]
+  subscription           UserSubscription?
+  websites               Website[]
+  codeRevisions          CustomCodeRevision[]
+  auditLogs              AuditLog[]
+  developerApiKeys       DeveloperApiKey[]
+  designNotes            DesignNote[]
+  collaborations         WebsiteCollaborator[]
+  componentAccesses      ComponentAccess[]
+  customEntries          CustomEntry[]
+  websiteRevisions       WebsiteRevision[]
+  deployments            Deployment[]
+  wpConnections          WordPressConnection[]
+  ownedTeams             Team[]                @relation("TeamOwner")
+  teamMemberships        TeamMember[]
+  sentTeamInvitations    TeamInvitation[]      @relation("TeamInvitedBy")
+  sentWebsiteInvitations WebsiteInvitation[]   @relation("WebsiteInvitedBy")
+  granularPermissions    GranularPermission[]
+  ownedWorkspaces        Workspace[]
 
   @@index([status])
   @@index([role])
@@ -45,28 +51,34 @@ model User {
 }
 
 model Website {
-  id                 String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId             String                 @db.Uuid
-  name               String                 @db.VarChar(255)
-  slug               String                 @db.VarChar(255)
-  status             String                 @default("DRAFT") @db.VarChar(50)
-  editorData         Json                   @default("{\"version\": 1, \"elements\": []}")
-  createdAt          DateTime               @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
-  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  customCodeSnippets CustomCodeSnippet[]
-  formSubmissions    FormSubmission[]
-  customPostTypes    CustomPostType[]
-  themeLocationRules ThemeLocationRule[]
-  sftpConnections    SftpConnection[]
-  pluginIntegrations PluginIntegration[]
-  designNotes        DesignNote[]
-  componentAccesses  ComponentAccess[]
-  collaborators      WebsiteCollaborator[]
-  revisions          WebsiteRevision[]
-  deployments        Deployment[]
-  wpConnection       WordPressConnection?
-  wpPageMappings     WordPressPageMapping[]
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String                 @db.Uuid
+  name                String                 @db.VarChar(255)
+  slug                String                 @db.VarChar(255)
+  status              String                 @default("DRAFT") @db.VarChar(50)
+  editorData          Json                   @default("{\"version\": 1, \"elements\": []}")
+  createdAt           DateTime               @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime               @default(now()) @updatedAt @db.Timestamptz(6)
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  customCodeSnippets  CustomCodeSnippet[]
+  formSubmissions     FormSubmission[]
+  customPostTypes     CustomPostType[]
+  themeLocationRules  ThemeLocationRule[]
+  sftpConnections     SftpConnection[]
+  pluginIntegrations  PluginIntegration[]
+  designNotes         DesignNote[]
+  componentAccesses   ComponentAccess[]
+  collaborators       WebsiteCollaborator[]
+  revisions           WebsiteRevision[]
+  deployments         Deployment[]
+  wpConnection        WordPressConnection?
+  wpPageMappings      WordPressPageMapping[]
+  granularPermissions GranularPermission[]
+  invitations         WebsiteInvitation[]
+  teamId              String?                @db.Uuid
+  team                Team?                  @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  workspaceId         String?                @db.Uuid
+  workspace           Workspace?             @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "idx_websites_user_id")
   @@map("websites")
@@ -568,4 +580,111 @@ model WordPressPageMapping {
   @@unique([websiteId, forgePageId])
   @@index([websiteId])
   @@map("wordpress_page_mappings")
+}
+
+model GranularPermission {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  userId     String   @db.Uuid
+  resourceId String   @default("*") @db.VarChar(100)
+  capability String   @db.VarChar(100)
+  effect     String   @default("ALLOW") @db.VarChar(20) // ALLOW, DENY
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, userId, resourceId, capability])
+  @@index([websiteId])
+  @@index([userId])
+  @@map("granular_permissions")
+}
+
+model Team {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  description String?  @db.VarChar(500)
+  ownerId     String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  owner       User             @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  websites    Website[]
+  invitations TeamInvitation[]
+
+  @@index([ownerId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  userId    String   @db.Uuid
+  role      String   @default("DESIGNER") @db.VarChar(50) // OWNER, ADMIN, DESIGNER, CONTENT_EDITOR, REVIEWER
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+model TeamInvitation {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  email     String   @db.VarChar(255)
+  role      String   @default("DESIGNER") @db.VarChar(50)
+  tokenHash String   @unique @db.VarChar(255)
+  status    String   @default("PENDING") @db.VarChar(50) // PENDING, ACCEPTED, REJECTED, EXPIRED
+  expiresAt DateTime @db.Timestamptz(6)
+  invitedBy String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  inviter User @relation("TeamInvitedBy", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([email])
+  @@map("team_invitations")
+}
+
+model WebsiteInvitation {
+  id        String   @id @default(uuid()) @db.Uuid
+  websiteId String   @db.Uuid
+  email     String   @db.VarChar(255)
+  role      String   @default("DESIGNER") @db.VarChar(50)
+  tokenHash String   @unique @db.VarChar(255)
+  status    String   @default("PENDING") @db.VarChar(50) // PENDING, ACCEPTED, REJECTED, EXPIRED
+  expiresAt DateTime @db.Timestamptz(6)
+  invitedBy String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  inviter User    @relation("WebsiteInvitedBy", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([email])
+  @@map("website_invitations")
+}
+
+model Workspace {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  ownerId   String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  websites Website[]
+
+  @@index([ownerId])
+  @@map("workspaces")
 }
