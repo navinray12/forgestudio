@@ -221,6 +221,25 @@ export async function initWebsiteTable() {
 
     try {
       await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS developer_api_keys (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          scopes JSONB DEFAULT '["websites:read"]',
+          "lastUsedAt" TIMESTAMP WITH TIME ZONE,
+          "revokedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS developer_api_keys_userId_idx ON developer_api_keys("userId");
+      `);
+    } catch (dakErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS granular_permissions (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
@@ -429,8 +448,26 @@ export async function getWebsiteById(websiteId: string, userId: string) {
 /**
  * Create a new website with subscription limit check
  */
-export async function createWebsite(userId: string, name: string) {
-  const trimmedName = name?.trim();
+export async function createWebsite(
+  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string },
+  nameArg?: string
+) {
+  let userId: string;
+  let rawName: string;
+  let customSlug: string | undefined;
+  let customEditorData: any | undefined;
+
+  if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
+    userId = userIdOrOptions.userId;
+    rawName = userIdOrOptions.name;
+    customSlug = userIdOrOptions.slug;
+    customEditorData = userIdOrOptions.editorData;
+  } else {
+    userId = userIdOrOptions;
+    rawName = nameArg || "";
+  }
+
+  const trimmedName = rawName?.trim();
   if (!trimmedName) {
     throw new AppError("Website name is required", 400, "INVALID_NAME");
   }
@@ -451,8 +488,8 @@ export async function createWebsite(userId: string, name: string) {
     );
   }
 
-  const slug = generateSlug(trimmedName);
-  const initialEditorData = {
+  const slug = customSlug || generateSlug(trimmedName);
+  const initialEditorData = customEditorData || {
     version: 1,
     elements: [],
   };
@@ -484,6 +521,31 @@ export async function createWebsite(userId: string, name: string) {
     console.error("Error creating website:", error);
     throw new AppError("Failed to create website", 500, "CREATE_FAILED");
   }
+}
+
+/**
+ * Update general website metadata and attributes
+ */
+export async function updateWebsite(
+  websiteId: string,
+  data: { name?: string; slug?: string; editorData?: any; status?: string },
+  userId: string
+) {
+  // Implicit ownership / permission check via getWebsiteById
+  await getWebsiteById(websiteId, userId);
+
+  const updatePayload: any = {};
+  if (data.name !== undefined) updatePayload.name = data.name;
+  if (data.slug !== undefined) updatePayload.slug = data.slug;
+  if (data.status !== undefined) updatePayload.status = data.status;
+  if (data.editorData !== undefined) updatePayload.editorData = data.editorData;
+
+  const updated = await prisma.website.update({
+    where: { id: websiteId },
+    data: updatePayload,
+  });
+
+  return updated;
 }
 
 /**
