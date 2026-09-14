@@ -234,6 +234,86 @@ export async function initWebsiteTable() {
         );
       `);
     } catch (gpErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS organizations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) UNIQUE NOT NULL,
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          settings JSONB DEFAULT '{}',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (orgErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'organizationId') THEN
+            ALTER TABLE workspaces ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'settings') THEN
+            ALTER TABLE workspaces ADD COLUMN settings JSONB DEFAULT '{}';
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'organizationId') THEN
+            ALTER TABLE websites ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'approvalWorkflowEnabled') THEN
+            ALTER TABLE websites ADD COLUMN "approvalWorkflowEnabled" BOOLEAN NOT NULL DEFAULT false;
+          END IF;
+        END $$;
+      `);
+    } catch (colErr2) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS organization_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "organizationId" UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "organization_members_organizationId_userId_key" UNIQUE ("organizationId", "userId")
+        );
+      `);
+    } catch (omErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS workspace_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "workspaceId" UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
+        );
+      `);
+    } catch (wmErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS publish_approval_requests (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "requesterId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "reviewerId" UUID REFERENCES users(id) ON DELETE SET NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "targetVersion" INTEGER NOT NULL,
+          "reviewNotes" VARCHAR(1000),
+          snapshot JSONB NOT NULL,
+          "reviewedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (parErr) {}
   } catch (error) {
     console.error("Website table initialization log:", error);
   }

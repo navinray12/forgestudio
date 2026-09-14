@@ -230,6 +230,24 @@ export async function publishWebsite(
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
   }
 
+  // Approval Workflow Gating (Optional, backwards compatible)
+  if (website.approvalWorkflowEnabled) {
+    const isOwnerOrAdmin = website.userId === userId || website.userPermission === "OWNER" || website.userPermission === "ADMIN";
+    if (!isOwnerOrAdmin) {
+      const approvedRequest = await db.publishApprovalRequest.findFirst({
+        where: { websiteId, requesterId: userId, status: "APPROVED" },
+        orderBy: { updatedAt: "desc" },
+      });
+      if (!approvedRequest) {
+        throw new AppError(
+          "Publishing requires approval on this website. Please submit a review request for approval.",
+          403,
+          "APPROVAL_REQUIRED"
+        );
+      }
+    }
+  }
+
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
 

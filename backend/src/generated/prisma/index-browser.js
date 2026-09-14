@@ -146,7 +146,9 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   teamId: 'teamId',
-  workspaceId: 'workspaceId'
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  approvalWorkflowEnabled: 'approvalWorkflowEnabled'
 };
 
 exports.Prisma.OtpVerificationScalarFieldEnum = {
@@ -527,9 +529,53 @@ exports.Prisma.WebsiteInvitationScalarFieldEnum = {
 
 exports.Prisma.WorkspaceScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   name: 'name',
   slug: 'slug',
   ownerId: 'ownerId',
+  settings: 'settings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  ownerId: 'ownerId',
+  settings: 'settings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkspaceMemberScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PublishApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  requesterId: 'requesterId',
+  reviewerId: 'reviewerId',
+  status: 'status',
+  targetVersion: 'targetVersion',
+  reviewNotes: 'reviewNotes',
+  snapshot: 'snapshot',
+  reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -636,7 +682,11 @@ exports.Prisma.ModelName = {
   TeamMember: 'TeamMember',
   TeamInvitation: 'TeamInvitation',
   WebsiteInvitation: 'WebsiteInvitation',
-  Workspace: 'Workspace'
+  Workspace: 'Workspace',
+  Organization: 'Organization',
+  OrganizationMember: 'OrganizationMember',
+  WorkspaceMember: 'WorkspaceMember',
+  PublishApprovalRequest: 'PublishApprovalRequest'
 };
 
 /**
