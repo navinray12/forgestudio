@@ -580,6 +580,21 @@ exports.Prisma.PublishApprovalRequestScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BackgroundJobScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  maxAttempts: 'maxAttempts',
+  lastError: 'lastError',
+  runAt: 'runAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -686,7 +701,8 @@ exports.Prisma.ModelName = {
   Organization: 'Organization',
   OrganizationMember: 'OrganizationMember',
   WorkspaceMember: 'WorkspaceMember',
-  PublishApprovalRequest: 'PublishApprovalRequest'
+  PublishApprovalRequest: 'PublishApprovalRequest',
+  BackgroundJob: 'BackgroundJob'
 };
 
 /**

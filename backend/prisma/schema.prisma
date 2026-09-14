@@ -777,6 +777,25 @@ model PublishApprovalRequest {
   @@map("publish_approval_requests")
 }
 
+model BackgroundJob {
+  id          String    @id @default(uuid()) @db.Uuid
+  type        String    @db.VarChar(100)
+  payload     Json      @default("{}")
+  status      String    @default("QUEUED") @db.VarChar(50) // QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  lastError   String?   @db.VarChar(2000)
+  runAt       DateTime  @default(now()) @db.Timestamptz(6)
+  startedAt   DateTime? @db.Timestamptz(6)
+  completedAt DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([status, runAt])
+  @@index([type])
+  @@map("background_jobs")
+}
+
 
 
 
