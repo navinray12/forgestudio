@@ -677,3 +677,4 @@ const updateDeploymentStatus = transitionDeployment;
 function candidatePageHasElements(candidateData: any): boolean {
   return Array.isArray(candidateData.elements) && candidateData.elements.length > 0;
 }
+

@@ -70,3 +70,23 @@ export async function queryAuditLogs(filters: AuditLogFilters = {}) {
     },
   };
 }
+
+export async function recordAuditLog(params: {
+  userId?: string;
+  action: string;
+  targetResource: string;
+  details?: any;
+  ipAddress?: string;
+}) {
+  try {
+    return await db.auditLog.create({
+      data: {
+        userId: params.userId,
+        action: params.action,
+        targetResource: params.targetResource,
+        details: params.details || {},
+        ipAddress: params.ipAddress,
+      },
+    });
+  } catch {}
+}
