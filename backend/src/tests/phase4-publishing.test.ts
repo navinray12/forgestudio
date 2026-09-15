@@ -1,26 +1,34 @@
-import { prisma } from "../config/prisma.js";
+/**
+ * @file Phase4 publishing test: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import "./require-disposable-database.js";
+import { prisma } from "../platform/database/prisma.js";
 import {
   getWebsiteById,
   createWebsite,
   updateWebsiteEditorData,
   getPublicWebsiteById,
-} from "../services/website.service.js";
+} from "../modules/websites/website.service.js";
 import {
   getWebsiteRevisions,
   createRevision,
   restoreRevision,
-} from "../services/revision.service.js";
+} from "../modules/revisions/revision.service.js";
 import {
   validateWebsiteForPublish,
   publishWebsite,
   getWebsiteDeployments,
   getDeploymentById,
   rollbackDeployment,
-} from "../services/publishing.service.js";
-import { changeUserPlan } from "../services/subscription.service.js";
+} from "../modules/publishing/publishing.service.js";
+import { changeUserPlan } from "../modules/subscriptions/subscription.service.js";
 
 const db = prisma as any;
 
+/**
+ * Run Phase4 Tests.
+ */
 async function runPhase4Tests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO PHASE 4 VERIFICATION SUITE");
@@ -30,6 +38,12 @@ async function runPhase4Tests() {
   let passed = 0;
   let failed = 0;
 
+  /**
+   * Assert.
+   * @param condition Condition supplied to this operation (type: boolean).
+   * @param testName Test Name supplied to this operation (type: string).
+   * @param detail Detail supplied to this operation (type: string). Optional; callers may omit it.
+   */
   function assert(condition: boolean, testName: string, detail?: string) {
     if (condition) {
       console.log(`[PASS] ${testName}`);
@@ -48,26 +62,13 @@ async function runPhase4Tests() {
 
   try {
     // 1. Setup users
-    ownerUser = await db.user.findFirst({ where: { email: "user@forgestudio.dev" } });
-    if (!ownerUser) {
-      ownerUser = await db.user.findFirst();
-    }
+    ownerUser = await db.user.create({ data: {
+      email: "owner_" + crypto.randomUUID() + "@example.invalid", fullName: "Test owner",
+    } });
     await changeUserPlan(ownerUser.id, "agency");
-
-    unauthorizedUser = await db.user.findFirst({
-      where: { id: { not: ownerUser.id } },
-    });
-    if (!unauthorizedUser) {
-      unauthorizedUser = await db.user.create({
-        data: {
-          email: `unauth_p4_${Date.now()}@forgestudio.dev`,
-          fullName: "Unauthorized P4 User",
-          status: "ACTIVE",
-          role: "USER",
-        },
-      });
-    }
-
+    unauthorizedUser = await db.user.create({ data: {
+      email: "outsider_" + crypto.randomUUID() + "@example.invalid", fullName: "Test outsider",
+    } });
     reviewerUser = await db.user.create({
       data: {
         email: `reviewer_p4_${Date.now()}@forgestudio.dev`,

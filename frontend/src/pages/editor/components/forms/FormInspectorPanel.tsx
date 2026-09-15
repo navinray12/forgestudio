@@ -1,3 +1,7 @@
+/**
+ * @file Form Inspector Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState } from "react";
 import type {
   FormWidgetConfig,
@@ -15,6 +19,14 @@ interface FormInspectorPanelProps {
   popups?: PopupConfig[];
 }
 
+/**
+ * Render the form inspector panel interface and connect its event handlers.
+ * @param options Named inputs: config, onChange, popups.
+
+ * @param options.config Config passed by the caller.
+ * @param options.onChange Callback invoked when the controlled value changes.
+ * @param options.popups Popups passed by the caller. Defaults to [].
+ */
 export default function FormInspectorPanel({
   config,
   onChange,
@@ -23,10 +35,18 @@ export default function FormInspectorPanel({
   const [activeTab, setActiveTab] = useState<"fields" | "steps" | "actions" | "spam">("fields");
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
 
+  /**
+   * Update Config.
+   * @param partial Partial supplied to this operation (type: Partial<FormWidgetConfig>).
+   */
   const updateConfig = (partial: Partial<FormWidgetConfig>) => {
     onChange({ ...config, ...partial });
   };
 
+  /**
+   * Handle Add Field.
+   * @param type Type supplied to this operation (type: FormFieldType). Defaults to "text".
+   */
   const handleAddField = (type: FormFieldType = "text") => {
     const newField: FormFieldConfig = {
       id: generateFieldId(),
@@ -50,17 +70,30 @@ export default function FormInspectorPanel({
     setEditingFieldId(newField.id);
   };
 
+  /**
+   * Handle Update Field.
+   * @param fieldId Field Id supplied to this operation (type: string).
+   * @param partial Partial supplied to this operation (type: Partial<FormFieldConfig>).
+   */
   const handleUpdateField = (fieldId: string, partial: Partial<FormFieldConfig>) => {
     const updated = config.fields.map((f) => (f.id === fieldId ? { ...f, ...partial } : f));
     updateConfig({ fields: updated });
   };
 
+  /**
+   * Handle Delete Field.
+   * @param fieldId Field Id supplied to this operation (type: string).
+   */
   const handleDeleteField = (fieldId: string) => {
     const updated = config.fields.filter((f) => f.id !== fieldId);
     updateConfig({ fields: updated });
     if (editingFieldId === fieldId) setEditingFieldId(null);
   };
 
+  /**
+   * Toggle Action.
+   * @param actionType Action Type supplied to this operation (type: PostSubmitActionType).
+   */
   const toggleAction = (actionType: PostSubmitActionType) => {
     const current = config.actions.activeActions || [];
     const updated = current.includes(actionType)

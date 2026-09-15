@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Form Submission Settings. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { FormContainerConfig } from "../types/atomicForm.types";
 
@@ -6,6 +10,13 @@ interface FormSubmissionSettingsProps {
   onUpdateForm: (updated: Partial<FormContainerConfig>) => void;
 }
 
+/**
+ * Render the form submission settings interface and connect its event handlers.
+ * @param options Named inputs: form, onUpdateForm.
+
+ * @param options.form Form passed by the caller.
+ * @param options.onUpdateForm Callback for update form events.
+ */
 export const FormSubmissionSettings: React.FC<FormSubmissionSettingsProps> = ({
   form,
   onUpdateForm,

@@ -1,3 +1,7 @@
+/**
+ * @file Eslint config: frontend module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

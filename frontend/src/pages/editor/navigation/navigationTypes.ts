@@ -1,3 +1,7 @@
+/**
+ * @file Navigation Types: pages/editor/navigation module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 // ==========================================================
 // Navigation & Search Element Types & Interfaces (F-223 to F-233)
 // ==========================================================

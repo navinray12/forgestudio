@@ -1,3 +1,7 @@
+/**
+ * @file Page Manager Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { PageConfig, NavMenuItem, SitePartsConfig } from "../types";
 import {
@@ -20,6 +24,20 @@ interface PageManagerModalProps {
   siteParts?: SitePartsConfig;
 }
 
+/**
+ * Render the page manager modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, pages, activePageId, homePageId, onSwitchPage, onUpdatePages, navigation, siteParts.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.pages Pages passed by the caller.
+ * @param options.activePageId Active Page Id passed by the caller.
+ * @param options.homePageId Home Page Id passed by the caller.
+ * @param options.onSwitchPage Callback for switch page events.
+ * @param options.onUpdatePages Callback for update pages events.
+ * @param options.navigation Navigation passed by the caller. Defaults to [].
+ * @param options.siteParts Site Parts passed by the caller.
+ */
 export const PageManagerModal: React.FC<PageManagerModalProps> = ({
   isOpen,
   onClose,
@@ -55,6 +73,9 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
       p.slug.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  /**
+   * Handle Start Create.
+   */
   const handleStartCreate = () => {
     setIsCreatingPage(true);
     setNewPageName("");
@@ -62,6 +83,10 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     setCreateError("");
   };
 
+  /**
+   * Handle Create Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const rawName = newPageName.trim();
@@ -101,6 +126,10 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     onSwitchPage(newId);
   };
 
+  /**
+   * Handle Start Edit.
+   * @param page Page supplied to this operation (type: PageConfig).
+   */
   const handleStartEdit = (page: PageConfig) => {
     setEditingPageId(page.id);
     setEditName(page.name);
@@ -108,6 +137,10 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     setEditError("");
   };
 
+  /**
+   * Handle Save Edit.
+   * @param pageId Page Id supplied to this operation (type: string).
+   */
   const handleSaveEdit = (pageId: string) => {
     const rawName = editName.trim();
     if (!rawName) {
@@ -151,6 +184,10 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     setEditingPageId(null);
   };
 
+  /**
+   * Handle Set Home.
+   * @param pageId Page Id supplied to this operation (type: string).
+   */
   const handleSetHome = (pageId: string) => {
     const updated = pages.map((p) => ({
       ...p,
@@ -160,12 +197,20 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     onUpdatePages(updated, pageId);
   };
 
+  /**
+   * Handle Duplicate.
+   * @param page Page supplied to this operation (type: PageConfig).
+   */
   const handleDuplicate = (page: PageConfig) => {
     const duplicated = duplicatePage(page, pages);
     const updated = [...pages, duplicated];
     onUpdatePages(updated);
   };
 
+  /**
+   * Handle Prompt Delete.
+   * @param page Page supplied to this operation (type: PageConfig).
+   */
   const handlePromptDelete = (page: PageConfig) => {
     if (pages.length <= 1) {
       alert("Cannot delete the only remaining page.");
@@ -188,6 +233,10 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     executeDelete(page.id);
   };
 
+  /**
+   * Execute Delete.
+   * @param pageId Page Id supplied to this operation (type: string).
+   */
   const executeDelete = (pageId: string) => {
     const res = safeDeletePage(pageId, pages, homePageId);
     if (!res.success) {

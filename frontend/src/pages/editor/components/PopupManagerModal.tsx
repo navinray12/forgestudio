@@ -1,3 +1,7 @@
+/**
+ * @file Popup Manager Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState } from "react";
 import type { PopupConfig, PopupLayoutMode } from "../../../types/popup.types";
 import { POPUP_TEMPLATES, createDefaultPopup } from "../../../types/popup.types";
@@ -13,6 +17,19 @@ interface PopupManagerModalProps {
   onDuplicatePopup: (popupId: string) => void;
 }
 
+/**
+ * Render the popup manager modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, popups, onSelectPopupForEdit, onCreatePopup, onUpdatePopup, onDeletePopup, onDuplicatePopup.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.popups Popups passed by the caller.
+ * @param options.onSelectPopupForEdit Callback for select popup for edit events.
+ * @param options.onCreatePopup Callback for create popup events.
+ * @param options.onUpdatePopup Callback for update popup events.
+ * @param options.onDeletePopup Callback for delete popup events.
+ * @param options.onDuplicatePopup Callback for duplicate popup events.
+ */
 export default function PopupManagerModal({
   isOpen,
   onClose,
@@ -30,6 +47,10 @@ export default function PopupManagerModal({
 
   if (!isOpen) return null;
 
+  /**
+   * Handle Create Custom.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleCreateCustom = (e: React.FormEvent) => {
     e.preventDefault();
     const name = newPopupName.trim() || "My New Popup";
@@ -40,6 +61,10 @@ export default function PopupManagerModal({
     onSelectPopupForEdit(popup.id);
   };
 
+  /**
+   * Handle Use Template.
+   * @param templateId Template Id supplied to this operation (type: string).
+   */
   const handleUseTemplate = (templateId: string) => {
     const tmpl = POPUP_TEMPLATES.find((t) => t.id === templateId);
     if (!tmpl) return;

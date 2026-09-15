@@ -1,3 +1,7 @@
+/**
+ * @file Autosave feature: Autosave Status. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useState } from "react";
 import type { AutosaveStatus } from "../types/autosave.types";
 
@@ -9,6 +13,8 @@ interface AutosaveStatusProps {
 
 /**
  * Formats lastSavedAt timestamp into human relative string ("just now", "1m ago", etc.)
+
+ * @param timestamp Timestamp supplied to this operation (type: number | null).
  */
 function formatTimeAgo(timestamp: number | null): string {
   if (!timestamp) return "Saved";
@@ -21,6 +27,14 @@ function formatTimeAgo(timestamp: number | null): string {
   return `Saved ${hours}h ago`;
 }
 
+/**
+ * Render the autosave status indicator interface and connect its event handlers.
+ * @param options Named inputs: status, lastSavedAt, errorMessage.
+
+ * @param options.status Status passed by the caller.
+ * @param options.lastSavedAt Last Saved At passed by the caller.
+ * @param options.errorMessage Error Message passed by the caller.
+ */
 export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
   status,
   lastSavedAt,
@@ -73,7 +87,7 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
     );
   }
 
-  if (status === "error") {
+  if (status === "error" || status === "conflict") {
     return (
       <div
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-950/40 border border-red-800/60 text-red-300 text-xs font-semibold cursor-help"
@@ -88,7 +102,7 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <span>Save failed</span>
+        <span>{status === 'conflict' ? 'Draft conflict — compare before saving' : 'Save failed'}</span>
       </div>
     );
   }

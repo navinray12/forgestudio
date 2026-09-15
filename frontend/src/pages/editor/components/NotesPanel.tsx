@@ -1,3 +1,7 @@
+/**
+ * @file Notes Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 import type { EditorElement } from "../WebsiteEditor";
 
@@ -30,6 +34,17 @@ interface NotesPanelProps {
     elements: EditorElement[];
 }
 
+/**
+ * Render the notes panel interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, websiteId, apiUrl, selectedElementId, elements.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ * @param options.apiUrl Api Url passed by the caller.
+ * @param options.selectedElementId Selected Element Id passed by the caller.
+ * @param options.elements Elements passed by the caller.
+ */
 export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selectedElementId, elements }: NotesPanelProps) {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(false);
@@ -45,6 +60,9 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         }
     }, [isOpen, websiteId]);
 
+    /**
+     * Fetch Notes.
+     */
     const fetchNotes = async () => {
         setLoading(true);
         try {
@@ -60,6 +78,9 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         }
     };
 
+    /**
+     * Handle Add Note.
+     */
     const handleAddNote = async () => {
         if (!newNoteContent.trim()) return;
         setSubmitting(true);
@@ -86,6 +107,11 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         }
     };
 
+    /**
+     * Handle Toggle Status.
+     * @param id Id supplied to this operation (type: string).
+     * @param currentStatus Current Status supplied to this operation (type: "OPEN" | "RESOLVED").
+     */
     const handleToggleStatus = async (id: string, currentStatus: "OPEN" | "RESOLVED") => {
         const action = currentStatus === "OPEN" ? "resolve" : "reopen";
         try {
@@ -102,6 +128,10 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         }
     };
 
+    /**
+     * Handle Delete.
+     * @param id Id supplied to this operation (type: string).
+     */
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this note?")) return;
         try {
@@ -117,8 +147,17 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         }
     };
 
+    /**
+     * Get Element Name.
+     * @param elId El Id supplied to this operation (type: string).
+     */
     const getElementName = (elId: string) => {
         // Attempt to drill tree slightly or just surface standard label
+        /**
+         * Find El.
+         * @param els Els supplied to this operation (type: EditorElement[]).
+         * @param target Target supplied to this operation (type: string).
+         */
         const findEl = (els: EditorElement[], target: string): EditorElement | null => {
             for (const el of els) {
                 if (el.id === target) return el;
@@ -134,6 +173,10 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
         return el.type.charAt(0).toUpperCase() + el.type.slice(1);
     };
 
+    /**
+     * Format Date.
+     * @param dateString Date String supplied to this operation (type: string).
+     */
     const formatDate = (dateString: string) => {
         return new Intl.DateTimeFormat('en-US', {
             month: 'short',

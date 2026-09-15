@@ -1,3 +1,7 @@
+/**
+ * @file Declarations d: types module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 declare module "acorn" {
   export function parse(input: string, options?: any): any;
 }

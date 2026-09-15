@@ -1,3 +1,7 @@
+/**
+ * @file Test external react render: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
@@ -9,6 +13,11 @@ import { exportCode, generateJSCode, generateTSCode } from "../codeExporter.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Render Exported Component.
+ * @param element Element supplied to this operation.
+ * @param tempName Temp Name supplied to this operation.
+ */
 async function renderExportedComponent(element, tempName) {
   const jsxCode = exportCode(element, "jsx");
   const transpiled = ts.transpileModule(jsxCode, {
@@ -32,6 +41,9 @@ async function renderExportedComponent(element, tempName) {
   }
 }
 
+/**
+ * Run All External Verification Tests.
+ */
 async function runAllExternalVerificationTests() {
   console.log("============================================================");
   console.log("FORGESTUDIO EXTERNAL RUNTIME VERIFICATION SUITE");
@@ -41,6 +53,11 @@ async function runAllExternalVerificationTests() {
   let totalAssertions = 0;
   let passedAssertions = 0;
 
+  /**
+   * Assert.
+   * @param label Label supplied to this operation.
+   * @param condition Condition supplied to this operation.
+   */
   function assert(label, condition) {
     totalAssertions++;
     if (condition) {

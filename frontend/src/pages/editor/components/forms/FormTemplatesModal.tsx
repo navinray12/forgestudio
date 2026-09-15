@@ -1,3 +1,7 @@
+/**
+ * @file Form Templates Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { FormWidgetConfig } from "../../../../types/form.types";
 import { FORM_TEMPLATES } from "../../../../types/form.types";
 
@@ -7,6 +11,14 @@ interface FormTemplatesModalProps {
   onSelectTemplate: (config: FormWidgetConfig) => void;
 }
 
+/**
+ * Render the form templates modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, onSelectTemplate.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onSelectTemplate Callback for select template events.
+ */
 export default function FormTemplatesModal({
   isOpen,
   onClose,

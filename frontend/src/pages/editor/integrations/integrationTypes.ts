@@ -1,3 +1,7 @@
+/**
+ * @file Integration Types: pages/editor/integrations module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 // ==========================================
 // Integrations & Ecosystem Element Types & Interfaces (F-411 to F-425)
 // ==========================================
@@ -124,6 +128,10 @@ export interface IntegrationStyles {
   webhookCustomHeaders?: string;
 }
 
+/**
+ * Is Integration Element.
+ * @param type Type supplied to this operation (type: string).
+ */
 export function isIntegrationElement(type: string): type is IntegrationElementType {
   const integrationTypes: IntegrationElementType[] = [
     "google-maps",

@@ -1,5 +1,13 @@
+/**
+ * @file F351 1: frontend/ agent module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs');
 
+/**
+ * Refactor Dashboard.
+ * @param path Path supplied to this operation.
+ */
 function refactorDashboard(path) {
     let f = fs.readFileSync(path, 'utf8');
 
@@ -30,6 +38,10 @@ function refactorDashboard(path) {
     // To be perfectly safe against layout destruction, let's just replace exact known strings.
 }
 
+/**
+ * Optimize App.
+ * @param path Path supplied to this operation.
+ */
 function optimizeApp(path) {
     // Other refactoring
 }

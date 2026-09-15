@@ -6,10 +6,15 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && node ../scripts/copy-prisma-runtime.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --root .. --project backend",
     "start": "node dist/server.js",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "dev:worker": "tsx watch src/workers/background-worker.ts",
+    "start:worker": "node dist/workers/background-worker.js",
+    "db:generate": "node ../scripts/generate-prisma.mjs",
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
     "db:seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
@@ -19,7 +24,7 @@
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.10.0",
     "acorn": "^8.18.0",
-    "argon2": "^0.45.1",
+    "argon2": "0.44.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -32,7 +37,8 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.23.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@forgestudio/document-contract": "0.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -48,6 +54,6 @@
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "6.0.2"
   }
 }

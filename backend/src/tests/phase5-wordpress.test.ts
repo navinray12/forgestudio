@@ -1,21 +1,26 @@
+/**
+ * @file Phase5 wordpress test: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import "./require-disposable-database.js";
 import crypto from "crypto";
-import { prisma } from "../config/prisma.js";
+import { prisma } from "../platform/database/prisma.js";
 import {
   getWebsiteById,
   createWebsite,
   updateWebsiteEditorData,
   getPublicWebsiteById,
-} from "../services/website.service.js";
+} from "../modules/websites/website.service.js";
 import {
   getWebsiteRevisions,
   createRevision,
   restoreRevision,
-} from "../services/revision.service.js";
+} from "../modules/revisions/revision.service.js";
 import {
   publishWebsite,
   getWebsiteDeployments,
   rollbackDeployment,
-} from "../services/publishing.service.js";
+} from "../modules/publishing/publishing.service.js";
 import {
   connectWordPress,
   getWordPressStatus,
@@ -23,16 +28,19 @@ import {
   disconnectWordPress,
   publishToWordPress,
   getWebsitePageMappings,
-} from "../services/wordpress/connector.service.js";
+} from "../modules/wordpress-connections/connector.service.js";
 import {
   verifyWebhookSignature,
   processWordPressWebhook,
-} from "../services/wordpress/webhook.service.js";
-import { transformPageToWordPress } from "../services/wordpress/transformer.service.js";
-import { changeUserPlan } from "../services/subscription.service.js";
+} from "../modules/wordpress-connections/webhook.service.js";
+import { transformPageToWordPress } from "../modules/wordpress-connections/transformer.service.js";
+import { changeUserPlan } from "../modules/subscriptions/subscription.service.js";
 
 const db = prisma as any;
 
+/**
+ * Run Phase5 Tests.
+ */
 async function runPhase5Tests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO PHASE 5 VERIFICATION SUITE");
@@ -42,6 +50,12 @@ async function runPhase5Tests() {
   let passed = 0;
   let failed = 0;
 
+  /**
+   * Assert.
+   * @param condition Condition supplied to this operation (type: boolean).
+   * @param testName Test Name supplied to this operation (type: string).
+   * @param detail Detail supplied to this operation (type: string). Optional; callers may omit it.
+   */
   function assert(condition: boolean, testName: string, detail?: string) {
     if (condition) {
       console.log(`[PASS] ${testName}`);
@@ -60,26 +74,13 @@ async function runPhase5Tests() {
 
   try {
     // 1. Setup users
-    ownerUser = await db.user.findFirst({ where: { email: "user@forgestudio.dev" } });
-    if (!ownerUser) {
-      ownerUser = await db.user.findFirst();
-    }
+    ownerUser = await db.user.create({ data: {
+      email: "owner_" + crypto.randomUUID() + "@example.invalid", fullName: "Test owner",
+    } });
     await changeUserPlan(ownerUser.id, "agency");
-
-    unauthorizedUser = await db.user.findFirst({
-      where: { id: { not: ownerUser.id } },
-    });
-    if (!unauthorizedUser) {
-      unauthorizedUser = await db.user.create({
-        data: {
-          email: `unauth_p5_${Date.now()}@forgestudio.dev`,
-          fullName: "Unauthorized P5 User",
-          status: "ACTIVE",
-          role: "USER",
-        },
-      });
-    }
-
+    unauthorizedUser = await db.user.create({ data: {
+      email: "outsider_" + crypto.randomUUID() + "@example.invalid", fullName: "Test outsider",
+    } });
     reviewerUser = await db.user.create({
       data: {
         email: `reviewer_p5_${Date.now()}@forgestudio.dev`,

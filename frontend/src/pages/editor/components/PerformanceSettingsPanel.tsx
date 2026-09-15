@@ -1,3 +1,7 @@
+/**
+ * @file Performance Settings Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 
 
 export interface PerformanceSettings {
@@ -18,14 +22,35 @@ interface PerformanceSettingsPanelProps {
     onChange: (newSettings: PerformanceSettings) => void;
 }
 
+/**
+ * Render the performance settings panel interface and connect its event handlers.
+ * @param options Named inputs: settings, onChange.
+
+ * @param options.settings Settings passed by the caller.
+ * @param options.onChange Callback invoked when the controlled value changes.
+ */
 export default function PerformanceSettingsPanel({
     settings,
     onChange,
 }: PerformanceSettingsPanelProps) {
+    /**
+     * Toggle.
+     * @param key Key supplied to this operation (type: keyof PerformanceSettings).
+     */
     const toggle = (key: keyof PerformanceSettings) => {
         onChange({ ...settings, [key]: !settings[key] });
     };
 
+    /**
+     * Render the option row interface and connect its event handlers.
+     * @param options Named inputs: label, desc, id, active, tag.
+
+     * @param options.label Label passed by the caller.
+     * @param options.desc Desc passed by the caller.
+     * @param options.id Id passed by the caller.
+     * @param options.active Active passed by the caller.
+     * @param options.tag Tag passed by the caller.
+     */
     const OptionRow = ({
         label,
         desc,

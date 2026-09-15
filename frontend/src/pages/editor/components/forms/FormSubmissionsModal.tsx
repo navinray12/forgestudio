@@ -1,3 +1,7 @@
+/**
+ * @file Form Submissions Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useEffect, useState } from "react";
 import type { FormSubmissionRecord } from "../../../../types/form.types";
 
@@ -8,17 +12,29 @@ interface FormSubmissionsModalProps {
   apiUrl?: string;
 }
 
+/**
+ * Render the form submissions modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, websiteId, apiUrl.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ * @param options.apiUrl Api Url passed by the caller. Defaults to import.meta.env.VITE_API_URL ?? "http://localhost:5000".
+ */
 export default function FormSubmissionsModal({
   isOpen,
   onClose,
   websiteId,
-  apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000",
+  apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000",
 }: FormSubmissionsModalProps) {
   const [submissions, setSubmissions] = useState<FormSubmissionRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmissionRecord | null>(null);
 
+  /**
+   * Fetch Submissions.
+   */
   const fetchSubmissions = async () => {
     if (!websiteId) return;
     try {
@@ -45,6 +61,10 @@ export default function FormSubmissionsModal({
 
   if (!isOpen) return null;
 
+  /**
+   * Handle Delete.
+   * @param submissionId Submission Id supplied to this operation (type: string).
+   */
   const handleDelete = async (submissionId: string) => {
     if (!websiteId) return;
     try {
@@ -61,6 +81,10 @@ export default function FormSubmissionsModal({
     }
   };
 
+  /**
+   * Handle Export.
+   * @param format Format supplied to this operation (type: "csv" | "json").
+   */
   const handleExport = (format: "csv" | "json") => {
     if (!websiteId) return;
     window.open(`${apiUrl}/api/forms/${websiteId}/export?format=${format}`, "_blank");

@@ -1,3 +1,7 @@
+/**
+ * @file Publish Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 import type { PublishingState, DeploymentConfig, PageConfig, DeploymentRecord } from "../types";
 import { publishingService } from "../../../features/publishing/services/publishingService";
@@ -16,6 +20,22 @@ interface PublishModalProps {
   onOpenPreview: () => void;
 }
 
+/**
+ * Render the publish modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, publishing, deployment, pages, _websiteName, websiteId, onPublish, onRollback, onUpdateDeployment, onOpenPreview.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.publishing Publishing passed by the caller.
+ * @param options.deployment Deployment passed by the caller.
+ * @param options.pages Pages passed by the caller.
+ * @param options.websiteName Website Name passed by the caller.
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ * @param options.onPublish Callback for publish events.
+ * @param options.onRollback Callback for rollback events.
+ * @param options.onUpdateDeployment Callback for update deployment events.
+ * @param options.onOpenPreview Callback for open preview events.
+ */
 export const PublishModal: React.FC<PublishModalProps> = ({
   isOpen,
   onClose,
@@ -53,6 +73,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   }, [isOpen, websiteId]);
 
+  /**
+   * Load Deployments.
+   */
   const loadDeployments = async () => {
     if (!websiteId) return;
     try {
@@ -66,6 +89,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Load Word Press Status.
+   */
   const loadWordPressStatus = async () => {
     if (!websiteId) return;
     try {
@@ -86,6 +112,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
   const isActuallyDeployed = deployment?.provider !== "none" && Boolean(deployment?.deployedAt);
 
+  /**
+   * Handle Publish Click.
+   * @param dest Dest supplied to this operation (type: "INTERNAL" | "WORDPRESS"). Defaults to "INTERNAL".
+   */
   const handlePublishClick = async (dest: "INTERNAL" | "WORDPRESS" = "INTERNAL") => {
     try {
       setIsPublishing(true);
@@ -104,6 +134,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Handle Rollback Click.
+   * @param deploymentId Deployment Id supplied to this operation (type: string).
+   * @param version Version supplied to this operation (type: number).
+   */
   const handleRollbackClick = async (deploymentId: string, version: number) => {
     if (!onRollback && !websiteId) return;
     const confirm = window.confirm(`Are you sure you want to rollback to deployment v${version}? This will create a new live deployment.`);
@@ -127,6 +162,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Handle Connect Word Press.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleConnectWordPress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!websiteId || !wpSiteUrl.trim() || !wpApiKey.trim()) return;
@@ -146,6 +185,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Handle Verify Word Press.
+   */
   const handleVerifyWordPress = async () => {
     if (!websiteId) return;
     try {
@@ -162,6 +204,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Handle Disconnect Word Press.
+   */
   const handleDisconnectWordPress = async () => {
     if (!websiteId) return;
     const confirm = window.confirm("Are you sure you want to disconnect WordPress? Your ForgeStudio site and revisions remain safe.");
@@ -178,6 +223,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  /**
+   * Handle Save Deployment Config.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleSaveDeploymentConfig = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateDeployment({
@@ -190,6 +239,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     setTimeout(() => setSaveFeedback(""), 3000);
   };
 
+  /**
+   * Get Status Badge.
+   * @param status Status supplied to this operation (type: string).
+   */
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PUBLISHED":

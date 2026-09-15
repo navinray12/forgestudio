@@ -1,3 +1,7 @@
+/**
+ * @file Website kits feature: website Kits Data. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { WebsiteKit } from "../types/websiteKit.types";
 
 export const WEBSITE_KITS: WebsiteKit[] = [

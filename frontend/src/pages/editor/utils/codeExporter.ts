@@ -1,14 +1,31 @@
+/**
+ * @file Code Exporter: pages/editor/utils module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { EditorElement, PostItem, PricingPlan, PriceListItem, SlideItem, GalleryImageItem, TestimonialItem, ReviewItem, NavMenuItem, PortfolioItem, FormFieldItem, MediaCarouselItem, CanonicalWebsiteData } from "../types";
+/**
+ * Get Merged Styles.
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param _device Device supplied to this operation (type: string). Optional; callers may omit it.
+ * @param _state State supplied to this operation (type: string). Optional; callers may omit it.
+ */
 function getMergedStyles(el: EditorElement, _device?: string, _state?: string): Record<string, any> {
   return el.styles || {};
 }
 
+/**
+ * Get Merged Layout.
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param _device Device supplied to this operation (type: string). Optional; callers may omit it.
+ */
 function getMergedLayout(el: EditorElement, _device?: string): Record<string, any> {
   return el.layout || {};
 }
 
 /**
  * Convert string to PascalCase for component and function names
+
+ * @param str Str supplied to this operation (type: string). Optional; callers may omit it.
  */
 export function toPascalCase(str?: string): string {
   if (!str) return "Component";
@@ -72,6 +89,8 @@ export function toPascalCase(str?: string): string {
 
 /**
  * Format CSS styles object into standard inline CSS string
+
+ * @param styles Styles supplied to this operation (type: Record<string, any>). Defaults to {}.
  */
 export function formatStylesToCSS(styles: Record<string, any> = {}): string {
   if (!styles || Object.keys(styles).length === 0) return "";
@@ -86,6 +105,8 @@ export function formatStylesToCSS(styles: Record<string, any> = {}): string {
 
 /**
  * Format CSS styles object into JSX style object
+
+ * @param styles Styles supplied to this operation (type: Record<string, any>). Defaults to {}.
  */
 export function formatStylesToJSX(styles: Record<string, any> = {}): string {
   if (!styles || Object.keys(styles).length === 0) return "{}";
@@ -112,6 +133,9 @@ export interface ExportContext {
 
 /**
  * Recursively export an element node into pure JSX markup
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param ctx Ctx supplied to this operation (type: ExportContext).
  */
 export function exportElementNodeToJSX(el: EditorElement, ctx: ExportContext): string {
   const { indent } = ctx;
@@ -543,6 +567,9 @@ ${indent}</blockquote>`;
 
 /**
  * Generates interactive Animated Headline component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateAnimatedHeadlineComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "animated-headline");
@@ -709,6 +736,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Blog Posts component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateBlogPostsComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "posts");
@@ -896,6 +926,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Pricing Table component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generatePricingTableComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "price-table");
@@ -1032,6 +1065,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Code Highlight component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateCodeHighlightComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "code-highlight");
@@ -1177,6 +1213,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Countdown Timer component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateCountdownComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "countdown");
@@ -1253,6 +1292,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Flip Box component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateFlipBoxComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "flip-box");
@@ -1359,6 +1401,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone interactive Slides / Slideshow component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateSlidesComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "slides");
@@ -1682,6 +1727,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Photo Gallery component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateGalleryComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "gallery");
@@ -1804,6 +1852,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Testimonials Slider component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateTestimonialsComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "testimonial-carousel");
@@ -1886,6 +1937,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Media Carousel component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateMediaCarouselComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "media-carousel");
@@ -1953,6 +2007,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: MediaCarouse
 
 /**
  * Generates standalone Customer Reviews component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateReviewsComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "reviews");
@@ -2011,6 +2068,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Price List component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generatePriceListComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "price-list");
@@ -2064,6 +2124,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Contact Form component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateFormComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "form");
@@ -2162,6 +2225,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Navigation Menu component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateNavMenuComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "nav-menu");
@@ -2212,6 +2278,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Call To Action component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateCTAComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "call-to-action");
@@ -2260,6 +2329,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Generates standalone Blockquote component
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateBlockquoteComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type || "blockquote");
@@ -2306,6 +2378,9 @@ ${tsInterface}export default function ${compName}(${isTsx ? `props: ${compName}P
 
 /**
  * Master React JSX/TSX Generator for any element
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param isTsx Is Tsx supplied to this operation. Defaults to false.
  */
 function generateGenericComponent(el: EditorElement, isTsx = false): string {
   const compName = toPascalCase(el.type);
@@ -2338,6 +2413,8 @@ ${innerJSX}
 
 /**
  * 1. Generate Functional React (.jsx)
+
+ * @param el El supplied to this operation (type: EditorElement).
  */
 export function generateJSXCode(el: EditorElement): string {
   if (!el) return "// No element selected";
@@ -2386,6 +2463,8 @@ export function generateJSXCode(el: EditorElement): string {
 
 /**
  * 2. Generate Fully Typed React + TSX (.tsx)
+
+ * @param el El supplied to this operation (type: EditorElement).
  */
 export function generateTSXCode(el: EditorElement): string {
   if (!el) return "// No element selected";
@@ -2435,6 +2514,8 @@ export function generateTSXCode(el: EditorElement): string {
 /**
  * 3. Generate Vanilla JavaScript (.js)
  * Must be pure DOM JavaScript, NO JSX syntax!
+
+ * @param el El supplied to this operation (type: EditorElement).
  */
 export function generateJSCode(el: EditorElement): string {
   if (!el) return "// No element selected";
@@ -2670,6 +2751,8 @@ export function render${compName}(containerId) {
 /**
  * 4. Generate Type-Safe TypeScript (.ts)
  * Must be pure TypeScript DOM class, NO JSX syntax!
+
+ * @param el El supplied to this operation (type: EditorElement).
  */
 export function generateTSCode(el: EditorElement): string {
   if (!el) return "// No element selected";
@@ -2720,6 +2803,9 @@ export class ${compName}Component {
 
 /**
  * Universal code export helper for any element and format
+
+ * @param el El supplied to this operation (type: EditorElement).
+ * @param format Format supplied to this operation (type: "js" | "ts" | "jsx" | "tsx"). Defaults to "jsx".
  */
 export function exportCode(el: EditorElement, format: "js" | "ts" | "jsx" | "tsx" = "jsx"): string {
   switch (format) {
@@ -2740,6 +2826,8 @@ export function exportCode(el: EditorElement, format: "js" | "ts" | "jsx" | "tsx
  * F-MULTI-EXPORT: Dynamically exports a complete multi-page website project from CanonicalWebsiteData.
  * Generates dynamic routes from pages[], shared Header & Footer, global styles CSS variables,
  * package.json, vite.config.ts, and React Router App.tsx.
+
+ * @param data Data supplied to this operation (type: CanonicalWebsiteData).
  */
 export function exportEntireWebsite(data: CanonicalWebsiteData): Record<string, string> {
   const files: Record<string, string> = {};

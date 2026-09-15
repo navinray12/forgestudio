@@ -1,3 +1,7 @@
+/**
+ * @file Iframe Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 
 
 interface IframeModalProps {
@@ -7,6 +11,15 @@ interface IframeModalProps {
     title: string;
 }
 
+/**
+ * Render the iframe modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, url, title.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.url Url passed by the caller.
+ * @param options.title Title passed by the caller.
+ */
 export default function IframeModal({ isOpen, onClose, url, title }: IframeModalProps) {
     if (!isOpen) return null;
 

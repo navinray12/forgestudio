@@ -1,3 +1,7 @@
+/**
+ * @file Integration Renderers: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useState } from "react";
 import type { EditorElement } from "../WebsiteEditor";
 
@@ -10,6 +14,17 @@ interface IntegrationRendererProps {
   resolvedStyles: React.CSSProperties;
 }
 
+/**
+ * Render the integration element renderer interface and connect its event handlers.
+ * @param options Named inputs: el, isPreview, apiUrl, getStyleVal, getInnerStyles, resolvedStyles.
+
+ * @param options.el Stored editor element whose content, settings and styles are being used.
+ * @param options.isPreview Whether this rendering is being shown in preview mode. Defaults to false.
+ * @param options.apiUrl Api Url passed by the caller. Defaults to "http://localhost:5000".
+ * @param options.getStyleVal Get Style Val passed by the caller.
+ * @param options.getInnerStyles Get Inner Styles passed by the caller.
+ * @param options.resolvedStyles Resolved Styles passed by the caller.
+ */
 export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
   el,
   isPreview = false,
@@ -21,6 +36,11 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
   const innerStyles = getInnerStyles(resolvedStyles);
 
   // Helper for safe style value getters with fallback defaults
+  /**
+   * Get Prop.
+   * @param prop Prop supplied to this operation (type: string).
+   * @param fallback Fallback supplied to this operation (type: string).
+   */
   const getProp = (prop: string, fallback: string): string => {
     const val = getStyleVal(prop);
     return val !== undefined && val !== "" ? val : fallback;
@@ -391,6 +411,9 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
 
     useEffect(() => {
       let isMounted = true;
+      /**
+       * Fetch Data.
+       */
       const fetchData = async () => {
         setLoading(true);
         try {
@@ -483,6 +506,10 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<string | null>(null);
 
+    /**
+     * Handle Submit.
+     * @param e E supplied to this operation (type: React.FormEvent).
+     */
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!isPreview) return;
@@ -549,6 +576,9 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
     const eventType = getProp("webhookTriggerEvent", "onButtonClick");
     const [triggered, setTriggered] = useState(false);
 
+    /**
+     * Handle Webhook Trigger.
+     */
     const handleWebhookTrigger = async () => {
       setTriggered(true);
       try {

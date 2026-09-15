@@ -1,3 +1,7 @@
+/**
+ * @file Popup Settings Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState } from "react";
 import type {
   PopupConfig,
@@ -14,6 +18,14 @@ interface PopupSettingsPanelProps {
   onExitPopupEdit: () => void;
 }
 
+/**
+ * Render the popup settings panel interface and connect its event handlers.
+ * @param options Named inputs: popup, onUpdatePopup, onExitPopupEdit.
+
+ * @param options.popup Popup passed by the caller.
+ * @param options.onUpdatePopup Callback for update popup events.
+ * @param options.onExitPopupEdit Callback for exit popup edit events.
+ */
 export default function PopupSettingsPanel({
   popup,
   onUpdatePopup,
@@ -21,10 +33,20 @@ export default function PopupSettingsPanel({
 }: PopupSettingsPanelProps) {
   const [activeTab, setActiveTab] = useState<"layout" | "triggers" | "rules" | "stats">("layout");
 
+  /**
+   * Update Prop.
+   * @param key Key supplied to this operation (type: K).
+   * @param value Value supplied to this operation (type: PopupConfig[K]).
+   */
   const updateProp = <K extends keyof PopupConfig>(key: K, value: PopupConfig[K]) => {
     onUpdatePopup((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Update Trigger.
+   * @param index Index supplied to this operation (type: number).
+   * @param updated Updated supplied to this operation (type: Partial<PopupTriggerConfig>).
+   */
   const updateTrigger = (index: number, updated: Partial<PopupTriggerConfig>) => {
     onUpdatePopup((prev) => {
       const newTriggers = [...prev.triggers];
@@ -33,6 +55,10 @@ export default function PopupSettingsPanel({
     });
   };
 
+  /**
+   * Add Trigger.
+   * @param type Type supplied to this operation (type: PopupTriggerType).
+   */
   const addTrigger = (type: PopupTriggerType) => {
     onUpdatePopup((prev) => {
       if (prev.triggers.some((t) => t.type === type)) return prev;
@@ -47,6 +73,10 @@ export default function PopupSettingsPanel({
     });
   };
 
+  /**
+   * Remove Trigger.
+   * @param index Index supplied to this operation (type: number).
+   */
   const removeTrigger = (index: number) => {
     onUpdatePopup((prev) => ({
       ...prev,
@@ -54,6 +84,10 @@ export default function PopupSettingsPanel({
     }));
   };
 
+  /**
+   * Toggle Device.
+   * @param device Device supplied to this operation (type: "desktop" | "tablet" | "mobile").
+   */
   const toggleDevice = (device: "desktop" | "tablet" | "mobile") => {
     onUpdatePopup((prev) => {
       const current = prev.targeting.devices || [];

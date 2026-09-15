@@ -1,3 +1,7 @@
+/**
+ * @file Navigation Settings: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { EditorElement, ElementStyles, ContainerLayout, Breakpoint } from "../WebsiteEditor";
 
@@ -10,6 +14,15 @@ interface NavigationSettingsProps {
   renderResponsiveLabel: (label: string, styleKey?: keyof ElementStyles, layoutKey?: keyof ContainerLayout) => React.ReactNode;
 }
 
+/**
+ * Render the navigation settings panel interface and connect its event handlers.
+ * @param options Named inputs: selectedElement, updateSelectedStyle, updateSelectedProp, renderResponsiveLabel.
+
+ * @param options.selectedElement Selected Element passed by the caller.
+ * @param options.updateSelectedStyle Update Selected Style passed by the caller.
+ * @param options.updateSelectedProp Update Selected Prop passed by the caller.
+ * @param options.renderResponsiveLabel Render Responsive Label passed by the caller.
+ */
 export const NavigationSettingsPanel: React.FC<NavigationSettingsProps> = ({
   selectedElement,
   updateSelectedStyle,

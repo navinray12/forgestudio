@@ -1,10 +1,21 @@
+/**
+ * @file Integration Defaults: pages/editor/integrations module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { EditorElement } from "../WebsiteEditor";
 import type { IntegrationElementType } from "./integrationTypes";
 
+/**
+ * Generate Id.
+ */
 function generateId(): string {
   return "el_int_" + Math.random().toString(36).substring(2, 9);
 }
 
+/**
+ * Get Integration Default Element.
+ * @param type Type supplied to this operation (type: IntegrationElementType).
+ */
 export function getIntegrationDefaultElement(type: IntegrationElementType): EditorElement {
   const id = generateId();
 

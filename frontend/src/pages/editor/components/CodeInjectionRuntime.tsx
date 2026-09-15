@@ -1,3 +1,7 @@
+/**
+ * @file Code Injection Runtime: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { CustomCodeSnippet } from "../../../services/customCode.service";
 import DOMPurify from "dompurify";
 
@@ -7,6 +11,11 @@ interface Props {
     useDraft?: boolean;
 }
 
+/**
+ * Should Apply Custom Code.
+ * @param snippet Snippet supplied to this operation (type: CustomCodeSnippet).
+ * @param currentPageId Current Page Id supplied to this operation (type: string).
+ */
 export function shouldApplyCustomCode(snippet: CustomCodeSnippet, currentPageId: string): boolean {
     if (snippet.status && snippet.status !== 'PUBLISHED') return false;
     if (snippet.status === undefined && !snippet.isActive) return false;
@@ -37,6 +46,13 @@ export function shouldApplyCustomCode(snippet: CustomCodeSnippet, currentPageId:
     return true;
 }
 
+/**
+ * Render the code injection runtime interface and connect its event handlers.
+ * @param options Named inputs: snippets, currentPageId.
+
+ * @param options.snippets Snippets passed by the caller.
+ * @param options.currentPageId Current Page Id passed by the caller. Defaults to "home".
+ */
 export default function CodeInjectionRuntime({ snippets, currentPageId = "home" }: Props) {
     // Only execute JS on live Published sites, not inside the builder Preview mode!
     // isPreview={true} means we are executing safely in runtime. 

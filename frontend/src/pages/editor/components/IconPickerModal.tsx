@@ -1,3 +1,7 @@
+/**
+ * @file Icon Picker Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect, useMemo } from "react";
 import {
   ICON_CATEGORIES,
@@ -18,6 +22,16 @@ export interface IconPickerModalProps {
 const RECENT_STORAGE_KEY = "fs_recent_icons";
 const FAVORITE_STORAGE_KEY = "fs_favorite_icons";
 
+/**
+ * Render the icon picker modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, onSelectIcon, onRemoveIcon, currentIcon.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onSelectIcon Callback for select icon events.
+ * @param options.onRemoveIcon Callback for remove icon events.
+ * @param options.currentIcon Current Icon passed by the caller. Defaults to "".
+ */
 export const IconPickerModal: React.FC<IconPickerModalProps> = ({
   isOpen,
   onClose,
@@ -62,6 +76,11 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
     } catch {}
   }, [recents]);
 
+  /**
+   * Toggle Favorite.
+   * @param iconId Icon Id supplied to this operation (type: string).
+   * @param e E supplied to this operation (type: React.MouseEvent).
+   */
   const toggleFavorite = (iconId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setFavorites((prev) =>
@@ -69,6 +88,10 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
     );
   };
 
+  /**
+   * Handle Select.
+   * @param icon Icon supplied to this operation (type: IconDefinition).
+   */
   const handleSelect = (icon: IconDefinition) => {
     // Add to recents
     setRecents((prev) => {

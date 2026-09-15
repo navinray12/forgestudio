@@ -1,3 +1,7 @@
+/**
+ * @file Developer Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import {
@@ -32,6 +36,18 @@ interface DeveloperModalProps {
   targetElement?: any;
 }
 
+/**
+ * Render the developer modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, mode, initialValue, onSave, title, targetElement.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.mode Mode passed by the caller.
+ * @param options.initialValue Initial Value passed by the caller.
+ * @param options.onSave Callback for save events.
+ * @param options.title Title passed by the caller.
+ * @param options.targetElement Target Element passed by the caller.
+ */
 export default function DeveloperModal({
   isOpen,
   onClose,
@@ -81,6 +97,10 @@ export default function DeveloperModal({
   }, [initialValue, isOpen, mode, targetElement, getCanvasGeneratedCode]);
 
   // Handle switching language tabs in export-code mode
+  /**
+   * Handle Language Change.
+   * @param newLang New Lang supplied to this operation (type: "js" | "ts" | "jsx" | "tsx").
+   */
   const handleLanguageChange = (newLang: "js" | "ts" | "jsx" | "tsx") => {
     setCodeLanguage(newLang);
     const code = getCanvasGeneratedCode(newLang);
@@ -89,6 +109,9 @@ export default function DeveloperModal({
   };
 
   // Reset edited code back to canvas state
+  /**
+   * Handle Reset Code.
+   */
   const handleResetCode = () => {
     const code = getCanvasGeneratedCode(codeLanguage);
     setEditedCode(code);
@@ -127,6 +150,9 @@ export default function DeveloperModal({
 
   if (!isOpen) return null;
 
+  /**
+   * Handle Save.
+   */
   const handleSave = () => {
     if (mode === "export-code") {
       handleApplyCode();
@@ -137,6 +163,9 @@ export default function DeveloperModal({
   };
 
   // Apply code to canvas
+  /**
+   * Handle Apply Code.
+   */
   const handleApplyCode = () => {
     if (mode !== "export-code") return;
 
@@ -164,6 +193,9 @@ export default function DeveloperModal({
     }, 600);
   };
 
+  /**
+   * Get Title.
+   */
   const getTitle = () => {
     if (title) return title;
     switch (mode) {
@@ -179,6 +211,9 @@ export default function DeveloperModal({
     }
   };
 
+  /**
+   * Handle Copy Code.
+   */
   const handleCopyCode = () => {
     navigator.clipboard.writeText(editedCode);
     setCopied(true);

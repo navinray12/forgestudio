@@ -1,3 +1,7 @@
+/**
+ * @file Navigation Renderers: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { EditorElement, Breakpoint } from "../WebsiteEditor";
 import type {
@@ -30,6 +34,11 @@ interface NavigationRendererProps {
 }
 
 // Helper to safely parse JSON content with fallback
+/**
+ * Parse Json.
+ * @param content Content supplied to this operation (type: string).
+ * @param fallback Fallback supplied to this operation (type: T).
+ */
 function parseJson<T>(content: string, fallback: T): T {
   try {
     if (!content || content.trim() === "") return fallback;
@@ -42,21 +51,46 @@ function parseJson<T>(content: string, fallback: T): T {
 // ==========================================================
 // 1. F-223: Nav Menu Renderer
 // ==========================================================
+/**
+ * Render the nav menu renderer interface and connect its event handlers.
+ * @param options Named inputs: element, activeBreakpointId, isPreview, pages, homePageId.
+
+ * @param options.element Element passed by the caller.
+ * @param options.activeBreakpointId Active Breakpoint Id passed by the caller.
+ * @param options.isPreview Whether this rendering is being shown in preview mode.
+ * @param options.pages Pages passed by the caller.
+ * @param options.homePageId Home Page Id passed by the caller.
+ */
 export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, activeBreakpointId, isPreview, pages, homePageId }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
 
+  /**
+   * Resolve Item Href.
+   * @param item Item supplied to this operation (type: NavMenuItem).
+   */
   const resolveItemHref = (item: NavMenuItem) => {
     if (item.pageId) return resolveInternalLink(`page:${item.pageId}`, pages, homePageId);
     return resolveInternalLink(item.url, pages, homePageId);
   };
 
+  /**
+   * Resolve Sub Href.
+   * @param sub Sub supplied to this operation (type: NavMenuItem).
+   */
   const resolveSubHref = (sub: NavMenuItem) => {
     if (sub.pageId) return resolveInternalLink(`page:${sub.pageId}`, pages, homePageId);
     return resolveInternalLink(sub.url, pages, homePageId);
   };
 
+  /**
+   * Handle Link Navigation.
+   * @param e E supplied to this operation (type: React.MouseEvent).
+   * @param resolvedHref Resolved Href supplied to this operation (type: string).
+   * @param hasChildren Has Children supplied to this operation (type: boolean).
+   * @param itemId Item Id supplied to this operation (type: string).
+   */
   const handleLinkNavigation = (e: React.MouseEvent, resolvedHref: string, hasChildren: boolean, itemId: string) => {
     if (hasChildren) {
       e.preventDefault();
@@ -290,6 +324,12 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
 // ==========================================================
 // 2. F-224: WordPress Menu Renderer
 // ==========================================================
+/**
+ * Render the wp menu renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const WpMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_WP_MENU_ITEMS);
@@ -383,6 +423,12 @@ export const WpMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) =
 // ==========================================================
 // 3. F-225: Menu Widget Renderer
 // ==========================================================
+/**
+ * Render the menu widget renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const MenuWidgetRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
@@ -471,6 +517,12 @@ export const MenuWidgetRenderer: React.FC<NavigationRendererProps> = ({ element 
 // ==========================================================
 // 4. F-226: Mega Menu Renderer
 // ==========================================================
+/**
+ * Render the mega menu renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const MegaMenuRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [isOpen, setIsOpen] = useState(false);
   const columns = parseJson<MegaMenuColumn[]>(element.content, DEFAULT_MEGA_MENU_COLUMNS);
@@ -598,10 +650,19 @@ export const MegaMenuRenderer: React.FC<NavigationRendererProps> = ({ element })
 // ==========================================================
 // 5. F-227: Breadcrumbs Renderer
 // ==========================================================
+/**
+ * Render the breadcrumbs renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const BreadcrumbsRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const items = parseJson<BreadcrumbItem[]>(element.content, DEFAULT_BREADCRUMBS);
   const styles = element.styles || {};
 
+  /**
+   * Render Separator.
+   */
   const renderSeparator = () => {
     switch (styles.breadcrumbSeparator) {
       case "arrow":
@@ -673,6 +734,13 @@ export const BreadcrumbsRenderer: React.FC<NavigationRendererProps> = ({ element
 // ==========================================================
 // 6. F-228: Menu Anchor Renderer
 // ==========================================================
+/**
+ * Render the menu anchor renderer interface and connect its event handlers.
+ * @param options Named inputs: element, isPreview.
+
+ * @param options.element Element passed by the caller.
+ * @param options.isPreview Whether this rendering is being shown in preview mode.
+ */
 export const MenuAnchorRenderer: React.FC<NavigationRendererProps> = ({ element, isPreview }) => {
   const styles = element.styles || {};
   const anchorId = styles.anchorId || "features-section";
@@ -726,6 +794,12 @@ export const MenuAnchorRenderer: React.FC<NavigationRendererProps> = ({ element,
 // ==========================================================
 // 7. F-229: Post Navigation Renderer
 // ==========================================================
+/**
+ * Render the post navigation renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const PostNavigationRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const styles = element.styles || {};
 
@@ -783,6 +857,12 @@ export const PostNavigationRenderer: React.FC<NavigationRendererProps> = ({ elem
 // ==========================================================
 // 8. F-230: Off Canvas Navigation Renderer
 // ==========================================================
+/**
+ * Render the off canvas nav renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const OffCanvasNavRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [isOpen, setIsOpen] = useState(false);
   const items = parseJson<NavMenuItem[]>(element.content, DEFAULT_NAV_MENU_ITEMS);
@@ -884,6 +964,12 @@ export const OffCanvasNavRenderer: React.FC<NavigationRendererProps> = ({ elemen
 // ==========================================================
 // 9. F-231: Site Search Renderer
 // ==========================================================
+/**
+ * Render the site search renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const SiteSearchRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -963,6 +1049,12 @@ export const SiteSearchRenderer: React.FC<NavigationRendererProps> = ({ element 
 // ==========================================================
 // 10. F-232: Search Form Renderer
 // ==========================================================
+/**
+ * Render the search form renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const SearchFormRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const styles = element.styles || {};
 
@@ -1004,11 +1096,21 @@ export const SearchFormRenderer: React.FC<NavigationRendererProps> = ({ element 
 // ==========================================================
 // 11. F-233: Taxonomy Filter Renderer
 // ==========================================================
+/**
+ * Render the taxonomy filter renderer interface and connect its event handlers.
+ * @param options Named inputs: element.
+
+ * @param options.element Element passed by the caller.
+ */
 export const TaxonomyFilterRenderer: React.FC<NavigationRendererProps> = ({ element }) => {
   const items = parseJson<TaxonomyItem[]>(element.content, DEFAULT_TAXONOMY_ITEMS);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>(["all"]);
   const styles = element.styles || {};
 
+  /**
+   * Handle Toggle.
+   * @param slug Slug supplied to this operation (type: string).
+   */
   const handleToggle = (slug: string) => {
     if (styles.taxonomySelectionMode === "multi") {
       if (slug === "all") {
@@ -1074,6 +1176,10 @@ export const TaxonomyFilterRenderer: React.FC<NavigationRendererProps> = ({ elem
 // ==========================================================
 // Main Dispatcher Component
 // ==========================================================
+/**
+ * Render the navigation element renderer interface and connect its event handlers.
+ * @param props Props supplied to this operation.
+ */
 export const NavigationElementRenderer: React.FC<NavigationRendererProps> = (props) => {
   switch (props.element.type) {
     case "nav-menu":

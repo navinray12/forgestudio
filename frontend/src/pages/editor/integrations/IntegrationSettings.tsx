@@ -1,3 +1,7 @@
+/**
+ * @file Integration Settings: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { EditorElement } from "../WebsiteEditor";
 import type { IntegrationElementType } from "./integrationTypes";
@@ -7,10 +11,22 @@ interface IntegrationSettingsProps {
   updateSelectedElementStyle: (prop: any, val: any) => void;
 }
 
+/**
+ * Render the integration settings panel interface and connect its event handlers.
+ * @param options Named inputs: selectedElement, updateSelectedElementStyle.
+
+ * @param options.selectedElement Selected Element passed by the caller.
+ * @param options.updateSelectedElementStyle Update Selected Element Style passed by the caller.
+ */
 export const IntegrationSettingsPanel: React.FC<IntegrationSettingsProps> = ({
   selectedElement,
   updateSelectedElementStyle,
 }) => {
+  /**
+   * Get Style Val.
+   * @param prop Prop supplied to this operation (type: string).
+   * @param fallback Fallback supplied to this operation. Defaults to "".
+   */
   const getStyleVal = (prop: string, fallback = ""): string => {
     return (selectedElement.styles as any)?.[prop] || fallback;
   };

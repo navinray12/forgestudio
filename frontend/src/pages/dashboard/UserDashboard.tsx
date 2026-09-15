@@ -1,3 +1,7 @@
+/**
+ * @file User Dashboard: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -59,6 +63,9 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+/**
+ * Render the user dashboard interface and connect its event handlers.
+ */
 function UserDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,8 +84,12 @@ function UserDashboard() {
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+  /**
+   * Handle Export Dashboard Kit.
+   * @param site Site supplied to this operation (type: Website).
+   */
   const handleExportDashboardKit = async (site: Website) => {
     try {
       setExportingKitId(site.id);
@@ -104,6 +115,10 @@ function UserDashboard() {
     }
   };
 
+  /**
+   * Handle Import Dashboard Kit.
+   * @param kitData Kit Data supplied to this operation (type: { website: { name: string; description?: string; settings?: Record<string, any> }; pages: Array<{ id: string; title: string; path: string; elements: any[]; pageSettings: Record<string, any>; }>; templates: any[]; }).
+   */
   const handleImportDashboardKit = async (kitData: {
     website: { name: string; description?: string; settings?: Record<string, any> };
     pages: Array<{
@@ -156,11 +171,18 @@ function UserDashboard() {
   const query = new URLSearchParams(location.search);
   const activeTab = (query.get("tab") as Tab) || "websites";
 
+  /**
+   * Set Tab.
+   * @param tab Tab supplied to this operation (type: Tab).
+   */
   const setTab = (tab: Tab) => {
     navigate(tab === "websites" ? "/dashboard" : `/dashboard?tab=${tab}`);
     setSidebarOpen(false);
   };
 
+  /**
+   * Fetch Websites.
+   */
   const fetchWebsites = async () => {
     setWLoading(true);
     try {
@@ -173,8 +195,15 @@ function UserDashboard() {
 
   useEffect(() => { fetchWebsites(); }, []);
 
+  /**
+   * Handle Logout.
+   */
   const handleLogout = async () => { await logout(); navigate("/login", { replace: true }); };
 
+  /**
+   * Handle Create Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setError("");
     if (!websiteName.trim()) { setError("Please enter a website name."); return; }
@@ -191,6 +220,9 @@ function UserDashboard() {
     finally { setCreating(false); }
   };
 
+  /**
+   * Handle Delete Website.
+   */
   const handleDeleteWebsite = async () => {
     if (!deleteTargetId) return;
     try {
@@ -202,6 +234,9 @@ function UserDashboard() {
     finally { setDeleting(false); }
   };
 
+  /**
+   * Render Content.
+   */
   const renderContent = () => {
     switch (activeTab) {
       case "developer-api": return <DeveloperApiSettings />;
@@ -218,6 +253,9 @@ function UserDashboard() {
   const activeNavItem = NAV_GROUPS.flatMap(g => g.items).find(i => i.id === activeTab);
 
   // ─── Websites Tab ────────────────────────────────────────────
+  /**
+   * Render the websites tab interface and connect its event handlers.
+   */
   function WebsitesTab() {
     return (
       <div className="space-y-6">

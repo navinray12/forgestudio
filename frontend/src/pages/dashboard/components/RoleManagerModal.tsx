@@ -1,3 +1,7 @@
+/**
+ * @file Role Manager Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 
 interface Member {
@@ -54,6 +58,15 @@ const DEFAULT_CAPABILITIES: Record<string, string[]> = {
     REVIEWER: ["VIEW", "COMMENT"]
 };
 
+/**
+ * Render the role manager modal interface and connect its event handlers.
+ * @param options Named inputs: websiteId, websiteName, onClose, apiUrl.
+
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ * @param options.websiteName Website Name passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.apiUrl Api Url passed by the caller.
+ */
 export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, websiteName, onClose, apiUrl }) => {
     const [view, setView] = useState<"MEMBERS" | "PERMISSIONS">("MEMBERS");
 
@@ -82,6 +95,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [view]);
 
+    /**
+     * Fetch Data.
+     */
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -117,6 +133,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         }
     };
 
+    /**
+     * Execute Role Change.
+     */
     const executeRoleChange = async () => {
         if (!confirmRole) return;
         setLoading(true);
@@ -138,6 +157,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         }
     };
 
+    /**
+     * Execute Remove.
+     */
     const executeRemove = async () => {
         if (!removeMemberId) return;
         setLoading(true);
@@ -157,6 +179,10 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         }
     };
 
+    /**
+     * Trigger Invite.
+     * @param e E supplied to this operation (type: React.FormEvent).
+     */
     const triggerInvite = async (e: React.FormEvent) => {
         e.preventDefault();
         setInviting(true);
@@ -179,6 +205,11 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         }
     };
 
+    /**
+     * Toggle Permission.
+     * @param capId Cap Id supplied to this operation (type: string).
+     * @param currentEffect Current Effect supplied to this operation (type: string | null).
+     */
     const togglePermission = async (capId: string, currentEffect: string | null) => {
         if (!selectedMember) return;
 
@@ -220,6 +251,11 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
         }
     };
 
+    /**
+     * Get Perm Effect.
+     * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+     * @param capId Cap Id supplied to this operation (type: string).
+     */
     const getPermEffect = (userId: string, capId: string) => {
         const p = granular.find(g => g.userId === userId && g.capability === capId && g.resourceId === "*");
         return p ? p.effect : null;

@@ -1,0 +1,861 @@
+/**
+ * @file Websites: business operations and coordination with persistence or external services. File responsibility: website service.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import { saveDraftPreservingPublishedSnapshot } from "../publishing/published-snapshot.repository.js";
+import { prisma } from "../../platform/database/prisma.js";
+import { AppError } from "../../platform/http/app-error.js";
+import { checkWebsiteLimit } from "../subscriptions/subscription.service.js";
+import crypto from "crypto";
+import type { Prisma } from "../../generated/prisma/client.js";
+import { canUserAccessResource } from "../permissions/permission.service.js";
+import { getActiveWorkspaceRole, getOrCreatePersonalWorkspace } from "../workspaces/workspace-membership.service.js";
+
+/**
+ * A workspace role does not automatically map onto the website capability role of the
+ * same name: a workspace MEMBER gets design/content access but not the OWNER/ADMIN-only
+ * capabilities (publish, manage members, manage permissions) unless explicitly granted
+ * on the site itself. See permission.service.ts's DEFAULT_CAPABILITIES.
+ * @param role Role supplied to this operation (type: "OWNER" | "ADMIN" | "MEMBER" | null).
+ */
+function websitePermissionForWorkspaceRole(role: "OWNER" | "ADMIN" | "MEMBER" | null): string | null {
+  if (role === "OWNER") return "OWNER";
+  if (role === "ADMIN") return "ADMIN";
+  if (role === "MEMBER") return "DESIGNER";
+  return null;
+}
+
+const db = prisma as any;
+
+
+
+/**
+ * Generate Slug.
+ * @param name Name supplied to this operation (type: string).
+ */
+function generateSlug(name: string): string {
+  const baseSlug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
+  const randomSuffix = Math.random().toString(36).substring(2, 7);
+  return `${baseSlug || "website"}-${randomSuffix}`;
+}
+
+/**
+ * Get all websites belonging to a specific user
+
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ */
+export async function getUserWebsites(userId: string) {
+  try {
+    if (db?.website?.findMany) {
+      const websites = await db.website.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      });
+      if (websites) return websites;
+    }
+
+    const rawWebsites: any[] = await prisma.$queryRaw`
+      SELECT id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
+      FROM websites
+      WHERE "userId" = ${userId}::uuid
+      ORDER BY "createdAt" DESC
+    `;
+    return rawWebsites || [];
+  } catch (error) {
+    console.error("Error fetching user websites:", error);
+    return [];
+  }
+}
+
+/**
+ * Get a single website by ID with ownership check
+
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ * @param client Client supplied to this operation (type: Prisma.TransactionClient). Defaults to prisma.
+ */
+export async function getWebsiteById(websiteId: string, userId: string, client: Prisma.TransactionClient = prisma) {
+  const db = client;
+  try {
+    let website: any = null;
+    let permission = "NONE";
+
+    if (db?.website?.findUnique) {
+      website = await db.website.findUnique({
+        where: { id: websiteId },
+        include: {
+          customCodeSnippets: true
+        }
+      });
+
+      if (website) {
+        if (website.userId === userId) {
+          permission = "OWNER";
+        } else {
+          // Check WebsiteCollaborator explicitly
+          const collab = await db.websiteCollaborator.findUnique({
+            where: {
+              websiteId_userId: { websiteId, userId }
+            }
+          });
+          if (collab) {
+            permission = collab.permission;
+          } else if (website.workspaceId) {
+            // No direct owner/collaborator grant: fall back to the site's workspace
+            // authority (FS-040). A DB error here fails closed (AUTHORIZATION_UNAVAILABLE),
+            // not a silent purge, matching the FS-003 policy-failure contract.
+            const workspaceRole = await getActiveWorkspaceRole(userId, website.workspaceId, client);
+            const derived = websitePermissionForWorkspaceRole(workspaceRole);
+            if (derived) {
+              permission = derived;
+            } else {
+              website = null; // Purge access
+            }
+          } else {
+            website = null; // Purge access
+          }
+        }
+      }
+    }
+
+    if (!website) {
+      // Raw Fallback mapped exactly to original flow logic but integrating permissions
+      const rawWebsites: any[] = await client.$queryRaw`
+        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."draftRevision", w."createdAt", w."updatedAt",
+               CASE WHEN w."userId" = ${userId}::uuid THEN 'OWNER' ELSE c.permission END as "userPermission"
+        FROM websites w
+        LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
+        WHERE w.id = ${websiteId}::uuid AND (w."userId" = ${userId}::uuid OR c.id IS NOT NULL)
+        LIMIT 1
+      `;
+      if (rawWebsites && rawWebsites.length > 0) {
+        website = rawWebsites[0];
+        permission = website.userPermission || "REVIEWER";
+        delete website.userPermission;
+      }
+    }
+
+    if (!website) {
+      throw new AppError(
+        "Website not found or access denied",
+        404,
+        "WEBSITE_NOT_FOUND"
+      );
+    }
+
+    // Embed current user's explicit authorization
+    return { ...website, userPermission: permission };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError("Failed to fetch website", 500, "WEBSITE_FETCH_FAILED");
+  }
+}
+
+/**
+ * Create a new website with subscription limit check
+
+ * @param userIdOrOptions User Id Or Options supplied to this operation (type: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string }).
+ * @param nameArg Name Arg supplied to this operation (type: string). Optional; callers may omit it.
+ */
+export async function createWebsite(
+  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string; workspaceId?: string },
+  nameArg?: string
+) {
+  let userId: string;
+  let rawName: string;
+  let customSlug: string | undefined;
+  let customEditorData: any | undefined;
+  let requestedWorkspaceId: string | undefined;
+
+  if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
+    userId = userIdOrOptions.userId;
+    rawName = userIdOrOptions.name;
+    customSlug = userIdOrOptions.slug;
+    customEditorData = userIdOrOptions.editorData;
+    requestedWorkspaceId = userIdOrOptions.workspaceId;
+  } else {
+    userId = userIdOrOptions;
+    rawName = nameArg || "";
+  }
+
+  const trimmedName = rawName?.trim();
+  if (!trimmedName) {
+    throw new AppError("Website name is required", 400, "INVALID_NAME");
+  }
+
+  // 1. Get current website count for user
+  const currentWebsites = await getUserWebsites(userId);
+  const currentCount = currentWebsites.length;
+
+  // 2. Check subscription website limit
+  const limitCheck = await checkWebsiteLimit(userId, currentCount);
+
+  if (!limitCheck.allowed) {
+    const limit = limitCheck.limit || 1;
+    throw new AppError(
+      `Your current plan allows up to ${limit} website${limit === 1 ? "" : "s"}. Please upgrade your plan to create another website.`,
+      403,
+      "WEBSITE_LIMIT_EXCEEDED"
+    );
+  }
+
+  const slug = customSlug || generateSlug(trimmedName);
+  const initialEditorData = customEditorData || {
+    version: 1,
+    elements: [],
+  };
+
+  // A site always belongs to a workspace (FS-040). Use the requested workspace only if
+  // the creator currently has an active OWNER/ADMIN role there; otherwise fall back to
+  // (and lazily create) their personal workspace.
+  let workspaceId: string;
+  if (requestedWorkspaceId) {
+    const role = await getActiveWorkspaceRole(userId, requestedWorkspaceId);
+    if (role !== "OWNER" && role !== "ADMIN") {
+      throw new AppError("You do not have permission to create sites in this workspace.", 403, "FORBIDDEN");
+    }
+    workspaceId = requestedWorkspaceId;
+  } else {
+    workspaceId = (await getOrCreatePersonalWorkspace(userId)).id;
+  }
+
+  try {
+    if (db?.website?.create) {
+      const newWebsite = await db.website.create({
+        data: {
+          userId,
+          name: trimmedName,
+          slug,
+          status: "DRAFT",
+          editorData: initialEditorData,
+          workspaceId,
+        },
+      });
+      return newWebsite;
+    }
+
+    // Raw SQL Fallback
+    const initialJsonStr = JSON.stringify(initialEditorData);
+    const created: any[] = await prisma.$queryRaw`
+      INSERT INTO websites (id, "userId", name, slug, status, "editorData", "workspaceId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${userId}::uuid, ${trimmedName}, ${slug}, 'DRAFT', ${initialJsonStr}::jsonb, ${workspaceId}::uuid, NOW(), NOW())
+      RETURNING id, "userId", name, slug, status, "editorData", "workspaceId", "createdAt", "updatedAt"
+    `;
+
+    return created[0];
+  } catch (error) {
+    console.error("Error creating website:", error);
+    throw new AppError("Failed to create website", 500, "CREATE_FAILED");
+  }
+}
+
+/**
+ * Update general website metadata and attributes
+
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param data Data supplied to this operation (type: { name?: string; slug?: string; editorData?: any; status?: string }).
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ */
+export async function updateWebsite(
+  websiteId: string,
+  data: { name?: string; slug?: string; editorData?: any; status?: string },
+  userId: string
+) {
+  // Implicit ownership / permission check via getWebsiteById
+  const current = await getWebsiteById(websiteId, userId);
+  if (!(await canUserAccessResource(userId, websiteId, "*", "EDIT"))) {
+    throw new AppError("You do not have permission to edit this website.", 403, "FORBIDDEN");
+  }
+  if (data.status !== undefined && data.status !== current.status) {
+    throw new AppError("Publication status must be changed through the publishing workflow.", 422, "PUBLISH_WORKFLOW_REQUIRED");
+  }
+  if (data.editorData !== undefined) await updateWebsiteEditorData(websiteId, userId, data.editorData);
+  const updatePayload: any = {};
+  if (data.name !== undefined) updatePayload.name = data.name;
+  if (data.slug !== undefined) updatePayload.slug = data.slug;
+
+  const updated = await prisma.website.update({
+    where: { id: websiteId },
+    data: updatePayload,
+  });
+
+  return updated;
+}
+
+/**
+ * Update editor JSON structure for a website
+
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ * @param editorData Editor Data supplied to this operation (type: any).
+ * @param performanceSettings Performance Settings supplied to this operation (type: any). Optional; callers may omit it.
+ * @param client Client supplied to this operation (type: Prisma.TransactionClient). Defaults to prisma.
+ */
+export async function updateWebsiteEditorData(
+  websiteId: string,
+  userId: string,
+  editorData: any,
+  performanceSettings?: any,
+  client: Prisma.TransactionClient = prisma,
+) {
+  // Ensure website exists and fetch permission boundaries
+  const website = await getWebsiteById(websiteId, userId, client);
+
+  const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN", client);
+  const canEditContent = await canUserAccessResource(userId, websiteId, "*", "EDIT_CONTENT", client);
+
+  if (!canEditDesign && !canEditContent) {
+    throw new AppError("You do not have permission to edit this component.", 403, "FORBIDDEN");
+  }
+
+  // Safe Component / Content Editing Mode
+  const isWebsiteOwner = website.userId === userId;
+  const isCollaboratorAdmin = (website as unknown as any).userPermission === "ADMIN";
+  const isAdmin = isWebsiteOwner || isCollaboratorAdmin;
+
+  // Retrieve explicitly granted component accesses
+  const explicitAccesses = await client.componentAccess.findMany({ where: { websiteId, userId } });
+  const allowedComponentIds = new Set(explicitAccesses.map(a => a.componentId));
+
+  const currentEditorData = typeof website.editorData === "string" ? JSON.parse(website.editorData) : website.editorData;
+
+  /**
+   * Safe Merge.
+   * @param currentEls Current Els supplied to this operation (type: any[]).
+   * @param newEls New Els supplied to this operation (type: any[]).
+   */
+  const safeMerge = (currentEls: any[], newEls: any[]): any[] => {
+    if (isAdmin) return newEls;
+    // 1. We must retain ALL protected components from currentEls, even if newEls omitted them (prevent unauthorized deletion).
+    const mergedEls = [];
+
+    // To handle reordering, we iterate through newEls, but we MUST inject missing protected ones.
+    const allIds = new Set([...currentEls.map(c => c.id), ...newEls.map(n => n.id)]);
+
+    // Actually, preserving order while mixing deleted/kept is tricky.
+    // Let's iterate currentEls. If it's protected, keep it unchanged. If it's not protected, find incoming.
+    for (const cEl of currentEls) {
+      const isProtectedNode = cEl.isProtected === true;
+      const userCanEdit = isAdmin || allowedComponentIds.has(cEl.id);
+
+      // If protected and no rights, strictly preserve untouched.
+      if (isProtectedNode && !userCanEdit) {
+        mergedEls.push(cEl);
+        continue;
+      }
+
+      const incoming = newEls.find(n => n.id === cEl.id);
+
+      // If deleted by user
+      if (!incoming) {
+        if (!canEditDesign) mergedEls.push(cEl);
+        continue;
+      }
+
+      // If !canEditDesign && canEditContent
+      if (!canEditDesign && canEditContent) {
+        if (incoming.content !== undefined) cEl.content = incoming.content;
+        if (incoming.src !== undefined) cEl.src = incoming.src;
+        if (incoming.alt !== undefined) cEl.alt = incoming.alt;
+        if (incoming.href !== undefined) cEl.href = incoming.href;
+      } else {
+        // Full design rights! Merge everything (classes, styles, etc).
+        const existingChildren = cEl.children;
+        Object.assign(cEl, incoming);
+        if (existingChildren) cEl.children = existingChildren;
+      }
+
+      // Recurse children
+      if (cEl.children) {
+        cEl.children = safeMerge(cEl.children, incoming.children || []);
+      }
+
+      mergedEls.push(cEl);
+    }
+
+    // Now append any newly created elements that didn't exist in currentEls
+    for (const nEl of newEls) {
+      if (canEditDesign && !currentEls.find(c => c.id === nEl.id)) {
+        mergedEls.push(nEl);
+      }
+    }
+
+    return mergedEls;
+  };
+
+  const safeElements = safeMerge(currentEditorData.elements || [], editorData.elements || []);
+  const safePopups = isAdmin ? (editorData.popups ?? currentEditorData.popups ?? []) : (currentEditorData.popups || []).map((p: any) => {
+    const incomingP = (editorData.popups || []).find((ip: any) => ip.id === p.id);
+    if (incomingP && p.elements && incomingP.elements) {
+      p.elements = safeMerge(p.elements, incomingP.elements);
+    }
+    return p;
+  });
+
+  // Preserve multi-page pages and site parts safely without data loss
+  let safePages = editorData.pages;
+  if (Array.isArray(editorData.pages) && editorData.pages.length > 0) {
+    const currentPages = Array.isArray(currentEditorData.pages) ? currentEditorData.pages : [];
+    safePages = editorData.pages.map((p: any) => {
+      const currentP = currentPages.find((cp: any) => cp.id === p.id);
+      if (currentP && Array.isArray(currentP.elements) && Array.isArray(p.elements)) {
+        return {
+          ...p,
+          elements: safeMerge(currentP.elements, p.elements),
+        };
+      }
+      return p;
+    });
+  } else if (currentEditorData.pages) {
+    safePages = currentEditorData.pages;
+  }
+
+  // Preserve siteParts (header and footer)
+  let safeSiteParts = editorData.siteParts || currentEditorData.siteParts;
+  if (safeSiteParts) {
+    safeSiteParts = {
+      ...(currentEditorData.siteParts || {}),
+      ...(editorData.siteParts || {}),
+    };
+    if (editorData.siteParts?.header && currentEditorData.siteParts?.header?.elements && editorData.siteParts.header.elements) {
+      safeSiteParts.header = {
+        ...editorData.siteParts.header,
+        elements: safeMerge(currentEditorData.siteParts.header.elements, editorData.siteParts.header.elements),
+      };
+    }
+    if (editorData.siteParts?.footer && currentEditorData.siteParts?.footer?.elements && editorData.siteParts.footer.elements) {
+      safeSiteParts.footer = {
+        ...editorData.siteParts.footer,
+        elements: safeMerge(currentEditorData.siteParts.footer.elements, editorData.siteParts.footer.elements),
+      };
+    }
+  }
+
+  editorData = {
+    ...currentEditorData,
+    ...editorData,
+    elements: safeElements,
+    popups: safePopups,
+    ...(safePages !== undefined ? { pages: safePages } : {}),
+    ...(safeSiteParts !== undefined ? { siteParts: safeSiteParts } : {}),
+  };
+
+  try {
+    if (performanceSettings !== undefined) editorData.performanceSettings = performanceSettings;
+    return await saveDraftPreservingPublishedSnapshot(websiteId, editorData, client);
+  } catch (error) {
+    console.error("Error updating website editor data:", error);
+    if (error instanceof AppError) throw error;
+    throw new AppError("Failed to save website changes", 500, "SAVE_FAILED");
+  }
+}
+
+/**
+ * Delete a website with ownership check
+
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ */
+export async function deleteWebsite(websiteId: string, userId: string) {
+  // Extract permission boundaries
+  const website = await getWebsiteById(websiteId, userId);
+
+  if (website.userPermission !== "OWNER") {
+    throw new AppError("Only the owner can delete this project.", 403, "FORBIDDEN");
+  }
+
+  try {
+    if (db?.website?.delete) {
+      await db.website.delete({
+        where: { id: websiteId },
+      });
+      return { success: true };
+    }
+
+    await prisma.$executeRawUnsafe(
+      `DELETE FROM websites WHERE id = $1::uuid`,
+      websiteId
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting website:", error);
+    throw new AppError("Failed to delete website", 500, "DELETE_FAILED");
+  }
+}
+
+/**
+ * Get Website Roles.
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ */
+export async function getWebsiteRoles(websiteId: string, userId: string) {
+  const website = await getWebsiteById(websiteId, userId);
+
+  const ownerData = await db.user.findUnique({ where: { id: website.userId } });
+  const members = [{
+    id: ownerData.id,
+    name: ownerData.fullName || ownerData.email,
+    email: ownerData.email,
+    role: "OWNER"
+  }];
+
+  const collabs = await db.websiteCollaborator.findMany({
+    where: { websiteId },
+    include: { user: true }
+  });
+
+  for (const c of collabs) {
+    if (c.user) {
+      members.push({
+        id: c.userId,
+        name: c.user.fullName || c.user.email,
+        email: c.user.email,
+        role: c.permission
+      });
+    }
+  }
+  const invitationsList = await db.websiteInvitation.findMany({
+    where: { websiteId, status: "PENDING" }
+  });
+
+  return { members, invitations: invitationsList };
+}
+
+/**
+ * Update Website Role.
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param requesterUserId Requester User Id supplied to this operation (type: string).
+ * @param targetUserId Target User Id supplied to this operation (type: string).
+ * @param newRole New Role supplied to this operation (type: string).
+ */
+export async function updateWebsiteRole(websiteId: string, requesterUserId: string, targetUserId: string, newRole: string) {
+  const validRoles = ["ADMIN", "DESIGNER", "CONTENT_EDITOR", "REVIEWER"];
+  if (!validRoles.includes(newRole)) {
+    throw new AppError("Invalid role specified.", 400, "INVALID_ROLE");
+  }
+
+  const requesterSite = await getWebsiteById(websiteId, requesterUserId);
+  const requesterRole = requesterSite.userPermission;
+
+  if (requesterRole !== "OWNER" && requesterRole !== "ADMIN") {
+    throw new AppError("You do not have permission to manage roles.", 403, "FORBIDDEN");
+  }
+  if (requesterUserId === targetUserId) {
+    throw new AppError("You cannot change your own role.", 403, "FORBIDDEN");
+  }
+
+  const website = await db.website.findUnique({ where: { id: websiteId } });
+  if (website.userId === targetUserId) {
+    throw new AppError("Cannot change the role of the project owner.", 403, "FORBIDDEN");
+  }
+
+  const existing = await db.websiteCollaborator.findUnique({
+    where: { websiteId_userId: { websiteId, userId: targetUserId } }
+  });
+
+  if (!existing) {
+    throw new AppError("Collaborator not found.", 404, "NOT_FOUND");
+  }
+
+  await db.websiteCollaborator.update({
+    where: { id: existing.id },
+    data: { permission: newRole }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "ROLE_UPDATED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId, newRole, previousRole: existing.permission },
+      },
+    });
+  } catch (e) {}
+
+  return { success: true };
+}
+
+/**
+ * Invite Website Member.
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param inviterId Inviter Id supplied to this operation (type: string).
+ * @param email Email address used by this operation.
+ * @param role Role supplied to this operation (type: string). Defaults to "DESIGNER".
+ */
+export async function inviteWebsiteMember(websiteId: string, inviterId: string, email: string, role: string = "DESIGNER") {
+  const website = await getWebsiteById(websiteId, inviterId);
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("You do not have permission to invite members.", 403, "FORBIDDEN");
+  }
+
+  const validRoles = ["ADMIN", "DESIGNER", "CONTENT_EDITOR", "REVIEWER"];
+  if (!validRoles.includes(role)) {
+    throw new AppError("Invalid role specified.", 400, "BAD_REQUEST");
+  }
+
+  const existingMember = await db.user.findUnique({
+    where: { email },
+    include: { collaborations: { where: { websiteId } } }
+  });
+
+  if (existingMember && (existingMember.collaborations.length > 0 || existingMember.id === website.userId)) {
+    throw new AppError("User is already a member of this project.", 400, "BAD_REQUEST");
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+
+  const invite = await db.websiteInvitation.create({
+    data: {
+      websiteId,
+      email,
+      role,
+      tokenHash,
+      status: "PENDING",
+      expiresAt: expiry,
+      invitedBy: inviterId
+    }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: inviterId,
+        action: "COLLABORATOR_INVITED",
+        targetResource: `website:${websiteId}`,
+        details: { email, role, inviteId: invite.id },
+      },
+    });
+  } catch (e) {}
+
+  return { inviteId: invite.id, token };
+}
+
+/**
+ * Accept Website Invitation.
+ * @param token Token supplied to this operation; do not include secret tokens in logs.
+ * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
+ */
+export async function acceptWebsiteInvitation(token: string, userId: string) {
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+  const invite = await db.websiteInvitation.findUnique({ where: { tokenHash } });
+  if (!invite) throw new AppError("Invalid invitation", 400, "BAD_REQUEST");
+  if (invite.status !== "PENDING") throw new AppError("Invitation is already processed.", 400, "BAD_REQUEST");
+  if (invite.expiresAt < new Date()) throw new AppError("Invitation expired.", 400, "BAD_REQUEST");
+
+  const user = await db.user.findUnique({ where: { id: userId } });
+  if (user?.email !== invite.email) throw new AppError("This invitation was sent to a different email address.", 400, "BAD_REQUEST");
+
+  const existing = await db.websiteCollaborator.findUnique({
+    where: { websiteId_userId: { websiteId: invite.websiteId, userId } }
+  });
+
+  if (existing) {
+    await db.websiteInvitation.update({ where: { id: invite.id }, data: { status: "ACCEPTED" } });
+    return { success: true, websiteId: invite.websiteId };
+  }
+
+  await db.$transaction([
+    db.websiteCollaborator.create({
+      data: {
+        websiteId: invite.websiteId,
+        userId,
+        permission: invite.role
+      }
+    }),
+    db.websiteInvitation.update({
+      where: { id: invite.id },
+      data: { status: "ACCEPTED" }
+    })
+  ]);
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: "INVITATION_ACCEPTED",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId: invite.id, role: invite.role },
+      },
+    });
+  } catch (e) {}
+
+  return { success: true, websiteId: invite.websiteId };
+}
+
+/**
+ * Remove Website Member.
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ * @param requesterId Requester Id supplied to this operation (type: string).
+ * @param targetUserId Target User Id supplied to this operation (type: string).
+ */
+export async function removeWebsiteMember(websiteId: string, requesterId: string, targetUserId: string) {
+  const website = await getWebsiteById(websiteId, requesterId);
+
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("Forbidden", 403, "FORBIDDEN");
+  }
+
+  const project = await db.website.findUnique({ where: { id: websiteId } });
+  if (project?.userId === targetUserId) {
+    throw new AppError("Cannot remove the project owner.", 403, "FORBIDDEN");
+  }
+
+  await db.websiteCollaborator.delete({
+    where: { websiteId_userId: { websiteId, userId: targetUserId } }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterId,
+        action: "COLLABORATOR_REMOVED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId },
+      },
+    });
+  } catch (e) {}
+
+  return { success: true };
+}
+
+/**
+ * Public Website DTO Projection (Comment 8)
+ * Strictly unauthenticated read endpoint for published websites.
+ * Strips all user IDs, collaborator data, session info, credentials, and internal configs.
+ */
+export interface PublicWebsiteDTO {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  editorData: {
+    version: number;
+    homePageId?: string;
+    pages: any[];
+    elements: any[];
+    siteParts?: any;
+    globalStyles?: any;
+    breakpoints?: any[];
+    popups?: any[];
+    pageCss?: string;
+    globalSettings?: any;
+    siteSettings?: {
+      siteName?: string;
+      siteLogo?: string;
+      favicon?: string;
+      siteLanguage?: string;
+      customHead?: string;
+    };
+    publishing?: {
+      status: string;
+      publishedAt?: string;
+      version?: number;
+    };
+  };
+  customCodeSnippets?: Array<{
+    id: string;
+    title: string | null;
+    placement: string;
+    code: string;
+    priority?: number;
+    language?: string;
+  }>;
+}
+
+/**
+ * Get Public Website By Id.
+ * @param websiteId Identifier of the website whose data is being read or changed.
+ */
+export async function getPublicWebsiteById(websiteId: string): Promise<PublicWebsiteDTO> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(websiteId);
+
+  const website = await prisma.website.findFirst({
+    where: isUuid ? { id: websiteId } : { slug: websiteId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      editorData: true,
+      customCodeSnippets: {
+        where: {
+          status: "PUBLISHED",
+        },
+        select: {
+          id: true,
+          title: true,
+          placement: true,
+          code: true,
+          priority: true,
+          language: true,
+        },
+      },
+    },
+  });
+
+  if (!website) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  const rawEditorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  // Check authoritative publishing state (Comment 9)
+  const isPublished =
+    website.status === "PUBLISHED" ||
+    rawEditorData?.publishing?.status === "PUBLISHED";
+
+  if (!isPublished) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
+  const sourceData = rawEditorData.publishedData || rawEditorData;
+
+  // Build explicit sanitized public DTO projection (Comment 8)
+  const publicEditorData = {
+    version: sourceData.version || 1,
+    homePageId: sourceData.homePageId,
+    pages: Array.isArray(sourceData.pages) ? sourceData.pages : [],
+    elements: Array.isArray(sourceData.elements) ? sourceData.elements : [],
+    siteParts: sourceData.siteParts || undefined,
+    globalStyles: sourceData.globalStyles || undefined,
+    breakpoints: sourceData.breakpoints || undefined,
+    popups: sourceData.popups || undefined,
+    pageCss: sourceData.pageCss || undefined,
+    globalSettings: sourceData.globalSettings || undefined,
+    siteSettings: sourceData.siteSettings ? {
+      siteName: sourceData.siteSettings.siteName,
+      siteLogo: sourceData.siteSettings.siteLogo,
+      favicon: sourceData.siteSettings.favicon,
+      siteLanguage: sourceData.siteSettings.siteLanguage,
+      customHead: sourceData.siteSettings.customHead,
+    } : undefined,
+    publishing: {
+      status: "PUBLISHED",
+      publishedAt: sourceData.publishing?.publishedAt,
+      version: sourceData.publishing?.version || sourceData.publishing?.publishedVersion,
+    },
+  };
+
+  return {
+    id: website.id,
+    name: website.name,
+    slug: website.slug,
+    status: "PUBLISHED",
+    editorData: publicEditorData,
+    customCodeSnippets: website.customCodeSnippets,
+  };
+}

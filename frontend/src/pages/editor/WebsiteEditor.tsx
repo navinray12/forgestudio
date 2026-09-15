@@ -1,4 +1,12 @@
+/**
+ * @file Website Editor: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 
+import { createCanvasRenderer } from './canvas/create-canvas-renderer';
+import { createLayerTreeRenderer } from './layers/create-layer-tree-renderer';
+import { createPositioningControls } from './inspector/controls/create-positioning-controls';
+import { createBackgroundControls } from './inspector/controls/create-background-controls';
 import PopupManagerModal from "./components/PopupManagerModal";
 import IconPickerModal from "./components/IconPickerModal";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
@@ -12,6 +20,8 @@ import { RevisionHistoryPanel, revisionHistoryService } from "../../features/rev
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { publishingService } from "../../features/publishing/services/publishingService";
+import { useAuth } from '../../context/AuthContext';
+import { DraftRecoveryTools } from '../../features/autosave/components/DraftRecoveryTools';
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -242,11 +252,16 @@ import {
 
 import { SpacingControl } from "./inspector";
 
+/**
+ * Render the website editor interface and connect its event handlers.
+ */
 export default function WebsiteEditor() {
+  const { user: signedInUser } = useAuth();
+  const [hostDraftRevision, setHostDraftRevision] = useState<string | null>(null);
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
@@ -270,26 +285,59 @@ const [popups, setPopups] = useState<any[]>([]);
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>("widgets");
   const [pageCss, setPageCss] = useState<string>("");
 
+  /**
+   * Handle Select Popup For Edit.
+   * @param popup Popup supplied to this operation (type: any).
+   */
   const handleSelectPopupForEdit = (popup: any) => {
     setActivePopupId(popup.id);
   };
+  /**
+   * Handle Create Popup.
+   * @param popup Popup supplied to this operation (type: any).
+   */
   const handleCreatePopup = (popup: any) => {
     setPopups((prev) => [...prev, popup]);
   };
+  /**
+   * Handle Update Popup.
+   * @param id Id supplied to this operation (type: string).
+   * @param popup Popup supplied to this operation (type: any).
+   */
   const handleUpdatePopup = (id: string, popup: any) => {
     setPopups((prev) => prev.map((p) => (p.id === id ? { ...p, ...popup } : p)));
   };
+  /**
+   * Handle Delete Popup.
+   * @param id Id supplied to this operation (type: string).
+   */
   const handleDeletePopup = (id: string) => {
     setPopups((prev) => prev.filter((p) => p.id !== id));
   };
+  /**
+   * Handle Duplicate Popup.
+   * @param id Id supplied to this operation (type: string).
+   */
   const handleDuplicatePopup = (id: string) => {
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
+  /**
+   * Handle Track Popup View.
+   * @param id Id supplied to this operation (type: string).
+   */
   const handleTrackPopupView = (id: string) => {};
+  /**
+   * Handle Track Popup Click.
+   * @param id Id supplied to this operation (type: string).
+   */
   const handleTrackPopupClick = (id: string) => {};
 
 
+  /**
+   * Handle Sample Color.
+   * @param onColorPicked Callback for color picked events.
+   */
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
     if (typeof window !== "undefined" && "EyeDropper" in window) {
       try {
@@ -304,6 +352,9 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+  /**
+   * Render Typography Section.
+   */
   const renderTypographySection = () => null;
 
   const [breakpoints, setBreakpoints] = useState<any[]>([
@@ -313,6 +364,13 @@ const [popups, setPopups] = useState<any[]>([]);
   ]);
   const activeBreakpointId = "desktop";
 
+  /**
+   * Get Style Val.
+   * @param element Element supplied to this operation (type: any).
+   * @param key Key supplied to this operation (type: string).
+   * @param breakpointId Breakpoint Id supplied to this operation (type: string).
+   * @param _bpList Bp List supplied to this operation (type: any[]).
+   */
   const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
     if (!element) return undefined;
     if (element.responsiveStyles && element.responsiveStyles[breakpointId]?.[key]) {
@@ -321,10 +379,20 @@ const [popups, setPopups] = useState<any[]>([]);
     return element.styles?.[key];
   };
 
+  /**
+   * Render Responsive Label.
+   * @param label Label supplied to this operation (type: string).
+   */
   const renderResponsiveLabel = (label: string) => (
     <label className="block text-xs font-semibold text-slate-700 mb-1">{label}</label>
   );
 
+  /**
+   * Render Accordion.
+   * @param title Title supplied to this operation (type: string).
+   * @param id Id supplied to this operation (type: string).
+   * @param children Nested React content or document elements supplied by the parent.
+   */
   const renderAccordion = (title: string, id: string, children: React.ReactNode) => (
     <details key={id} className="group border border-slate-200 rounded-lg bg-white overflow-hidden my-2">
       <summary className="flex cursor-pointer items-center justify-between p-3 text-xs font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 select-none">
@@ -336,6 +404,11 @@ const [popups, setPopups] = useState<any[]>([]);
   );
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /**
+   * Find Tree Element.
+   * @param tree Tree supplied to this operation (type: EditorElement[]).
+   * @param targetId Target Id supplied to this operation (type: string).
+   */
   const findTreeElement = (tree: EditorElement[], targetId: string): EditorElement | null => {
     for (const item of tree) {
       if (item.id === targetId) return item;
@@ -386,6 +459,11 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   }, [components]);
 
+  /**
+   * Toggle Favorite Component.
+   * @param compId Comp Id supplied to this operation (type: string).
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const toggleFavoriteComponent = (compId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setComponents((prev) => {
@@ -407,7 +485,16 @@ const [popups, setPopups] = useState<any[]>([]);
     });
   };
 
+  /**
+   * Sync Component Instances.
+   * @param compId Comp Id supplied to this operation (type: string).
+   * @param updatedSource Updated Source supplied to this operation (type: EditorElement).
+   */
   const syncComponentInstances = (compId: string, updatedSource: EditorElement) => {
+    /**
+     * Update Matching.
+     * @param list List supplied to this operation (type: EditorElement[]).
+     */
     const updateMatching = (list: EditorElement[]): EditorElement[] => {
       return list.map((item) => {
         let currentItem = item;
@@ -439,6 +526,10 @@ const [popups, setPopups] = useState<any[]>([]);
     setElements((prev) => updateMatching(prev));
   };
 
+  /**
+   * Handle Save As Component.
+   * @param elementId Identifier of the editor element to find or update.
+   */
   const handleSaveAsComponent = (elementId: string) => {
     const el = findTreeElement(elements, elementId);
     if (!el) return;
@@ -467,10 +558,18 @@ const [popups, setPopups] = useState<any[]>([]);
     );
   };
 
+  /**
+   * Handle Add Instance From Component.
+   * @param compId Comp Id supplied to this operation (type: string).
+   */
   const handleAddInstanceFromComponent = (compId: string) => {
     const comp = components[compId];
     if (!comp) return;
 
+    /**
+     * Create Instance.
+     * @param base Base supplied to this operation (type: EditorElement).
+     */
     const createInstance = (base: EditorElement): EditorElement => ({
       ...JSON.parse(JSON.stringify(base)),
       id: generateId(),
@@ -486,6 +585,12 @@ const [popups, setPopups] = useState<any[]>([]);
     setSelectedIds([newInstance.id]);
   };
 
+  /**
+   * Handle Select Template.
+   * @param elementId Identifier of the editor element to find or update.
+   * @param templateId Template Id supplied to this operation (type: string). Optional; callers may omit it.
+   * @param presetName Preset Name supplied to this operation (type: string). Optional; callers may omit it.
+   */
   const handleSelectTemplate = (elementId: string, templateId?: string, presetName?: string) => {
     setElements((prev) =>
       updateTreeElement(prev, elementId, (item) => ({
@@ -497,6 +602,10 @@ const [popups, setPopups] = useState<any[]>([]);
     );
   };
 
+  /**
+   * Handle Unpack Template.
+   * @param elementId Identifier of the editor element to find or update.
+   */
   const handleUnpackTemplate = (elementId: string) => {
     const el = findTreeElement(elements, elementId);
     if (!el) return;
@@ -505,6 +614,10 @@ const [popups, setPopups] = useState<any[]>([]);
 
     if (el.templateId && components[el.templateId]) {
       const comp = components[el.templateId];
+      /**
+       * Create Instance.
+       * @param base Base supplied to this operation (type: EditorElement).
+       */
       const createInstance = (base: EditorElement): EditorElement => ({
         ...JSON.parse(JSON.stringify(base)),
         id: generateId(),
@@ -518,6 +631,10 @@ const [popups, setPopups] = useState<any[]>([]);
     if (!unpackedElements) return;
 
     setElements((prev) => {
+      /**
+       * Replace In Tree.
+       * @param list List supplied to this operation (type: EditorElement[]).
+       */
       const replaceInTree = (list: EditorElement[]): EditorElement[] => {
         return list.map((item) => {
           if (item.id === elementId) {
@@ -548,6 +665,9 @@ const [popups, setPopups] = useState<any[]>([]);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
 
   useEffect(() => {
+    /**
+     * Handle Close Menu.
+     */
     const handleCloseMenu = () => setContextMenu(null);
     window.addEventListener("click", handleCloseMenu);
     return () => window.removeEventListener("click", handleCloseMenu);
@@ -577,6 +697,11 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   });
 
+  /**
+   * Update Preference.
+   * @param key Key supplied to this operation (type: K).
+   * @param value Value supplied to this operation (type: (typeof userPreferences)[K]).
+   */
   const updatePreference = <K extends keyof typeof userPreferences>(
     key: K,
     value: (typeof userPreferences)[K]
@@ -592,6 +717,11 @@ const [popups, setPopups] = useState<any[]>([]);
     });
   };
 
+  /**
+   * Toggle Favorite Widget.
+   * @param type Type supplied to this operation (type: ElementType).
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const toggleFavoriteWidget = (type: ElementType, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setFavoriteWidgets((prev) => {
@@ -627,6 +757,9 @@ const [popups, setPopups] = useState<any[]>([]);
     setHistoryIndex(historyIndex >= 0 ? Math.min(historyIndex + 1, 49) : 0);
   }, [elements]);
 
+  /**
+   * Handle Undo.
+   */
   const handleUndo = () => {
     if (historyIndex > 0 && history[historyIndex - 1]) {
       isUndoRedoAction.current = true;
@@ -636,6 +769,9 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+  /**
+   * Handle Redo.
+   */
   const handleRedo = () => {
     if (historyIndex < history.length - 1 && history[historyIndex + 1]) {
       isUndoRedoAction.current = true;
@@ -645,6 +781,11 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+  /**
+   * Handle Select Element.
+   * @param id Id supplied to this operation (type: string | null).
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handleSelectElement = (id: string | null, e?: React.MouseEvent) => {
     setActiveElementState("normal");
     if (!id) {
@@ -711,6 +852,12 @@ const [popups, setPopups] = useState<any[]>([]);
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [managerCategoryFilter, setManagerCategoryFilter] = useState<string>("All");
 
+  /**
+   * Handle Restore Revision.
+   * @param restoredElements Restored Elements supplied to this operation (type: EditorElement[]).
+   * @param restoredPageSettings Restored Page Settings supplied to this operation (type: any). Optional; callers may omit it.
+   * @param fullRestoredState Full Restored State supplied to this operation (type: any). Optional; callers may omit it.
+   */
   const handleRestoreRevision = (restoredElements: EditorElement[], restoredPageSettings?: any, fullRestoredState?: any) => {
     if (Array.isArray(restoredElements)) {
       setElements(JSON.parse(JSON.stringify(restoredElements)));
@@ -724,6 +871,11 @@ const [popups, setPopups] = useState<any[]>([]);
     if (fullRestoredState?.siteParts) {
       setSiteParts(JSON.parse(JSON.stringify(fullRestoredState.siteParts)));
     }
+    if (fullRestoredState?.homePageId) setHomePageId(fullRestoredState.homePageId);
+    if (fullRestoredState?.globalSettings) setGlobalSettings(structuredClone(fullRestoredState.globalSettings));
+    if (fullRestoredState?.breakpoints) setBreakpoints(structuredClone(fullRestoredState.breakpoints));
+    if (fullRestoredState?.popups) setPopups(structuredClone(fullRestoredState.popups));
+    if (typeof fullRestoredState?.pageCss === 'string') setPageCss(fullRestoredState.pageCss);
     if (updateAutosaveBaseline) {
       updateAutosaveBaseline(
         restoredElements,
@@ -742,10 +894,14 @@ const [popups, setPopups] = useState<any[]>([]);
     }
     setSelectedId(null);
     setSelectedIds([]);
-    setSaveMessage("Restored revision successfully!");
+    setSaveMessage("Revision loaded into the editor. Save status shows when the host accepts it.");
     setTimeout(() => setSaveMessage(""), 3500);
   };
 
+  /**
+   * Toggle Widget Availability.
+   * @param type Type supplied to this operation (type: ElementType).
+   */
   const toggleWidgetAvailability = (type: ElementType) => {
     setDisabledWidgets((prev) => {
       const updated = prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type];
@@ -758,6 +914,9 @@ const [popups, setPopups] = useState<any[]>([]);
     });
   };
 
+  /**
+   * Enable All Widgets.
+   */
   const enableAllWidgets = () => {
     setDisabledWidgets([]);
     try {
@@ -767,6 +926,9 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+  /**
+   * Reset Widgets To Default.
+   */
   const resetWidgetsToDefault = () => {
     const core5: ElementType[] = ["heading", "text", "button", "image", "container"];
     const nonCore = ALL_WIDGET_REGISTRY.map((w) => w.type).filter((t) => !core5.includes(t));
@@ -778,6 +940,11 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+  /**
+   * Is Widget Library Visible.
+   * @param type Type supplied to this operation (type: ElementType).
+   * @param name Name supplied to this operation (type: string). Optional; callers may omit it.
+   */
   const isWidgetLibraryVisible = (type: ElementType, name?: string) => {
     if (disabledWidgets.includes(type)) return false;
     if (!widgetLibrarySearch.trim()) return true;
@@ -856,6 +1023,10 @@ const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page
 const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
 const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
 
+/**
+ * Handle Open Icon Picker.
+ * @param targetField Target Field supplied to this operation. Defaults to "iconName".
+ */
 const handleOpenIconPicker = (targetField = "iconName") => {
   setIconPickerTargetField(targetField);
   setIsIconPickerOpen(true);
@@ -865,6 +1036,10 @@ const handleOpenIconPicker = (targetField = "iconName") => {
 const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
 const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
 
+/**
+ * Handle Open Font Picker.
+ * @param onSelect Callback for select events. Optional; callers may omit it.
+ */
 const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
   if (onSelect) setFontPickerCallback(() => onSelect);
   setIsFontPickerModalOpen(true);
@@ -967,6 +1142,9 @@ useEffect(() => {
 useEffect(() => {
   if (!isPreview || pages.length === 0) return;
 
+  /**
+   * Sync From Url.
+   */
   const syncFromUrl = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const urlPageParam =
@@ -1004,6 +1182,10 @@ useEffect(() => {
   return () => window.removeEventListener("popstate", syncFromUrl);
 }, [isPreview, pages, homePageId]);
 
+/**
+ * Handle Preview Page Navigate.
+ * @param targetPage Target Page supplied to this operation (type: PageConfig).
+ */
 const handlePreviewPageNavigate = (targetPage: PageConfig) => {
   setActivePreviewPageId(targetPage.id);
 
@@ -1019,6 +1201,10 @@ const handlePreviewPageNavigate = (targetPage: PageConfig) => {
   window.history.pushState({}, "", newUrl.toString());
 };
 
+/**
+ * Handle Switch Editing Page.
+ * @param targetPageId Target Page Id supplied to this operation (type: string).
+ */
 const handleSwitchEditingPage = (targetPageId: string) => {
   const target = pages.find((p) => p.id === targetPageId);
 
@@ -1064,6 +1250,10 @@ const handleSwitchEditingPage = (targetPageId: string) => {
 };
 
 // Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
+/**
+ * Handle Switch Canvas Mode.
+ * @param mode Mode supplied to this operation (type: "page" | "header" | "footer").
+ */
 const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
   if (mode === canvasMode) return;
 
@@ -1111,6 +1301,9 @@ const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
   setIsPageSelectorOpen(false);
 };
 
+/**
+ * Handle Create New Page.
+ */
 const handleCreateNewPage = () => {
   const rawTitle =
     newPageName.trim() || `Page ${pages.length + 1}`;
@@ -1169,6 +1362,10 @@ const handleCreateNewPage = () => {
   setTimeout(() => setSaveMessage(""), 3000);
 };
 
+/**
+ * Handle Create Page Quick.
+ * @param customName Custom Name supplied to this operation (type: string). Optional; callers may omit it.
+ */
 const handleCreatePageQuick = (customName?: string): PageConfig => {
   const count = pages.length + 1;
   const rawTitle = customName || `New Page ${count}`;
@@ -1194,6 +1391,11 @@ const handleCreatePageQuick = (customName?: string): PageConfig => {
   return newPageObj;
 };
 
+/**
+ * Handle Delete Page.
+ * @param pageIdToDelete Page Id To Delete supplied to this operation (type: string).
+ * @param e E supplied to this operation (type: React.MouseEvent).
+ */
 const handleDeletePage = (
   pageIdToDelete: string,
   e: React.MouseEvent
@@ -1254,6 +1456,11 @@ const handleDeletePage = (
   setTimeout(() => setSaveMessage(""), 3000);
 };
 
+/**
+ * Open Edit Page Modal.
+ * @param page Page supplied to this operation (type: PageConfig).
+ * @param e E supplied to this operation (type: React.MouseEvent).
+ */
 const openEditPageModal = (
   page: PageConfig,
   e: React.MouseEvent
@@ -1268,6 +1475,9 @@ const openEditPageModal = (
   setIsPageSelectorOpen(false);
 };
 
+/**
+ * Handle Save Edit Page.
+ */
 const handleSaveEditPage = () => {
   if (!editingPageId) return;
 
@@ -1331,6 +1541,9 @@ const handleSaveEditPage = () => {
 const navigate = useNavigate();
 
   // Quit Visual Editor Handler (F-024)
+  /**
+   * Handle Quit Editor.
+   */
   const handleQuitEditor = () => {
     navigate("/dashboard");
   };
@@ -1421,6 +1634,11 @@ const navigate = useNavigate();
     },
   };
 
+  /**
+   * T.
+   * @param key Key supplied to this operation (type: string).
+   * @param fallback Fallback supplied to this operation (type: string).
+   */
   const t = (key: string, fallback: string) => {
     return editorTranslations[editorLanguage]?.[key] || fallback;
   };
@@ -1433,6 +1651,9 @@ const navigate = useNavigate();
   const [supportCopied, setSupportCopied] = useState(false);
 
   // Generate Support Token (F-020)
+  /**
+   * Handle Generate Support Token.
+   */
   const handleGenerateSupportToken = async () => {
     try {
       setIsGeneratingToken(true);
@@ -1455,6 +1676,9 @@ const navigate = useNavigate();
   };
 
   // Revoke Support Tokens (F-020)
+  /**
+   * Handle Revoke Support Tokens.
+   */
   const handleRevokeSupportTokens = async () => {
     try {
       setSupportMessage("");
@@ -1477,36 +1701,23 @@ const navigate = useNavigate();
   useEffect(() => {
     if (!websiteId) return;
 
+    const loadController = new AbortController();
+    /**
+     * Fetch Website.
+     */
     const fetchWebsite = async () => {
       try {
         setLoading(true);
+        setHostDraftRevision(null);
         setErrorMessage("");
 
-        let loadedSite: any = null;
-        try {
-          const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-            credentials: "include",
-          });
-          if (res.ok) {
-            const data = await res.json();
-            loadedSite = data.website || data;
-          }
-        } catch (netErr) {
-          console.warn("Backend fetch failed, checking localStorage fallback...", netErr);
-        }
-
-        // Local Storage Fallback if backend fetch was non-OK or unavailable
-        if (!loadedSite) {
-          const cachedStr = localStorage.getItem(`forgestudio_editor_${websiteId}`);
-          if (cachedStr) {
-            try {
-              const editorData = JSON.parse(cachedStr);
-              loadedSite = { id: websiteId, name: "Local Website", editorData };
-            } catch (e) {
-              console.error("Failed to parse cached editor data:", e);
-            }
-          }
-        }
+        const response = await fetch(`${apiUrl}/api/websites/${websiteId}`, { credentials: "include", signal: loadController.signal });
+        if (!response.ok) throw new Error("The host draft could not be loaded. Retry after reconnecting or signing in; no local copy has replaced it.");
+        const responseBody = await response.json();
+        if (loadController.signal.aborted) return;
+        const loadedSite = responseBody.website || responseBody;
+        if (typeof loadedSite.editorData === 'string') loadedSite.editorData = JSON.parse(loadedSite.editorData);
+        setHostDraftRevision(loadedSite.draftRevision ?? null);
 
         if (loadedSite) {
           setWebsite(loadedSite);
@@ -1528,6 +1739,7 @@ const navigate = useNavigate();
           let initialPages: PageConfig[] = [];
           if (loadedSite?.editorData?.pages && Array.isArray(loadedSite.editorData.pages) && loadedSite.editorData.pages.length > 0) {
             initialPages = loadedSite.editorData.pages.map((p: any, idx: number) => ({
+              ...p,
               id: p.id || `page_${idx + 1}`,
               name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
               slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
@@ -1639,7 +1851,7 @@ const navigate = useNavigate();
           setElements([]);
         }
       } catch (err) {
-        console.error("Error loading website:", err);
+        if (!loadController.signal.aborted) setErrorMessage(err instanceof Error ? err.message : "The host draft could not be loaded.");
       } finally {
         setLoading(false);
       }
@@ -1664,18 +1876,27 @@ const navigate = useNavigate();
   }, [pages, activePageId, canvasMode, elements, pageSettings]);
 
   // F-321 Autosave Integration
+  const canonicalSiteParts = useMemo(() => ({
+    ...siteParts,
+    header: canvasMode === 'header' ? { ...siteParts.header, elements } : siteParts.header,
+    footer: canvasMode === 'footer' ? { ...siteParts.footer, elements } : siteParts.footer,
+  }), [siteParts, canvasMode, elements]);
   const {
     status: autosaveStatus,
     lastSavedAt: autosaveLastSavedAt,
     errorMessage: autosaveError,
     updateBaseline: updateAutosaveBaseline,
+    saveNow: saveDraftNow,
+    currentDocument: currentDraftDocument,
   } = useAutosave({
+    accountId: signedInUser?.id,
+    hostRevision: hostDraftRevision,
     websiteId,
-    elements,
+    elements: canvasMode === 'page' ? elements : (pages.find(page => page.id === activePageId)?.elements ?? []),
     pageSettings,
     pages: canonicalPages,
     homePageId,
-    siteParts,
+    siteParts: canonicalSiteParts,
     globalSettings,
     globalStyles: globalSettings?.globalStyles,
     publishing,
@@ -1711,6 +1932,9 @@ const navigate = useNavigate();
   // F-335 & F-336 Website Kit Export & Import State & Logic
   const [isImportWebsiteKitOpen, setIsImportWebsiteKitOpen] = useState(false);
 
+  /**
+   * Handle Export Website Kit.
+   */
   const handleExportWebsiteKit = () => {
     try {
       exportWebsiteKitAsJson({
@@ -1727,6 +1951,10 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Handle Confirm Import Website Kit.
+   * @param kitData Kit Data supplied to this operation (type: { website: { name: string; description?: string; settings?: Record<string, any> }; pages: Array<{ id: string; title: string; path: string; elements: any[]; pageSettings: Record<string, any>; }>; templates: any[]; }).
+   */
   const handleConfirmImportWebsiteKit = (kitData: {
     website: { name: string; description?: string; settings?: Record<string, any> };
     pages: Array<{
@@ -1767,6 +1995,9 @@ const navigate = useNavigate();
   const { templates: libraryTemplates } = useTemplateLibrary({ apiUrl });
   const [isReplaceTemplateOpen, setIsReplaceTemplateOpen] = useState(false);
 
+  /**
+   * Handle Open Replace Template.
+   */
   const handleOpenReplaceTemplate = () => {
     if (!selectedId) {
       setSaveMessage("Please select an element or section to replace.");
@@ -1776,6 +2007,10 @@ const navigate = useNavigate();
     setIsReplaceTemplateOpen(true);
   };
 
+  /**
+   * Handle Confirm Replace Template.
+   * @param template Template supplied to this operation (type: Template).
+   */
   const handleConfirmReplaceTemplate = (template: Template) => {
     if (!selectedId) return;
 
@@ -1786,8 +2021,16 @@ const navigate = useNavigate();
       return;
     }
 
+    /**
+     * Clone And Reassign.
+     * @param list List supplied to this operation (type: EditorElement[]).
+     */
     const cloneAndReassign = (list: EditorElement[]): EditorElement[] => {
       const cloned: EditorElement[] = JSON.parse(JSON.stringify(list));
+      /**
+       * Reassign Ids.
+       * @param node Node supplied to this operation (type: EditorElement).
+       */
       const reassignIds = (node: EditorElement): EditorElement => {
         const newNode: EditorElement = {
           ...node,
@@ -1803,6 +2046,12 @@ const navigate = useNavigate();
 
     const freshElements = cloneAndReassign(templateElements);
 
+    /**
+     * Replace Tree Element.
+     * @param list List supplied to this operation (type: EditorElement[]).
+     * @param targetId Target Id supplied to this operation (type: string).
+     * @param replacements Replacements supplied to this operation (type: EditorElement[]).
+     */
     const replaceTreeElement = (
       list: EditorElement[],
       targetId: string,
@@ -1838,6 +2087,10 @@ const navigate = useNavigate();
 
 
   // F-323 Template Library Insertion Logic
+  /**
+   * Handle Insert Template.
+   * @param template Template supplied to this operation (type: Template).
+   */
   const handleInsertTemplate = (template: Template) => {
     const templateElements = template.templateData?.elements;
     if (!templateElements || !Array.isArray(templateElements) || templateElements.length === 0) {
@@ -1847,8 +2100,16 @@ const navigate = useNavigate();
     }
 
     // Deep clone template elements & recursively generate new unique IDs
+    /**
+     * Clone And Reassign.
+     * @param list List supplied to this operation (type: EditorElement[]).
+     */
     const cloneAndReassign = (list: EditorElement[]): EditorElement[] => {
       const cloned: EditorElement[] = JSON.parse(JSON.stringify(list));
+      /**
+       * Reassign Ids.
+       * @param node Node supplied to this operation (type: EditorElement).
+       */
       const reassignIds = (node: EditorElement): EditorElement => {
         const newNode: EditorElement = {
           ...node,
@@ -1883,6 +2144,10 @@ const navigate = useNavigate();
   };
 
   // Atomic Editor Global Element Insertion
+  /**
+   * Handle Insert Global Element.
+   * @param globalElementId Global Element Id supplied to this operation (type: string).
+   */
   const handleInsertGlobalElement = (globalElementId: string) => {
     const globalElements = GlobalElementService.getGlobalElements();
     const target = globalElements.find((ge) => ge.id === globalElementId);
@@ -1905,11 +2170,19 @@ const navigate = useNavigate();
   };
 
   // Atomic Editor Reusable Component Insertion
+  /**
+   * Handle Insert Reusable Component.
+   * @param componentId Component Id supplied to this operation (type: string).
+   */
   const handleInsertReusableComponent = (componentId: string) => {
     const components = ReusableComponentService.getComponents();
     const target = components.find((c) => c.id === componentId);
     if (!target || !target.rootElement) return;
 
+    /**
+     * Map Node To Element.
+     * @param node Node supplied to this operation (type: any).
+     */
     const mapNodeToElement = (node: any): EditorElement => {
       return {
         id: generateId(),
@@ -1933,6 +2206,10 @@ const navigate = useNavigate();
 
 
   // F-PUBLISH: Production Publish & Deployment Pipeline Handler (Comment 8)
+  /**
+   * Handle Publish Website.
+   * @param options Options supplied to this operation (type: { destinationType?: "INTERNAL" | "WORDPRESS" }). Optional; callers may omit it.
+   */
   const handlePublishWebsite = async (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => {
     if (!websiteId) return;
 
@@ -2012,6 +2289,10 @@ const navigate = useNavigate();
     setTimeout(() => setSaveMessage(""), 3500);
   };
 
+  /**
+   * Handle Rollback Deployment.
+   * @param deploymentId Deployment Id supplied to this operation (type: string).
+   */
   const handleRollbackDeployment = async (deploymentId: string) => {
     if (!websiteId) return;
     const result = await publishingService.rollbackDeployment(websiteId, deploymentId, apiUrl);
@@ -2030,6 +2311,9 @@ const navigate = useNavigate();
   };
 
   // Save Website Data
+  /**
+   * Handle Save.
+   */
   const handleSave = async () => {
     if (!websiteId) return;
 
@@ -2038,94 +2322,22 @@ const navigate = useNavigate();
       setSaveMessage("");
       setErrorMessage("");
 
-      const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
-      const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
-      const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
-
-      const payload = {
-        editorData: {
-          version: 1,
-          elements: canonicalPageElements,
-          pages: pages.map((p) =>
-            p.id === activePageId && canvasMode === "page"
-              ? { ...p, elements: canonicalPageElements, pageSettings }
-              : p
-          ),
-          homePageId,
-          siteParts: {
-            header: {
-              enabled: siteParts.header?.enabled ?? true,
-              elements: canonicalHeaderElements,
-            },
-            footer: {
-              enabled: siteParts.footer?.enabled ?? true,
-              elements: canonicalFooterElements,
-            },
-          },
-          publishing,
-          deployment,
-          breakpoints,
-          globalSettings,
-          globalStyles: globalSettings?.globalStyles,
-          popups,
-          pageCss,
-          pageSettings,
-          ...(publishedDataRef.current ? { publishedData: publishedDataRef.current } : {}),
-        },
-      };
-
-      // 1. Always save locally immediately
-      try {
-        localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
-      } catch (lsErr) {
-        console.warn("Failed to write to localStorage:", lsErr);
-      }
-
-      // 2. Attempt backend API save
-      try {
-        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          console.warn("Backend save returned non-OK status, saved locally.");
-        }
-      } catch (netErr) {
-        console.warn("Backend save request failed, saved locally:", netErr);
-      }
-
-      // Update F-321 Autosave baseline on successful save
-      updateAutosaveBaseline(
-        canonicalPageElements,
-        pageSettings,
-        payload.editorData.pages,
-        homePageId,
-        siteParts,
-        globalSettings,
-        globalSettings?.globalStyles,
-        publishing,
-        deployment,
-        breakpoints,
-        popups,
-        pageCss
-      );
-
-      setSaveMessage("Saved successfully!");
+      await saveDraftNow();
+      setSaveMessage("Submitted changes saved to the host.");
       setTimeout(() => setSaveMessage(""), 3000);
-    } catch (err: any) {
-      setSaveMessage("Saved locally!");
-      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "The host could not confirm the save. Your changes remain in the editor.");
     } finally {
       setSaving(false);
     }
   };
 
   // Element Actions
+  /**
+   * Handle Add Element.
+   * @param type Type supplied to this operation (type: ElementType).
+   * @param targetId Target Id supplied to this operation (type: string | null). Defaults to null.
+   */
   const handleAddElement = (type: ElementType, targetId: string | null = null) => {
     if (disabledWidgets.includes(type)) return;
     const effectiveTargetId = targetId || selectedId;
@@ -2146,6 +2358,12 @@ const navigate = useNavigate();
     setSelectedIds([newEl.id]);
   };
 
+  /**
+   * Handle Drop Element.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   * @param targetId Target Id supplied to this operation (type: string | null). Defaults to null.
+   * @param position Position supplied to this operation (type: "before" | "after" | "inside" | null). Defaults to null.
+   */
   const handleDropElement = (
     e: React.DragEvent,
     targetId: string | null = null,
@@ -2191,6 +2409,12 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Handle Drag Over Element.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   * @param elId El Id supplied to this operation (type: string).
+   * @param isContainer Is Container supplied to this operation (type: boolean).
+   */
   const handleDragOverElement = (
     e: React.DragEvent,
     elId: string,
@@ -2217,12 +2441,22 @@ const navigate = useNavigate();
     setDropPosition(pos);
   };
 
+  /**
+   * Handle Delete Element.
+   * @param id Id supplied to this operation (type: string).
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setElements((prev) => deleteTreeElement(prev, id));
     if (selectedId === id) setSelectedId(null);
   };
 
+  /**
+   * Handle Duplicate Element.
+   * @param idToDuplicate Id To Duplicate supplied to this operation (type: string | null). Optional; callers may omit it.
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handleDuplicateElement = (idToDuplicate?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const targetId = idToDuplicate || selectedId;
@@ -2235,6 +2469,11 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Handle Copy Element.
+   * @param idToCopy Id To Copy supplied to this operation (type: string | null). Optional; callers may omit it.
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handleCopyElement = (idToCopy?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (selectedIds.length > 1 && (!idToCopy || selectedIds.includes(idToCopy))) {
@@ -2260,6 +2499,11 @@ const navigate = useNavigate();
     void copiedElements;
   };
 
+  /**
+   * Handle Copy Style.
+   * @param idToCopy Id To Copy supplied to this operation (type: string | null). Optional; callers may omit it.
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handleCopyStyle = (idToCopy?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const targetId = idToCopy || selectedId;
@@ -2275,6 +2519,11 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Handle Paste Style.
+   * @param idToPaste Id To Paste supplied to this operation (type: string | null). Optional; callers may omit it.
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handlePasteStyle = (idToPaste?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const targetId = idToPaste || selectedId;
@@ -2300,11 +2549,19 @@ const navigate = useNavigate();
     );
   };
 
+  /**
+   * Handle Paste Element.
+   * @param e E supplied to this operation (type: React.MouseEvent). Optional; callers may omit it.
+   */
   const handlePasteElement = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!copiedElement) return;
 
     const clonedItem: EditorElement = JSON.parse(JSON.stringify(copiedElement));
+    /**
+     * Reassign Ids.
+     * @param node Node supplied to this operation (type: EditorElement).
+     */
     const reassignIds = (node: EditorElement) => {
       node.id = generateId();
       if (node.children) {
@@ -2317,6 +2574,11 @@ const navigate = useNavigate();
     setSelectedId(clonedItem.id);
   };
 
+  /**
+   * Update Element Content.
+   * @param id Id supplied to this operation (type: string).
+   * @param newContent New Content supplied to this operation (type: string).
+   */
   const updateElementContent = (id: string, newContent: string) => {
     setElements((prev) =>
       updateTreeElement(prev, id, (el) => ({ ...el, content: newContent }))
@@ -2329,6 +2591,10 @@ const navigate = useNavigate();
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
 
   useEffect(() => {
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
       const isInput =
@@ -2418,6 +2684,11 @@ const navigate = useNavigate();
     }
   }, [selectedElement?.content, selectedElement?.src, selectedElement?.styles, selectedElement?.layout, selectedElement?.responsiveStyles, selectedElement?.responsiveLayout]);
 
+  /**
+   * Update Selected Prop.
+   * @param key Key supplied to this operation (type: keyof EditorElement | string).
+   * @param value Value supplied to this operation (type: any).
+   */
   const updateSelectedProp = (key: keyof EditorElement | string, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
@@ -2425,6 +2696,11 @@ const navigate = useNavigate();
     );
   };
 
+  /**
+   * Update Selected Style.
+   * @param key Key supplied to this operation (type: keyof ElementStyles).
+   * @param value Value supplied to this operation (type: any).
+   */
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
@@ -2478,6 +2754,10 @@ const navigate = useNavigate();
     );
   };
 
+  /**
+   * Reset Selected Style.
+   * @param key Key supplied to this operation (type: keyof ElementStyles).
+   */
   const resetSelectedStyle = (key: keyof ElementStyles) => {
     if (!selectedId) return;
     setElements((prev) =>
@@ -2539,6 +2819,10 @@ const navigate = useNavigate();
     );
   };
 
+  /**
+   * Toggle Container Collapse.
+   * @param id Id supplied to this operation (type: string).
+   */
   const toggleContainerCollapse = (id: string) => {
     setCollapsedContainers((prev) => ({
       ...prev,
@@ -2546,10 +2830,21 @@ const navigate = useNavigate();
     }));
   };
 
+  /**
+   * Handle Reorder Element.
+   * @param id Id supplied to this operation (type: string).
+   * @param direction Direction supplied to this operation (type: "up" | "down").
+   */
   const handleReorderElement = (id: string, direction: "up" | "down") => {
     setElements((prev) => reorderTreeElement(prev, id, direction));
   };
 
+  /**
+   * Flatten And Search Elements.
+   * @param nodes Nodes supplied to this operation (type: EditorElement[]).
+   * @param query Query supplied to this operation (type: string).
+   * @param parentPath Parent Path supplied to this operation (type: string[]). Defaults to [].
+   */
   const flattenAndSearchElements = (
     nodes: EditorElement[],
     query: string,
@@ -2578,188 +2873,32 @@ const navigate = useNavigate();
     return results;
   };
 
-  const renderNavigatorTreeItem = (el: EditorElement, depth: number = 0, isLast: boolean = true): React.ReactNode => {
-    const isSelected = selectedIds.includes(el.id) || selectedId === el.id;
-    const isContainer = el.type === "container";
-    const isCollapsed = isContainer && !!collapsedContainers[el.id];
+  /**
+   * Render Navigator Tree Item.
+   * @param el El supplied to this operation (type: EditorElement).
+   * @param depth Depth supplied to this operation (type: number). Defaults to 0.
+   * @param isLast Is Last supplied to this operation (type: boolean). Defaults to true.
+   */
+  const renderNavigatorTreeItem = createLayerTreeRenderer({
+    selectedIds,
+    selectedId,
+    collapsedContainers,
+    activeDevice,
+    handleSelectElement,
+    setHoveredId,
+    hoveredId,
+    toggleContainerCollapse,
+    handleCopyElement,
+    handleDuplicateElement,
+    handleReorderElement,
+    handleDeleteElement,
+  });
 
-    const getElementIcon = (type: ElementType) => {
-      switch (type) {
-        case "container":
-          return "📦";
-        case "heading":
-          return "🔤";
-        case "text":
-          return "📝";
-        case "image":
-          return "🖼️";
-        case "button":
-          return "🔘";
-        case "posts":
-          return "📰";
-        case "wc-product-title":
-      return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-price":
-      return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-images":
-      return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-add-to-cart":
-      return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-rating":
-      return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "share-buttons":
-          return "🔗";
-        case "portfolio":
-          return "💼";
-        case "slides":
-          return "🎠";
-        default:
-          return "📄";
-      }
-    };
-
-    const getElementLabel = (item: EditorElement) => {
-      if (item.type === "heading") return item.content ? `"${item.content.slice(0, 15)}"` : "Heading";
-      if (item.type === "text") return item.content ? `"${item.content.slice(0, 15)}"` : "Text";
-      if (item.type === "button") return item.content ? `"${item.content.slice(0, 15)}"` : "Button";
-      if (item.type === "image") return item.alt ? `Image (${item.alt})` : "Image";
-      if (item.type === "container") return "Container";
-      if (item.type === "posts") return item.posts ? `Posts (${item.posts.length})` : "Posts Widget";
-      if (item.type === "share-buttons") return item.shareNetworks ? `Share (${item.shareNetworks.length})` : "Share Buttons";
-      if (item.type === "portfolio") return item.portfolioItems ? `Portfolio (${item.portfolioItems.length})` : "Portfolio Widget";
-      if (item.type === "slides") return item.slidesItems ? `Slides (${item.slidesItems.length})` : "Slides Widget";
-      return item.type;
-    };
-
-    return (
-      <div key={el.id} className="select-none">
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSelectElement(el.id, e);
-          }}
-          onMouseEnter={(e) => {
-            e.stopPropagation();
-            setHoveredId(el.id);
-          }}
-          onMouseLeave={(e) => {
-            e.stopPropagation();
-            if (hoveredId === el.id) setHoveredId(null);
-          }}
-          style={{ paddingLeft: `${depth * 14 + 4}px` }}
-          className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${
-            isSelected
-              ? "bg-blue-600 font-bold text-white shadow-sm"
-              : hoveredId === el.id
-              ? "bg-blue-50 text-blue-700 font-semibold"
-              : "text-slate-700 hover:bg-slate-100"
-          }`}
-        >
-          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-            {/* Visual Tree Branch Connectors (F-021) */}
-            {depth > 0 && (
-              <span className="font-mono text-slate-400 text-[10px] shrink-0 select-none">
-                {isLast ? "└──" : "├──"}
-              </span>
-            )}
-
-            {isContainer ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleContainerCollapse(el.id);
-                }}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] transition ${
-                  isSelected ? "text-white hover:bg-blue-700" : "text-slate-400 hover:bg-slate-200 hover:text-slate-700"
-                }`}
-              >
-                {isCollapsed ? "▶" : "▼"}
-              </button>
-            ) : (
-              <span className="w-2 shrink-0" />
-            )}
-
-            <span className="shrink-0 text-[11px]">{getElementIcon(el.type)}</span>
-            <span className="truncate text-[11px] font-medium capitalize">{getElementLabel(el)}</span>
-          </div>
-
-          <div className="flex items-center gap-0.5 opacity-80 group-hover:opacity-100 shrink-0">
-            <button
-              type="button"
-              title="Copy"
-              onClick={(e) => handleCopyElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
-            >
-              📋
-            </button>
-            <button
-              type="button"
-              title="Duplicate"
-              onClick={(e) => handleDuplicateElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
-            >
-              ⧉
-            </button>
-            <button
-              type="button"
-              title="Move Up"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReorderElement(el.id, "up");
-              }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
-            >
-              ▲
-            </button>
-            <button
-              type="button"
-              title="Move Down"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReorderElement(el.id, "down");
-              }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
-            >
-              ▼
-            </button>
-            <button
-              type="button"
-              title="Delete"
-              onClick={(e) => handleDeleteElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-red-500 hover:text-white ${
-                isSelected ? "text-red-200" : "text-red-500"
-              }`}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-
-        {/* Render Nested Children if container is expanded */}
-        {isContainer && !isCollapsed && el.children && el.children.length > 0 && (
-          <div className="space-y-0.5">
-            {el.children.map((child, idx) =>
-              renderNavigatorTreeItem(
-                child,
-                depth + 1,
-                idx === (el.children?.length ?? 0) - 1
-              )
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
+  /**
+   * Update Selected Layout.
+   * @param key Key supplied to this operation (type: keyof ContainerLayout).
+   * @param value Value supplied to this operation (type: any).
+   */
   const updateSelectedLayout = (key: keyof ContainerLayout, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
@@ -2793,6 +2932,18 @@ const navigate = useNavigate();
 
 
 
+  /**
+   * Render the scrubbable number input interface and connect its event handlers.
+   * @param options Named inputs: value, onChange, min, max, step, placeholder, className.
+
+   * @param options.value Value passed by the caller.
+   * @param options.onChange Callback invoked when the controlled value changes.
+   * @param options.min Min passed by the caller.
+   * @param options.max Max passed by the caller.
+   * @param options.step Step passed by the caller. Defaults to 1.
+   * @param options.placeholder Placeholder passed by the caller. Defaults to "0".
+   * @param options.className CSS classes to apply to the rendered element. Defaults to "w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500".
+   */
   const ScrubbableNumberInput = ({
     value,
     onChange,
@@ -2814,6 +2965,10 @@ const navigate = useNavigate();
     const startXRef = useRef(0);
     const startValRef = useRef(0);
 
+    /**
+     * Handle Mouse Down.
+     * @param e E supplied to this operation (type: React.MouseEvent).
+     */
     const handleMouseDown = (e: React.MouseEvent) => {
       if (e.button !== 0) return;
       e.preventDefault();
@@ -2823,6 +2978,10 @@ const navigate = useNavigate();
       startValRef.current = initialVal;
       setIsScrubbing(true);
 
+      /**
+       * Handle Mouse Move.
+       * @param moveEvent Move Event supplied to this operation (type: MouseEvent).
+       */
       const handleMouseMove = (moveEvent: MouseEvent) => {
         const deltaX = moveEvent.clientX - startXRef.current;
         let multiplier = step;
@@ -2837,6 +2996,9 @@ const navigate = useNavigate();
         onChange(String(roundedVal));
       };
 
+      /**
+       * Handle Mouse Up.
+       */
       const handleMouseUp = () => {
         setIsScrubbing(false);
         window.removeEventListener("mousemove", handleMouseMove);
@@ -2867,6 +3029,13 @@ const navigate = useNavigate();
     );
   };
 
+  /**
+   * Render4 Side Spacing Control.
+   * @param title Title supplied to this operation (type: string).
+   * @param type Type supplied to this operation (type: "margin" | "padding").
+   * @param isLinked Is Linked supplied to this operation (type: boolean).
+   * @param setIsLinked Set Is Linked supplied to this operation (type: (val: boolean) => void).
+   */
   const render4SideSpacingControl = (
     title: string,
     type: "margin" | "padding",
@@ -2878,6 +3047,12 @@ const navigate = useNavigate();
     const bottomKey = (type === "margin" ? "marginBottom" : "paddingBottom") as keyof ElementStyles;
     const leftKey = (type === "margin" ? "marginLeft" : "paddingLeft") as keyof ElementStyles;
 
+    /**
+     * Handle Side Change.
+     * @param sideKey Side Key supplied to this operation (type: keyof ElementStyles).
+     * @param numVal Num Val supplied to this operation (type: string).
+     * @param unitVal Unit Val supplied to this operation (type: string).
+     */
     const handleSideChange = (sideKey: keyof ElementStyles, numVal: string, unitVal: string) => {
       const formattedVal = numVal.trim() === "" ? "" : `${numVal}${unitVal}`;
       if (isLinked) {
@@ -2890,7 +3065,15 @@ const navigate = useNavigate();
       }
     };
 
+    /**
+     * Handle Unit Change.
+     * @param newUnit New Unit supplied to this operation (type: string).
+     */
     const handleUnitChange = (newUnit: string) => {
+      /**
+       * Apply Unit.
+       * @param sideKey Side Key supplied to this operation (type: keyof ElementStyles).
+       */
       const applyUnit = (sideKey: keyof ElementStyles) => {
         if (!selectedElement) return;
         const cur = getControlStyleValue(selectedElement, activeDevice, activeElementState, sideKey);
@@ -2905,6 +3088,9 @@ const navigate = useNavigate();
       applyUnit(leftKey);
     };
 
+    /**
+     * Handle Reset All.
+     */
     const handleResetAll = () => {
       resetSelectedStyle(topKey);
       resetSelectedStyle(rightKey);
@@ -2973,6 +3159,10 @@ const navigate = useNavigate();
   }, [selectedElement?.id, selectedElement?.src]);
 
   // Image File Upload Logic
+  /**
+   * Handle Image File Select.
+   * @param file File supplied to this operation (type: File).
+   */
   const handleImageFileSelect = async (file: File) => {
     if (!file) return;
 
@@ -3039,6 +3229,10 @@ const navigate = useNavigate();
   };
 
   // YouTube & Vimeo Embed Helpers (F-208 Video Widget)
+  /**
+   * Get You Tube Id.
+   * @param url Url supplied to this operation (type: string).
+   */
   const getYouTubeId = (url: string): string | null => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -3046,6 +3240,10 @@ const navigate = useNavigate();
     return match && match[2].length === 11 ? match[2] : null;
   };
 
+  /**
+   * Get Vimeo Id.
+   * @param url Url supplied to this operation (type: string).
+   */
   const getVimeoId = (url: string): string | null => {
     if (!url) return null;
     const regExp = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/;
@@ -3054,6 +3252,10 @@ const navigate = useNavigate();
   };
 
   // Video File Upload Logic (F-208 Video Widget)
+  /**
+   * Handle Video File Select.
+   * @param file File supplied to this operation (type: File).
+   */
   const handleVideoFileSelect = async (file: File) => {
     if (!file) return;
 
@@ -3120,6 +3322,10 @@ const navigate = useNavigate();
   };
 
   // Video Poster Image Upload Logic (F-208 Video Widget)
+  /**
+   * Handle Video Poster Select.
+   * @param file File supplied to this operation (type: File).
+   */
   const handleVideoPosterSelect = async (file: File) => {
     if (!file) return;
 
@@ -3173,6 +3379,10 @@ const navigate = useNavigate();
   };
 
   // File & Asset Import Logic (F-014)
+  /**
+   * Handle Import Asset.
+   * @param file File supplied to this operation (type: File).
+   */
   const handleImportAsset = async (file: File) => {
     if (!file) return;
 
@@ -3281,6 +3491,10 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Handle Drop.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
@@ -3289,6 +3503,10 @@ const navigate = useNavigate();
     }
   };
 
+  /**
+   * Compile Background And Border Styles.
+   * @param mergedStyles Merged Styles supplied to this operation (type: ElementStyles).
+   */
   const compileBackgroundAndBorderStyles = (mergedStyles: ElementStyles): React.CSSProperties => {
     const styles: React.CSSProperties = {};
 
@@ -3338,6 +3556,10 @@ const navigate = useNavigate();
     return styles;
   };
 
+  /**
+   * Compile Positioning Styles.
+   * @param mergedStyles Merged Styles supplied to this operation (type: ElementStyles).
+   */
   const compilePositioningStyles = (mergedStyles: ElementStyles): React.CSSProperties => {
     const styles: React.CSSProperties = {};
 
@@ -3389,226 +3611,22 @@ const navigate = useNavigate();
     return styles;
   };
 
-  const renderPositioningControls = () => {
-    if (!selectedElement) return null;
+  /**
+   * Render Positioning Controls.
+   */
+  const renderPositioningControls = createPositioningControls({
+    selectedElement,
+    activeDevice,
+    activeElementState,
+    updateSelectedStyle,
+    resetSelectedStyle,
+    ScrubbableNumberInput,
+  });
 
-    const currentPos = getControlStyleValue(selectedElement, activeDevice, activeElementState, "position") || "static";
-
-    const rawTop = String(getControlStyleValue(selectedElement, activeDevice, activeElementState, "top") || "");
-    const rawRight = String(getControlStyleValue(selectedElement, activeDevice, activeElementState, "right") || "");
-    const rawBottom = String(getControlStyleValue(selectedElement, activeDevice, activeElementState, "bottom") || "");
-    const rawLeft = String(getControlStyleValue(selectedElement, activeDevice, activeElementState, "left") || "");
-
-    const currentZIndex = getControlStyleValue(selectedElement, activeDevice, activeElementState, "zIndex");
-    const zIndexStr = currentZIndex !== undefined && currentZIndex !== null ? String(currentZIndex) : "";
-
-    const parsedTop = parseSpacingUnit(rawTop);
-    const parsedRight = parseSpacingUnit(rawRight);
-    const parsedBottom = parseSpacingUnit(rawBottom);
-    const parsedLeft = parseSpacingUnit(rawLeft);
-
-    const activeOffsetUnit = parsedTop.unit || parsedRight.unit || parsedBottom.unit || parsedLeft.unit || "px";
-
-    const isPosOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "position") : hasStyleOverride(selectedElement, activeDevice, "position");
-    const isOffsetsOverridden = activeElementState === "hover"
-      ? hasHoverStyleOverride(selectedElement, activeDevice, "top") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "right") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "left")
-      : hasStyleOverride(selectedElement, activeDevice, "top") ||
-        hasStyleOverride(selectedElement, activeDevice, "right") ||
-        hasStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasStyleOverride(selectedElement, activeDevice, "left");
-    const isZIndexOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "zIndex") : hasStyleOverride(selectedElement, activeDevice, "zIndex");
-
-    const handleOffsetChange = (key: keyof ElementStyles, numVal: string, unitVal: string) => {
-      const formattedVal = numVal.trim() === "" ? "" : `${numVal}${unitVal}`;
-      updateSelectedStyle(key, formattedVal);
-    };
-
-    const handleUnitChange = (newUnit: string) => {
-      const convertUnit = (parsed: { num: string; unit: string }, sideKey: keyof ElementStyles) => {
-        if (parsed.num) {
-          updateSelectedStyle(sideKey, `${parsed.num}${newUnit}`);
-        }
-      };
-      convertUnit(parsedTop, "top");
-      convertUnit(parsedRight, "right");
-      convertUnit(parsedBottom, "bottom");
-      convertUnit(parsedLeft, "left");
-    };
-
-    return (
-      <div className="space-y-4 pt-4 border-t border-slate-200">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Positioning & Layering
-        </h3>
-
-        {/* 1. Position Type Dropdown */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700">
-              Position Type
-              {isPosOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </label>
-            {(selectedElement?.styles?.position || isPosOverridden) && (
-              <button
-                type="button"
-                onClick={() => resetSelectedStyle("position")}
-                title="Reset Position Type to Default"
-                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-              >
-                ↺ Reset
-              </button>
-            )}
-          </div>
-          <select
-            value={currentPos}
-            onChange={(e) => updateSelectedStyle("position", e.target.value as any)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-          >
-            <option value="static">Default (Static)</option>
-            <option value="relative">Relative</option>
-            <option value="absolute">Absolute</option>
-            <option value="fixed">Fixed</option>
-            <option value="sticky">Sticky</option>
-          </select>
-        </div>
-
-        {/* 2. Position Offsets (Top, Right, Bottom, Left) */}
-        {currentPos !== "static" && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-slate-700">
-                Position Offsets
-                {isOffsetsOverridden && (
-                  <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                    {activeDevice}
-                  </span>
-                )}
-              </label>
-
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={activeOffsetUnit}
-                  onChange={(e) => handleUnitChange(e.target.value)}
-                  className="rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-700 outline-none focus:border-blue-500"
-                >
-                  <option value="px">px</option>
-                  <option value="%">%</option>
-                  <option value="rem">rem</option>
-                  <option value="em">em</option>
-                </select>
-
-                {(selectedElement?.styles?.top || selectedElement?.styles?.right || selectedElement?.styles?.bottom || selectedElement?.styles?.left || isOffsetsOverridden) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      resetSelectedStyle("top");
-                      resetSelectedStyle("right");
-                      resetSelectedStyle("bottom");
-                      resetSelectedStyle("left");
-                    }}
-                    title="Reset Offsets to Default"
-                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                  >
-                    ↺ Reset
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-1.5">
-              <div>
-                <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                  Top
-                </span>
-                <ScrubbableNumberInput
-                  value={parsedTop.num}
-                  onChange={(val) => handleOffsetChange("top", val, activeOffsetUnit)}
-                  placeholder="auto"
-                  className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                  Right
-                </span>
-                <ScrubbableNumberInput
-                  value={parsedRight.num}
-                  onChange={(val) => handleOffsetChange("right", val, activeOffsetUnit)}
-                  placeholder="auto"
-                  className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                  Bottom
-                </span>
-                <ScrubbableNumberInput
-                  value={parsedBottom.num}
-                  onChange={(val) => handleOffsetChange("bottom", val, activeOffsetUnit)}
-                  placeholder="auto"
-                  className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                  Left
-                </span>
-                <ScrubbableNumberInput
-                  value={parsedLeft.num}
-                  onChange={(val) => handleOffsetChange("left", val, activeOffsetUnit)}
-                  placeholder="auto"
-                  className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 3. Z-Index Control */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700">
-              Z-Index
-              {isZIndexOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </label>
-            {(selectedElement?.styles?.zIndex !== undefined || isZIndexOverridden) && (
-              <button
-                type="button"
-                onClick={() => resetSelectedStyle("zIndex")}
-                title="Reset Z-Index to Default"
-                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-              >
-                ↺ Reset
-              </button>
-            )}
-          </div>
-          <ScrubbableNumberInput
-            value={zIndexStr}
-            onChange={(val) =>
-              updateSelectedStyle(
-                "zIndex",
-                val !== "" ? Number(val) : undefined
-              )
-            }
-            placeholder="0"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-          />
-        </div>
-      </div>
-    );
-  };
-
+  /**
+   * Handle Bg Image File Select.
+   * @param file File supplied to this operation (type: File).
+   */
   const handleBgImageFileSelect = async (file: File) => {
     if (!file) return;
 
@@ -3663,2071 +3681,73 @@ const navigate = useNavigate();
     }
   };
 
-  const renderBackgroundAndBorderControls = () => {
-    if (!selectedElement) return null;
-
-    const currentBgColor = getControlStyleValue(selectedElement, activeDevice, activeElementState, "backgroundColor") || "";
-    const currentBgImage = getControlStyleValue(selectedElement, activeDevice, activeElementState, "backgroundImage") || "";
-    const currentBgPos = getControlStyleValue(selectedElement, activeDevice, activeElementState, "backgroundPosition") || "center";
-    const currentBgSize = getControlStyleValue(selectedElement, activeDevice, activeElementState, "backgroundSize") || "cover";
-    const currentBgRepeat = getControlStyleValue(selectedElement, activeDevice, activeElementState, "backgroundRepeat") || "no-repeat";
-
-    const currentBorderStyle = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderStyle") || "none";
-    const currentBorderWidth = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderWidth") || "1px";
-    const currentBorderColor = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderColor") || "#cbd5e1";
-
-    const currentTLRadius = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderTopLeftRadius") || getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderRadius") || "";
-    const currentTRRadius = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderTopRightRadius") || getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderRadius") || "";
-    const currentBRRadius = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderBottomRightRadius") || getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderRadius") || "";
-    const currentBLRadius = getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderBottomLeftRadius") || getControlStyleValue(selectedElement, activeDevice, activeElementState, "borderRadius") || "";
-
-    const currentBoxShadow = getControlStyleValue(selectedElement, activeDevice, activeElementState, "boxShadow") || "";
-
-    const shadowMatch = currentBoxShadow.match(/(-?\d+px)\s+(-?\d+px)\s+(-?\d+px)\s+(-?\d+px)\s+(.*)/);
-    const shadowX = shadowMatch ? shadowMatch[1].replace("px", "") : "0";
-    const shadowY = shadowMatch ? shadowMatch[2].replace("px", "") : "0";
-    const shadowBlur = shadowMatch ? shadowMatch[3].replace("px", "") : "0";
-    const shadowSpread = shadowMatch ? shadowMatch[4].replace("px", "") : "0";
-    const shadowColor = shadowMatch ? shadowMatch[5] : "rgba(0,0,0,0.25)";
-
-    const parsedTL = parseSpacingUnit(currentTLRadius, "px");
-    const parsedTR = parseSpacingUnit(currentTRRadius, "px");
-    const parsedBR = parseSpacingUnit(currentBRRadius, "px");
-    const parsedBL = parseSpacingUnit(currentBLRadius, "px");
-    const activeRadiusUnit = parsedTL.unit || "px";
-
-    const isBgColorOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "backgroundColor") : hasStyleOverride(selectedElement, activeDevice, "backgroundColor");
-    const isBgImageOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "backgroundImage") : hasStyleOverride(selectedElement, activeDevice, "backgroundImage");
-    const isBorderOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "borderStyle") : hasStyleOverride(selectedElement, activeDevice, "borderStyle");
-    const isRadiusOverridden = activeElementState === "hover" ? (hasHoverStyleOverride(selectedElement, activeDevice, "borderTopLeftRadius") || hasHoverStyleOverride(selectedElement, activeDevice, "borderRadius")) : (hasStyleOverride(selectedElement, activeDevice, "borderTopLeftRadius") || hasStyleOverride(selectedElement, activeDevice, "borderRadius"));
-    const isShadowOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "boxShadow") : hasStyleOverride(selectedElement, activeDevice, "boxShadow");
-
-    const updateCornerRadius = (cornerKey: keyof ElementStyles, valStr: string) => {
-      if (isBorderRadiusLinked) {
-        updateSelectedStyle("borderTopLeftRadius", valStr);
-        updateSelectedStyle("borderTopRightRadius", valStr);
-        updateSelectedStyle("borderBottomRightRadius", valStr);
-        updateSelectedStyle("borderBottomLeftRadius", valStr);
-        updateSelectedStyle("borderRadius", valStr);
-      } else {
-        updateSelectedStyle(cornerKey, valStr);
-      }
-    };
-
-    return (
-      <div className="space-y-4 pt-4 border-t border-slate-200">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Background & Border
-        </h3>
-
-        {/* 1. Background Color */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700">
-              Background Color
-              {isBgColorOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </label>
-            {(isControlStyleConfigured(selectedElement, activeDevice, activeElementState, "backgroundColor") || isBgColorOverridden) && (
-              <button
-                type="button"
-                onClick={() => resetSelectedStyle("backgroundColor")}
-                title="Reset Background Color to Default"
-                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-              >
-                ↺ Reset
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={currentBgColor.startsWith("#") ? currentBgColor : "#ffffff"}
-              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-              className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-            />
-            <input
-              type="text"
-              value={currentBgColor}
-              onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-              placeholder="transparent / #ffffff / rgba(...)"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-            />
-            <button
-              type="button"
-              onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
-              title="Sample Color from Screen / Image"
-              className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-            >
-              <span>🧪</span>
-              <span className="text-[10px]">Sample</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2. Background Image & Settings */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-bold text-slate-700">
-              Background Image
-              {isBgImageOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </label>
-            {currentBgImage && (
-              <button
-                type="button"
-                onClick={() => {
-                  updateSelectedStyle("backgroundImage", "");
-                  if (activeDevice !== "desktop") resetSelectedStyle("backgroundImage");
-                }}
-                className="text-[10px] font-semibold text-red-500 hover:underline"
-              >
-                Remove
-              </button>
-            )}
-          </div>
-
-          <input
-            ref={bgFileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                handleBgImageFileSelect(e.target.files[0]);
-              }
-            }}
-          />
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={isUploading}
-              onClick={() => bgFileInputRef.current?.click()}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition disabled:opacity-50"
-            >
-              {isUploading ? "Uploading..." : "Upload Image"}
-            </button>
-            <input
-              type="text"
-              value={currentBgImage}
-              onChange={(e) => updateSelectedStyle("backgroundImage", e.target.value)}
-              placeholder="Or enter Image URL"
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            />
-          </div>
-
-          {currentBgImage && (
-            <div className="space-y-2 pt-2 border-t border-slate-200">
-              {/* Background Position */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Position
-                </label>
-                <select
-                  value={currentBgPos}
-                  onChange={(e) => updateSelectedStyle("backgroundPosition", e.target.value as any)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                >
-                  <option value="center">Center</option>
-                  <option value="top">Top</option>
-                  <option value="bottom">Bottom</option>
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                </select>
-              </div>
-
-              {/* Background Size */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Size
-                </label>
-                <select
-                  value={currentBgSize}
-                  onChange={(e) => updateSelectedStyle("backgroundSize", e.target.value as any)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                >
-                  <option value="cover">Cover</option>
-                  <option value="contain">Contain</option>
-                  <option value="auto">Auto</option>
-                </select>
-              </div>
-
-              {/* Background Repeat */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Repeat
-                </label>
-                <select
-                  value={currentBgRepeat}
-                  onChange={(e) => updateSelectedStyle("backgroundRepeat", e.target.value as any)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                >
-                  <option value="no-repeat">No Repeat</option>
-                  <option value="repeat">Repeat</option>
-                  <option value="repeat-x">Repeat X</option>
-                  <option value="repeat-y">Repeat Y</option>
-                </select>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 3. Border Controls */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700">
-              Border Style
-              {isBorderOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </label>
-            {(selectedElement?.styles?.borderStyle || selectedElement?.styles?.borderColor || selectedElement?.styles?.borderWidth || isBorderOverridden) && (
-              <button
-                type="button"
-                onClick={() => {
-                  resetSelectedStyle("borderStyle");
-                  resetSelectedStyle("borderWidth");
-                  resetSelectedStyle("borderColor");
-                }}
-                title="Reset Border to Default"
-                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-              >
-                ↺ Reset
-              </button>
-            )}
-          </div>
-          <select
-            value={currentBorderStyle}
-            onChange={(e) => updateSelectedStyle("borderStyle", e.target.value as any)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 mb-2"
-          >
-            <option value="none">None</option>
-            <option value="solid">Solid</option>
-            <option value="dashed">Dashed</option>
-            <option value="dotted">Dotted</option>
-          </select>
-
-          {currentBorderStyle !== "none" && (
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Width (px)
-                </label>
-                <input
-                  type="number"
-                  value={currentBorderWidth.replace("px", "")}
-                  onChange={(e) =>
-                    updateSelectedStyle(
-                      "borderWidth",
-                      e.target.value ? `${e.target.value}px` : "1px"
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Color
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="color"
-                    value={currentBorderColor.startsWith("#") ? currentBorderColor : "#cbd5e1"}
-                    onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
-                    className="h-7 w-8 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                  />
-                  <input
-                    type="text"
-                    value={currentBorderColor}
-                    onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleSampleColor((hex) => updateSelectedStyle("borderColor", hex))}
-                    title="Sample Color from Screen / Image"
-                    className="h-7 px-1.5 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-0.5 shrink-0"
-                  >
-                    <span>🧪</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 4. Border Radius (4 Corners) */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="flex items-center gap-2">
-              <label className="block text-xs font-semibold text-slate-700">
-                Border Radius
-              </label>
-              {isRadiusOverridden && (
-                <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsBorderRadiusLinked(!isBorderRadiusLinked)}
-                className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold transition ${
-                  isBorderRadiusLinked
-                    ? "bg-blue-100 text-blue-700 border border-blue-200"
-                    : "bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-                title={isBorderRadiusLinked ? "Unlink Corners" : "Link Corners"}
-              >
-                <span>{isBorderRadiusLinked ? "🔗" : "🔓"}</span>
-                <span className="text-[10px]">
-                  {isBorderRadiusLinked ? "Linked" : "Unlinked"}
-                </span>
-              </button>
-
-              {activeDevice !== "desktop" && isRadiusOverridden && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetSelectedStyle("borderTopLeftRadius");
-                    resetSelectedStyle("borderTopRightRadius");
-                    resetSelectedStyle("borderBottomRightRadius");
-                    resetSelectedStyle("borderBottomLeftRadius");
-                    resetSelectedStyle("borderRadius");
-                  }}
-                  className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 underline transition"
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-1.5">
-            <div>
-              <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                TL
-              </span>
-              <input
-                type="number"
-                value={parsedTL.num}
-                onChange={(e) =>
-                  updateCornerRadius(
-                    "borderTopLeftRadius",
-                    e.target.value ? `${e.target.value}${activeRadiusUnit}` : ""
-                  )
-                }
-                placeholder="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                TR
-              </span>
-              <input
-                type="number"
-                value={parsedTR.num}
-                onChange={(e) =>
-                  updateCornerRadius(
-                    "borderTopRightRadius",
-                    e.target.value ? `${e.target.value}${activeRadiusUnit}` : ""
-                  )
-                }
-                placeholder="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                BR
-              </span>
-              <input
-                type="number"
-                value={parsedBR.num}
-                onChange={(e) =>
-                  updateCornerRadius(
-                    "borderBottomRightRadius",
-                    e.target.value ? `${e.target.value}${activeRadiusUnit}` : ""
-                  )
-                }
-                placeholder="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <span className="block text-[9px] font-semibold text-slate-400 text-center mb-0.5">
-                BL
-              </span>
-              <input
-                type="number"
-                value={parsedBL.num}
-                onChange={(e) =>
-                  updateCornerRadius(
-                    "borderBottomLeftRadius",
-                    e.target.value ? `${e.target.value}${activeRadiusUnit}` : ""
-                  )
-                }
-                placeholder="0"
-                className="w-full rounded-lg border border-slate-300 bg-white px-1.5 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 5. Box Shadow */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700">
-              Box Shadow
-              {isShadowOverridden && (
-                <span className="ml-1 rounded bg-blue-100 px-1 py-0.5 text-[9px] font-bold text-blue-700 uppercase">
-                  {activeDevice}
-                </span>
-              )}
-            </span>
-            {currentBoxShadow && (
-              <button
-                type="button"
-                onClick={() => {
-                  updateSelectedStyle("boxShadow", "");
-                  if (activeDevice !== "desktop") resetSelectedStyle("boxShadow");
-                }}
-                className="text-[10px] font-semibold text-red-500 hover:underline"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-4 gap-1.5 text-[10px]">
-            <div>
-              <span className="text-slate-400">X (px)</span>
-              <input
-                type="number"
-                value={shadowX}
-                onChange={(e) =>
-                  updateSelectedStyle(
-                    "boxShadow",
-                    `${e.target.value}px ${shadowY}px ${shadowBlur}px ${shadowSpread}px ${shadowColor}`
-                  )
-                }
-                className="w-full rounded border border-slate-200 bg-white p-1 text-center text-xs"
-              />
-            </div>
-            <div>
-              <span className="text-slate-400">Y (px)</span>
-              <input
-                type="number"
-                value={shadowY}
-                onChange={(e) =>
-                  updateSelectedStyle(
-                    "boxShadow",
-                    `${shadowX}px ${e.target.value}px ${shadowBlur}px ${shadowSpread}px ${shadowColor}`
-                  )
-                }
-                className="w-full rounded border border-slate-200 bg-white p-1 text-center text-xs"
-              />
-            </div>
-            <div>
-              <span className="text-slate-400">Blur</span>
-              <input
-                type="number"
-                value={shadowBlur}
-                onChange={(e) =>
-                  updateSelectedStyle(
-                    "boxShadow",
-                    `${shadowX}px ${shadowY}px ${e.target.value}px ${shadowSpread}px ${shadowColor}`
-                  )
-                }
-                className="w-full rounded border border-slate-200 bg-white p-1 text-center text-xs"
-              />
-            </div>
-            <div>
-              <span className="text-slate-400">Spread</span>
-              <input
-                type="number"
-                value={shadowSpread}
-                onChange={(e) =>
-                  updateSelectedStyle(
-                    "boxShadow",
-                    `${shadowX}px ${shadowY}px ${shadowBlur}px ${e.target.value}px ${shadowColor}`
-                  )
-                }
-                className="w-full rounded border border-slate-200 bg-white p-1 text-center text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <span className="text-[10px] font-medium text-slate-500">Color</span>
-            <input
-              type="color"
-              value={shadowColor.startsWith("#") ? shadowColor : "#000000"}
-              onChange={(e) =>
-                updateSelectedStyle(
-                  "boxShadow",
-                  `${shadowX}px ${shadowY}px ${shadowBlur}px ${shadowSpread}px ${e.target.value}`
-                )
-              }
-              className="h-6 w-8 cursor-pointer rounded border border-slate-200 bg-transparent p-0.5"
-            />
-            <input
-              type="text"
-              value={shadowColor}
-              onChange={(e) =>
-                updateSelectedStyle(
-                  "boxShadow",
-                  `${shadowX}px ${shadowY}px ${shadowBlur}px ${shadowSpread}px ${e.target.value}`
-                )
-              }
-              placeholder="rgba(0,0,0,0.25)"
-              className="w-full rounded border border-slate-200 bg-white px-2 py-0.5 text-xs font-mono"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
+  /**
+   * Render Background And Border Controls.
+   */
+  const renderBackgroundAndBorderControls = createBackgroundControls({
+    selectedElement,
+    activeDevice,
+    activeElementState,
+    isBorderRadiusLinked,
+    updateSelectedStyle,
+    resetSelectedStyle,
+    handleSampleColor,
+    bgFileInputRef,
+    handleBgImageFileSelect,
+    isUploading,
+    setIsBorderRadiusLinked,
+  });
 
 
 
   // Recursive Element Tree Renderer
-  const renderElementTree = (el: EditorElement): React.ReactNode => {
-    const isSelected = (selectedIds.includes(el.id) || selectedId === el.id) && !isPreview;
-    const isEditingHoverState = isSelected && activeElementState === "hover";
-    const mergedStyles = getMergedStyles(el, activeDevice, isEditingHoverState ? "hover" : "normal");
-
-    const customAttrs = Array.isArray(el.customAttributes) ? el.customAttributes : [];
-    const customAttrProps = customAttrs.reduce((acc, curr) => {
-      if (curr.name && curr.name.trim()) acc[curr.name.trim()] = curr.value || "";
-      return acc;
-    }, {} as any);
-
-    if (el.type === "container") {
-      const mergedLayout = getMergedLayout(el, activeDevice);
-      const isHovered = hoveredId === el.id && !isSelected && !isPreview;
-      const path = isSelected ? getElementBreadcrumbPath(elements, el.id) : null;
-
-      const isDropTarget = dropTargetId === el.id && !isPreview;
-
-      return (
-        <div
-          key={el.id}
-          id={el.customId || undefined}
-          {...customAttrProps}
-          data-el-id={el.id}
-          draggable={!isPreview}
-          onDragStart={(e) => {
-            e.stopPropagation();
-            e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
-            e.dataTransfer.effectAllowed = "move";
-            setDraggingId(el.id);
-          }}
-          onDragEnd={(e) => {
-            e.stopPropagation();
-            setDraggingId(null);
-            setDropTargetId(null);
-            setDropPosition(null);
-          }}
-          {...customAttrProps}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isPreview) handleSelectElement(el.id, e);
-          }}
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!isPreview) {
-              handleSelectElement(el.id, e);
-              setContextMenu({ x: e.clientX, y: e.clientY, elementId: el.id });
-            }
-          }}
-          style={{
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: mergedLayout.direction || "column",
-            justifyContent: mergedLayout.justifyContent || "flex-start",
-            alignItems: mergedLayout.alignItems || "stretch",
-            gap: `${mergedLayout.gap ?? 10}px`,
-            width: mergedStyles.width || "100%",
-            height: mergedStyles.height || "auto",
-            paddingTop: mergedStyles.paddingTop ?? (mergedStyles.padding || "16px"),
-            paddingRight: mergedStyles.paddingRight ?? (mergedStyles.padding || "16px"),
-            paddingBottom: mergedStyles.paddingBottom ?? (mergedStyles.padding || "16px"),
-            paddingLeft: mergedStyles.paddingLeft ?? (mergedStyles.padding || "16px"),
-            marginTop: mergedStyles.marginTop ?? "8px",
-            marginRight: mergedStyles.marginRight ?? "0px",
-            marginBottom: mergedStyles.marginBottom ?? "8px",
-            marginLeft: mergedStyles.marginLeft ?? "0px",
-            ...compileBackgroundAndBorderStyles(mergedStyles),
-            ...compilePositioningStyles(mergedStyles),
-          }}
-        >
-          {/* F-217: Background Video Layer */}
-          {(el.containerBgType === "video" || el.containerVideoUrl) && (
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              <video
-                src={el.containerVideoUrl || "https://assets.mixkit.co/videos/preview/mixkit-set-of-plateaus-seen-from-the-sky-in-a-sunset-26070-large.mp4"}
-                autoPlay={el.containerVideoAutoplay ?? true}
-                loop={el.containerVideoLoop ?? true}
-                muted={el.containerVideoMuted ?? true}
-                playsInline
-                className="w-full h-full object-cover"
-                style={{
-                  objectFit: el.containerVideoFit || "cover",
-                  objectPosition: el.containerVideoPosition || "center",
-                }}
-              />
-              {el.containerVideoOverlay && (
-                <div className="absolute inset-0" style={{ backgroundColor: el.containerVideoOverlay }} />
-              )}
-            </div>
-          )}
-
-          {/* F-218: Background Slideshow Layer */}
-          {(el.containerBgType === "slideshow" || (el.containerSlideshowImages && el.containerSlideshowImages.length > 0)) && (
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              {el.containerSlideshowImages?.map((img, idx) => (
-                <img
-                  key={img.id || idx}
-                  src={img.url}
-                  alt="Background Slide"
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                  style={{ opacity: 1 }}
-                />
-              )) || (
-                <img
-                  src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80"
-                  alt="Background Slide"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              )}
-              {el.containerSlideshowOverlay && (
-                <div className="absolute inset-0 z-1" style={{ backgroundColor: el.containerSlideshowOverlay }} />
-              )}
-            </div>
-          )}
-
-          {!isSelected && !isPreview && (
-            <span className="absolute top-1 left-2 text-[9px] font-bold text-slate-300 uppercase pointer-events-none select-none z-10">
-              Container
-            </span>
-          )}
-
-          {isSelected && (
-            <div className="absolute -top-3.5 right-3 z-30 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow">
-              {path && path.length > 1 ? (
-                <span className="flex items-center gap-1">
-                  {path.map((item, idx) => (
-                    <span key={item.id} className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedId(item.id);
-                        }}
-                        className={`capitalize hover:underline ${
-                          item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                        }`}
-                      >
-                        {item.type}
-                      </button>
-                      {idx < path.length - 1 && <span>›</span>}
-                    </span>
-                  ))}
-                </span>
-              ) : (
-                <span>Container</span>
-              )}
-              <span>•</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReorderElement(el.id, "up");
-                }}
-                className="hover:underline"
-                title="Move Section Up"
-              >
-                ▲
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleReorderElement(el.id, "down");
-                }}
-                className="hover:underline"
-                title="Move Section Down"
-              >
-                ▼
-              </button>
-              <span>•</span>
-              <button
-                onClick={(e) => handleCopyElement(el.id, e)}
-                className="hover:underline"
-              >
-                Copy
-              </button>
-              <span>•</span>
-              <button
-                onClick={(e) => handleCopyStyle(el.id, e)}
-                className="hover:underline"
-                title="Copy Element Style"
-              >
-                Copy Style
-              </button>
-              {copiedStyles && (
-                <>
-                  <span>•</span>
-                  <button
-                    onClick={(e) => handlePasteStyle(el.id, e)}
-                    className="hover:underline text-emerald-200 hover:text-white"
-                    title="Paste Copied Style"
-                  >
-                    Paste Style
-                  </button>
-                </>
-              )}
-              <span>•</span>
-              <button
-                onClick={(e) => handleDuplicateElement(el.id, e)}
-                className="hover:underline"
-              >
-                Duplicate
-              </button>
-              <span>•</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSaveAsComponent(el.id);
-                }}
-                className={`hover:underline ${
-                  el.isComponent ? "text-purple-200 font-bold" : "text-blue-100"
-                }`}
-                title={el.isComponent ? `Component: ${el.componentName}` : "Save as Reusable Component"}
-              >
-                {el.isComponent ? "Component 🧩" : "Save Comp"}
-              </button>
-              <span>•</span>
-              <button
-                onClick={(e) => handleDeleteElement(el.id, e)}
-                className="hover:underline text-red-200 hover:text-white"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-
-          {(!el.children || el.children.length === 0) && !isPreview ? (
-            <div className="flex w-full flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center">
-              <span className="text-xs font-bold text-slate-500">Empty Container</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">
-                Click an element on the left panel to add inside
-              </span>
-            </div>
-          ) : (
-            el.children?.map((child) => renderElementTree(child))
-          )}
-        </div>
-      );
-    }
-
-    const path = isSelected ? getElementBreadcrumbPath(elements, el.id) : null;
-
-    const isHovered = hoveredId === el.id && !isSelected && !isPreview;
-    const isDropTarget = dropTargetId === el.id && !isPreview;
-
-    return (
-      <div
-        key={el.id}
-        id={el.customId || undefined}
-        {...customAttrProps}
-        data-el-id={el.id}
-        draggable={!isPreview}
-        onDragStart={(e) => {
-          e.stopPropagation();
-          e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
-          e.dataTransfer.effectAllowed = "move";
-          setDraggingId(el.id);
-        }}
-        onDragEnd={(e) => {
-          e.stopPropagation();
-          setDraggingId(null);
-          setDropTargetId(null);
-          setDropPosition(null);
-        }}
-        {...customAttrProps}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!isPreview) handleSelectElement(el.id, e);
-        }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!isPreview) {
-            handleSelectElement(el.id, e);
-            setContextMenu({ x: e.clientX, y: e.clientY, elementId: el.id });
-          }
-        }}
-        onMouseEnter={(e) => {
-          e.stopPropagation();
-          if (!isPreview) setHoveredId(el.id);
-        }}
-        onMouseLeave={(e) => {
-          e.stopPropagation();
-          if (!isPreview && hoveredId === el.id) setHoveredId(null);
-        }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
-          draggingId === el.id ? "opacity-50 scale-95" : ""
-        } ${
-          isPreview
-            ? ""
-            : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${
-          isSelected
-            ? "border-2 border-blue-500 p-2.5"
-            : isHovered
-            ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
-            : "p-2.5 border border-transparent"
-        } ${
-          isDropTarget && dropPosition === "before"
-            ? "border-t-4 border-t-blue-500"
-            : isDropTarget && dropPosition === "after"
-            ? "border-b-4 border-b-blue-500"
-            : ""
-        }`}
-        style={{
-          boxSizing: "border-box",
-          width: mergedStyles.width,
-          height: mergedStyles.height,
-          marginTop: mergedStyles.marginTop,
-          marginRight: mergedStyles.marginRight,
-          marginBottom: mergedStyles.marginBottom,
-          marginLeft: mergedStyles.marginLeft,
-          paddingTop: mergedStyles.paddingTop,
-          paddingRight: mergedStyles.paddingRight,
-          paddingBottom: mergedStyles.paddingBottom,
-          paddingLeft: mergedStyles.paddingLeft,
-          padding: mergedStyles.padding,
-          backgroundColor: el.containerBg ? el.containerBg : el.type === "button" ? "transparent" : undefined,
-          ...compileBackgroundAndBorderStyles(mergedStyles),
-          ...compilePositioningStyles(mergedStyles),
-          ...(el.type === "button" && el.containerBg ? { backgroundColor: el.containerBg } : {}),
-        }}
-      >
-        {isHovered && !isSelected && !isPreview && (
-          <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
-            {el.type}
-          </span>
-        )}
-
-        {isSelected && (
-          <div className="absolute -top-3.5 right-3 z-30 flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow">
-            {path && path.length > 1 ? (
-              <span className="flex items-center gap-1">
-                {path.map((item, idx) => (
-                  <span key={item.id} className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedId(item.id);
-                      }}
-                      className={`capitalize hover:underline ${
-                        item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                      }`}
-                    >
-                      {item.type}
-                    </button>
-                    {idx < path.length - 1 && <span>›</span>}
-                  </span>
-                ))}
-              </span>
-            ) : (
-              <span className="capitalize">{el.type}</span>
-            )}
-            <span>•</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReorderElement(el.id, "up");
-              }}
-              className="hover:underline"
-              title="Move Element Up"
-            >
-              ▲
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReorderElement(el.id, "down");
-              }}
-              className="hover:underline"
-              title="Move Element Down"
-            >
-              ▼
-            </button>
-            <span>•</span>
-            <button
-              onClick={(e) => handleCopyElement(el.id, e)}
-              className="hover:underline"
-            >
-              Copy
-            </button>
-            <span>•</span>
-            <button
-              onClick={(e) => handleCopyStyle(el.id, e)}
-              className="hover:underline"
-              title="Copy Element Style"
-            >
-              Copy Style
-            </button>
-            {copiedStyles && (
-              <>
-                <span>•</span>
-                <button
-                  onClick={(e) => handlePasteStyle(el.id, e)}
-                  className="hover:underline text-emerald-200 hover:text-white"
-                  title="Paste Copied Style"
-                >
-                  Paste Style
-                </button>
-              </>
-            )}
-            <span>•</span>
-            <button
-              onClick={(e) => handleDuplicateElement(el.id, e)}
-              className="hover:underline"
-            >
-              Duplicate
-            </button>
-            <span>•</span>
-            <button
-              onClick={(e) => handleDeleteElement(el.id, e)}
-              className="hover:underline text-red-200 hover:text-white"
-            >
-              Delete
-            </button>
-          </div>
-        )}
-
-        {/* Element Renderers */}
-        {el.type === "heading" && (() => {
-          const Tag = (el.headingLevel || "h2") as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-          return (
-            <Tag
-              id={`heading-${el.id}`}
-              contentEditable={!isPreview}
-              suppressContentEditableWarning
-              onFocus={() => handleSelectElement(el.id)}
-              onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-              className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
-              style={{
-                margin: 0,
-                padding: 0,
-                boxSizing: "border-box",
-                outline: "none",
-                color: mergedStyles.color || "#0f172a",
-                fontSize: mergedStyles.fontSize || (el.headingLevel === "h1" ? "36px" : el.headingLevel === "h3" ? "24px" : el.headingLevel === "h4" ? "20px" : el.headingLevel === "h5" ? "16px" : el.headingLevel === "h6" ? "14px" : "32px"),
-                fontWeight: mergedStyles.fontWeight || "700",
-                textAlign: mergedStyles.textAlign || "left",
-                lineHeight: mergedStyles.lineHeight || "1.2",
-                fontFamily: mergedStyles.fontFamily,
-                fontStyle: mergedStyles.fontStyle,
-                textTransform: mergedStyles.textTransform,
-                textDecoration: mergedStyles.textDecoration,
-                letterSpacing: mergedStyles.letterSpacing,
-                textShadow: mergedStyles.textShadow,
-              }}
-            >
-              {el.content}
-            </Tag>
-          );
-        })()}
-
-        {el.type === "text" && (
-          <p
-            contentEditable={!isPreview}
-            suppressContentEditableWarning
-            onFocus={() => handleSelectElement(el.id)}
-            onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-            className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
-            style={{
-              margin: 0,
-              padding: 0,
-              boxSizing: "border-box",
-              outline: "none",
-              color: mergedStyles.color || "#475569",
-              fontSize: mergedStyles.fontSize || "16px",
-              fontWeight: mergedStyles.fontWeight || "400",
-              textAlign: mergedStyles.textAlign || "left",
-              lineHeight: mergedStyles.lineHeight || "1.6",
-              fontFamily: mergedStyles.fontFamily,
-              fontStyle: mergedStyles.fontStyle,
-              textTransform: mergedStyles.textTransform,
-              textDecoration: mergedStyles.textDecoration,
-              letterSpacing: mergedStyles.letterSpacing,
-              textShadow: mergedStyles.textShadow,
-            }}
-          >
-            {el.content}
-          </p>
-        )}
-
-        {el.type === "video" && (
-          <div
-            style={{
-              textAlign: mergedStyles.textAlign || "left",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            {(() => {
-              const srcUrl = el.src?.trim() || "";
-              if (!srcUrl) {
-                return (
-                  <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 py-10 px-6 text-center transition hover:border-blue-400">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-bold">
-                      🎬
-                    </div>
-                    <h4 className="mt-3 text-xs font-bold text-slate-700">
-                      No video selected
-                    </h4>
-                    <p className="mt-1 text-[11px] text-slate-400 mb-4 max-w-xs">
-                      Enter a YouTube, Vimeo, or HTML5 video link, or upload a video file
-                    </p>
-                    {!isPreview && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectElement(el.id);
-                          triggerImagePicker((url) => {
-                            setElements((prev) =>
-                              updateTreeElement(prev, el.id, (item) => ({ ...item, src: url }))
-                            );
-                          });
-                        }}
-                        className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition cursor-pointer flex items-center gap-1.5"
-                      >
-                        <span>🎬</span> Select Video
-                      </button>
-                    )}
-                  </div>
-                );
-              }
-
-              const ytId = getYouTubeId(srcUrl);
-              const vimeoId = getVimeoId(srcUrl);
-              const isControls = el.videoControls !== false;
-              const isAutoplay = Boolean(el.videoAutoplay);
-              const isLoop = Boolean(el.videoLoop);
-              const isMuted = Boolean(el.videoMuted);
-
-              const alignMarginLeft =
-                mergedStyles.textAlign === "center"
-                  ? "auto"
-                  : mergedStyles.textAlign === "right"
-                  ? "auto"
-                  : "0";
-              const alignMarginRight =
-                mergedStyles.textAlign === "center"
-                  ? "auto"
-                  : mergedStyles.textAlign === "left"
-                  ? "auto"
-                  : "0";
-
-              const containerStyle: React.CSSProperties = {
-                width: mergedStyles.width || "100%",
-                maxWidth: "100%",
-                height: mergedStyles.height && mergedStyles.height !== "auto" ? mergedStyles.height : undefined,
-                borderRadius: mergedStyles.borderRadius || "8px",
-                overflow: "hidden",
-                boxSizing: "border-box",
-                marginLeft: alignMarginLeft,
-                marginRight: alignMarginRight,
-                ...compileBackgroundAndBorderStyles(mergedStyles),
-              };
-
-              if (ytId) {
-                const embedParams = new URLSearchParams({
-                  autoplay: isAutoplay ? "1" : "0",
-                  controls: isControls ? "1" : "0",
-                  loop: isLoop ? "1" : "0",
-                  mute: isMuted ? "1" : "0",
-                  playlist: isLoop ? ytId : "",
-                }).toString();
-
-                return (
-                  <div style={containerStyle} className="inline-block shadow-sm">
-                    <div className="relative w-full aspect-video bg-black overflow-hidden rounded-[inherit]">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${ytId}?${embedParams}`}
-                        title="YouTube video player"
-                        className="absolute inset-0 w-full h-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  </div>
-                );
-              }
-
-              if (vimeoId) {
-                const embedParams = new URLSearchParams({
-                  autoplay: isAutoplay ? "1" : "0",
-                  controls: isControls ? "1" : "0",
-                  loop: isLoop ? "1" : "0",
-                  muted: isMuted ? "1" : "0",
-                }).toString();
-
-                return (
-                  <div style={containerStyle} className="inline-block shadow-sm">
-                    <div className="relative w-full aspect-video bg-black overflow-hidden rounded-[inherit]">
-                      <iframe
-                        src={`https://player.vimeo.com/video/${vimeoId}?${embedParams}`}
-                        title="Vimeo video player"
-                        className="absolute inset-0 w-full h-full border-0"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  </div>
-                );
-              }
-
-              // Direct Video / HTML5 Video file fallback
-              return (
-                <div style={containerStyle} className="inline-block shadow-sm">
-                  <video
-                    src={resolveImageUrl(srcUrl, apiUrl)}
-                    poster={el.videoPoster ? resolveImageUrl(el.videoPoster, apiUrl) : undefined}
-                    controls={isControls}
-                    autoPlay={isAutoplay}
-                    loop={isLoop}
-                    muted={isMuted}
-                    playsInline
-                    className="w-full h-full object-cover rounded-[inherit]"
-                    style={{
-                      maxHeight: mergedStyles.height && mergedStyles.height !== "auto" ? mergedStyles.height : "500px",
-                    }}
-                  >
-                    Your browser does not support HTML5 video playback.
-                  </video>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        {el.type === "video-playlist" && (
-          <div
-            style={{
-              textAlign: mergedStyles.textAlign || "left",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            {(() => {
-              const items = el.playlistItems || [];
-              if (items.length === 0) {
-                return (
-                  <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 py-10 px-6 text-center transition hover:border-blue-400">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-bold">
-                      📺
-                    </div>
-                    <h4 className="mt-3 text-xs font-bold text-slate-700">
-                      No video playlist items
-                    </h4>
-                    <p className="mt-1 text-[11px] text-slate-400 mb-4 max-w-xs">
-                      Add videos to this playlist from the properties sidebar
-                    </p>
-                    {!isPreview && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectElement(el.id);
-                        }}
-                        className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
-                      >
-                        Manage Playlist
-                      </button>
-                    )}
-                  </div>
-                );
-              }
-
-              // Determine active item
-              const activeIndex = Math.max(
-                0,
-                items.findIndex((item) => item.id === el.playlistActiveId)
-              );
-              const activeItem = items[activeIndex] || items[0];
-              const isRightPosition = (el.playlistPosition || "right") === "right";
-              const playerWidthPercentage = el.playlistPlayerWidth || "65%";
-
-              // Navigation Handlers
-              const handlePrev = (e: React.MouseEvent) => {
-                e.stopPropagation();
-                const prevIndex = (activeIndex - 1 + items.length) % items.length;
-                const prevItem = items[prevIndex];
-                if (prevItem) {
-                  setElements((prev) =>
-                    updateTreeElement(prev, el.id, (item) => ({ ...item, playlistActiveId: prevItem.id }))
-                  );
-                }
-              };
-
-              const handleNext = (e: React.MouseEvent) => {
-                e.stopPropagation();
-                const nextIndex = (activeIndex + 1) % items.length;
-                const nextItem = items[nextIndex];
-                if (nextItem) {
-                  setElements((prev) =>
-                    updateTreeElement(prev, el.id, (item) => ({ ...item, playlistActiveId: nextItem.id }))
-                  );
-                }
-              };
-
-              const handleSelectItem = (itemId: string, e: React.MouseEvent) => {
-                e.stopPropagation();
-                setElements((prev) =>
-                  updateTreeElement(prev, el.id, (item) => ({ ...item, playlistActiveId: itemId }))
-                );
-              };
-
-              // Helper for embedding active video
-              const renderActivePlayer = () => {
-                const srcUrl = (activeItem?.url || activeItem?.videoUrl || "").trim();
-                const posterUrl = activeItem?.thumbnailUrl || activeItem?.thumbnail;
-                const ytId = getYouTubeId(srcUrl);
-                const vimeoId = getVimeoId(srcUrl);
-
-                if (!srcUrl) {
-                  return (
-                    <div className="flex h-full min-h-[240px] flex-col items-center justify-center bg-slate-900 text-slate-400 p-6 text-center">
-                      <span className="text-2xl mb-2">🎬</span>
-                      <p className="text-xs font-medium">No video URL provided for this item</p>
-                    </div>
-                  );
-                }
-
-                if (ytId) {
-                  return (
-                    <div className="relative w-full aspect-video bg-black overflow-hidden">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&controls=1`}
-                        title={activeItem.title}
-                        className="absolute inset-0 w-full h-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  );
-                }
-
-                if (vimeoId) {
-                  return (
-                    <div className="relative w-full aspect-video bg-black overflow-hidden">
-                      <iframe
-                        src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&controls=1`}
-                        title={activeItem.title}
-                        className="absolute inset-0 w-full h-full border-0"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className="relative w-full aspect-video bg-black overflow-hidden">
-                    <video
-                      src={resolveImageUrl(srcUrl, apiUrl)}
-                      poster={posterUrl ? resolveImageUrl(posterUrl, apiUrl) : undefined}
-                      controls
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                    >
-                      Your browser does not support HTML5 video playback.
-                    </video>
-                  </div>
-                );
-              };
-
-              return (
-                <div
-                  style={{
-                    width: mergedStyles.width || "100%",
-                    borderRadius: mergedStyles.borderRadius || "12px",
-                    overflow: "hidden",
-                    boxSizing: "border-box",
-                    ...compileBackgroundAndBorderStyles(mergedStyles),
-                  }}
-                  className="border border-slate-200 bg-white shadow-md"
-                >
-                  {/* Playlist Layout Container */}
-                  <div
-                    className={
-                      isRightPosition
-                        ? "flex flex-col md:flex-row items-stretch overflow-hidden"
-                        : "flex flex-col overflow-hidden"
-                    }
-                  >
-                    {/* Player Section */}
-                    <div
-                      style={{
-                        width: isRightPosition ? playerWidthPercentage : "100%",
-                      }}
-                      className="flex-1 shrink-0 bg-slate-950 flex flex-col justify-between"
-                    >
-                      {/* Player Top Header Bar */}
-                      <div className="flex items-center justify-between bg-slate-900/90 px-4 py-2.5 text-white border-b border-slate-800 shrink-0">
-                        <div className="flex items-center gap-2 overflow-hidden mr-2">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                            {activeIndex + 1}
-                          </span>
-                          <h4 className="truncate text-xs font-semibold text-slate-100">
-                            {activeItem.title || "Untitled Video"}
-                          </h4>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            type="button"
-                            onClick={handlePrev}
-                            title="Previous Video"
-                            className="rounded px-2 py-1 text-[11px] font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-1"
-                          >
-                            <span>◀</span>
-                            <span className="hidden sm:inline">Prev</span>
-                          </button>
-                          <span className="text-[10px] text-slate-500 px-1">
-                            {activeIndex + 1}/{items.length}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={handleNext}
-                            title="Next Video"
-                            className="rounded px-2 py-1 text-[11px] font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-1"
-                          >
-                            <span className="hidden sm:inline">Next</span>
-                            <span>▶</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Video Embed Player */}
-                      {renderActivePlayer()}
-                    </div>
-
-                    {/* Playlist Sidebar / Bottom List */}
-                    <div
-                      style={{
-                        width: isRightPosition ? `calc(100% - ${playerWidthPercentage})` : "100%",
-                      }}
-                      className={
-                        isRightPosition
-                          ? "flex flex-col border-t md:border-t-0 md:border-l border-slate-200 bg-slate-50 max-h-[460px]"
-                          : "flex flex-col border-t border-slate-200 bg-slate-50 max-h-[320px]"
-                      }
-                    >
-                      {/* Sidebar Header */}
-                      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shrink-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">📺</span>
-                          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                            Playlist ({items.length})
-                          </h4>
-                        </div>
-                        <span className="text-[10px] font-semibold text-slate-400">
-                          Now Playing: #{activeIndex + 1}
-                        </span>
-                      </div>
-
-                      {/* Playlist Items List */}
-                      <div className="flex-1 overflow-y-auto divide-y divide-slate-200/80 p-1 space-y-1">
-                        {items.map((item, idx) => {
-                          const isActive = item.id === (el.playlistActiveId || items[0]?.id);
-                          return (
-                            <button
-                              key={item.id || idx}
-                              type="button"
-                              onClick={(e) => handleSelectItem(item.id, e)}
-                              className={`w-full text-left p-2.5 rounded-lg transition flex items-center gap-3 group ${
-                                isActive
-                                  ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
-                                  : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                              }`}
-                            >
-                              {/* Item Index / Active Icon */}
-                              <div
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold ${
-                                  isActive
-                                    ? "bg-white/20 text-white"
-                                    : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
-                                }`}
-                              >
-                                {isActive ? "▶" : String(idx + 1).padStart(2, "0")}
-                              </div>
-
-                              {/* Thumbnail preview if available */}
-                              {item.thumbnailUrl && (
-                                <img
-                                  src={resolveImageUrl(item.thumbnailUrl, apiUrl)}
-                                  alt={item.title}
-                                  className="h-9 w-14 object-cover rounded border border-black/10 shrink-0"
-                                />
-                              )}
-
-                              {/* Title & Duration */}
-                              <div className="flex-1 min-w-0">
-                                <h5
-                                  className={`truncate text-xs font-semibold ${
-                                    isActive ? "text-white" : "text-slate-800 group-hover:text-blue-600"
-                                  }`}
-                                >
-                                  {item.title || `Video ${idx + 1}`}
-                                </h5>
-                                {item.duration && (
-                                  <span
-                                    className={`text-[10px] font-mono ${
-                                      isActive ? "text-blue-100" : "text-slate-400"
-                                    }`}
-                                  >
-                                    ⏱️ {item.duration}
-                                  </span>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        {el.type === "image" && (() => {
-          const getMaskClipPath = (shape?: string) => {
-            switch (shape) {
-              case "circle": return "circle(50% at 50% 50%)";
-              case "rounded": return "inset(0 round 20%)";
-              case "blob": return "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)";
-              case "hexagon": return "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
-              case "star": return "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
-              case "diamond": return "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
-              case "squircle": return "inset(0 round 35%)";
-              case "heart": return "polygon(50% 15%, 65% 0%, 85% 0%, 100% 15%, 100% 35%, 50% 90%, 0% 35%, 0% 15%, 15% 0%, 35% 0%)";
-              default: return undefined;
-            }
-          };
-
-          return (
-            <div
-              style={{
-                textAlign: mergedStyles.textAlign || "left",
-                width: "100%",
-                boxSizing: "border-box",
-              }}
-            >
-              {el.src ? (
-                <img
-                  src={resolveImageUrl(el.src, apiUrl)}
-                  alt={el.alt || "Uploaded Image"}
-                  className="inline-block max-w-full"
-                  style={{
-                    display: "block",
-                    width: mergedStyles.width || "100%",
-                    height: mergedStyles.height || "auto",
-                    objectFit: (mergedStyles.objectFit as any) || "cover",
-                    objectPosition: mergedStyles.objectPosition || "center",
-                    opacity: mergedStyles.opacity !== undefined ? Number(mergedStyles.opacity) : 1,
-                    borderRadius: mergedStyles.borderRadius || "8px",
-                    boxSizing: "border-box",
-                    clipPath: getMaskClipPath(el.imageMaskShape),
-                    marginLeft:
-                      mergedStyles.textAlign === "center"
-                        ? "auto"
-                        : mergedStyles.textAlign === "right"
-                        ? "auto"
-                        : "0",
-                    marginRight:
-                      mergedStyles.textAlign === "center"
-                        ? "auto"
-                        : mergedStyles.textAlign === "left"
-                        ? "auto"
-                        : "0",
-                    ...compileBackgroundAndBorderStyles(mergedStyles),
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 py-8 px-6 text-center transition hover:border-blue-400">
-                  <EmptyPictureIcon />
-                  <h4 className="mt-3 text-xs font-bold text-slate-700">
-                    No image selected
-                  </h4>
-                  <p className="mt-1 text-[11px] text-slate-400 mb-3">
-                    Select or upload an image for this widget
-                  </p>
-                  {!isPreview && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectElement(el.id);
-                        triggerImagePicker((url) => {
-                          setElements((prev) =>
-                            updateTreeElement(prev, el.id, (item) => ({ ...item, src: url }))
-                          );
-                        });
-                      }}
-                      className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>📁</span> Select Image
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {el.type === "button" && (() => {
-          const resolvedHref = resolveButtonHref(el, pages);
-          const target = el.target || "_self";
-          const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
-          const isDownload = el.download;
-
-          const iconName = el.iconName || el.icon || "";
-          const iconPos = el.iconPosition || "left";
-          const gap = el.iconGap ?? el.iconSpacing ?? 8;
-          const iconSize = el.iconSize || 18;
-          const iconColor = el.iconColor || el.buttonColor || "#ffffff";
-          const textLabel = el.content || el.buttonText || "Button";
-
-          const isFlexCol = iconPos === "top" || iconPos === "bottom";
-          const isReverse = iconPos === "right" || iconPos === "bottom";
-
-          const renderIcon = iconName ? (
-            <IconRenderer
-              iconName={iconName}
-              size={iconSize}
-              color={iconColor}
-              rotate={el.iconRotate || 0}
-              flipH={Boolean(el.iconFlipH)}
-              flipV={Boolean(el.iconFlipV)}
-              strokeWidth={el.iconStrokeWidth || 2}
-            />
-          ) : null;
-
-          return (
-            <div style={{ textAlign: mergedStyles.textAlign || "left", width: "100%", boxSizing: "border-box" }}>
-              <a
-                href={resolvedHref}
-                target={target}
-                rel={rel}
-                download={isDownload ? true : undefined}
-                contentEditable={!isPreview}
-                suppressContentEditableWarning
-                onFocus={() => handleSelectElement(el.id)}
-                onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-                onClick={(e) => {
-                  if (!isPreview) {
-                    e.preventDefault();
-                    return;
-                  }
-
-                  // Preview Mode navigation handler
-                  let targetPage: PageConfig | undefined;
-
-                  if (el.pageId) {
-                    targetPage = pages.find((p) => p.id === el.pageId);
-                  }
-                  if (!targetPage && resolvedHref) {
-                    const clean = resolvedHref.replace(/^\//, "");
-                    targetPage = pages.find(
-                      (p) => p.slug === resolvedHref || p.slug === clean || p.id === clean || (resolvedHref === "/" && (p.isHome || p.id === "home"))
-                    );
-                  }
-
-                  if (targetPage && target !== "_blank") {
-                    e.preventDefault();
-                    handlePreviewPageNavigate(targetPage);
-                  } else if (resolvedHref.startsWith("popup:open(")) {
-                    e.preventDefault();
-                    const popupId = resolvedHref.match(/popup:open\(([^)]+)\)/)?.[1];
-                    if (popupId) setActivePopupId(popupId);
-                  } else if (resolvedHref === "popup:close") {
-                    e.preventDefault();
-                    setActivePopupId(null);
-                  } else if (resolvedHref === "scroll:to(top)") {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  } else if (resolvedHref.startsWith("scroll:to(")) {
-                    e.preventDefault();
-                    const targetId = resolvedHref.match(/scroll:to\(([^)]+)\)/)?.[1];
-                    if (targetId) {
-                      const targetEl = document.getElementById(targetId);
-                      targetEl?.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }
-                }}
-                className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
-                style={{
-                  backgroundColor: el.buttonBg || "#2563eb",
-                  color: el.buttonColor || "#ffffff",
-                  fontSize: mergedStyles.fontSize,
-                  fontFamily: mergedStyles.fontFamily,
-                  fontWeight: mergedStyles.fontWeight,
-                  borderRadius: mergedStyles.borderRadius || "8px",
-                  boxShadow: mergedStyles.boxShadow,
-                }}
-                {...customAttrProps}
-              >
-                <span
-                  className={`inline-flex items-center justify-center ${
-                    isFlexCol ? "flex-col" : "flex-row"
-                  } ${isReverse ? "flex-col-reverse" : ""}`}
-                  style={{ gap: `${gap}px` }}
-                >
-                  {!isReverse && renderIcon}
-                  <span>{textLabel}</span>
-                  {isReverse && renderIcon}
-                </span>
-              </a>
-            </div>
-          );
-        })()}
-
-        {el.type === "posts" && (() => {
-          const postsList = el.posts && el.posts.length > 0 ? el.posts : [];
-          const columns = el.postsColumns || 3;
-          const gap = el.postsGap ?? 20;
-          const imageHeight = el.postsImageHeight || "180px";
-          const align = el.postsAlignment || "left";
-          const showImage = el.postsShowImage !== false;
-          const showDate = el.postsShowDate !== false;
-          const showExcerpt = el.postsShowExcerpt !== false;
-          const showReadMore = el.postsShowReadMore !== false;
-
-          let gridColsStyle: React.CSSProperties = {};
-          if (activeDevice === "mobile") {
-            gridColsStyle = { gridTemplateColumns: "repeat(1, minmax(0, 1fr))" };
-          } else if (activeDevice === "tablet") {
-            gridColsStyle = { gridTemplateColumns: `repeat(${Math.min(columns, 2)}, minmax(0, 1fr))` };
-          } else {
-            gridColsStyle = { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` };
-          }
-
-          return (
-            <div style={{ width: "100%", boxSizing: "border-box" }}>
-              {postsList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-8 text-center bg-slate-50/50">
-                  <p className="text-xs font-bold text-slate-600">No Posts Configured</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Use the right properties panel to add blog posts.</p>
-                </div>
-              ) : (
-                <div
-                  className="grid"
-                  style={{ gap: `${gap}px`, ...gridColsStyle }}
-                >
-                  {postsList.map((post) => (
-                    <article
-                      key={post.id}
-                      className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs transition hover:shadow-md hover:-translate-y-0.5"
-                      style={{ textAlign: align }}
-                    >
-                      {showImage && post.image && (
-                        <div className="relative overflow-hidden bg-slate-100" style={{ height: imageHeight }}>
-                          <img
-                            src={resolveImageUrl(post.image, apiUrl)}
-                            alt={post.title}
-                            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                      <div className="flex flex-1 flex-col p-5">
-                        {showDate && (post.date || post.author) && (
-                          <div className="mb-2 flex items-center text-[11px] font-medium text-slate-400 gap-2">
-                            {post.date && <span>{post.date}</span>}
-                            {post.date && post.author && <span>•</span>}
-                            {post.author && <span>By {post.author}</span>}
-                          </div>
-                        )}
-                        <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition mb-2">
-                          {post.title}
-                        </h3>
-                        {showExcerpt && post.excerpt && (
-                          <p className="text-xs text-slate-600 leading-relaxed flex-1 mb-4">
-                            {post.excerpt}
-                          </p>
-                        )}
-                        {showReadMore && (
-                          <div className="mt-auto">
-                            <a
-                              href={post.readMoreUrl || "#"}
-                              onClick={(e) => {
-                                if (!isPreview) e.preventDefault();
-                              }}
-                              className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800 transition gap-1"
-                            >
-                              <span>{post.readMoreText || "Read More →"}</span>
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {el.type === "share-buttons" && (
-          <ShareButtonsWidgetRenderer
-            el={el}
-            isPreview={isPreview}
-            mergedStyles={mergedStyles}
-            pages={pages}
-            activePageId={isPreview ? activePreviewPageId : activePageId}
-          />
-        )}
-
-        {el.type === "portfolio" && (() => {
-          const items = el.portfolioItems && el.portfolioItems.length > 0 ? el.portfolioItems : [];
-          const columns = el.portfolioColumns || 3;
-          const gap = el.portfolioGap ?? 24;
-          const imageHeight = el.portfolioImageHeight || "240px";
-          const align = el.portfolioAlignment || "left";
-          const showCategory = el.portfolioShowCategory !== false;
-          const showDescription = el.portfolioShowDescription !== false;
-          const showLink = el.portfolioShowLink !== false;
-
-          let colClass = "grid-cols-3";
-          if (columns === 1) colClass = "grid-cols-1";
-          else if (columns === 2) colClass = "grid-cols-1 md:grid-cols-2";
-          else if (columns === 3) colClass = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
-          else if (columns === 4) colClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
-
-          if (activeDevice === "mobile") colClass = "grid-cols-1";
-          else if (activeDevice === "tablet" && columns > 2) colClass = "grid-cols-2";
-
-          const textAlignClass = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
-          const flexJustifyClass = align === "center" ? "justify-center" : align === "right" ? "justify-end" : "justify-start";
-
-          return (
-            <div style={{ width: "100%", boxSizing: "border-box" }}>
-              {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-8 text-center bg-slate-50/50">
-                  <p className="text-sm font-bold text-slate-600">No Portfolio Items Created</p>
-                  <p className="text-xs text-slate-400 mt-1">Use the right properties panel to add projects & works.</p>
-                </div>
-              ) : (
-                <div
-                  className={`grid ${colClass}`}
-                  style={{ gap: `${gap}px` }}
-                >
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300"
-                    >
-                      {/* Image Thumbnail with Overlay */}
-                      <div
-                        className="relative overflow-hidden bg-slate-100"
-                        style={{ height: imageHeight }}
-                      >
-                        <img
-                          src={item.image || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&auto=format&fit=crop&q=80"}
-                          alt={item.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {showCategory && item.category && (
-                          <div className="absolute top-3 left-3">
-                            <span className="inline-block rounded-full bg-slate-900/80 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
-                              {item.category}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content Card */}
-                      <div className={`flex flex-col flex-1 p-5 ${textAlignClass}`}>
-                        <h4
-                          className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition"
-                          style={{ fontFamily: mergedStyles.fontFamily }}
-                        >
-                          {item.title}
-                        </h4>
-
-                        {showDescription && item.description && (
-                          <p
-                            className="mt-2 text-xs text-slate-600 leading-relaxed flex-1 line-clamp-3"
-                            style={{ fontFamily: mergedStyles.fontFamily }}
-                          >
-                            {item.description}
-                          </p>
-                        )}
-
-                        {showLink && (
-                          <div className={`mt-4 flex items-center ${flexJustifyClass}`}>
-                            <a
-                              href={item.url || "#"}
-                              onClick={(e) => {
-                                if (!isPreview) e.preventDefault();
-                              }}
-                              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition"
-                            >
-                              <span>View Project</span>
-                              <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                                <polyline points="12 5 19 12 12 19" />
-                              </svg>
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {el.type === "slides" && (
-          <SlidesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "form" && (
-          <FormWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "login" && (
-          <LoginWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "nav-menu" && (
-          <NavMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} homePageId={homePageId} />
-        )}
-
-        {el.type === "animated-headline" && (
-          <AnimatedHeadlineWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "price-table" && (
-          <PriceTableWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "price-list" && (
-          <PriceListWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "gallery" && (
-          <GalleryWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "flip-box" && (
-          <FlipBoxWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "call-to-action" && (
-          <CtaWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "media-carousel" && (
-          <MediaCarouselWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "testimonial-carousel" && (
-          <TestimonialCarouselWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "nested-carousel" && (
-          <NestedCarouselWidgetRenderer
-            el={el}
-            isPreview={isPreview}
-            mergedStyles={mergedStyles}
-            renderElementTree={renderElementTree}
-          />
-        )}
-
-        {el.type === "loop-carousel" && (
-          <LoopCarouselWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "image-carousel" && (
-          <ImageCarouselWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "table-of-contents" && (
-          <TocWidgetRenderer el={el} elements={elements} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "countdown" && (
-          <CountdownWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {(el.type === "facebook-page" || el.type === "facebook-button" || el.type === "facebook-embed" || el.type === "facebook-comments") && (
-          <FacebookPageWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "blockquote" && (
-          <BlockquoteWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "template" && (
-          <TemplateWidgetRenderer
-            el={el}
-            components={components}
-            onUnpackTemplate={handleUnpackTemplate}
-            onSelectTemplate={handleSelectTemplate}
-            isPreview={isPreview}
-            mergedStyles={mergedStyles}
-          />
-        )}
-
-        {el.type === "reviews" && (
-          <ReviewsWidgetRenderer
-            el={el}
-            isPreview={isPreview}
-            mergedStyles={mergedStyles}
-            onUpdateElement={(updatedEl) => {
-              const updateRecursive = (list: EditorElement[]): EditorElement[] => {
-                return list.map((item) => {
-                  if (item.id === updatedEl.id) return updatedEl;
-                  if (item.children) return { ...item, children: updateRecursive(item.children) };
-                  return item;
-                });
-              };
-              setElements((prev) => updateRecursive(prev));
-            }}
-          />
-        )}
-
-        {el.type === "paypal-button" && (
-          <PayPalButtonWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "stripe-button" && (
-          <StripeButtonWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "lottie" && (
-          <LottieWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "code-highlight" && (
-          <CodeHighlightWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {(el.type === "search-bar" || el.type === "site-search" || el.type === "search-form") && (
-          <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "import-asset" && (
-          <ImportAssetWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "reusable-components" && (
-          <ReusableComponentWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {(el.type === "favorite-widgets" || (el.type as string) === "favorite") && (
-          <FavoriteWidgetsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-
-        {el.type === "basic-media-carousel" && (
-          <BasicMediaCarouselWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "basic-gallery" && (
-          <BasicGalleryWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "audio-playlist" && (
-          <AudioPlaylistWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "dynamic-lightbox" && (
-          <DynamicLightboxWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "custom-svg" && (
-          <CustomSvgWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "icon-library" && (
-          <IconLibraryWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "mega-menu" && (
-          <MegaMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "off-canvas" && (
-          <OffCanvasWidgetRenderer
-            el={el}
-            isPreview={isPreview}
-            mergedStyles={mergedStyles}
-            renderChildren={(childElements) =>
-              (childElements || []).map((child) => renderElementTree(child))
-            }
-          />
-        )}
-
-        {el.type === "wc-product-title" && (
-          <WcProductTitleWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "wc-product-price" && (
-          <WcProductPriceWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "wc-product-images" && (
-          <WcProductImagesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "wc-add-to-cart" && (
-          <WcAddToCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "wc-product-rating" && (
-          <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-        )}
-
-        {el.type === "html" && (
-          <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block</p>" }} className="w-full h-full" />
-        )}
-
-        {el.type === "shortcode" && (
-          <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs font-mono text-amber-800 text-center break-all transition">
-            {el.content ? `[ ${el.content} ]` : "Enter Shortcode here"}
-            <div className="opacity-60 text-[9px] mt-1 uppercase font-bold tracking-wider">Renders Dynamically on Publish</div>
-          </div>
-        )}
-      </div>
-    );
-  };
+  /**
+   * Render Element Tree.
+   * @param el El supplied to this operation (type: EditorElement).
+   */
+  const renderElementTree = createCanvasRenderer({
+    selectedIds,
+    selectedId,
+    isPreview,
+    activeElementState,
+    activeDevice,
+    hoveredId,
+    elements,
+    dropTargetId,
+    setDraggingId,
+    setDropTargetId,
+    setDropPosition,
+    handleSelectElement,
+    setContextMenu,
+    compileBackgroundAndBorderStyles,
+    compilePositioningStyles,
+    setSelectedId,
+    handleReorderElement,
+    handleCopyElement,
+    handleCopyStyle,
+    copiedStyles,
+    handlePasteStyle,
+    handleDuplicateElement,
+    handleSaveAsComponent,
+    handleDeleteElement,
+    setHoveredId,
+    draggingId,
+    dropPosition,
+    updateElementContent,
+    setElements,
+    getYouTubeId,
+    getVimeoId,
+    apiUrl,
+    pages,
+    handlePreviewPageNavigate,
+    setActivePopupId,
+    activePreviewPageId,
+    activePageId,
+    homePageId,
+    components,
+    handleUnpackTemplate,
+    handleSelectTemplate,
+  });
 
   // Render Loader
   if (loading) {
@@ -6014,6 +4034,8 @@ const navigate = useNavigate();
                 )}
 
                 {/* Status Messages */}
+                <AutosaveStatusIndicator status={autosaveStatus} lastSavedAt={autosaveLastSavedAt} errorMessage={autosaveError} />
+                <DraftRecoveryTools accountId={signedInUser?.id} websiteId={websiteId} apiUrl={apiUrl} currentDocument={currentDraftDocument} />
                 {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0">✓ {saveMessage}</span>}
                 {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0">{errorMessage}</span>}
 

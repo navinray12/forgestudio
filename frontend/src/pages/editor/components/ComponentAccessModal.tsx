@@ -1,3 +1,7 @@
+/**
+ * @file Component Access Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState } from "react";
 import type { EditorElement } from "../WebsiteEditor";
 
@@ -23,12 +27,27 @@ interface ComponentAccessModalProps {
     onUpdateElement: (id: string, updates: Partial<EditorElement>) => void;
 }
 
+/**
+ * Render the component access modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, _websiteId, _apiUrl, elements, onUpdateElement.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.websiteId Website Id passed by the caller.
+ * @param options.apiUrl Api Url passed by the caller.
+ * @param options.elements Elements passed by the caller.
+ * @param options.onUpdateElement Callback for update element events.
+ */
 export default function ComponentAccessModal({ isOpen, onClose, websiteId: _websiteId, apiUrl: _apiUrl, elements, onUpdateElement }: ComponentAccessModalProps) {
     const [search, setSearch] = useState("");
     const [_accessData, _setAccessData] = useState<Record<string, AccessRecord[]>>({});
     const [_loading, _setLoading] = useState(false);
 
     // Flatten elements for the list
+    /**
+     * Flatten Elements.
+     * @param els Els supplied to this operation (type: EditorElement[]).
+     */
     const flattenElements = (els: EditorElement[]): EditorElement[] => {
         let result: EditorElement[] = [];
         els.forEach(el => {
@@ -45,6 +64,10 @@ export default function ComponentAccessModal({ isOpen, onClose, websiteId: _webs
         el.id.includes(search)
     );
 
+    /**
+     * Toggle Lock.
+     * @param el El supplied to this operation (type: EditorElement).
+     */
     const toggleLock = (el: EditorElement) => {
         onUpdateElement(el.id, { isProtected: !el.isProtected });
     };

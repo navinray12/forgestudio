@@ -1,7 +1,15 @@
+/**
+ * @file Atomic editor feature: reusable Component Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { ReusableComponentDefinition, CreateReusableComponentPayload, ComponentElementNode } from "../types/reusableComponents.types";
 
 const STORAGE_KEY = "forge_studio_reusable_components";
 
+/**
+ * Count Nodes.
+ * @param node Node supplied to this operation (type: ComponentElementNode).
+ */
 function countNodes(node: ComponentElementNode): number {
   if (!node) return 0;
   let count = 1;
@@ -122,6 +130,8 @@ export class ReusableComponentService {
 
   /**
    * Persists component definitions
+
+   * @param components Components supplied to this operation (type: ReusableComponentDefinition[]).
    */
   static saveComponents(components: ReusableComponentDefinition[]): void {
     try {
@@ -133,6 +143,8 @@ export class ReusableComponentService {
 
   /**
    * Creates a new Reusable Component definition
+
+   * @param payload Payload supplied to this operation (type: CreateReusableComponentPayload).
    */
   static createComponent(payload: CreateReusableComponentPayload): ReusableComponentDefinition {
     const list = this.getComponents();
@@ -154,6 +166,9 @@ export class ReusableComponentService {
 
   /**
    * Updates an existing Reusable Component definition
+
+   * @param id Id supplied to this operation (type: string).
+   * @param payload Payload supplied to this operation (type: Partial<CreateReusableComponentPayload>).
    */
   static updateComponent(
     id: string,
@@ -182,6 +197,8 @@ export class ReusableComponentService {
 
   /**
    * Duplicates an existing Reusable Component
+
+   * @param id Id supplied to this operation (type: string).
    */
   static duplicateComponent(id: string): ReusableComponentDefinition {
     const list = this.getComponents();
@@ -205,6 +222,8 @@ export class ReusableComponentService {
 
   /**
    * Deletes a Reusable Component by ID
+
+   * @param id Id supplied to this operation (type: string).
    */
   static deleteComponent(id: string): void {
     const list = this.getComponents();

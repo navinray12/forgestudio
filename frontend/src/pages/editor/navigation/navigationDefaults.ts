@@ -1,3 +1,7 @@
+/**
+ * @file Navigation Defaults: pages/editor/navigation module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { EditorElement, ElementType } from "../WebsiteEditor";
 import type {
   NavMenuItem,
@@ -113,6 +117,11 @@ export const DEFAULT_SEARCH_RESULTS: SearchSampleResult[] = [
   },
 ];
 
+/**
+ * Get Navigation Default Element.
+ * @param type Type supplied to this operation (type: ElementType).
+ * @param id Id supplied to this operation (type: string).
+ */
 export function getNavigationDefaultElement(type: ElementType, id: string): EditorElement | null {
   switch (type) {
     // --------------------------------------------------------
@@ -447,6 +456,10 @@ export function getNavigationDefaultElement(type: ElementType, id: string): Edit
   }
 }
 
+/**
+ * Is Navigation Element.
+ * @param type Type supplied to this operation (type: string).
+ */
 export function isNavigationElement(type: string): boolean {
   return [
     "nav-menu",

@@ -1,3 +1,7 @@
+/**
+ * @file Custom Code Ordering: utils module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 export interface CustomCodeSnippetData { name: string; priority: number; location: 'head' | 'body-start' | 'body-end'; codeType: 'css' | 'html' | 'javascript'; conditions?: any; scope?: string; enabled?: boolean; } export interface CustomCodeSnippet { id: string; status: string; draft?: CustomCodeSnippetData; published?: CustomCodeSnippetData; }
 
 export interface OrderedSnippetData {
@@ -6,6 +10,12 @@ export interface OrderedSnippetData {
     data: CustomCodeSnippetData;
 }
 
+/**
+ * Get Applicable Custom Code.
+ * @param snippets Snippets supplied to this operation (type: CustomCodeSnippet[]).
+ * @param currentPageId Current Page Id supplied to this operation (type: string).
+ * @param useDraft Use Draft supplied to this operation (type: boolean).
+ */
 export function getApplicableCustomCode(
     snippets: CustomCodeSnippet[],
     currentPageId: string,
@@ -73,6 +83,12 @@ export function getApplicableCustomCode(
     return activeDataList;
 }
 
+/**
+ * Get Ordered Custom Code.
+ * @param snippets Snippets supplied to this operation (type: CustomCodeSnippet[]).
+ * @param currentPageId Current Page Id supplied to this operation (type: string).
+ * @param useDraft Use Draft supplied to this operation (type: boolean).
+ */
 export function getOrderedCustomCode(
     snippets: CustomCodeSnippet[],
     currentPageId: string,

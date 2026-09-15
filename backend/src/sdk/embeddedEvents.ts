@@ -1,3 +1,7 @@
+/**
+ * @file Embedded Events: backend SDK integration support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 export type ForgeMessageType =
   | "FORGESTUDIO_MOUNT"
   | "FORGESTUDIO_MOUNT_ACK"
@@ -54,6 +58,11 @@ export interface ErrorPayload {
   details?: any;
 }
 
+/**
+ * Create Forge Message.
+ * @param type Type supplied to this operation (type: ForgeMessageType).
+ * @param payload Payload supplied to this operation (type: T).
+ */
 export function createForgeMessage<T = any>(
   type: ForgeMessageType,
   payload: T
@@ -66,6 +75,10 @@ export function createForgeMessage<T = any>(
   };
 }
 
+/**
+ * Is Forge Message.
+ * @param data Data supplied to this operation (type: any).
+ */
 export function isForgeMessage(data: any): data is ForgeMessage {
   return (
     Boolean(data) &&
@@ -76,6 +89,13 @@ export function isForgeMessage(data: any): data is ForgeMessage {
   );
 }
 
+/**
+ * Post Forge Message.
+ * @param targetWindow Target Window supplied to this operation (type: { postMessage: (message: any, targetOrigin: string) => void }).
+ * @param type Type supplied to this operation (type: ForgeMessageType).
+ * @param payload Payload supplied to this operation (type: T).
+ * @param targetOrigin Target Origin supplied to this operation (type: string). Defaults to "*".
+ */
 export function postForgeMessage<T = any>(
   targetWindow: { postMessage: (message: any, targetOrigin: string) => void },
   type: ForgeMessageType,
@@ -86,6 +106,11 @@ export function postForgeMessage<T = any>(
   targetWindow.postMessage(message, targetOrigin);
 }
 
+/**
+ * Subscribe To Forge Messages.
+ * @param windowObj Window Obj supplied to this operation (type: { addEventListener: (type: string, listener: (ev: any) => void) => void; removeEventListener: (type: string, listener: (ev: any) => void) => void; }).
+ * @param handler Handler supplied to this operation (type: (message: ForgeMessage, event: any) => void).
+ */
 export function subscribeToForgeMessages(
   windowObj: {
     addEventListener: (type: string, listener: (ev: any) => void) => void;
@@ -93,6 +118,10 @@ export function subscribeToForgeMessages(
   },
   handler: (message: ForgeMessage, event: any) => void
 ): () => void {
+  /**
+   * Listener.
+   * @param event Event being handled; its type determines the available target and payload.
+   */
   const listener = (event: any) => {
     if (isForgeMessage(event.data)) {
       handler(event.data, event);

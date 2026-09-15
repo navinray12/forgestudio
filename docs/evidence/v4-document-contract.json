@@ -1,0 +1,301 @@
+{
+  "recordedAt": "2026-09-15T05:59:30.763Z",
+  "scope": "Portable document contract foundation; full production blueprint remains incomplete.",
+  "attachmentProvenance": "../architecture/blueprint-import.json",
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "note": "Passed before final recovery-source hash and two Unicode fixtures; subsequent unit, PHP and type checks cover those changes."
+    },
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "tests": 109,
+      "files": 11
+    },
+    {
+      "command": "npm run test:integration",
+      "exitCode": 0,
+      "tests": 28,
+      "database": "Disposable PostgreSQL; fresh migrations and upgrade preservation passed; container removed."
+    },
+    {
+      "command": "npm run test:journeys",
+      "exitCode": 0,
+      "tests": 3,
+      "scope": "Actual Chromium UI with controlled API responses."
+    },
+    {
+      "command": "npm run test:contracts:php",
+      "exitCode": 0,
+      "note": "Locked install and Composer audit passed; final expanded fixture run recorded below."
+    },
+    {
+      "command": "node scripts/verify-document-contract-php.mjs",
+      "exitCode": 0,
+      "tests": 49
+    },
+    {
+      "command": "npm audit --audit-level=high",
+      "exitCode": 0,
+      "vulnerabilities": 0
+    },
+    {
+      "command": "npm run docs:check",
+      "exitCode": 0,
+      "authoredSourceFiles": 691
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "note": "All workspaces passed after the final recovery-source hash change."
+    }
+  ],
+  "runtimeParity": {
+    "generatedAt": "2026-09-15T05:57:43.126Z",
+    "phpImage": "php@sha256:afdf8b1fee58486ccc0dab5f30f634b86873d56dac985f71ba217945647c05ad",
+    "phpVersion": "8.3.33",
+    "fixtureCount": 49,
+    "passed": 49,
+    "schemaSha256": "eaa2d8638759e891bee5b008538d164efc985cc9b1803281d03d690ecddfb56c",
+    "fixtureSourceSha256": "9cfe601f764c217941bb6a1fd23aeef82a3ae8dac4901ef02923e3cfe610e0b3",
+    "scope": "Shared schema, graph/link validation and integer-profile canonical hashes; not a WordPress plugin or full RFC 8785 floating-point certification.",
+    "cases": [
+      {
+        "name": "empty page",
+        "passed": true
+      },
+      {
+        "name": "container and heading",
+        "passed": true
+      },
+      {
+        "name": "typed asset and page references",
+        "passed": true
+      },
+      {
+        "name": "core rich-text",
+        "passed": true
+      },
+      {
+        "name": "core divider",
+        "passed": true
+      },
+      {
+        "name": "core spacer",
+        "passed": true
+      },
+      {
+        "name": "core list",
+        "passed": true
+      },
+      {
+        "name": "core navigation",
+        "passed": true
+      },
+      {
+        "name": "opaque unknown widget is preserved",
+        "passed": true
+      },
+      {
+        "name": "unknown widget cannot execute as a core widget",
+        "passed": true
+      },
+      {
+        "name": "missing node reference",
+        "passed": true
+      },
+      {
+        "name": "map key mismatch",
+        "passed": true
+      },
+      {
+        "name": "cycle including a root",
+        "passed": true
+      },
+      {
+        "name": "disconnected cycle",
+        "passed": true
+      },
+      {
+        "name": "orphan node",
+        "passed": true
+      },
+      {
+        "name": "multiple parents",
+        "passed": true
+      },
+      {
+        "name": "leaf widget children are rejected",
+        "passed": true
+      },
+      {
+        "name": "undeclared responsive override",
+        "passed": true
+      },
+      {
+        "name": "unordered breakpoints",
+        "passed": true
+      },
+      {
+        "name": "duplicate breakpoint IDs",
+        "passed": true
+      },
+      {
+        "name": "explicit reset and decimal length",
+        "passed": true
+      },
+      {
+        "name": "fractional number profile is rejected",
+        "passed": true
+      },
+      {
+        "name": "arbitrary CSS is rejected",
+        "passed": true
+      },
+      {
+        "name": "unsafe link scheme",
+        "passed": true
+      },
+      {
+        "name": "userinfo link is rejected",
+        "passed": true
+      },
+      {
+        "name": "URL whitespace cannot cross the language boundary",
+        "passed": true
+      },
+      {
+        "name": "international URL paths use percent encoding",
+        "passed": true
+      },
+      {
+        "name": "closed ownership envelope",
+        "passed": true
+      },
+      {
+        "name": "future schema is not rewritten",
+        "passed": true
+      },
+      {
+        "name": "duplicate escaped keys",
+        "passed": true
+      },
+      {
+        "name": "node ID cannot end in a newline",
+        "passed": true
+      },
+      {
+        "name": "maximum tree depth",
+        "passed": true
+      },
+      {
+        "name": "maximum node count",
+        "passed": true
+      },
+      {
+        "name": "maximum input bytes",
+        "passed": true
+      },
+      {
+        "name": "maximum JSON depth",
+        "passed": true
+      },
+      {
+        "name": "opaque UTF-8 bytes are bounded",
+        "passed": true
+      },
+      {
+        "name": "escaped lone surrogate value",
+        "passed": true
+      },
+      {
+        "name": "escaped lone surrogate key",
+        "passed": true
+      },
+      {
+        "name": "object key order",
+        "passed": true
+      },
+      {
+        "name": "UTF-16 key order",
+        "passed": true
+      },
+      {
+        "name": "empty object differs from array",
+        "passed": true
+      },
+      {
+        "name": "negative zero and safe integer",
+        "passed": true
+      },
+      {
+        "name": "numeric-looking object keys",
+        "passed": true
+      },
+      {
+        "name": "Unicode remains unnormalized",
+        "passed": true
+      },
+      {
+        "name": "fractional number requires decimal text",
+        "passed": true
+      },
+      {
+        "name": "unsafe integer",
+        "passed": true
+      },
+      {
+        "name": "nonfinite number",
+        "passed": true
+      },
+      {
+        "name": "ambiguous canonical input",
+        "passed": true
+      },
+      {
+        "name": "invalid UTF-8 bytes",
+        "passed": true
+      }
+    ]
+  },
+  "sourceDigests": {
+    ".github/workflows/verify.yml": "44eab0dd2a1214ff4b44a7eb778aebdb9ba47fd2a4e12b81d42465d5b5d066a1",
+    "backend/src/modules/pages/validate-legacy-document.ts": "cafd7cae98a06ea02824408f4c89d985db9ee5de1711885169ef24316cdd4a2a",
+    "backend/src/modules/permissions/permission.service.ts": "9ce34d886117ef02533235f729152004c65496d935f167129305df8374d7936c",
+    "frontend/src/features/autosave/persistence/cloud-draft-adapter.ts": "b09480186b6f1332c2f911a6fc530eb2068ddc6944c510212ce8e94dbc5ae1b9",
+    "package-lock.json": "b342735b885c91ab2072a1fee008c9e0cb4ca8093ba85e14a62f8e1bbfb8b783",
+    "packages/document-contract/README.md": "ca12873c100b17224ea0e379382cd94a8b3f5b33dd15a97c31ba2002af64b928",
+    "packages/document-contract/fixtures/contract-vectors.mjs": "9cfe601f764c217941bb6a1fd23aeef82a3ae8dac4901ef02923e3cfe610e0b3",
+    "packages/document-contract/package.json": "f3cbfe20ea135425bf1af32682ee744254d4da7222ef21f4b30ba2055957d1fd",
+    "packages/document-contract/php/composer.json": "f82c6aa9cf7908d50e929d046f48caec3980141c0f391f919389a27498c849b5",
+    "packages/document-contract/php/composer.lock": "bc7a594e8a0c3d81ab66498f4ad233802895e62bae9ada910fa33c406ee4de58",
+    "packages/document-contract/php/src/BoundedJsonReader.php": "7ac54594151c7881fd1262968f8bcc05dd2f42910e2cad15f028756dacf37269",
+    "packages/document-contract/php/src/CanonicalDocument.php": "74e9c0566412e1efd3817942bf0ac9ef6c316e2c37a0099dd7e9e1512853c3f6",
+    "packages/document-contract/php/src/DocumentContractException.php": "4c9c2b3940c4a238a324e94fc0b9a8aec3e58718205ca6e65d59fdcd7ad164a0",
+    "packages/document-contract/php/src/PageDocumentValidator.php": "c0de48ff29123ae0e207f9bfe1b6ba23a8f62384d8ddf8c0517cf6301d7d1b6c",
+    "packages/document-contract/php/tests/contract-runner.php": "834c7569c780cae3aa7c30951e29ab0f97e0187d9e7606b1e6d5a20c7ca6c8fc",
+    "packages/document-contract/src/document-errors.ts": "87e42d84ead8a49483d7f687e59164da95074325bcd9e6195019ec216183f580",
+    "packages/document-contract/src/index.ts": "6002f52bc81e8ea0d442452ca994e9856d11046e3727a13fadee76bd1086bbe5",
+    "packages/document-contract/src/json/canonical-document.ts": "76c60d7870c777d730e5cec5e32095f485652d0234f9845eecf7b2ce41f146d6",
+    "packages/document-contract/src/json/read-bounded-json.ts": "08770a15c140f39f6c97206b45a95faf11fafa45f9635ad3dfaa8e006fa17ddc",
+    "packages/document-contract/src/legacy/preserve-legacy-page.ts": "1701edfa316e6af3649530e6627d7df3003daec3965c92787926af75f199939d",
+    "packages/document-contract/src/legacy/validate-legacy-website.ts": "39f51e58bf84bb973b5b1ee21f1f8d7b72e64329ddd7992f1b6cca81ba05e2d2",
+    "packages/document-contract/src/page-document.types.ts": "1b7924c83473edc53e1af3f135c5843367a1bdc9a14aa97e4b0c821c7a509d0f",
+    "packages/document-contract/src/schema/page-document.schema.json": "eaa2d8638759e891bee5b008538d164efc985cc9b1803281d03d690ecddfb56c",
+    "packages/document-contract/src/validate-page-document.ts": "f83d7730fcc7c9301423873c8d9f41c6374824e9883fcf7498662b97b1b0076e",
+    "packages/document-contract/tests/document-contract.test.ts": "43fa8c7f71c80f73b397d9b952dd21713d0326c9dc29b6c84683763a8df1e931",
+    "packages/document-contract/tsconfig.json": "7896f6acf2c64ce820f2b874272b53835452f002bbc681d6b6280d9c8c801c7a",
+    "scripts/build-page-document-schema.mjs": "39cb335dd4c8fa90b77f29dd6981fa7367b5e52b73f375eb9966b69e0eb7004f",
+    "scripts/install-document-contract-php.mjs": "41f827e5d63d6413931f2269f6333866b0dcb71e0bde04c857f872409b052b25",
+    "scripts/verify-document-contract-php.mjs": "bfb2364084fd9cd2f674408edf27681eb1387e33ec7a6d8209d7b007be227a16"
+  },
+  "notVerified": [
+    "Remote CI execution",
+    "Native WordPress installation or renderer parity",
+    "Complete browser-to-database journey",
+    "Production traffic capacity, disaster recovery or crash-free operation",
+    "Full blueprint delivery"
+  ]
+}

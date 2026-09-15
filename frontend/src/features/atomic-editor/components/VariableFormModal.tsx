@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Variable Form Modal. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 import type { AtomicVariable, VariableType } from "../types/variables.types";
 import { formatVariableKey } from "../utils/variable.utils";
@@ -9,6 +13,15 @@ interface VariableFormModalProps {
   onSubmit: (payload: { name: string; type: VariableType; value: string; description?: string }) => Promise<void>;
 }
 
+/**
+ * Render the variable form modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, variableToEdit, onClose, onSubmit.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.variableToEdit Variable To Edit passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onSubmit Callback for submit events.
+ */
 export const VariableFormModal: React.FC<VariableFormModalProps> = ({
   isOpen,
   variableToEdit,
@@ -39,6 +52,10 @@ export const VariableFormModal: React.FC<VariableFormModalProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * Handle Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);

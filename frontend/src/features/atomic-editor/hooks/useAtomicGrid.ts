@@ -1,7 +1,14 @@
+/**
+ * @file Atomic editor feature: use Atomic Grid. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { GridContainerConfig, GridBreakpoint, CreateGridPayload } from "../types/atomicGrid.types";
 import { AtomicGridService } from "../services/atomicGridService";
 
+/**
+ * Coordinate atomic grid state and lifecycle for the calling component.
+ */
 export function useAtomicGrid() {
   const [grids, setGrids] = useState<GridContainerConfig[]>([]);
   const [activeGrid, setActiveGrid] = useState<GridContainerConfig | null>(null);
@@ -38,6 +45,10 @@ export function useAtomicGrid() {
     );
   }, [grids, searchQuery]);
 
+  /**
+   * Create Grid.
+   * @param payload Payload supplied to this operation (type: CreateGridPayload).
+   */
   const createGrid = async (payload: CreateGridPayload) => {
     try {
       const created = AtomicGridService.createGrid(payload);
@@ -50,6 +61,10 @@ export function useAtomicGrid() {
     }
   };
 
+  /**
+   * Update Active Grid.
+   * @param payload Payload supplied to this operation (type: Partial<GridContainerConfig>).
+   */
   const updateActiveGrid = async (payload: Partial<GridContainerConfig>) => {
     if (!activeGrid) return;
     try {
@@ -61,6 +76,10 @@ export function useAtomicGrid() {
     }
   };
 
+  /**
+   * Delete Grid.
+   * @param id Id supplied to this operation (type: string).
+   */
   const deleteGrid = async (id: string) => {
     try {
       AtomicGridService.deleteGrid(id);

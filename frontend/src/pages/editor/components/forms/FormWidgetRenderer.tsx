@@ -1,3 +1,7 @@
+/**
+ * @file Form Widget Renderer: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useId } from "react";
 import type {
   FormWidgetConfig,
@@ -13,12 +17,22 @@ interface FormWidgetRendererProps {
   apiUrl?: string;
 }
 
+/**
+ * Render the form widget renderer interface and connect its event handlers.
+ * @param options Named inputs: config, websiteId, isPreview, onOpenPopup, apiUrl.
+
+ * @param options.config Config passed by the caller.
+ * @param options.websiteId Identifier of the website whose data is being read or changed. Defaults to "default-site".
+ * @param options.isPreview Whether this rendering is being shown in preview mode. Defaults to false.
+ * @param options.onOpenPopup Callback for open popup events.
+ * @param options.apiUrl Api Url passed by the caller. Defaults to import.meta.env.VITE_API_URL ?? "http://localhost:5000".
+ */
 export default function FormWidgetRenderer({
   config,
   websiteId = "default-site",
   isPreview = false,
   onOpenPopup,
-  apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000",
+  apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000",
 }: FormWidgetRendererProps) {
   const formKey = useId();
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,6 +51,11 @@ export default function FormWidgetRenderer({
     ? config.fields.filter((f) => (f.stepIndex ?? 0) === currentStep)
     : config.fields;
 
+  /**
+   * Handle Field Change.
+   * @param fieldName Field Name supplied to this operation (type: string).
+   * @param value Value supplied to this operation (type: any).
+   */
   const handleFieldChange = (fieldName: string, value: any) => {
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
     // Clear error on change
@@ -49,6 +68,11 @@ export default function FormWidgetRenderer({
     }
   };
 
+  /**
+   * Validate Field.
+   * @param field Field supplied to this operation (type: FormFieldConfig).
+   * @param value Value supplied to this operation (type: any).
+   */
   const validateField = (field: FormFieldConfig, value: any): string | null => {
     // 1. Required Check
     if (field.required) {
@@ -93,6 +117,9 @@ export default function FormWidgetRenderer({
     return null;
   };
 
+  /**
+   * Validate Current Step.
+   */
   const validateCurrentStep = (): boolean => {
     const newErrors: Record<string, string> = {};
     currentFields.forEach((field) => {
@@ -107,6 +134,10 @@ export default function FormWidgetRenderer({
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Handle Next Step.
+   * @param e E supplied to this operation (type: React.MouseEvent).
+   */
   const handleNextStep = (e: React.MouseEvent) => {
     e.preventDefault();
     if (validateCurrentStep()) {
@@ -114,11 +145,19 @@ export default function FormWidgetRenderer({
     }
   };
 
+  /**
+   * Handle Prev Step.
+   * @param e E supplied to this operation (type: React.MouseEvent).
+   */
   const handlePrevStep = (e: React.MouseEvent) => {
     e.preventDefault();
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
+  /**
+   * Handle Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -180,6 +219,10 @@ export default function FormWidgetRenderer({
     }
   };
 
+  /**
+   * Get Width Class.
+   * @param width Width supplied to this operation (type: FieldColumnWidth).
+   */
   const getWidthClass = (width: FieldColumnWidth) => {
     switch (width) {
       case "20%":

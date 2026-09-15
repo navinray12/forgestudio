@@ -1,3 +1,7 @@
+/**
+ * @file Test ast parse: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import ts from "typescript";
 
 const code = `
@@ -22,6 +26,10 @@ const sf = ts.createSourceFile("test.tsx", code, ts.ScriptTarget.Latest, true, t
 console.log("SourceFile created successfully.");
 console.log("Number of statements:", sf.statements.length);
 
+/**
+ * Find Jsx.
+ * @param node Node supplied to this operation.
+ */
 function findJsx(node) {
   if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
     return node;

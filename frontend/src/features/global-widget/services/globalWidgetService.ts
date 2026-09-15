@@ -1,7 +1,14 @@
+/**
+ * @file Global widget feature: global Widget Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { GlobalWidget, CreateGlobalWidgetPayload, UpdateGlobalWidgetPayload } from "../types/globalWidget.types";
 
 const LOCAL_STORAGE_KEY = "forgestudio_global_widgets";
 
+/**
+ * Get Local Global Widgets.
+ */
 function getLocalGlobalWidgets(): GlobalWidget[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -11,6 +18,10 @@ function getLocalGlobalWidgets(): GlobalWidget[] {
   }
 }
 
+/**
+ * Save Local Global Widgets.
+ * @param widgets Widgets supplied to this operation (type: GlobalWidget[]).
+ */
 function saveLocalGlobalWidgets(widgets: GlobalWidget[]): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(widgets));
@@ -21,6 +32,9 @@ function saveLocalGlobalWidgets(widgets: GlobalWidget[]): void {
 
 /**
  * Creates a new Global Widget
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param payload Payload supplied to this operation (type: CreateGlobalWidgetPayload).
  */
 export async function saveGlobalWidget(
   apiUrl: string,
@@ -77,6 +91,8 @@ export async function saveGlobalWidget(
 
 /**
  * Retrieves all user Global Widgets
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
  */
 export async function getGlobalWidgets(apiUrl: string): Promise<GlobalWidget[]> {
   let remoteWidgets: GlobalWidget[] = [];
@@ -120,6 +136,10 @@ export async function getGlobalWidgets(apiUrl: string): Promise<GlobalWidget[]> 
 
 /**
  * Updates an existing Global Widget
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param id Id supplied to this operation (type: string).
+ * @param payload Payload supplied to this operation (type: UpdateGlobalWidgetPayload).
  */
 export async function updateGlobalWidgetService(
   apiUrl: string,
@@ -164,6 +184,9 @@ export async function updateGlobalWidgetService(
 
 /**
  * Deletes a Global Widget
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param id Id supplied to this operation (type: string).
  */
 export async function deleteGlobalWidgetService(apiUrl: string, id: string): Promise<void> {
   try {

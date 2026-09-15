@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Delete Component Confirm Modal. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 
@@ -9,6 +13,16 @@ interface DeleteComponentConfirmModalProps {
   onConfirmDelete: (id: string) => Promise<void>;
 }
 
+/**
+ * Render the delete component confirm modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, component, usageCount, onClose, onConfirmDelete.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.component Component passed by the caller.
+ * @param options.usageCount Usage Count passed by the caller. Defaults to 0.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onConfirmDelete Callback for confirm delete events.
+ */
 export const DeleteComponentConfirmModal: React.FC<DeleteComponentConfirmModalProps> = ({
   isOpen,
   component,

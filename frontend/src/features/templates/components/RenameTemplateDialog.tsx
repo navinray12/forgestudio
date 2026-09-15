@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: Rename Template Dialog. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 import type { Template, TemplateCategory } from "../types/template.types";
 import { TEMPLATE_CATEGORIES } from "../types/template.types";
@@ -9,6 +13,15 @@ interface RenameTemplateDialogProps {
   onSave: (templateId: string, name: string, description?: string, category?: string) => Promise<void>;
 }
 
+/**
+ * Render the rename template dialog interface and connect its event handlers.
+ * @param options Named inputs: isOpen, template, onClose, onSave.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.template Template passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onSave Callback for save events.
+ */
 export const RenameTemplateDialog: React.FC<RenameTemplateDialogProps> = ({
   isOpen,
   template,
@@ -33,6 +46,10 @@ export const RenameTemplateDialog: React.FC<RenameTemplateDialogProps> = ({
   }, [template]);
 
   useEffect(() => {
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && !isSaving) {
         onClose();
@@ -44,6 +61,10 @@ export const RenameTemplateDialog: React.FC<RenameTemplateDialogProps> = ({
 
   if (!isOpen || !template) return null;
 
+  /**
+   * Handle Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);

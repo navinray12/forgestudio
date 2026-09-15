@@ -1,8 +1,16 @@
+/**
+ * @file Page Manager Service: pages/editor/utils module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { PageConfig, EditorElement, NavMenuItem, SitePartsConfig } from "../types";
 
 /**
  * Generates a clean, URL-safe slug from a raw title string.
  * Example: "About Us" -> "/about-us"
+
+ * @param rawTitle Raw Title supplied to this operation (type: string).
+ * @param existingSlugs Existing Slugs supplied to this operation (type: string[]). Defaults to [].
+ * @param allowRoot Allow Root supplied to this operation. Defaults to false.
  */
 export function generateSlug(rawTitle: string, existingSlugs: string[] = [], allowRoot = false): string {
   if (!rawTitle || rawTitle.trim() === "") return "/page";
@@ -31,6 +39,10 @@ export function generateSlug(rawTitle: string, existingSlugs: string[] = [], all
 
 /**
  * Validates a page slug against existing pages and reserved keywords.
+
+ * @param rawSlug Raw Slug supplied to this operation (type: string).
+ * @param existingPages Existing Pages supplied to this operation (type: PageConfig[]).
+ * @param currentPageId Current Page Id supplied to this operation (type: string). Optional; callers may omit it.
  */
 export function validateSlug(
   rawSlug: string,
@@ -75,6 +87,10 @@ export function validateSlug(
  * Dynamically resolves an internal page link or external URL.
  * Internal links: "page:page_123" -> "/about-us"
  * Home page always resolves to "/" regardless of its slug.
+
+ * @param linkStr Link Str supplied to this operation (type: string | undefined).
+ * @param pages Pages supplied to this operation (type: PageConfig[]). Defaults to [].
+ * @param homePageId Home Page Id supplied to this operation (type: string). Optional; callers may omit it.
  */
 export function resolveInternalLink(
   linkStr: string | undefined,
@@ -107,11 +123,22 @@ export function resolveInternalLink(
 /**
  * Deep clones an element tree and re-assigns fresh unique IDs for all elements
  * and nested entity collections (slides, pricing plans, form fields, items).
+
+ * @param elements Elements supplied to this operation (type: EditorElement[]).
  */
 export function cloneElementTreeWithNewIds(elements: EditorElement[]): EditorElement[] {
   let counter = 0;
+  /**
+   * Generate Id.
+   * @param prefix Prefix supplied to this operation. Defaults to "el".
+   */
   const generateId = (prefix = "el") => `${prefix}_${Date.now()}_${++counter}_${Math.random().toString(36).substring(2, 7)}`;
 
+  /**
+   * Clone Item.
+   * @param item Item supplied to this operation (type: any).
+   * @param prefix Prefix supplied to this operation (type: string).
+   */
   const cloneItem = (item: any, prefix: string) => {
     if (!item || typeof item !== "object") return item;
     const cloned = { ...item };
@@ -121,10 +148,18 @@ export function cloneElementTreeWithNewIds(elements: EditorElement[]): EditorEle
     return cloned;
   };
 
+  /**
+   * Clone.
+   * @param el El supplied to this operation (type: EditorElement).
+   */
   const clone = (el: EditorElement): EditorElement => {
     const newId = generateId("el");
 
     // Deep clone responsive style dictionaries
+    /**
+     * Clone Style Map.
+     * @param map Map supplied to this operation (type: Record<string, any>). Optional; callers may omit it.
+     */
     const cloneStyleMap = (map?: Record<string, any>) => {
       if (!map) return undefined;
       const res: Record<string, any> = {};
@@ -196,6 +231,9 @@ export function cloneElementTreeWithNewIds(elements: EditorElement[]): EditorEle
 
 /**
  * Safely duplicates an existing page with non-destructive deep cloning.
+
+ * @param sourcePage Source Page supplied to this operation (type: PageConfig).
+ * @param existingPages Existing Pages supplied to this operation (type: PageConfig[]).
  */
 export function duplicatePage(sourcePage: PageConfig, existingPages: PageConfig[]): PageConfig {
   const existingSlugs = existingPages.map((p) => p.slug);
@@ -222,6 +260,11 @@ export function duplicatePage(sourcePage: PageConfig, existingPages: PageConfig[
 
 /**
  * Checks if a page is referenced by navigation menus, global site parts, or internal links.
+
+ * @param pageId Page Id supplied to this operation (type: string).
+ * @param pages Pages supplied to this operation (type: PageConfig[]).
+ * @param navigation Navigation supplied to this operation (type: NavMenuItem[]). Defaults to [].
+ * @param siteParts Site Parts supplied to this operation (type: SitePartsConfig). Optional; callers may omit it.
  */
 export function checkPageReferences(
   pageId: string,
@@ -232,6 +275,10 @@ export function checkPageReferences(
   const descriptions: string[] = [];
 
   // Check navigation items
+  /**
+   * Check Nav.
+   * @param items Items supplied to this operation (type: NavMenuItem[]).
+   */
   const checkNav = (items: NavMenuItem[]) => {
     for (const item of items) {
       if (item.pageId === pageId || item.url === `page:${pageId}`) {
@@ -249,7 +296,16 @@ export function checkPageReferences(
   checkNav(navigation);
 
   // Check elements inside other pages for internal page links
+  /**
+   * Check Elements.
+   * @param elements Elements supplied to this operation (type: EditorElement[]).
+   * @param pageName Page Name supplied to this operation (type: string).
+   */
   const checkElements = (elements: EditorElement[], pageName: string) => {
+    /**
+     * Scan.
+     * @param el El supplied to this operation (type: EditorElement).
+     */
     const scan = (el: EditorElement) => {
       if (el.href === `page:${pageId}` || el.linkPageId === pageId) {
         descriptions.push(`Link in page "${pageName}" on ${el.type} ("${el.content?.slice(0, 20) || el.id}")`);
@@ -274,6 +330,10 @@ export function checkPageReferences(
 
 /**
  * Safely deletes a page and reassigns Home if the deleted page was Home.
+
+ * @param pageIdToDelete Page Id To Delete supplied to this operation (type: string).
+ * @param pages Pages supplied to this operation (type: PageConfig[]).
+ * @param homePageId Home Page Id supplied to this operation (type: string).
  */
 export function safeDeletePage(
   pageIdToDelete: string,
@@ -312,6 +372,8 @@ export function safeDeletePage(
 
 /**
  * Generates default starter pages (Home, About, Services, Contact) as editable data.
+
+ * @param siteName Site Name supplied to this operation. Defaults to "My Website".
  */
 export function createStarterPages(siteName = "My Website"): PageConfig[] {
   const now = new Date().toISOString();

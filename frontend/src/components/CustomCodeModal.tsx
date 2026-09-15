@@ -1,3 +1,7 @@
+/**
+ * @file Custom Code Modal: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from 'react';
 import { type CustomCodeSnippet, getCustomCodeSnippets, createCustomCodeSnippet, updateCustomCodeSnippet, deleteCustomCodeSnippet } from '../services/customCode.service';
 
@@ -7,6 +11,14 @@ interface CustomCodeModalProps {
     websiteId: string;
 }
 
+/**
+ * Render the custom code modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, websiteId.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ */
 const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, websiteId }) => {
     const [snippets, setSnippets] = useState<CustomCodeSnippet[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +32,9 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
         }
     }, [isOpen, websiteId]);
 
+    /**
+     * Load Snippets.
+     */
     const loadSnippets = async () => {
         setIsLoading(true);
         const data = await getCustomCodeSnippets(websiteId);
@@ -27,6 +42,9 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
         setIsLoading(false);
     };
 
+    /**
+     * Handle Save.
+     */
     const handleSave = async () => {
         if (!editingSnippet?.title || !editingSnippet.language || !editingSnippet.placement) {
             alert('Please fill out Name, Type, and Location fields.');
@@ -48,6 +66,10 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
         }
     };
 
+    /**
+     * Handle Delete.
+     * @param id Id supplied to this operation (type: string).
+     */
     const handleDelete = async (id: string) => {
         if (window.confirm('Delete this custom code?')) {
             const success = await deleteCustomCodeSnippet(id);

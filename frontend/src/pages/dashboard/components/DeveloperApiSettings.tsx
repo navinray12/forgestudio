@@ -1,8 +1,15 @@
+/**
+ * @file Developer Api Settings: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+/**
+ * Render the developer api settings interface and connect its event handlers.
+ */
 export default function DeveloperApiSettings() {
     const [keys, setKeys] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -15,6 +22,9 @@ export default function DeveloperApiSettings() {
         fetchKeys();
     }, []);
 
+    /**
+     * Fetch Keys.
+     */
     const fetchKeys = async () => {
         try {
             setLoading(true);
@@ -37,6 +47,10 @@ export default function DeveloperApiSettings() {
         }
     };
 
+    /**
+     * Handle Create Key.
+     * @param e E supplied to this operation (type: React.FormEvent).
+     */
     const handleCreateKey = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -67,6 +81,10 @@ export default function DeveloperApiSettings() {
         }
     };
 
+    /**
+     * Handle Revoke.
+     * @param id Id supplied to this operation (type: string).
+     */
     const handleRevoke = async (id: string) => {
         if (!window.confirm("Are you sure you want to revoke this API key? Existing integrations will break immediately.")) return;
         try {

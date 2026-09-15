@@ -1,5 +1,15 @@
+/**
+ * @file Test bidirectional sync: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { exportCode } from "../codeExporter.ts";
 import { importCodeToElement, validateCodeSyntax } from "../codeImporter.ts";
+/**
+ * Update Tree Element.
+ * @param list List supplied to this operation.
+ * @param id Id supplied to this operation.
+ * @param updater Updater supplied to this operation.
+ */
 function updateTreeElement(list, id, updater) {
   return list.map((item) => {
     if (item.id === id) return updater(item);
@@ -10,6 +20,9 @@ function updateTreeElement(list, id, updater) {
   });
 }
 
+/**
+ * Run Bidirectional Sync Tests.
+ */
 async function runBidirectionalSyncTests() {
   console.log("============================================================");
   console.log("FORGESTUDIO BIDIRECTIONAL SYNC (UI ↔ CODE) TEST SUITE");
@@ -19,6 +32,11 @@ async function runBidirectionalSyncTests() {
   let totalTests = 0;
   let passedTests = 0;
 
+  /**
+   * Assert.
+   * @param label Label supplied to this operation.
+   * @param condition Condition supplied to this operation.
+   */
   function assert(label, condition) {
     totalTests++;
     if (condition) {

@@ -1,3 +1,7 @@
+/**
+ * @file Popup Runtime Preview: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useEffect, useState } from "react";
 import type { PopupConfig } from "../../../types/popup.types";
 import type { EditorElement } from "../WebsiteEditor";
@@ -11,6 +15,17 @@ interface PopupRuntimePreviewProps {
   globalSettings?: any;
 }
 
+/**
+ * Render the popup runtime preview interface and connect its event handlers.
+ * @param options Named inputs: popups, renderElementTree, onTrackView, onTrackClick, isPreviewMode, globalSettings.
+
+ * @param options.popups Popups passed by the caller.
+ * @param options.renderElementTree Render Element Tree passed by the caller.
+ * @param options.onTrackView Callback for track view events.
+ * @param options.onTrackClick Callback for track click events.
+ * @param options.isPreviewMode Is Preview Mode passed by the caller. Defaults to true.
+ * @param options.globalSettings Global Settings passed by the caller.
+ */
 export default function PopupRuntimePreview({
   popups,
   renderElementTree,
@@ -24,6 +39,10 @@ export default function PopupRuntimePreview({
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // Frequency Check Helper
+  /**
+   * Can Show Popup.
+   * @param popup Popup supplied to this operation (type: PopupConfig).
+   */
   const canShowPopup = (popup: PopupConfig): boolean => {
     if (popup.isActive === false) return false;
 
@@ -41,6 +60,10 @@ export default function PopupRuntimePreview({
     return true;
   };
 
+  /**
+   * Mark Popup Shown.
+   * @param popup Popup supplied to this operation (type: PopupConfig).
+   */
   const markPopupShown = (popup: PopupConfig) => {
     if (popup.targeting.frequencyCap === "once-per-session") {
       sessionStorage.setItem(`popup_seen_${popup.id}`, "true");
@@ -50,6 +73,10 @@ export default function PopupRuntimePreview({
     if (onTrackView) onTrackView(popup.id);
   };
 
+  /**
+   * Open Popup.
+   * @param popupId Popup Id supplied to this operation (type: string).
+   */
   const openPopup = (popupId: string) => {
     const p = popups.find((x) => x.id === popupId);
     if (!p) return;
@@ -61,6 +88,10 @@ export default function PopupRuntimePreview({
     markPopupShown(p);
   };
 
+  /**
+   * Close Popup.
+   * @param popupId Popup Id supplied to this operation (type: string).
+   */
   const closePopup = (popupId: string) => {
     setOpenPopupIds((prev) => {
       const next = new Set(prev);
@@ -70,6 +101,10 @@ export default function PopupRuntimePreview({
   };
 
   // Smart Link Resolver (F-291)
+  /**
+   * Handle Smart Link.
+   * @param href Href supplied to this operation (type: string | undefined).
+   */
   const handleSmartLink = (href: string | undefined): boolean => {
     if (!href) return false;
     const cleanHref = href.trim();
@@ -129,6 +164,9 @@ export default function PopupRuntimePreview({
     });
 
     // 2. Scroll Depth Listener & Back To Top Tracker
+    /**
+     * Handle Scroll.
+     */
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -146,6 +184,10 @@ export default function PopupRuntimePreview({
     };
 
     // 3. Exit Intent Listener
+    /**
+     * Handle Mouse Leave.
+     * @param e E supplied to this operation (type: MouseEvent).
+     */
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 10) {
         activePopups.forEach((popup) => {
@@ -159,6 +201,9 @@ export default function PopupRuntimePreview({
 
     // 4. Inactivity Timer
     let idleTimer: ReturnType<typeof setTimeout>;
+    /**
+     * Reset Idle Timer.
+     */
     const resetIdleTimer = () => {
       if (idleTimer) clearTimeout(idleTimer);
       activePopups.forEach((popup) => {
@@ -172,6 +217,10 @@ export default function PopupRuntimePreview({
     };
 
     // 5. Click Selector & Smart Link Listener
+    /**
+     * Handle Click.
+     * @param e E supplied to this operation (type: MouseEvent).
+     */
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
@@ -196,6 +245,10 @@ export default function PopupRuntimePreview({
     };
 
     // 6. Escape Key Listener
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpenPopupIds(new Set());
@@ -203,6 +256,10 @@ export default function PopupRuntimePreview({
     };
 
     // 7. Custom Open Popup Event Listener (e.g. from Form Submission)
+    /**
+     * Handle Custom Open Popup.
+     * @param e E supplied to this operation (type: Event).
+     */
     const handleCustomOpenPopup = (e: Event) => {
       const customEvent = e as CustomEvent<{ popupId: string }>;
       if (customEvent.detail?.popupId) {
@@ -234,6 +291,9 @@ export default function PopupRuntimePreview({
     };
   }, [popups, globalSettings]);
 
+  /**
+   * Reset All Frequency Storage.
+   */
   const resetAllFrequencyStorage = () => {
     popups.forEach((p) => {
       sessionStorage.removeItem(`popup_seen_${p.id}`);
@@ -242,10 +302,17 @@ export default function PopupRuntimePreview({
     alert("Frequency capping storage reset for all popups.");
   };
 
+  /**
+   * Scroll To Top.
+   */
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /**
+   * Get Animation Class.
+   * @param anim Anim supplied to this operation (type: PopupConfig["entranceAnimation"]).
+   */
   const getAnimationClass = (anim: PopupConfig["entranceAnimation"]) => {
     switch (anim) {
       case "fade":

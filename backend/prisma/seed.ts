@@ -1,6 +1,13 @@
+/**
+ * @file Seed: backend/prisma module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import "dotenv/config";
-import { prisma } from "../src/config/prisma.js";
+import { prisma } from "../src/platform/database/prisma.js";
 
+/**
+ * Main.
+ */
 async function main() {
   console.log("Seeding subscription plans...");
 

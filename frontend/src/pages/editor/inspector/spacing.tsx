@@ -1,7 +1,19 @@
+/**
+ * @file Spacing: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { EditorElement, ElementStyles, DeviceMode, ElementState } from "../types";
 import { getControlStyleValue, hasStyleOverride, hasHoverStyleOverride, parseSpacingUnit, isControlStyleConfigured } from "../utils";
 
+/**
+ * Render the scrubbable number input interface and connect its event handlers.
+ * @param options Named inputs: value, onChange, placeholder.
+
+ * @param options.value Value passed by the caller.
+ * @param options.onChange Callback invoked when the controlled value changes.
+ * @param options.placeholder Placeholder passed by the caller.
+ */
 const ScrubbableNumberInput: React.FC<{
   value: string;
   onChange: (val: string) => void;
@@ -30,6 +42,21 @@ interface SpacingControlProps {
   handleResetAll: () => void;
 }
 
+/**
+ * Render the spacing control interface and connect its event handlers.
+ * @param options Named inputs: title, type, isLinked, setIsLinked, selectedElement, activeDevice, activeElementState, handleSideChange, handleUnitChange, handleResetAll.
+
+ * @param options.title Title passed by the caller.
+ * @param options.type Type passed by the caller.
+ * @param options.isLinked Is Linked passed by the caller.
+ * @param options.setIsLinked Set Is Linked passed by the caller.
+ * @param options.selectedElement Selected Element passed by the caller.
+ * @param options.activeDevice Active Device passed by the caller.
+ * @param options.activeElementState Active Element State passed by the caller.
+ * @param options.handleSideChange Handle Side Change passed by the caller.
+ * @param options.handleUnitChange Handle Unit Change passed by the caller.
+ * @param options.handleResetAll Handle Reset All passed by the caller.
+ */
 export const SpacingControl: React.FC<SpacingControlProps> = ({
   title,
   type,

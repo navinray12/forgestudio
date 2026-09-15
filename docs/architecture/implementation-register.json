@@ -1,0 +1,757 @@
+{
+  "source": "ForgeStudio_Production_Blueprint_v4.docx",
+  "sourceTextSha256": "8de19f929cff70ff22c3461691827194dfbe8b41a786a613d6d1bc3a2ab66699",
+  "meaning": "Tracked requirements; source existence is not verification or release approval.",
+  "requirements": [
+    {
+      "id": "FS-001",
+      "title": "Reproduce and pin the baseline",
+      "prerequisitesAndOwner": "None; QA / Cloud",
+      "requiredEvidence": "Run in a disposable environment without real user selection",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-002",
+      "title": "Disable simulated destinations",
+      "prerequisitesAndOwner": "FS-001; Cloud",
+      "requiredEvidence": "Unreachable destination and invalid credential never verify or publish",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-003",
+      "title": "Make policy failures explicit",
+      "prerequisitesAndOwner": "FS-001; Security / Cloud",
+      "requiredEvidence": "Stored deny with failed policy lookup; missing resource context",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-004",
+      "title": "Persist webhook receipts safely",
+      "prerequisitesAndOwner": "FS-001, FS-003; Cloud / Security",
+      "requiredEvidence": "Whitespace/signature, duplicates and database-outage tests",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-005",
+      "title": "Remove startup schema changes",
+      "prerequisitesAndOwner": "FS-001; Cloud",
+      "requiredEvidence": "Fresh/upgrade schemas converge; simultaneous API starts do not alter tables",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-006",
+      "title": "Guard publication state transitions",
+      "prerequisitesAndOwner": "FS-002, FS-003, FS-005; Cloud",
+      "requiredEvidence": "Generic exception cannot overwrite a stored reconciliation state",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/foundation-status.md",
+        "backend/tests/integration/foundation.test.ts"
+      ]
+    },
+    {
+      "id": "FS-007",
+      "title": "Create workspace and import boundaries",
+      "prerequisitesAndOwner": "FS-001; Editor / Cloud",
+      "requiredEvidence": "Shared document has no host dependency; public runtime imports no editor UI",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-008",
+      "title": "Build reproducible images and Compose",
+      "prerequisitesAndOwner": "FS-001, FS-007; Platform",
+      "requiredEvidence": "Clean build, secret scan and non-root startup",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-009",
+      "title": "Provision data and separate Redis roles",
+      "prerequisitesAndOwner": "FS-005, FS-008; Platform",
+      "requiredEvidence": "Persistence, noeviction, private-network and cache-loss tests",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-010",
+      "title": "Create operation and delivery schema",
+      "prerequisitesAndOwner": "FS-005, FS-007, FS-040; Cloud",
+      "requiredEvidence": "Atomic intent creation, duplicate request and request-hash mismatch",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-011",
+      "title": "Implement outbox dispatch and admission",
+      "prerequisitesAndOwner": "FS-009, FS-010; Cloud",
+      "requiredEvidence": "Crash after enqueue, Redis unavailable and backlog high-water",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-012",
+      "title": "Implement worker runtime and leases",
+      "prerequisitesAndOwner": "FS-010, FS-011; Cloud / Platform",
+      "requiredEvidence": "Two workers, expired lease, process kill and result-write failure",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-013",
+      "title": "Implement independent recovery scheduler",
+      "prerequisitesAndOwner": "FS-010, FS-012; Cloud",
+      "requiredEvidence": "Delete dispatched queue work and recover the same operation",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-014",
+      "title": "Add schedules, retry ownership and fairness",
+      "prerequisitesAndOwner": "FS-011, FS-012, FS-013; Cloud",
+      "requiredEvidence": "Duplicate scheduler, DST/misfire, retry multiplication and noisy tenant",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-015",
+      "title": "Add operational telemetry and status API",
+      "prerequisitesAndOwner": "FS-010, FS-012; Platform / Cloud",
+      "requiredEvidence": "Reconnect after missed progress; cross-tenant status rejected",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-016",
+      "title": "Define the portable document contract",
+      "prerequisitesAndOwner": "FS-007; Editor",
+      "requiredEvidence": "Malformed trees, unknown widgets and oversized document fixtures",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/document-contract-status.md"
+      ]
+    },
+    {
+      "id": "FS-017",
+      "title": "Implement canonical hashes and migration fixtures",
+      "prerequisitesAndOwner": "FS-016; Editor / WordPress",
+      "requiredEvidence": "Unicode, numbers, duplicate keys, skipped versions and round-trips",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/document-contract-status.md"
+      ]
+    },
+    {
+      "id": "FS-018",
+      "title": "Introduce editor host adapters",
+      "prerequisitesAndOwner": "FS-016, FS-017; Editor / Cloud",
+      "requiredEvidence": "Cloud/test hosts pass the same operation contract",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-019",
+      "title": "Extract editor shell and canvas",
+      "prerequisitesAndOwner": "FS-018; Editor",
+      "requiredEvidence": "Selection, drag, keyboard and visual regressions",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-020",
+      "title": "Extract inspector, history and autosave",
+      "prerequisitesAndOwner": "FS-019; Editor",
+      "requiredEvidence": "Delayed acknowledgements, conflict, offline and logout cleanup",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-021",
+      "title": "Separate public renderer and style compiler",
+      "prerequisitesAndOwner": "FS-016, FS-017; Editor / Cloud",
+      "requiredEvidence": "Published bundle boundary and style/route fixtures",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-022",
+      "title": "Build core widget capability manifests",
+      "prerequisitesAndOwner": "FS-021; Editor / WordPress",
+      "requiredEvidence": "Semantic/visual/runtime parity and unknown-widget behavior",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-023",
+      "title": "Implement secure media lifecycle",
+      "prerequisitesAndOwner": "FS-009, FS-010, FS-012; Cloud / Security",
+      "requiredEvidence": "Malicious/decompression inputs, bad hashes and cross-tenant asset IDs",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-024",
+      "title": "Deliver native WordPress bootstrap and ZIP",
+      "prerequisitesAndOwner": "FS-008, FS-018; WordPress",
+      "requiredEvidence": "Clean supported install with cloud blocked",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-025",
+      "title": "Implement WordPress policy, drafts and media",
+      "prerequisitesAndOwner": "FS-003, FS-016, FS-024; WordPress / Security",
+      "requiredEvidence": "Nonce plus capability, stale draft and user-role tests",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-026",
+      "title": "Implement PHP renderer and theme modes",
+      "prerequisitesAndOwner": "FS-021, FS-022, FS-025; WordPress / Editor",
+      "requiredEvidence": "Supported themes, dynamic dependencies and parity fixtures",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-027",
+      "title": "Implement WordPress guarded activation and receipts",
+      "prerequisitesAndOwner": "FS-025, FS-026; WordPress",
+      "requiredEvidence": "Duplicate activation, revision pruning and post-field reconciliation",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-028",
+      "title": "Implement local tasks, upgrades and diagnostics",
+      "prerequisitesAndOwner": "FS-024, FS-027; WordPress",
+      "requiredEvidence": "No traffic, disabled cron, failed loopback and interrupted upgrade",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-029",
+      "title": "Implement cloud release snapshots and approval",
+      "prerequisitesAndOwner": "FS-003, FS-010, FS-016, FS-017; Cloud",
+      "requiredEvidence": "Stale approval, concurrent change and unauthorized publish",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-030",
+      "title": "Implement deterministic build and staging workers",
+      "prerequisitesAndOwner": "FS-012, FS-021, FS-022, FS-023, FS-029; Cloud",
+      "requiredEvidence": "Worker kill, missing object, render error and checksum mismatch",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-031",
+      "title": "Implement independent serving manifest",
+      "prerequisitesAndOwner": "FS-009, FS-030; Platform / Cloud",
+      "requiredEvidence": "Cold-cache request with control plane blocked",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-032",
+      "title": "Implement activation, live verification and rollback",
+      "prerequisitesAndOwner": "FS-006, FS-013, FS-029, FS-031; Cloud / Platform",
+      "requiredEvidence": "Old worker, unknown result, CDN convergence and newer draft",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-033",
+      "title": "Implement domains and preview isolation",
+      "prerequisitesAndOwner": "FS-031, FS-032; Platform / Security",
+      "requiredEvidence": "Stale-domain takeover, cookie, cache and service-worker boundaries",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-034",
+      "title": "Implement real connection handshake and secrets",
+      "prerequisitesAndOwner": "FS-003, FS-015, FS-024; Cloud / WordPress",
+      "requiredEvidence": "Invalid auth, key rotation, stale check and clone warning",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-035",
+      "title": "Implement authority handoff and conflict UI",
+      "prerequisitesAndOwner": "FS-017, FS-025, FS-034; Cloud / WordPress / Editor",
+      "requiredEvidence": "Partition during handoff, stale owner and manual divergence",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-036",
+      "title": "Implement real WordPress asset and document transfer",
+      "prerequisitesAndOwner": "FS-023, FS-027, FS-030, FS-034, FS-035; Cloud / WordPress",
+      "requiredEvidence": "Duplicate transfer, upload failure, route mapping and unsupported widget",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-037",
+      "title": "Implement connected receipt reconciliation",
+      "prerequisitesAndOwner": "FS-013, FS-027, FS-032, FS-036; Cloud / WordPress",
+      "requiredEvidence": "Timeout after remote commit, lost response and stale generation",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-038",
+      "title": "Implement safe retention and asset collection",
+      "prerequisitesAndOwner": "FS-023, FS-027, FS-032; Cloud / WordPress",
+      "requiredEvidence": "Pin-versus-delete race, old revision pruning and restored references",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-039",
+      "title": "Implement public forms and outbound delivery",
+      "prerequisitesAndOwner": "FS-004, FS-012, FS-022, FS-025; Cloud / WordPress",
+      "requiredEvidence": "Spam, injected recipient, duplicates and failed notification",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-040",
+      "title": "Establish account and membership authority before tenant features",
+      "prerequisitesAndOwner": "FS-003, FS-005, FS-007; Cloud / Security",
+      "requiredEvidence": "Cross-workspace roles, reused invitation and support expiry",
+      "status": "verified",
+      "evidence": [
+        "docs/architecture/tenancy-status.md",
+        "backend/tests/integration/workspace-authority.test.ts",
+        "backend/prisma/migrations/20260917000000_workspace_authority/migration.sql"
+      ]
+    },
+    {
+      "id": "FS-041",
+      "title": "Implement billing events and entitlements",
+      "prerequisitesAndOwner": "FS-004, FS-040; Cloud / Product",
+      "requiredEvidence": "Duplicate/out-of-order events, provider outage and downgrade",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-042",
+      "title": "Implement usage reservations and cost limits",
+      "prerequisitesAndOwner": "FS-010, FS-014, FS-041; Cloud / Product",
+      "requiredEvidence": "Concurrent spend, retry charging and uncertain external consumption",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-043",
+      "title": "Implement export, deletion and suppression ledger",
+      "prerequisitesAndOwner": "FS-023, FS-038, FS-040; Cloud / WordPress / Security",
+      "requiredEvidence": "Expired export, late worker resurrection and backup replay",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-044",
+      "title": "Implement secrets, artifact trust and vulnerability controls",
+      "prerequisitesAndOwner": "FS-008, FS-009, FS-034; Platform / Security",
+      "requiredEvidence": "Leaked secret scan, revoked key and unsigned/wrong-digest deployment",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-045",
+      "title": "Run tenant, preview and malicious-content verification",
+      "prerequisitesAndOwner": "FS-003, FS-023, FS-033, FS-040, FS-044; Security / QA",
+      "requiredEvidence": "Database/cache/object/job/support isolation and SSRF/parser attacks",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-046",
+      "title": "Implement backup restore and effect fencing",
+      "prerequisitesAndOwner": "FS-013, FS-032, FS-037, FS-043, FS-044; Platform / Cloud / WordPress",
+      "requiredEvidence": "Old region still running, stale counter, deleted account and expired keys",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-047",
+      "title": "Implement customer diagnostics and incident controls",
+      "prerequisitesAndOwner": "FS-015, FS-040, FS-046; Platform / Product",
+      "requiredEvidence": "Unauthorized retry, cancelled/unknown effect and incident drill",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-048",
+      "title": "Verify accessibility, SEO and render completeness",
+      "prerequisitesAndOwner": "FS-020, FS-022, FS-026, FS-033, FS-039; Editor / WordPress / QA",
+      "requiredEvidence": "WCAG-oriented checks, responsive parity, 404/redirect and forms",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-049",
+      "title": "Benchmark load, fairness and degradation",
+      "prerequisitesAndOwner": "FS-014, FS-015, FS-030, FS-032, FS-039; QA / Platform",
+      "requiredEvidence": "Cache outage, slow destination, noisy tenant and bounded backlog",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-050",
+      "title": "Certify plugin and payload compatibility",
+      "prerequisitesAndOwner": "FS-017, FS-028, FS-037; QA / WordPress / Cloud",
+      "requiredEvidence": "Skipped plugin upgrades, old payload, multisite and theme matrix",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-051",
+      "title": "Migrate existing sites and queued work",
+      "prerequisitesAndOwner": "FS-001, FS-017, FS-020, FS-032, FS-037, FS-038; Cloud / Editor / QA",
+      "requiredEvidence": "Counts/hashes/routes, draft-live separation and old job reconciliation",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-052",
+      "title": "Execute core production gate",
+      "prerequisitesAndOwner": "FS-045, FS-046, FS-047, FS-048, FS-049, FS-050, FS-051, FS-072, FS-074, FS-075, FS-076, FS-077, FS-079, FS-081, FS-082, FS-084, FS-085, FS-088, FS-068, FS-069, FS-070, FS-071, FS-078; Product / Security / QA / Platform",
+      "requiredEvidence": "All applicable G1–G10 evidence reviewed; paid mode additionally needs 41–43",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-053",
+      "title": "Build Kubernetes deployment profile",
+      "prerequisitesAndOwner": "FS-008, FS-009, FS-012, FS-015, FS-044; Platform",
+      "requiredEvidence": "Manifest policies, secret access, node drain and failed readiness",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-054",
+      "title": "Implement bounded HPA/KEDA scaling",
+      "prerequisitesAndOwner": "FS-014, FS-049, FS-053; Platform",
+      "requiredEvidence": "Missing metrics, database outage, burst and scale-down recovery",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-055",
+      "title": "Execute Kubernetes operating gate",
+      "prerequisitesAndOwner": "FS-046, FS-053, FS-054; Platform / QA",
+      "requiredEvidence": "Loss of node/zone, rollout and resource saturation",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-056",
+      "title": "Implement event contracts and independent outbox delivery",
+      "prerequisitesAndOwner": "FS-010, FS-016; Cloud",
+      "requiredEvidence": "Task delivery cannot consume event delivery; aggregate order checks",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-057",
+      "title": "Implement Kafka relay and topic policy",
+      "prerequisitesAndOwner": "FS-044, FS-056; Platform / Cloud",
+      "requiredEvidence": "Broker outage, duplicate relay and outbox capacity",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-058",
+      "title": "Implement idempotent projection and rebuild",
+      "prerequisitesAndOwner": "FS-043, FS-057; Cloud",
+      "requiredEvidence": "Duplicate/out-of-order event, retention gap and deleted-entity replay",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-059",
+      "title": "Execute Kafka operating gate",
+      "prerequisitesAndOwner": "FS-049, FS-057, FS-058; Platform / QA",
+      "requiredEvidence": "Independent rebuild and core saves during Kafka failure",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-060",
+      "title": "Implement optional AI suggestion boundary",
+      "prerequisitesAndOwner": "FS-020, FS-042, FS-043, FS-044; Editor / Cloud / Security",
+      "requiredEvidence": "Prompt injection, cost limit, provider timeout and unauthorized publish",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-061",
+      "title": "Implement governed template and extension contracts",
+      "prerequisitesAndOwner": "FS-017, FS-022, FS-043, FS-044, FS-050; Editor / Security",
+      "requiredEvidence": "Unsafe widget, dependency absence and revoked template version",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-062",
+      "title": "Evaluate regional cells through a controlled pilot",
+      "prerequisitesAndOwner": "FS-046, FS-049, FS-052; Platform / Cloud",
+      "requiredEvidence": "Partition, old writer and controlled account move",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-063",
+      "title": "Publish operating scorecard and support policy",
+      "prerequisitesAndOwner": "FS-047, FS-049, FS-052; Product / Platform / QA",
+      "requiredEvidence": "Compare advertised claims to achieved evidence",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-064",
+      "title": "Retire legacy paths after cutover proof",
+      "prerequisitesAndOwner": "FS-050, FS-051, FS-052, FS-063; Cloud / Editor / WordPress",
+      "requiredEvidence": "No active clients/jobs use removed contracts; restore/export still works",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-065",
+      "title": "Inventory every existing feature and migration disposition",
+      "prerequisitesAndOwner": "FS-001; Product / Editor / QA",
+      "requiredEvidence": "No existing widget data silently lost; inventory reviewed against current branch.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-066",
+      "title": "Instrument editor and publish latency boundaries",
+      "prerequisitesAndOwner": "FS-015; Editor / Platform",
+      "requiredEvidence": "Independent measurement of each journey; no accepted receipt masquerades as live time.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-067",
+      "title": "Create reference fixtures and open-loop benchmark harness",
+      "prerequisitesAndOwner": "FS-016, FS-015; QA / Platform",
+      "requiredEvidence": "Repeatable baseline with offered/completed load, error rate and p50/p95/p99.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-068",
+      "title": "Implement selective editor updates and bounded history",
+      "prerequisitesAndOwner": "FS-019, FS-020; Editor",
+      "requiredEvidence": "Unrelated inspector does not rerender each pointer event; reference interaction targets evaluated.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-069",
+      "title": "Implement race-safe save coordinator and browser tasks",
+      "prerequisitesAndOwner": "FS-020, FS-017, FS-066; Editor",
+      "requiredEvidence": "Delayed reply, offline, multi-tab, revoked session and stale worker tests.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-070",
+      "title": "Implement incremental dependency graph and artifact reuse",
+      "prerequisitesAndOwner": "FS-021, FS-030; Cloud / Editor",
+      "requiredEvidence": "Content/semantic parity for changed shared token, font, navigation and renderer version.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-071",
+      "title": "Enforce serving-manifest and cache boundaries",
+      "prerequisitesAndOwner": "FS-031, FS-033; Cloud / Platform",
+      "requiredEvidence": "Old worker cannot reread latest generation then overwrite newer release; cold path verified.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-072",
+      "title": "Implement physical constraints and concurrent draft transactions",
+      "prerequisitesAndOwner": "FS-010, FS-016, FS-040; Cloud",
+      "requiredEvidence": "One winner per expected revision; losing transaction leaves no orphan authoritative head or receipt.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-073",
+      "title": "Implement orthogonal publication state and guarded transitions",
+      "prerequisitesAndOwner": "FS-006, FS-010; Cloud",
+      "requiredEvidence": "No uncertain effect becomes cancelled or cleanly failed; success requires applied receipt and mandatory verification.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-074",
+      "title": "Implement concrete command receipts and error contracts",
+      "prerequisitesAndOwner": "FS-010, FS-040; Cloud / Editor / WordPress",
+      "requiredEvidence": "Same mutation returns original receipt after lost response without overwriting a newer head.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-075",
+      "title": "Implement fair dispatch and recovery reservations",
+      "prerequisitesAndOwner": "FS-014; Cloud",
+      "requiredEvidence": "Noisy tenant and provider429 do not starve unrelated eligible work or recovery.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-076",
+      "title": "Enforce decoded-media and archive resource bounds",
+      "prerequisitesAndOwner": "FS-023; Security / Cloud",
+      "requiredEvidence": "No traversal, symlink escape, unbounded allocation or executable upload on supported fixtures.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-077",
+      "title": "Verify WordPress cached rendering and receipt atomicity",
+      "prerequisitesAndOwner": "FS-027, FS-028; WordPress / QA",
+      "requiredEvidence": "Supported host gives coherent body/receipt; unsupported guarantee is disabled explicitly.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-078",
+      "title": "Complete route, SEO and declared dynamic-content contracts",
+      "prerequisitesAndOwner": "FS-033, FS-048; Editor / WordPress / QA",
+      "requiredEvidence": "Real404, canonical and redirect behavior; no static commerce controls falsely represented as transactions.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-079",
+      "title": "Verify cache poisoning and false-positive publication checks",
+      "prerequisitesAndOwner": "FS-045; Security / QA",
+      "requiredEvidence": "No private cache leak and no false Published result from a generic200.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-080",
+      "title": "Bind machine contracts to runtime implementations",
+      "prerequisitesAndOwner": "FS-010, FS-016, FS-018; Cloud / Editor / WordPress",
+      "requiredEvidence": "Reference pack validation is separate from actual adapter/host contract pass.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/document-contract-status.md"
+      ]
+    },
+    {
+      "id": "FS-081",
+      "title": "Certify canonicalization and renderer-version compatibility",
+      "prerequisitesAndOwner": "FS-017, FS-021; Editor / WordPress",
+      "requiredEvidence": "Cross-language hashes and full/incremental artifact comparisons pass real runtime vectors.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-082",
+      "title": "Verify feature-preserving migration against inventory",
+      "prerequisitesAndOwner": "FS-022, FS-050, FS-051, FS-065; Editor / Cloud / QA",
+      "requiredEvidence": "No migration is declared complete from row count alone.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-083",
+      "title": "Publish cost and tail-latency engineering evidence",
+      "prerequisitesAndOwner": "FS-049, FS-066, FS-067; QA / Platform",
+      "requiredEvidence": "Report actual p95/p99 with enough samples and cost assumptions; no unmeasured speedup score.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-084",
+      "title": "Test suppression-aware restore with stale remote writers",
+      "prerequisitesAndOwner": "FS-046; Platform / Cloud / WordPress",
+      "requiredEvidence": "All six recovery fixtures remain correct before writes reopen.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-085",
+      "title": "Implement overload and dependency-degradation controls",
+      "prerequisitesAndOwner": "FS-011, FS-014, FS-015; Platform / Cloud",
+      "requiredEvidence": "Accepted work retained; new overload rejected with truthful reason; reserve remains available.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-086",
+      "title": "Exercise interleaved state-machine failure scenarios",
+      "prerequisitesAndOwner": "FS-013, FS-032, FS-037, FS-073; QA / Cloud / WordPress",
+      "requiredEvidence": "No stale overwrite, false completion, duplicate first-create or unsafe cancellation.",
+      "status": "planned",
+      "evidence": []
+    },
+    {
+      "id": "FS-087",
+      "title": "Gate platform delivery on contracts and performance",
+      "prerequisitesAndOwner": "FS-008, FS-044, FS-067; Platform / QA",
+      "requiredEvidence": "Wrong digest, contract drift or material unreviewed regression blocks rollout.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    },
+    {
+      "id": "FS-088",
+      "title": "Validate release scope and evidence completeness",
+      "prerequisitesAndOwner": "FS-080, FS-083, FS-086, FS-087; Product / QA / Security",
+      "requiredEvidence": "No folder count, schema check or mock-only test is accepted as production proof.",
+      "status": "in_progress",
+      "evidence": [
+        "docs/architecture/production-blueprint-status.md"
+      ]
+    }
+  ]
+}

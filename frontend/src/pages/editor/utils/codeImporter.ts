@@ -1,3 +1,7 @@
+/**
+ * @file Code Importer: pages/editor/utils module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import ts from "typescript";
 import type {
   EditorElement,
@@ -37,6 +41,9 @@ function generateId(): string {
 
 /**
  * Quick AST syntax validation without full element conversion
+
+ * @param code Code supplied to this operation (type: string).
+ * @param _language Language supplied to this operation. Defaults to "tsx".
  */
 export function validateCodeSyntax(
   code: string,
@@ -88,6 +95,9 @@ export function validateCodeSyntax(
 
 /**
  * Evaluate an AST Expression node into JavaScript primitives, arrays, or objects
+
+ * @param node Node supplied to this operation (type: ts.Node).
+ * @param scope Scope supplied to this operation (type: Map<string, any>).
  */
 function evaluateExpression(node: ts.Node, scope: Map<string, any>): any {
   if (!node) return undefined;
@@ -171,10 +181,16 @@ function evaluateExpression(node: ts.Node, scope: Map<string, any>): any {
 
 /**
  * Scan sourceFile to collect top-level const declarations and function parameter defaults into a scope map
+
+ * @param sourceFile Source File supplied to this operation (type: ts.SourceFile).
  */
 function collectScopeVariables(sourceFile: ts.SourceFile): Map<string, any> {
   const scope = new Map<string, any>();
 
+  /**
+   * Visit.
+   * @param node Node supplied to this operation (type: ts.Node).
+   */
   function visit(node: ts.Node) {
     // Variable statements: const x = ...
     if (ts.isVariableStatement(node)) {
@@ -209,10 +225,16 @@ function collectScopeVariables(sourceFile: ts.SourceFile): Map<string, any> {
 
 /**
  * Locate the primary JSX Element or Fragment in the sourceFile
+
+ * @param sourceFile Source File supplied to this operation (type: ts.SourceFile).
  */
 function findRootJsx(sourceFile: ts.SourceFile): ts.JsxElement | ts.JsxSelfClosingElement | null {
   let rootJsx: ts.JsxElement | ts.JsxSelfClosingElement | null = null;
 
+  /**
+   * Visit.
+   * @param node Node supplied to this operation (type: ts.Node).
+   */
   function visit(node: ts.Node) {
     if (rootJsx) return;
 
@@ -230,6 +252,9 @@ function findRootJsx(sourceFile: ts.SourceFile): ts.JsxElement | ts.JsxSelfClosi
 
 /**
  * Extract JSX attributes into an object mapping
+
+ * @param attributesNode Attributes Node supplied to this operation (type: ts.JsxAttributes).
+ * @param scope Scope supplied to this operation (type: Map<string, any>).
  */
 function extractJsxAttributes(
   attributesNode: ts.JsxAttributes,
@@ -256,6 +281,8 @@ function extractJsxAttributes(
 
 /**
  * Extract inline styles and separate layout properties
+
+ * @param styleAttr Style Attr supplied to this operation (type: any).
  */
 function extractStylesAndLayout(styleAttr: any): { styles: ElementStyles; layout?: ContainerLayout } {
   const styles: ElementStyles = {};
@@ -292,6 +319,11 @@ function extractStylesAndLayout(styleAttr: any): { styles: ElementStyles; layout
 
 /**
  * Recursively convert a JSX AST node into an EditorElement
+
+ * @param node Node supplied to this operation (type: ts.JsxElement | ts.JsxSelfClosingElement).
+ * @param scope Scope supplied to this operation (type: Map<string, any>).
+ * @param existingElement Existing Element supplied to this operation (type: EditorElement). Optional; callers may omit it.
+ * @param warnings Warnings supplied to this operation (type: string[]). Defaults to [].
  */
 function convertJsxNodeToElement(
   node: ts.JsxElement | ts.JsxSelfClosingElement,
@@ -1015,6 +1047,8 @@ function convertJsxNodeToElement(
 
 /**
  * Extract plain text content directly from JSX children
+
+ * @param node Node supplied to this operation (type: ts.JsxElement | ts.JsxSelfClosingElement).
  */
 function extractTextContentFromChildren(node: ts.JsxElement | ts.JsxSelfClosingElement): string {
   if (!ts.isJsxElement(node)) return "";
@@ -1037,6 +1071,9 @@ function extractTextContentFromChildren(node: ts.JsxElement | ts.JsxSelfClosingE
 
 /**
  * Main Public API: Imports JSX/TSX/JS/TS code back into an EditorElement tree
+
+ * @param code Code supplied to this operation (type: string).
+ * @param options Options supplied to this operation (type: { existingElement?: EditorElement; language?: "jsx" | "tsx" | "js" | "ts"; }). Optional; callers may omit it.
  */
 export function importCodeToElement(
   code: string,
@@ -1134,6 +1171,9 @@ export function importCodeToElement(
 
 /**
  * Fallback parser for pure Vanilla JS DOM code
+
+ * @param code Code supplied to this operation (type: string).
+ * @param existingElement Existing Element supplied to this operation (type: EditorElement). Optional; callers may omit it.
  */
 function importVanillaDOMCode(code: string, existingElement?: EditorElement): ImportResult {
   const warnings: string[] = ["Parsed from Vanilla JavaScript DOM manipulation script."];

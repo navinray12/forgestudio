@@ -1,3 +1,7 @@
+/**
+ * @file Font Picker Control: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from 'react';
 import { Type, Search, RotateCcw } from 'lucide-react';
 import { FontService } from '../features/fonts/FontService';
@@ -12,6 +16,17 @@ interface FontPickerControlProps {
   isConfigured?: boolean;
 }
 
+/**
+ * Render the font picker control interface and connect its event handlers.
+ * @param options Named inputs: label, value, onChange, onOpenModal, onReset, isConfigured.
+
+ * @param options.label Label passed by the caller. Defaults to 'Font Family'.
+ * @param options.value Value passed by the caller.
+ * @param options.onChange Callback invoked when the controlled value changes.
+ * @param options.onOpenModal Callback for open modal events.
+ * @param options.onReset Callback for reset events.
+ * @param options.isConfigured Is Configured passed by the caller.
+ */
 export const FontPickerControl: React.FC<FontPickerControlProps> = ({
   label = 'Font Family',
   value,
