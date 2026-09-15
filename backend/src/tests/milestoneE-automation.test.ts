@@ -124,7 +124,7 @@ async function runMilestoneETests() {
     // TEST 1: Background Job Lifecycle (Enqueue & Process)
     // ==========================================
     console.log("--- Test 1: Background Job Lifecycle ---");
-    let customTaskExecuted = false;
+    let customTaskExecuted: any = false;
     registerJobHandler("TEST_SIMPLE_TASK", async (payload) => {
       customTaskExecuted = true;
       return { received: payload.val, processedAt: new Date().toISOString() };
@@ -141,7 +141,7 @@ async function runMilestoneETests() {
 
     assert(
       proc1.processed === true &&
-        customTaskExecuted === true &&
+        Boolean(customTaskExecuted) === true &&
         refreshedJob1?.status === "COMPLETED" &&
         refreshedJob1?.completedAt !== null,
       "T1.2: processNextJob executes handler and updates status to COMPLETED"
