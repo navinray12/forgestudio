@@ -10,6 +10,45 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
+function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []): string {
+  if (!rawHref) return "#";
+  const trimmed = rawHref.trim();
+  if (!trimmed || trimmed === "#") return "#";
+
+  if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) return "#";
+  if (/^(https?:\/\/|\/\/|mailto:|tel:)/i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("#")) return trimmed;
+
+  if (trimmed.startsWith("page:")) {
+    const pageId = trimmed.replace("page:", "").trim();
+    const targetPage = allPages.find((p) => p.id === pageId);
+    if (targetPage) {
+      return targetPage.isHome || targetPage.slug === "/" ? "index.html" : `${(targetPage.slug || targetPage.id).replace(/^\//, "")}.html`;
+    }
+    return "#";
+  }
+
+  const [basePath, queryOrHash] = trimmed.split(/(?=[?#])/);
+  const clean = basePath.replace(/^\//, "");
+
+  const matched = allPages.find(
+    (p) =>
+      p.id === basePath ||
+      p.id === clean ||
+      p.slug === basePath ||
+      p.slug === `/${clean}` ||
+      (p.slug && p.slug.replace(/^\//, "") === clean) ||
+      (clean === "" && (p.isHome || p.id === "home"))
+  );
+
+  if (matched) {
+    const fileName = matched.isHome || matched.slug === "/" || clean === "" ? "index.html" : `${(matched.slug || matched.id).replace(/^\//, "")}.html`;
+    return queryOrHash ? `${fileName}${queryOrHash}` : fileName;
+  }
+
+  return trimmed;
+}
+
 function renderElementToHtml(el: any, allPages: any[]): string {
   if (!el) return "";
 
@@ -31,17 +70,35 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       return `<p${idAttr}${classAttr}${styleAttr}>${escapeHtml(el.content || "")}</p>`;
     }
     case "button": {
-      let href = el.link || "#";
-      // If linking to a local page, map to .html
-      if (href.startsWith("page:")) {
-        const targetPageId = href.replace("page:", "");
-        const targetPage = allPages.find((p) => p.id === targetPageId);
-        href = targetPage ? (targetPage.isHome ? "index.html" : `${targetPage.slug || targetPage.id}.html`) : "#";
-      }
+      const rawHref = el.href || el.linkUrl || el.link || (el.pageId ? `page:${el.pageId}` : "") || "#";
+      const href = resolveStaticHtmlHref(rawHref, allPages);
       return `<a href="${escapeHtml(href)}"${idAttr}${classAttr}${styleAttr}>${escapeHtml(el.content || el.text || "Click Here")}</a>`;
     }
     case "image": {
-      return `<img src="${escapeHtml(el.src || "")}" alt="${escapeHtml(el.alt || "")}"${idAttr}${classAttr}${styleAttr} />`;
+      const rawHref = el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "");
+      const imgTag = `<img src="${escapeHtml(el.src || "")}" alt="${escapeHtml(el.alt || "")}"${idAttr}${classAttr}${styleAttr} />`;
+      if (rawHref) {
+        const href = resolveStaticHtmlHref(rawHref, allPages);
+        const targetAttr = el.target ? ` target="${escapeHtml(el.target)}"` : "";
+        return `<a href="${escapeHtml(href)}"${targetAttr}>${imgTag}</a>`;
+      }
+      return imgTag;
+    }
+    case "nav-menu": {
+      const navItems = Array.isArray(el.navMenuItems) ? el.navMenuItems : (Array.isArray(el.items) ? el.items : []);
+      const itemsHtml = navItems.map((item: any) => {
+        const itemHref = resolveStaticHtmlHref(item.url || item.href || (item.pageId ? `page:${item.pageId}` : ""), allPages);
+        const subItems = Array.isArray(item.submenu) ? item.submenu : [];
+        let subHtml = "";
+        if (subItems.length > 0) {
+          subHtml = `\n<ul class="sub-menu">\n${subItems.map((s: any) => {
+            const sHref = resolveStaticHtmlHref(s.url || s.href || (s.pageId ? `page:${s.pageId}` : ""), allPages);
+            return `<li><a href="${escapeHtml(sHref)}">${escapeHtml(s.label || s.title || "Link")}</a></li>`;
+          }).join("\n")}\n</ul>`;
+        }
+        return `<li><a href="${escapeHtml(itemHref)}">${escapeHtml(item.label || item.title || "Link")}</a>${subHtml}</li>`;
+      }).join("\n");
+      return `<nav class="nav-menu"${idAttr}${classAttr}${styleAttr}>\n<ul>\n${itemsHtml}\n</ul>\n</nav>`;
     }
     case "container":
     case "section":

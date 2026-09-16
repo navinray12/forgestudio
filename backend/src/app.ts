@@ -33,6 +33,7 @@ import {
 
 import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
+import auditLogRoutes from "./routes/auditLog.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -129,6 +130,10 @@ app.use("/api/v1/multisite", multisiteRoutes);
 app.use("/api/multisite", multisiteRoutes);
 app.use("/api/v1/integrations", integrationRoutes);
 app.use("/api/integrations", integrationRoutes);
+
+// Audit Logs
+app.use("/api/v1/audit-logs", auditLogRoutes);
+app.use("/api/audit-logs", auditLogRoutes);
 
 // Operations, Automation & Monitoring
 app.use("/api/v1/operations", operationsRoutes);

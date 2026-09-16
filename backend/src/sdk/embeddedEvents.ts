@@ -76,27 +76,105 @@ export function isForgeMessage(data: any): data is ForgeMessage {
   );
 }
 
+export interface PostForgeMessageOptions {
+  targetOrigin?: string;
+  isDevelopmentSafe?: boolean;
+}
+
+/**
+ * Validates origin against explicit allowlist.
+ */
+export function isValidMessageOrigin(origin: string | undefined, allowedOrigins: string[]): boolean {
+  if (!origin || typeof origin !== "string") return false;
+  return allowedOrigins.includes(origin);
+}
+
+/**
+ * Dispatch postMessage with explicit targetOrigin security.
+ * Wildcard '*' is strictly forbidden for production communication.
+ */
 export function postForgeMessage<T = any>(
   targetWindow: { postMessage: (message: any, targetOrigin: string) => void },
   type: ForgeMessageType,
   payload: T,
-  targetOrigin: string = "*"
+  targetOriginOrOptions?: string | PostForgeMessageOptions
 ): void {
+  let targetOrigin: string | undefined;
+  let isDevSafe = process.env.NODE_ENV !== "production";
+
+  if (typeof targetOriginOrOptions === "string") {
+    targetOrigin = targetOriginOrOptions;
+  } else if (targetOriginOrOptions && typeof targetOriginOrOptions === "object") {
+    targetOrigin = targetOriginOrOptions.targetOrigin;
+    if (targetOriginOrOptions.isDevelopmentSafe !== undefined) {
+      isDevSafe = targetOriginOrOptions.isDevelopmentSafe;
+    }
+  }
+
+  // In production or when not explicitly dev-safe, wildcard '*' or missing origin is strictly forbidden
+  if (!isDevSafe) {
+    if (!targetOrigin || targetOrigin === "*") {
+      throw new Error(
+        `SecurityError: Explicit targetOrigin is required for production communication (${type}). Wildcard '*' is forbidden in production.`
+      );
+    }
+  }
+
+  const finalOrigin = targetOrigin || (isDevSafe ? "*" : "");
+  if (!finalOrigin) {
+    throw new Error(`SecurityError: targetOrigin must be specified for postForgeMessage.`);
+  }
+
   const message = createForgeMessage(type, payload);
-  targetWindow.postMessage(message, targetOrigin);
+  targetWindow.postMessage(message, finalOrigin);
 }
 
+export interface SubscribeOptions {
+  allowedOrigins?: string[];
+  isDevelopmentSafe?: boolean;
+}
+
+/**
+ * Subscribes to window message events with origin validation and envelope verification.
+ * Rejects messages from disallowed origins, missing origins, or malformed payloads.
+ */
 export function subscribeToForgeMessages(
   windowObj: {
     addEventListener: (type: string, listener: (ev: any) => void) => void;
     removeEventListener: (type: string, listener: (ev: any) => void) => void;
   },
-  handler: (message: ForgeMessage, event: any) => void
+  handler: (message: ForgeMessage, event: any) => void,
+  options?: string[] | SubscribeOptions
 ): () => void {
-  const listener = (event: any) => {
-    if (isForgeMessage(event.data)) {
-      handler(event.data, event);
+  let allowedOrigins: string[] | undefined;
+  let isDevSafe = process.env.NODE_ENV !== "production";
+
+  if (Array.isArray(options)) {
+    allowedOrigins = options;
+  } else if (options && typeof options === "object") {
+    allowedOrigins = options.allowedOrigins;
+    if (options.isDevelopmentSafe !== undefined) {
+      isDevSafe = options.isDevelopmentSafe;
     }
+  }
+
+  const listener = (event: any) => {
+    // 1. Envelope validation
+    if (!event || !isForgeMessage(event.data)) {
+      return;
+    }
+
+    // 2. Origin validation
+    if (allowedOrigins && allowedOrigins.length > 0) {
+      if (!isValidMessageOrigin(event.origin, allowedOrigins)) {
+        return; // Reject unauthorized or missing origin
+      }
+    } else if (!isDevSafe) {
+      // In production mode, an explicit allowedOrigins list is mandatory
+      return;
+    }
+
+    handler(event.data, event);
   };
 
   windowObj.addEventListener("message", listener);

@@ -16,6 +16,7 @@ import {
   getSftpConfig,
   syncFilesOverSftp,
 } from "../services/sftp.service.js";
+import { setSftpClientFactory } from "../services/destinations/sftp.publisher.js";
 
 const db = prisma as any;
 
@@ -42,6 +43,14 @@ async function runMilestoneBTests() {
   let testWebsite: any;
 
   try {
+    setSftpClientFactory(() => ({
+      connect: async () => {},
+      mkdir: async () => "",
+      put: async () => "",
+      list: async () => [],
+      end: async () => {},
+    }));
+
     const timestamp = Date.now();
     testUser = await db.user.create({
       data: {
@@ -318,6 +327,7 @@ async function runMilestoneBTests() {
     console.error("Milestone B test error:", error);
     failed++;
   } finally {
+    setSftpClientFactory(null);
     // Teardown
     try {
       if (testWebsite?.id) await db.website.delete({ where: { id: testWebsite.id } });

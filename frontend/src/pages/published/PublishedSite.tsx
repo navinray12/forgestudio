@@ -113,6 +113,21 @@ const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
 
+const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
+    if (!target || !pagesList || pagesList.length === 0) return undefined;
+    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
+    return pagesList.find(
+        (p) =>
+            p.id === target ||
+            p.slug === target ||
+            p.slug === `/${clean}` ||
+            p.slug.replace(/^\//, "") === clean ||
+            p.name.toLowerCase() === target.toLowerCase() ||
+            p.name.toLowerCase() === clean.toLowerCase() ||
+            (clean === "" && (p.isHome || p.id === "home"))
+    );
+};
+
 interface RenderNodeProps {
     el: EditorElement;
     isCritical: boolean;
@@ -177,13 +192,49 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     if (el.type === "text") return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</p></React.Fragment>;
 
-    if (el.type === "image") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ textAlign: (resolvedStyles.textAlign as any) || "left", ...mergedProps.style }}>
-                {el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />}
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "image") {
+        const imageHref = (el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "") || "").trim();
+        const target = el.target || "_self";
+        const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+        const isDownload = el.download;
+        const imgElement = el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />;
+
+        const wrappedImg = imageHref ? (
+            <a
+                href={imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref}
+                target={target}
+                rel={rel}
+                download={isDownload ? true : undefined}
+                onClick={(e) => {
+                    let targetPage: PageConfig | undefined;
+                    if (el.pageId && pages) {
+                        targetPage = pages.find((p) => p.id === el.pageId);
+                    }
+                    if (!targetPage && imageHref && pages) {
+                        targetPage = findTargetPage(pages, imageHref);
+                    }
+                    if (targetPage && target !== "_blank" && onSwitchPage) {
+                        e.preventDefault();
+                        onSwitchPage(targetPage);
+                    } else if (imageHref.startsWith("#") && imageHref.length > 1) {
+                        e.preventDefault();
+                        const targetEl = document.querySelector(imageHref);
+                        if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+                    }
+                }}
+            >
+                {imgElement}
+            </a>
+        ) : imgElement;
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ textAlign: (resolvedStyles.textAlign as any) || "left", ...mergedProps.style }}>
+                    {wrappedImg}
+                </div>
+            </React.Fragment>
+        );
+    }
 
     if (el.type === "button") {
         const resolvedHref = resolveButtonHref(el, pages || []);
@@ -227,10 +278,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                                 targetPage = pages.find((p) => p.id === el.pageId);
                             }
                             if (!targetPage && resolvedHref && pages) {
-                                const clean = resolvedHref.replace(/^\//, "");
-                                targetPage = pages.find(
-                                    (p) => p.slug === resolvedHref || p.slug === clean || p.id === clean || (resolvedHref === "/" && (p.isHome || p.id === "home"))
-                                );
+                                targetPage = findTargetPage(pages, resolvedHref);
                             }
 
                             if (targetPage && target !== "_blank" && onSwitchPage) {
@@ -353,14 +401,44 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} websiteId={websiteId} /></div>;
     if (el.type === "login") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoginWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "nav-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><NavMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "nav-menu") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <NavMenuWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                websiteId={websiteId}
+                isPublicSite={true}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
     if (el.type === "animated-headline") return <div ref={assignRefIfTracked as any} {...mergedProps}><AnimatedHeadlineWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "price-table") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceTableWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "price-list") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceListWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><GalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "basic-gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicGalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "flip-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><FlipBoxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "call-to-action") return <div ref={assignRefIfTracked as any} {...mergedProps}><CtaWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "call-to-action") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <CtaWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
     if (el.type === "media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><MediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "basic-media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicMediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "testimonial-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><TestimonialCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
@@ -378,8 +456,21 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "audio-playlist") return <div ref={assignRefIfTracked as any} {...mergedProps}><AudioPlaylistWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "dynamic-lightbox") return <div ref={assignRefIfTracked as any} {...mergedProps}><DynamicLightboxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "custom-svg") return <div ref={assignRefIfTracked as any} {...mergedProps}><CustomSvgWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "icon-library") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconLibraryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
-    if (el.type === "mega-menu") return <div ref={assignRefIfTracked as any} {...mergedProps}><MegaMenuWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "mega-menu") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <MegaMenuWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
     if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} pages={pages} activePageId={pages?.find(p => p.elements?.some(e => e.id === el.id))?.id || pages?.[0]?.id} /></div>;
 
     if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
@@ -479,7 +570,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 });
 
 export default function PublishedSite() {
-    const { websiteId } = useParams<{ websiteId: string }>();
+    const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     const [loading, setLoading] = useState(true);
@@ -515,10 +606,15 @@ export default function PublishedSite() {
                 const site = data.website || data;
 
                 if (site?.editorData?.pages && site.editorData.pages.length > 0) {
-                    setPages(site.editorData.pages);
-                    const homePage = site.editorData.pages.find((p: any) => p.isHome || p.slug === "/") || site.editorData.pages[0];
-                    setActivePageId(homePage.id || "home");
-                    setElements(homePage.elements || []);
+                    const pagesList: PageConfig[] = site.editorData.pages;
+                    setPages(pagesList);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const queryPage = urlParams.get("page");
+                    const initialSlug = pageSlug || queryPage;
+                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    const activePage = matchedPage || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                    setActivePageId(activePage.id || "home");
+                    setElements(activePage.elements || []);
                 } else if (site?.editorData?.elements) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: site.editorData.elements };
                     setPages([defaultPage]);
@@ -540,12 +636,44 @@ export default function PublishedSite() {
             }
         };
         fetchWebsite();
-    }, [websiteId, apiUrl]);
+    }, [websiteId, apiUrl, pageSlug]);
 
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
+        if (websiteId) {
+            const isHome = page.isHome || page.slug === "/" || page.id === "home";
+            const cleanSlug = page.slug ? page.slug.replace(/^\//, "") : page.id;
+            const newPath = isHome ? `/site/${websiteId}` : `/site/${websiteId}/${cleanSlug}`;
+            if (window.location.pathname !== newPath) {
+                window.history.pushState({ pageId: page.id }, "", newPath);
+            }
+        }
     };
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (!pages || pages.length === 0) return;
+            const currentPath = window.location.pathname;
+            const parts = currentPath.split("/").filter(Boolean);
+            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts[2] : undefined;
+            const queryPage = new URLSearchParams(window.location.search).get("page");
+            const targetSlug = slugFromPath || queryPage;
+
+            const matched = targetSlug
+                ? findTargetPage(pages, targetSlug)
+                : pages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || pages[0];
+
+            if (matched && matched.id !== activePageId) {
+                setActivePageId(matched.id);
+                setElements(matched.elements || []);
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [pages, activePageId]);
+
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
 
@@ -750,6 +878,7 @@ export default function PublishedSite() {
                     allElements={elements}
                     pages={pages}
                     onSwitchPage={handleSwitchPage}
+                    websiteId={websiteId}
                 />
             ))}
         </div>

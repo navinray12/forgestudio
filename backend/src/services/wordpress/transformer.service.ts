@@ -107,7 +107,11 @@ function transformElementToGutenberg(
 
     case "button": {
       const text = escapeHtml(el.content || el.text || el.label || "Click Here");
-      const url = el.url || el.link || "#";
+      let url = el.url || el.link || el.href || el.linkUrl || (el.pageId ? `/${el.pageId}/` : "#");
+      if (url.startsWith("page:")) {
+        const targetPageId = url.replace("page:", "");
+        url = `/${targetPageId}/`;
+      }
       return `<!-- wp:buttons {"attrs":${JSON.stringify(attrs)}} -->\n<div class="wp-block-buttons"><div class="wp-block-button"><a class="wp-block-button__link" href="${url}">${text}</a></div></div>\n<!-- /wp:buttons -->`;
     }
 

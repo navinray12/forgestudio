@@ -108,22 +108,35 @@ export async function downloadStaticExportHandler(req: Request, res: Response, n
     const { compileCanonicalToStaticBundle } = await import("../services/destinations/staticCompiler.js");
     const bundle = compileCanonicalToStaticBundle(websiteId, deployment.version, snapshot);
 
-    return res.status(200).json({
-      success: true,
-      websiteId,
-      deploymentId,
-      version: deployment.version,
-      bundle: {
-        totalFiles: bundle.files.length,
-        totalBytes: bundle.totalBytes,
-        pageCount: bundle.pageCount,
-        files: bundle.files.map((f) => ({
-          path: f.path,
-          size: f.size,
-          contentType: f.contentType,
-        })),
-      },
-    });
+    if (req.query.format === "json") {
+      return res.status(200).json({
+        success: true,
+        websiteId,
+        deploymentId,
+        version: deployment.version,
+        bundle: {
+          totalFiles: bundle.files.length,
+          totalBytes: bundle.totalBytes,
+          pageCount: bundle.pageCount,
+          files: bundle.files.map((f) => ({
+            path: f.path,
+            size: f.size,
+            contentType: f.contentType,
+          })),
+        },
+      });
+    }
+
+    const { createStaticZipArchive } = await import("../services/destinations/staticZip.service.js");
+    const zipBuffer = await createStaticZipArchive(bundle);
+
+    const safeSiteName = (website.title || website.name || `website-${websiteId}`).replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filename = `${safeSiteName}-v${deployment.version}.zip`;
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", zipBuffer.length.toString());
+    return res.status(200).send(zipBuffer);
   } catch (error) {
     next(error);
   }

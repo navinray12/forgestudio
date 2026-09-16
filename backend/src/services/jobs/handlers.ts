@@ -4,10 +4,18 @@ import { prisma } from "../../config/prisma.js";
 
 export function initJobHandlers() {
   // 1. SCHEDULED_PUBLISH Handler
-  registerJobHandler("SCHEDULED_PUBLISH", async (payload) => {
+  registerJobHandler("SCHEDULED_PUBLISH", async (payload, job) => {
     const { websiteId, userId, options } = payload;
     if (!websiteId || !userId) {
       throw new Error("Missing websiteId or userId in SCHEDULED_PUBLISH payload");
+    }
+
+    if (job?.id) {
+      const { getJobById } = await import("./jobRunner.js");
+      const currentJob = await getJobById(job.id);
+      if (currentJob && currentJob.status === "CANCELLED") {
+        return { cancelled: true, message: "Publish skipped: job was cancelled" };
+      }
     }
 
     const result = await publishWebsite(websiteId, userId, options);

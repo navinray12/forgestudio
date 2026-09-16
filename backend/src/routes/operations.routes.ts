@@ -8,6 +8,7 @@ import {
   processNextJobHandler,
   getAlertsHandler,
   schedulePublishHandler,
+  cancelScheduledPublishHandler,
   promoteDeploymentHandler,
 } from "../controllers/operations.controller.js";
 
@@ -24,6 +25,7 @@ router.get("/alerts", requireAuth, getAlertsHandler);
 
 // Website Operational Actions
 router.post("/websites/:id/schedule-publish", requireAuth, authorizeCapability("PUBLISH"), schedulePublishHandler);
+router.post("/websites/:id/cancel-scheduled-publish", requireAuth, authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/websites/:id/promote", requireAuth, authorizeCapability("PUBLISH"), promoteDeploymentHandler);
 
 export default router;

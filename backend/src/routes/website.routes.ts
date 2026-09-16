@@ -10,6 +10,8 @@ import {
   getWebsiteRolesHandler,
   updateWebsiteRoleHandler,
   inviteWebsiteMemberHandler,
+  revokeWebsiteInvitationHandler,
+  resendWebsiteInvitationHandler,
   acceptWebsiteInvitationHandler,
   removeWebsiteMemberHandler,
   getGranularPermissionsHandler,
@@ -40,6 +42,7 @@ import {
 } from "../controllers/wordpress.controller.js";
 import {
   schedulePublishHandler,
+  cancelScheduledPublishHandler,
   promoteDeploymentHandler,
 } from "../controllers/operations.controller.js";
 
@@ -75,6 +78,7 @@ router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDep
 router.get("/:id/deployments/:deploymentId/export-download", authorizeCapability("VIEW"), downloadStaticExportHandler);
 router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);
 router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
+router.post("/:id/cancel-scheduled-publish", authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);
 
 // Revisions API
@@ -89,6 +93,11 @@ router.put("/:id/roles/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"),
 router.post("/accept", acceptWebsiteInvitationHandler);
 router.post("/:id/invite", authorizeCapability("MANAGE_TEAM"), inviteWebsiteMemberHandler);
 router.delete("/:id/members/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), removeWebsiteMemberHandler);
+
+router.post("/invitations/:inviteId/revoke", revokeWebsiteInvitationHandler);
+router.post("/invitations/:inviteId/resend", resendWebsiteInvitationHandler);
+router.post("/:id/invitations/:inviteId/revoke", authorizeCapability("MANAGE_TEAM"), revokeWebsiteInvitationHandler);
+router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEAM"), resendWebsiteInvitationHandler);
 
 router.get("/:id/permissions", authorizeCapability("MANAGE_TEAM"), getGranularPermissionsHandler);
 router.post("/:id/permissions", authorizeCapability("MANAGE_TEAM"), setGranularPermissionHandler);

@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 import { SftpPublisher } from "./destinations/sftp.publisher.js";
 import { getWebsiteById } from "./website.service.js";
+import { authorizeResourceAccess } from "./permission.service.js";
 
 const db = prisma as any;
 
@@ -10,8 +11,13 @@ export async function createOrUpdateSftpConfig(
   host: string,
   port: number,
   username: string,
-  remotePath: string
+  remotePath: string,
+  userId?: string
 ) {
+  if (userId) {
+    await authorizeResourceAccess(userId, websiteId, "*", "MANAGE_INTEGRATIONS");
+  }
+
   if (!host || host.trim() === "") {
     throw new AppError("SFTP host is required.", 400, "INVALID_HOST");
   }
@@ -49,7 +55,11 @@ export async function createOrUpdateSftpConfig(
   });
 }
 
-export async function getSftpConfig(websiteId: string) {
+export async function getSftpConfig(websiteId: string, userId?: string) {
+  if (userId) {
+    await authorizeResourceAccess(userId, websiteId, "*", "VIEW");
+  }
+
   const conn = await db.sftpConnection.findFirst({
     where: { websiteId },
   });
@@ -69,7 +79,11 @@ export async function getSftpConfig(websiteId: string) {
   };
 }
 
-export async function verifySftpConfig(websiteId: string) {
+export async function verifySftpConfig(websiteId: string, userId?: string) {
+  if (userId) {
+    await authorizeResourceAccess(userId, websiteId, "*", "MANAGE_INTEGRATIONS");
+  }
+
   const publisher = new SftpPublisher();
   return await publisher.verify(websiteId, "");
 }
@@ -80,6 +94,10 @@ export async function verifySftpConfig(websiteId: string) {
  * Calculates actual files count transferred (NO hard-coded fake numbers like 42).
  */
 export async function syncFilesOverSftp(websiteId: string, userId?: string) {
+  if (userId) {
+    await authorizeResourceAccess(userId, websiteId, "*", "PUBLISH");
+  }
+
   const config = await db.sftpConnection.findFirst({
     where: { websiteId, isActive: true },
   });

@@ -1021,6 +1021,71 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
   return { success: true };
 }
 
+export async function revokeWebsiteInvitation(inviteId: string, requesterUserId: string) {
+  const invite = await db.websiteInvitation.findUnique({ where: { id: inviteId } });
+  if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+  const website = await getWebsiteById(invite.websiteId, requesterUserId);
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("You do not have permission to manage invitations.", 403, "FORBIDDEN");
+  }
+
+  const updated = await db.websiteInvitation.update({
+    where: { id: inviteId },
+    data: { status: "REVOKED" }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "INVITATION_REVOKED",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId, email: invite.email, role: invite.role },
+      },
+    });
+  } catch (e) {}
+
+  return { success: true, invite: { id: updated.id, status: updated.status } };
+}
+
+export async function resendWebsiteInvitation(inviteId: string, requesterUserId: string) {
+  const invite = await db.websiteInvitation.findUnique({ where: { id: inviteId } });
+  if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+  const website = await getWebsiteById(invite.websiteId, requesterUserId);
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("You do not have permission to manage invitations.", 403, "FORBIDDEN");
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+
+  await db.websiteInvitation.update({
+    where: { id: inviteId },
+    data: {
+      tokenHash,
+      status: "PENDING",
+      expiresAt: expiry,
+    }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "INVITATION_RESENT",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId, email: invite.email, role: invite.role },
+      },
+    });
+  } catch (e) {}
+
+  return { success: true, inviteId: invite.id, token };
+}
+
 /**
  * Public Website DTO Projection (Comment 8)
  * Strictly unauthenticated read endpoint for published websites.

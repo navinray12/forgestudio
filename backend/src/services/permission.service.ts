@@ -79,7 +79,12 @@ export async function canUserAccessResource(
   capability: string
 ): Promise<boolean> {
   // 1. Check basic ownership / team access via getWebsiteById
-  const website = await getWebsiteById(websiteId, userId);
+  let website: any;
+  try {
+    website = await getWebsiteById(websiteId, userId);
+  } catch {
+    return false;
+  }
   const role = website.userPermission || "REVIEWER";
 
   if (role === "OWNER") return true;
@@ -167,7 +172,12 @@ export function authorizeCapability(capability: string, resourceId: string = "*"
       if (!user) {
         throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
       }
-      const websiteId = (req.params.id || req.params.websiteId) as string;
+      const websiteId = (
+        req.params.id ||
+        req.params.websiteId ||
+        req.body?.websiteId ||
+        (req.query?.websiteId as string)
+      ) as string;
       if (!websiteId) {
         return next();
       }

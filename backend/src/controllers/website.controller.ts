@@ -199,6 +199,24 @@ export async function removeWebsiteMemberHandler(req: Request, res: Response, ne
   } catch (error) { next(error); }
 }
 
+export async function revokeWebsiteInvitationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const inviteId = req.params.inviteId as string;
+    const { revokeWebsiteInvitation } = await import("../services/website.service.js");
+    const result = await revokeWebsiteInvitation(inviteId, res.locals.user.id);
+    return res.status(200).json(result);
+  } catch (error) { next(error); }
+}
+
+export async function resendWebsiteInvitationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const inviteId = req.params.inviteId as string;
+    const { resendWebsiteInvitation } = await import("../services/website.service.js");
+    const result = await resendWebsiteInvitation(inviteId, res.locals.user.id);
+    return res.status(200).json(result);
+  } catch (error) { next(error); }
+}
+
 export async function getGranularPermissionsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const { getGranularPermissions } = await import("../services/permission.service.js");

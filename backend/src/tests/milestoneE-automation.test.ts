@@ -53,6 +53,11 @@ async function runMilestoneETests() {
   let testWebsite: any = null;
   let testWebsite2: any = null;
   let stagingDeploymentId = "";
+  const createdJobIds: string[] = [];
+  function trackJob<T extends { id?: string }>(job: T): T {
+    if (job?.id) createdJobIds.push(job.id);
+    return job;
+  }
 
   try {
     // 0. Setup Table & Users
@@ -130,13 +135,13 @@ async function runMilestoneETests() {
       return { received: payload.val, processedAt: new Date().toISOString() };
     });
 
-    const job1 = await enqueueJob("TEST_SIMPLE_TASK", { val: 42 });
+    const job1 = trackJob(await enqueueJob("TEST_SIMPLE_TASK", { val: 42 }));
     assert(
       job1 !== null && job1.status === "QUEUED" && job1.type === "TEST_SIMPLE_TASK",
       "T1.1: enqueueJob creates a job in QUEUED status"
     );
 
-    const proc1 = await processNextJob();
+    const proc1 = await processNextJob({ id: job1.id });
     const refreshedJob1 = await getJobById(job1.id);
 
     assert(
@@ -160,10 +165,10 @@ async function runMilestoneETests() {
       return { success: true, finalAttempt: attemptsCount };
     });
 
-    const retryJob = await enqueueJob("TEST_RETRY_TASK", {}, { maxAttempts: 3 });
+    const retryJob = trackJob(await enqueueJob("TEST_RETRY_TASK", {}, { maxAttempts: 3 }));
 
     // Attempt 1: Should fail and requeue with backoff
-    await processNextJob();
+    await processNextJob({ id: retryJob.id });
     const jobAfterAttempt1 = await getJobById(retryJob.id);
     assert(
       jobAfterAttempt1?.attempts === 1 &&
@@ -194,7 +199,7 @@ async function runMilestoneETests() {
     // Force runAt to NOW and process Attempt 2:
     await forceJobDue(jobAfterAttempt1.id);
 
-    await processNextJob();
+    await processNextJob({ id: retryJob.id });
     const jobAfterAttempt2 = await getJobById(retryJob.id);
     assert(
       jobAfterAttempt2?.attempts === 2 && jobAfterAttempt2?.status === "QUEUED",
@@ -204,7 +209,7 @@ async function runMilestoneETests() {
     // Force runAt to NOW and process Attempt 3: Succeeds!
     await forceJobDue(jobAfterAttempt2.id);
 
-    await processNextJob();
+    await processNextJob({ id: retryJob.id });
     const jobAfterAttempt3 = await getJobById(retryJob.id);
     assert(
       jobAfterAttempt3?.status === "COMPLETED" && jobAfterAttempt3?.attempts === 2,
@@ -219,8 +224,8 @@ async function runMilestoneETests() {
       throw new Error("Permanent fatal error");
     });
 
-    const failJob = await enqueueJob("TEST_ALWAYS_FAIL", {}, { maxAttempts: 1 });
-    await processNextJob();
+    const failJob = trackJob(await enqueueJob("TEST_ALWAYS_FAIL", {}, { maxAttempts: 1 }));
+    await processNextJob({ id: failJob.id });
 
     const exhaustedJob = await getJobById(failJob.id);
     assert(
@@ -234,11 +239,11 @@ async function runMilestoneETests() {
     // TEST 4: Built-in Handlers (MEDIA_OPTIMIZATION & DEPLOYMENT_VERIFY)
     // ==========================================
     console.log("\n--- Test 4: Built-in Handlers ---");
-    const mediaJob = await enqueueJob("MEDIA_OPTIMIZATION", {
+    const mediaJob = trackJob(await enqueueJob("MEDIA_OPTIMIZATION", {
       assetUrl: "https://example.com/hero.png",
       originalSize: 1000000,
-    });
-    const mediaProc = await processNextJob();
+    }));
+    const mediaProc = await processNextJob({ id: mediaJob.id });
 
     assert(
       mediaProc.processed === true &&
@@ -253,11 +258,11 @@ async function runMilestoneETests() {
       destinationType: "INTERNAL",
     });
 
-    const verifyJob = await enqueueJob("DEPLOYMENT_VERIFY", {
+    const verifyJob = trackJob(await enqueueJob("DEPLOYMENT_VERIFY", {
       deploymentId: pubRes.deploymentId,
       websiteId: testWebsite.id,
-    });
-    const verifyProc = await processNextJob();
+    }));
+    const verifyProc = await processNextJob({ id: verifyJob.id });
 
     const verifiedDeployment = await db.deployment.findUnique({
       where: { id: pubRes.deploymentId },
@@ -282,6 +287,8 @@ async function runMilestoneETests() {
       destinationType: "INTERNAL",
     });
 
+    if (schedRes.scheduledJobId) createdJobIds.push(schedRes.scheduledJobId);
+
     assert(
       schedRes.success === true &&
         schedRes.status === "SCHEDULED" &&
@@ -302,7 +309,7 @@ async function runMilestoneETests() {
     // Trigger scheduled job by forcing runAt to past
     await forceJobDue(schedRes.scheduledJobId);
 
-    const scheduledProc = await processNextJob();
+    const scheduledProc = await processNextJob({ id: schedRes.scheduledJobId });
     assert(
       scheduledProc.processed === true &&
         scheduledProc.result?.success === true &&
@@ -432,6 +439,11 @@ async function runMilestoneETests() {
     failed++;
   } finally {
     // Teardown
+    if (createdJobIds.length > 0) {
+      await db.backgroundJob.deleteMany({
+        where: { id: { in: createdJobIds } },
+      }).catch(() => {});
+    }
     if (testWebsite?.id) {
       await db.website.deleteMany({ where: { id: testWebsite.id } }).catch(() => {});
     }

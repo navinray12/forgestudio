@@ -5,7 +5,7 @@ import { canUserAccessResource } from "./permission.service.js";
 import { createRevision, getRevisionById } from "./revision.service.js";
 import { publishToWordPress } from "./wordpress/connector.service.js";
 import { destinationRegistry } from "./destinations/registry.js";
-import { enqueueJob } from "./jobs/jobRunner.js";
+import { enqueueJob, cancelJob, getJobById } from "./jobs/jobRunner.js";
 import { recordAuditLog } from "./audit.service.js";
 
 const db = prisma as any;
@@ -896,6 +896,65 @@ export async function schedulePublish(
     scheduledJobId: job.id,
     publishAt: publishAtDate.toISOString(),
     status: "SCHEDULED",
+  };
+}
+
+/**
+ * Cancel an enqueued scheduled publish job before it executes.
+ */
+export async function cancelScheduledPublish(
+  websiteId: string,
+  jobId: string,
+  userId: string,
+  reason?: string
+) {
+  if (!websiteId || !jobId) {
+    throw new AppError("websiteId and jobId are required", 400, "BAD_REQUEST");
+  }
+
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: User lacks permission to publish this website", 403, "FORBIDDEN");
+  }
+
+  const website = await getWebsiteById(websiteId, userId);
+  if (!website) {
+    throw new AppError("Website not found or unavailable", 404, "NOT_FOUND");
+  }
+
+  const job = await getJobById(jobId);
+  if (!job) {
+    throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+
+  const jobPayload =
+    typeof job.payload === "string" ? JSON.parse(job.payload) : job.payload || {};
+  if (jobPayload.websiteId !== websiteId) {
+    throw new AppError("Cross-tenant error: Job does not belong to this website", 403, "FORBIDDEN");
+  }
+
+  if (job.type !== "SCHEDULED_PUBLISH") {
+    throw new AppError("Job is not a scheduled publish job", 400, "INVALID_JOB_TYPE");
+  }
+
+  const cancelRes = await cancelJob(jobId, reason || "Cancelled by user");
+
+  await recordAuditLog({
+    userId,
+    action: "PUBLISH_SCHEDULE_CANCELLED",
+    targetResource: `website:${websiteId}`,
+    details: {
+      scheduledJobId: jobId,
+      reason: reason || "Cancelled by user",
+      wasAlreadyCancelled: cancelRes.alreadyCancelled || false,
+    },
+  });
+
+  return {
+    success: true,
+    scheduledJobId: jobId,
+    status: "CANCELLED",
+    alreadyCancelled: cancelRes.alreadyCancelled || false,
   };
 }
 

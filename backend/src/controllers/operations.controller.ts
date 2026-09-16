@@ -12,6 +12,7 @@ import {
 } from "../services/jobs/jobRunner.js";
 import {
   schedulePublish,
+  cancelScheduledPublish,
   promoteDeployment,
 } from "../services/publishing.service.js";
 
@@ -140,3 +141,27 @@ export async function promoteDeploymentHandler(req: Request, res: Response, next
     next(err);
   }
 }
+
+export async function cancelScheduledPublishHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user || (req as any).user;
+    const websiteId = String(req.params.id);
+    const { jobId, reason } = req.body;
+
+    if (!jobId) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "jobId is required" },
+      });
+    }
+
+    const result = await cancelScheduledPublish(websiteId, jobId, user.id, reason);
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

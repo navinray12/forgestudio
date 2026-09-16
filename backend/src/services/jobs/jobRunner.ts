@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma.js";
+import { AppError } from "../../utils/app-error.js";
 
 export type JobType =
   | "SCHEDULED_PUBLISH"
@@ -106,17 +107,82 @@ export async function listJobs(filters: { type?: string; status?: string; limit?
   return memFiltered.slice(0, limit);
 }
 
-export async function processNextJob(): Promise<{ processed: boolean; job?: any; result?: any; error?: any }> {
+export async function cancelJob(
+  jobId: string,
+  reason?: string
+): Promise<{ success: boolean; job: any; alreadyCancelled?: boolean }> {
+  if (!jobId) {
+    throw new AppError("jobId is required to cancel job", 400, "INVALID_JOB_ID");
+  }
+
+  const now = new Date();
+
+  // 1. Try DB first
+  try {
+    const existing = await (prisma as any).backgroundJob.findUnique({
+      where: { id: jobId },
+    });
+
+    if (existing) {
+      if (existing.status === "CANCELLED") {
+        return { success: true, job: existing, alreadyCancelled: true };
+      }
+      if (existing.status === "COMPLETED") {
+        throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
+      }
+
+      const updated = await (prisma as any).backgroundJob.update({
+        where: { id: jobId },
+        data: {
+          status: "CANCELLED",
+          lastError: reason ? `Cancelled: ${reason}` : "Cancelled by user",
+          completedAt: now,
+          updatedAt: now,
+        },
+      });
+      return { success: true, job: updated };
+    }
+  } catch (err: any) {
+    if (err instanceof AppError) throw err;
+  }
+
+  // 2. Try Memory Queue fallback
+  const memJob = memoryQueue.find((j) => j.id === jobId);
+  if (memJob) {
+    if (memJob.status === "CANCELLED") {
+      return { success: true, job: memJob, alreadyCancelled: true };
+    }
+    if (memJob.status === "COMPLETED") {
+      throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
+    }
+
+    memJob.status = "CANCELLED";
+    memJob.lastError = reason ? `Cancelled: ${reason}` : "Cancelled by user";
+    memJob.completedAt = now;
+    memJob.updatedAt = now;
+    return { success: true, job: memJob };
+  }
+
+  throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+}
+
+export async function processNextJob(
+  filter?: { id?: string; type?: string }
+): Promise<{ processed: boolean; job?: any; result?: any; error?: any }> {
   const now = new Date();
 
   // Try DB first
   let job: any = null;
   try {
+    const where: any = {
+      status: "QUEUED",
+      runAt: { lte: now },
+    };
+    if (filter?.id) where.id = filter.id;
+    if (filter?.type) where.type = filter.type;
+
     const candidate = await (prisma as any).backgroundJob.findFirst({
-      where: {
-        status: "QUEUED",
-        runAt: { lte: now },
-      },
+      where,
       orderBy: { runAt: "asc" },
     });
 
@@ -135,7 +201,11 @@ export async function processNextJob(): Promise<{ processed: boolean; job?: any;
   // Try Memory Queue fallback if no DB job
   if (!job) {
     const memIdx = memoryQueue.findIndex(
-      (j) => j.status === "QUEUED" && new Date(j.runAt).getTime() <= now.getTime()
+      (j) =>
+        j.status === "QUEUED" &&
+        new Date(j.runAt).getTime() <= now.getTime() &&
+        (!filter?.id || j.id === filter.id) &&
+        (!filter?.type || j.type === filter.type)
     );
     if (memIdx >= 0) {
       job = memoryQueue[memIdx];
@@ -148,6 +218,11 @@ export async function processNextJob(): Promise<{ processed: boolean; job?: any;
     return { processed: false };
   }
 
+  // Prevent executing cancelled jobs
+  if (job.status === "CANCELLED") {
+    return { processed: false, job, error: "Job is cancelled" };
+  }
+
   const handler = handlers.get(job.type);
   if (!handler) {
     const errMsg = `No handler registered for job type: ${job.type}`;
@@ -157,6 +232,11 @@ export async function processNextJob(): Promise<{ processed: boolean; job?: any;
 
   try {
     const result = await handler(job.payload, job);
+    // Double check if cancelled concurrently during execution
+    const currentStatus = await getJobById(job.id);
+    if (currentStatus?.status === "CANCELLED") {
+      return { processed: true, job: currentStatus, result: { cancelled: true } };
+    }
     await markJobCompleted(job, result);
     return { processed: true, job, result };
   } catch (err: any) {

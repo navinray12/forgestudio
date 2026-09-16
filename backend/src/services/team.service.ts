@@ -170,3 +170,72 @@ export async function removeTeamMember(teamId: string, requesterId: string, targ
 
     return { success: true };
 }
+
+export async function revokeTeamInvitation(inviteId: string, requesterUserId: string) {
+    const invite = await db.teamInvitation.findUnique({ where: { id: inviteId } });
+    if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+    const membership = await db.teamMember.findUnique({
+        where: { teamId_userId: { teamId: invite.teamId, userId: requesterUserId } }
+    });
+    if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+        throw new AppError("Forbidden", 403, "FORBIDDEN");
+    }
+
+    const updated = await db.teamInvitation.update({
+        where: { id: inviteId },
+        data: { status: "REVOKED" }
+    });
+
+    try {
+        await prisma.auditLog.create({
+            data: {
+                userId: requesterUserId,
+                action: "INVITATION_REVOKED",
+                targetResource: `team:${invite.teamId}`,
+                details: { inviteId, email: invite.email, role: invite.role },
+            },
+        });
+    } catch (e) {}
+
+    return { success: true, invite: { id: updated.id, status: updated.status } };
+}
+
+export async function resendTeamInvitation(inviteId: string, requesterUserId: string) {
+    const invite = await db.teamInvitation.findUnique({ where: { id: inviteId } });
+    if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+    const membership = await db.teamMember.findUnique({
+        where: { teamId_userId: { teamId: invite.teamId, userId: requesterUserId } }
+    });
+    if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+        throw new AppError("Forbidden", 403, "FORBIDDEN");
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 7);
+
+    await db.teamInvitation.update({
+        where: { id: inviteId },
+        data: {
+            tokenHash,
+            status: "PENDING",
+            expiresAt: expiry,
+        }
+    });
+
+    try {
+        await prisma.auditLog.create({
+            data: {
+                userId: requesterUserId,
+                action: "INVITATION_RESENT",
+                targetResource: `team:${invite.teamId}`,
+                details: { inviteId, email: invite.email, role: invite.role },
+            },
+        });
+    } catch (e) {}
+
+    return { success: true, inviteId: invite.id, token };
+}

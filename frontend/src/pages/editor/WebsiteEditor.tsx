@@ -5139,6 +5139,81 @@ const navigate = useNavigate();
             }
           };
 
+          const imageHref = el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "");
+          const imageTarget = el.target || "_self";
+          const imageRel = imageTarget === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+
+          const renderedImg = el.src ? (
+            <img
+              src={resolveImageUrl(el.src, apiUrl)}
+              alt={el.alt || "Uploaded Image"}
+              className="inline-block max-w-full"
+              style={{
+                display: "block",
+                width: mergedStyles.width || "100%",
+                height: mergedStyles.height || "auto",
+                objectFit: (mergedStyles.objectFit as any) || "cover",
+                objectPosition: mergedStyles.objectPosition || "center",
+                opacity: mergedStyles.opacity !== undefined ? Number(mergedStyles.opacity) : 1,
+                borderRadius: mergedStyles.borderRadius || "8px",
+                boxSizing: "border-box",
+                clipPath: getMaskClipPath(el.imageMaskShape),
+                marginLeft:
+                  mergedStyles.textAlign === "center"
+                    ? "auto"
+                    : mergedStyles.textAlign === "right"
+                    ? "auto"
+                    : "0",
+                marginRight:
+                  mergedStyles.textAlign === "center"
+                    ? "auto"
+                    : mergedStyles.textAlign === "left"
+                    ? "auto"
+                    : "0",
+                ...compileBackgroundAndBorderStyles(mergedStyles),
+              }}
+            />
+          ) : null;
+
+          const wrappedImage = imageHref && renderedImg ? (
+            <a
+              href={imageHref}
+              target={imageTarget}
+              rel={imageRel}
+              onClick={(e) => {
+                if (!isPreview) {
+                  e.preventDefault();
+                  return;
+                }
+                let targetPage: PageConfig | undefined;
+                if (el.pageId && pages) {
+                  targetPage = pages.find((p) => p.id === el.pageId);
+                }
+                if (!targetPage && imageHref && pages) {
+                  const clean = imageHref.replace(/^\//, "").split("?")[0].split("#")[0];
+                  targetPage = pages.find(
+                    (p) =>
+                      p.slug === imageHref ||
+                      p.slug === `/${clean}` ||
+                      p.slug.replace(/^\//, "") === clean ||
+                      p.id === clean ||
+                      (clean === "" && (p.isHome || p.id === "home"))
+                  );
+                }
+                if (targetPage && imageTarget !== "_blank") {
+                  e.preventDefault();
+                  handlePreviewPageNavigate(targetPage);
+                } else if (imageHref.startsWith("#") && imageHref.length > 1) {
+                  e.preventDefault();
+                  const targetEl = document.querySelector(imageHref);
+                  if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              {renderedImg}
+            </a>
+          ) : renderedImg;
+
           return (
             <div
               style={{
@@ -5147,36 +5222,8 @@ const navigate = useNavigate();
                 boxSizing: "border-box",
               }}
             >
-              {el.src ? (
-                <img
-                  src={resolveImageUrl(el.src, apiUrl)}
-                  alt={el.alt || "Uploaded Image"}
-                  className="inline-block max-w-full"
-                  style={{
-                    display: "block",
-                    width: mergedStyles.width || "100%",
-                    height: mergedStyles.height || "auto",
-                    objectFit: (mergedStyles.objectFit as any) || "cover",
-                    objectPosition: mergedStyles.objectPosition || "center",
-                    opacity: mergedStyles.opacity !== undefined ? Number(mergedStyles.opacity) : 1,
-                    borderRadius: mergedStyles.borderRadius || "8px",
-                    boxSizing: "border-box",
-                    clipPath: getMaskClipPath(el.imageMaskShape),
-                    marginLeft:
-                      mergedStyles.textAlign === "center"
-                        ? "auto"
-                        : mergedStyles.textAlign === "right"
-                        ? "auto"
-                        : "0",
-                    marginRight:
-                      mergedStyles.textAlign === "center"
-                        ? "auto"
-                        : mergedStyles.textAlign === "left"
-                        ? "auto"
-                        : "0",
-                    ...compileBackgroundAndBorderStyles(mergedStyles),
-                  }}
-                />
+              {wrappedImage ? (
+                wrappedImage
               ) : (
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 py-8 px-6 text-center transition hover:border-blue-400">
                   <EmptyPictureIcon />
@@ -5526,7 +5573,28 @@ const navigate = useNavigate();
         )}
 
         {el.type === "nav-menu" && (
-          <NavMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} homePageId={homePageId} />
+          <NavMenuWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            pages={pages}
+            homePageId={homePageId}
+            onNavigatePage={(targetIdOrSlug) => {
+              const clean = targetIdOrSlug.replace(/^\//, "");
+              const targetPage = pages.find(
+                (p) =>
+                  p.id === targetIdOrSlug ||
+                  p.slug === targetIdOrSlug ||
+                  p.slug === `/${clean}` ||
+                  p.slug.replace(/^\//, "") === clean ||
+                  p.name.toLowerCase() === targetIdOrSlug.toLowerCase() ||
+                  (clean === "" && (p.isHome || p.id === "home"))
+              );
+              if (targetPage) {
+                handlePreviewPageNavigate(targetPage);
+              }
+            }}
+          />
         )}
 
         {el.type === "animated-headline" && (
@@ -5550,7 +5618,27 @@ const navigate = useNavigate();
         )}
 
         {el.type === "call-to-action" && (
-          <CtaWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <CtaWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            pages={pages}
+            onNavigatePage={(targetIdOrSlug) => {
+              const clean = targetIdOrSlug.replace(/^\//, "");
+              const targetPage = pages.find(
+                (p) =>
+                  p.id === targetIdOrSlug ||
+                  p.slug === targetIdOrSlug ||
+                  p.slug === `/${clean}` ||
+                  p.slug.replace(/^\//, "") === clean ||
+                  p.name.toLowerCase() === targetIdOrSlug.toLowerCase() ||
+                  (clean === "" && (p.isHome || p.id === "home"))
+              );
+              if (targetPage) {
+                handlePreviewPageNavigate(targetPage);
+              }
+            }}
+          />
         )}
 
         {el.type === "media-carousel" && (
@@ -5681,7 +5769,27 @@ const navigate = useNavigate();
         )}
 
         {el.type === "mega-menu" && (
-          <MegaMenuWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <MegaMenuWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            pages={pages}
+            onNavigatePage={(targetIdOrSlug) => {
+              const clean = targetIdOrSlug.replace(/^\//, "");
+              const targetPage = pages.find(
+                (p) =>
+                  p.id === targetIdOrSlug ||
+                  p.slug === targetIdOrSlug ||
+                  p.slug === `/${clean}` ||
+                  p.slug.replace(/^\//, "") === clean ||
+                  p.name.toLowerCase() === targetIdOrSlug.toLowerCase() ||
+                  (clean === "" && (p.isHome || p.id === "home"))
+              );
+              if (targetPage) {
+                handlePreviewPageNavigate(targetPage);
+              }
+            }}
+          />
         )}
 
         {el.type === "off-canvas" && (

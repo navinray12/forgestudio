@@ -1017,6 +1017,104 @@ export const LoginWidgetRenderer = ({
   );
 };
 
+export interface ResolveForgeLinkOptions {
+  pages?: PageConfig[];
+  homePageId?: string;
+  websiteId?: string;
+  isPublicSite?: boolean;
+}
+
+export interface ResolvedForgeLink {
+  resolvedUrl: string;
+  targetPage?: PageConfig;
+  isAnchor: boolean;
+  isExternal: boolean;
+  isUnsafe: boolean;
+}
+
+/**
+ * Universal canonical link resolver for ForgeStudio.
+ * Resolves Page links, Custom URLs, Anchors, and External URLs consistently.
+ */
+export function resolveForgeLink(
+  rawLink: string | undefined,
+  pageId: string | undefined,
+  destinationType: string | undefined,
+  options: ResolveForgeLinkOptions = {}
+): ResolvedForgeLink {
+  const { pages = [], homePageId, websiteId, isPublicSite } = options;
+  const raw = (rawLink || "").trim();
+
+  // Security: block unsafe protocols (javascript:, data:, vbscript:)
+  const isUnsafe = /^(javascript|data|vbscript):/i.test(raw);
+  if (isUnsafe) {
+    return { resolvedUrl: "#", isAnchor: true, isExternal: false, isUnsafe: true };
+  }
+
+  // Anchor check: #pricing
+  const isAnchor = raw.startsWith("#");
+  if (isAnchor) {
+    return { resolvedUrl: raw, isAnchor: true, isExternal: false, isUnsafe: false };
+  }
+
+  // External URL check: http://, https://, mailto:, tel:
+  const isExternal = /^(https?:\/\/|mailto:|tel:)/i.test(raw);
+  if (isExternal) {
+    return { resolvedUrl: raw, isAnchor: false, isExternal: true, isUnsafe: false };
+  }
+
+  // Internal Page resolution by pageId, page: prefix, or matching slug/path
+  let targetPage: PageConfig | undefined;
+  if (pageId && pages.length > 0) {
+    targetPage = pages.find((p) => p.id === pageId);
+  }
+  if (!targetPage && raw.startsWith("page:")) {
+    const pId = raw.replace("page:", "").trim();
+    targetPage = pages.find((p) => p.id === pId);
+  }
+  if (!targetPage && raw && pages.length > 0) {
+    const withoutHash = raw.split("#")[0];
+    const pathOnly = withoutHash.split("?")[0];
+    const clean = pathOnly.replace(/^\//, "").trim();
+
+    targetPage = pages.find(
+      (p) =>
+        p.slug === pathOnly ||
+        p.slug === `/${clean}` ||
+        p.slug.replace(/^\//, "") === clean ||
+        p.id === clean ||
+        p.name.toLowerCase() === clean.toLowerCase() ||
+        (clean === "" && (p.isHome || p.id === homePageId || p.id === "home"))
+    );
+  }
+
+  if (targetPage) {
+    const isHome = targetPage.isHome || targetPage.slug === "/" || targetPage.id === homePageId || targetPage.id === "home";
+    const cleanSlug = targetPage.slug.replace(/^\//, "");
+    const queryAndHash = raw.includes("?") || raw.includes("#")
+      ? raw.substring(raw.indexOf(raw.includes("?") ? "?" : "#"))
+      : "";
+
+    if (isPublicSite && websiteId) {
+      const publicPath = isHome
+        ? `/site/${websiteId}${queryAndHash}`
+        : `/site/${websiteId}/${cleanSlug}${queryAndHash}`;
+      return { resolvedUrl: publicPath, targetPage, isAnchor: false, isExternal: false, isUnsafe: false };
+    }
+
+    const standardPath = isHome ? `/${queryAndHash}` : `/${cleanSlug}${queryAndHash}`;
+    return { resolvedUrl: standardPath, targetPage, isAnchor: false, isExternal: false, isUnsafe: false };
+  }
+
+  // Fallback: custom URL that does not match an existing internal page
+  return {
+    resolvedUrl: raw || "#",
+    isAnchor: false,
+    isExternal: false,
+    isUnsafe: false,
+  };
+}
+
 export const NavMenuWidgetRenderer = ({
   el,
   isPreview,
@@ -1025,6 +1123,8 @@ export const NavMenuWidgetRenderer = ({
   homePageId,
   siteProducts = [],
   onNavigatePage,
+  websiteId,
+  isPublicSite,
 }: {
   el: EditorElement;
   isPreview?: boolean;
@@ -1033,6 +1133,8 @@ export const NavMenuWidgetRenderer = ({
   homePageId?: string;
   siteProducts?: SiteProduct[];
   onNavigatePage?: (pageIdOrSlug: string) => void;
+  websiteId?: string;
+  isPublicSite?: boolean;
 }) => {
   const defaultNavItems: NavMenuItem[] = [
     { id: "1", label: "Home", url: "/", isActive: true },
@@ -1084,26 +1186,28 @@ export const NavMenuWidgetRenderer = ({
 
   const resolveItem = (item: NavMenuItem | NavSubmenuItem) => {
     let displayLabel = item.label;
-    let displayUrl = item.url || "#";
     let isOrphaned = false;
 
+    const { resolvedUrl, targetPage } = resolveForgeLink(
+      item.url,
+      item.pageId,
+      item.destinationType || item.linkType,
+      { pages, homePageId, websiteId, isPublicSite }
+    );
+
     if (item.destinationType === "page" || item.linkType === "page" || item.pageId) {
-      if (item.pageId) {
-        const found = pages?.find((p) => p.id === item.pageId);
-        if (found) {
-          displayLabel = item.label || found.name;
-          displayUrl = found.slug.startsWith("/") ? found.slug : `/${found.slug}`;
-        } else {
-          isOrphaned = true;
-          displayLabel = `${item.label || "Page"} (Unavailable)`;
-        }
+      if (item.pageId && !targetPage) {
+        isOrphaned = true;
+        displayLabel = `${item.label || "Page"} (Unavailable)`;
+      } else if (targetPage) {
+        displayLabel = item.label || targetPage.name;
       }
     } else if (item.destinationType === "product" || item.linkType === "product" || item.productId) {
       if (item.productId) {
         const found = siteProducts?.find((p) => p.id === item.productId);
         if (found) {
           displayLabel = item.label || found.name;
-          displayUrl = found.url || `#product-${found.id}`;
+          return { displayLabel, displayUrl: found.url || `#product-${found.id}`, isOrphaned: false, targetPage: undefined };
         } else {
           isOrphaned = true;
           displayLabel = `${item.label || "Product"} (Unavailable)`;
@@ -1111,11 +1215,11 @@ export const NavMenuWidgetRenderer = ({
       }
     }
 
-    return { displayLabel, displayUrl, isOrphaned };
+    return { displayLabel, displayUrl: resolvedUrl, isOrphaned, targetPage };
   };
 
   const handleLinkClick = (e: React.MouseEvent, item: NavMenuItem) => {
-    const { displayUrl } = resolveItem(item);
+    const { displayUrl, targetPage } = resolveItem(item);
     setActiveItemId(item.id);
 
     const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
@@ -1125,9 +1229,16 @@ export const NavMenuWidgetRenderer = ({
       e.preventDefault();
       e.stopPropagation();
     } else {
-      if (item.pageId && onNavigatePage) {
+      if (targetPage && onNavigatePage) {
         e.preventDefault();
-        onNavigatePage(item.pageId);
+        onNavigatePage(targetPage.id);
+        const hashMatch = displayUrl.match(/#([^?&]+)/);
+        if (hashMatch) {
+          setTimeout(() => {
+            const anchorEl = document.getElementById(hashMatch[1]) || document.querySelector(`#${hashMatch[1]}`);
+            if (anchorEl) anchorEl.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }
       } else if (displayUrl.startsWith("#") && displayUrl.length > 1) {
         const targetEl = document.querySelector(displayUrl);
         if (targetEl) {
@@ -1253,9 +1364,22 @@ export const NavMenuWidgetRenderer = ({
                             if (!isPreview) {
                               e.preventDefault();
                               e.stopPropagation();
-                            } else if (subItem.pageId && onNavigatePage) {
+                            } else if (subRes.targetPage && onNavigatePage) {
                               e.preventDefault();
-                              onNavigatePage(subItem.pageId);
+                              onNavigatePage(subRes.targetPage.id);
+                              const hashMatch = subRes.displayUrl.match(/#([^?&]+)/);
+                              if (hashMatch) {
+                                setTimeout(() => {
+                                  const anchorEl = document.getElementById(hashMatch[1]) || document.querySelector(`#${hashMatch[1]}`);
+                                  if (anchorEl) anchorEl.scrollIntoView({ behavior: "smooth" });
+                                }, 100);
+                              }
+                            } else if (subRes.displayUrl.startsWith("#") && subRes.displayUrl.length > 1) {
+                              const targetEl = document.querySelector(subRes.displayUrl);
+                              if (targetEl) {
+                                e.preventDefault();
+                                targetEl.scrollIntoView({ behavior: "smooth" });
+                              }
                             }
                           }}
                           className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${
@@ -2147,10 +2271,14 @@ export const CtaWidgetRenderer = ({
   el,
   isPreview,
   mergedStyles,
+  pages,
+  onNavigatePage,
 }: {
   el: EditorElement;
   isPreview: boolean;
   mergedStyles: ElementStyles;
+  pages?: PageConfig[];
+  onNavigatePage?: (pageIdOrSlug: string) => void;
 }) => {
   const heading = el.ctaHeading !== undefined ? el.ctaHeading : "Boost Your Conversions Today";
   const description = el.ctaDescription !== undefined ? el.ctaDescription : "Start your 14-day free trial. No credit card required. Cancel anytime.";
@@ -2167,6 +2295,24 @@ export const CtaWidgetRenderer = ({
   const cardBorderRadius = el.ctaCardBorderRadius || "24px";
   const textColor = el.ctaTextColor || "#ffffff";
 
+  const handleBtnClick = (e: React.MouseEvent, url: string) => {
+    if (!isPreview) {
+      e.preventDefault();
+      return;
+    }
+    const { targetPage } = resolveForgeLink(url, undefined, "url", { pages });
+    if (targetPage && onNavigatePage) {
+      e.preventDefault();
+      onNavigatePage(targetPage.id);
+    } else if (url.startsWith("#") && url.length > 1) {
+      const targetEl = document.querySelector(url);
+      if (targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   if (layout === "split") {
     return (
       <div
@@ -2179,19 +2325,16 @@ export const CtaWidgetRenderer = ({
           fontFamily: mergedStyles.fontFamily,
         }}
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 max-w-xl">
-            {image ? (
-              <img src={image} alt="CTA" className="h-12 w-12 object-cover rounded-lg mb-3 shadow-xs" />
-            ) : (
-              icon && <div className="text-3xl mb-2">{icon}</div>
-            )}
-
-            {heading && (
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">
-                {heading}
-              </h2>
-            )}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div className="space-y-3 max-w-xl">
+            <div className="flex items-center gap-3">
+              {icon && <span className="text-3xl">{icon}</span>}
+              {heading && (
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">
+                  {heading}
+                </h2>
+              )}
+            </div>
 
             {description && (
               <p className="text-sm opacity-85 leading-relaxed">
@@ -2204,9 +2347,7 @@ export const CtaWidgetRenderer = ({
             <div className="shrink-0">
               <a
                 href={buttonUrl}
-                onClick={(e) => {
-                  if (!isPreview) e.preventDefault();
-                }}
+                onClick={(e) => handleBtnClick(e, buttonUrl)}
                 className="inline-flex items-center justify-center px-6 py-3.5 text-sm font-bold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-center"
                 style={{
                   background: buttonBg,
@@ -2258,9 +2399,7 @@ export const CtaWidgetRenderer = ({
             <div className="pt-2">
               <a
                 href={buttonUrl}
-                onClick={(e) => {
-                  if (!isPreview) e.preventDefault();
-                }}
+                onClick={(e) => handleBtnClick(e, buttonUrl)}
                 className="inline-flex items-center justify-center px-6 py-3.5 text-sm font-bold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
                 style={{
                   background: buttonBg,
@@ -2312,9 +2451,7 @@ export const CtaWidgetRenderer = ({
           <div className="pt-3">
             <a
               href={buttonUrl}
-              onClick={(e) => {
-                if (!isPreview) e.preventDefault();
-              }}
+              onClick={(e) => handleBtnClick(e, buttonUrl)}
               className="inline-flex items-center justify-center px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
               style={{
                 background: buttonBg,
@@ -5786,42 +5923,37 @@ export const MegaMenuWidgetRenderer = ({
 
   const resolveMegaCategory = (cat: MegaMenuItem) => {
     let displayTitle = cat.title;
-    let displayHref = cat.href || "#";
+    const { resolvedUrl, targetPage } = resolveForgeLink(cat.href, cat.pageId, cat.destinationType || cat.linkType, { pages });
 
     if (cat.destinationType === "page" || cat.linkType === "page" || cat.pageId) {
-      if (cat.pageId) {
-        const found = pages?.find((p) => p.id === cat.pageId);
-        if (found) {
-          displayTitle = cat.title || found.name;
-          displayHref = found.slug.startsWith("/") ? found.slug : `/${found.slug}`;
-        }
+      if (cat.pageId && targetPage) {
+        displayTitle = cat.title || targetPage.name;
       }
     } else if (cat.destinationType === "product" || cat.linkType === "product" || cat.productId) {
       if (cat.productId) {
         const found = siteProducts?.find((p) => p.id === cat.productId);
         if (found) {
           displayTitle = cat.title || found.name;
-          displayHref = found.url || `#product-${found.id}`;
+          return { displayTitle, displayHref: found.url || `#product-${found.id}`, targetPage: undefined };
         }
       }
     }
 
-    return { displayTitle, displayHref };
+    return { displayTitle, displayHref: resolvedUrl, targetPage };
   };
 
   const resolveMegaLink = (link: MegaMenuColumnLink) => {
     let displayLabel = link.label;
-    let displayUrl = link.href || "#";
     let displayDesc = link.description;
     let displayBadge = link.badge;
     let displayImage = link.image;
 
+    const { resolvedUrl, targetPage } = resolveForgeLink(link.href, link.pageId, link.destinationType || link.linkType, { pages });
+
     if (link.destinationType === "page" || link.linkType === "page" || link.pageId) {
       if (link.pageId) {
-        const page = pages?.find((p) => p.id === link.pageId);
-        if (page) {
-          displayLabel = link.label || page.name;
-          displayUrl = page.slug.startsWith("/") ? page.slug : `/${page.slug}`;
+        if (targetPage) {
+          displayLabel = link.label || targetPage.name;
         } else {
           displayLabel = `${link.label || "Page"} (Unavailable)`;
         }
@@ -5831,27 +5963,24 @@ export const MegaMenuWidgetRenderer = ({
         const prod = siteProducts?.find((p) => p.id === link.productId);
         if (prod) {
           displayLabel = link.label || prod.name;
-          displayUrl = prod.url || `#product-${prod.id}`;
-          if (!displayDesc && prod.description) displayDesc = prod.description;
-          if (!displayImage && prod.image) displayImage = prod.image;
-          if (!displayBadge && prod.badge) displayBadge = prod.badge;
+          return { displayLabel, displayUrl: prod.url || `#product-${prod.id}`, displayDesc: displayDesc || prod.description, displayBadge: displayBadge || prod.badge, displayImage: displayImage || prod.image, targetPage: undefined };
         } else {
           displayLabel = `${link.label || "Product"} (Unavailable)`;
         }
       }
     }
 
-    return { displayLabel, displayUrl, displayDesc, displayBadge, displayImage };
+    return { displayLabel, displayUrl: resolvedUrl, displayDesc, displayBadge, displayImage, targetPage };
   };
 
   const handleCategoryClick = (e: React.MouseEvent, item: MegaMenuItem) => {
-    const { displayHref } = resolveMegaCategory(item);
+    const { displayHref, targetPage } = resolveMegaCategory(item);
     if (!isPreview) {
       e.preventDefault();
       e.stopPropagation();
-    } else if (item.pageId && onNavigatePage) {
+    } else if (targetPage && onNavigatePage) {
       e.preventDefault();
-      onNavigatePage(item.pageId);
+      onNavigatePage(targetPage.id);
     } else if (displayHref.startsWith("#") && displayHref.length > 1) {
       const targetEl = document.querySelector(displayHref);
       if (targetEl) {
@@ -5975,9 +6104,22 @@ export const MegaMenuWidgetRenderer = ({
                                       if (!isPreview) {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                      } else if (link.pageId && onNavigatePage) {
+                                      } else if (lRes.targetPage && onNavigatePage) {
                                         e.preventDefault();
-                                        onNavigatePage(link.pageId);
+                                        onNavigatePage(lRes.targetPage.id);
+                                        const hashMatch = lRes.displayUrl.match(/#([^?&]+)/);
+                                        if (hashMatch) {
+                                          setTimeout(() => {
+                                            const anchorEl = document.getElementById(hashMatch[1]) || document.querySelector(`#${hashMatch[1]}`);
+                                            if (anchorEl) anchorEl.scrollIntoView({ behavior: "smooth" });
+                                          }, 100);
+                                        }
+                                      } else if (lRes.displayUrl.startsWith("#") && lRes.displayUrl.length > 1) {
+                                        const targetEl = document.querySelector(lRes.displayUrl);
+                                        if (targetEl) {
+                                          e.preventDefault();
+                                          targetEl.scrollIntoView({ behavior: "smooth" });
+                                        }
                                       }
                                     }}
                                     className="flex items-start gap-3 p-2 rounded-xl hover:bg-blue-50/80 text-slate-700 hover:text-blue-700 transition group/link"
