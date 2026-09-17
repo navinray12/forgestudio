@@ -271,7 +271,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <RoleRoute allowedRoles={["USER"]}>
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
                 <UserDashboard />
               </RoleRoute>
             }
@@ -357,7 +357,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <RoleRoute allowedRoles={["ADMIN"]}>
+              <RoleRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <AdminDashboard />
               </RoleRoute>
             }
