@@ -35,6 +35,7 @@ export interface PageConfig {
     slug: string;
     customCss: string;
     elements: EditorElement[];
+    isHome?: boolean;
 }
 
 export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _styles: any) {
@@ -49,6 +50,52 @@ const CodeInjectionRuntime = React.lazy(() => import("../editor/components/CodeI
 const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
+
+import {
+    SlidesWidgetRenderer,
+    FormWidgetRenderer,
+    LoginWidgetRenderer,
+    NavMenuWidgetRenderer,
+    AnimatedHeadlineWidgetRenderer,
+    PriceTableWidgetRenderer,
+    PriceListWidgetRenderer,
+    GalleryWidgetRenderer,
+    FlipBoxWidgetRenderer,
+    CtaWidgetRenderer,
+    MediaCarouselWidgetRenderer,
+    TestimonialCarouselWidgetRenderer,
+    NestedCarouselWidgetRenderer,
+    LoopCarouselWidgetRenderer,
+    ImageCarouselWidgetRenderer,
+    TocWidgetRenderer,
+    CountdownWidgetRenderer,
+    FacebookPageWidgetRenderer,
+    BlockquoteWidgetRenderer,
+    ReviewsWidgetRenderer,
+    FacebookButtonWidgetRenderer,
+    FacebookEmbedWidgetRenderer,
+    FacebookCommentsWidgetRenderer,
+    PayPalButtonWidgetRenderer,
+    StripeButtonWidgetRenderer,
+    LottieWidgetRenderer,
+    CodeHighlightWidgetRenderer,
+    BasicMediaCarouselWidgetRenderer,
+    BasicGalleryWidgetRenderer,
+    AudioPlaylistWidgetRenderer,
+    DynamicLightboxWidgetRenderer,
+    CustomSvgWidgetRenderer,
+    IconLibraryWidgetRenderer,
+    MegaMenuWidgetRenderer,
+    OffCanvasWidgetRenderer,
+    ShareButtonsWidgetRenderer,
+    WcProductTitleWidgetRenderer,
+    WcProductPriceWidgetRenderer,
+    WcProductImagesWidgetRenderer,
+    WcAddToCartWidgetRenderer,
+    WcProductRatingWidgetRenderer,
+    resolveButtonHref
+} from "../editor/widgets";
+import { IconRenderer } from "../editor/widgets/icons";
 
 // Default breakpoints (mirror core for stability)
 const DEFAULT_BREAKPOINTS: Breakpoint[] = [
@@ -65,6 +112,21 @@ const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
 
+const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
+    if (!target || !pagesList || pagesList.length === 0) return undefined;
+    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
+    return pagesList.find(
+        (p) =>
+            p.id === target ||
+            p.slug === target ||
+            p.slug === `/${clean}` ||
+            p.slug.replace(/^\//, "") === clean ||
+            p.name.toLowerCase() === target.toLowerCase() ||
+            p.name.toLowerCase() === clean.toLowerCase() ||
+            (clean === "" && (p.isHome || p.id === "home"))
+    );
+};
+
 interface RenderNodeProps {
     el: EditorElement;
     isCritical: boolean;
@@ -73,10 +135,14 @@ interface RenderNodeProps {
     globalSettings: any;
     elementClassMap: Map<string, string>;
     apiUrl: string;
+    websiteId?: string;
+    allElements?: EditorElement[];
+    pages?: PageConfig[];
+    onSwitchPage?: (page: PageConfig) => void;
 }
 
 // F-358: Safely caches execution overhead per Element in PublishedSite skipping massive style hashing recalculations
-const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl }) => {
+const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, activeBreakpointId, breakpoints, globalSettings, elementClassMap, apiUrl, websiteId, allElements, pages, onSwitchPage }) => {
     // F-351 logic exactly as website outputs
     const resolvedStyles = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
 
@@ -125,29 +191,189 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     if (el.type === "text") return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</p></React.Fragment>;
 
-    if (el.type === "image") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ textAlign: (resolvedStyles.textAlign as any) || "left", ...mergedProps.style }}>
-                {el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />}
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "image") {
+        const imageHref = (el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "") || "").trim();
+        const target = el.target || "_self";
+        const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+        const isDownload = el.download;
+        const imgElement = el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />;
 
-    if (el.type === "button") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} style={{ ...mergedProps.style, textAlign: (resolvedStyles.textAlign as any) || "left" }}>
-                <a href={el.href || "#"} className={`inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow ${optInnerClass}`} style={finalInnerStyles}>{el.content}</a>
-            </div>
-        </React.Fragment>
-    );
+        const wrappedImg = imageHref ? (
+            <a
+                href={imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref}
+                target={target}
+                rel={rel}
+                download={isDownload ? true : undefined}
+                onClick={(e) => {
+                    let targetPage: PageConfig | undefined;
+                    if (el.pageId && pages) {
+                        targetPage = pages.find((p) => p.id === el.pageId);
+                    }
+                    if (!targetPage && imageHref && pages) {
+                        targetPage = findTargetPage(pages, imageHref);
+                    }
+                    if (targetPage && target !== "_blank" && onSwitchPage) {
+                        e.preventDefault();
+                        onSwitchPage(targetPage);
+                    } else if (imageHref.startsWith("#") && imageHref.length > 1) {
+                        e.preventDefault();
+                        const targetEl = document.querySelector(imageHref);
+                        if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+                    }
+                }}
+            >
+                {imgElement}
+            </a>
+        ) : imgElement;
 
-    if (el.type === "video") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} aspect-video w-full ${optInnerClass}`}>
-                <iframe src={el.src || "https://www.youtube.com/embed/dQw4w9WgXcQ"} loading={isCritical ? "eager" : "lazy"} className="w-full h-full rounded-lg" />
-            </div>
-        </React.Fragment>
-    );
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ textAlign: (resolvedStyles.textAlign as any) || "left", ...mergedProps.style }}>
+                    {wrappedImg}
+                </div>
+            </React.Fragment>
+        );
+    }
+
+    if (el.type === "button") {
+        const resolvedHref = resolveButtonHref(el, pages || []);
+        const target = el.target || "_self";
+        const rel = target === "_blank" ? (el.rel || "noopener noreferrer") : el.rel;
+        const isDownload = el.download;
+
+        const iconName = el.iconName || el.icon || "";
+        const iconPos = el.iconPosition || "left";
+        const gap = el.iconGap ?? el.iconSpacing ?? 8;
+        const iconSize = el.iconSize || 18;
+        const iconColor = el.iconColor || el.buttonColor || "#ffffff";
+        const textLabel = el.content || el.buttonText || "Button";
+
+        const isFlexCol = iconPos === "top" || iconPos === "bottom";
+        const isReverse = iconPos === "right" || iconPos === "bottom";
+
+        const renderIcon = iconName ? (
+            <IconRenderer
+                iconName={iconName}
+                size={iconSize}
+                color={iconColor}
+                rotate={el.iconRotate || 0}
+                flipH={Boolean(el.iconFlipH)}
+                flipV={Boolean(el.iconFlipV)}
+                strokeWidth={el.iconStrokeWidth || 2}
+            />
+        ) : null;
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} style={{ ...mergedProps.style, textAlign: (resolvedStyles.textAlign as any) || "left" }}>
+                    <a
+                        href={resolvedHref}
+                        target={target}
+                        rel={rel}
+                        download={isDownload ? true : undefined}
+                        onClick={(e) => {
+                            let targetPage: PageConfig | undefined;
+                            if (el.pageId && pages) {
+                                targetPage = pages.find((p) => p.id === el.pageId);
+                            }
+                            if (!targetPage && resolvedHref && pages) {
+                                targetPage = findTargetPage(pages, resolvedHref);
+                            }
+
+                            if (targetPage && target !== "_blank" && onSwitchPage) {
+                                e.preventDefault();
+                                onSwitchPage(targetPage);
+                            } else if (resolvedHref.startsWith("#") && resolvedHref.length > 1) {
+                                e.preventDefault();
+                                const targetEl = document.querySelector(resolvedHref);
+                                if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
+                            }
+                        }}
+                        className={`inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow ${optInnerClass}`}
+                        style={finalInnerStyles}
+                    >
+                        <span
+                            className={`inline-flex items-center justify-center ${isFlexCol ? "flex-col" : "flex-row"
+                                } ${isReverse ? "flex-col-reverse" : ""}`}
+                            style={{ gap: `${gap}px` }}
+                        >
+                            {!isReverse && renderIcon}
+                            <span>{textLabel}</span>
+                            {isReverse && renderIcon}
+                        </span>
+                    </a>
+                </div>
+            </React.Fragment>
+        );
+    }
+
+    if (el.type === "video") {
+        const srcUrl = (el.src || "").trim();
+        const isAutoplay = Boolean(el.videoAutoplay);
+        const isLoop = Boolean(el.videoLoop);
+        const isMuted = Boolean(el.videoMuted);
+        const isControls = el.videoControls !== false;
+
+        const ytMatch = srcUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+        const ytId = ytMatch?.[1];
+        const vimeoMatch = srcUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        const vimeoId = vimeoMatch?.[1];
+
+        let videoEl: React.ReactNode;
+        if (ytId) {
+            const params = [`rel=0`, `modestbranding=1`, isControls ? `controls=1` : `controls=0`, isAutoplay ? `autoplay=1` : `autoplay=0`, isLoop ? `loop=1&playlist=${ytId}` : ``].filter(Boolean).join("&");
+            videoEl = (
+                <div className="relative w-full aspect-video">
+                    <iframe
+                        src={`https://www.youtube.com/embed/${ytId}?${params}`}
+                        title={el.alt || "YouTube video player"}
+                        className="absolute inset-0 w-full h-full border-0 rounded-[inherit]"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        loading={isCritical ? "eager" : "lazy"}
+                    />
+                </div>
+            );
+        } else if (vimeoId) {
+            const params = [isAutoplay ? `autoplay=1` : ``, isLoop ? `loop=1` : ``].filter(Boolean).join("&");
+            videoEl = (
+                <div className="relative w-full aspect-video">
+                    <iframe
+                        src={`https://player.vimeo.com/video/${vimeoId}?${params}`}
+                        title={el.alt || "Vimeo video player"}
+                        className="absolute inset-0 w-full h-full border-0 rounded-[inherit]"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        loading={isCritical ? "eager" : "lazy"}
+                    />
+                </div>
+            );
+        } else {
+            videoEl = (
+                <video
+                    src={srcUrl ? `${apiUrl}${srcUrl.startsWith("/") ? srcUrl : "/" + srcUrl}` : undefined}
+                    poster={el.videoPoster ? `${apiUrl}${el.videoPoster.startsWith("/") ? el.videoPoster : "/" + el.videoPoster}` : undefined}
+                    controls={isControls}
+                    autoPlay={isAutoplay}
+                    loop={isLoop}
+                    muted={isMuted}
+                    playsInline
+                    className="w-full max-w-full rounded-lg"
+                    style={{ maxHeight: "500px" }}
+                >
+                    Your browser does not support HTML5 video playback.
+                </video>
+            );
+        }
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} w-full ${optInnerClass}`}>
+                    {videoEl}
+                </div>
+            </React.Fragment>
+        );
+    }
 
     if (el.type === "icon") return <React.Fragment key={el.id}><div ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ display: "flex", justifyContent: resolvedStyles.textAlign || "center", ...mergedProps.style }}>{renderSvgIcon(el.styles?.iconName || "star", el.styles?.iconSize || "32", el.styles?.iconColor || "#2563eb")}</div></React.Fragment>;
 
@@ -167,6 +393,136 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                 {el.content}
             </div>
         </React.Fragment>
+    );
+
+    // Dynamic Widgets
+    if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} websiteId={websiteId} /></div>;
+    if (el.type === "login") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoginWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "nav-menu") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <NavMenuWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                websiteId={websiteId}
+                isPublicSite={true}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
+    if (el.type === "animated-headline") return <div ref={assignRefIfTracked as any} {...mergedProps}><AnimatedHeadlineWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "price-table") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceTableWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "price-list") return <div ref={assignRefIfTracked as any} {...mergedProps}><PriceListWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><GalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "basic-gallery") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicGalleryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "flip-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><FlipBoxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "call-to-action") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <CtaWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
+    if (el.type === "media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><MediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "basic-media-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><BasicMediaCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "testimonial-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><TestimonialCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "loop-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "image-carousel") return <div ref={assignRefIfTracked as any} {...mergedProps}><ImageCarouselWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "table-of-contents") return <div ref={assignRefIfTracked as any} {...mergedProps}><TocWidgetRenderer el={el} elements={allElements || []} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "countdown") return <div ref={assignRefIfTracked as any} {...mergedProps}><CountdownWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "facebook-page" || el.type === "facebook-button" || el.type === "facebook-embed" || el.type === "facebook-comments") return <div ref={assignRefIfTracked as any} {...mergedProps}><FacebookPageWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "blockquote") return <div ref={assignRefIfTracked as any} {...mergedProps}><BlockquoteWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "reviews") return <div ref={assignRefIfTracked as any} {...mergedProps}><ReviewsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "paypal-button") return <div ref={assignRefIfTracked as any} {...mergedProps}><PayPalButtonWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "stripe-button") return <div ref={assignRefIfTracked as any} {...mergedProps}><StripeButtonWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "lottie") return <div ref={assignRefIfTracked as any} {...mergedProps}><LottieWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "code-highlight") return <div ref={assignRefIfTracked as any} {...mergedProps}><CodeHighlightWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "audio-playlist") return <div ref={assignRefIfTracked as any} {...mergedProps}><AudioPlaylistWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "dynamic-lightbox") return <div ref={assignRefIfTracked as any} {...mergedProps}><DynamicLightboxWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "custom-svg") return <div ref={assignRefIfTracked as any} {...mergedProps}><CustomSvgWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "mega-menu") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <MegaMenuWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                pages={pages}
+                onNavigatePage={(targetIdOrSlug) => {
+                    if (!pages || !onSwitchPage) return;
+                    const targetPage = findTargetPage(pages, targetIdOrSlug);
+                    if (targetPage) onSwitchPage(targetPage);
+                }}
+            />
+        </div>
+    );
+    if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} pages={pages} activePageId={pages?.find(p => p.elements?.some(e => e.id === el.id))?.id || pages?.[0]?.id} /></div>;
+
+    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+
+    if (el.type === "nested-carousel") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <NestedCarouselWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                renderElementTree={(childEl) => (
+                    <RenderNode
+                        key={childEl.id}
+                        el={childEl}
+                        isCritical={false}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={allElements}
+                    />
+                )}
+            />
+        </div>
+    );
+
+    if (el.type === "off-canvas") return (
+        <div ref={assignRefIfTracked as any} {...mergedProps}>
+            <OffCanvasWidgetRenderer
+                el={el}
+                isPreview={true}
+                mergedStyles={finalMergedStyles}
+                renderChildren={(childElements) =>
+                    (childElements || []).map((child) => (
+                        <RenderNode
+                            key={child.id}
+                            el={child}
+                            isCritical={false}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={allElements}
+                        />
+                    ))
+                }
+            />
+        </div>
     );
 
     if (el.type === "container" || el.type === "div-block") return (
@@ -194,6 +550,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         globalSettings={globalSettings}
                         elementClassMap={elementClassMap}
                         apiUrl={apiUrl}
+                        allElements={allElements}
                     />
                 ))}
             </div>
@@ -211,7 +568,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 });
 
 export default function PublishedSite() {
-    const { websiteId } = useParams<{ websiteId: string }>();
+    const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     const [loading, setLoading] = useState(true);
@@ -235,18 +592,27 @@ export default function PublishedSite() {
         const fetchWebsite = async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${apiUrl}/api/websites/${websiteId}`);
+                let res = await fetch(`${apiUrl}/api/v1/websites/public/${websiteId}`);
+                if (!res.ok && res.status !== 404) {
+                    const fallback = await fetch(`${apiUrl}/api/websites/public/${websiteId}`);
+                    if (fallback.ok) res = fallback;
+                }
                 const data = await res.json();
 
-                if (!res.ok) throw new Error(data?.message || "Failed to load website runtime.");
+                if (!res.ok) throw new Error("This website is unavailable.");
 
                 const site = data.website || data;
 
                 if (site?.editorData?.pages && site.editorData.pages.length > 0) {
-                    setPages(site.editorData.pages);
-                    const homePage = site.editorData.pages.find((p: any) => p.isHome || p.slug === "/") || site.editorData.pages[0];
-                    setActivePageId(homePage.id || "home");
-                    setElements(homePage.elements || []);
+                    const pagesList: PageConfig[] = site.editorData.pages;
+                    setPages(pagesList);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const queryPage = urlParams.get("page");
+                    const initialSlug = pageSlug || queryPage;
+                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    const activePage = matchedPage || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                    setActivePageId(activePage.id || "home");
+                    setElements(activePage.elements || []);
                 } else if (site?.editorData?.elements) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: site.editorData.elements };
                     setPages([defaultPage]);
@@ -261,19 +627,50 @@ export default function PublishedSite() {
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
 
-            } catch (err: any) {
-                setErrorMessage(err.message || "Failed to boot published runtime");
+            } catch (_err: any) {
+                setErrorMessage("This website is unavailable.");
             } finally {
                 setLoading(false);
             }
         };
         fetchWebsite();
-    }, [websiteId, apiUrl]);
+    }, [websiteId, apiUrl, pageSlug]);
 
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
+        if (websiteId) {
+            const isHome = page.isHome || page.slug === "/" || page.id === "home";
+            const cleanSlug = page.slug ? page.slug.replace(/^\//, "") : page.id;
+            const newPath = isHome ? `/site/${websiteId}` : `/site/${websiteId}/${cleanSlug}`;
+            if (window.location.pathname !== newPath) {
+                window.history.pushState({ pageId: page.id }, "", newPath);
+            }
+        }
     };
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (!pages || pages.length === 0) return;
+            const currentPath = window.location.pathname;
+            const parts = currentPath.split("/").filter(Boolean);
+            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts[2] : undefined;
+            const queryPage = new URLSearchParams(window.location.search).get("page");
+            const targetSlug = slugFromPath || queryPage;
+
+            const matched = targetSlug
+                ? findTargetPage(pages, targetSlug)
+                : pages.find((p) => p.isHome || p.slug === "/" || p.id === "home") || pages[0];
+
+            if (matched && matched.id !== activePageId) {
+                setActivePageId(matched.id);
+                setElements(matched.elements || []);
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [pages, activePageId]);
 
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
@@ -315,7 +712,6 @@ export default function PublishedSite() {
 
             // F-355: Strip backgroundImage out of F-353 compiler Hash pipeline.
             delete (outerProps as any).backgroundImage;
-            delete (outerProps as any).backgroundImage;
             delete (innerProps as any).backgroundImage;
 
             const stylePayload = JSON.stringify({ inner: innerProps, outer: outerProps });
@@ -352,8 +748,24 @@ export default function PublishedSite() {
         };
     }, [elements, activeBreakpointId, breakpoints, globalSettings]);
 
-    if (loading) return <div className="min-h-screen text-slate-500 bg-slate-50 text-center flex items-center justify-center">Loading Website...</div>;
-    if (errorMessage) return <div className="text-red-500 m-4">Error: {errorMessage}</div>;
+    if (loading) {
+        return (
+            <div className="min-h-screen text-slate-500 bg-slate-50 flex items-center justify-center text-sm font-medium">
+                Loading...
+            </div>
+        );
+    }
+    if (errorMessage) {
+        return (
+            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center">
+                <div className="text-5xl mb-4">🌐</div>
+                <h1 className="text-2xl font-bold mb-2">This website is unavailable.</h1>
+                <p className="text-slate-500 max-w-md text-sm">
+                    The requested page cannot be found or is not currently published.
+                </p>
+            </div>
+        );
+    }
 
     if (siteStatus === "MAINTENANCE") {
         return (
@@ -401,8 +813,8 @@ export default function PublishedSite() {
                                         type="button"
                                         onClick={() => handleSwitchPage(p)}
                                         className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isCurrent
-                                                ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
-                                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                            ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                                             }`}
                                     >
                                         {p.name || "Untitled"}
@@ -435,8 +847,8 @@ export default function PublishedSite() {
                                             setMobileMenuOpen(false);
                                         }}
                                         className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${isCurrent
-                                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
-                                                : "text-slate-700 hover:bg-slate-200/70"
+                                            ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                                            : "text-slate-700 hover:bg-slate-200/70"
                                             }`}
                                     >
                                         <span>{p.name}</span>
@@ -459,6 +871,10 @@ export default function PublishedSite() {
                     globalSettings={globalSettings}
                     elementClassMap={elementClassMap}
                     apiUrl={apiUrl}
+                    allElements={elements}
+                    pages={pages}
+                    onSwitchPage={handleSwitchPage}
+                    websiteId={websiteId}
                 />
             ))}
         </div>

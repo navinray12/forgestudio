@@ -27,18 +27,70 @@ export type ElementType =
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration";
 
+export interface SiteProduct {
+  id: string;
+  name: string;
+  price: string;
+  regularPrice?: string;
+  image?: string;
+  description?: string;
+  rating?: number;
+  ratingCount?: number;
+  badge?: string;
+  category?: string;
+  inStock?: boolean;
+  url?: string;
+}
+
 export interface NavSubmenuItem {
   id: string;
   label: string;
   url: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  target?: "_self" | "_blank";
+  icon?: string;
+  description?: string;
+  badge?: string;
+  image?: string;
+  isDisabled?: boolean;
 }
 
 export interface NavMenuItem {
   id: string;
   label: string;
   url: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  linkType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
   isActive?: boolean;
+  isDisabled?: boolean;
+  target?: "_self" | "_blank";
+  badge?: string;
+  badgeColor?: string;
+  icon?: string;
+  iconPosition?: "left" | "right";
+  dropdownEnabled?: boolean;
+  trigger?: "click" | "hover";
+  visibility?: {
+    desktop?: boolean;
+    tablet?: boolean;
+    mobile?: boolean;
+  };
   submenu?: NavSubmenuItem[];
+  children?: Array<{
+    id: string;
+    label: string;
+    url: string;
+    linkType?: "page" | "url";
+    pageId?: string;
+    target?: "_self" | "_blank";
+    badge?: string;
+    description?: string;
+  }>;
 }
 
 export interface PricePlanFeature {
@@ -52,20 +104,31 @@ export interface PricingPlan {
   name: string;
   description?: string;
   price: string;
+  currency?: string;
   period: string;
   isPopular?: boolean;
+  isRecommended?: boolean;
   badgeText?: string;
+  showBadge?: boolean;
   buttonText: string;
   buttonUrl: string;
+  buttonAlignment?: "left" | "center" | "right" | "full";
+  buttonWidth?: "auto" | "full";
+  cardBg?: string;
+  cardBorder?: string;
+  cardTextColor?: string;
   features: PricePlanFeature[];
 }
 
 export interface PriceListItem {
   id: string;
   name: string;
+  title?: string;
   description?: string;
   price: string;
   imageUrl?: string;
+  icon?: string;
+  imagePos?: "left" | "right";
 }
 
 export interface GalleryImageItem {
@@ -152,16 +215,25 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 
   // Social
   { type: "share-buttons", name: "Share Buttons", category: "Social", icon: "🔗", description: "Social media sharing action buttons" },
-  { type: "facebook-page", name: "Facebook Page", category: "Social", icon: "📘", description: "Facebook page feed embed widget" },
-  { type: "facebook-button", name: "FB Like Button", category: "Social", icon: "👍", description: "Facebook like & share action button" },
-  { type: "facebook-embed", name: "FB Post Embed", category: "Social", icon: "📌", description: "Facebook post or video embed iframe" },
-  { type: "facebook-comments", name: "FB Comments", category: "Social", icon: "💬", description: "Facebook discussion comments widget" },
+  { type: "facebook-page", name: "Facebook Integration", category: "Social", icon: "📘", description: "Facebook Page feed, Like button, Post embed & Comments widget" },
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
 export interface Breakpoint { id: string; name: string; width: number; active?: boolean; }
+
+export interface PageConfig {
+  id: string;
+  name: string;
+  slug: string;
+  customCss?: string;
+  isHome?: boolean;
+  pageSettings?: any;
+  elements: EditorElement[];
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export interface PlaylistItem {
   id: string;
@@ -186,6 +258,7 @@ export interface MediaCarouselItem {
   id: string;
   type?: "image" | "video";
   url: string;
+  image?: string;
   videoUrl?: string;
   posterUrl?: string;
   title?: string;
@@ -194,13 +267,23 @@ export interface MediaCarouselItem {
 }
 
 export interface MegaMenuColumnLink {
+  id?: string;
   label: string;
   href: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  target?: "_self" | "_blank";
   icon?: string;
   badge?: string;
+  description?: string;
+  image?: string;
+  children?: MegaMenuColumnLink[];
 }
 
 export interface MegaMenuColumn {
+  id?: string;
   title: string;
   links: MegaMenuColumnLink[];
 }
@@ -209,7 +292,14 @@ export interface MegaMenuItem {
   id: string;
   title: string;
   href?: string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  productId?: string;
+  linkType?: "page" | "url" | "anchor" | "product";
+  target?: "_self" | "_blank";
   badge?: string;
+  icon?: string;
+  trigger?: "click" | "hover";
   columns?: MegaMenuColumn[];
 }
 
@@ -252,6 +342,12 @@ export type FormFieldType =
   | "checkbox"
   | "radio";
 
+export interface FormStepItem {
+  id: string;
+  title: string;
+  description?: string;
+}
+
 export interface FormFieldItem {
   id: string;
   type: FormFieldType;
@@ -261,6 +357,7 @@ export interface FormFieldItem {
   options?: string[];
   defaultValue?: string;
   width?: "full" | "half";
+  stepId?: string;
 }
 
 export interface SlideItem {
@@ -276,9 +373,10 @@ export interface SlideItem {
 export interface PortfolioItem {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image: string;
   url?: string;
+  link?: string;
   category?: string;
 }
 
@@ -287,16 +385,31 @@ export type ShareNetworkType =
   | "twitter"
   | "linkedin"
   | "whatsapp"
+  | "instagram"
   | "pinterest"
   | "reddit"
   | "email"
-  | "copy";
+  | "copy"
+  | "custom";
+
+export type ShareActionType = "open-url" | "share" | "copy" | "email" | "custom";
 
 export interface ShareNetworkItem {
   id: string;
   network: ShareNetworkType;
   label?: string;
+  actionType?: ShareActionType;
+  urlSource?: "inherit" | "custom";
   customUrl?: string;
+  buttonUrl?: string;
+  url?: string;
+  shareText?: string;
+  hashtags?: string;
+  target?: "_self" | "_blank";
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  isDisabled?: boolean;
+  icon?: string;
 }
 
 export interface PostItem {
@@ -306,6 +419,8 @@ export interface PostItem {
   date?: string;
   author?: string;
   image?: string;
+  category?: string;
+  link?: string;
   readMoreText?: string;
   readMoreUrl?: string;
 }
@@ -514,6 +629,19 @@ export interface EditorElement {
   src?: string;
   alt?: string;
   href?: string;
+  linkPageId?: string;
+  linkType?: "page" | "url" | "anchor" | "product" | string;
+  destinationType?: "page" | "url" | "anchor" | "product";
+  pageId?: string;
+  rel?: string;
+  download?: boolean;
+  assetType?: "image" | "video" | "audio" | "file";
+  searchPlaceholder?: string;
+  searchButtonText?: string;
+  searchIcon?: string;
+  searchAction?: "modal" | "redirect" | "filter";
+  searchRedirectUrl?: string;
+  searchShowButton?: boolean;
   posts?: PostItem[];
   postsColumns?: number;
   postsGap?: number;
@@ -523,6 +651,10 @@ export interface EditorElement {
   postsShowExcerpt?: boolean;
   postsShowReadMore?: boolean;
   postsAlignment?: "left" | "center" | "right";
+  shareUrlSource?: "current-page" | "custom";
+  shareUrl?: string;
+  shareText?: string;
+  shareHashtags?: string;
   shareNetworks?: ShareNetworkItem[];
   shareLayout?: "horizontal" | "vertical";
   shareAlignment?: "left" | "center" | "right";
@@ -538,6 +670,9 @@ export interface EditorElement {
   portfolioShowCategory?: boolean;
   portfolioShowDescription?: boolean;
   portfolioShowLink?: boolean;
+  slides?: any[];
+  testimonials?: any[];
+  reviews?: any[];
   slidesItems?: SlideItem[];
   slidesActiveIndex?: number;
   slidesAutoplay?: boolean;
@@ -547,6 +682,12 @@ export interface EditorElement {
   slidesAlignment?: "left" | "center" | "right";
   slidesShowArrows?: boolean;
   slidesShowDots?: boolean;
+  formMode?: "simple" | "step-by-step";
+  formSteps?: FormStepItem[];
+  formNextText?: string;
+  formBackText?: string;
+  formBackBtnBg?: string;
+  formBackBtnColor?: string;
   formTitle?: string;
   formSubtitle?: string;
   formCardBg?: string;
@@ -554,6 +695,7 @@ export interface EditorElement {
   formFields?: FormFieldItem[];
   formSubmitText?: string;
   formSubmitSuccessMsg?: string;
+  formRedirectUrl?: string;
   formLayoutColumns?: 1 | 2;
   formFieldGap?: number;
   formShowLabels?: boolean;
@@ -588,6 +730,11 @@ export interface EditorElement {
   navItemActiveBg?: string;
   navFontSize?: string;
   navFontWeight?: string;
+  navTextTransform?: "none" | "uppercase" | "capitalize";
+  navSubmenuBg?: string;
+  navSubmenuTextColor?: string;
+  navSubmenuHoverBg?: string;
+  navSubmenuHoverColor?: string;
   headlinePrefix?: string;
   headlineAnimatedTexts?: string[];
   headlineSuffix?: string;
@@ -599,11 +746,15 @@ export interface EditorElement {
   pricingPlans?: PricingPlan[];
   pricingColumns?: 1 | 2 | 3 | 4;
   pricingGap?: number;
+  pricingAlignment?: "left" | "center" | "right";
   pricingCardBg?: string;
   pricingCardBorder?: string;
+  pricingCardRadius?: string;
   pricingHighlightColor?: string;
   pricingBtnBg?: string;
   pricingBtnColor?: string;
+  pricingBtnHoverBg?: string;
+  pricingBtnHoverColor?: string;
   priceListItems?: PriceListItem[];
   priceListGap?: number;
   priceListShowImages?: boolean;
@@ -612,18 +763,24 @@ export interface EditorElement {
   priceListTitleColor?: string;
   priceListPriceColor?: string;
   priceListPriceBg?: string;
+  priceListAlignment?: "left" | "center" | "right";
+  priceListIconColor?: string;
   galleryImages?: GalleryImageItem[];
   galleryColumns?: 1 | 2 | 3 | 4 | 5 | 6;
   galleryGap?: number;
+  galleryRowGap?: number;
   galleryAspectRatio?: "square" | "landscape" | "portrait" | "auto";
   galleryShowCaptions?: boolean;
   galleryCaptionPosition?: "overlay" | "below";
+  galleryCaptionColor?: string;
   galleryHoverEffect?: "zoom" | "fade" | "lift" | "none";
   galleryBorderRadius?: string;
+  galleryObjectFit?: "cover" | "contain" | "fill";
   flipDirection?: "flip-right" | "flip-left" | "flip-up" | "flip-down";
   flipDuration?: string;
   flipCardHeight?: string;
   flipBorderRadius?: string;
+  flipAlignment?: "left" | "center" | "right";
   flipFrontTitle?: string;
   flipFrontDescription?: string;
   flipFrontIcon?: string;
@@ -633,11 +790,14 @@ export interface EditorElement {
   flipBackTitle?: string;
   flipBackDescription?: string;
   flipBackBg?: string;
+  flipBackImage?: string;
   flipBackTextColor?: string;
   flipBackBtnText?: string;
   flipBackBtnUrl?: string;
   flipBackBtnBg?: string;
   flipBackBtnTextColor?: string;
+  flipBackBtnHoverBg?: string;
+  flipBackBtnHoverTextColor?: string;
   flipIsFlippedManual?: boolean;
   ctaHeading?: string;
   ctaDescription?: string;
@@ -751,6 +911,7 @@ export interface EditorElement {
   countdownMinutesLabel?: string;
   countdownSecondsLabel?: string;
   facebookPageUrl?: string;
+  facebookMode?: "page" | "button" | "embed" | "comments";
   facebookTabs?: string;
   facebookWidth?: number;
   facebookHeight?: number;
@@ -810,12 +971,24 @@ export interface EditorElement {
   paypalAmount?: string;
   paypalCurrency?: string;
   paypalItemName?: string;
+  paypalItemDescription?: string;
+  paypalItemImage?: string;
+  paypalQuantity?: number;
+  paypalEnv?: "sandbox" | "live";
+  paypalClientId?: string;
+  paypalButtonStyle?: "express" | "custom";
+  paypalButtonShape?: "pill" | "rect";
+  paypalLayout?: "horizontal" | "vertical";
   paypalButtonType?: "checkout" | "donate" | "subscribe";
   paypalButtonSize?: "sm" | "md" | "lg";
   paypalAlignment?: "left" | "center" | "right";
   paypalBgColor?: string;
   paypalTextColor?: string;
   paypalHoverBgColor?: string;
+  paypalSuccessAction?: "message" | "redirect";
+  paypalSuccessMessage?: string;
+  paypalSuccessRedirectUrl?: string;
+  paypalCancelMessage?: string;
   // F-201 Stripe Button
   stripeText?: string;
   stripeCheckoutUrl?: string;
@@ -838,6 +1011,55 @@ export interface EditorElement {
   codeLanguage?: string;
   codeShowLineNumbers?: boolean;
   codeTheme?: "dark" | "light" | "dracula" | "github";
+  // Convenience & Alias fields for dynamic inspectors
+  buttonText?: string;
+  linkUrl?: string;
+  icon?: string;
+  iconProvider?: string;
+  iconPosition?: "left" | "right" | "top" | "bottom" | string;
+  iconGap?: number;
+  iconSpacing?: number;
+  iconRotate?: number;
+  iconFlipH?: boolean;
+  iconFlipV?: boolean;
+  iconStrokeWidth?: number;
+  iconStyle?: "outline" | "filled" | "duotone" | "regular" | string;
+  target?: string;
+  loginUserLabel?: string;
+  loginPassLabel?: string;
+  animatedStyle?: string;
+  animatedPrefix?: string;
+  animatedWords?: string[];
+  pricePlans?: any[];
+  flipFrontDesc?: string;
+  flipBackDesc?: string;
+  flipButtonText?: string;
+  flipButtonUrl?: string;
+  ctaDesc?: string;
+  carouselPerView?: number;
+  carouselAutoplay?: boolean;
+  facebookUrl?: string;
+  quoteText?: string;
+  paymentAmount?: string;
+  paymentCurrency?: string;
+  paymentProductTitle?: string;
+  paymentButtonText?: string;
+  buttonBg?: string;
+  containerBg?: string;
+  buttonColor?: string;
+  wooProductTitle?: string;
+  wooPrice?: string;
+  wooRating?: number;
+  productTitle?: string;
+  productPrice?: string;
+  productImage?: string;
+  productRating?: number;
+  productRatingText?: string;
+  productRatingCount?: number;
+  productStarSize?: string;
+  productStarColor?: string;
+  productSource?: "manual" | "existing";
+  productId?: string;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";
@@ -847,11 +1069,18 @@ export interface EditorElement {
   playlistPosition?: "right" | "bottom";
   playlistPlayerWidth?: string;
   playlistAlignment?: "left" | "center" | "right";
+  // F-180 Nav Menu
+  navTrigger?: "click" | "hover";
+  navMobileBreakpoint?: "mobile" | "tablet" | "none";
   // F-205 Mega Menu
+  showMegaMenuLogo?: boolean;
   megaMenuItems?: MegaMenuItem[];
   megaMenuBgColor?: string;
   megaMenuTextColor?: string;
-  megaMenuAlignment?: "left" | "center" | "right";
+  megaMenuHoverColor?: string;
+  megaMenuAccentColor?: string;
+  megaMenuAlignment?: "left" | "center" | "right" | "between";
+  megaMenuTrigger?: "click" | "hover";
   // F-206 Off Canvas
   offCanvasButtonText?: string;
   offCanvasTitle?: string;
@@ -965,14 +1194,144 @@ export interface EditorElement {
   customAttributes?: Record<string, string> | any[];
 }
 
-export interface PageConfig {
+export interface SitePartsConfig {
+  header?: {
+    enabled?: boolean;
+    isEnabled?: boolean;
+    elements: EditorElement[];
+    customCss?: string;
+  };
+  footer?: {
+    enabled?: boolean;
+    isEnabled?: boolean;
+    elements: EditorElement[];
+    customCss?: string;
+  };
+}
+
+export interface GlobalStylesConfig {
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    text: string;
+    [key: string]: string;
+  };
+  typography: {
+    fontFamily: string;
+    headingFontFamily: string;
+    baseFontSize: string;
+    [key: string]: string;
+  };
+  buttonStyles: {
+    borderRadius: string;
+    padding: string;
+    [key: string]: string;
+  };
+  containerStyles?: {
+    maxWidth?: string;
+    defaultPadding?: string;
+  };
+  // Backward compatibility / convenience flat properties
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingFont?: string;
+  bodyFont?: string;
+  borderRadius?: string;
+  containerMaxWidth?: string;
+}
+
+export type DeploymentStatus =
+  | "DRAFT"
+  | "SAVED"
+  | "PREVIEW"
+  | "QUEUED"
+  | "VALIDATING"
+  | "BUILDING"
+  | "PROCESSING"
+  | "DEPLOYING"
+  | "VERIFYING"
+  | "PUBLISHED"
+  | "RECONCILIATION_REQUIRED"
+  | "VALIDATION_FAILED"
+  | "BUILD_FAILED"
+  | "DEPLOY_FAILED"
+  | "VERIFICATION_FAILED"
+  | "UNPUBLISHED_CHANGES";
+
+export interface PublishingState {
+  status: DeploymentStatus;
+  publishedAt?: string;
+  publishedVersion?: number;
+  publishedBy?: string;
+  version?: number;
+  deploymentId?: string;
+}
+
+export interface DeploymentRecord {
   id: string;
-  name: string;
-  slug: string;
-  customCss?: string;
+  websiteId: string;
+  version: number;
+  status: DeploymentStatus;
+  environment: string;
+  destinationType: string;
+  destinationRef?: string;
+  sourceRevisionId?: string;
+  metadata?: any;
+  error?: any;
+  startedAt: string;
+  completedAt?: string;
+  createdAt: string;
+  creator?: {
+    id: string;
+    fullName?: string;
+    email?: string;
+  };
+}
+
+export interface DeploymentConfig {
+  provider: "none" | "custom" | "vercel" | "netlify" | "sftp" | "static";
+  customDomain?: string;
+  stagingUrl?: string;
+  productionUrl?: string;
+  sslActive?: boolean;
+  webhookUrl?: string;
+  deployedAt?: string;
+}
+
+export interface CanonicalWebsiteData {
+  id?: string;
+  name?: string;
+  slug?: string;
+  version: number;
+  homePageId: string;
+  pages: PageConfig[];
+  siteSettings: {
+    siteName: string;
+    siteLogo?: string;
+    favicon?: string;
+    siteLanguage?: string;
+    customHead?: string;
+    isMaintenanceMode?: boolean;
+    [key: string]: any;
+  };
+  globalStyles: GlobalStylesConfig;
+  siteParts: SitePartsConfig;
+  navigation: NavMenuItem[];
+  publishing: PublishingState;
+  deployment: DeploymentConfig;
+  // Backward compatibility fields
   elements: EditorElement[];
   pageSettings?: any;
-  isHome?: boolean;
+  breakpoints?: Breakpoint[];
+  popups?: any[];
+  pageCss?: string;
+  globalSettings?: any;
+  publishedData?: any;
 }
 
 export interface WebsiteData {
@@ -981,10 +1340,7 @@ export interface WebsiteData {
   slug: string;
   status: string;
   userPermission?: string;
-  editorData?: {
-    version: number;
-    elements: EditorElement[];
-  };
+  editorData?: CanonicalWebsiteData | any;
 }
 
 // ==========================================

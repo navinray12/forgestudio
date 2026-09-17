@@ -29,6 +29,338 @@ export async function initWebsiteTable() {
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS idx_websites_user_id ON websites("userId");
     `);
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS website_revisions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          version INTEGER NOT NULL,
+          "revisionType" VARCHAR(50) NOT NULL DEFAULT 'MANUAL',
+          description VARCHAR(500),
+          data JSONB NOT NULL,
+          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE UNIQUE INDEX IF NOT EXISTS website_revisions_websiteId_version_key ON website_revisions("websiteId", version);
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_idx ON website_revisions("websiteId");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_createdAt_idx ON website_revisions("websiteId", "createdAt");
+      `);
+    } catch (revTableErr) {
+      // Table or constraint already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS deployments (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          version INTEGER NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
+          environment VARCHAR(50) NOT NULL DEFAULT 'PRODUCTION',
+          "destinationType" VARCHAR(50) NOT NULL DEFAULT 'INTERNAL',
+          "destinationRef" VARCHAR(500),
+          "sourceRevisionId" UUID,
+          metadata JSONB DEFAULT '{}',
+          error JSONB,
+          "startedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "completedAt" TIMESTAMP WITH TIME ZONE,
+          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_websiteId_idx ON deployments("websiteId");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_websiteId_createdAt_idx ON deployments("websiteId", "createdAt");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS deployments_status_idx ON deployments("status");
+      `);
+    } catch (depTableErr) {
+      // Table or index already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS wordpress_connections (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "websiteId" UUID NOT NULL UNIQUE REFERENCES websites(id) ON DELETE CASCADE,
+          "siteUrl" VARCHAR(500) NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'CONNECTED',
+          "wpSiteName" VARCHAR(255),
+          "apiKeyHash" VARCHAR(255) NOT NULL,
+          capabilities JSONB DEFAULT '[]',
+          metadata JSONB DEFAULT '{}',
+          "lastVerifiedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS wordpress_connections_userId_idx ON wordpress_connections("userId");
+      `);
+    } catch (wpConnErr) {
+      // Table already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS wordpress_page_mappings (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "forgePageId" VARCHAR(100) NOT NULL,
+          "wpPostId" INTEGER NOT NULL,
+          "wpPostSlug" VARCHAR(255),
+          "wpPostUrl" VARCHAR(500),
+          "lastSyncedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "wordpress_page_mappings_websiteId_forgePageId_key" UNIQUE ("websiteId", "forgePageId")
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS wordpress_page_mappings_websiteId_idx ON wordpress_page_mappings("websiteId");
+      `);
+    } catch (wpMapErr) {
+      // Table already exists
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS workspaces (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) UNIQUE NOT NULL,
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (wsErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS teams (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          description VARCHAR(500),
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (tmErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'teamId') THEN
+            ALTER TABLE websites ADD COLUMN "teamId" UUID REFERENCES teams(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'workspaceId') THEN
+            ALTER TABLE websites ADD COLUMN "workspaceId" UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+          END IF;
+        END $$;
+      `);
+    } catch (colErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS team_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "team_members_teamId_userId_key" UNIQUE ("teamId", "userId")
+        );
+      `);
+    } catch (tmmErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS team_invitations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+          email VARCHAR(255) NOT NULL,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (tmiErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS website_invitations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          email VARCHAR(255) NOT NULL,
+          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (wsiErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS developer_api_keys (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
+          scopes JSONB DEFAULT '["websites:read"]',
+          "lastUsedAt" TIMESTAMP WITH TIME ZONE,
+          "revokedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS developer_api_keys_userId_idx ON developer_api_keys("userId");
+      `);
+    } catch (dakErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS background_jobs (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          type VARCHAR(100) NOT NULL,
+          payload JSONB DEFAULT '{}',
+          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
+          attempts INTEGER NOT NULL DEFAULT 0,
+          "maxAttempts" INTEGER NOT NULL DEFAULT 3,
+          "lastError" VARCHAR(2000),
+          "runAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "startedAt" TIMESTAMP WITH TIME ZONE,
+          "completedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS background_jobs_status_runAt_idx ON background_jobs("status", "runAt");
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS background_jobs_type_idx ON background_jobs("type");
+      `);
+    } catch (bjErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS granular_permissions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "resourceId" VARCHAR(100) NOT NULL DEFAULT '*',
+          capability VARCHAR(100) NOT NULL,
+          effect VARCHAR(20) NOT NULL DEFAULT 'ALLOW',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "granular_permissions_websiteId_userId_resourceId_capability_key" UNIQUE ("websiteId", "userId", "resourceId", "capability")
+        );
+      `);
+    } catch (gpErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS organizations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) UNIQUE NOT NULL,
+          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          settings JSONB DEFAULT '{}',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (orgErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'organizationId') THEN
+            ALTER TABLE workspaces ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'settings') THEN
+            ALTER TABLE workspaces ADD COLUMN settings JSONB DEFAULT '{}';
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'organizationId') THEN
+            ALTER TABLE websites ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'approvalWorkflowEnabled') THEN
+            ALTER TABLE websites ADD COLUMN "approvalWorkflowEnabled" BOOLEAN NOT NULL DEFAULT false;
+          END IF;
+        END $$;
+      `);
+    } catch (colErr2) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS organization_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "organizationId" UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "organization_members_organizationId_userId_key" UNIQUE ("organizationId", "userId")
+        );
+      `);
+    } catch (omErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS workspace_members (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "workspaceId" UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
+        );
+      `);
+    } catch (wmErr) { }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS publish_approval_requests (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "requesterId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "reviewerId" UUID REFERENCES users(id) ON DELETE SET NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "targetVersion" INTEGER NOT NULL,
+          "reviewNotes" VARCHAR(1000),
+          snapshot JSONB NOT NULL,
+          "reviewedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (parErr) { }
   } catch (error) {
     console.error("Website table initialization log:", error);
   }
@@ -98,7 +430,7 @@ export async function getWebsiteById(websiteId: string, userId: string) {
         if (website.userId === userId) {
           permission = "OWNER";
         } else {
-          // F-404: Check WebsiteCollaborator explicitly
+          // Check WebsiteCollaborator explicitly
           const collab = await db.websiteCollaborator.findUnique({
             where: {
               websiteId_userId: { websiteId, userId }
@@ -149,8 +481,26 @@ export async function getWebsiteById(websiteId: string, userId: string) {
 /**
  * Create a new website with subscription limit check
  */
-export async function createWebsite(userId: string, name: string) {
-  const trimmedName = name?.trim();
+export async function createWebsite(
+  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string },
+  nameArg?: string
+) {
+  let userId: string;
+  let rawName: string;
+  let customSlug: string | undefined;
+  let customEditorData: any | undefined;
+
+  if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
+    userId = userIdOrOptions.userId;
+    rawName = userIdOrOptions.name;
+    customSlug = userIdOrOptions.slug;
+    customEditorData = userIdOrOptions.editorData;
+  } else {
+    userId = userIdOrOptions;
+    rawName = nameArg || "";
+  }
+
+  const trimmedName = rawName?.trim();
   if (!trimmedName) {
     throw new AppError("Website name is required", 400, "INVALID_NAME");
   }
@@ -171,8 +521,8 @@ export async function createWebsite(userId: string, name: string) {
     );
   }
 
-  const slug = generateSlug(trimmedName);
-  const initialEditorData = {
+  const slug = customSlug || generateSlug(trimmedName);
+  const initialEditorData = customEditorData || {
     version: 1,
     elements: [],
   };
@@ -207,6 +557,31 @@ export async function createWebsite(userId: string, name: string) {
 }
 
 /**
+ * Update general website metadata and attributes
+ */
+export async function updateWebsite(
+  websiteId: string,
+  data: { name?: string; slug?: string; editorData?: any; status?: string },
+  userId: string
+) {
+  // Implicit ownership / permission check via getWebsiteById
+  await getWebsiteById(websiteId, userId);
+
+  const updatePayload: any = {};
+  if (data.name !== undefined) updatePayload.name = data.name;
+  if (data.slug !== undefined) updatePayload.slug = data.slug;
+  if (data.status !== undefined) updatePayload.status = data.status;
+  if (data.editorData !== undefined) updatePayload.editorData = data.editorData;
+
+  const updated = await prisma.website.update({
+    where: { id: websiteId },
+    data: updatePayload,
+  });
+
+  return updated;
+}
+
+/**
  * Update editor JSON structure for a website
  */
 export async function updateWebsiteEditorData(
@@ -216,7 +591,7 @@ export async function updateWebsiteEditorData(
   performanceSettingsInput?: any,
   performanceInput?: any
 ) {
-  // Ensure website exists and fetch F-404 permission boundaries
+  // Ensure website exists and fetch permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 
   const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
@@ -226,7 +601,7 @@ export async function updateWebsiteEditorData(
     throw new AppError("You do not have permission to edit this component.", 403, "FORBIDDEN");
   }
 
-  // F-405 / F-404: Safe Component / Content Editing Mode
+  // Safe Component / Content Editing Mode
   const isWebsiteOwner = website.userId === userId;
   const isCollaboratorAdmin = (website as unknown as any).userPermission === "ADMIN";
   const isAdmin = isWebsiteOwner || isCollaboratorAdmin;
@@ -291,20 +666,63 @@ export async function updateWebsiteEditorData(
 
   const mergedPerf = incomingPerformance ? { ...currentPerf, ...incomingPerformance } : currentPerf;
 
+  // Preserve multi-page pages and site parts safely without data loss
+  let safePages = incomingEditorData.pages;
+  if (Array.isArray(incomingEditorData.pages) && incomingEditorData.pages.length > 0) {
+    const currentPages = Array.isArray(currentEditorData.pages) ? currentEditorData.pages : [];
+    safePages = incomingEditorData.pages.map((p: any) => {
+      const currentP = currentPages.find((cp: any) => cp.id === p.id);
+      if (currentP && Array.isArray(currentP.elements) && Array.isArray(p.elements)) {
+        return {
+          ...p,
+          elements: safeMerge(currentP.elements, p.elements),
+        };
+      }
+      return p;
+    });
+  } else if (currentEditorData.pages) {
+    safePages = currentEditorData.pages;
+  }
+
+  // Preserve siteParts (header and footer)
+  let safeSiteParts = incomingEditorData.siteParts || currentEditorData.siteParts;
+  if (safeSiteParts) {
+    safeSiteParts = {
+      ...(currentEditorData.siteParts || {}),
+      ...(incomingEditorData.siteParts || {}),
+    };
+    if (incomingEditorData.siteParts?.header && currentEditorData.siteParts?.header?.elements && incomingEditorData.siteParts.header.elements) {
+      safeSiteParts.header = {
+        ...incomingEditorData.siteParts.header,
+        elements: safeMerge(currentEditorData.siteParts.header.elements, incomingEditorData.siteParts.header.elements),
+      };
+    }
+    if (incomingEditorData.siteParts?.footer && currentEditorData.siteParts?.footer?.elements && incomingEditorData.siteParts.footer.elements) {
+      safeSiteParts.footer = {
+        ...incomingEditorData.siteParts.footer,
+        elements: safeMerge(currentEditorData.siteParts.footer.elements, incomingEditorData.siteParts.footer.elements),
+      };
+    }
+  }
+
   const finalEditorData = {
     ...currentEditorData,
     ...incomingEditorData,
     elements: safeElements,
     popups: safePopups,
     performanceSettings: mergedPerf,
+    ...(safePages !== undefined ? { pages: safePages } : {}),
+    ...(safeSiteParts !== undefined ? { siteParts: safeSiteParts } : {}),
   };
 
   try {
+    const isPublishing = finalEditorData.publishing?.status === "PUBLISHED";
     if (db?.website?.update) {
       const updateData: any = {
         editorData: finalEditorData,
         performanceSettings: mergedPerf,
         updatedAt: new Date(),
+        ...(isPublishing ? { status: "PUBLISHED" } : {}),
       };
       const updated = await db.website.update({
         where: { id: websiteId },
@@ -315,12 +733,22 @@ export async function updateWebsiteEditorData(
 
     const jsonStr = JSON.stringify(finalEditorData);
     const perfStr = JSON.stringify(mergedPerf);
-    const updated: any[] = await prisma.$queryRaw`
-       UPDATE websites
-       SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
-       WHERE id = ${websiteId}::uuid
-       RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-     `;
+    let updated: any[];
+    if (isPublishing) {
+      updated = await prisma.$queryRaw`
+         UPDATE websites
+         SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
+         WHERE id = ${websiteId}::uuid
+         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+       `;
+    } else {
+      updated = await prisma.$queryRaw`
+         UPDATE websites
+         SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
+         WHERE id = ${websiteId}::uuid
+         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+       `;
+    }
 
     return updated[0];
   } catch (error) {
@@ -333,7 +761,7 @@ export async function updateWebsiteEditorData(
  * Delete a website with ownership check
  */
 export async function deleteWebsite(websiteId: string, userId: string) {
-  // Extract F-404 permission boundaries
+  // Extract permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 
   if (website.userPermission !== "OWNER") {
@@ -442,6 +870,17 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
     data: { permission: newRole }
   });
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "ROLE_UPDATED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId, newRole, previousRole: existing.permission },
+      },
+    });
+  } catch (e) { }
+
   return { success: true };
 }
 
@@ -483,6 +922,17 @@ export async function inviteWebsiteMember(websiteId: string, inviterId: string, 
     }
   });
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: inviterId,
+        action: "COLLABORATOR_INVITED",
+        targetResource: `website:${websiteId}`,
+        details: { email, role, inviteId: invite.id },
+      },
+    });
+  } catch (e) { }
+
   return { inviteId: invite.id, token };
 }
 
@@ -520,6 +970,17 @@ export async function acceptWebsiteInvitation(token: string, userId: string) {
     })
   ]);
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: "INVITATION_ACCEPTED",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId: invite.id, role: invite.role },
+      },
+    });
+  } catch (e) { }
+
   return { success: true, websiteId: invite.websiteId };
 }
 
@@ -539,5 +1000,208 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
     where: { websiteId_userId: { websiteId, userId: targetUserId } }
   });
 
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterId,
+        action: "COLLABORATOR_REMOVED",
+        targetResource: `website:${websiteId}`,
+        details: { targetUserId },
+      },
+    });
+  } catch (e) { }
+
   return { success: true };
+}
+
+export async function revokeWebsiteInvitation(inviteId: string, requesterUserId: string) {
+  const invite = await db.websiteInvitation.findUnique({ where: { id: inviteId } });
+  if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+  const website = await getWebsiteById(invite.websiteId, requesterUserId);
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("You do not have permission to manage invitations.", 403, "FORBIDDEN");
+  }
+
+  const updated = await db.websiteInvitation.update({
+    where: { id: inviteId },
+    data: { status: "REVOKED" }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "INVITATION_REVOKED",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId, email: invite.email, role: invite.role },
+      },
+    });
+  } catch (e) { }
+
+  return { success: true, invite: { id: updated.id, status: updated.status } };
+}
+
+export async function resendWebsiteInvitation(inviteId: string, requesterUserId: string) {
+  const invite = await db.websiteInvitation.findUnique({ where: { id: inviteId } });
+  if (!invite) throw new AppError("Invitation not found", 404, "NOT_FOUND");
+
+  const website = await getWebsiteById(invite.websiteId, requesterUserId);
+  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+    throw new AppError("You do not have permission to manage invitations.", 403, "FORBIDDEN");
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 7);
+
+  await db.websiteInvitation.update({
+    where: { id: inviteId },
+    data: {
+      tokenHash,
+      status: "PENDING",
+      expiresAt: expiry,
+    }
+  });
+
+  try {
+    await prisma.auditLog.create({
+      data: {
+        userId: requesterUserId,
+        action: "INVITATION_RESENT",
+        targetResource: `website:${invite.websiteId}`,
+        details: { inviteId, email: invite.email, role: invite.role },
+      },
+    });
+  } catch (e) { }
+
+  return { success: true, inviteId: invite.id, token };
+}
+
+/**
+ * Public Website DTO Projection (Comment 8)
+ * Strictly unauthenticated read endpoint for published websites.
+ * Strips all user IDs, collaborator data, session info, credentials, and internal configs.
+ */
+export interface PublicWebsiteDTO {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  editorData: {
+    version: number;
+    homePageId?: string;
+    pages: any[];
+    elements: any[];
+    siteParts?: any;
+    globalStyles?: any;
+    breakpoints?: any[];
+    popups?: any[];
+    pageCss?: string;
+    globalSettings?: any;
+    siteSettings?: {
+      siteName?: string;
+      siteLogo?: string;
+      favicon?: string;
+      siteLanguage?: string;
+      customHead?: string;
+    };
+    publishing?: {
+      status: string;
+      publishedAt?: string;
+      version?: number;
+    };
+  };
+  customCodeSnippets?: Array<{
+    id: string;
+    title: string | null;
+    placement: string;
+    code: string;
+    priority?: number;
+    language?: string;
+  }>;
+}
+
+export async function getPublicWebsiteById(websiteId: string): Promise<PublicWebsiteDTO> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(websiteId);
+
+  const website = await prisma.website.findFirst({
+    where: isUuid ? { id: websiteId } : { slug: websiteId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      editorData: true,
+      customCodeSnippets: {
+        where: {
+          status: "PUBLISHED",
+        },
+        select: {
+          id: true,
+          title: true,
+          placement: true,
+          code: true,
+          priority: true,
+          language: true,
+        },
+      },
+    },
+  });
+
+  if (!website) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  const rawEditorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  // Check authoritative publishing state (Comment 9)
+  const isPublished =
+    website.status === "PUBLISHED" ||
+    rawEditorData?.publishing?.status === "PUBLISHED";
+
+  if (!isPublished) {
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
+  const sourceData = rawEditorData.publishedData || rawEditorData;
+
+  // Build explicit sanitized public DTO projection (Comment 8)
+  const publicEditorData = {
+    version: sourceData.version || 1,
+    homePageId: sourceData.homePageId,
+    pages: Array.isArray(sourceData.pages) ? sourceData.pages : [],
+    elements: Array.isArray(sourceData.elements) ? sourceData.elements : [],
+    siteParts: sourceData.siteParts || undefined,
+    globalStyles: sourceData.globalStyles || undefined,
+    breakpoints: sourceData.breakpoints || undefined,
+    popups: sourceData.popups || undefined,
+    pageCss: sourceData.pageCss || undefined,
+    globalSettings: sourceData.globalSettings || undefined,
+    siteSettings: sourceData.siteSettings ? {
+      siteName: sourceData.siteSettings.siteName,
+      siteLogo: sourceData.siteSettings.siteLogo,
+      favicon: sourceData.siteSettings.favicon,
+      siteLanguage: sourceData.siteSettings.siteLanguage,
+      customHead: sourceData.siteSettings.customHead,
+    } : undefined,
+    publishing: {
+      status: "PUBLISHED",
+      publishedAt: sourceData.publishing?.publishedAt,
+      version: sourceData.publishing?.version || sourceData.publishing?.publishedVersion,
+    },
+  };
+
+  return {
+    id: website.id,
+    name: website.name,
+    slug: website.slug,
+    status: "PUBLISHED",
+    editorData: publicEditorData,
+    customCodeSnippets: website.customCodeSnippets,
+  };
 }

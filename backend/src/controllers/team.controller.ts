@@ -65,3 +65,19 @@ export async function removeMemberHandler(req: Request, res: Response, next: Nex
         res.json({ success: true });
     } catch (error) { next(error); }
 }
+
+export async function revokeInvitationHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const inviteId = req.params.inviteId as string;
+        const result = await teamService.revokeTeamInvitation(inviteId, res.locals.user.id);
+        res.json(result);
+    } catch (error) { next(error); }
+}
+
+export async function resendInvitationHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const inviteId = req.params.inviteId as string;
+        const result = await teamService.resendTeamInvitation(inviteId, res.locals.user.id);
+        res.json(result);
+    } catch (error) { next(error); }
+}

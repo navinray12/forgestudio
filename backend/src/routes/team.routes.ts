@@ -18,4 +18,9 @@ router.delete("/:id", teamController.deleteTeamHandler);
 router.post("/:id/invite", teamController.inviteMemberHandler);
 router.delete("/:id/members/:userId", teamController.removeMemberHandler);
 
+router.post("/invitations/:inviteId/revoke", teamController.revokeInvitationHandler);
+router.post("/invitations/:inviteId/resend", teamController.resendInvitationHandler);
+router.post("/:id/invitations/:inviteId/revoke", teamController.revokeInvitationHandler);
+router.post("/:id/invitations/:inviteId/resend", teamController.resendInvitationHandler);
+
 export default router;

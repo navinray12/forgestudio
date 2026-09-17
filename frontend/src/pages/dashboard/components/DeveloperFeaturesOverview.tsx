@@ -75,7 +75,7 @@ export default function DeveloperFeaturesOverview() {
         <div className="space-y-8">
             <div>
                 <h2 className="text-xl font-bold text-slate-900">Developer Features Hub</h2>
-                <p className="text-sm text-slate-500 mt-1">All F-102 through F-122 CSS & developer controls — click any feature to open it.</p>
+                <p className="text-sm text-slate-500 mt-1">CSS & developer controls — click any feature to open it.</p>
                 <div className="flex gap-3 mt-4">
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
                         ✓ {FEATURES.length} Features Active
@@ -109,8 +109,8 @@ export default function DeveloperFeaturesOverview() {
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-extrabold text-slate-400">{f.id}</span>
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Live" />
+                                        <span className="text-[10px] font-semibold text-emerald-600">Active</span>
                                     </div>
                                     <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-indigo-700 transition-colors">{f.name}</h3>
                                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{f.description}</p>
@@ -144,8 +144,8 @@ export default function DeveloperFeaturesOverview() {
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-extrabold text-slate-400">{f.id}</span>
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Live" />
+                                        <span className="text-[10px] font-semibold text-emerald-600">Active</span>
                                     </div>
                                     <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-emerald-700 transition-colors">{f.name}</h3>
                                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{f.description}</p>

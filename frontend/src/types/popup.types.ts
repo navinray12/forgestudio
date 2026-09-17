@@ -1,4 +1,4 @@
-import type { EditorElement } from "../pages/editor/WebsiteEditor";
+import type { EditorElement } from "../pages/editor/types";
 
 export type PopupLayoutMode = "modal" | "slide-in" | "hello-bar" | "full-screen";
 export type PopupTriggerType = "load" | "scroll" | "exit-intent" | "click" | "inactivity";

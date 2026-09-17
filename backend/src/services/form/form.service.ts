@@ -172,7 +172,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     };
   }
 
-  // 2. IP Rate Limiter Check (F-277)
+  // 2. IP Rate Limiter Check
   const clientIp = metadata?.ip || "unknown";
   const rateLimit = spamProtection?.rateLimitPerMinute ?? 5;
   if (!checkRateLimit(clientIp, rateLimit)) {
@@ -195,7 +195,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
   const activeActions = actions?.activeActions || ["database"];
   const executionResults: Record<string, boolean> = {};
 
-  // 4. Action: Database Persistence (F-276, F-278)
+  // 4. Action: Database Persistence
   if (activeActions.includes("database")) {
     try {
       const dataJsonStr = JSON.stringify(sanitizedFields);
@@ -213,7 +213,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     }
   }
 
-  // 5. Action: Webhook Dispatcher (F-281)
+  // 5. Action: Webhook Dispatcher
   if (activeActions.includes("webhook") && actions?.webhookConfig?.endpointUrl) {
     const endpoint = actions.webhookConfig.endpointUrl.trim();
     if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
@@ -253,12 +253,11 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     }
   }
 
-  // 6. Action: Email Notification Dispatcher (F-280)
+  // 6. Action: Email Notification Dispatcher
   if (activeActions.includes("email") && actions?.emailConfig?.toEmail) {
     // Log formatted email notification dispatch (production integrates nodemailer/SES)
     console.log(
-      `[Form Email Dispatch] Sending lead email to: ${actions.emailConfig.toEmail} | Subject: ${
-        actions.emailConfig.subject || "New Lead Received"
+      `[Form Email Dispatch] Sending lead email to: ${actions.emailConfig.toEmail} | Subject: ${actions.emailConfig.subject || "New Lead Received"
       }`,
       sanitizedFields
     );

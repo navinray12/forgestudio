@@ -43,18 +43,18 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Developer Tools",
     items: [
-      { id: "developer-api", label: "Developer API", icon: "🔑", badge: "F-118" },
-      { id: "plugin-hub", label: "Plugin Hub", icon: "🔌", badge: "F-119/120" },
-      { id: "custom-code", label: "Custom Code", icon: "⚡", badge: "F-112" },
-      { id: "advanced-code", label: "Code Manager", icon: "🔧", badge: "F-113→117" },
-      { id: "cpts", label: "Custom Post Types", icon: "📝", badge: "F-121" },
-      { id: "composer-installation", label: "Composer", icon: "📦", badge: "F-122" },
+      { id: "developer-api", label: "Developer API", icon: "🔑" },
+      { id: "plugin-hub", label: "Plugin Hub", icon: "🔌" },
+      { id: "custom-code", label: "Custom Code", icon: "⚡" },
+      { id: "advanced-code", label: "Code Manager", icon: "🔧" },
+      { id: "cpts", label: "Custom Post Types", icon: "📝" },
+      { id: "composer-installation", label: "Composer", icon: "📦" },
     ],
   },
   {
     label: "Performance",
     items: [
-      { id: "performance", label: "Performance & SEO", icon: "🚀", badge: "F-351→360" },
+      { id: "performance", label: "Performance & SEO", icon: "🚀" },
     ],
   },
 ];
@@ -338,19 +338,19 @@ function UserDashboard() {
 
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => setRoleManagerSite(site)}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
+                          >
+                            Roles
+                          </button>
+
+                          <button
                             onClick={() => handleExportDashboardKit(site)}
                             disabled={exportingKitId === site.id}
                             className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer disabled:opacity-50"
                             title="Export project configuration as a portable Website Kit JSON file"
                           >
                             {exportingKitId === site.id ? "Exporting..." : "Export Kit 📦"}
-                          </button>
-
-                          <button
-                            onClick={() => setRoleManagerSite(site)}
-                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
-                          >
-                            Roles
                           </button>
 
                           <button

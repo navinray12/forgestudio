@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-// Public submission endpoint (F-270 - F-278)
+// Public submission endpoint
 router.post("/submit", submitFormHandler);
 
 // Protected endpoints for website owners to inspect leads

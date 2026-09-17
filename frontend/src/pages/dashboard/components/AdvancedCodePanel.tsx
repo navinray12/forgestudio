@@ -38,7 +38,7 @@ const LANGUAGES: { value: Language; label: string; color: string }[] = [
     { value: "HTML", label: "HTML", color: "bg-orange-100 text-orange-700" },
 ];
 
-// F-117: Client-side lint for quick feedback
+// Client-side lint for quick feedback
 function lintCode(code: string, lang: Language): string[] {
     const errs: string[] = [];
     if (!code.trim()) return errs;
@@ -203,7 +203,7 @@ export default function AdvancedCodePanel() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Inject Location (F-112)</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Inject Location</label>
                         <select value={placement} onChange={e => setPlacement(e.target.value as Placement)} className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 focus:outline-none">
                             {PLACEMENTS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                         </select>
@@ -214,7 +214,7 @@ export default function AdvancedCodePanel() {
                 <div>
                     <div className="flex items-center justify-between mb-1.5">
                         <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Code *</label>
-                        <button type="button" onClick={runLinter} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-900 flex items-center gap-1 transition">🔍 Run Linter (F-117)</button>
+                        <button type="button" onClick={runLinter} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-900 flex items-center gap-1 transition">🔍 Run Linter</button>
                     </div>
                     <textarea
                         value={code} rows={12}
@@ -238,9 +238,9 @@ export default function AdvancedCodePanel() {
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
                     <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Advanced Options</p>
 
-                    {/* F-113: Conditions */}
+                    {/* Conditions */}
                     <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Load Conditions (F-113)</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Load Conditions</label>
                         <input type="text" value={conditions} onChange={e => setConditions(e.target.value)}
                             placeholder="e.g. page:home, user:logged-in, device:mobile"
                             className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300" />
@@ -248,25 +248,25 @@ export default function AdvancedCodePanel() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
-                        {/* F-116: Priority */}
+                        {/* Priority */}
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Priority (F-116)</label>
+                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Priority</label>
                             <input type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} min={1} max={100}
                                 className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300" />
                             <p className="mt-1 text-[10px] text-slate-400">Lower number = loads first.</p>
                         </div>
 
-                        {/* F-115: Scheduled publishing */}
+                        {/* Scheduled publishing */}
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Publish At (F-115)</label>
+                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Publish At</label>
                             <input type="datetime-local" value={scheduledFor} onChange={e => setScheduledFor(e.target.value)}
                                 className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300" />
                             <p className="mt-1 text-[10px] text-slate-400">Leave empty to publish now.</p>
                         </div>
 
-                        {/* F-114: Draft */}
+                        {/* Draft */}
                         <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Save as Draft (F-114)</label>
+                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Save as Draft</label>
                             <button type="button" onClick={() => setIsDraft(p => !p)}
                                 className={`mt-1 h-9 w-full rounded-lg border text-xs font-bold transition ${isDraft ? "bg-amber-50 border-amber-300 text-amber-700" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
                                 {isDraft ? "📝 Draft — not published" : "Active on Publish"}
@@ -302,7 +302,7 @@ export default function AdvancedCodePanel() {
                     <h2 className="text-xl font-bold text-slate-900">Custom Code Manager</h2>
                     <p className="text-sm text-slate-500 mt-1">Inject, schedule, lint and condition-control all code snippets across your site.</p>
                     <div className="flex flex-wrap gap-1.5 mt-3">
-                        {["F-112 Inject", "F-113 Conditions", "F-114 Draft", "F-115 Schedule", "F-116 Priority", "F-117 Linter"].map(f => (
+                        {["Inject", "Conditions", "Drafts", "Schedule", "Priority", "Linter"].map(f => (
                             <span key={f} className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{f}</span>
                         ))}
                     </div>

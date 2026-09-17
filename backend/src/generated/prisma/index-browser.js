@@ -139,27 +139,30 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.WebsiteScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  teamId: 'teamId',
   name: 'name',
   slug: 'slug',
   status: 'status',
   editorData: 'editorData',
   performanceSettings: 'performanceSettings',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  teamId: 'teamId',
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  approvalWorkflowEnabled: 'approvalWorkflowEnabled'
 };
 
 exports.Prisma.OtpVerificationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  email: 'email',
   otpHash: 'otpHash',
   purpose: 'purpose',
+  channel: 'channel',
   attempts: 'attempts',
   expiresAt: 'expiresAt',
   verifiedAt: 'verifiedAt',
-  createdAt: 'createdAt',
-  email: 'email',
-  channel: 'channel'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.IdentityScalarFieldEnum = {
@@ -230,6 +233,29 @@ exports.Prisma.TemplatesScalarFieldEnum = {
   isFavorite: 'isFavorite',
   isShared: 'isShared',
   shareToken: 'shareToken'
+};
+
+exports.Prisma.CustomCodeSnippetScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  name: 'name',
+  title: 'title',
+  language: 'language',
+  codeType: 'codeType',
+  code: 'code',
+  placement: 'placement',
+  location: 'location',
+  scope: 'scope',
+  pageId: 'pageId',
+  conditions: 'conditions',
+  priority: 'priority',
+  status: 'status',
+  scheduledFor: 'scheduledFor',
+  isEnabled: 'isEnabled',
+  isActive: 'isActive',
+  isDraft: 'isDraft',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.CustomCodeRevisionScalarFieldEnum = {
@@ -340,29 +366,6 @@ exports.Prisma.CustomEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.CustomCodeSnippetScalarFieldEnum = {
-  id: 'id',
-  websiteId: 'websiteId',
-  name: 'name',
-  title: 'title',
-  language: 'language',
-  codeType: 'codeType',
-  placement: 'placement',
-  location: 'location',
-  scope: 'scope',
-  pageId: 'pageId',
-  code: 'code',
-  priority: 'priority',
-  conditions: 'conditions',
-  status: 'status',
-  scheduledFor: 'scheduledFor',
-  isEnabled: 'isEnabled',
-  isActive: 'isActive',
-  isDraft: 'isDraft',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.DesignNoteScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -433,6 +436,73 @@ exports.Prisma.WebsiteKitScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WebsiteRevisionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  version: 'version',
+  revisionType: 'revisionType',
+  description: 'description',
+  data: 'data',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DeploymentScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  version: 'version',
+  status: 'status',
+  environment: 'environment',
+  destinationType: 'destinationType',
+  destinationRef: 'destinationRef',
+  sourceRevisionId: 'sourceRevisionId',
+  metadata: 'metadata',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WordPressConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  websiteId: 'websiteId',
+  siteUrl: 'siteUrl',
+  status: 'status',
+  wpSiteName: 'wpSiteName',
+  apiKeyHash: 'apiKeyHash',
+  capabilities: 'capabilities',
+  metadata: 'metadata',
+  lastVerifiedAt: 'lastVerifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WordPressPageMappingScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  forgePageId: 'forgePageId',
+  wpPostId: 'wpPostId',
+  wpPostSlug: 'wpPostSlug',
+  wpPostUrl: 'wpPostUrl',
+  lastSyncedAt: 'lastSyncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GranularPermissionScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  userId: 'userId',
+  resourceId: 'resourceId',
+  capability: 'capability',
+  effect: 'effect',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.TeamScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -458,8 +528,89 @@ exports.Prisma.TeamInvitationScalarFieldEnum = {
   role: 'role',
   tokenHash: 'tokenHash',
   status: 'status',
-  invitedBy: 'invitedBy',
   expiresAt: 'expiresAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WebsiteInvitationScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  email: 'email',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkspaceScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  name: 'name',
+  slug: 'slug',
+  ownerId: 'ownerId',
+  settings: 'settings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  ownerId: 'ownerId',
+  settings: 'settings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WorkspaceMemberScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PublishApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  requesterId: 'requesterId',
+  reviewerId: 'reviewerId',
+  status: 'status',
+  targetVersion: 'targetVersion',
+  reviewNotes: 'reviewNotes',
+  snapshot: 'snapshot',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BackgroundJobScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  maxAttempts: 'maxAttempts',
+  lastError: 'lastError',
+  runAt: 'runAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -541,6 +692,7 @@ exports.Prisma.ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   UserSubscription: 'UserSubscription',
   templates: 'templates',
+  CustomCodeSnippet: 'CustomCodeSnippet',
   CustomCodeRevision: 'CustomCodeRevision',
   FormSubmission: 'FormSubmission',
   CustomPostType: 'CustomPostType',
@@ -551,16 +703,27 @@ exports.Prisma.ModelName = {
   MultisiteNetwork: 'MultisiteNetwork',
   CustomField: 'CustomField',
   CustomEntry: 'CustomEntry',
-  CustomCodeSnippet: 'CustomCodeSnippet',
   DesignNote: 'DesignNote',
   PluginCompatibility: 'PluginCompatibility',
   DeveloperApiKey: 'DeveloperApiKey',
   ComponentAccess: 'ComponentAccess',
   WebsiteCollaborator: 'WebsiteCollaborator',
   WebsiteKit: 'WebsiteKit',
+  WebsiteRevision: 'WebsiteRevision',
+  Deployment: 'Deployment',
+  WordPressConnection: 'WordPressConnection',
+  WordPressPageMapping: 'WordPressPageMapping',
+  GranularPermission: 'GranularPermission',
   Team: 'Team',
   TeamMember: 'TeamMember',
-  TeamInvitation: 'TeamInvitation'
+  TeamInvitation: 'TeamInvitation',
+  WebsiteInvitation: 'WebsiteInvitation',
+  Workspace: 'Workspace',
+  Organization: 'Organization',
+  OrganizationMember: 'OrganizationMember',
+  WorkspaceMember: 'WorkspaceMember',
+  PublishApprovalRequest: 'PublishApprovalRequest',
+  BackgroundJob: 'BackgroundJob'
 };
 
 /**
