@@ -21,6 +21,7 @@ router.post("/", createTemplateHandler);
 router.get("/", getUserTemplatesHandler);
 router.post("/:id/share", toggleShareHandler);
 router.patch("/:id", updateTemplateHandler);
+router.put("/:id", updateTemplateHandler);
 router.delete("/:id", deleteTemplateHandler);
 
 export default router;

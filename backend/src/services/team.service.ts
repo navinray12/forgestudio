@@ -2,7 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 import crypto from "crypto";
 
-const db = prisma as any;
+const db = prisma;
 
 export async function createTeam(userId: string, name: string, description?: string) {
     if (!name || name.trim() === "") throw new AppError("Team name is required", 400, "BAD_REQUEST");

@@ -15,12 +15,14 @@ export async function initFormSubmissionsTable() {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
         "formId" VARCHAR(255) NOT NULL,
-        "formName" VARCHAR(255) NOT NULL,
+        "formName" VARCHAR(255) NOT NULL DEFAULT 'Contact Form',
         data JSONB NOT NULL DEFAULT '{}'::jsonb,
         metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
       );
     `);
+    await prisma.$executeRawUnsafe(`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS "formName" VARCHAR(255) DEFAULT 'Contact Form';`);
+    await prisma.$executeRawUnsafe(`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;`);
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS idx_form_submissions_website_id ON form_submissions("websiteId");
     `);
@@ -134,6 +136,33 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     throw new AppError("Website ID and Form ID are required", 400, "INVALID_FORM_SUBMISSION");
   }
 
+  // Validate websiteId UUID format
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  if (!uuidRegex.test(websiteId)) {
+    throw new AppError("Invalid website ID format", 400, "INVALID_WEBSITE_ID");
+  }
+
+  // Validate required submission fields (must be a valid non-null object)
+  if (fields === undefined || fields === null || typeof fields !== "object" || Array.isArray(fields)) {
+    throw new AppError("Form fields data is required and must be an object", 400, "INVALID_FORM_SUBMISSION");
+  }
+
+  // Validate website existence in database
+  let websiteExists;
+  try {
+    websiteExists = await prisma.website.findUnique({
+      where: { id: websiteId },
+      select: { id: true },
+    });
+  } catch (err: any) {
+    console.error("Database query error checking website existence:", err);
+    throw new AppError("Failed to verify website existence", 500, "DATABASE_ERROR");
+  }
+
+  if (!websiteExists) {
+    throw new AppError("Website not found", 404, "WEBSITE_NOT_FOUND");
+  }
+
   // 1. Honeypot Spam Check (F-277)
   if (spamProtection?.enableHoneypot !== false && honeypotValue && honeypotValue.trim().length > 0) {
     // Silently drop spam submissions without giving bots feedback
@@ -177,9 +206,10 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
         VALUES (gen_random_uuid(), ${websiteId}::uuid, ${formId}, ${formName || "Contact Form"}, ${dataJsonStr}::jsonb, ${metaJsonStr}::jsonb, NOW())
       `;
       executionResults.database = true;
-    } catch (dbErr) {
+    } catch (dbErr: any) {
       console.error("Error saving form submission to database:", dbErr);
       executionResults.database = false;
+      throw new AppError("Failed to persist form submission", 500, "DATABASE_ERROR");
     }
   }
 

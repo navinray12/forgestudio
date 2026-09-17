@@ -32,10 +32,35 @@ export async function getSftpConfig(req: Request, res: Response) {
 
 export async function syncSftpFiles(req: Request, res: Response) {
   try {
-    const { websiteId } = req.body;
+    const { websiteId } = req.body || {};
+    if (!websiteId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "MISSING_WEBSITE_ID",
+          message: "websiteId is required in request body to perform SFTP synchronization",
+        },
+      });
+    }
     const result = await sftpService.syncFilesOverSftp(websiteId);
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+    if (error.message && error.message.includes("SFTP configuration not found")) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: "SFTP_CONFIG_NOT_FOUND",
+          message: "SFTP configuration not found for this website. Please save configuration via POST /api/v1/sftp/config first.",
+        },
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: "SERVER_ERROR",
+        message: error.message || "An unexpected error occurred during SFTP sync",
+      },
+    });
   }
 }
+

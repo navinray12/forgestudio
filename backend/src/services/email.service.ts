@@ -12,10 +12,15 @@ export async function sendOtpEmail(
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
   if (!smtpHost || !smtpUser || !smtpPassword || !smtpFrom) {
+    const isDev = process.env.NODE_ENV !== "production";
     console.log(`\n==================================================`);
     console.log(`[EMAIL OTP] (SIMULATED - NO SMTP SETUP) Sent to: ${toEmail}`);
     console.log(`[EMAIL OTP] Purpose: ${purpose}`);
-    console.log(`[EMAIL OTP] OTP Code: ${otp}`);
+    if (isDev) {
+      console.log(`[EMAIL OTP] OTP Code: ${otp}`);
+    } else {
+      console.log(`[EMAIL OTP] OTP Code: [MASKED IN PRODUCTION]`);
+    }
     console.log(`==================================================\n`);
     return;
   }
@@ -66,10 +71,15 @@ If you did not request this code, please ignore this email.
     </div>
   `;
 
+  const isDev = process.env.NODE_ENV !== "production";
   console.log(`\n==================================================`);
   console.log(`[EMAIL OTP] Sent to: ${toEmail}`);
   console.log(`[EMAIL OTP] Purpose: ${purpose}`);
-  console.log(`[EMAIL OTP] OTP Code: ${otp}`);
+  if (isDev) {
+    console.log(`[EMAIL OTP] OTP Code: ${otp}`);
+  } else {
+    console.log(`[EMAIL OTP] OTP Code: [MASKED IN PRODUCTION]`);
+  }
   console.log(`==================================================\n`);
 
   try {

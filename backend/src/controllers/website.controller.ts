@@ -89,14 +89,59 @@ export async function updateWebsiteHandler(
 ) {
   try {
     const user = res.locals.user;
-    const websiteId = req.params.id as string;
-    const { editorData, performanceSettings } = req.body;
+    const websiteId = (req.params.websiteId || req.params.id) as string;
+    const { editorData, performanceSettings, performance } = req.body || {};
 
-    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings);
+    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings, performance);
 
     return res.status(200).json({
       success: true,
       message: "Website saved successfully",
+      data: website,
+      website,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * PUT /api/v1/websites/:websiteId/editor-data
+ * Dedicated endpoint for updating website editor data & performance settings
+ */
+export async function updateWebsiteEditorDataHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = (req.params.websiteId || req.params.id) as string;
+
+    if (!req.body || typeof req.body !== "object") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_REQUEST_BODY",
+          message: "Request body must be a valid JSON object",
+        },
+      });
+    }
+
+    const { editorData, performanceSettings, performance } = req.body;
+
+    const website = await updateWebsiteEditorData(
+      websiteId,
+      user.id,
+      editorData,
+      performanceSettings,
+      performance
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Editor data updated successfully",
+      data: website,
       website,
     });
   } catch (error) {

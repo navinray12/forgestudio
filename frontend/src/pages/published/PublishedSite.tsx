@@ -20,9 +20,8 @@ const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ 
             {urls.map((url, i) => (
                 <div
                     key={url + i}
-                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-                        i === index ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"
+                        }`}
                     style={{ backgroundImage: `url(${url})` }}
                 />
             ))}
@@ -174,20 +173,16 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         <React.Fragment key={el.id}>
             <div ref={assignRefIfTracked as any} {...mergedProps}>
                 {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-<<<<<<< HEAD
                     <BackgroundSlideshow
                         urls={
                             Array.isArray(el.styles.backgroundSlideshowUrls)
                                 ? el.styles.backgroundSlideshowUrls
                                 : typeof el.styles.backgroundSlideshowUrls === "string"
-                                ? el.styles.backgroundSlideshowUrls.split(",")
-                                : []
+                                    ? el.styles.backgroundSlideshowUrls.split(",")
+                                    : []
                         }
                         interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
                     />
-=======
-                    <BackgroundSlideshow urls={Array.isArray(el.styles.backgroundSlideshowUrls) ? el.styles.backgroundSlideshowUrls : String(el.styles.backgroundSlideshowUrls).split(",")} interval={Number(el.styles.backgroundSlideshowSpeed) || 5000} />
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
                 )}
                 {el.children?.map(child => (
                     <RenderNode
@@ -275,15 +270,13 @@ export default function PublishedSite() {
         fetchWebsite();
     }, [websiteId, apiUrl]);
 
-<<<<<<< HEAD
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
     };
-=======
+
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
 
     useEffect(() => {
         const handleResize = () => {
@@ -320,10 +313,8 @@ export default function PublishedSite() {
             const outerProps = { ...resolved };
             Object.keys(innerProps).forEach(k => delete (outerProps as any)[k]);
 
-<<<<<<< HEAD
             // F-355: Strip backgroundImage out of F-353 compiler Hash pipeline.
-=======
->>>>>>> 86c5b4e8a31d0b85dbd3976aecca464e6b767cb5
+            delete (outerProps as any).backgroundImage;
             delete (outerProps as any).backgroundImage;
             delete (innerProps as any).backgroundImage;
 
@@ -409,11 +400,10 @@ export default function PublishedSite() {
                                         key={p.id}
                                         type="button"
                                         onClick={() => handleSwitchPage(p)}
-                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                                            isCurrent
+                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isCurrent
                                                 ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
                                                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-                                        }`}
+                                            }`}
                                     >
                                         {p.name || "Untitled"}
                                     </button>
@@ -444,11 +434,10 @@ export default function PublishedSite() {
                                             handleSwitchPage(p);
                                             setMobileMenuOpen(false);
                                         }}
-                                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
-                                            isCurrent
+                                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${isCurrent
                                                 ? "bg-blue-600 text-white font-extrabold shadow-sm"
                                                 : "text-slate-700 hover:bg-slate-200/70"
-                                        }`}
+                                            }`}
                                     >
                                         <span>{p.name}</span>
                                         <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>

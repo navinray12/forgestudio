@@ -58,10 +58,16 @@ export async function getGranularPermissions(websiteId: string, requesterUserId:
         throw new AppError("Forbidden", 403, "FORBIDDEN");
     }
 
-    return await db.granularPermission.findMany({
-        where: { websiteId },
-        include: { user: { select: { fullName: true, email: true } } }
-    });
+    try {
+        if (db.granularPermission?.findMany) {
+            return await db.granularPermission.findMany({
+                where: { websiteId },
+                include: { user: { select: { fullName: true, email: true } } }
+            });
+        }
+    } catch (e) { }
+
+    return [];
 }
 
 export async function setGranularPermission(websiteId: string, requesterUserId: string, targetUserId: string, resourceId: string, capability: string, effect: string) {

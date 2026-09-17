@@ -11,7 +11,7 @@ const checkWebsiteAccess = async (websiteId: string, userId: string): Promise<bo
     if (!website) return false;
     if (website.userId === userId) return true;
 
-    const isCollaborator = website.collaborators.some((c: any) => c.userId === userId);
+    const isCollaborator = website.collaborators.some((c: { userId: string }) => c.userId === userId);
     return isCollaborator;
 };
 
@@ -72,7 +72,6 @@ export const getNotes = async (req: Request, res: Response): Promise<void> => {
             where: { websiteId },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             },
             orderBy: { createdAt: "desc" },
         });
@@ -133,7 +132,7 @@ export const updateNote = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        // Only the author can edit the note content (or maybe an admin, but let's stick to author)
+        // Only the author can edit the note content
         if (existingNote.authorId !== userId) {
             res.status(403).json({ success: false, message: "Forbidden: You can only edit your own notes" });
             return;
@@ -144,7 +143,6 @@ export const updateNote = async (req: Request, res: Response): Promise<void> => 
             data: { content },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             }
         });
 
@@ -210,13 +208,10 @@ export const resolveNote = async (req: Request, res: Response): Promise<void> =>
         const note = await prisma.designNote.update({
             where: { id },
             data: {
-                status: "RESOLVED",
-                resolvedAt: new Date(),
-                resolvedBy: userId,
+                resolved: true,
             },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             }
         });
 
@@ -248,13 +243,10 @@ export const reopenNote = async (req: Request, res: Response): Promise<void> => 
         const note = await prisma.designNote.update({
             where: { id },
             data: {
-                status: "OPEN",
-                resolvedAt: null,
-                resolvedBy: null,
+                resolved: false,
             },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             }
         });
 

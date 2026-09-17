@@ -29,8 +29,10 @@ import {
   sftpRoutes,
   pluginIntegrationRoutes,
   multisiteRoutes,
+  websiteKitRoutes,
 } from "./routes/index.js";
 
+import { setupSwagger } from "./config/swagger.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -38,6 +40,7 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
   })
 );
 
@@ -45,7 +48,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: true,
     credentials: true,
   })
 );
@@ -54,6 +57,8 @@ app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
+
+setupSwagger(app);
 
 app.get("/api/v1/health", (_req: Request, res: Response) => {
   res.status(200).json({
@@ -106,6 +111,8 @@ app.use("/api/component-access", componentAccessRoutes);
 
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
+app.use("/api/v1/website-kits", websiteKitRoutes);
+app.use("/api/website-kits", websiteKitRoutes);
 
 // Forms: public submission + protected owner operations are enforced by the router.
 app.use("/api/v1/forms", formRoutes);

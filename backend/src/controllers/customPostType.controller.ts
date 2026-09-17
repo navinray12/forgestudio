@@ -1,6 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
 import { prisma } from "../config/prisma.js";
 
+interface CustomFieldInput {
+    name: string;
+    slug?: string;
+    key?: string;
+    type?: string;
+    required?: boolean;
+    options?: Record<string, unknown>;
+}
+
 // ====== CPT Management ======
 export async function getCustomPostTypesHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -17,7 +26,7 @@ export async function getCustomPostTypesHandler(req: Request, res: Response, nex
 export async function createCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
     try {
         const websiteId = req.params.websiteId as string;
-        const { name, singular, plural, slug, description, hasArchive } = req.body;
+        const { name, slug, description, supports } = req.body;
 
         const existing = await prisma.customPostType.findFirst({ where: { websiteId, slug } });
         if (existing) {
@@ -25,7 +34,13 @@ export async function createCustomPostTypeHandler(req: Request, res: Response, n
         }
 
         const cpt = await prisma.customPostType.create({
-            data: { websiteId, name, singular, plural, slug, description, hasArchive }
+            data: {
+                websiteId,
+                name,
+                slug,
+                description: description || null,
+                supports: supports || ["title", "editor", "thumbnail"],
+            }
         });
         res.status(201).json({ success: true, data: cpt });
     } catch (e) { next(e); }
@@ -61,16 +76,18 @@ export async function saveCustomFieldsHandler(req: Request, res: Response, next:
 
         await prisma.$transaction(async (tx) => {
             await tx.customField.deleteMany({ where: { postTypeId: cptId } });
-            if (fields && fields.length > 0) {
+            if (fields && Array.isArray(fields) && fields.length > 0) {
                 await tx.customField.createMany({
-                    data: fields.map((f: any, idx: number) => ({
+                    data: fields.map((f: CustomFieldInput, idx: number) => ({
                         postTypeId: cptId,
                         name: f.name,
-                        key: f.key,
-                        type: f.type,
-                        required: f.required || false,
+                        slug: f.slug || f.key || f.name.toLowerCase().replace(/\s+/g, '_'),
+                        type: f.type || 'text',
                         order: idx,
-                        options: f.options || {}
+                        config: {
+                            required: f.required || false,
+                            options: (f.options || {}) as any,
+                        }
                     }))
                 });
             }
@@ -96,7 +113,7 @@ export async function getCustomEntriesHandler(req: Request, res: Response, next:
 export async function createCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
     try {
         const cptId = req.params.cptId as string;
-        const { title, slug, status, values } = req.body;
+        const { title, slug, status, values, data } = req.body;
         const authorId = res.locals.user.id; // From requireAuth
 
         const existing = await prisma.customEntry.findFirst({ where: { postTypeId: cptId, slug } });
@@ -105,7 +122,14 @@ export async function createCustomEntryHandler(req: Request, res: Response, next
         }
 
         const entry = await prisma.customEntry.create({
-            data: { postTypeId: cptId, title, slug, status, values, authorId }
+            data: {
+                postTypeId: cptId,
+                title,
+                slug,
+                status: status || "PUBLISHED",
+                data: values ?? data ?? {},
+                authorId,
+            }
         });
         res.status(201).json({ success: true, data: entry });
     } catch (e) { next(e); }
@@ -114,11 +138,16 @@ export async function createCustomEntryHandler(req: Request, res: Response, next
 export async function updateCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
     try {
         const entryId = req.params.entryId as string;
-        const { title, slug, status, values } = req.body;
+        const { title, slug, status, values, data } = req.body;
 
         const entry = await prisma.customEntry.update({
             where: { id: entryId },
-            data: { title, slug, status, values }
+            data: {
+                title,
+                slug,
+                status,
+                data: values ?? data ?? {},
+            }
         });
         res.status(200).json({ success: true, data: entry });
     } catch (e) { next(e); }

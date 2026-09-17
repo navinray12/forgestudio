@@ -64,7 +64,8 @@ import type {
   ElementStyles,
   ElementState,
   EditorElement,
-  WebsiteData
+  WebsiteData,
+  PageConfig
 } from "./types";
 import {
   ALL_WIDGET_REGISTRY,
@@ -211,7 +212,7 @@ export default function WebsiteEditor() {
 
   const [elements, setElements] = useState<EditorElement[]>([]);
 
-const [popups, setPopups] = useState<any[]>([]);
+  const [popups, setPopups] = useState<any[]>([]);
 
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -235,8 +236,8 @@ const [popups, setPopups] = useState<any[]>([]);
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
-  const handleTrackPopupView = (id: string) => {};
-  const handleTrackPopupClick = (id: string) => {};
+  const handleTrackPopupView = (id: string) => { };
+  const handleTrackPopupClick = (id: string) => { };
 
 
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
@@ -694,449 +695,403 @@ const [popups, setPopups] = useState<any[]>([]);
     siteLanguage: "en",
   });
 
-// Multi-Page Management & Preview States
-const [pages, setPages] = useState<PageConfig[]>([]);
-const [activePageId, setActivePageId] = useState<string>("home");
-const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
-const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
-const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
-const [newPageName, setNewPageName] = useState<string>("");
-const [newPageSlug, setNewPageSlug] = useState<string>("");
-const [editingPageId, setEditingPageId] = useState<string | null>(null);
-const [editPageName, setEditPageName] = useState<string>("");
-const [editPageSlug, setEditPageSlug] = useState<string>("");
-const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
-const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  // Multi-Page Management & Preview States
+  const [pages, setPages] = useState<PageConfig[]>([]);
+  const [activePageId, setActivePageId] = useState<string>("home");
+  const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+  const [newPageName, setNewPageName] = useState<string>("");
+  const [newPageSlug, setNewPageSlug] = useState<string>("");
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editPageName, setEditPageName] = useState<string>("");
+  const [editPageSlug, setEditPageSlug] = useState<string>("");
+  const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-// Sync live editor state (elements & pageSettings) with the active page entry in pages array
-useEffect(() => {
-  if (!activePageId) return;
+  // Sync live editor state (elements & pageSettings) with the active page entry in pages array
+  useEffect(() => {
+    if (!activePageId) return;
 
-  setPages((prevPages) => {
-    if (!prevPages || prevPages.length === 0) return prevPages;
+    setPages((prevPages) => {
+      if (!prevPages || prevPages.length === 0) return prevPages;
 
-    const exists = prevPages.some((p) => p.id === activePageId);
-    if (!exists) return prevPages;
+      const exists = prevPages.some((p) => p.id === activePageId);
+      if (!exists) return prevPages;
 
-    return prevPages.map((p) => {
-      if (p.id === activePageId) {
-        const updatedName = pageSettings.title || p.name;
-        const updatedSlug = pageSettings.path || p.slug;
+      return prevPages.map((p) => {
+        if (p.id === activePageId) {
+          const updatedName = pageSettings.title || p.name;
+          const updatedSlug = pageSettings.path || p.slug;
 
-        if (
-          p.elements === elements &&
-          p.pageSettings === pageSettings &&
-          p.name === updatedName &&
-          p.slug === updatedSlug
-        ) {
-          return p;
+          if (
+            p.elements === elements &&
+            p.pageSettings === pageSettings &&
+            p.name === updatedName &&
+            p.slug === updatedSlug
+          ) {
+            return p;
+          }
+
+          return {
+            ...p,
+            name: updatedName,
+            slug: updatedSlug,
+            elements,
+            pageSettings,
+          };
         }
 
-        return {
-          ...p,
-          name: updatedName,
-          slug: updatedSlug,
-          elements,
-          pageSettings,
-        };
-      }
-
-      return p;
+        return p;
+      });
     });
-  });
-}, [elements, pageSettings, activePageId]);
+  }, [elements, pageSettings, activePageId]);
 
-// Sync preview active page with URL query parameter "?page=..." and popstate listener
-useEffect(() => {
-  if (!isPreview || pages.length === 0) return;
+  // Sync preview active page with URL query parameter "?page=..." and popstate listener
+  useEffect(() => {
+    if (!isPreview || pages.length === 0) return;
 
-  const syncFromUrl = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const urlPageParam =
-      searchParams.get("page") || searchParams.get("previewPage");
+    const syncFromUrl = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlPageParam =
+        searchParams.get("page") || searchParams.get("previewPage");
 
-    if (urlPageParam) {
-      const found = pages.find(
-        (p) =>
-          p.id === urlPageParam ||
-          p.slug === urlPageParam ||
-          p.slug === `/${urlPageParam}` ||
-          p.name.toLowerCase() === urlPageParam.toLowerCase()
-      );
+      if (urlPageParam) {
+        const found = pages.find(
+          (p) =>
+            p.id === urlPageParam ||
+            p.slug === urlPageParam ||
+            p.slug === `/${urlPageParam}` ||
+            p.name.toLowerCase() === urlPageParam.toLowerCase()
+        );
 
-      if (found) {
-        setActivePreviewPageId(found.id);
-        return;
+        if (found) {
+          setActivePreviewPageId(found.id);
+          return;
+        }
       }
-    }
 
-    const homePage =
-      pages.find(
-        (p) => p.isHome || p.slug === "/" || p.id === "home"
-      ) || pages[0];
+      const homePage =
+        pages.find(
+          (p) => p.isHome || p.slug === "/" || p.id === "home"
+        ) || pages[0];
 
-    if (homePage) {
-      setActivePreviewPageId(homePage.id);
-    }
+      if (homePage) {
+        setActivePreviewPageId(homePage.id);
+      }
+    };
+
+    syncFromUrl();
+
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [isPreview, pages]);
+
+  const handlePreviewPageNavigate = (targetPage: PageConfig) => {
+    setActivePreviewPageId(targetPage.id);
+
+    const newUrl = new URL(window.location.href);
+
+    const cleanSlug =
+      targetPage.slug === "/"
+        ? "home"
+        : targetPage.slug.replace(/^\//, "");
+
+    newUrl.searchParams.set("page", cleanSlug);
+
+    window.history.pushState({}, "", newUrl.toString());
   };
 
-  syncFromUrl();
+  const handleSwitchEditingPage = (targetPageId: string) => {
+    const target = pages.find((p) => p.id === targetPageId);
 
-  window.addEventListener("popstate", syncFromUrl);
+    if (!target) return;
 
-  return () => window.removeEventListener("popstate", syncFromUrl);
-}, [isPreview, pages]);
-
-const handlePreviewPageNavigate = (targetPage: PageConfig) => {
-  setActivePreviewPageId(targetPage.id);
-
-  const newUrl = new URL(window.location.href);
-
-  const cleanSlug =
-    targetPage.slug === "/"
-      ? "home"
-      : targetPage.slug.replace(/^\//, "");
-
-  newUrl.searchParams.set("page", cleanSlug);
-
-  window.history.pushState({}, "", newUrl.toString());
-};
-
-const handleSwitchEditingPage = (targetPageId: string) => {
-  const target = pages.find((p) => p.id === targetPageId);
-
-  if (!target) return;
-
-  setPages((prev) =>
-    prev.map((p) =>
-      p.id === activePageId
-        ? {
+    setPages((prev) =>
+      prev.map((p) =>
+        p.id === activePageId
+          ? {
             ...p,
             elements,
             pageSettings,
             name: pageSettings.title || p.name,
             slug: pageSettings.path || p.slug,
           }
-        : p
-    )
-  );
+          : p
+      )
+    );
 
-  setActivePageId(target.id);
-  setElements(target.elements || []);
-
-  setPageSettings(
-    target.pageSettings || {
-      title: target.name,
-      path: target.slug,
-    }
-  );
-
-  setSelectedId(null);
-  setSelectedIds([]);
-  setIsPageSelectorOpen(false);
-};
-
-const handleCreateNewPage = () => {
-  const rawTitle =
-    newPageName.trim() || `Page ${pages.length + 1}`;
-
-  const formattedSlug = newPageSlug.trim()
-    ? newPageSlug.startsWith("/")
-      ? newPageSlug
-      : `/${newPageSlug}`
-    : `/${rawTitle
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")}`;
-
-  const newPageObj: PageConfig = {
-    id: `page_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 6)}`,
-
-    name: rawTitle,
-    slug: formattedSlug,
-
-    elements: [],
-
-    pageSettings: {
-      title: rawTitle,
-      path: formattedSlug,
-      description: "",
-      backgroundColor: "#ffffff",
-      isMaintenanceMode: false,
-      siteLanguage: "en",
-    },
-
-    isHome: pages.length === 0,
-  };
-
-  const updatedPages = [...pages, newPageObj];
-
-  setPages(updatedPages);
-  setActivePageId(newPageObj.id);
-
-  setElements([]);
-  setPageSettings(newPageObj.pageSettings);
-
-  setSelectedId(null);
-  setSelectedIds([]);
-
-  setNewPageName("");
-  setNewPageSlug("");
-
-  setIsAddPageModalOpen(false);
-  setIsPageSelectorOpen(false);
-
-  setSaveMessage(`Page "${rawTitle}" created!`);
-
-  setTimeout(() => setSaveMessage(""), 3000);
-};
-
-const handleDeletePage = (
-  pageIdToDelete: string,
-  e: React.MouseEvent
-) => {
-  e.stopPropagation();
-
-  if (pages.length <= 1) {
-    setErrorMessage("Cannot delete the only remaining page.");
-
-    setTimeout(() => setErrorMessage(""), 3000);
-
-    return;
-  }
-
-  const target = pages.find(
-    (p) => p.id === pageIdToDelete
-  );
-
-  if (!target) return;
-
-  if (
-    !window.confirm(
-      `Are you sure you want to delete page "${target.name}"?`
-    )
-  ) {
-    return;
-  }
-
-  const remainingPages = pages
-    .filter((p) => p.id !== pageIdToDelete)
-    .map((p, idx) => ({
-      ...p,
-      isHome: idx === 0,
-    }));
-
-  setPages(remainingPages);
-
-  if (activePageId === pageIdToDelete) {
-    const nextActive = remainingPages[0];
-
-    setActivePageId(nextActive.id);
-    setElements(nextActive.elements || []);
+    setActivePageId(target.id);
+    setElements(target.elements || []);
 
     setPageSettings(
-      nextActive.pageSettings || {
-        title: nextActive.name,
-        path: nextActive.slug,
+      target.pageSettings || {
+        title: target.name,
+        path: target.slug,
       }
     );
-  }
 
-  setSaveMessage(`Deleted page "${target.name}".`);
+    setSelectedId(null);
+    setSelectedIds([]);
+    setIsPageSelectorOpen(false);
+  };
 
-  setTimeout(() => setSaveMessage(""), 3000);
-};
+  const handleCreateNewPage = () => {
+    const rawTitle =
+      newPageName.trim() || `Page ${pages.length + 1}`;
 
-const openEditPageModal = (
-  page: PageConfig,
-  e: React.MouseEvent
-) => {
-  e.stopPropagation();
-
-  setEditingPageId(page.id);
-  setEditPageName(page.name);
-  setEditPageSlug(page.slug);
-
-  setIsEditPageModalOpen(true);
-  setIsPageSelectorOpen(false);
-};
-
-const handleSaveEditPage = () => {
-  if (!editingPageId) return;
-
-  const rawTitle = editPageName.trim();
-
-  if (!rawTitle) return;
-
-  const formattedSlug = editPageSlug.trim()
-    ? editPageSlug.startsWith("/")
-      ? editPageSlug
-      : `/${editPageSlug}`
-    : `/${rawTitle
+    const formattedSlug = newPageSlug.trim()
+      ? newPageSlug.startsWith("/")
+        ? newPageSlug
+        : `/${newPageSlug}`
+      : `/${rawTitle
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")}`;
 
-  setPages((prev) =>
-    prev.map((p) => {
-      if (p.id === editingPageId) {
-        const updatedSettings = {
-          ...(p.pageSettings || {}),
-          title: rawTitle,
-          path: formattedSlug,
-        };
+    const newPageObj: PageConfig = {
+      id: `page_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 6)}`,
 
-        return {
-          ...p,
-          name: rawTitle,
-          slug: formattedSlug,
-          pageSettings: updatedSettings,
-        };
-      }
+      name: rawTitle,
+      slug: formattedSlug,
 
-      return p;
-    })
-  );
+      elements: [],
 
-  if (activePageId === editingPageId) {
-    setPageSettings((prev) => ({
-      ...prev,
-      title: rawTitle,
-      path: formattedSlug,
-    }));
-  }
+      pageSettings: {
+        title: rawTitle,
+        path: formattedSlug,
+        description: "",
+        backgroundColor: "#ffffff",
+        isMaintenanceMode: false,
+        siteLanguage: "en",
+      },
 
-  setIsEditPageModalOpen(false);
-  setEditingPageId(null);
+      isHome: pages.length === 0,
+    };
 
-  setSaveMessage(`Page updated to "${rawTitle}"!`);
+    const updatedPages = [...pages, newPageObj];
 
-  setTimeout(() => setSaveMessage(""), 3000);
-};
+    setPages(updatedPages);
+    setActivePageId(newPageObj.id);
 
-const [pageCss, setPageCss] = useState<string>("");
+    setElements([]);
+    setPageSettings(newPageObj.pageSettings);
 
-const [_activeSidebarTab, _setActiveSidebarTab] =
-  useState<
-    "element" | "global" | "popup" | "advanced"
-  >("global");
+    setSelectedId(null);
+    setSelectedIds([]);
 
-const [_devModalMode, _setDevModalMode] =
-  useState<DeveloperModalMode | null>(null);
+    setNewPageName("");
+    setNewPageSlug("");
 
-const navigate = useNavigate();
+    setIsAddPageModalOpen(false);
+    setIsPageSelectorOpen(false);
 
-// Missing State & Helpers Reconnected
-const [globalSettings, setGlobalSettings] = useState<any>({
-  siteIdentity: {
-    name: "My Website",
-  },
+    setSaveMessage(`Page "${rawTitle}" created!`);
 
-  backToTop: {
-    enabled: true,
-    position: "bottom-right",
-    offset: 300,
-  },
-});
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
 
-const [breakpoints, setBreakpoints] = useState<
-  Array<{
-    id: string;
-    name: string;
-    minWidth?: number;
-    maxWidth?: number;
-  }>
->([
-  {
-    id: "desktop",
-    name: "Desktop",
-  },
-  {
-    id: "tablet",
-    name: "Tablet",
-    maxWidth: 1024,
-  },
-  {
-    id: "mobile",
-    name: "Mobile",
-    maxWidth: 768,
-  },
-]);
+  const handleDeletePage = (
+    pageIdToDelete: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
 
-const [_activeBreakpointId, _setActiveBreakpointId] =
-  useState<string>("desktop");
+    if (pages.length <= 1) {
+      setErrorMessage("Cannot delete the only remaining page.");
 
-const _renderResponsiveLabel = (label: string) => (
-  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-    {label}
-  </label>
-);
+      setTimeout(() => setErrorMessage(""), 3000);
 
-const [openAccordions, setOpenAccordions] =
-  useState<Record<string, boolean>>({
-    layout: true,
-    typography: true,
-    background: true,
-    border: true,
-  });
+      return;
+    }
 
-const _renderAccordion = (
-  title: string,
-  sectionKey: string,
-  content: React.ReactNode
-) => {
-  const isOpen =
-    openAccordions[sectionKey] !== false;
+    const target = pages.find(
+      (p) => p.id === pageIdToDelete
+    );
 
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
-      <button
-        type="button"
-        onClick={() =>
-          setOpenAccordions((prev) => ({
-            ...prev,
-            [sectionKey]: !isOpen,
-          }))
+    if (!target) return;
+
+    if (
+      !window.confirm(
+        `Are you sure you want to delete page "${target.name}"?`
+      )
+    ) {
+      return;
+    }
+
+    const remainingPages = pages
+      .filter((p) => p.id !== pageIdToDelete)
+      .map((p, idx) => ({
+        ...p,
+        isHome: idx === 0,
+      }));
+
+    setPages(remainingPages);
+
+    if (activePageId === pageIdToDelete) {
+      const nextActive = remainingPages[0];
+
+      setActivePageId(nextActive.id);
+      setElements(nextActive.elements || []);
+
+      setPageSettings(
+        nextActive.pageSettings || {
+          title: nextActive.name,
+          path: nextActive.slug,
         }
-        className="w-full flex items-center justify-between p-3 bg-slate-50/80 hover:bg-slate-100/80 transition text-left"
-      >
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-          {title}
-        </span>
+      );
+    }
 
-        <span className="text-xs text-slate-400">
-          {isOpen ? "▲" : "▼"}
-        </span>
-      </button>
+    setSaveMessage(`Deleted page "${target.name}".`);
 
-      {isOpen && (
-        <div className="p-3 border-t border-slate-100">
-          {content}
-        </div>
-      )}
-    </div>
-  );
-};
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
 
-const _getStyleVal = (
-  el: EditorElement,
-  key: keyof ElementStyles,
-  _breakpointId?: string,
-  _bps?: any
-) => {
-  return el.styles?.[key];
-};
+  const openEditPageModal = (
+    page: PageConfig,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
 
-const _getLayoutVal = (
-  el: EditorElement,
-  key: keyof ContainerLayout,
-  _breakpointId?: string,
-  _bps?: any
-) => {
-  return el.layout?.[key];
-};  // Quit Visual Editor Handler (F-024)
+    setEditingPageId(page.id);
+    setEditPageName(page.name);
+    setEditPageSlug(page.slug);
+
+    setIsEditPageModalOpen(true);
+    setIsPageSelectorOpen(false);
+  };
+
+  const handleSaveEditPage = () => {
+    if (!editingPageId) return;
+
+    const rawTitle = editPageName.trim();
+
+    if (!rawTitle) return;
+
+    const formattedSlug = editPageSlug.trim()
+      ? editPageSlug.startsWith("/")
+        ? editPageSlug
+        : `/${editPageSlug}`
+      : `/${rawTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")}`;
+
+    setPages((prev) =>
+      prev.map((p) => {
+        if (p.id === editingPageId) {
+          const updatedSettings = {
+            ...(p.pageSettings || {}),
+            title: rawTitle,
+            path: formattedSlug,
+          };
+
+          return {
+            ...p,
+            name: rawTitle,
+            slug: formattedSlug,
+            pageSettings: updatedSettings,
+          };
+        }
+
+        return p;
+      })
+    );
+
+    if (activePageId === editingPageId) {
+      setPageSettings((prev) => ({
+        ...prev,
+        title: rawTitle,
+        path: formattedSlug,
+      }));
+    }
+
+    setIsEditPageModalOpen(false);
+    setEditingPageId(null);
+
+    setSaveMessage(`Page updated to "${rawTitle}"!`);
+
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const [pageCss, setPageCss] = useState<string>("");
+
+  const [activeSidebarTab, setActiveSidebarTab] =
+    useState<
+      "element" | "global" | "popup" | "advanced"
+    >("global");
+
+  const [devModalMode, setDevModalMode] =
+    useState<DeveloperModalMode | null>(null);
+
+  const navigate = useNavigate();
+
+  const [openAccordions, setOpenAccordions] =
+    useState<Record<string, boolean>>({
+      layout: true,
+      typography: true,
+      background: true,
+      border: true,
+    });
+
+  const _renderAccordion = (
+    title: string,
+    sectionKey: string,
+    content: React.ReactNode
+  ) => {
+    const isOpen =
+      openAccordions[sectionKey] !== false;
+
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
+        <button
+          type="button"
+          onClick={() =>
+            setOpenAccordions((prev) => ({
+              ...prev,
+              [sectionKey]: !isOpen,
+            }))
+          }
+          className="w-full flex items-center justify-between p-3 bg-slate-50/80 hover:bg-slate-100/80 transition text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            {title}
+          </span>
+
+          <span className="text-xs text-slate-400">
+            {isOpen ? "▲" : "▼"}
+          </span>
+        </button>
+
+        {isOpen && (
+          <div className="p-3 border-t border-slate-100">
+            {content}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const _getStyleVal = (
+    el: EditorElement,
+    key: keyof ElementStyles,
+    _breakpointId?: string,
+    _bps?: any
+  ) => {
+    return el.styles?.[key];
+  };
+
+  const _getLayoutVal = (
+    el: EditorElement,
+    key: keyof ContainerLayout,
+    _breakpointId?: string,
+    _bps?: any
+  ) => {
+    return el.layout?.[key];
+  };  // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
     navigate("/dashboard");
   };
@@ -1361,7 +1316,7 @@ const _getLayoutVal = (
         } else if (loadedSite?.name) {
           setPageSettings((prev) => ({ ...prev, title: loadedSite.name }));
         }
-if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
+        if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.breakpoints)) {
           setBreakpoints(loadedSite.editorData.breakpoints);
         }
 
@@ -2150,16 +2105,16 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
         case "posts":
           return "📰";
         case "wc-product-title":
-      return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-price":
-      return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-images":
-      return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-add-to-cart":
-      return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-rating":
-      return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "share-buttons":
+          return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-price":
+          return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-images":
+          return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-add-to-cart":
+          return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-rating":
+          return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "share-buttons":
           return "🔗";
         case "portfolio":
           return "💼";
@@ -2199,13 +2154,12 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
             if (hoveredId === el.id) setHoveredId(null);
           }}
           style={{ paddingLeft: `${depth * 14 + 4}px` }}
-          className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${
-            isSelected
-              ? "bg-blue-600 font-bold text-white shadow-sm"
-              : hoveredId === el.id
+          className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${isSelected
+            ? "bg-blue-600 font-bold text-white shadow-sm"
+            : hoveredId === el.id
               ? "bg-blue-50 text-blue-700 font-semibold"
               : "text-slate-700 hover:bg-slate-100"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             {/* Visual Tree Branch Connectors (F-021) */}
@@ -2222,9 +2176,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                   e.stopPropagation();
                   toggleContainerCollapse(el.id);
                 }}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] transition ${
-                  isSelected ? "text-white hover:bg-blue-700" : "text-slate-400 hover:bg-slate-200 hover:text-slate-700"
-                }`}
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] transition ${isSelected ? "text-white hover:bg-blue-700" : "text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                  }`}
               >
                 {isCollapsed ? "▶" : "▼"}
               </button>
@@ -2241,9 +2194,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               type="button"
               title="Copy"
               onClick={(e) => handleCopyElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               📋
             </button>
@@ -2251,9 +2203,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               type="button"
               title="Duplicate"
               onClick={(e) => handleDuplicateElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ⧉
             </button>
@@ -2264,9 +2215,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                 e.stopPropagation();
                 handleReorderElement(el.id, "up");
               }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ▲
             </button>
@@ -2277,9 +2227,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                 e.stopPropagation();
                 handleReorderElement(el.id, "down");
               }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ▼
             </button>
@@ -2287,9 +2236,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               type="button"
               title="Delete"
               onClick={(e) => handleDeleteElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-red-500 hover:text-white ${
-                isSelected ? "text-red-200" : "text-red-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-red-500 hover:text-white ${isSelected ? "text-red-200" : "text-red-500"
+                }`}
             >
               ✕
             </button>
@@ -2918,13 +2866,13 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
     const isPosOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "position") : hasStyleOverride(selectedElement, activeDevice, "position");
     const isOffsetsOverridden = activeElementState === "hover"
       ? hasHoverStyleOverride(selectedElement, activeDevice, "top") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "right") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "left")
+      hasHoverStyleOverride(selectedElement, activeDevice, "right") ||
+      hasHoverStyleOverride(selectedElement, activeDevice, "bottom") ||
+      hasHoverStyleOverride(selectedElement, activeDevice, "left")
       : hasStyleOverride(selectedElement, activeDevice, "top") ||
-        hasStyleOverride(selectedElement, activeDevice, "right") ||
-        hasStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasStyleOverride(selectedElement, activeDevice, "left");
+      hasStyleOverride(selectedElement, activeDevice, "right") ||
+      hasStyleOverride(selectedElement, activeDevice, "bottom") ||
+      hasStyleOverride(selectedElement, activeDevice, "left");
     const isZIndexOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "zIndex") : hasStyleOverride(selectedElement, activeDevice, "zIndex");
 
     const handleOffsetChange = (key: keyof ElementStyles, numVal: string, unitVal: string) => {
@@ -3489,11 +3437,10 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               <button
                 type="button"
                 onClick={() => setIsBorderRadiusLinked(!isBorderRadiusLinked)}
-                className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold transition ${
-                  isBorderRadiusLinked
-                    ? "bg-blue-100 text-blue-700 border border-blue-200"
-                    : "bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
+                className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold transition ${isBorderRadiusLinked
+                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
                 title={isBorderRadiusLinked ? "Unlink Corners" : "Link Corners"}
               >
                 <span>{isBorderRadiusLinked ? "🔗" : "🔓"}</span>
@@ -3752,9 +3699,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+            } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -3817,12 +3763,12 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                   style={{ opacity: 1 }}
                 />
               )) || (
-                <img
-                  src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80"
-                  alt="Background Slide"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              )}
+                  <img
+                    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80"
+                    alt="Background Slide"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
               {el.containerSlideshowOverlay && (
                 <div className="absolute inset-0 z-1" style={{ backgroundColor: el.containerSlideshowOverlay }} />
               )}
@@ -3846,9 +3792,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                           e.stopPropagation();
                           setSelectedId(item.id);
                         }}
-                        className={`capitalize hover:underline ${
-                          item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                        }`}
+                        className={`capitalize hover:underline ${item.id === el.id ? "font-bold text-white" : "text-blue-200"
+                          }`}
                       >
                         {item.type}
                       </button>
@@ -3920,9 +3865,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                   e.stopPropagation();
                   handleSaveAsComponent(el.id);
                 }}
-                className={`hover:underline ${
-                  el.isComponent ? "text-purple-200 font-bold" : "text-blue-100"
-                }`}
+                className={`hover:underline ${el.isComponent ? "text-purple-200 font-bold" : "text-blue-100"
+                  }`}
                 title={el.isComponent ? `Component: ${el.componentName}` : "Save as Reusable Component"}
               >
                 {el.isComponent ? "Component 🧩" : "Save Comp"}
@@ -3996,25 +3940,21 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
-          draggingId === el.id ? "opacity-50 scale-95" : ""
-        } ${
-          isPreview
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-50 scale-95" : ""
+          } ${isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${
-          isSelected
+          } ${isSelected
             ? "border-2 border-blue-500 p-2.5"
             : isHovered
-            ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
-            : "p-2.5 border border-transparent"
-        } ${
-          isDropTarget && dropPosition === "before"
+              ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
+              : "p-2.5 border border-transparent"
+          } ${isDropTarget && dropPosition === "before"
             ? "border-t-4 border-t-blue-500"
             : isDropTarget && dropPosition === "after"
-            ? "border-b-4 border-b-blue-500"
-            : ""
-        }`}
+              ? "border-b-4 border-b-blue-500"
+              : ""
+          }`}
         style={{
           boxSizing: "border-box",
           width: mergedStyles.width,
@@ -4049,9 +3989,8 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                         e.stopPropagation();
                         setSelectedId(item.id);
                       }}
-                      className={`capitalize hover:underline ${
-                        item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                      }`}
+                      className={`capitalize hover:underline ${item.id === el.id ? "font-bold text-white" : "text-blue-200"
+                        }`}
                     >
                       {item.type}
                     </button>
@@ -4239,14 +4178,14 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                 mergedStyles.textAlign === "center"
                   ? "auto"
                   : mergedStyles.textAlign === "right"
-                  ? "auto"
-                  : "0";
+                    ? "auto"
+                    : "0";
               const alignMarginRight =
                 mergedStyles.textAlign === "center"
                   ? "auto"
                   : mergedStyles.textAlign === "left"
-                  ? "auto"
-                  : "0";
+                    ? "auto"
+                    : "0";
 
               const containerStyle: React.CSSProperties = {
                 width: mergedStyles.width || "100%",
@@ -4566,19 +4505,17 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                               key={item.id || idx}
                               type="button"
                               onClick={(e) => handleSelectItem(item.id, e)}
-                              className={`w-full text-left p-2.5 rounded-lg transition flex items-center gap-3 group ${
-                                isActive
-                                  ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
-                                  : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                              }`}
+                              className={`w-full text-left p-2.5 rounded-lg transition flex items-center gap-3 group ${isActive
+                                ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
+                                : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
+                                }`}
                             >
                               {/* Item Index / Active Icon */}
                               <div
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold ${
-                                  isActive
-                                    ? "bg-white/20 text-white"
-                                    : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
-                                }`}
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold ${isActive
+                                  ? "bg-white/20 text-white"
+                                  : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
+                                  }`}
                               >
                                 {isActive ? "▶" : String(idx + 1).padStart(2, "0")}
                               </div>
@@ -4595,17 +4532,15 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                               {/* Title & Duration */}
                               <div className="flex-1 min-w-0">
                                 <h5
-                                  className={`truncate text-xs font-semibold ${
-                                    isActive ? "text-white" : "text-slate-800 group-hover:text-blue-600"
-                                  }`}
+                                  className={`truncate text-xs font-semibold ${isActive ? "text-white" : "text-slate-800 group-hover:text-blue-600"
+                                    }`}
                                 >
                                   {item.title || `Video ${idx + 1}`}
                                 </h5>
                                 {item.duration && (
                                   <span
-                                    className={`text-[10px] font-mono ${
-                                      isActive ? "text-blue-100" : "text-slate-400"
-                                    }`}
+                                    className={`text-[10px] font-mono ${isActive ? "text-blue-100" : "text-slate-400"
+                                      }`}
                                   >
                                     ⏱️ {item.duration}
                                   </span>
@@ -4665,14 +4600,14 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                       mergedStyles.textAlign === "center"
                         ? "auto"
                         : mergedStyles.textAlign === "right"
-                        ? "auto"
-                        : "0",
+                          ? "auto"
+                          : "0",
                     marginRight:
                       mergedStyles.textAlign === "center"
                         ? "auto"
                         : mergedStyles.textAlign === "left"
-                        ? "auto"
-                        : "0",
+                          ? "auto"
+                          : "0",
                     ...compileBackgroundAndBorderStyles(mergedStyles),
                   }}
                 />
@@ -5125,11 +5060,10 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
       {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
-        <header className={`flex h-12 shrink-0 items-center justify-between px-5 shadow-md transition ${
-          userPreferences.themeMode === "light"
-            ? "bg-white border-b border-slate-200 text-slate-800"
-            : "bg-[#0b1329] text-white"
-        }`}>
+        <header className={`flex h-12 shrink-0 items-center justify-between px-5 shadow-md transition ${userPreferences.themeMode === "light"
+          ? "bg-white border-b border-slate-200 text-slate-800"
+          : "bg-[#0b1329] text-white"
+          }`}>
           {/* Left: Quit Editor & Site Info */}
           <div className="flex items-center gap-3">
             <button
@@ -5181,155 +5115,153 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
 
           {/* Middle: Responsive Device Selector */}
           <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
-                {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => setActiveDevice(mode)}
-                    className={`px-3 py-1 text-xs font-semibold rounded-md capitalize transition flex items-center gap-1 ${
-                      activeDevice === mode
-                        ? "bg-blue-600 text-white shadow-sm font-bold"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
-                    }`}
-                  >
-                    <span>
-                      {mode === "desktop" && "💻"}
-                      {mode === "tablet" && "📱"}
-                      {mode === "mobile" && "📲"}
-                    </span>
-                    <span>{mode}</span>
-                  </button>
-                ))}
+            {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setActiveDevice(mode)}
+                className={`px-3 py-1 text-xs font-semibold rounded-md capitalize transition flex items-center gap-1 ${activeDevice === mode
+                  ? "bg-blue-600 text-white shadow-sm font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+              >
+                <span>
+                  {mode === "desktop" && "💻"}
+                  {mode === "tablet" && "📱"}
+                  {mode === "mobile" && "📲"}
+                </span>
+                <span>{mode}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {/* History Controls */}
+            <div className="flex items-center gap-0.5 bg-[#16203a] p-1 rounded-lg border border-slate-700/80 shrink-0">
+              <button
+                onClick={handleUndo}
+                disabled={historyIndex <= 0}
+                className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
+                title="Undo (Ctrl+Z)"
+              >
+                ↩
+              </button>
+              <button
+                onClick={handleRedo}
+                disabled={historyIndex >= history.length - 1}
+                className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
+                title="Redo (Ctrl+Y)"
+              >
+                ↪
+              </button>
+              <button
+                onClick={() => setIsRevisionHistoryOpen(true)}
+                className="px-2 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 pl-1.5 cursor-pointer flex items-center gap-1"
+                title="Revision History"
+              >
+                <span>🕓</span>
+                <span className="hidden md:inline">History</span>
+              </button>
+            </div>
+
+            {/* Selected Element Controls (Only active when element selected) */}
+            {selectedId && (
+              <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-blue-500/30 shrink-0">
+                <button
+                  onClick={() => handleReorderElement(selectedId, "up")}
+                  className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Move Up"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => handleReorderElement(selectedId, "down")}
+                  className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Move Down"
+                >
+                  ▼
+                </button>
+                <button
+                  onClick={(e) => handleCopyElement(selectedId, e)}
+                  className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Copy (Ctrl+C)"
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={(e) => handleDuplicateElement(selectedId, e)}
+                  className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Duplicate (Ctrl+D)"
+                >
+                  Duplicate
+                </button>
+                <button
+                  onClick={() => handleSaveAsComponent(selectedId)}
+                  className="px-2 py-0.5 text-xs font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
+                  title="Save as Reusable Component"
+                >
+                  🧩 Comp
+                </button>
+                <button
+                  onClick={handleOpenReplaceTemplate}
+                  className="px-2 py-0.5 text-xs font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
+                  title="Replace with Template"
+                >
+                  🔄 Replace
+                </button>
               </div>
+            )}
 
-{/* Right: Actions */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                {/* History Controls */}
-                <div className="flex items-center gap-0.5 bg-[#16203a] p-1 rounded-lg border border-slate-700/80 shrink-0">
-                  <button
-                    onClick={handleUndo}
-                    disabled={historyIndex <= 0}
-                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                    title="Undo (Ctrl+Z)"
-                  >
-                    ↩
-                  </button>
-                  <button
-                    onClick={handleRedo}
-                    disabled={historyIndex >= history.length - 1}
-                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                    title="Redo (Ctrl+Y)"
-                  >
-                    ↪
-                  </button>
-                  <button
-                    onClick={() => setIsRevisionHistoryOpen(true)}
-                    className="px-2 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 pl-1.5 cursor-pointer flex items-center gap-1"
-                    title="Revision History"
-                  >
-                    <span>🕓</span>
-                    <span className="hidden md:inline">History</span>
-                  </button>
-                </div>
+            {/* Status Messages */}
+            {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0">✓ {saveMessage}</span>}
+            {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0">{errorMessage}</span>}
 
-                {/* Selected Element Controls (Only active when element selected) */}
-                {selectedId && (
-                  <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-blue-500/30 shrink-0">
-                    <button
-                      onClick={() => handleReorderElement(selectedId, "up")}
-                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Move Up"
-                    >
-                      ▲
-                    </button>
-                    <button
-                      onClick={() => handleReorderElement(selectedId, "down")}
-                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Move Down"
-                    >
-                      ▼
-                    </button>
-                    <button
-                      onClick={(e) => handleCopyElement(selectedId, e)}
-                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Copy (Ctrl+C)"
-                    >
-                      Copy
-                    </button>
-                    <button
-                      onClick={(e) => handleDuplicateElement(selectedId, e)}
-                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Duplicate (Ctrl+D)"
-                    >
-                      Duplicate
-                    </button>
-                    <button
-                      onClick={() => handleSaveAsComponent(selectedId)}
-                      className="px-2 py-0.5 text-xs font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
-                      title="Save as Reusable Component"
-                    >
-                      🧩 Comp
-                    </button>
-                    <button
-                      onClick={handleOpenReplaceTemplate}
-                      className="px-2 py-0.5 text-xs font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
-                      title="Replace with Template"
-                    >
-                      🔄 Replace
-                    </button>
-                  </div>
-                )}
+            {/* Kit & Tools Actions */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={handleExportWebsiteKit}
+                className="px-2.5 py-1 text-xs font-semibold text-blue-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
+                title="Export Website Kit JSON"
+              >
+                📦 Kit
+              </button>
 
-                {/* Status Messages */}
-                {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0">✓ {saveMessage}</span>}
-                {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0">{errorMessage}</span>}
+              <button
+                onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+                className="px-2 py-1 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
+                title="Toggle Full Screen Canvas"
+              >
+                ⛶
+              </button>
+            </div>
 
-                {/* Kit & Tools Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleExportWebsiteKit}
-                    className="px-2.5 py-1 text-xs font-semibold text-blue-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
-                    title="Export Website Kit JSON"
-                  >
-                    📦 Kit
-                  </button>
+            {/* Primary Preview & Save */}
+            <div className="flex items-center gap-1.5 ml-1 shrink-0">
+              <button
+                onClick={() => setIsPreview(!isPreview)}
+                className={`px-3 py-1 text-xs font-bold rounded-lg border transition cursor-pointer ${isPreview
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/60"
+                  : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
+                  }`}
+              >
+                {isPreview ? "Exit" : "👁️ Preview"}
+              </button>
 
-                  <button
-                    onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                    className="px-2 py-1 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
-                    title="Toggle Full Screen Canvas"
-                  >
-                    ⛶
-                  </button>
-                </div>
-
-                {/* Primary Preview & Save */}
-                <div className="flex items-center gap-1.5 ml-1 shrink-0">
-                  <button
-                    onClick={() => setIsPreview(!isPreview)}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg border transition cursor-pointer ${
-                      isPreview
-                        ? "bg-amber-500/20 text-amber-300 border-amber-500/60"
-                        : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
-                    }`}
-                  >
-                    {isPreview ? "Exit" : "👁️ Preview"}
-                  </button>
-
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
-                  >
-                    {saving ? "Saving..." : "💾 Save"}
-                  </button>
-                </div>
-              </div>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
+              >
+                {saving ? "Saving..." : "💾 Save"}
+              </button>
+            </div>
+          </div>
         </header>
       )}
 
-{/* ========================================== */}
+      {/* ========================================== */}
       {/* Main Workspace Body                         */}
       {/* ========================================== */}
       <div className="flex flex-1 overflow-hidden">
@@ -5342,44 +5274,40 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("elements")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "elements"
-                    ? "bg-slate-100 text-blue-600"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "elements"
+                  ? "bg-slate-100 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("elements", "Elements")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("navigator")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "navigator"
-                    ? "bg-slate-100 text-blue-600"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "navigator"
+                  ? "bg-slate-100 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("navigator", "Navigator")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("templates")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "templates"
-                    ? "bg-purple-100 text-purple-700 font-bold"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "templates"
+                  ? "bg-purple-100 text-purple-700 font-bold"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("templates", "Templates")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("atomic" as any)}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === ("atomic" as any)
-                    ? "bg-purple-100 text-purple-700 font-bold"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === ("atomic" as any)
+                  ? "bg-purple-100 text-purple-700 font-bold"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 ⚛️ Atomic
               </button>
@@ -5426,7 +5354,7 @@ if (loadedSite?.editorData?.breakpoints && Array.isArray(loadedSite.editorData.b
                     />
                     <button
                       type="button"
-onClick={() => importFileInputRef.current?.click()}
+                      onClick={() => importFileInputRef.current?.click()}
                       disabled={isUploading}
                       className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 p-2.5 text-xs font-bold text-blue-700 hover:border-blue-500 hover:bg-blue-100/60 transition disabled:opacity-50 shadow-xs"
                     >
@@ -5507,36 +5435,36 @@ onClick={() => importFileInputRef.current?.click()}
                                 {type === "facebook-page"
                                   ? "Facebook Page"
                                   : type === "facebook-button"
-                                  ? "FB Button"
-                                  : type === "facebook-embed"
-                                  ? "FB Embed"
-                                  : type === "facebook-comments"
-                                  ? "FB Comments"
-                                  : type === "paypal-button"
-                                  ? "PayPal"
-                                  : type === "stripe-button"
-                                  ? "Stripe"
-                                  : type === "lottie"
-                                  ? "Lottie"
-                                  : type === "code-highlight"
-                                  ? "Code Highlight"
-                                  : type === "video-playlist"
-                                  ? "Video Playlist"
-                                  : type === "mega-menu"
-                                  ? "Mega Menu"
-                                  : type === "off-canvas"
-                                  ? "Off Canvas"
-                                  : type === "image-carousel"
-                                  ? "Image Carousel"
-                                  : type === "blockquote"
-                                  ? "Blockquote"
-                                  : type === "template"
-                                  ? "Template"
-                                  : type === "reviews"
-                                  ? "Reviews"
-                                  : type === "share-buttons"
-                                  ? "Share"
-                                  : type}
+                                    ? "FB Button"
+                                    : type === "facebook-embed"
+                                      ? "FB Embed"
+                                      : type === "facebook-comments"
+                                        ? "FB Comments"
+                                        : type === "paypal-button"
+                                          ? "PayPal"
+                                          : type === "stripe-button"
+                                            ? "Stripe"
+                                            : type === "lottie"
+                                              ? "Lottie"
+                                              : type === "code-highlight"
+                                                ? "Code Highlight"
+                                                : type === "video-playlist"
+                                                  ? "Video Playlist"
+                                                  : type === "mega-menu"
+                                                    ? "Mega Menu"
+                                                    : type === "off-canvas"
+                                                      ? "Off Canvas"
+                                                      : type === "image-carousel"
+                                                        ? "Image Carousel"
+                                                        : type === "blockquote"
+                                                          ? "Blockquote"
+                                                          : type === "template"
+                                                            ? "Template"
+                                                            : type === "reviews"
+                                                              ? "Reviews"
+                                                              : type === "share-buttons"
+                                                                ? "Share"
+                                                                : type}
                               </span>
                             </div>
                           );
@@ -5560,9 +5488,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("container", e)}
-                        className={`absolute top-2 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("container") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-2 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("container") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("container") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("container") ? "★" : "☆"}
@@ -5588,9 +5515,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("heading", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("heading") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("heading") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("heading") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("heading") ? "★" : "☆"}
@@ -5616,9 +5542,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("text", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("text") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("text") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("text") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("text") ? "★" : "☆"}
@@ -5644,9 +5569,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("image", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("image") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("image") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("image") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("image") ? "★" : "☆"}
@@ -5672,9 +5596,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("button") ? "★" : "☆"}
@@ -5700,9 +5623,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("posts", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("posts") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("posts") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("posts") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("posts") ? "★" : "☆"}
@@ -5728,9 +5650,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("share-buttons", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("share-buttons") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("share-buttons") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("share-buttons") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("share-buttons") ? "★" : "☆"}
@@ -5756,9 +5677,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("portfolio", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("portfolio") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("portfolio") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("portfolio") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("portfolio") ? "★" : "☆"}
@@ -5784,9 +5704,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("slides", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("slides") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("slides") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("slides") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("slides") ? "★" : "☆"}
@@ -5812,9 +5731,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("form", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("form") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("form") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("form") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("form") ? "★" : "☆"}
@@ -5840,9 +5758,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("login", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("login") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("login") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("login") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("login") ? "★" : "☆"}
@@ -5868,9 +5785,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("nav-menu", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("nav-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("nav-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("nav-menu") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("nav-menu") ? "★" : "☆"}
@@ -5896,9 +5812,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("animated-headline", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("animated-headline") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("animated-headline") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("animated-headline") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("animated-headline") ? "★" : "☆"}
@@ -5924,9 +5839,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("price-table", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("price-table") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("price-table") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("price-table") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("price-table") ? "★" : "☆"}
@@ -5952,9 +5866,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("price-list", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("price-list") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("price-list") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("price-list") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("price-list") ? "★" : "☆"}
@@ -5980,9 +5893,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("gallery", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("gallery") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("gallery") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("gallery") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("gallery") ? "★" : "☆"}
@@ -6008,9 +5920,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("flip-box", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("flip-box") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("flip-box") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("flip-box") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("flip-box") ? "★" : "☆"}
@@ -6036,9 +5947,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("call-to-action", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("call-to-action") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("call-to-action") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("call-to-action") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("call-to-action") ? "★" : "☆"}
@@ -6064,9 +5974,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("media-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("media-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("media-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("media-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("media-carousel") ? "★" : "☆"}
@@ -6092,9 +6001,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("testimonial-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("testimonial-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("testimonial-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("testimonial-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("testimonial-carousel") ? "★" : "☆"}
@@ -6120,9 +6028,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("nested-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("nested-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("nested-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("nested-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("nested-carousel") ? "★" : "☆"}
@@ -6148,9 +6055,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("loop-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("loop-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("loop-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("loop-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("loop-carousel") ? "★" : "☆"}
@@ -6176,9 +6082,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("table-of-contents", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("table-of-contents") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("table-of-contents") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("table-of-contents") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("table-of-contents") ? "★" : "☆"}
@@ -6204,9 +6109,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("countdown", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("countdown") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("countdown") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("countdown") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("countdown") ? "★" : "☆"}
@@ -6232,9 +6136,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("facebook-page", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-page") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("facebook-page") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("facebook-page") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("facebook-page") ? "★" : "☆"}
@@ -6260,9 +6163,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("blockquote", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("blockquote") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("blockquote") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("blockquote") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("blockquote") ? "★" : "☆"}
@@ -6288,9 +6190,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("template", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("template") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("template") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("template") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("template") ? "★" : "☆"}
@@ -6316,9 +6217,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("reviews", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("reviews") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("reviews") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("reviews") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("reviews") ? "★" : "☆"}
@@ -6344,9 +6244,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("facebook-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("facebook-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("facebook-button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("facebook-button") ? "★" : "☆"}
@@ -6372,9 +6271,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("facebook-embed", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-embed") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("facebook-embed") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("facebook-embed") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("facebook-embed") ? "★" : "☆"}
@@ -6400,9 +6298,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("facebook-comments", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-comments") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("facebook-comments") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("facebook-comments") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("facebook-comments") ? "★" : "☆"}
@@ -6428,9 +6325,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("paypal-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("paypal-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("paypal-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("paypal-button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("paypal-button") ? "★" : "☆"}
@@ -6456,9 +6352,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("stripe-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("stripe-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("stripe-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("stripe-button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("stripe-button") ? "★" : "☆"}
@@ -6484,9 +6379,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("lottie", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("lottie") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("lottie") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("lottie") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("lottie") ? "★" : "☆"}
@@ -6512,9 +6406,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("code-highlight", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("code-highlight") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("code-highlight") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("code-highlight") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("code-highlight") ? "★" : "☆"}
@@ -6540,9 +6433,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("video-playlist", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("video-playlist") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("video-playlist") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("video-playlist") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("video-playlist") ? "★" : "☆"}
@@ -6568,9 +6460,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("mega-menu", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("mega-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("mega-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("mega-menu") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("mega-menu") ? "★" : "☆"}
@@ -6596,9 +6487,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("off-canvas", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("off-canvas") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("off-canvas") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("off-canvas") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("off-canvas") ? "★" : "☆"}
@@ -6624,9 +6514,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("image-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("image-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("image-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("image-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("image-carousel") ? "★" : "☆"}
@@ -6662,9 +6551,8 @@ onClick={() => importFileInputRef.current?.click()}
                         <button
                           type="button"
                           onClick={(e) => toggleFavoriteWidget(widget.type, e)}
-                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                            isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                          }`}
+                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                            }`}
                           title={isFav ? "Remove favorite" : "Mark as favorite"}
                         >
                           {isFav ? "★" : "☆"}
@@ -6749,11 +6637,10 @@ onClick={() => importFileInputRef.current?.click()}
                             e.stopPropagation();
                             handleSelectElement(element.id, e);
                           }}
-                          className={`flex items-center justify-between rounded-lg p-2 text-xs transition cursor-pointer border ${
-                            selectedId === element.id || selectedIds.includes(element.id)
-                              ? "bg-blue-600 font-bold text-white border-blue-600 shadow-sm"
-                              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-blue-300"
-                          }`}
+                          className={`flex items-center justify-between rounded-lg p-2 text-xs transition cursor-pointer border ${selectedId === element.id || selectedIds.includes(element.id)
+                            ? "bg-blue-600 font-bold text-white border-blue-600 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-blue-300"
+                            }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-xs">
@@ -6766,10 +6653,10 @@ onClick={() => importFileInputRef.current?.click()}
                             <div className="flex flex-col min-w-0">
                               <span className="truncate font-semibold capitalize">
                                 {element.type === "heading" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Heading") :
-                                 element.type === "text" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Text") :
-                                 element.type === "button" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Button") :
-                                 element.type === "image" ? (element.alt ? `Image (${element.alt})` : "Image") :
-                                 element.type === "container" ? "Container" : element.type}
+                                  element.type === "text" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Text") :
+                                    element.type === "button" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Button") :
+                                      element.type === "image" ? (element.alt ? `Image (${element.alt})` : "Image") :
+                                        element.type === "container" ? "Container" : element.type}
                               </span>
                               <span className={`text-[9px] truncate ${selectedId === element.id || selectedIds.includes(element.id) ? "text-blue-200" : "text-slate-400"}`}>
                                 {path}
@@ -6855,13 +6742,12 @@ onClick={() => importFileInputRef.current?.click()}
                 : undefined,
               backgroundSize: userPreferences.gridOverlay ? "20px 20px" : undefined,
             }}
-            className={`relative w-full transition-all duration-300 min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-sm pb-20 ${
-              activeDevice === "mobile"
-                ? "max-w-[380px]"
-                : activeDevice === "tablet"
+            className={`relative w-full transition-all duration-300 min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-sm pb-20 ${activeDevice === "mobile"
+              ? "max-w-[380px]"
+              : activeDevice === "tablet"
                 ? "max-w-[768px]"
                 : "max-w-[1024px]"
-            }`}
+              }`}
           >
             {/* Dynamic Website Navigation Header in Preview Mode */}
             {isPreview ? (
@@ -6899,11 +6785,10 @@ onClick={() => importFileInputRef.current?.click()}
                               key={p.id}
                               type="button"
                               onClick={() => handlePreviewPageNavigate(p)}
-                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                                isCurrent
-                                  ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
-                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-                              }`}
+                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isCurrent
+                                ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                }`}
                             >
                               {p.name || p.pageSettings?.title || "Untitled"}
                             </button>
@@ -6938,11 +6823,10 @@ onClick={() => importFileInputRef.current?.click()}
                               handlePreviewPageNavigate(p);
                               setMobileMenuOpen(false);
                             }}
-                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
-                              isCurrent
-                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
-                                : "text-slate-700 hover:bg-slate-200/70"
-                            }`}
+                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${isCurrent
+                              ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                              : "text-slate-700 hover:bg-slate-200/70"
+                              }`}
                           >
                             <span>{p.name || p.pageSettings?.title || "Untitled"}</span>
                             <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
@@ -7085,7 +6969,7 @@ onClick={() => importFileInputRef.current?.click()}
                       Duplicate
                     </button>
                     <button
-onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
+                      onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                       className="text-red-500 hover:underline"
                     >
                       Delete
@@ -7109,22 +6993,20 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     <button
                       type="button"
                       onClick={() => setActiveElementState("normal")}
-                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
-                        activeElementState === "normal"
-                          ? "bg-white text-blue-600 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "normal"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
                     >
                       Normal
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveElementState("hover")}
-                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
-                        activeElementState === "hover"
-                          ? "bg-white text-blue-600 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "hover"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
                     >
                       Hover (:hover)
                     </button>
@@ -7434,7 +7316,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         </button>
                       </div>
 
-<div className="space-y-3">
+                      <div className="space-y-3">
                         {(selectedElementAny.posts || []).map((post, idx) => (
                           <div key={post.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
@@ -7530,149 +7412,149 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 )}
 
-{selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && (
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                              {selectedElementAny.type === "html" ? "Raw HTML Editor (F-110)" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
-                            </label>
-                            {selectedElementAny.type === "html" || selectedElementAny.type === "text" || selectedElementAny.type === "shortcode" ? (
-                              <textarea
-                                value={selectedElementAny.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                rows={selectedElementAny.type === "html" ? 8 : selectedElementAny.type === "shortcode" ? 3 : 4}
-                                className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElementAny.type === "html" || selectedElementAny.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
-                                placeholder={selectedElementAny.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElementAny.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
-                              />
-                            ) : (
-                              <input
-                                type="text"
-                                value={selectedElementAny.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
-                              />
-                            )}
-                          </div>
-                        )}
+                {selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                      {selectedElementAny.type === "html" ? "Raw HTML Editor (F-110)" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode (F-111)" : "Content"}
+                    </label>
+                    {selectedElementAny.type === "html" || selectedElementAny.type === "text" || selectedElementAny.type === "shortcode" ? (
+                      <textarea
+                        value={selectedElementAny.content || ""}
+                        onChange={(e) => updateSelectedProp("content", e.target.value)}
+                        rows={selectedElementAny.type === "html" ? 8 : selectedElementAny.type === "shortcode" ? 3 : 4}
+                        className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElementAny.type === "html" || selectedElementAny.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
+                        placeholder={selectedElementAny.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElementAny.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={selectedElementAny.content || ""}
+                        onChange={(e) => updateSelectedProp("content", e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                      />
+                    )}
+                  </div>
+                )}
 
-                        {/* Smart Link & URL Controls */}
-                        {(selectedElementAny.type === "button" || selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
-                          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
-                            <label className="block text-[10px] font-bold text-slate-600 uppercase">
-                              Link & Smart Actions
-                            </label>
-                            <input
-                              type="text"
-                              value={selectedElementAny.href || ""}
-                              onChange={(e) => updateSelectedProp("href", e.target.value)}
-                              placeholder="https://..., popup:open(id), scroll:to(id)"
-                              className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
-                            />
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                              {popups.length > 0 && (
-                                <select
-                                  onChange={(e) => {
-                                    if (e.target.value) {
-                                      updateSelectedProp("href", `popup:open(${e.target.value})`);
-                                      e.target.value = "";
-                                    }
-                                  }}
-                                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
-                                >
-                                  <option value="">+ Open Popup...</option>
-                                  {popups.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                      {p.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => updateSelectedProp("href", "popup:close")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                              >
-                                Close Popup
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => updateSelectedProp("href", "scroll:to(top)")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                              >
-                                Scroll to Top
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                {/* Smart Link & URL Controls */}
+                {(selectedElementAny.type === "button" || selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                      Link & Smart Actions
+                    </label>
+                    <input
+                      type="text"
+                      value={selectedElementAny.href || ""}
+                      onChange={(e) => updateSelectedProp("href", e.target.value)}
+                      placeholder="https://..., popup:open(id), scroll:to(id)"
+                      className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {popups.length > 0 && (
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              updateSelectedProp("href", `popup:open(${e.target.value})`);
+                              e.target.value = "";
+                            }
+                          }}
+                          className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                        >
+                          <option value="">+ Open Popup...</option>
+                          {popups.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => updateSelectedProp("href", "popup:close")}
+                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        Close Popup
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        Scroll to Top
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                        {renderAccordion(
-                          "Typography & Colors",
-                          "typography",
-                          <div className="space-y-3">
-                            <div>
-                              {renderResponsiveLabel("Text Color")}
-                              <input
-                                type="color"
-                                value={
-                                  getStyleVal(selectedElementAny, "color", activeBreakpointId, breakpoints) ||
-                                  "#0f172a"
-                                }
-                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                className="w-full h-8 cursor-pointer rounded border p-0.5"
-                              />
-                            </div>
-                            <div>
-                              {renderResponsiveLabel("Font Size (px)")}
-                              <input
-                                type="text"
-                                value={
-                                  getStyleVal(
-                                    selectedElementAny,
-                                    "fontSize",
-                                    activeBreakpointId,
-                                    breakpoints
-                                  ) || "16px"
-                                }
-                                onChange={(e) =>
-                                  updateSelectedStyle(
-                                    "fontSize",
-                                    e.target.value.endsWith("px")
-                                      ? e.target.value
-                                      : `${e.target.value}px`
-                                  )
-                                }
-                                className="w-full rounded border px-2 py-1 text-xs"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      ) : activeSidebarTab === "advanced" && selectedElementAny ? (
-                      <div className="space-y-4">
-                        {/* Developer Options for Element (F-102, F-105 to F-109) */}
-                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
-                            <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
-                            <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <hr className="border-slate-200" />
-                          <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
-                          </button>
-                          <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
-                          </button>
-                          <button onClick={() => setDevModalMode(selectedElementAny.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
-                          </button>
-                        </div>
+                {renderAccordion(
+                  "Typography & Colors",
+                  "typography",
+                  <div className="space-y-3">
+                    <div>
+                      {renderResponsiveLabel("Text Color")}
+                      <input
+                        type="color"
+                        value={
+                          getStyleVal(selectedElementAny, "color", activeBreakpointId, breakpoints) ||
+                          "#0f172a"
+                        }
+                        onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                        className="w-full h-8 cursor-pointer rounded border p-0.5"
+                      />
+                    </div>
+                    <div>
+                      {renderResponsiveLabel("Font Size (px)")}
+                      <input
+                        type="text"
+                        value={
+                          getStyleVal(
+                            selectedElementAny,
+                            "fontSize",
+                            activeBreakpointId,
+                            breakpoints
+                          ) || "16px"
+                        }
+                        onChange={(e) =>
+                          updateSelectedStyle(
+                            "fontSize",
+                            e.target.value.endsWith("px")
+                              ? e.target.value
+                              : `${e.target.value}px`
+                          )
+                        }
+                        className="w-full rounded border px-2 py-1 text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : activeSidebarTab === "advanced" && selectedElementAny ? (
+              <div className="space-y-4">
+                {/* Developer Options for Element (F-102, F-105 to F-109) */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
+                    <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
+                    <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                  </div>
+                  <hr className="border-slate-200" />
+                  <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
+                  </button>
+                  <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
+                  </button>
+                  <button onClick={() => setDevModalMode(selectedElementAny.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
+                  </button>
+                </div>
                 {/* Slider Specific Controls */}
                 {selectedElementAny.type === "slider" && (
                   <div className="space-y-4 pt-2 border-t border-slate-100">
-{/* Display Navigation Controls */}
+                    {/* Display Navigation Controls */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
                       <span className="block text-[11px] font-bold text-slate-600 mb-1">
                         Navigation Controls
@@ -7727,11 +7609,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         {(selectedElementAny.slidesItems || []).map((slide, idx) => (
                           <div
                             key={slide.id}
-                            className={`rounded-xl border p-3 shadow-xs space-y-2 transition ${
-                              (selectedElementAny.slidesActiveIndex ?? 0) === idx
-                                ? "border-pink-400 bg-pink-50/20 ring-1 ring-pink-400"
-                                : "border-slate-200 bg-white"
-                            }`}
+                            className={`rounded-xl border p-3 shadow-xs space-y-2 transition ${(selectedElementAny.slidesActiveIndex ?? 0) === idx
+                              ? "border-pink-400 bg-pink-50/20 ring-1 ring-pink-400"
+                              : "border-slate-200 bg-white"
+                              }`}
                           >
                             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                               <button
@@ -8194,10 +8075,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     const updated = (selectedElementAny.formFields || []).map((f) =>
                                       f.id === field.id
                                         ? {
-                                            ...f,
-                                            type: newType,
-                                            options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
-                                          }
+                                          ...f,
+                                          type: newType,
+                                          options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
+                                        }
                                         : f
                                     );
                                     updateSelectedProp("formFields", updated);
@@ -9841,11 +9722,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         <button
                           type="button"
                           onClick={() => updateSelectedProp("flipIsFlippedManual", !selectedElementAny.flipIsFlippedManual)}
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${
-                            selectedElementAny.flipIsFlippedManual
-                              ? "bg-amber-600 text-white"
-                              : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                          }`}
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${selectedElementAny.flipIsFlippedManual
+                            ? "bg-amber-600 text-white"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                            }`}
                         >
                           {selectedElementAny.flipIsFlippedManual ? "Viewing: BACK" : "Flip to Back"}
                         </button>
@@ -10375,7 +10255,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     <div className="rounded-xl border border-cyan-200 bg-cyan-50/30 p-3 space-y-2.5">
                       <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-cyan-200/80 pb-2">
                         <span className="block text-[11px] font-bold text-cyan-900 uppercase tracking-wider">
-                          🖼️ MEDIA ({ (selectedElementAny.mediaCarouselItems || []).length })
+                          🖼️ MEDIA ({(selectedElementAny.mediaCarouselItems || []).length})
                         </span>
 
                         <div className="flex items-center gap-1.5">
@@ -12522,11 +12402,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 updateSelectedProp("templatePresetName", "hero");
                               }
                             }}
-                            className={`py-1 text-xs font-bold rounded-md transition ${
-                              selectedElementAny.templateSource !== "custom"
-                                ? "bg-white text-purple-700 shadow-2xs"
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
+                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource !== "custom"
+                              ? "bg-white text-purple-700 shadow-2xs"
+                              : "text-slate-600 hover:text-slate-900"
+                              }`}
                           >
                             Presets
                           </button>
@@ -12540,11 +12419,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 updateSelectedProp("templateId", firstCompKey);
                               }
                             }}
-                            className={`py-1 text-xs font-bold rounded-md transition ${
-                              selectedElementAny.templateSource === "custom"
-                                ? "bg-white text-purple-700 shadow-2xs"
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
+                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource === "custom"
+                              ? "bg-white text-purple-700 shadow-2xs"
+                              : "text-slate-600 hover:text-slate-900"
+                              }`}
                           >
                             Saved Components
                           </button>
@@ -12652,11 +12530,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("reviewAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.reviewAlignment || "left") === align
-                                  ? "bg-white text-amber-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.reviewAlignment || "left") === align
+                                ? "bg-white text-amber-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -13046,11 +12923,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbButtonAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbButtonAlignment || "left") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbButtonAlignment || "left") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -13177,11 +13053,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbEmbedAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbEmbedAlignment || "center") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbEmbedAlignment || "center") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -13245,11 +13120,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbCommentsAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbCommentsAlignment || "center") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbCommentsAlignment || "center") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -13634,25 +13508,25 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   const items: PlaylistItem[] = selectedElementAny.playlistItems?.length
                     ? selectedElementAny.playlistItems
                     : [
-                        {
-                          id: "1",
-                          title: "ForgeStudio Platform Overview & Quick Start Guide",
-                          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                          videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                          duration: "3:45",
-                          thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                          thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                        },
-                        {
-                          id: "2",
-                          title: "Designing Responsive SaaS Layouts in Record Time",
-                          url: "https://vimeo.com/76979871",
-                          videoUrl: "https://vimeo.com/76979871",
-                          duration: "5:12",
-                          thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                          thumbnailUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                        },
-                      ];
+                      {
+                        id: "1",
+                        title: "ForgeStudio Platform Overview & Quick Start Guide",
+                        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        duration: "3:45",
+                        thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+                        thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+                      },
+                      {
+                        id: "2",
+                        title: "Designing Responsive SaaS Layouts in Record Time",
+                        url: "https://vimeo.com/76979871",
+                        videoUrl: "https://vimeo.com/76979871",
+                        duration: "5:12",
+                        thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
+                        thumbnailUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
+                      },
+                    ];
 
                   return (
                     <div className="space-y-4">
@@ -13672,11 +13546,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={pos}
                                 type="button"
                                 onClick={() => updateSelectedProp("playlistPosition", pos)}
-                                className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                  (selectedElementAny.playlistPosition || "right") === pos
-                                    ? "bg-white text-red-700 shadow-2xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.playlistPosition || "right") === pos
+                                  ? "bg-white text-red-700 shadow-2xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {pos}
                               </button>
@@ -14294,11 +14167,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedProp("imageCarouselAlignment", align)}
-                                className={`py-1 text-xs font-bold capitalize rounded-md transition cursor-pointer ${
-                                  (selectedElementAny.imageCarouselAlignment || "center") === align
-                                    ? "bg-white text-blue-700 shadow-2xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`py-1 text-xs font-bold capitalize rounded-md transition cursor-pointer ${(selectedElementAny.imageCarouselAlignment || "center") === align
+                                  ? "bg-white text-blue-700 shadow-2xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -14685,11 +14557,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -14773,11 +14644,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           return (
                             <div
                               key={item.id || index}
-                              className={`rounded-xl border p-3 transition space-y-2.5 ${
-                                isActive
-                                  ? "border-blue-400 bg-blue-50/40 ring-1 ring-blue-400/50 shadow-xs"
-                                  : "border-slate-200 bg-white hover:border-slate-300"
-                              }`}
+                              className={`rounded-xl border p-3 transition space-y-2.5 ${isActive
+                                ? "border-blue-400 bg-blue-50/40 ring-1 ring-blue-400/50 shadow-xs"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                                }`}
                             >
                               {/* Header & Item Actions */}
                               <div className="flex items-center justify-between">
@@ -14786,11 +14656,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     type="button"
                                     onClick={() => updateSelectedProp("playlistActiveId", item.id)}
                                     title={isActive ? "Currently Active Video" : "Set as Active Video"}
-                                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${
-                                      isActive
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
-                                    }`}
+                                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${isActive
+                                      ? "bg-blue-600 text-white"
+                                      : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
+                                      }`}
                                   >
                                     {isActive ? "▶" : index + 1}
                                   </button>
@@ -14956,11 +14825,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           <button
                             type="button"
                             onClick={() => updateSelectedProp("playlistPosition", "right")}
-                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                              (selectedElementAny.playlistPosition || "right") === "right"
-                                ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                            }`}
+                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${(selectedElementAny.playlistPosition || "right") === "right"
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                              }`}
                           >
                             <span>▶️</span>
                             <span>Right Sidebar</span>
@@ -14969,11 +14837,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           <button
                             type="button"
                             onClick={() => updateSelectedProp("playlistPosition", "bottom")}
-                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                              selectedElementAny.playlistPosition === "bottom"
-                                ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                            }`}
+                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${selectedElementAny.playlistPosition === "bottom"
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                              }`}
                           >
                             <span>🔽</span>
                             <span>Bottom List</span>
@@ -15014,11 +14881,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -15146,11 +15012,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             }}
                             onDragLeave={() => setDragOver(false)}
                             onDrop={handleDrop}
-                            className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${
-                              dragOver
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
-                            }`}
+                            className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
+                              }`}
                           >
                             <UploadCloudIcon />
                             <p className="mt-2 text-xs font-bold text-slate-700">
@@ -15305,11 +15170,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -15620,7 +15484,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
               </div>
             ) : (
               <div className="space-y-5">
-              {/* Page Settings Section (F-018 & F-019) */}
+                {/* Page Settings Section (F-018 & F-019) */}
                 <div className="border-b border-slate-100 pb-3">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-blue-600 flex items-center gap-1.5">
                     <span>📄</span>
@@ -15630,431 +15494,431 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     Configure page-level properties & SEO settings.
                   </p>
                 </div>
-                        {/* Site Identity */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                          <input
-                            type="text"
-                            value={globalSettings.siteIdentity?.name || ""}
+                {/* Site Identity */}
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                  <input
+                    type="text"
+                    value={globalSettings.siteIdentity?.name || ""}
+                    onChange={(e) =>
+                      setGlobalSettings((prev: any) => ({
+                        ...prev,
+                        siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                      }))
+                    }
+                    placeholder="Site Name"
+                    className="w-full rounded border px-2 py-1 text-xs"
+                  />
+
+                  {/* Back To Top Button Settings */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+                      <input
+                        type="checkbox"
+                        checked={globalSettings.backToTop?.enabled !== false}
+                        onChange={(e) =>
+                          setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                          }))
+                        }
+                        className="h-4 w-4 rounded text-blue-600"
+                      />
+                    </div>
+                    {globalSettings.backToTop?.enabled !== false && (
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                          <select
+                            value={globalSettings.backToTop?.position || "bottom-right"}
                             onChange={(e) =>
                               setGlobalSettings((prev: any) => ({
                                 ...prev,
-                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                                backToTop: { ...prev.backToTop, position: e.target.value },
                               }))
                             }
-                            placeholder="Site Name"
-                            className="w-full rounded border px-2 py-1 text-xs"
+                            className="rounded border px-2 py-1 text-[11px]"
+                          >
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                          <input
+                            type="number"
+                            value={globalSettings.backToTop?.offset ?? 300}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                              }))
+                            }
+                            className="w-20 rounded border px-2 py-1 text-[11px]"
                           />
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-                        {/* Back To Top Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.backToTop?.enabled !== false}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
-                          {globalSettings.backToTop?.enabled !== false && (
-                            <div className="space-y-2 pt-1">
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.backToTop?.position || "bottom-right"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, position: e.target.value },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-right">Bottom Right</option>
-                                  <option value="bottom-left">Bottom Left</option>
-                                </select>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                                <input
-                                  type="number"
-                                  value={globalSettings.backToTop?.offset ?? 300}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                    }))
-                                  }
-                                  className="w-20 rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
-                            </div>
-                          )}
+                  {/* Floating Action Button Settings */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                      <input
+                        type="checkbox"
+                        checked={globalSettings.floatingActionButton?.enabled === true}
+                        onChange={(e) =>
+                          setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            floatingActionButton: {
+                              ...prev.floatingActionButton,
+                              enabled: e.target.checked,
+                            },
+                          }))
+                        }
+                        className="h-4 w-4 rounded text-blue-600"
+                      />
+                    </div>
+
+                    {globalSettings.floatingActionButton?.enabled && (
+                      <div className="space-y-2 pt-1">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                            Icon & Type
+                          </label>
+                          <select
+                            value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  icon: e.target.value,
+                                  backgroundColor:
+                                    e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                },
+                              }))
+                            }
+                            className="w-full rounded border px-2 py-1 text-[11px]"
+                          >
+                            <option value="whatsapp">WhatsApp Button</option>
+                            <option value="chat">Live Chat / Message</option>
+                            <option value="phone">Call Now (Phone)</option>
+                            <option value="email">Email Us</option>
+                          </select>
                         </div>
 
-                        {/* Floating Action Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.floatingActionButton?.enabled === true}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  floatingActionButton: {
-                                    ...prev.floatingActionButton,
-                                    enabled: e.target.checked,
-                                  },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
-
-                          {globalSettings.floatingActionButton?.enabled && (
-                            <div className="space-y-2 pt-1">
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Icon & Type
-                                </label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        icon: e.target.value,
-                                        backgroundColor:
-                                          e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                      },
-                                    }))
-                                  }
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="whatsapp">WhatsApp Button</option>
-                                  <option value="chat">Live Chat / Message</option>
-                                  <option value="phone">Call Now (Phone)</option>
-                                  <option value="email">Email Us</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Label
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.label || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        label: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="Chat with us"
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Link or Smart Action
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.link || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        link: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="https://wa.me/... or popup:open(id)"
-                                  className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                                />
-                              </div>
-
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        position: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-left">Bottom Left</option>
-                                  <option value="bottom-right">Bottom Right</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                            Label
+                          </label>
+                          <input
+                            type="text"
+                            value={globalSettings.floatingActionButton?.label || ""}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  label: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Chat with us"
+                            className="w-full rounded border px-2 py-1 text-[11px]"
+                          />
                         </div>
 
-                {/* Maintenance Mode Toggle (F-019) */}
-                <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer">
-                      <span>🛠️</span>
-                      <span>Maintenance Mode</span>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                            Link or Smart Action
+                          </label>
+                          <input
+                            type="text"
+                            value={globalSettings.floatingActionButton?.link || ""}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  link: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="https://wa.me/... or popup:open(id)"
+                            className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                          <select
+                            value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                            onChange={(e) =>
+                              setGlobalSettings((prev: any) => ({
+                                ...prev,
+                                floatingActionButton: {
+                                  ...prev.floatingActionButton,
+                                  position: e.target.value,
+                                },
+                              }))
+                            }
+                            className="rounded border px-2 py-1 text-[11px]"
+                          >
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Maintenance Mode Toggle (F-019) */}
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer">
+                        <span>🛠️</span>
+                        <span>Maintenance Mode</span>
+                      </label>
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.isMaintenanceMode}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, isMaintenanceMode: e.target.checked }))}
+                        className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-normal">
+                      Show temporary maintenance state to public visitors & preview while editing.
+                    </p>
+                    {pageSettings.isMaintenanceMode && (
+                      <span className="inline-block rounded bg-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                        Active — Site displays Maintenance Notice
+                      </span>
+                    )}
+
+                  </div>
+
+                  {/* Page Title */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Page Title
                     </label>
                     <input
-                      type="checkbox"
-                      checked={!!pageSettings.isMaintenanceMode}
-                      onChange={(e) => setPageSettings((prev) => ({ ...prev, isMaintenanceMode: e.target.checked }))}
-                      className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                      type="text"
+                      value={pageSettings.title || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="Home"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                     />
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-normal">
-                    Show temporary maintenance state to public visitors & preview while editing.
-                  </p>
-                  {pageSettings.isMaintenanceMode && (
-                    <span className="inline-block rounded bg-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                      Active — Site displays Maintenance Notice
-                    </span>
-                  )}
 
-                </div>
-
-                {/* Page Title */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Page Title
-                  </label>
-                  <input
-                    type="text"
-                    value={pageSettings.title || ""}
-                    onChange={(e) => setPageSettings((prev) => ({ ...prev, title: e.target.value }))}
-                    placeholder="Home"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Meta Description */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Meta Description (SEO)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={pageSettings.description || ""}
-                    onChange={(e) => setPageSettings((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Page SEO description..."
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Page Path / URL Slug */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    URL Path Slug
-                  </label>
-                  <input
-                    type="text"
-                    value={pageSettings.path || "/"}
-                    onChange={(e) => setPageSettings((prev) => ({ ...prev, path: e.target.value }))}
-                    placeholder="/"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Site / Website Published Language (F-022) */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>{t("siteLang", "Site Language (Published)")}</span>
-                    <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">HTML lang</span>
-                  </label>
-                  <select
-                    value={pageSettings.siteLanguage || "en"}
-                    onChange={(e) => setPageSettings((prev) => ({ ...prev, siteLanguage: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                  >
-                    <option value="en">English (en)</option>
-                    <option value="es">Spanish (es)</option>
-                    <option value="fr">French (fr)</option>
-                    <option value="de">German (de)</option>
-                    <option value="it">Italian (it)</option>
-                    <option value="ja">Japanese (ja)</option>
-                  </select>
-                  <p className="mt-1 text-[10px] text-slate-400">
-                    Controls published HTML website language. Completely independent from Editor UI language.
-                  </p>
-                </div>
-
-                {/* Page Canvas Background Color */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Page Canvas Background Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={pageSettings.backgroundColor || "#ffffff"}
-                      onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                      className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                  {/* Meta Description */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Meta Description (SEO)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={pageSettings.description || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Page SEO description..."
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                     />
+                  </div>
+
+                  {/* Page Path / URL Slug */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      URL Path Slug
+                    </label>
                     <input
                       type="text"
-                      value={pageSettings.backgroundColor || "#ffffff"}
-                      onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                      value={pageSettings.path || "/"}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, path: e.target.value }))}
+                      placeholder="/"
                       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                     />
                   </div>
-                </div>
 
-                {/* Custom Head Script/Tags */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Custom Head Tags / Scripts
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={pageSettings.customHead || ""}
-                    onChange={(e) => setPageSettings((prev) => ({ ...prev, customHead: e.target.value }))}
-                    placeholder="<meta name='keywords' content='builder' />"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                  />
-                </div>
-
-                {/* Temporary Support Credentials (F-020) */}
-                <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 space-y-3 pt-3">
-                  <div className="flex items-center justify-between border-b border-purple-100 pb-2">
-                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <span>🔐</span>
-                      <span>Temporary Support Access</span>
+                  {/* Site / Website Published Language (F-022) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                      <span>{t("siteLang", "Site Language (Published)")}</span>
+                      <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">HTML lang</span>
                     </label>
-                    <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
-                      2-Hr Limit
-                    </span>
+                    <select
+                      value={pageSettings.siteLanguage || "en"}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, siteLanguage: e.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                    >
+                      <option value="en">English (en)</option>
+                      <option value="es">Spanish (es)</option>
+                      <option value="fr">French (fr)</option>
+                      <option value="de">German (de)</option>
+                      <option value="it">Italian (it)</option>
+                      <option value="ja">Japanese (ja)</option>
+                    </select>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Controls published HTML website language. Completely independent from Editor UI language.
+                    </p>
                   </div>
 
-                  <p className="text-[11px] text-slate-500 leading-normal">
-                    Generate temporary, time-limited credentials for support troubleshooting without sharing your password.
-                  </p>
-
-                  {supportToken ? (
-                    <div className="space-y-2 rounded-lg border border-purple-200 bg-white p-3">
-                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                        <span>Support Token:</span>
-                        <span className="text-purple-600 font-bold">Expires ~{supportExpiresAt}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          readOnly
-                          value={supportToken}
-                          className="w-full rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-mono text-slate-800"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (supportToken) {
-                              navigator.clipboard.writeText(supportToken);
-                              setSupportCopied(true);
-                              setTimeout(() => setSupportCopied(false), 2000);
-                            }
-                          }}
-                          className="rounded-md bg-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
-                        >
-                          {supportCopied ? "Copied!" : "Copy"}
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {supportMessage && (
-                    <p className="text-[11px] font-semibold text-purple-700">{supportMessage}</p>
-                  )}
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      type="button"
-                      disabled={isGeneratingToken}
-                      onClick={handleGenerateSupportToken}
-                      className="flex-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition"
-                    >
-                      {isGeneratingToken ? "Generating..." : "Generate Support Token"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleRevokeSupportTokens}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
-                      title="Revoke active support credentials"
-                    >
-                      Revoke
-                    </button>
-                  </div>
-                </div>
-
-                {/* Editor User Preferences (F-026) */}
-                <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-blue-100 pb-2">
-                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <span>⚙️</span>
-                      <span>Editor User Preferences</span>
+                  {/* Page Canvas Background Color */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Page Canvas Background Color
                     </label>
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
-                      Persistent
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5 pt-1">
-                    {/* Auto Save Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-700">⚡ Auto-Save Drafts</span>
+                    <div className="flex items-center gap-2">
                       <input
-                        type="checkbox"
-                        checked={userPreferences.autoSaveEnabled}
-                        onChange={(e) => updatePreference("autoSaveEnabled", e.target.checked)}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        type="color"
+                        value={pageSettings.backgroundColor || "#ffffff"}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                        className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={pageSettings.backgroundColor || "#ffffff"}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                       />
                     </div>
+                  </div>
 
-                    {/* Canvas Grid Alignment Overlay Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-700">📐 Canvas Alignment Grid</span>
-                      <input
-                        type="checkbox"
-                        checked={userPreferences.gridOverlay}
-                        onChange={(e) => updatePreference("gridOverlay", e.target.checked)}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                      />
+                  {/* Custom Head Script/Tags */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Custom Head Tags / Scripts
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={pageSettings.customHead || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, customHead: e.target.value }))}
+                      placeholder="<meta name='keywords' content='builder' />"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Temporary Support Credentials (F-020) */}
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 space-y-3 pt-3">
+                    <div className="flex items-center justify-between border-b border-purple-100 pb-2">
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>🔐</span>
+                        <span>Temporary Support Access</span>
+                      </label>
+                      <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
+                        2-Hr Limit
+                      </span>
                     </div>
 
-                    {/* Header Toolbar Theme Switch */}
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs font-semibold text-slate-700">🎨 Header Toolbar Theme</span>
+                    <p className="text-[11px] text-slate-500 leading-normal">
+                      Generate temporary, time-limited credentials for support troubleshooting without sharing your password.
+                    </p>
+
+                    {supportToken ? (
+                      <div className="space-y-2 rounded-lg border border-purple-200 bg-white p-3">
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                          <span>Support Token:</span>
+                          <span className="text-purple-600 font-bold">Expires ~{supportExpiresAt}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            readOnly
+                            value={supportToken}
+                            className="w-full rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-mono text-slate-800"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (supportToken) {
+                                navigator.clipboard.writeText(supportToken);
+                                setSupportCopied(true);
+                                setTimeout(() => setSupportCopied(false), 2000);
+                              }
+                            }}
+                            className="rounded-md bg-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
+                          >
+                            {supportCopied ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {supportMessage && (
+                      <p className="text-[11px] font-semibold text-purple-700">{supportMessage}</p>
+                    )}
+
+                    <div className="flex items-center gap-2 pt-1">
                       <button
                         type="button"
-                        onClick={() => updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark")}
-                        className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm transition"
+                        disabled={isGeneratingToken}
+                        onClick={handleGenerateSupportToken}
+                        className="flex-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition"
                       >
-                        {userPreferences.themeMode === "dark" ? "🌙 Dark Navy" : "☀️ Light Modern"}
+                        {isGeneratingToken ? "Generating..." : "Generate Support Token"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRevokeSupportTokens}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
+                        title="Revoke active support credentials"
+                      >
+                        Revoke
                       </button>
                     </div>
                   </div>
+
+                  {/* Editor User Preferences (F-026) */}
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
+                    <div className="flex items-center justify-between border-b border-blue-100 pb-2">
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>⚙️</span>
+                        <span>Editor User Preferences</span>
+                      </label>
+                      <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                        Persistent
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5 pt-1">
+                      {/* Auto Save Toggle */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-700">⚡ Auto-Save Drafts</span>
+                        <input
+                          type="checkbox"
+                          checked={userPreferences.autoSaveEnabled}
+                          onChange={(e) => updatePreference("autoSaveEnabled", e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Canvas Grid Alignment Overlay Toggle */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-700">📐 Canvas Alignment Grid</span>
+                        <input
+                          type="checkbox"
+                          checked={userPreferences.gridOverlay}
+                          onChange={(e) => updatePreference("gridOverlay", e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Header Toolbar Theme Switch */}
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-xs font-semibold text-slate-700">🎨 Header Toolbar Theme</span>
+                        <button
+                          type="button"
+                          onClick={() => updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark")}
+                          className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm transition"
+                        >
+                          {userPreferences.themeMode === "dark" ? "🌙 Dark Navy" : "☀️ Light Modern"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
               </div>
             )}
           </aside>
@@ -16461,15 +16325,14 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-2">
                           <span>{item.title}</span>
                           <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                              item.category === "page"
-                                ? "bg-slate-100 text-slate-600"
-                                : item.category === "template"
+                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.category === "page"
+                              ? "bg-slate-100 text-slate-600"
+                              : item.category === "template"
                                 ? "bg-purple-100 text-purple-700"
                                 : item.category === "setting"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-emerald-100 text-emerald-700"
-                            }`}
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-emerald-100 text-emerald-700"
+                              }`}
                           >
                             {item.category}
                           </span>
@@ -16685,11 +16548,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   key={cat}
                   type="button"
                   onClick={() => setManagerCategoryFilter(cat)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${
-                    managerCategoryFilter === cat
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${managerCategoryFilter === cat
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -16714,11 +16576,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 return (
                   <div
                     key={w.type}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition ${
-                      isDisabled
-                        ? "border-slate-200 bg-slate-50/60 opacity-80"
-                        : "border-emerald-200 bg-emerald-50/20 shadow-xs"
-                    }`}
+                    className={`flex items-center justify-between p-3 rounded-xl border transition ${isDisabled
+                      ? "border-slate-200 bg-slate-50/60 opacity-80"
+                      : "border-emerald-200 bg-emerald-50/20 shadow-xs"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-xl flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-xs">
@@ -16731,11 +16592,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             {w.category}
                           </span>
                           <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                              isDisabled
-                                ? "bg-slate-200 text-slate-600"
-                                : "bg-emerald-100 text-emerald-700"
-                            }`}
+                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDisabled
+                              ? "bg-slate-200 text-slate-600"
+                              : "bg-emerald-100 text-emerald-700"
+                              }`}
                           >
                             {isDisabled ? "Hidden" : "Visible"}
                           </span>
@@ -16747,15 +16607,13 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     <button
                       type="button"
                       onClick={() => toggleWidgetAvailability(w.type)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isDisabled ? "bg-slate-300" : "bg-emerald-500"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDisabled ? "bg-slate-300" : "bg-emerald-500"
+                        }`}
                       title={isDisabled ? `Enable ${w.name} in Widget Library` : `Hide ${w.name} from Widget Library`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          isDisabled ? "translate-x-0" : "translate-x-5"
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDisabled ? "translate-x-0" : "translate-x-5"
+                          }`}
                       />
                     </button>
                   </div>
@@ -16780,7 +16638,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         </div>
       )}
 
-{/* Popup Manager Modal */}
+      {/* Popup Manager Modal */}
       <PopupManagerModal
         isOpen={isPopupManagerOpen}
         onClose={() => setIsPopupManagerOpen(false)}
@@ -16833,7 +16691,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         }}
       />
 
-{/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
+      {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
       <SaveTemplateDialog
         isOpen={isSaveTemplateOpen}
         isUpdateMode={isSaveTemplateUpdateMode}

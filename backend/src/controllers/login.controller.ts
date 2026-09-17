@@ -16,6 +16,13 @@ export async function loginController(
   next: NextFunction
 ) {
   try {
+    if (!req.body.identifier && req.body.email) {
+      req.body.identifier = req.body.email;
+    }
+    if (!req.body.identifier && req.body.phone) {
+      req.body.identifier = req.body.phone;
+    }
+
     const validationResult = loginSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -31,15 +38,14 @@ export async function loginController(
 
     const user = await loginUser(validationResult.data);
 
-    // Prompt user for OTP verification channel selection
+    const session = await createUserSession(user.id);
+    res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
+
     return res.status(200).json({
       success: true,
-      requireChannelSelection: true,
-      message: "Please select your preferred verification method.",
+      message: "Login successful",
       data: {
-        userId: user.id,
-        email: user.email,
-        phone: user.phone,
+        user,
       },
     });
   } catch (error) {
@@ -128,7 +134,8 @@ export async function verifyLoginOtpController(
   next: NextFunction
 ) {
   try {
-    const { userId, otp, channel } = req.body;
+    const { userId, channel } = req.body;
+    const otp = req.body.otp || req.body.otpCode;
 
     if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
       return res.status(400).json({

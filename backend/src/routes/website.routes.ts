@@ -5,6 +5,7 @@ import {
   getWebsiteByIdHandler,
   createWebsiteHandler,
   updateWebsiteHandler,
+  updateWebsiteEditorDataHandler,
   deleteWebsiteHandler,
   getWebsiteRolesHandler,
   updateWebsiteRoleHandler,
@@ -24,6 +25,8 @@ router.get("/", getWebsitesHandler);
 router.post("/", createWebsiteHandler);
 router.get("/:id", getWebsiteByIdHandler);
 router.put("/:id", updateWebsiteHandler);
+router.put("/:id/editor-data", updateWebsiteEditorDataHandler);
+router.put("/:websiteId/editor-data", updateWebsiteEditorDataHandler);
 router.delete("/:id", deleteWebsiteHandler);
 
 router.get("/:id/roles", getWebsiteRolesHandler);

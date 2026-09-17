@@ -126,6 +126,29 @@ export async function verifyOtp(params: {
     );
   }
 
+  // Master test OTP bypass for dev & testing environment (Code: 123456)
+  if (process.env.NODE_ENV !== "production" && cleanOtp === "123456") {
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      throw new AppError(
+        "User ID not found. Use a valid registered User ID (e.g., 5213c5b6-1916-43bd-95a3-61f545c36592 for demo user).",
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+    const record = await prisma.otpVerification.findFirst({
+      where: { userId, purpose, verifiedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+    if (record) {
+      await prisma.otpVerification.update({
+        where: { id: record.id },
+        data: { verifiedAt: new Date() },
+      });
+    }
+    return true;
+  }
+
   const record = await prisma.otpVerification.findFirst({
     where: {
       userId,
@@ -137,7 +160,7 @@ export async function verifyOtp(params: {
 
   if (!record) {
     throw new AppError(
-      "No active verification code found. Please request a new one.",
+      "No active verification code found. Please request a new code via /send-otp or use master test OTP '123456'.",
       400,
       "OTP_NOT_FOUND"
     );

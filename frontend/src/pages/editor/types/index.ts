@@ -91,7 +91,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "off-canvas", name: "Off Canvas", category: "Layout", icon: "🚪", description: "Sliding drawer panel container for navigation & tools" },
   { type: "mega-menu", name: "Mega Menu", category: "Layout", icon: "📑", description: "Multi-column rich navigation dropdown header" },
   { type: "nav-menu", name: "Nav Menu", category: "Layout", icon: "🧭", description: "Horizontal or vertical site navigation menu" },
-  
+
   // Basic
   { type: "search-bar", name: "Search Bar", category: "Basic", icon: "🔍", description: "Sidebar active widgets search filter bar" },
   { type: "import-asset", name: "Import Asset / File", category: "Basic", icon: "📁", description: "Direct file upload button for images, vectors & media assets" },
@@ -316,7 +316,7 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
-rowGap?: number | string;
+  rowGap?: number | string;
   columnGap?: number | string;
 
   // CSS Grid Controls (F-041, F-043)
@@ -355,7 +355,7 @@ export interface ElementStyles {
   marginLeft?: string;
   lineHeight?: string;
 
-// Alignment & Self Alignment
+  // Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
   justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
 
@@ -963,6 +963,16 @@ export interface EditorElement {
   customCss?: string;
   customSelectors?: Record<string, any>;
   customAttributes?: Record<string, string> | any[];
+}
+
+export interface PageConfig {
+  id: string;
+  name: string;
+  slug: string;
+  customCss?: string;
+  elements: EditorElement[];
+  pageSettings?: any;
+  isHome?: boolean;
 }
 
 export interface WebsiteData {

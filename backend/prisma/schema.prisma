@@ -29,6 +29,14 @@ model User {
   subscription        UserSubscription?
   websites            Website[]
   codeRevisions       CustomCodeRevision[]
+  auditLogs           AuditLog[]
+  developerApiKeys    DeveloperApiKey[]
+  designNotes         DesignNote[]
+  collaborations      WebsiteCollaborator[]
+  componentAccesses   ComponentAccess[]
+  customEntries       CustomEntry[]
+  ownedTeams          Team[]               @relation("TeamOwner")
+  teamMemberships     TeamMember[]
 
   @@index([status])
   @@index([role])
@@ -36,16 +44,27 @@ model User {
 }
 
 model Website {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @db.Uuid
-  name       String   @db.VarChar(255)
-  slug       String   @db.VarChar(255)
-  status     String   @default("DRAFT") @db.VarChar(50)
-  editorData Json     @default("{\"version\": 1, \"elements\": []}")
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt          DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String                @db.Uuid
+  teamId             String?               @db.Uuid
+  name               String                @db.VarChar(255)
+  slug               String                @db.VarChar(255)
+  status             String                @default("DRAFT") @db.VarChar(50)
+  editorData         Json                  @default("{\"version\": 1, \"elements\": []}")
+  performanceSettings Json?                @default("{}")
+  createdAt          DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime              @default(now()) @updatedAt @db.Timestamptz(6)
+  user               User                  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  team               Team?                 @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  formSubmissions    FormSubmission[]
+  customPostTypes    CustomPostType[]
+  themeLocationRules ThemeLocationRule[]
+  sftpConnections    SftpConnection[]
+  pluginIntegrations PluginIntegration[]
   customCodeSnippets CustomCodeSnippet[]
+  designNotes        DesignNote[]
+  componentAccesses  ComponentAccess[]
+  collaborators      WebsiteCollaborator[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@map("websites")
@@ -204,172 +223,28 @@ enum OtpChannel {
   WHATSAPP
 }
 
-model CustomCodeSnippet {
-  id           String               @id @default(uuid()) @db.Uuid
-  websiteId    String               @db.Uuid
-  title        String
-  language     String               // HTML, CSS, JS
-  code         String
-  placement    String               // HEAD, BODY_TOP, BODY_BOTTOM
-  scope        String               @default("GLOBAL") // GLOBAL, PAGE
-  pageId       String?
-  conditions   Json?                // For F-113: {"pages": [], "devices": []}
-  priority     Int                  @default(0) // F-116
-  status       String               @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED (F-114, F-115)
-  scheduledFor DateTime?
-  isActive     Boolean              @default(true)
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-
-  identities          Identity[]
-  sessions            Session[]
-  otpVerifications    OtpVerification[]
-  passwordResetTokens PasswordResetToken[]
-  subscription        UserSubscription?
-  websites            Website[]
-  auditLogs           AuditLog[]
-  developerApiKeys    DeveloperApiKey[]
-  designNotes         DesignNote[]
-  collaborations      WebsiteCollaborator[]
-  componentAccesses   ComponentAccess[]
-  customEntries       CustomEntry[]
-
-  @@index([websiteId])
-  @@map("custom_code_snippets")
-}
-
 model CustomCodeRevision {
-  id        String            @id @default(uuid()) @db.Uuid
-  snippetId String            @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
+  snippetId String   @db.Uuid
   code      String
-  authorId  String?           @db.Uuid
-  createdAt DateTime          @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  formSubmissions    FormSubmission[]
-  customPostTypes    CustomPostType[]
-  themeLocationRules ThemeLocationRule[]
-  sftpConnections    SftpConnection[]
-  pluginIntegrations PluginIntegration[]
-  customCodeSnippets CustomCodeSnippet[]
-  designNotes        DesignNote[]
-  componentAccesses  ComponentAccess[]
-  collaborators      WebsiteCollaborator[]
+  authorId  String?  @db.Uuid
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([snippetId])
   @@map("custom_code_revisions")
 }
 
-model OtpVerification {
-  id         String      @id @default(uuid()) @db.Uuid
-  userId     String?     @db.Uuid
-  email      String?
-  otpHash    String
-  purpose    OtpPurpose
-  channel    OtpChannel  @default(EMAIL)
-  attempts   Int         @default(0)
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  createdAt  DateTime    @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([purpose])
-  @@map("otp_verifications")
-}
-
-model Identity {
-  id             String           @id @default(uuid()) @db.Uuid
-  userId         String           @db.Uuid
-  provider       IdentityProvider
-  providerUserId String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerUserId])
-  @@index([userId])
-  @@map("identities")
-}
-
-model Session {
-  id         String    @id @default(uuid()) @db.Uuid
-  userId     String    @db.Uuid
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("sessions")
-}
-
-model PasswordResetToken {
-  id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
-  tokenHash String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("password_reset_tokens")
-}
-
-model SubscriptionPlan {
-  id              String             @id @default(uuid()) @db.Uuid
-  name            String
-  slug            String             @unique
-  price           Int
-  currency        String             @default("INR")
-  billingInterval String             @default("monthly")
-  websiteLimit    Int
-  storageLimitMb  Int                @default(100)
-  aiCreditLimit   Int                @default(0)
-  features        Json
-  isActive        Boolean            @default(true)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-
-  subscriptions   UserSubscription[]
-
-  @@map("subscription_plans")
-}
-
-model UserSubscription {
-  id                 String           @id @default(uuid()) @db.Uuid
-  userId             String           @unique @db.Uuid
-  planId             String           @db.Uuid
-  status             String           @default("ACTIVE")
-  currentPeriodStart DateTime         @default(now())
-  currentPeriodEnd   DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-
-  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan SubscriptionPlan @relation(fields: [planId], references: [id])
-
-  @@map("user_subscriptions")
-}
-
 model FormSubmission {
-  id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
-  formId     String
-  data       Json
-  ipAddress  String?
-  status     String   @default("NEW")
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  websiteId String   @db.Uuid
+  formId    String
+  formName  String?  @default("Contact Form") @db.VarChar(255)
+  data      Json
+  metadata  Json?    @default("{}")
+  ipAddress String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
@@ -388,7 +263,7 @@ model CustomPostType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  website Website       @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   fields  CustomField[]
   entries CustomEntry[]
 
@@ -445,13 +320,13 @@ model SftpConnection {
 }
 
 model PluginIntegration {
-  id          String   @id @default(uuid()) @db.Uuid
-  websiteId   String   @db.Uuid
-  pluginSlug  String   // acf, toolset, pods, learndash, lifterlms
-  config      Json     @default("{}")
-  isEnabled   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  pluginSlug String   // acf, toolset, pods, learndash, lifterlms
+  config     Json     @default("{}")
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
@@ -499,7 +374,7 @@ model CustomEntry {
   updatedAt  DateTime @updatedAt
 
   postType CustomPostType @relation(fields: [postTypeId], references: [id], onDelete: Cascade)
-  author   User?           @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  author   User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@map("custom_entries")
 }
@@ -532,14 +407,14 @@ model CustomCodeSnippet {
 }
 
 model DesignNote {
-  id         String   @id @default(uuid()) @db.Uuid
-  websiteId  String   @db.Uuid
-  elementId  String?
-  authorId   String   @db.Uuid
-  content    String
-  resolved   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  websiteId String   @db.Uuid
+  elementId String?
+  authorId  String   @db.Uuid
+  content   String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -606,3 +481,70 @@ model WebsiteCollaborator {
   @@unique([websiteId, userId])
   @@map("website_collaborators")
 }
+
+model WebsiteKit {
+  id           String   @id @default(uuid()) @db.Uuid
+  slug         String   @unique @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  category     String   @db.VarChar(100)
+  description  String?
+  thumbnail    String?
+  previewUrl   String?
+  pageCount    Int      @default(1)
+  tags         Json     @default("[]")
+  globalStyles Json     @default("{}")
+  pages        Json     @default("[]")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  @@index([category])
+  @@index([isActive])
+  @@map("website_kits")
+}
+
+model Team {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  ownerId     String           @db.Uuid
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  owner       User             @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  websites    Website[]
+  invitations TeamInvitation[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  userId    String   @db.Uuid
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model TeamInvitation {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  email     String
+  role      String   @default("DESIGNER")
+  tokenHash String   @unique
+  status    String   @default("PENDING")
+  invitedBy String   @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("team_invitations")
+}
+

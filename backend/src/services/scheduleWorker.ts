@@ -18,10 +18,16 @@ async function processScheduledPublications() {
             where: {
                 status: 'SCHEDULED',
                 scheduledFor: { lte: now }
+            },
+            select: {
+                id: true,
+                title: true,
+                status: true,
+                scheduledFor: true
             }
         });
 
-        if (pendingSnippets.length === 0) return;
+        if (!pendingSnippets || pendingSnippets.length === 0) return;
 
         for (const snippet of pendingSnippets) {
             await customCodeSnippetModel.update({
@@ -30,10 +36,10 @@ async function processScheduledPublications() {
                     status: 'PUBLISHED'
                 }
             });
-            console.log(`[Scheduler] F-115 Executed pending snippet: ${snippet.title} (${snippet.id}) into PUBLISHED mode.`);
+            console.log(`[Scheduler] F-115 Executed pending snippet: ${snippet.title || snippet.id} (${snippet.id}) into PUBLISHED mode.`);
         }
-    } catch (error) {
-        console.error("[Scheduler] Error running background schedule task:", error);
+    } catch (error: any) {
+        console.error("[Scheduler] Error running background schedule task:", error?.message || error);
     }
 }
 

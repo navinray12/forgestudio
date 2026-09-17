@@ -14,6 +14,7 @@ router.post("/submit", submitFormHandler);
 
 // Protected endpoints for website owners to inspect leads
 router.get("/:websiteId/submissions", requireAuth, getWebsiteSubmissionsHandler);
+router.get("/:websiteId", requireAuth, getWebsiteSubmissionsHandler);
 router.delete("/:websiteId/submissions/:submissionId", requireAuth, deleteSubmissionHandler);
 router.get("/:websiteId/export", requireAuth, exportSubmissionsHandler);
 

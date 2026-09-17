@@ -23,6 +23,7 @@ import integrationRoutes from "./integration.routes.js";
 import sftpRoutes from "./sftp.routes.js";
 import pluginIntegrationRoutes from "./pluginIntegration.routes.js";
 import multisiteRoutes from "./multisite.routes.js";
+import websiteKitRoutes from "./websiteKit.routes.js";
 
 const apiRouter = Router();
 
@@ -79,3 +80,7 @@ export { default as componentAccessRoutes } from "./componentAccess.routes.js";
 export { default as templateRoutes } from "./template.routes.js";
 export { default as formRoutes } from "./form.routes.js";
 export { default as integrationRoutes } from "./integration.routes.js";
+export { default as sftpRoutes } from "./sftp.routes.js";
+export { default as pluginIntegrationRoutes } from "./pluginIntegration.routes.js";
+export { default as multisiteRoutes } from "./multisite.routes.js";
+export { default as websiteKitRoutes } from "./websiteKit.routes.js";

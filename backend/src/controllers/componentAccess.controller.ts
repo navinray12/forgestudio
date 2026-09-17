@@ -13,7 +13,6 @@ const verifyAdminAccess = async (websiteId: string, userId: string) => {
 
     if (website.userId === userId) return true; // Owner is admin
 
-    // In future F-406 this will check actual roles. For now, collaborators might be admins
     const collab = website.collaborators.find(c => c.userId === userId);
     if (!collab || collab.permission !== "ADMIN") {
         throw new AppError("Forbidden: only Admins can manage component locks", 403, "FORBIDDEN");
@@ -41,10 +40,10 @@ export const getAllComponentAccesses = async (req: Request, res: Response): Prom
 // GET /api/v1/component-access/:websiteId/:componentId
 export const getComponentAccess = async (req: Request, res: Response): Promise<void> => {
     try {
-        const websiteId = req.params.websiteId as string; const componentId = req.params.componentId as string;
+        const websiteId = req.params.websiteId as string;
+        const componentId = req.params.componentId as string;
         const userId = res.locals.user?.id;
 
-        // Verify user can at least view website to see access
         const website = await prisma.website.findUnique({
             where: { id: websiteId },
             include: { collaborators: true }
@@ -62,8 +61,8 @@ export const getComponentAccess = async (req: Request, res: Response): Promise<v
 
         res.status(200).json({ success: true, accesses });
     } catch (error) {
-        if ((error as any).statusCode) {
-            res.status((error as any).statusCode).json({ success: false, message: (error as any).message });
+        if (error instanceof AppError) {
+            res.status(error.statusCode).json({ success: false, message: error.message });
         } else {
             res.status(500).json({ success: false, message: "Internal server error" });
         }
@@ -73,31 +72,28 @@ export const getComponentAccess = async (req: Request, res: Response): Promise<v
 // POST /api/v1/component-access/:websiteId/:componentId/grant
 export const grantComponentAccess = async (req: Request, res: Response): Promise<void> => {
     try {
-        const websiteId = req.params.websiteId as string; const componentId = req.params.componentId as string;
+        const websiteId = req.params.websiteId as string;
+        const componentId = req.params.componentId as string;
         const userId = res.locals.user?.id;
         const { targetUserId, permission = "EDIT" } = req.body;
 
         await verifyAdminAccess(websiteId, userId);
 
-        let access = await prisma.componentAccess.findFirst({
-            where: { websiteId, componentId, userId: targetUserId }
+        const access = await prisma.componentAccess.upsert({
+            where: {
+                websiteId_componentId: { websiteId, componentId }
+            },
+            update: {
+                userId: targetUserId,
+                permission
+            },
+            create: {
+                websiteId,
+                componentId,
+                userId: targetUserId,
+                permission
+            }
         });
-
-        if (access) {
-            access = await prisma.componentAccess.update({
-                where: { id: access.id },
-                data: { permission }
-            });
-        } else {
-            access = await prisma.componentAccess.create({
-                data: {
-                    websiteId,
-                    componentId,
-                    userId: targetUserId,
-                    permission
-                }
-            });
-        }
 
         // Return enriched
         const returnAccess = await prisma.componentAccess.findUnique({
@@ -107,8 +103,8 @@ export const grantComponentAccess = async (req: Request, res: Response): Promise
 
         res.status(200).json({ success: true, access: returnAccess });
     } catch (error) {
-        if ((error as any).statusCode) {
-            res.status((error as any).statusCode).json({ success: false, message: (error as any).message });
+        if (error instanceof AppError) {
+            res.status(error.statusCode).json({ success: false, message: error.message });
         } else {
             console.error(error);
             res.status(500).json({ success: false, message: "Internal server error" });
@@ -132,8 +128,8 @@ export const revokeComponentAccess = async (req: Request, res: Response): Promis
 
         res.status(200).json({ success: true, message: "Access revoked" });
     } catch (error) {
-        if ((error as any).statusCode) {
-            res.status((error as any).statusCode).json({ success: false, message: (error as any).message });
+        if (error instanceof AppError) {
+            res.status(error.statusCode).json({ success: false, message: error.message });
         } else {
             res.status(500).json({ success: false, message: "Internal server error" });
         }
@@ -141,10 +137,9 @@ export const revokeComponentAccess = async (req: Request, res: Response): Promis
 };
 
 // POST /api/v1/component-access/bulk-clear
-// Clears ALL specifically granted accesses if they unlock it fully
 export const clearComponentRestrictions = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { websiteId, componentId } = req.body; // Can accept single or array
+        const { websiteId, componentId } = req.body;
         const userId = res.locals.user?.id;
 
         await verifyAdminAccess(websiteId, userId);
@@ -157,12 +152,10 @@ export const clearComponentRestrictions = async (req: Request, res: Response): P
 
         res.status(200).json({ success: true, message: "All restrictions cleared for component(s)" });
     } catch (error) {
-        if ((error as any).statusCode) {
-            res.status((error as any).statusCode).json({ success: false, message: (error as any).message });
+        if (error instanceof AppError) {
+            res.status(error.statusCode).json({ success: false, message: error.message });
         } else {
             res.status(500).json({ success: false, message: "Internal server error" });
         }
     }
 };
-
-

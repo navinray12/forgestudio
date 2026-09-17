@@ -12,12 +12,14 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction
 ) {
-  if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
+  const err = error as any;
+  if (err && (err instanceof AppError || err.name === "AppError" || typeof err.statusCode === "number")) {
+    const statusCode = err.statusCode || 500;
+    return res.status(statusCode).json({
       success: false,
       error: {
-        code: error.code,
-        message: error.message,
+        code: err.code || "ERROR",
+        message: err.message || "An error occurred",
       },
     });
   }

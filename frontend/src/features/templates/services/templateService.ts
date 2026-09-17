@@ -147,8 +147,8 @@ export async function updateTemplate(
   templateId: string,
   payload: UpdateTemplatePayload
 ): Promise<Template> {
-  const res = await fetch(`${apiUrl}/api/templates/${templateId}`, {
-    method: "PATCH",
+  let res = await fetch(`${apiUrl}/api/v1/templates/${templateId}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
@@ -156,13 +156,24 @@ export async function updateTemplate(
     body: JSON.stringify(payload),
   });
 
+  if (!res.ok && res.status === 404) {
+    res = await fetch(`${apiUrl}/api/templates/${templateId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+  }
+
   const data = await res.json();
 
   if (!res.ok) {
     throw new Error(data?.message || data?.error?.message || "Unable to update template.");
   }
 
-  return data.template;
+  return data.template || data.data?.template;
 }
 
 /**

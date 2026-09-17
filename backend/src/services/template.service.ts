@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 
-const db = prisma as any;
+
 
 export const ALLOWED_CATEGORIES = [
   "Landing Page",
@@ -102,22 +102,20 @@ export async function createTemplate(userId: string, params: CreateTemplateParam
   const templateData = params.templateData || { elements: [], pageSettings: {} };
 
   try {
-    if (db?.template?.create) {
-      const newTemplate = await db.template.create({
-        data: {
-          userId,
-          name: trimmedName,
-          description,
-          type,
-          category,
-          isFavorite,
-          isShared,
-          shareToken,
-          templateData,
-        },
-      });
-      return newTemplate;
-    }
+    const newTemplate = await prisma.templates.create({
+      data: {
+        userId,
+        name: trimmedName,
+        description,
+        type,
+        category,
+        isFavorite,
+        isShared,
+        shareToken,
+        templateData,
+      },
+    });
+    return newTemplate;
 
     // Raw SQL Fallback
     const jsonStr = JSON.stringify(templateData);
@@ -139,13 +137,11 @@ export async function createTemplate(userId: string, params: CreateTemplateParam
  */
 export async function getUserTemplates(userId: string) {
   try {
-    if (db?.template?.findMany) {
-      const templates = await db.template.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-      });
-      if (templates) return templates;
-    }
+    const templates = await prisma.templates.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+    if (templates) return templates;
 
     const rawTemplates: any[] = await prisma.$queryRaw`
       SELECT id, "userId", name, description, type, category, "isFavorite", "isShared", "shareToken", "templateData", "createdAt", "updatedAt"
@@ -181,6 +177,12 @@ export async function updateTemplate(
   templateId: string,
   params: UpdateTemplateParams
 ) {
+  const cleanId = (templateId || "").trim();
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!cleanId || !uuidPattern.test(cleanId)) {
+    throw new AppError("Invalid template ID format", 400, "BAD_REQUEST");
+  }
+
   const trimmedName = params.name?.trim();
   if (params.name !== undefined && !trimmedName) {
     throw new AppError("Template name cannot be empty", 400, "INVALID_TEMPLATE_NAME");
@@ -194,36 +196,43 @@ export async function updateTemplate(
   const templateData = params.templateData !== undefined ? params.templateData : undefined;
 
   try {
-    if (db?.template?.findFirst && db?.template?.update) {
-      const existing = await db.template.findFirst({
-        where: { id: templateId, userId },
-      });
-      if (!existing) {
-        throw new AppError("Template not found or unauthorized", 404, "TEMPLATE_NOT_FOUND");
-      }
+    const existing = await prisma.templates.findUnique({
+      where: { id: cleanId },
+    });
 
-      const updated = await db.template.update({
-        where: { id: templateId },
-        data: {
-          ...(trimmedName ? { name: trimmedName } : {}),
-          ...(description !== undefined ? { description } : {}),
-          ...(category !== undefined ? { category } : {}),
-          ...(isFavorite !== undefined ? { isFavorite } : {}),
-          ...(isShared !== undefined ? { isShared } : {}),
-          ...(shareToken !== undefined ? { shareToken } : {}),
-          ...(templateData !== undefined ? { templateData } : {}),
-          updatedAt: new Date(),
-        },
-      });
-      return updated;
+    if (!existing) {
+      throw new AppError("Template not found", 404, "NOT_FOUND");
     }
+
+    if (existing.userId !== userId) {
+      throw new AppError("You do not have permission to modify this template", 403, "FORBIDDEN");
+    }
+
+    const updated = await prisma.templates.update({
+      where: { id: cleanId },
+      data: {
+        ...(trimmedName ? { name: trimmedName } : {}),
+        ...(description !== undefined ? { description } : {}),
+        ...(category !== undefined ? { category } : {}),
+        ...(isFavorite !== undefined ? { isFavorite } : {}),
+        ...(isShared !== undefined ? { isShared } : {}),
+        ...(shareToken !== undefined ? { shareToken } : {}),
+        ...(templateData !== undefined ? { templateData } : {}),
+        updatedAt: new Date(),
+      },
+    });
+    return updated;
 
     // Raw SQL Fallback
     const existingRaw: any[] = await prisma.$queryRaw`
-      SELECT id FROM templates WHERE id = ${templateId}::uuid AND "userId" = ${userId}::uuid
+      SELECT id, "userId" FROM templates WHERE id = ${cleanId}::uuid
     `;
     if (!existingRaw || existingRaw.length === 0) {
-      throw new AppError("Template not found or unauthorized", 404, "TEMPLATE_NOT_FOUND");
+      throw new AppError("Template not found", 404, "NOT_FOUND");
+    }
+
+    if (existingRaw[0].userId !== userId) {
+      throw new AppError("You do not have permission to modify this template", 403, "FORBIDDEN");
     }
 
     const templateDataJson = templateData ? JSON.stringify(templateData) : null;
@@ -238,7 +247,7 @@ export async function updateTemplate(
           "shareToken" = COALESCE(${shareToken}, "shareToken"),
           "templateData" = CASE WHEN ${templateDataJson}::text IS NOT NULL THEN ${templateDataJson}::jsonb ELSE "templateData" END,
           "updatedAt" = NOW()
-      WHERE id = ${templateId}::uuid AND "userId" = ${userId}::uuid
+      WHERE id = ${cleanId}::uuid AND "userId" = ${userId}::uuid
       RETURNING id, "userId", name, description, type, category, "isFavorite", "isShared", "shareToken", "templateData", "createdAt", "updatedAt"
     `;
 
@@ -285,14 +294,12 @@ export async function getPublicTemplateByToken(shareToken: string) {
   }
 
   try {
-    if (db?.template?.findFirst) {
-      const template = await db.template.findFirst({
-        where: { shareToken, isShared: true },
-      });
-      if (template) {
-        const { userId, ...safeTemplate } = template;
-        return safeTemplate;
-      }
+    const template = await prisma.templates.findFirst({
+      where: { shareToken, isShared: true },
+    });
+    if (template) {
+      const { userId, ...safeTemplate } = template;
+      return safeTemplate;
     }
 
     const raw: any[] = await prisma.$queryRaw`
@@ -318,26 +325,12 @@ export async function getPublicTemplateByToken(shareToken: string) {
  */
 export async function deleteTemplate(userId: string, templateId: string) {
   try {
-    if (db?.template?.deleteMany) {
-      const result = await db.template.deleteMany({
-        where: { id: templateId, userId },
-      });
-      if (result.count === 0) {
-        throw new AppError("Template not found or unauthorized", 404, "TEMPLATE_NOT_FOUND");
-      }
-      return { id: templateId };
-    }
-
-    const result: any[] = await prisma.$queryRaw`
-      DELETE FROM templates
-      WHERE id = ${templateId}::uuid AND "userId" = ${userId}::uuid
-      RETURNING id
-    `;
-
-    if (!result || result.length === 0) {
+    const deleteResult = await prisma.templates.deleteMany({
+      where: { id: templateId, userId },
+    });
+    if (deleteResult.count === 0) {
       throw new AppError("Template not found or unauthorized", 404, "TEMPLATE_NOT_FOUND");
     }
-
     return { id: templateId };
   } catch (error) {
     if (error instanceof AppError) throw error;

@@ -89,7 +89,8 @@ export async function verifySignupOtpController(
   next: NextFunction
 ) {
   try {
-    const { userId, otp, channel } = req.body;
+    const { userId, channel } = req.body;
+    const otp = req.body.otp || req.body.otpCode;
 
     if (!userId || typeof userId !== "string" || !otp || typeof otp !== "string") {
       return res.status(400).json({

@@ -24,6 +24,9 @@ export async function initWebsiteTable() {
       );
     `);
     await prisma.$executeRawUnsafe(`
+      ALTER TABLE websites ADD COLUMN IF NOT EXISTS "performanceSettings" JSONB DEFAULT '{}'::jsonb;
+    `);
+    await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS idx_websites_user_id ON websites("userId");
     `);
   } catch (error) {
@@ -74,6 +77,11 @@ export async function getUserWebsites(userId: string) {
  * Get a single website by ID with ownership check
  */
 export async function getWebsiteById(websiteId: string, userId: string) {
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!websiteId || !UUID_REGEX.test(websiteId)) {
+    throw new AppError("Invalid website ID format", 400, "INVALID_WEBSITE_ID");
+  }
+
   try {
     let website: any = null;
     let permission = "NONE";
@@ -132,8 +140,8 @@ export async function getWebsiteById(websiteId: string, userId: string) {
 
     // Embed current user's explicit authorization
     return { ...website, userPermission: permission };
-  } catch (error) {
-    if (error instanceof AppError) throw error;
+  } catch (error: any) {
+    if (error instanceof AppError || error?.name === "AppError" || typeof error?.statusCode === "number") throw error;
     throw new AppError("Failed to fetch website", 500, "WEBSITE_FETCH_FAILED");
   }
 }
@@ -204,8 +212,9 @@ export async function createWebsite(userId: string, name: string) {
 export async function updateWebsiteEditorData(
   websiteId: string,
   userId: string,
-  editorData: any,
-  performanceSettings?: any
+  editorDataInput?: any,
+  performanceSettingsInput?: any,
+  performanceInput?: any
 ) {
   // Ensure website exists and fetch F-404 permission boundaries
   const website = await getWebsiteById(websiteId, userId);
@@ -226,47 +235,35 @@ export async function updateWebsiteEditorData(
   const explicitAccesses = await prisma.componentAccess.findMany({ where: { websiteId, userId } });
   const allowedComponentIds = new Set(explicitAccesses.map(a => a.componentId));
 
-  const currentEditorData = typeof website.editorData === "string" ? JSON.parse(website.editorData) : website.editorData;
+  const currentEditorData = typeof website.editorData === "string" ? JSON.parse(website.editorData) : (website.editorData || { version: 1, elements: [] });
+  const currentPerf = typeof website.performanceSettings === "string" ? JSON.parse(website.performanceSettings) : (website.performanceSettings || {});
+
+  const incomingEditorData = editorDataInput || {};
+  const incomingPerformance = performanceSettingsInput || performanceInput || incomingEditorData.performanceSettings || incomingEditorData.performance;
 
   const safeMerge = (currentEls: any[], newEls: any[]): any[] => {
-    // 1. We must retain ALL protected components from currentEls, even if newEls omitted them (prevent unauthorized deletion).
     const mergedEls = [];
-
-    // To handle reordering, we iterate through newEls, but we MUST inject missing protected ones.
-    const allIds = new Set([...currentEls.map(c => c.id), ...newEls.map(n => n.id)]);
-
-    // Actually, preserving order while mixing deleted/kept is tricky.
-    // Let's iterate currentEls. If it's protected, keep it unchanged. If it's not protected, find incoming.
     for (const cEl of currentEls) {
       const isProtectedNode = cEl.isProtected === true;
       const userCanEdit = isAdmin || allowedComponentIds.has(cEl.id);
 
-      // If protected and no rights, strictly preserve untouched.
       if (isProtectedNode && !userCanEdit) {
         mergedEls.push(cEl);
         continue;
       }
 
       const incoming = newEls.find(n => n.id === cEl.id);
+      if (!incoming) continue;
 
-      // If deleted by user
-      if (!incoming) {
-        // It's allowed to be deleted because they have rights.
-        continue;
-      }
-
-      // If !canEditDesign && canEditContent
       if (!canEditDesign && canEditContent) {
         if (incoming.content !== undefined) cEl.content = incoming.content;
         if (incoming.src !== undefined) cEl.src = incoming.src;
         if (incoming.alt !== undefined) cEl.alt = incoming.alt;
         if (incoming.href !== undefined) cEl.href = incoming.href;
       } else {
-        // Full design rights! Merge everything (classes, styles, etc).
         Object.assign(cEl, incoming);
       }
 
-      // Recurse children
       if (cEl.children) {
         cEl.children = safeMerge(cEl.children, incoming.children || []);
       }
@@ -274,7 +271,6 @@ export async function updateWebsiteEditorData(
       mergedEls.push(cEl);
     }
 
-    // Now append any newly created elements that didn't exist in currentEls
     for (const nEl of newEls) {
       if (!currentEls.find(c => c.id === nEl.id)) {
         mergedEls.push(nEl);
@@ -284,30 +280,32 @@ export async function updateWebsiteEditorData(
     return mergedEls;
   };
 
-  const safeElements = safeMerge(currentEditorData.elements || [], editorData.elements || []);
+  const safeElements = safeMerge(currentEditorData.elements || [], incomingEditorData.elements || []);
   const safePopups = (currentEditorData.popups || []).map((p: any) => {
-    const incomingP = (editorData.popups || []).find((ip: any) => ip.id === p.id);
+    const incomingP = (incomingEditorData.popups || []).find((ip: any) => ip.id === p.id);
     if (incomingP && p.elements && incomingP.elements) {
       p.elements = safeMerge(p.elements, incomingP.elements);
     }
     return p;
   });
 
-  editorData = {
+  const mergedPerf = incomingPerformance ? { ...currentPerf, ...incomingPerformance } : currentPerf;
+
+  const finalEditorData = {
     ...currentEditorData,
+    ...incomingEditorData,
     elements: safeElements,
-    popups: safePopups
+    popups: safePopups,
+    performanceSettings: mergedPerf,
   };
 
   try {
     if (db?.website?.update) {
       const updateData: any = {
-        editorData,
+        editorData: finalEditorData,
+        performanceSettings: mergedPerf,
         updatedAt: new Date(),
       };
-      if (performanceSettings !== undefined) {
-        updateData.performanceSettings = performanceSettings;
-      }
       const updated = await db.website.update({
         where: { id: websiteId },
         data: updateData,
@@ -315,25 +313,14 @@ export async function updateWebsiteEditorData(
       return updated;
     }
 
-    const jsonStr = JSON.stringify(editorData);
-    let updated: any[];
-
-    if (performanceSettings !== undefined) {
-      const perfStr = JSON.stringify(performanceSettings);
-      updated = await prisma.$queryRaw`
-         UPDATE websites
-         SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
-         WHERE id = ${websiteId}::uuid
-         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-       `;
-    } else {
-      updated = await prisma.$queryRaw`
-         UPDATE websites
-         SET "editorData" = ${jsonStr}::jsonb, "updatedAt" = NOW()
-         WHERE id = ${websiteId}::uuid
-         RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-       `;
-    }
+    const jsonStr = JSON.stringify(finalEditorData);
+    const perfStr = JSON.stringify(mergedPerf);
+    const updated: any[] = await prisma.$queryRaw`
+       UPDATE websites
+       SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
+       WHERE id = ${websiteId}::uuid
+       RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+     `;
 
     return updated[0];
   } catch (error) {
@@ -377,17 +364,26 @@ export async function getWebsiteRoles(websiteId: string, userId: string) {
   const website = await getWebsiteById(websiteId, userId);
 
   const ownerData = await db.user.findUnique({ where: { id: website.userId } });
-  const members = [{
-    id: ownerData.id,
-    name: ownerData.fullName || ownerData.email,
-    email: ownerData.email,
-    role: "OWNER"
-  }];
+  const members: any[] = [];
 
-  const collabs = await db.websiteCollaborator.findMany({
-    where: { websiteId },
-    include: { user: true }
-  });
+  if (ownerData) {
+    members.push({
+      id: ownerData.id,
+      name: ownerData.fullName || ownerData.email,
+      email: ownerData.email,
+      role: "OWNER",
+    });
+  }
+
+  let collabs: any[] = [];
+  try {
+    if (db.websiteCollaborator?.findMany) {
+      collabs = await db.websiteCollaborator.findMany({
+        where: { websiteId },
+        include: { user: true },
+      });
+    }
+  } catch (e) { }
 
   for (const c of collabs) {
     if (c.user) {
@@ -395,13 +391,19 @@ export async function getWebsiteRoles(websiteId: string, userId: string) {
         id: c.userId,
         name: c.user.fullName || c.user.email,
         email: c.user.email,
-        role: c.permission
+        role: c.permission,
       });
     }
   }
-  const invitationsList = await db.websiteInvitation.findMany({
-    where: { websiteId, status: "PENDING" }
-  });
+
+  let invitationsList: any[] = [];
+  try {
+    if (db.websiteInvitation?.findMany) {
+      invitationsList = await db.websiteInvitation.findMany({
+        where: { websiteId, status: "PENDING" },
+      });
+    }
+  } catch (e) { }
 
   return { members, invitations: invitationsList };
 }

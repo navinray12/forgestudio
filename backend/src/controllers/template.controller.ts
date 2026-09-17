@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../utils/app-error.js";
 import {
   createTemplate,
   getUserTemplates,
@@ -111,7 +112,7 @@ export async function toggleShareHandler(
 }
 
 /**
- * PATCH /api/templates/:id
+ * PUT/PATCH /api/templates/:id
  * Update metadata (name, description, category, isFavorite, isShared) of a template owned by authenticated user
  */
 export async function updateTemplateHandler(
@@ -120,9 +121,13 @@ export async function updateTemplateHandler(
   next: NextFunction
 ) {
   try {
-    const user = res.locals.user;
-    const templateId = String(req.params.id);
-    const { name, description, category, isFavorite, isShared, shareToken, templateData } = req.body;
+    const user = res.locals.user || (req as any).user;
+    if (!user || !user.id) {
+      throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+    }
+
+    const templateId = String(req.params.id || "");
+    const { name, description, category, isFavorite, isShared, shareToken, templateData } = req.body || {};
 
     const template = await updateTemplate(user.id, templateId, {
       name,
@@ -138,6 +143,9 @@ export async function updateTemplateHandler(
       success: true,
       message: "Template updated successfully",
       template,
+      data: {
+        template,
+      },
     });
   } catch (error) {
     next(error);

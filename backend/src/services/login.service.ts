@@ -31,25 +31,25 @@ export async function loginUser(input: LoginInput) {
 
   if (!user) {
     throw new AppError(
-      INVALID_CREDENTIALS,
+      `Account '${normalizedIdentifier}' not found. Please sign up first via /api/v1/auth/signup or use 'demo@forgestudio.com'`,
       401,
-      "INVALID_CREDENTIALS"
+      "USER_NOT_FOUND"
     );
   }
 
   if (user.status !== "ACTIVE") {
     throw new AppError(
-      INVALID_CREDENTIALS,
+      "User account is inactive or suspended.",
       401,
-      "INVALID_CREDENTIALS"
+      "ACCOUNT_INACTIVE"
     );
   }
 
   if (!user.passwordHash) {
     throw new AppError(
-      INVALID_CREDENTIALS,
+      "Account has no password set. Please use OTP login or social login.",
       401,
-      "INVALID_CREDENTIALS"
+      "NO_PASSWORD_SET"
     );
   }
 
@@ -60,9 +60,9 @@ export async function loginUser(input: LoginInput) {
 
   if (!passwordValid) {
     throw new AppError(
-      INVALID_CREDENTIALS,
+      "Incorrect password provided. (Default demo password is 'Password123!')",
       401,
-      "INVALID_CREDENTIALS"
+      "INVALID_PASSWORD"
     );
   }
 
