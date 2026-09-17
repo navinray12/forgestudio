@@ -1,7 +1,14 @@
+/**
+ * @file Templates feature: template Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { CreateTemplatePayload, Template } from "../types/template.types";
 
 /**
  * Creates a reusable template from current editor design
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param payload Payload supplied to this operation (type: CreateTemplatePayload).
  */
 export async function saveAsTemplate(
   apiUrl: string,
@@ -50,6 +57,9 @@ export async function saveAsTemplate(
 
 /**
  * Imports a validated template payload into user's Template Library
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param payload Payload supplied to this operation (type: CreateTemplatePayload).
  */
 export async function importTemplate(
   apiUrl: string,
@@ -60,6 +70,9 @@ export async function importTemplate(
 
 /**
  * Creates an independent duplicate copy of an existing template
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param sourceTemplate Source Template supplied to this operation (type: Template).
  */
 export async function duplicateTemplate(
   apiUrl: string,
@@ -87,6 +100,8 @@ export async function duplicateTemplate(
 
 /**
  * Fetches all saved design templates for the authenticated user
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
  */
 export async function getUserTemplates(apiUrl: string): Promise<Template[]> {
   const res = await fetch(`${apiUrl}/api/templates`, {
@@ -108,6 +123,9 @@ export async function getUserTemplates(apiUrl: string): Promise<Template[]> {
 
 /**
  * Fetches a public shared template safely without authentication
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param shareToken Share Token supplied to this operation (type: string).
  */
 export async function getPublicTemplate(apiUrl: string, shareToken: string): Promise<Template> {
   const res = await fetch(`${apiUrl}/api/templates/public/${shareToken}`, {
@@ -141,6 +159,10 @@ export interface UpdateTemplatePayload {
 
 /**
  * Updates metadata (name, description, category, isFavorite, isShared) for an existing template
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param templateId Template Id supplied to this operation (type: string).
+ * @param payload Payload supplied to this operation (type: UpdateTemplatePayload).
  */
 export async function updateTemplate(
   apiUrl: string,
@@ -167,6 +189,10 @@ export async function updateTemplate(
 
 /**
  * Toggles template sharing state (enabled / disabled)
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param templateId Template Id supplied to this operation (type: string).
+ * @param isShared Is Shared supplied to this operation (type: boolean).
  */
 export async function toggleTemplateSharing(
   apiUrl: string,
@@ -193,6 +219,10 @@ export async function toggleTemplateSharing(
 
 /**
  * Convenience helper to toggle a template's favorite state
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param templateId Template Id supplied to this operation (type: string).
+ * @param isFavorite Is Favorite supplied to this operation (type: boolean).
  */
 export async function toggleFavorite(
   apiUrl: string,
@@ -204,6 +234,9 @@ export async function toggleFavorite(
 
 /**
  * Deletes a saved template owned by the authenticated user
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param templateId Template Id supplied to this operation (type: string).
  */
 export async function deleteTemplate(apiUrl: string, templateId: string): Promise<void> {
   const res = await fetch(`${apiUrl}/api/templates/${templateId}`, {

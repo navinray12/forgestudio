@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Loop Data Source Selector. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { LoopContainerConfig, LoopDataSourceType } from "../types/atomicLoop.types";
 import { validateStaticDataJson } from "../utils/loopValidation.utils";
@@ -7,12 +11,23 @@ interface LoopDataSourceSelectorProps {
   onUpdateLoop: (updated: Partial<LoopContainerConfig>) => void;
 }
 
+/**
+ * Render the loop data source selector interface and connect its event handlers.
+ * @param options Named inputs: loop, onUpdateLoop.
+
+ * @param options.loop Loop passed by the caller.
+ * @param options.onUpdateLoop Callback for update loop events.
+ */
 export const LoopDataSourceSelector: React.FC<LoopDataSourceSelectorProps> = ({
   loop,
   onUpdateLoop,
 }) => {
   const [jsonError, setJsonError] = useState<string | null>(null);
 
+  /**
+   * Handle Json Change.
+   * @param raw Raw supplied to this operation (type: string).
+   */
   const handleJsonChange = (raw: string) => {
     const val = validateStaticDataJson(raw);
     if (!val.isValid) {

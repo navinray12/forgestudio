@@ -1,3 +1,7 @@
+/**
+ * @file Fonts feature: Font Loader. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { FontRegistry } from './FontRegistry';
 
 // Track injected font families to prevent duplicate network calls
@@ -5,6 +9,9 @@ const loadedFontFamilies = new Set<string>();
 
 /**
  * Dynamically injects Google Fonts CSS link for requested font family & weights
+
+ * @param family Family supplied to this operation (type: string).
+ * @param weights Weights supplied to this operation (type: number[]). Optional; callers may omit it.
  */
 export function loadFontFamily(family: string, weights?: number[]): Promise<boolean> {
   if (!family || family === 'inherit' || family === 'default') {
@@ -77,6 +84,8 @@ export function loadFontFamily(family: string, weights?: number[]): Promise<bool
 
 /**
  * Preloads a batch of fonts (e.g. for preview in Font Picker)
+
+ * @param families Families supplied to this operation (type: string[]).
  */
 export function loadFontBatch(families: string[]): void {
   families.forEach((fam) => {

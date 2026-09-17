@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: variable Class Sync types. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { ElementStyles } from "../../../pages/editor/WebsiteEditor";
 import type { AtomicVariable } from "./variables.types";
 import type { AtomicClass } from "./classes.types";

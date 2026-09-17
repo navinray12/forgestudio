@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: website Kit Validation. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { sanitizeAndRegenerateElementIds } from "./templateValidation";
 
 export interface WebsiteKitValidationResult {
@@ -28,6 +32,8 @@ export interface WebsiteKitValidationResult {
 /**
  * Validates untrusted Website Kit JSON file input, checks type/version integrity,
  * and recursively regenerates element IDs to prevent canvas collisions.
+
+ * @param fileContent File Content supplied to this operation (type: string).
  */
 export function validateAndSanitizeWebsiteKitFile(fileContent: string): WebsiteKitValidationResult {
   if (!fileContent || !fileContent.trim()) {

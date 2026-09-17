@@ -1,28 +1,38 @@
-import { prisma } from "../config/prisma.js";
-import { destinationRegistry } from "../services/destinations/registry.js";
-import { compileCanonicalToStaticBundle } from "../services/destinations/staticCompiler.js";
+/**
+ * @file Milestone B destinations test: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import "./require-disposable-database.js";
+import { prisma } from "../platform/database/prisma.js";
+import { destinationRegistry } from "../modules/publishing/destinations/registry.js";
+import { compileCanonicalToStaticBundle } from "../modules/publishing/destinations/static-compiler.js";
 import {
   createWebsite,
   getWebsiteById,
   deleteWebsite,
-} from "../services/website.service.js";
+} from "../modules/websites/website.service.js";
 import {
   publishWebsite,
   getWebsiteDeployments,
   rollbackDeployment,
-} from "../services/publishing.service.js";
+} from "../modules/publishing/publishing.service.js";
 import {
   createOrUpdateSftpConfig,
   getSftpConfig,
   syncFilesOverSftp,
-} from "../services/sftp.service.js";
-import { setSftpClientFactory } from "../services/destinations/sftp.publisher.js";
+} from "../modules/sftp-connections/sftp.service.js";
 
 const db = prisma as any;
 
 let passed = 0;
 let failed = 0;
 
+/**
+ * Assert.
+ * @param condition Condition supplied to this operation (type: boolean).
+ * @param testName Test Name supplied to this operation (type: string).
+ * @param details Details supplied to this operation (type: any). Optional; callers may omit it.
+ */
 function assert(condition: boolean, testName: string, details?: any) {
   if (condition) {
     console.log(`[PASS] ${testName}`);
@@ -33,6 +43,9 @@ function assert(condition: boolean, testName: string, details?: any) {
   }
 }
 
+/**
+ * Run Milestone B Tests.
+ */
 async function runMilestoneBTests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO MILESTONE B VERIFICATION SUITE");
@@ -43,14 +56,6 @@ async function runMilestoneBTests() {
   let testWebsite: any;
 
   try {
-    setSftpClientFactory(() => ({
-      connect: async () => {},
-      mkdir: async () => "",
-      put: async () => "",
-      list: async () => [],
-      end: async () => {},
-    }));
-
     const timestamp = Date.now();
     testUser = await db.user.create({
       data: {
@@ -327,7 +332,6 @@ async function runMilestoneBTests() {
     console.error("Milestone B test error:", error);
     failed++;
   } finally {
-    setSftpClientFactory(null);
     // Teardown
     try {
       if (testWebsite?.id) await db.website.delete({ where: { id: testWebsite.id } });

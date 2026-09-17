@@ -1,3 +1,7 @@
+/**
+ * @file Subscription Page: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -110,6 +114,9 @@ const DEFAULT_PLANS: SubscriptionPlan[] = [
   },
 ];
 
+/**
+ * Render the subscription page interface and connect its event handlers.
+ */
 function SubscriptionPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>(DEFAULT_PLANS);
   const [currentSub, setCurrentSub] = useState<UserSubscription | null>(null);
@@ -118,12 +125,15 @@ function SubscriptionPage() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
   useEffect(() => {
     fetchSubscriptionData();
   }, []);
 
+  /**
+   * Fetch Subscription Data.
+   */
   const fetchSubscriptionData = async () => {
     try {
       setLoading(true);
@@ -159,6 +169,10 @@ function SubscriptionPage() {
     }
   };
 
+  /**
+   * Handle Select Plan.
+   * @param planSlug Plan Slug supplied to this operation (type: string).
+   */
   const handleSelectPlan = async (planSlug: string) => {
     try {
       setUpgradingSlug(planSlug);
@@ -189,6 +203,11 @@ function SubscriptionPage() {
     }
   };
 
+  /**
+   * Format Price.
+   * @param price Price supplied to this operation (type: number).
+   * @param currency Currency supplied to this operation (type: string).
+   */
   const formatPrice = (price: number, currency: string) => {
     if (price === 0) return "₹0";
     return `${currency === "INR" ? "₹" : "$"}${price.toLocaleString("en-IN")}`;

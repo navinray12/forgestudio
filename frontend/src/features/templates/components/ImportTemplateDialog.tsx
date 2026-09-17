@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: Import Template Dialog. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useRef, useEffect } from "react";
 import type { CreateTemplatePayload, Template } from "../types/template.types";
 import { validateAndSanitizeTemplateFile } from "../utils/templateValidation";
@@ -9,6 +13,15 @@ interface ImportTemplateDialogProps {
   onImport: (payload: CreateTemplatePayload) => Promise<Template>;
 }
 
+/**
+ * Render the import template dialog interface and connect its event handlers.
+ * @param options Named inputs: isOpen, existingTemplateNames, onClose, onImport.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.existingTemplateNames Existing Template Names passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onImport Callback for import events.
+ */
 export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
   isOpen,
   existingTemplateNames,
@@ -41,6 +54,10 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isOpen && e.key === "Escape" && !isImporting) {
         onClose();
@@ -52,6 +69,10 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * Process File.
+   * @param file File supplied to this operation (type: File).
+   */
   const processFile = (file: File) => {
     setSelectedFile(file);
     setValidationError(null);
@@ -83,6 +104,10 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
     reader.readAsText(file);
   };
 
+  /**
+   * Handle File Change.
+   * @param e E supplied to this operation (type: React.ChangeEvent<HTMLInputElement>).
+   */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -90,16 +115,28 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
     }
   };
 
+  /**
+   * Handle Drag Over.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
   };
 
+  /**
+   * Handle Drag Leave.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   */
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
   };
 
+  /**
+   * Handle Drop.
+   * @param e E supplied to this operation (type: React.DragEvent).
+   */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
@@ -109,6 +146,9 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
     }
   };
 
+  /**
+   * Handle Import Submit.
+   */
   const handleImportSubmit = async () => {
     if (!validatedPayload || isImporting) return;
 

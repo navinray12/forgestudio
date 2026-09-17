@@ -1,8 +1,14 @@
+/**
+ * @file Templates feature: template Export. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { Template } from "../types/template.types";
 
 /**
  * Generates a clean, safe filename from a template name for download.
  * E.g., "My SaaS Landing Page!" -> "my-saas-landing-page.json"
+
+ * @param templateName Template Name supplied to this operation (type: string).
  */
 export const generateSafeFilename = (templateName: string): string => {
   if (!templateName || !templateName.trim()) {
@@ -24,6 +30,8 @@ export const generateSafeFilename = (templateName: string): string => {
 /**
  * Serializes supported template data (stripping private auth/session/user data)
  * and triggers a client-side browser JSON download.
+
+ * @param template Template supplied to this operation (type: Template).
  */
 export const exportTemplateAsJson = (template: Template): void => {
   if (!template || !template.templateData) {

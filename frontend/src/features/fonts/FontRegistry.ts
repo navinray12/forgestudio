@@ -1,3 +1,7 @@
+/**
+ * @file Fonts feature: Font Registry. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { FontMetadata } from './types';
 
 // ==========================================
@@ -545,6 +549,9 @@ class FontRegistryClass {
   private fontMap: Map<string, FontMetadata> = new Map();
   private isLoadedFromApi = false;
 
+  /**
+   * Constructor.
+   */
   constructor() {
     // Populate with System fonts
     SYSTEM_FONTS.forEach((font) => this.fontMap.set(font.family.toLowerCase(), font));
@@ -552,6 +559,10 @@ class FontRegistryClass {
     GOOGLE_FONTS_CATALOG.forEach((font) => this.fontMap.set(font.family.toLowerCase(), font));
   }
 
+  /**
+   * Get Font Metadata.
+   * @param family Family supplied to this operation (type: string). Optional; callers may omit it.
+   */
   public getFontMetadata(family?: string): FontMetadata {
     if (!family || family === 'inherit' || family === 'default') {
       return {
@@ -583,14 +594,23 @@ class FontRegistryClass {
     };
   }
 
+  /**
+   * Get All Fonts.
+   */
   public getAllFonts(): FontMetadata[] {
     return Array.from(this.fontMap.values());
   }
 
+  /**
+   * Get System Fonts.
+   */
   public getSystemFonts(): FontMetadata[] {
     return Array.from(this.fontMap.values()).filter((f) => f.source === 'system');
   }
 
+  /**
+   * Get Google Fonts.
+   */
   public getGoogleFonts(): FontMetadata[] {
     return Array.from(this.fontMap.values()).filter((f) => f.source === 'google');
   }

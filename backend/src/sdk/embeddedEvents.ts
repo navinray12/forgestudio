@@ -1,3 +1,7 @@
+/**
+ * @file Embedded Events: backend SDK integration support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 export type ForgeMessageType =
   | "FORGESTUDIO_MOUNT"
   | "FORGESTUDIO_MOUNT_ACK"
@@ -54,6 +58,11 @@ export interface ErrorPayload {
   details?: any;
 }
 
+/**
+ * Create Forge Message.
+ * @param type Type supplied to this operation (type: ForgeMessageType).
+ * @param payload Payload supplied to this operation (type: T).
+ */
 export function createForgeMessage<T = any>(
   type: ForgeMessageType,
   payload: T
@@ -66,6 +75,10 @@ export function createForgeMessage<T = any>(
   };
 }
 
+/**
+ * Is Forge Message.
+ * @param data Data supplied to this operation (type: any).
+ */
 export function isForgeMessage(data: any): data is ForgeMessage {
   return (
     Boolean(data) &&

@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Atomic Form Panel. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import { useAtomicForm } from "../hooks/useAtomicForm";
 import { FormPreview } from "./FormPreview";
@@ -6,6 +10,9 @@ import { FormFieldSettings } from "./FormFieldSettings";
 import { FormSubmissionSettings } from "./FormSubmissionSettings";
 import type { FormFieldConfig } from "../types/atomicForm.types";
 
+/**
+ * Render the atomic form panel interface and connect its event handlers.
+ */
 export const AtomicFormPanel: React.FC = () => {
   const {
     filteredForms,
@@ -20,6 +27,10 @@ export const AtomicFormPanel: React.FC = () => {
   const [newFormName, setNewFormName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  /**
+   * Handle Create Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFormName.trim()) return;
@@ -28,6 +39,10 @@ export const AtomicFormPanel: React.FC = () => {
     setIsCreating(false);
   };
 
+  /**
+   * Handle Add Field.
+   * @param newField New Field supplied to this operation (type: FormFieldConfig).
+   */
   const handleAddField = (newField: FormFieldConfig) => {
     if (!activeForm) return;
     const updatedFields = [...activeForm.fields, newField];
@@ -35,6 +50,10 @@ export const AtomicFormPanel: React.FC = () => {
     setSelectedField(newField);
   };
 
+  /**
+   * Handle Remove Field.
+   * @param id Id supplied to this operation (type: string).
+   */
   const handleRemoveField = (id: string) => {
     if (!activeForm) return;
     const updatedFields = activeForm.fields.filter((f) => f.id !== id);
@@ -44,6 +63,10 @@ export const AtomicFormPanel: React.FC = () => {
     }
   };
 
+  /**
+   * Handle Update Field.
+   * @param updatedField Updated Field supplied to this operation (type: FormFieldConfig).
+   */
   const handleUpdateField = (updatedField: FormFieldConfig) => {
     if (!activeForm) return;
     const updatedFields = activeForm.fields.map((f) => (f.id === updatedField.id ? updatedField : f));

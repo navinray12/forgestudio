@@ -1,3 +1,7 @@
+/**
+ * @file Shared Template Preview Page: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Template } from "../../features/templates/types/template.types";
@@ -5,8 +9,11 @@ import { getPublicTemplate, saveAsTemplate } from "../../features/templates/serv
 import { sanitizeAndRegenerateElementIds } from "../../features/templates/utils/templateValidation";
 import { useAuth } from "../../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+/**
+ * Render the shared template preview page interface and connect its event handlers.
+ */
 export const SharedTemplatePreviewPage: React.FC = () => {
   const { shareToken } = useParams<{ shareToken: string }>();
   const navigate = useNavigate();
@@ -25,6 +32,9 @@ export const SharedTemplatePreviewPage: React.FC = () => {
       return;
     }
 
+    /**
+     * Fetch Shared Template.
+     */
     const fetchSharedTemplate = async () => {
       setIsLoading(true);
       setError(null);
@@ -42,6 +52,9 @@ export const SharedTemplatePreviewPage: React.FC = () => {
     fetchSharedTemplate();
   }, [shareToken]);
 
+  /**
+   * Handle Use Template.
+   */
   const handleUseTemplate = async () => {
     if (!user) {
       navigate("/login");
@@ -77,6 +90,11 @@ export const SharedTemplatePreviewPage: React.FC = () => {
     }
   };
 
+  /**
+   * Render Element Tree Summary.
+   * @param items Items supplied to this operation (type: any[]).
+   * @param level Level supplied to this operation. Defaults to 0.
+   */
   const renderElementTreeSummary = (items: any[], level = 0) => {
     if (!items || items.length === 0) return null;
     return (

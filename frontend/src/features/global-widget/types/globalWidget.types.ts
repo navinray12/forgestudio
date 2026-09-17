@@ -1,3 +1,7 @@
+/**
+ * @file Global widget feature: global Widget types. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 
 export interface GlobalWidget {

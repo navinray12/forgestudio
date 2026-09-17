@@ -1,10 +1,20 @@
+/**
+ * @file Admin Dashboard: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
+/**
+ * Render the admin dashboard interface and connect its event handlers.
+ */
 function AdminDashboard() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+  /**
+   * Handle Logout.
+   */
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });

@@ -1,0 +1,1710 @@
+{
+  "description": "Source inventory, not a completed control/widget capability audit. Each discovered path requires fixture and six-dimension assessment before retirement.",
+  "entries": [
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicEditor.tsx",
+      "sha256": "ddc39abe3b93819b0bed1c58ec3229b817e58dcbdb8d8911c6e1791832e7d2c5",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicEditorContent.tsx",
+      "sha256": "429491f757941478705d48fbc5338f8a0cfe8b0af8d21331f3ff0dd23a179f6a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicEditorNavigation.tsx",
+      "sha256": "da41bacba85f781c5c43fa8efe8f044d5045d3f75371e7a87ea4788bef3af334",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicFormPanel.tsx",
+      "sha256": "46c40199c58d91db46bc9eef1930b9977d108659a51bb2a8d12593fed979588d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicGridPanel.tsx",
+      "sha256": "4238d116ad90a5796d4e9f711762940083a1e9722c713b437b82b1ebad0075c8",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/AtomicLoopPanel.tsx",
+      "sha256": "2439182edde9da6f794a38b51997b29aa3f0159f2a6cef3878d22f93c3683111",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ClassesPanel.tsx",
+      "sha256": "dd962e5ef855dffd85fe4b1966260602cea2e43ae786a29c95e7616ab9b4211c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ClassFormModal.tsx",
+      "sha256": "419c25cd161397dd18e6e08a4a5dddd128671b59030a85fb4d045b84a7a5f9d8",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ComponentPropertyLockModal.tsx",
+      "sha256": "59c789b12c55ebb16b83ae24d577f804ec6276536bb0d6a67cbd2b94effdeba3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ControlledComponentEditor.tsx",
+      "sha256": "303ba08be8f38be5b133470b9d0273b54467512141260d67d514fad379fe8b45",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/DeleteClassConfirmModal.tsx",
+      "sha256": "512cae56340c85d184535d8ea9767209ba5fd721c071173cb3aa1a5bd76ce401",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/DeleteComponentConfirmModal.tsx",
+      "sha256": "9b6e674450fb783fd33be8d8aa2fe3a4a3629dd90ae8fd1b456c41e6ed15b5a2",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/DeleteGlobalElementConfirmModal.tsx",
+      "sha256": "db7fe191c4dae9500ce1cc14a431a69d178b76c8b554cdfb9cac8bbb7eb790cc",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/DeleteVariableConfirmModal.tsx",
+      "sha256": "a33711fc7b84d070442ac8bb3ac8193625da4d8233dc871b7e9940f8ec5f683b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/FormFieldList.tsx",
+      "sha256": "d61bd00b20b2ec940e52c2960942774ea829866a1ad234c4ad6ca943694c0d74",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/FormFieldSettings.tsx",
+      "sha256": "e560432189f8a56311ebb26e00413848ee08d641db02c0c3af5d120d23e5ff2a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/FormPreview.tsx",
+      "sha256": "269002989864a2f663c289db8ca448e9d7dd2b90f961cbcb69a2ad3009813412",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/FormSubmissionSettings.tsx",
+      "sha256": "36ed08e7eaf1d79f814be0b0fb55264119473295f8ec3bfe79d10a5eda33c998",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/GlobalElementFormModal.tsx",
+      "sha256": "dbaaa025c76bae4f264135f7c1a3901a94659b347091dbc944b35d737c8760b3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/GlobalElementsPanel.tsx",
+      "sha256": "d0816ac648f0864df9f9d5973f7b18cd2f0dfd775959868ceaea6ae76303a488",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/GridItemSettings.tsx",
+      "sha256": "1e7ada72fb24b44699ca963af945951142bfad832af1ca782ea71aaf47428b7b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/GridSettings.tsx",
+      "sha256": "b888ab55ae35bbbd6be92df886d01e77659a1b8fa571d2c96befe12b88558609",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/GridVisualizer.tsx",
+      "sha256": "498463c1c7cabece0d3fd97ee95b511947bc3f37684feb469492bbbc72a65b45",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ImportClassesModal.tsx",
+      "sha256": "abda15cc371c7fc5c79170bc17113a8d03905e43db7bc0c62f1700912c7c6119",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ImportVariablesModal.tsx",
+      "sha256": "a1d25e86ddccc89ccc97a2180b8679e7e43a0cf4924b36153c57d5ccedc51e95",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/LoopDataSourceSelector.tsx",
+      "sha256": "f4f34db509b64e61dc51901aebb2e133794b3acf54f32b53ec6e208af262ae10",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/LoopItemSettings.tsx",
+      "sha256": "bc979a5dd40b1ea23c29670484d548e68e34179939960e5668930b7153037a71",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/LoopPreview.tsx",
+      "sha256": "534c293419d116575a67022fc7e9383e546fb9cc95ff1947c44138e376784108",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ReusableComponentFormModal.tsx",
+      "sha256": "28ee42ef7a026ee2a4ac944d8eb1fd2f758d9c4e48819e877da82a22de453687",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/ReusableComponentsPanel.tsx",
+      "sha256": "38d13b793122349d874f2c8db11fff624f1982c1ee4dd3b49a8ef076f6833d6a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/VariableFormModal.tsx",
+      "sha256": "8a6e4f6497106c9836bc217abc092ca2b03f73049c2938eda9bfb437f83c0b7f",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/VariableReferenceControl.tsx",
+      "sha256": "1d3d11b643df57751b692d71f52fdf03b3ba920960ab41cc6b5fac2a11ef9577",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/components/VariablesPanel.tsx",
+      "sha256": "432a834092a63056df01c57fa355b37716623c7db7c83a103f83df0c80026858",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useAtomicEditor.ts",
+      "sha256": "ca9adaa2322e0669b2774a63cd80557ecc347fc6bc0d2ce36c3f5e9f3583597b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useAtomicForm.ts",
+      "sha256": "0ceca45f522398cef0cbf9456e7f32ee93988893ac85e3d3dcf3fea261c42b5d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useAtomicGrid.ts",
+      "sha256": "e410dd67e33d87ee5cf8b47be421e83313b0ec33d787339226c131abd4a449de",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useAtomicLoop.ts",
+      "sha256": "7030660ddad4109f6d236193f5e1c4e354193b8a07db144ee62c7c6539f36eb9",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useClasses.ts",
+      "sha256": "39f03f55506469075b83eef8074ed9e48bdf85643553b5cdd84c8475b4135f33",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useControlledComponent.ts",
+      "sha256": "bd27f0acde1ee676a81bbe0e53531f74f5df9ebc17fe28752123303bc5b12343",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useGlobalElements.ts",
+      "sha256": "58f6eb3e16ef3124a88b4b2b0f24f025f8a1eaa9a26786619cd86f8fc938dba7",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useReusableComponents.ts",
+      "sha256": "3945ac6ed4ec3e5606cb8756c8e28e7f818a3b682e9a0a3f1285d9cdbd44a033",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/hooks/useVariables.ts",
+      "sha256": "c36a7a6f26aa7a41c5dedda58436ba421e3dafe975e4d71698c7ab59fea1c01c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/index.ts",
+      "sha256": "b6e5318b4ef0bce48975e4047ab30b8de1b7192f9d3fd0a0b25ce23b2b618826",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/atomicEditorService.ts",
+      "sha256": "261800a17893648a9bf1ac2683a4a1796c927d0d991ad8a7cdf5eed85a33b235",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/atomicFormService.ts",
+      "sha256": "dd80494eae318f8a39f09fbc413c0b2e15413de5140c34e370eb1e6557054d8d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/atomicGridService.ts",
+      "sha256": "fe358358b53c6f5424dbd827aecb3b461cdbb0e1d61318f9e0853e83fa530feb",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/atomicLoopService.ts",
+      "sha256": "98eca5df968d4e07b109177d5de1ffc65973f565652aaa07b6595cc5d4f4354e",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/classService.ts",
+      "sha256": "b1c45afe9e48364caea6c8c6750acc64f5bf6dda5733a296499176f8423c3a02",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/controlledComponentService.ts",
+      "sha256": "6a5050a73e4f7b65ec5ac6e07c8f33c32d81afdbaf3532f61e5c44b4240a00ef",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/globalElementService.ts",
+      "sha256": "300ab9260e7e17f649c8ab7363310b782048f4b81cf667718ca8e76653574db6",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/reusableComponentService.ts",
+      "sha256": "9f68ff82ba5d0aad77a9ffb308f07d47fa99690f4dfe326df81ebd693d67658c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/services/variableService.ts",
+      "sha256": "e8849b4ee6c4f5edc8c35eea6f39d515c084427e0d08aa17e957e3dab104c46e",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/atomicEditor.types.ts",
+      "sha256": "6f69a81de054475bf3ff1de7c6d39be59804aa6618280bba02207013ce4e36b4",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/atomicForm.types.ts",
+      "sha256": "7cdc7f4e86d8fe1e4ebaed2e0dba87cd34beddbea4ce47728897a96c5ddafe87",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/atomicGrid.types.ts",
+      "sha256": "9381621a86619410a7c8f6048747c92645ae2298900105d887560d95d3c56550",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/atomicLoop.types.ts",
+      "sha256": "dee65e0c5853fcdee1e46169b1c8d8146450f69b63dd9c73fd12e490b62a22cb",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/classes.types.ts",
+      "sha256": "5b0dd128fc281b74ae5f5176eb2f0be2b7442dcb10e07e98d46e6776fbef1cf1",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/classExportImport.types.ts",
+      "sha256": "50526bb4dd7592f6e67c406fd58ea7d1876230677eaa244147b7a9d569afa853",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/controlledComponent.types.ts",
+      "sha256": "8099d10256d375830bc5ab48bd1d0f861a166bad34eb1438deb646351dd99819",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/globalElements.types.ts",
+      "sha256": "b13322018775fb2769948ec61ff424820694b7ad7727084d1446b1b0e4958a2c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/reusableComponents.types.ts",
+      "sha256": "65b8af3ade14ce7ff21a44afc34f4ec8f5a07578b231ec6aba10d0ea427d46bd",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/variableClassSync.types.ts",
+      "sha256": "46c4e9263e3843997a517c16ad18e97215b10ad2cb6cd1424e114ac8de9f473b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/variableExportImport.types.ts",
+      "sha256": "fbc29272f6e708be0f2bce6617f4a9316ff968f27dafb9ed8e7d841afea90805",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/types/variables.types.ts",
+      "sha256": "99e7847372d2c55e7fccbb5598d82dec370b5a8935d04567dda50b0b8398a2a3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/class.utils.ts",
+      "sha256": "464a4774ad81580160af37da36a2fb3df134b68f8bcbe70701fc3eb2d5d59cfd",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/classExportImport.utils.ts",
+      "sha256": "9245dc65a1e49af56e3e99ad639b02a133264ef13394f48cf03a0f8037fac0b7",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/componentOverride.utils.ts",
+      "sha256": "bb225d25c234bee5d2793a89f44cb6ce65836ac5f3f591e1f2c9e7ce706fde1f",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/formField.utils.ts",
+      "sha256": "e00fb79a61690ef5b9904d19e59909bf8abd115417e8e5d3db3604bb64052be0",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/formValidation.utils.ts",
+      "sha256": "0d9416e1e724558a92d38a45c6b3822f7cacda3d46d5430720133827881694c3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/gridLayout.utils.ts",
+      "sha256": "5e28cf543572f54aa7fc23c368c40775f6f2e136bbe63faeec588c232d63d847",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/gridValidation.utils.ts",
+      "sha256": "a2a20f1df27463a555f2e836a5ff0c184666f7c388e9d734e2d820945e5fef93",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/loopData.utils.ts",
+      "sha256": "b60318012e447b924b1837c2863d1eca0139cae1b4a7bc4e6062cb67108216fd",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/loopValidation.utils.ts",
+      "sha256": "ad6bd0ebd4e1b166be1f53ea4681d077a4bc6c9863c4ca9f2d494990154451a3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/variable.utils.ts",
+      "sha256": "0d0f537a337c6967498fd30c9f656604c2163f041abde34570b3ce0813fc85b0",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/variableClassResolver.ts",
+      "sha256": "65e5433076d074852655d1f09d9bc43775df12e32cf04e7a43076538ec4da757",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/atomic-editor/utils/variableExportImport.utils.ts",
+      "sha256": "c50675b0ee7ce5105d657c43da759c2413643f0ebc20cdd5776308c9b99e34cb",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/autosave/components/AutosaveStatus.tsx",
+      "sha256": "4eca595133a1cbae3e17c2bd2af9a738db0c00d6d52431d01d84b846fefc6121",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/autosave/hooks/useAutosave.ts",
+      "sha256": "59c431db0c86708245daab08fed473f6c307b72ca24ba337f440f91262d04c3d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/autosave/index.ts",
+      "sha256": "50aa947e8f9c22210e20f5386cedbacf93b14133fe72b66fe27c6d1ed8160959",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/autosave/types/autosave.types.ts",
+      "sha256": "7cf4e3261e1d0d6706e4ea362f7410fd6e28e30fefcd6a33d107d9d7e50b0974",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/FontLoader.ts",
+      "sha256": "b8b928780a87a3330c1f0f8a97f39ea7d22c6527258c29dd4feb9305523c6d97",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/FontManager.ts",
+      "sha256": "574cf436cc7b61add29c02b8d5b2c848b6843ffe9574e82213f53d75a3381595",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/FontRegistry.ts",
+      "sha256": "9b23ed9bce4cc467264cdbb76abe05254c58820c5b6439f1fbbf6bbab107ef74",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/FontService.ts",
+      "sha256": "e93ddba89d5338bf3866dcd61a0b0b924f76acc3fc606c44a3a65107cd553915",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/index.ts",
+      "sha256": "7c398f20049e5c889e4987fc28c63823c6ad65214b23677e24c3efd5abb11f15",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/fonts/types.ts",
+      "sha256": "445b0f981ca40ec3b13982349b3df2f666c5ea59fe1a1d939e7c6b3c67c009f9",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/components/GlobalWidgetLibrary.tsx",
+      "sha256": "fed26efd59516fdcf1a7431966c3899f203269f9ffb5fd64ea85e83c0753862a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/components/SaveGlobalWidgetDialog.tsx",
+      "sha256": "6a2b8b39bad62e0749f988b04106790f6977de041dbf7950e2f59ec9d75e2a23",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/hooks/useGlobalWidgets.ts",
+      "sha256": "5afaf0a1994559081cd98038427a94b6e0a40f08d8dcfab92e44c9bc2d83a53a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/index.ts",
+      "sha256": "7806d1052a08962eb44128c38930634bcebe9cfb0cdd40acc7081db2c14a084b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/services/globalWidgetService.ts",
+      "sha256": "2178a37cd4b381b92f6e9dbcc1c5c2be1980c5ed74cded6e7821514c768f3052",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/global-widget/types/globalWidget.types.ts",
+      "sha256": "501822132d0c1049dc45b0460571e983b35a6c068d872126fb0443cfe1033196",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/publishing/services/publishingService.ts",
+      "sha256": "cdf79b05002dc38751f230f783bf908cb7f6f7571de9d1038bca04abc118285d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/revision-history/components/RevisionHistoryPanel.tsx",
+      "sha256": "7ea4b1f459f267c48d6e1223c4e6af0f054458e0f2fb375d7b8721b45698f0e0",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/revision-history/hooks/useRevisionHistory.ts",
+      "sha256": "78ee3ced401e38b546b5c424ebe23daaf013c7aac028f416224f80d1a1cfc811",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/revision-history/index.ts",
+      "sha256": "831831828ad46dffbd33c2a80fc25633f3af1fcfbdee693f25df9fa787387bed",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/revision-history/services/revisionHistoryService.ts",
+      "sha256": "28a46055d51bd3fe2676eb47fe213e620850fe25fbdbafe7a0c6b4364dba4d41",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/revision-history/types/revisionHistory.types.ts",
+      "sha256": "c1808dc6df017603cb2dd2b0dfaff13d2036e1a6a509a103e1e2184b6b010a02",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/DeleteTemplateConfirmDialog.tsx",
+      "sha256": "b5afbd567b5ec4a173193a2f67839ba2fac447bf8050b37dba5130bdca33d77c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/ImportTemplateDialog.tsx",
+      "sha256": "3b8148e868e7709a855817d172a286e8072eada516d0f128156a9a50755ede4e",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/ImportWebsiteKitDialog.tsx",
+      "sha256": "acc94f7e02dec2ae9af2b97c6a2c39cd9baac9e38923a719be42fdbe155c1bf6",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/RenameTemplateDialog.tsx",
+      "sha256": "6ac419801ad403f2e02b439c08774aba0564a01796e660a2eb7246ab0b716cde",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/ReplaceTemplateDialog.tsx",
+      "sha256": "8682db514d042a5872dca602ca5d33c5caec14a879a80f8c8df27cc8359c43fb",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/SaveTemplateDialog.tsx",
+      "sha256": "ac23275590f4589dea0139b3d7f59820c9df656a25e452baff100c6aaa098bd4",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/ShareTemplateDialog.tsx",
+      "sha256": "ea6bc212897424dfa36481d0815e0a9286d17bc0a62106b7a7b76d8b1d850fd9",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/TemplateCard.tsx",
+      "sha256": "e7084817e3f41d6d8acdebc78549bef2fcea6de134273ba28dd7d1f3d0dffc86",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/TemplateLibrary.tsx",
+      "sha256": "3f41020a5bbe1442a3ca2e1126ee9f5b69fde8aa0c65540235b920a05037be84",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/TemplatePreviewModal.tsx",
+      "sha256": "891db374ea658edff2fc0b2d514d60099e3efa0283176493eed229ff53c4f291",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/components/TransferTemplateDialog.tsx",
+      "sha256": "eda2da4610c4afa513e422edbbaf4ad910661537ed71f82e3e1fa291fc34add5",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/data/proTemplatesData.ts",
+      "sha256": "d88a07cb2e9cd658be8cb44b54edc081dbb5aaa25cc10827dc70bd6bc82f40e7",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/hooks/useSaveTemplate.ts",
+      "sha256": "4d57d47ee7703c11634653daa5e63bca320d3352a3c88687875a003915278ec0",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/hooks/useTemplateLibrary.ts",
+      "sha256": "f537153daf0a24cfd817ebe900ea83e3591aa2fa441d05f97c9a3ed71aee03f6",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/index.ts",
+      "sha256": "d61c177242e13f88541ef9548e9fc76a85bcaaf38e0be4daa8c6157f195d040c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/services/templateService.ts",
+      "sha256": "68aa7e97eb4e8990efb9972a87c04bfa881e0233c6536c013683ef37007b7617",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/types/template.types.ts",
+      "sha256": "3b0b2db233563b8a82f038e0c455305a259aabb2178d5f667999090f9288a5cd",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/utils/templateExport.ts",
+      "sha256": "20b148afefbc03e1e92276f60188dab50dee7165490922d457dfd610b8f8c888",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/utils/templateValidation.ts",
+      "sha256": "88030eac674fce88af9a62ca1cf142cf5edc8aa99c7d80a626c3204c9147f676",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/utils/websiteKitExport.ts",
+      "sha256": "ae664f92e518cfea8947b34a92e528fa4df1d40593fd4e6b0a49c9ad3205e00c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/templates/utils/websiteKitValidation.ts",
+      "sha256": "c1daa7454a65487912828dc1daa4b2eb11bbf311080b0b1236614e7220716888",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/components/ApplyWebsiteKitConfirmModal.tsx",
+      "sha256": "0a1b4caff662aa77b8783c123774e000e73fd2430e876b0647b43eb953cbc888",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/components/WebsiteKitLibrary.tsx",
+      "sha256": "333b734f92f66b458f611456493de23f68cbfe0efaed15c7b795b84f5d89cb4c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/components/WebsiteKitPreviewModal.tsx",
+      "sha256": "db363c13c50c04e19ac14fc811c7be4c7f5dc1cd9d90804cc4f818e269bec2b3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/data/websiteKitsData.ts",
+      "sha256": "132c46cdbb0797c30999d1ebea1e00393ded0d0317c9f73e0a421c378566c565",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/hooks/useWebsiteKits.ts",
+      "sha256": "472bd00ab9a40d6d4a0db746a9ce6856892a6cc1bee2df9a8773aefa7f2ef1c5",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/index.ts",
+      "sha256": "f25ebf976af1d51c0369df756d774e07100b2b652006ba2014478f3046b117ef",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/services/websiteKitService.ts",
+      "sha256": "4b99f67565006017be61fa33df61171ee7b94a147415cf0ee939e6aa11fded4e",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/features/website-kits/types/websiteKit.types.ts",
+      "sha256": "835e0bcb935ab30281c8663a830ff986dbd57c09cd85a2f58103fcd41abcc1f2",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/pages/editor/widgets/icons.tsx",
+      "sha256": "295d72c62d9484b67484fc6879db372aa377c0a39bfd2356e5ed479228897b6c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/pages/editor/widgets/index.ts",
+      "sha256": "8069391ae6ce16bbaf3771460a7a57db26c65d54c311ffdca6163b616ca7341d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "frontend/src/pages/editor/widgets/renderers.tsx",
+      "sha256": "021c92ccf3e15aff1d580e0e2eadaa4de7ea5cacae5b7a900a298ab625f7db80",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/api-v1.routes.ts",
+      "sha256": "a71e9b0f2542c271d428f9f4cb6414081fa7f76a40f0d40aedde3bf2f08bfd4c",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/apiKeys.routes.ts",
+      "sha256": "da753465b8c03c5e649755f5a50277ff8f671652295a09537bfc113405db9381",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/auth.routes.ts",
+      "sha256": "1bb2cba809aec60038e3622ddeef3949f02a19ba7c414dd2f74f1f3f5276a1ae",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/componentAccess.routes.ts",
+      "sha256": "3add7ed161a3777d917e3753ee897963cf0f8713877029a97a01dfa6bcc28fe1",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/composer.routes.ts",
+      "sha256": "0cf474f57bedca90e1750e7870aeefe8170328683136ee6f4142916cbefef5b3",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/customCode.routes.ts",
+      "sha256": "369dbe37899b0bda2df068821c263d0e7faf8437e87d52a30b3439160f1820ac",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/customPostType.routes.ts",
+      "sha256": "fa59b1852e5719ab796ec2ea4751e946b0cdf19291595906534342a54f8ef9e5",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/designNotes.routes.ts",
+      "sha256": "ccf2266d76f049a45950f472f595799a1981d80b6bd3d3084c7a5621e170508d",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/developer.routes.ts",
+      "sha256": "97f99cee25afc16aa6821efd2f2826af3c11b6965f8d03894d8d846b72a05cbc",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/form.routes.ts",
+      "sha256": "efda5a18b29a3366f2023c7232cab0511b85d83d4d47c002dc4c3944609d60d1",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/index.ts",
+      "sha256": "637ef528d970dcf54aa5d89dcda1e92f61ae4aba4591d7abfecf9b9b9ece8f3a",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/integration.routes.ts",
+      "sha256": "84454c40478e86d09150b5ddf4fbd39c403789312601ffec1e8ed048c1db1846",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/login.routes.ts",
+      "sha256": "e224c928099bab75b4f8e3b3dce77fc1255c31664492887b9cdc424f21a983fa",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/me.routes.ts",
+      "sha256": "5a08e6a38b0cb6ff4e211acb9694089c056046d8caed552d0553c5e6c77c6902",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/multisite.routes.ts",
+      "sha256": "9052a19811a57c7c0700fbc9e7bd5571860c6635d6c5fb8382123a2ae438ff98",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/oauth.routes.ts",
+      "sha256": "ad0652f38e324e5641402dc30945cbee68270bde460e1f91876ca479457a4afc",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/pluginCompat.routes.ts",
+      "sha256": "f2d3535ffcfcda7cdbed92e0e6539a2411dc48909e4678489bb9c57bc64d6393",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/pluginIntegration.routes.ts",
+      "sha256": "7c55e68086e4f409dc61366c97a866a805ef67c59a4224664a59a5e7138c8fc2",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/sftp.routes.ts",
+      "sha256": "f494396b539b0a41820ec39ddc2664fc007e8b6eba85e25592b057e7346f034b",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/signup.routes.ts",
+      "sha256": "6e606b0f9b895d7eb66f2e0cd9dd4ab0f270cd3a87e4fe7a8f87f39281624340",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/subscription.routes.ts",
+      "sha256": "4ac6e2914bff8163ee45b185c0343f4d493a895eff2aee3bca20aabcf8c855e5",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/team.routes.ts",
+      "sha256": "3b46f4c728129430ad872142010190fa6f7d10ebc3a274505eac4cdcc49265ab",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/template.routes.ts",
+      "sha256": "ec60ee168c14e6a129adcec97095f60eb44115f3a12c31e83d5abee560df81be",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/upload.routes.ts",
+      "sha256": "8e6f2b9d507c0be5613f10f1da8b4f348bd3382a6a7826548df4d59be3cb8b80",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    },
+    {
+      "source": "backend/src/routes/website.routes.ts",
+      "sha256": "0175763f48a48e3599fbc46274afa1ba989581743d1dfb9bfb5e2dff8febecbc",
+      "disposition": "preserve-existing-path",
+      "verification": "discovery-only",
+      "hostDimensions": {
+        "cloud": "unverified",
+        "wordpress": "unverified",
+        "connected": "unverified"
+      }
+    }
+  ]
+}

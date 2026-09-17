@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Form Field List. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { FormFieldConfig, FormFieldType } from "../types/atomicForm.types";
 import { createDefaultField } from "../utils/formField.utils";
@@ -10,6 +14,16 @@ interface FormFieldListProps {
   onRemoveField: (id: string) => void;
 }
 
+/**
+ * Render the form field list interface and connect its event handlers.
+ * @param options Named inputs: fields, selectedFieldId, onSelectField, onAddField, onRemoveField.
+
+ * @param options.fields Fields passed by the caller.
+ * @param options.selectedFieldId Selected Field Id passed by the caller.
+ * @param options.onSelectField Callback for select field events.
+ * @param options.onAddField Callback for add field events.
+ * @param options.onRemoveField Callback for remove field events.
+ */
 export const FormFieldList: React.FC<FormFieldListProps> = ({
   fields,
   selectedFieldId,
@@ -21,6 +35,10 @@ export const FormFieldList: React.FC<FormFieldListProps> = ({
   const [newType, setNewType] = useState<FormFieldType>("text");
   const [isAdding, setIsAdding] = useState<boolean>(false);
 
+  /**
+   * Handle Add Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newLabel.trim()) return;
