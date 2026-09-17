@@ -229,9 +229,12 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         const isDownload = el.download;
         const imgElement = el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />;
 
+        const isUnsafeImageHref = /^(javascript|vbscript|data):/i.test(imageHref);
+        const resolvedImageHref = isUnsafeImageHref ? "#" : (imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref);
+
         const wrappedImg = imageHref ? (
             <a
-                href={imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref}
+                href={resolvedImageHref}
                 target={target}
                 rel={rel}
                 download={isDownload ? true : undefined}
