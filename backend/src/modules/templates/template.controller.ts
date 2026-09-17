@@ -10,7 +10,11 @@ import {
   toggleTemplateShareStatus,
   getPublicTemplateByToken,
   deleteTemplate,
+  getLibraryTemplates,
+  getWebsiteKitsService,
+  adminBulkSeedTemplates,
 } from "./template.service.js";
+
 
 /**
  * POST /api/templates
@@ -196,3 +200,72 @@ export async function deleteTemplateHandler(
     next(error);
   }
 }
+
+/**
+ * GET /api/v1/templates/library
+ * Public / Authenticated discovery endpoint for template items
+ */
+export async function getLibraryTemplatesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const type = typeof req.query.type === "string" ? req.query.type : undefined;
+    const category = typeof req.query.category === "string" ? req.query.category : undefined;
+
+    const templates = await getLibraryTemplates(type, category);
+
+    return res.status(200).json({
+      success: true,
+      templates,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/website-kits and GET /api/v1/templates/kits
+ * Returns all seeded 10 website template packs for preview and instantiation
+ */
+export async function getWebsiteKitsHandler(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const kits = await getWebsiteKitsService();
+
+    return res.status(200).json({
+      success: true,
+      kits,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/v1/templates/admin/seed
+ * Protected admin endpoint to run bulk template seeding
+ */
+export async function adminBulkSeedHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const result = await adminBulkSeedTemplates(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "Bulk template packs seeded successfully",
+      result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+

@@ -30,5 +30,17 @@ export interface WebsiteKit {
   pageCount: number;
   pages: WebsiteKitPage[];
   globalStyles: WebsiteKitGlobalStyles;
+  siteParts?: {
+    header?: { elements: EditorElement[] };
+    footer?: { elements: EditorElement[] };
+  };
+  popups?: Array<{
+    id: string;
+    name: string;
+    triggerType: string;
+    triggerDelay?: number;
+    elements: EditorElement[];
+  }>;
   createdAt: string;
 }
+

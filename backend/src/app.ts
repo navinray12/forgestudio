@@ -131,6 +131,7 @@ app.use("/api/component-access", componentAccessRoutes);
 
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
+app.use("/api/website-kits", templateRoutes);
 
 // Forms: public submission + protected owner operations are enforced by the router.
 app.use("/api/v1/forms", formRoutes);

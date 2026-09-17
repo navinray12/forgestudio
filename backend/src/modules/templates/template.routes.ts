@@ -8,6 +8,9 @@ import {
   createTemplateHandler,
   getUserTemplatesHandler,
   getPublicTemplateHandler,
+  getLibraryTemplatesHandler,
+  getWebsiteKitsHandler,
+  adminBulkSeedHandler,
   toggleShareHandler,
   updateTemplateHandler,
   deleteTemplateHandler,
@@ -15,16 +18,20 @@ import {
 
 const router = Router();
 
-// Public route for viewing shared templates without authentication
+// Public discovery endpoints
 router.get("/public/:shareToken", getPublicTemplateHandler);
+router.get("/library", getLibraryTemplatesHandler);
+router.get("/kits", getWebsiteKitsHandler);
 
-// Protect all remaining template endpoints with authentication
-router.use(requireAuth);
+// Admin-only seed endpoint
+router.post("/admin/seed", requireAuth, adminBulkSeedHandler);
 
-router.post("/", createTemplateHandler);
-router.get("/", getUserTemplatesHandler);
-router.post("/:id/share", toggleShareHandler);
-router.patch("/:id", updateTemplateHandler);
-router.delete("/:id", deleteTemplateHandler);
+// Authenticated user template management
+router.post("/", requireAuth, createTemplateHandler);
+router.get("/", requireAuth, getUserTemplatesHandler);
+router.post("/:id/share", requireAuth, toggleShareHandler);
+router.patch("/:id", requireAuth, updateTemplateHandler);
+router.delete("/:id", requireAuth, deleteTemplateHandler);
 
 export default router;
+

@@ -326,3 +326,103 @@ export async function deleteTemplate(userId: string, templateId: string) {
     throw new AppError("Unable to delete template", 500, "DELETE_TEMPLATE_FAILED");
   }
 }
+
+/**
+ * Retrieve public template library items filtered optionally by type (PAGE, KIT, HEADER, FOOTER, POPUP) and category
+ */
+export async function getLibraryTemplates(type?: string, category?: string) {
+  try {
+    const rawTemplates: any[] = await prisma.$queryRaw`
+      SELECT id, name, description, type, category, "isFavorite", "isShared", "shareToken", "templateData", "createdAt", "updatedAt"
+      FROM templates
+      WHERE "isShared" = TRUE
+        AND (${type ? type.toUpperCase() : null}::text IS NULL OR type = ${type ? type.toUpperCase() : null})
+        AND (${category ? category : null}::text IS NULL OR category ILIKE ${category ? `%${category}%` : null})
+      ORDER BY "isFavorite" DESC, "createdAt" DESC
+    `;
+    return rawTemplates || [];
+  } catch (error) {
+    console.error("Error fetching library templates:", error);
+    return [];
+  }
+}
+
+/**
+ * Retrieve all seeded Website Kits (template packs) with their full multi-page tree and styles
+ */
+export async function getWebsiteKitsService() {
+  try {
+    const kitTemplates: any[] = await prisma.$queryRaw`
+      SELECT id, name, description, type, category, "isFavorite", "isShared", "shareToken", "templateData", "createdAt", "updatedAt"
+      FROM templates
+      WHERE type = 'KIT' AND "isShared" = TRUE
+      ORDER BY "createdAt" ASC
+    `;
+
+    if (kitTemplates && kitTemplates.length > 0) {
+      return kitTemplates.map((item) => {
+        const data = typeof item.templateData === "string" ? JSON.parse(item.templateData) : item.templateData;
+        return {
+          id: data.id || item.id,
+          name: item.name,
+          slug: data.slug || item.shareToken,
+          category: item.category,
+          description: item.description,
+          thumbnailUrl: data.thumbnail,
+          pageCount: (data.pages || []).length,
+          pages: (data.pages || []).map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            elements: p.elements || [],
+          })),
+          globalStyles: data.globalStyles || {},
+          siteParts: data.siteParts || {},
+          popups: data.popups || [],
+          createdAt: item.createdAt,
+        };
+      });
+    }
+  } catch (error) {
+    console.warn("Falling back to local static template packs:", error);
+  }
+
+  // Fallback to static pack definitions if database query encounters issues
+  const { ALL_TEMPLATE_PACKS } = await import("../../scripts/seed-templates/template-packs/index.js");
+  return ALL_TEMPLATE_PACKS.map((pack) => ({
+    id: pack.id,
+    name: pack.name,
+    slug: pack.slug,
+    category: pack.category,
+    description: pack.description,
+    thumbnailUrl: pack.thumbnail,
+    pageCount: pack.pages.length,
+    pages: pack.pages.map((p) => ({
+      id: p.id,
+      title: (p as any).title || p.name,
+      slug: p.slug,
+      elements: p.elements || [],
+    })),
+
+    globalStyles: pack.globalStyles,
+    siteParts: pack.siteParts,
+    popups: pack.popups || [],
+    createdAt: new Date().toISOString(),
+  }));
+}
+
+/**
+ * Admin action to trigger bulk template library seeding
+ */
+export async function adminBulkSeedTemplates(requesterUser: any) {
+  if (
+    !requesterUser ||
+    (requesterUser.role !== "ADMIN" && requesterUser.role !== "SUPER_ADMIN")
+  ) {
+    throw new AppError("Administrator permissions required to seed templates.", 403, "FORBIDDEN");
+  }
+
+  const { seedTemplatePacks } = await import("../../scripts/seed-templates/template-seeder.service.js");
+  return await seedTemplatePacks();
+}
+
