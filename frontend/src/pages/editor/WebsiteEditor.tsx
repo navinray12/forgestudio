@@ -5,6 +5,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
@@ -837,6 +838,7 @@ const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
 const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
 const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
 const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
 const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
 const [newPageName, setNewPageName] = useState<string>("");
 const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -6170,6 +6172,21 @@ const navigate = useNavigate();
                     }`}
                   >
                     {isPreview ? "Exit" : "👁️ Preview"}
+                  </button>
+
+                  {/* Collaborative Design Notes & Feedback */}
+                  <button
+                    type="button"
+                    onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
+                      isDesignNotesOpen
+                        ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
+                        : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
+                    }`}
+                    title="Toggle Collaborative Design Notes & Element Comments"
+                  >
+                    <span>💬</span>
+                    <span>Notes</span>
                   </button>
 
                   <button
@@ -17429,6 +17446,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         pages={pages}
         websiteName={website?.name || "ForgeStudio Project"}
         websiteId={websiteId || ""}
+        approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
         onPublish={handlePublishWebsite}
         onRollback={handleRollbackDeployment}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
@@ -17436,6 +17454,14 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
           setIsPublishModalOpen(false);
           setIsPreview(true);
         }}
+      />
+
+      {/* Collaborative Design Notes & Feedback Overlay */}
+      <DesignNotesOverlay
+        isOpen={isDesignNotesOpen}
+        onClose={() => setIsDesignNotesOpen(false)}
+        websiteId={websiteId || ""}
+        activeElementId={selectedElementAny?.id || null}
       />
 
       {/* Advanced Icon Library Modal */}

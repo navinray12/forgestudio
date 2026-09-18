@@ -10,7 +10,10 @@ interface PublishModalProps {
   pages: PageConfig[];
   websiteName: string;
   websiteId?: string;
+  approvalWorkflowEnabled?: boolean;
+  canPublish?: boolean;
   onPublish: (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => Promise<void>;
+  onSubmitApproval?: () => Promise<void>;
   onRollback?: (deploymentId: string) => Promise<void>;
   onUpdateDeployment: (config: DeploymentConfig) => void;
   onOpenPreview: () => void;
@@ -24,7 +27,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   pages,
   websiteName: _websiteName,
   websiteId,
+  approvalWorkflowEnabled = false,
+  canPublish = true,
   onPublish,
+  onSubmitApproval,
   onRollback,
   onUpdateDeployment,
   onOpenPreview,
@@ -183,6 +189,34 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setSaveFeedback(err?.message || "Failed to publish website.");
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
+  const handleSubmitApproval = async () => {
+    setIsSubmittingApproval(true);
+    setSaveFeedback("");
+    try {
+      if (onSubmitApproval) {
+        await onSubmitApproval();
+      } else if (websiteId) {
+        const res = await fetch(`/api/approval-requests`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ websiteId, note: "Ready for publication review." }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.message || "Failed to submit for approval");
+        }
+      }
+      setSaveFeedback("Publication request submitted for approval!");
+      setTimeout(() => setSaveFeedback(""), 4000);
+    } catch (err: any) {
+      setSaveFeedback(err?.message || "Failed to submit for approval.");
+    } finally {
+      setIsSubmittingApproval(false);
     }
   };
 
@@ -448,14 +482,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       Validates integrity, processes all pages & components, and updates the live production snapshot.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePublishClick("INTERNAL")}
-                    disabled={isPublishing}
-                    className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                  >
-                    {isPublishing ? "Publishing..." : "🚀 Publish Now"}
-                  </button>
+                  {approvalWorkflowEnabled && !canPublish ? (
+                    <button
+                      type="button"
+                      onClick={handleSubmitApproval}
+                      disabled={isSubmittingApproval}
+                      className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
+                    >
+                      <span>📋</span>
+                      <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handlePublishClick("INTERNAL")}
+                      disabled={isPublishing}
+                      className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
+                    >
+                      {isPublishing ? "Publishing..." : "🚀 Publish Now"}
+                    </button>
+                  )}
                 </div>
                 {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
                   <div className="pt-3 border-t border-emerald-900/40 flex items-center justify-between">
@@ -664,14 +710,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                           Transforms canonical Page JSON into native Gutenberg blocks, updates mapped pages, and syncs media.
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePublishClick("WORDPRESS")}
-                        disabled={isPublishing}
-                        className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                      >
-                        {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
-                      </button>
+                      {approvalWorkflowEnabled && !canPublish ? (
+                        <button
+                          type="button"
+                          onClick={handleSubmitApproval}
+                          disabled={isSubmittingApproval}
+                          className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
+                        >
+                          <span>📋</span>
+                          <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handlePublishClick("WORDPRESS")}
+                          disabled={isPublishing}
+                          className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
+                        >
+                          {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

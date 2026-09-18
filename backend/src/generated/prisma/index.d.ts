@@ -213,6 +213,11 @@ export type PublishApprovalRequest = $Result.DefaultSelection<Prisma.$PublishApp
  * 
  */
 export type BackgroundJob = $Result.DefaultSelection<Prisma.$BackgroundJobPayload>
+/**
+ * Model MediaAsset
+ * 
+ */
+export type MediaAsset = $Result.DefaultSelection<Prisma.$MediaAssetPayload>
 
 /**
  * Enums
@@ -221,7 +226,12 @@ export namespace $Enums {
   export const UserRole: {
   USER: 'USER',
   ADMIN: 'ADMIN',
-  SUPER_ADMIN: 'SUPER_ADMIN'
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  PLATFORM_ADMIN: 'PLATFORM_ADMIN',
+  SUPPORT_ADMIN: 'SUPPORT_ADMIN',
+  DEVELOPER: 'DEVELOPER',
+  AI_CONTENT_ADMIN: 'AI_CONTENT_ADMIN',
+  TEAM_MEMBER: 'TEAM_MEMBER'
 };
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
@@ -819,6 +829,16 @@ export class PrismaClient<
     * ```
     */
   get backgroundJob(): Prisma.BackgroundJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mediaAsset`: Exposes CRUD operations for the **MediaAsset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MediaAssets
+    * const mediaAssets = await prisma.mediaAsset.findMany()
+    * ```
+    */
+  get mediaAsset(): Prisma.MediaAssetDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1305,7 +1325,8 @@ export namespace Prisma {
     OrganizationMember: 'OrganizationMember',
     WorkspaceMember: 'WorkspaceMember',
     PublishApprovalRequest: 'PublishApprovalRequest',
-    BackgroundJob: 'BackgroundJob'
+    BackgroundJob: 'BackgroundJob',
+    MediaAsset: 'MediaAsset'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1321,7 +1342,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4285,6 +4306,80 @@ export namespace Prisma {
           }
         }
       }
+      MediaAsset: {
+        payload: Prisma.$MediaAssetPayload<ExtArgs>
+        fields: Prisma.MediaAssetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MediaAssetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MediaAssetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          findFirst: {
+            args: Prisma.MediaAssetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MediaAssetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          findMany: {
+            args: Prisma.MediaAssetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+          }
+          create: {
+            args: Prisma.MediaAssetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          createMany: {
+            args: Prisma.MediaAssetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MediaAssetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+          }
+          delete: {
+            args: Prisma.MediaAssetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          update: {
+            args: Prisma.MediaAssetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          deleteMany: {
+            args: Prisma.MediaAssetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MediaAssetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MediaAssetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>[]
+          }
+          upsert: {
+            args: Prisma.MediaAssetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaAssetPayload>
+          }
+          aggregate: {
+            args: Prisma.MediaAssetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMediaAsset>
+          }
+          groupBy: {
+            args: Prisma.MediaAssetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MediaAssetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MediaAssetCountArgs<ExtArgs>
+            result: $Utils.Optional<MediaAssetCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4448,6 +4543,7 @@ export namespace Prisma {
     workspaceMember?: WorkspaceMemberOmit
     publishApprovalRequest?: PublishApprovalRequestOmit
     backgroundJob?: BackgroundJobOmit
+    mediaAsset?: MediaAssetOmit
   }
 
   /* Types for Logging */
@@ -4555,6 +4651,7 @@ export namespace Prisma {
     workspaceMemberships: number
     approvalRequests: number
     reviewedApprovals: number
+    mediaAssets: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4585,6 +4682,7 @@ export namespace Prisma {
     workspaceMemberships?: boolean | UserCountOutputTypeCountWorkspaceMembershipsArgs
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
+    mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
   }
 
   // Custom InputTypes
@@ -4787,6 +4885,13 @@ export namespace Prisma {
     where?: PublishApprovalRequestWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MediaAssetWhereInput
+  }
+
 
   /**
    * Count Type WebsiteCountOutputType
@@ -4808,6 +4913,7 @@ export namespace Prisma {
     granularPermissions: number
     invitations: number
     approvalRequests: number
+    mediaAssets: number
   }
 
   export type WebsiteCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4826,6 +4932,7 @@ export namespace Prisma {
     granularPermissions?: boolean | WebsiteCountOutputTypeCountGranularPermissionsArgs
     invitations?: boolean | WebsiteCountOutputTypeCountInvitationsArgs
     approvalRequests?: boolean | WebsiteCountOutputTypeCountApprovalRequestsArgs
+    mediaAssets?: boolean | WebsiteCountOutputTypeCountMediaAssetsArgs
   }
 
   // Custom InputTypes
@@ -4942,6 +5049,13 @@ export namespace Prisma {
    */
   export type WebsiteCountOutputTypeCountApprovalRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PublishApprovalRequestWhereInput
+  }
+
+  /**
+   * WebsiteCountOutputType without action
+   */
+  export type WebsiteCountOutputTypeCountMediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MediaAssetWhereInput
   }
 
 
@@ -5445,6 +5559,7 @@ export namespace Prisma {
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
+    mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5526,6 +5641,7 @@ export namespace Prisma {
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
+    mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5562,6 +5678,7 @@ export namespace Prisma {
       workspaceMemberships: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
+      mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5999,6 +6116,7 @@ export namespace Prisma {
     workspaceMemberships<T extends User$workspaceMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$workspaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7101,6 +7219,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.mediaAssets
+   */
+  export type User$mediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    where?: MediaAssetWhereInput
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    cursor?: MediaAssetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7355,6 +7497,7 @@ export namespace Prisma {
     workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
+    mediaAssets?: boolean | Website$mediaAssetsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["website"]>
 
@@ -7433,6 +7576,7 @@ export namespace Prisma {
     workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
+    mediaAssets?: boolean | Website$mediaAssetsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7471,6 +7615,7 @@ export namespace Prisma {
       workspace: Prisma.$WorkspacePayload<ExtArgs> | null
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
+      mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7899,6 +8044,7 @@ export namespace Prisma {
     workspace<T extends Website$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, Website$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     organization<T extends Website$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Website$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     approvalRequests<T extends Website$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Website$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mediaAssets<T extends Website$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, Website$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8774,6 +8920,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PublishApprovalRequestScalarFieldEnum | PublishApprovalRequestScalarFieldEnum[]
+  }
+
+  /**
+   * Website.mediaAssets
+   */
+  export type Website$mediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    where?: MediaAssetWhereInput
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    cursor?: MediaAssetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
   }
 
   /**
@@ -51738,6 +51908,1255 @@ export namespace Prisma {
 
 
   /**
+   * Model MediaAsset
+   */
+
+  export type AggregateMediaAsset = {
+    _count: MediaAssetCountAggregateOutputType | null
+    _avg: MediaAssetAvgAggregateOutputType | null
+    _sum: MediaAssetSumAggregateOutputType | null
+    _min: MediaAssetMinAggregateOutputType | null
+    _max: MediaAssetMaxAggregateOutputType | null
+  }
+
+  export type MediaAssetAvgAggregateOutputType = {
+    sizeBytes: number | null
+    width: number | null
+    height: number | null
+  }
+
+  export type MediaAssetSumAggregateOutputType = {
+    sizeBytes: number | null
+    width: number | null
+    height: number | null
+  }
+
+  export type MediaAssetMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    websiteId: string | null
+    filename: string | null
+    originalName: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    url: string | null
+    width: number | null
+    height: number | null
+    altText: string | null
+    format: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MediaAssetMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    websiteId: string | null
+    filename: string | null
+    originalName: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    url: string | null
+    width: number | null
+    height: number | null
+    altText: string | null
+    format: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MediaAssetCountAggregateOutputType = {
+    id: number
+    userId: number
+    websiteId: number
+    filename: number
+    originalName: number
+    mimeType: number
+    sizeBytes: number
+    url: number
+    width: number
+    height: number
+    altText: number
+    format: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MediaAssetAvgAggregateInputType = {
+    sizeBytes?: true
+    width?: true
+    height?: true
+  }
+
+  export type MediaAssetSumAggregateInputType = {
+    sizeBytes?: true
+    width?: true
+    height?: true
+  }
+
+  export type MediaAssetMinAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    filename?: true
+    originalName?: true
+    mimeType?: true
+    sizeBytes?: true
+    url?: true
+    width?: true
+    height?: true
+    altText?: true
+    format?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MediaAssetMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    filename?: true
+    originalName?: true
+    mimeType?: true
+    sizeBytes?: true
+    url?: true
+    width?: true
+    height?: true
+    altText?: true
+    format?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MediaAssetCountAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    filename?: true
+    originalName?: true
+    mimeType?: true
+    sizeBytes?: true
+    url?: true
+    width?: true
+    height?: true
+    altText?: true
+    format?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MediaAssetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MediaAsset to aggregate.
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaAssets to fetch.
+     */
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MediaAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MediaAssets
+    **/
+    _count?: true | MediaAssetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MediaAssetAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MediaAssetSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MediaAssetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MediaAssetMaxAggregateInputType
+  }
+
+  export type GetMediaAssetAggregateType<T extends MediaAssetAggregateArgs> = {
+        [P in keyof T & keyof AggregateMediaAsset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMediaAsset[P]>
+      : GetScalarType<T[P], AggregateMediaAsset[P]>
+  }
+
+
+
+
+  export type MediaAssetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MediaAssetWhereInput
+    orderBy?: MediaAssetOrderByWithAggregationInput | MediaAssetOrderByWithAggregationInput[]
+    by: MediaAssetScalarFieldEnum[] | MediaAssetScalarFieldEnum
+    having?: MediaAssetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MediaAssetCountAggregateInputType | true
+    _avg?: MediaAssetAvgAggregateInputType
+    _sum?: MediaAssetSumAggregateInputType
+    _min?: MediaAssetMinAggregateInputType
+    _max?: MediaAssetMaxAggregateInputType
+  }
+
+  export type MediaAssetGroupByOutputType = {
+    id: string
+    userId: string
+    websiteId: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width: number | null
+    height: number | null
+    altText: string | null
+    format: string
+    createdAt: Date
+    updatedAt: Date
+    _count: MediaAssetCountAggregateOutputType | null
+    _avg: MediaAssetAvgAggregateOutputType | null
+    _sum: MediaAssetSumAggregateOutputType | null
+    _min: MediaAssetMinAggregateOutputType | null
+    _max: MediaAssetMaxAggregateOutputType | null
+  }
+
+  type GetMediaAssetGroupByPayload<T extends MediaAssetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MediaAssetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MediaAssetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MediaAssetGroupByOutputType[P]>
+            : GetScalarType<T[P], MediaAssetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MediaAssetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    filename?: boolean
+    originalName?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    url?: boolean
+    width?: boolean
+    height?: boolean
+    altText?: boolean
+    format?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaAsset"]>
+
+  export type MediaAssetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    filename?: boolean
+    originalName?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    url?: boolean
+    width?: boolean
+    height?: boolean
+    altText?: boolean
+    format?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaAsset"]>
+
+  export type MediaAssetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    filename?: boolean
+    originalName?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    url?: boolean
+    width?: boolean
+    height?: boolean
+    altText?: boolean
+    format?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaAsset"]>
+
+  export type MediaAssetSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    filename?: boolean
+    originalName?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    url?: boolean
+    width?: boolean
+    height?: boolean
+    altText?: boolean
+    format?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MediaAssetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "websiteId" | "filename" | "originalName" | "mimeType" | "sizeBytes" | "url" | "width" | "height" | "altText" | "format" | "createdAt" | "updatedAt", ExtArgs["result"]["mediaAsset"]>
+  export type MediaAssetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }
+  export type MediaAssetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }
+  export type MediaAssetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+  }
+
+  export type $MediaAssetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MediaAsset"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      website: Prisma.$WebsitePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      websiteId: string | null
+      filename: string
+      originalName: string
+      mimeType: string
+      sizeBytes: number
+      url: string
+      width: number | null
+      height: number | null
+      altText: string | null
+      format: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["mediaAsset"]>
+    composites: {}
+  }
+
+  type MediaAssetGetPayload<S extends boolean | null | undefined | MediaAssetDefaultArgs> = $Result.GetResult<Prisma.$MediaAssetPayload, S>
+
+  type MediaAssetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MediaAssetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MediaAssetCountAggregateInputType | true
+    }
+
+  export interface MediaAssetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MediaAsset'], meta: { name: 'MediaAsset' } }
+    /**
+     * Find zero or one MediaAsset that matches the filter.
+     * @param {MediaAssetFindUniqueArgs} args - Arguments to find a MediaAsset
+     * @example
+     * // Get one MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MediaAssetFindUniqueArgs>(args: SelectSubset<T, MediaAssetFindUniqueArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MediaAsset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MediaAssetFindUniqueOrThrowArgs} args - Arguments to find a MediaAsset
+     * @example
+     * // Get one MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MediaAssetFindUniqueOrThrowArgs>(args: SelectSubset<T, MediaAssetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MediaAsset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetFindFirstArgs} args - Arguments to find a MediaAsset
+     * @example
+     * // Get one MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MediaAssetFindFirstArgs>(args?: SelectSubset<T, MediaAssetFindFirstArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MediaAsset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetFindFirstOrThrowArgs} args - Arguments to find a MediaAsset
+     * @example
+     * // Get one MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MediaAssetFindFirstOrThrowArgs>(args?: SelectSubset<T, MediaAssetFindFirstOrThrowArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MediaAssets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MediaAssets
+     * const mediaAssets = await prisma.mediaAsset.findMany()
+     * 
+     * // Get first 10 MediaAssets
+     * const mediaAssets = await prisma.mediaAsset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mediaAssetWithIdOnly = await prisma.mediaAsset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MediaAssetFindManyArgs>(args?: SelectSubset<T, MediaAssetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MediaAsset.
+     * @param {MediaAssetCreateArgs} args - Arguments to create a MediaAsset.
+     * @example
+     * // Create one MediaAsset
+     * const MediaAsset = await prisma.mediaAsset.create({
+     *   data: {
+     *     // ... data to create a MediaAsset
+     *   }
+     * })
+     * 
+     */
+    create<T extends MediaAssetCreateArgs>(args: SelectSubset<T, MediaAssetCreateArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MediaAssets.
+     * @param {MediaAssetCreateManyArgs} args - Arguments to create many MediaAssets.
+     * @example
+     * // Create many MediaAssets
+     * const mediaAsset = await prisma.mediaAsset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MediaAssetCreateManyArgs>(args?: SelectSubset<T, MediaAssetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MediaAssets and returns the data saved in the database.
+     * @param {MediaAssetCreateManyAndReturnArgs} args - Arguments to create many MediaAssets.
+     * @example
+     * // Create many MediaAssets
+     * const mediaAsset = await prisma.mediaAsset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MediaAssets and only return the `id`
+     * const mediaAssetWithIdOnly = await prisma.mediaAsset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MediaAssetCreateManyAndReturnArgs>(args?: SelectSubset<T, MediaAssetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MediaAsset.
+     * @param {MediaAssetDeleteArgs} args - Arguments to delete one MediaAsset.
+     * @example
+     * // Delete one MediaAsset
+     * const MediaAsset = await prisma.mediaAsset.delete({
+     *   where: {
+     *     // ... filter to delete one MediaAsset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MediaAssetDeleteArgs>(args: SelectSubset<T, MediaAssetDeleteArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MediaAsset.
+     * @param {MediaAssetUpdateArgs} args - Arguments to update one MediaAsset.
+     * @example
+     * // Update one MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MediaAssetUpdateArgs>(args: SelectSubset<T, MediaAssetUpdateArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MediaAssets.
+     * @param {MediaAssetDeleteManyArgs} args - Arguments to filter MediaAssets to delete.
+     * @example
+     * // Delete a few MediaAssets
+     * const { count } = await prisma.mediaAsset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MediaAssetDeleteManyArgs>(args?: SelectSubset<T, MediaAssetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MediaAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MediaAssets
+     * const mediaAsset = await prisma.mediaAsset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MediaAssetUpdateManyArgs>(args: SelectSubset<T, MediaAssetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MediaAssets and returns the data updated in the database.
+     * @param {MediaAssetUpdateManyAndReturnArgs} args - Arguments to update many MediaAssets.
+     * @example
+     * // Update many MediaAssets
+     * const mediaAsset = await prisma.mediaAsset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MediaAssets and only return the `id`
+     * const mediaAssetWithIdOnly = await prisma.mediaAsset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MediaAssetUpdateManyAndReturnArgs>(args: SelectSubset<T, MediaAssetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MediaAsset.
+     * @param {MediaAssetUpsertArgs} args - Arguments to update or create a MediaAsset.
+     * @example
+     * // Update or create a MediaAsset
+     * const mediaAsset = await prisma.mediaAsset.upsert({
+     *   create: {
+     *     // ... data to create a MediaAsset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MediaAsset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MediaAssetUpsertArgs>(args: SelectSubset<T, MediaAssetUpsertArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MediaAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetCountArgs} args - Arguments to filter MediaAssets to count.
+     * @example
+     * // Count the number of MediaAssets
+     * const count = await prisma.mediaAsset.count({
+     *   where: {
+     *     // ... the filter for the MediaAssets we want to count
+     *   }
+     * })
+    **/
+    count<T extends MediaAssetCountArgs>(
+      args?: Subset<T, MediaAssetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MediaAssetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MediaAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MediaAssetAggregateArgs>(args: Subset<T, MediaAssetAggregateArgs>): Prisma.PrismaPromise<GetMediaAssetAggregateType<T>>
+
+    /**
+     * Group by MediaAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaAssetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MediaAssetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MediaAssetGroupByArgs['orderBy'] }
+        : { orderBy?: MediaAssetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MediaAssetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMediaAssetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MediaAsset model
+   */
+  readonly fields: MediaAssetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MediaAsset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MediaAssetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    website<T extends MediaAsset$websiteArgs<ExtArgs> = {}>(args?: Subset<T, MediaAsset$websiteArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MediaAsset model
+   */
+  interface MediaAssetFieldRefs {
+    readonly id: FieldRef<"MediaAsset", 'String'>
+    readonly userId: FieldRef<"MediaAsset", 'String'>
+    readonly websiteId: FieldRef<"MediaAsset", 'String'>
+    readonly filename: FieldRef<"MediaAsset", 'String'>
+    readonly originalName: FieldRef<"MediaAsset", 'String'>
+    readonly mimeType: FieldRef<"MediaAsset", 'String'>
+    readonly sizeBytes: FieldRef<"MediaAsset", 'Int'>
+    readonly url: FieldRef<"MediaAsset", 'String'>
+    readonly width: FieldRef<"MediaAsset", 'Int'>
+    readonly height: FieldRef<"MediaAsset", 'Int'>
+    readonly altText: FieldRef<"MediaAsset", 'String'>
+    readonly format: FieldRef<"MediaAsset", 'String'>
+    readonly createdAt: FieldRef<"MediaAsset", 'DateTime'>
+    readonly updatedAt: FieldRef<"MediaAsset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MediaAsset findUnique
+   */
+  export type MediaAssetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaAsset to fetch.
+     */
+    where: MediaAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaAsset findUniqueOrThrow
+   */
+  export type MediaAssetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaAsset to fetch.
+     */
+    where: MediaAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaAsset findFirst
+   */
+  export type MediaAssetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaAsset to fetch.
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaAssets to fetch.
+     */
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MediaAssets.
+     */
+    cursor?: MediaAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaAssets.
+     */
+    distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaAsset findFirstOrThrow
+   */
+  export type MediaAssetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaAsset to fetch.
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaAssets to fetch.
+     */
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MediaAssets.
+     */
+    cursor?: MediaAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaAssets.
+     */
+    distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaAsset findMany
+   */
+  export type MediaAssetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaAssets to fetch.
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaAssets to fetch.
+     */
+    orderBy?: MediaAssetOrderByWithRelationInput | MediaAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MediaAssets.
+     */
+    cursor?: MediaAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaAssets.
+     */
+    distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaAsset create
+   */
+  export type MediaAssetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MediaAsset.
+     */
+    data: XOR<MediaAssetCreateInput, MediaAssetUncheckedCreateInput>
+  }
+
+  /**
+   * MediaAsset createMany
+   */
+  export type MediaAssetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MediaAssets.
+     */
+    data: MediaAssetCreateManyInput | MediaAssetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MediaAsset createManyAndReturn
+   */
+  export type MediaAssetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * The data used to create many MediaAssets.
+     */
+    data: MediaAssetCreateManyInput | MediaAssetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MediaAsset update
+   */
+  export type MediaAssetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MediaAsset.
+     */
+    data: XOR<MediaAssetUpdateInput, MediaAssetUncheckedUpdateInput>
+    /**
+     * Choose, which MediaAsset to update.
+     */
+    where: MediaAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaAsset updateMany
+   */
+  export type MediaAssetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MediaAssets.
+     */
+    data: XOR<MediaAssetUpdateManyMutationInput, MediaAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which MediaAssets to update
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * Limit how many MediaAssets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MediaAsset updateManyAndReturn
+   */
+  export type MediaAssetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * The data used to update MediaAssets.
+     */
+    data: XOR<MediaAssetUpdateManyMutationInput, MediaAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which MediaAssets to update
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * Limit how many MediaAssets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MediaAsset upsert
+   */
+  export type MediaAssetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MediaAsset to update in case it exists.
+     */
+    where: MediaAssetWhereUniqueInput
+    /**
+     * In case the MediaAsset found by the `where` argument doesn't exist, create a new MediaAsset with this data.
+     */
+    create: XOR<MediaAssetCreateInput, MediaAssetUncheckedCreateInput>
+    /**
+     * In case the MediaAsset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MediaAssetUpdateInput, MediaAssetUncheckedUpdateInput>
+  }
+
+  /**
+   * MediaAsset delete
+   */
+  export type MediaAssetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+    /**
+     * Filter which MediaAsset to delete.
+     */
+    where: MediaAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaAsset deleteMany
+   */
+  export type MediaAssetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MediaAssets to delete
+     */
+    where?: MediaAssetWhereInput
+    /**
+     * Limit how many MediaAssets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MediaAsset.website
+   */
+  export type MediaAsset$websiteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Website
+     */
+    select?: WebsiteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Website
+     */
+    omit?: WebsiteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WebsiteInclude<ExtArgs> | null
+    where?: WebsiteWhereInput
+  }
+
+  /**
+   * MediaAsset without action
+   */
+  export type MediaAssetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaAsset
+     */
+    select?: MediaAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaAsset
+     */
+    omit?: MediaAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaAssetInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -52346,6 +53765,26 @@ export namespace Prisma {
   export type BackgroundJobScalarFieldEnum = (typeof BackgroundJobScalarFieldEnum)[keyof typeof BackgroundJobScalarFieldEnum]
 
 
+  export const MediaAssetScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    websiteId: 'websiteId',
+    filename: 'filename',
+    originalName: 'originalName',
+    mimeType: 'mimeType',
+    sizeBytes: 'sizeBytes',
+    url: 'url',
+    width: 'width',
+    height: 'height',
+    altText: 'altText',
+    format: 'format',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -52608,6 +54047,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
+    mediaAssets?: MediaAssetListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -52652,6 +54092,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberOrderByRelationAggregateInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
+    mediaAssets?: MediaAssetOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -52699,6 +54140,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
+    mediaAssets?: MediaAssetListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -52775,6 +54217,7 @@ export namespace Prisma {
     workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
+    mediaAssets?: MediaAssetListRelationFilter
   }
 
   export type WebsiteOrderByWithRelationInput = {
@@ -52810,6 +54253,7 @@ export namespace Prisma {
     workspace?: WorkspaceOrderByWithRelationInput
     organization?: OrganizationOrderByWithRelationInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
+    mediaAssets?: MediaAssetOrderByRelationAggregateInput
   }
 
   export type WebsiteWhereUniqueInput = Prisma.AtLeast<{
@@ -52848,6 +54292,7 @@ export namespace Prisma {
     workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
+    mediaAssets?: MediaAssetListRelationFilter
   }, "id">
 
   export type WebsiteOrderByWithAggregationInput = {
@@ -55785,6 +57230,111 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
   }
 
+  export type MediaAssetWhereInput = {
+    AND?: MediaAssetWhereInput | MediaAssetWhereInput[]
+    OR?: MediaAssetWhereInput[]
+    NOT?: MediaAssetWhereInput | MediaAssetWhereInput[]
+    id?: UuidFilter<"MediaAsset"> | string
+    userId?: UuidFilter<"MediaAsset"> | string
+    websiteId?: UuidNullableFilter<"MediaAsset"> | string | null
+    filename?: StringFilter<"MediaAsset"> | string
+    originalName?: StringFilter<"MediaAsset"> | string
+    mimeType?: StringFilter<"MediaAsset"> | string
+    sizeBytes?: IntFilter<"MediaAsset"> | number
+    url?: StringFilter<"MediaAsset"> | string
+    width?: IntNullableFilter<"MediaAsset"> | number | null
+    height?: IntNullableFilter<"MediaAsset"> | number | null
+    altText?: StringNullableFilter<"MediaAsset"> | string | null
+    format?: StringFilter<"MediaAsset"> | string
+    createdAt?: DateTimeFilter<"MediaAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    website?: XOR<WebsiteNullableScalarRelationFilter, WebsiteWhereInput> | null
+  }
+
+  export type MediaAssetOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrderInput | SortOrder
+    filename?: SortOrder
+    originalName?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    url?: SortOrder
+    width?: SortOrderInput | SortOrder
+    height?: SortOrderInput | SortOrder
+    altText?: SortOrderInput | SortOrder
+    format?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    website?: WebsiteOrderByWithRelationInput
+  }
+
+  export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MediaAssetWhereInput | MediaAssetWhereInput[]
+    OR?: MediaAssetWhereInput[]
+    NOT?: MediaAssetWhereInput | MediaAssetWhereInput[]
+    userId?: UuidFilter<"MediaAsset"> | string
+    websiteId?: UuidNullableFilter<"MediaAsset"> | string | null
+    filename?: StringFilter<"MediaAsset"> | string
+    originalName?: StringFilter<"MediaAsset"> | string
+    mimeType?: StringFilter<"MediaAsset"> | string
+    sizeBytes?: IntFilter<"MediaAsset"> | number
+    url?: StringFilter<"MediaAsset"> | string
+    width?: IntNullableFilter<"MediaAsset"> | number | null
+    height?: IntNullableFilter<"MediaAsset"> | number | null
+    altText?: StringNullableFilter<"MediaAsset"> | string | null
+    format?: StringFilter<"MediaAsset"> | string
+    createdAt?: DateTimeFilter<"MediaAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    website?: XOR<WebsiteNullableScalarRelationFilter, WebsiteWhereInput> | null
+  }, "id">
+
+  export type MediaAssetOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrderInput | SortOrder
+    filename?: SortOrder
+    originalName?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    url?: SortOrder
+    width?: SortOrderInput | SortOrder
+    height?: SortOrderInput | SortOrder
+    altText?: SortOrderInput | SortOrder
+    format?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MediaAssetCountOrderByAggregateInput
+    _avg?: MediaAssetAvgOrderByAggregateInput
+    _max?: MediaAssetMaxOrderByAggregateInput
+    _min?: MediaAssetMinOrderByAggregateInput
+    _sum?: MediaAssetSumOrderByAggregateInput
+  }
+
+  export type MediaAssetScalarWhereWithAggregatesInput = {
+    AND?: MediaAssetScalarWhereWithAggregatesInput | MediaAssetScalarWhereWithAggregatesInput[]
+    OR?: MediaAssetScalarWhereWithAggregatesInput[]
+    NOT?: MediaAssetScalarWhereWithAggregatesInput | MediaAssetScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"MediaAsset"> | string
+    userId?: UuidWithAggregatesFilter<"MediaAsset"> | string
+    websiteId?: UuidNullableWithAggregatesFilter<"MediaAsset"> | string | null
+    filename?: StringWithAggregatesFilter<"MediaAsset"> | string
+    originalName?: StringWithAggregatesFilter<"MediaAsset"> | string
+    mimeType?: StringWithAggregatesFilter<"MediaAsset"> | string
+    sizeBytes?: IntWithAggregatesFilter<"MediaAsset"> | number
+    url?: StringWithAggregatesFilter<"MediaAsset"> | string
+    width?: IntNullableWithAggregatesFilter<"MediaAsset"> | number | null
+    height?: IntNullableWithAggregatesFilter<"MediaAsset"> | number | null
+    altText?: StringNullableWithAggregatesFilter<"MediaAsset"> | string | null
+    format?: StringWithAggregatesFilter<"MediaAsset"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"MediaAsset"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MediaAsset"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     fullName?: string | null
@@ -55827,6 +57377,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -55871,6 +57422,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -55915,6 +57467,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -55959,6 +57512,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -56038,6 +57592,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateInput = {
@@ -56069,6 +57624,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUpdateInput = {
@@ -56100,6 +57656,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateInput = {
@@ -56131,6 +57688,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateManyInput = {
@@ -59278,6 +60836,123 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MediaAssetCreateInput = {
+    id?: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutMediaAssetsInput
+    website?: WebsiteCreateNestedOneWithoutMediaAssetsInput
+  }
+
+  export type MediaAssetUncheckedCreateInput = {
+    id?: string
+    userId: string
+    websiteId?: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMediaAssetsNestedInput
+    website?: WebsiteUpdateOneWithoutMediaAssetsNestedInput
+  }
+
+  export type MediaAssetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaAssetCreateManyInput = {
+    id?: string
+    userId: string
+    websiteId?: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaAssetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -59514,6 +61189,12 @@ export namespace Prisma {
     none?: PublishApprovalRequestWhereInput
   }
 
+  export type MediaAssetListRelationFilter = {
+    every?: MediaAssetWhereInput
+    some?: MediaAssetWhereInput
+    none?: MediaAssetWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -59620,6 +61301,10 @@ export namespace Prisma {
   }
 
   export type PublishApprovalRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MediaAssetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -61639,6 +63324,101 @@ export namespace Prisma {
     maxAttempts?: SortOrder
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type WebsiteNullableScalarRelationFilter = {
+    is?: WebsiteWhereInput | null
+    isNot?: WebsiteWhereInput | null
+  }
+
+  export type MediaAssetCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    filename?: SortOrder
+    originalName?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    url?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    altText?: SortOrder
+    format?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaAssetAvgOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+  }
+
+  export type MediaAssetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    filename?: SortOrder
+    originalName?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    url?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    altText?: SortOrder
+    format?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaAssetMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    filename?: SortOrder
+    originalName?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    url?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+    altText?: SortOrder
+    format?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaAssetSumOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+    width?: SortOrder
+    height?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -61834,6 +63614,13 @@ export namespace Prisma {
     connect?: PublishApprovalRequestWhereUniqueInput | PublishApprovalRequestWhereUniqueInput[]
   }
 
+  export type MediaAssetCreateNestedManyWithoutUserInput = {
+    create?: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput> | MediaAssetCreateWithoutUserInput[] | MediaAssetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
+    createMany?: MediaAssetCreateManyUserInputEnvelope
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+  }
+
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -62027,6 +63814,13 @@ export namespace Prisma {
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutReviewerInput | PublishApprovalRequestCreateOrConnectWithoutReviewerInput[]
     createMany?: PublishApprovalRequestCreateManyReviewerInputEnvelope
     connect?: PublishApprovalRequestWhereUniqueInput | PublishApprovalRequestWhereUniqueInput[]
+  }
+
+  export type MediaAssetUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput> | MediaAssetCreateWithoutUserInput[] | MediaAssetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
+    createMany?: MediaAssetCreateManyUserInputEnvelope
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -62449,6 +64243,20 @@ export namespace Prisma {
     deleteMany?: PublishApprovalRequestScalarWhereInput | PublishApprovalRequestScalarWhereInput[]
   }
 
+  export type MediaAssetUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput> | MediaAssetCreateWithoutUserInput[] | MediaAssetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
+    upsert?: MediaAssetUpsertWithWhereUniqueWithoutUserInput | MediaAssetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MediaAssetCreateManyUserInputEnvelope
+    set?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    disconnect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    delete?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    update?: MediaAssetUpdateWithWhereUniqueWithoutUserInput | MediaAssetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MediaAssetUpdateManyWithWhereWithoutUserInput | MediaAssetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+  }
+
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -62837,6 +64645,20 @@ export namespace Prisma {
     deleteMany?: PublishApprovalRequestScalarWhereInput | PublishApprovalRequestScalarWhereInput[]
   }
 
+  export type MediaAssetUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput> | MediaAssetCreateWithoutUserInput[] | MediaAssetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
+    upsert?: MediaAssetUpsertWithWhereUniqueWithoutUserInput | MediaAssetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MediaAssetCreateManyUserInputEnvelope
+    set?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    disconnect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    delete?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    update?: MediaAssetUpdateWithWhereUniqueWithoutUserInput | MediaAssetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MediaAssetUpdateManyWithWhereWithoutUserInput | MediaAssetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutWebsitesInput = {
     create?: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
     connectOrCreate?: UserCreateOrConnectWithoutWebsitesInput
@@ -62972,6 +64794,13 @@ export namespace Prisma {
     connect?: PublishApprovalRequestWhereUniqueInput | PublishApprovalRequestWhereUniqueInput[]
   }
 
+  export type MediaAssetCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput> | MediaAssetCreateWithoutWebsiteInput[] | MediaAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutWebsiteInput | MediaAssetCreateOrConnectWithoutWebsiteInput[]
+    createMany?: MediaAssetCreateManyWebsiteInputEnvelope
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+  }
+
   export type CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -63081,6 +64910,13 @@ export namespace Prisma {
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutWebsiteInput | PublishApprovalRequestCreateOrConnectWithoutWebsiteInput[]
     createMany?: PublishApprovalRequestCreateManyWebsiteInputEnvelope
     connect?: PublishApprovalRequestWhereUniqueInput | PublishApprovalRequestWhereUniqueInput[]
+  }
+
+  export type MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput> | MediaAssetCreateWithoutWebsiteInput[] | MediaAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutWebsiteInput | MediaAssetCreateOrConnectWithoutWebsiteInput[]
+    createMany?: MediaAssetCreateManyWebsiteInputEnvelope
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutWebsitesNestedInput = {
@@ -63341,6 +65177,20 @@ export namespace Prisma {
     deleteMany?: PublishApprovalRequestScalarWhereInput | PublishApprovalRequestScalarWhereInput[]
   }
 
+  export type MediaAssetUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput> | MediaAssetCreateWithoutWebsiteInput[] | MediaAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutWebsiteInput | MediaAssetCreateOrConnectWithoutWebsiteInput[]
+    upsert?: MediaAssetUpsertWithWhereUniqueWithoutWebsiteInput | MediaAssetUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: MediaAssetCreateManyWebsiteInputEnvelope
+    set?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    disconnect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    delete?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    update?: MediaAssetUpdateWithWhereUniqueWithoutWebsiteInput | MediaAssetUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: MediaAssetUpdateManyWithWhereWithoutWebsiteInput | MediaAssetUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+  }
+
   export type CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -63559,6 +65409,20 @@ export namespace Prisma {
     update?: PublishApprovalRequestUpdateWithWhereUniqueWithoutWebsiteInput | PublishApprovalRequestUpdateWithWhereUniqueWithoutWebsiteInput[]
     updateMany?: PublishApprovalRequestUpdateManyWithWhereWithoutWebsiteInput | PublishApprovalRequestUpdateManyWithWhereWithoutWebsiteInput[]
     deleteMany?: PublishApprovalRequestScalarWhereInput | PublishApprovalRequestScalarWhereInput[]
+  }
+
+  export type MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput> | MediaAssetCreateWithoutWebsiteInput[] | MediaAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutWebsiteInput | MediaAssetCreateOrConnectWithoutWebsiteInput[]
+    upsert?: MediaAssetUpsertWithWhereUniqueWithoutWebsiteInput | MediaAssetUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: MediaAssetCreateManyWebsiteInputEnvelope
+    set?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    disconnect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    delete?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+    update?: MediaAssetUpdateWithWhereUniqueWithoutWebsiteInput | MediaAssetUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: MediaAssetUpdateManyWithWhereWithoutWebsiteInput | MediaAssetUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutOtpVerificationsInput = {
@@ -64831,6 +66695,44 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReviewedApprovalsInput, UserUpdateWithoutReviewedApprovalsInput>, UserUncheckedUpdateWithoutReviewedApprovalsInput>
   }
 
+  export type UserCreateNestedOneWithoutMediaAssetsInput = {
+    create?: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMediaAssetsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WebsiteCreateNestedOneWithoutMediaAssetsInput = {
+    create?: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutMediaAssetsInput
+    connect?: WebsiteWhereUniqueInput
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutMediaAssetsNestedInput = {
+    create?: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMediaAssetsInput
+    upsert?: UserUpsertWithoutMediaAssetsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMediaAssetsInput, UserUpdateWithoutMediaAssetsInput>, UserUncheckedUpdateWithoutMediaAssetsInput>
+  }
+
+  export type WebsiteUpdateOneWithoutMediaAssetsNestedInput = {
+    create?: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutMediaAssetsInput
+    upsert?: WebsiteUpsertWithoutMediaAssetsInput
+    disconnect?: WebsiteWhereInput | boolean
+    delete?: WebsiteWhereInput | boolean
+    connect?: WebsiteWhereUniqueInput
+    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutMediaAssetsInput, WebsiteUpdateWithoutMediaAssetsInput>, WebsiteUncheckedUpdateWithoutMediaAssetsInput>
+  }
+
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -65203,6 +67105,33 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type IdentityCreateWithoutUserInput = {
     id?: string
     provider: $Enums.IdentityProvider
@@ -65408,6 +67337,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutUserInput = {
@@ -65438,6 +67368,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutUserInput = {
@@ -66109,6 +68040,48 @@ export namespace Prisma {
 
   export type PublishApprovalRequestCreateManyReviewerInputEnvelope = {
     data: PublishApprovalRequestCreateManyReviewerInput | PublishApprovalRequestCreateManyReviewerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MediaAssetCreateWithoutUserInput = {
+    id?: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    website?: WebsiteCreateNestedOneWithoutMediaAssetsInput
+  }
+
+  export type MediaAssetUncheckedCreateWithoutUserInput = {
+    id?: string
+    websiteId?: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetCreateOrConnectWithoutUserInput = {
+    where: MediaAssetWhereUniqueInput
+    create: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput>
+  }
+
+  export type MediaAssetCreateManyUserInputEnvelope = {
+    data: MediaAssetCreateManyUserInput | MediaAssetCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -66949,6 +68922,42 @@ export namespace Prisma {
     data: XOR<PublishApprovalRequestUpdateManyMutationInput, PublishApprovalRequestUncheckedUpdateManyWithoutReviewerInput>
   }
 
+  export type MediaAssetUpsertWithWhereUniqueWithoutUserInput = {
+    where: MediaAssetWhereUniqueInput
+    update: XOR<MediaAssetUpdateWithoutUserInput, MediaAssetUncheckedUpdateWithoutUserInput>
+    create: XOR<MediaAssetCreateWithoutUserInput, MediaAssetUncheckedCreateWithoutUserInput>
+  }
+
+  export type MediaAssetUpdateWithWhereUniqueWithoutUserInput = {
+    where: MediaAssetWhereUniqueInput
+    data: XOR<MediaAssetUpdateWithoutUserInput, MediaAssetUncheckedUpdateWithoutUserInput>
+  }
+
+  export type MediaAssetUpdateManyWithWhereWithoutUserInput = {
+    where: MediaAssetScalarWhereInput
+    data: XOR<MediaAssetUpdateManyMutationInput, MediaAssetUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type MediaAssetScalarWhereInput = {
+    AND?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+    OR?: MediaAssetScalarWhereInput[]
+    NOT?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+    id?: UuidFilter<"MediaAsset"> | string
+    userId?: UuidFilter<"MediaAsset"> | string
+    websiteId?: UuidNullableFilter<"MediaAsset"> | string | null
+    filename?: StringFilter<"MediaAsset"> | string
+    originalName?: StringFilter<"MediaAsset"> | string
+    mimeType?: StringFilter<"MediaAsset"> | string
+    sizeBytes?: IntFilter<"MediaAsset"> | number
+    url?: StringFilter<"MediaAsset"> | string
+    width?: IntNullableFilter<"MediaAsset"> | number | null
+    height?: IntNullableFilter<"MediaAsset"> | number | null
+    altText?: StringNullableFilter<"MediaAsset"> | string | null
+    format?: StringFilter<"MediaAsset"> | string
+    createdAt?: DateTimeFilter<"MediaAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
+  }
+
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -66990,6 +68999,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -67033,6 +69043,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -67658,6 +69669,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MediaAssetCreateWithoutWebsiteInput = {
+    id?: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutMediaAssetsInput
+  }
+
+  export type MediaAssetUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    userId: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetCreateOrConnectWithoutWebsiteInput = {
+    where: MediaAssetWhereUniqueInput
+    create: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type MediaAssetCreateManyWebsiteInputEnvelope = {
+    data: MediaAssetCreateManyWebsiteInput | MediaAssetCreateManyWebsiteInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutWebsitesInput = {
     update: XOR<UserUpdateWithoutWebsitesInput, UserUncheckedUpdateWithoutWebsitesInput>
     create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
@@ -67710,6 +69763,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsitesInput = {
@@ -67753,6 +69807,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CustomCodeSnippetUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -68247,6 +70302,22 @@ export namespace Prisma {
     data: XOR<PublishApprovalRequestUpdateManyMutationInput, PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteInput>
   }
 
+  export type MediaAssetUpsertWithWhereUniqueWithoutWebsiteInput = {
+    where: MediaAssetWhereUniqueInput
+    update: XOR<MediaAssetUpdateWithoutWebsiteInput, MediaAssetUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<MediaAssetCreateWithoutWebsiteInput, MediaAssetUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type MediaAssetUpdateWithWhereUniqueWithoutWebsiteInput = {
+    where: MediaAssetWhereUniqueInput
+    data: XOR<MediaAssetUpdateWithoutWebsiteInput, MediaAssetUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type MediaAssetUpdateManyWithWhereWithoutWebsiteInput = {
+    where: MediaAssetScalarWhereInput
+    data: XOR<MediaAssetUpdateManyMutationInput, MediaAssetUncheckedUpdateManyWithoutWebsiteInput>
+  }
+
   export type UserCreateWithoutOtpVerificationsInput = {
     id?: string
     fullName?: string | null
@@ -68288,6 +70359,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -68331,6 +70403,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -68390,6 +70463,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -68433,6 +70507,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -68476,6 +70551,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -68519,6 +70595,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -68578,6 +70655,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -68621,6 +70699,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -68664,6 +70743,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -68707,6 +70787,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -68766,6 +70847,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -68809,6 +70891,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -68852,6 +70935,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -68895,6 +70979,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -68954,6 +71039,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -68997,6 +71083,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -69137,6 +71224,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -69180,6 +71268,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -69282,6 +71371,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -69325,6 +71415,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTemplatesInput = {
@@ -69368,6 +71459,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -69411,6 +71503,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -69470,6 +71563,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -69513,6 +71607,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCustomCodeSnippetsInput = {
@@ -69543,6 +71638,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomCodeSnippetsInput = {
@@ -69573,6 +71669,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomCodeSnippetsInput = {
@@ -69643,6 +71740,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomCodeSnippetsInput = {
@@ -69673,6 +71771,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomCodeRevisionUpsertWithWhereUniqueWithoutSnippetInput = {
@@ -69783,6 +71882,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCodeRevisionsInput = {
@@ -69826,6 +71926,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCodeRevisionsInput = {
@@ -69942,6 +72043,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCodeRevisionsInput = {
@@ -69985,6 +72087,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutFormSubmissionsInput = {
@@ -70015,6 +72118,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutFormSubmissionsInput = {
@@ -70045,6 +72149,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutFormSubmissionsInput = {
@@ -70091,6 +72196,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -70121,6 +72227,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutCustomPostTypesInput = {
@@ -70151,6 +72258,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomPostTypesInput = {
@@ -70181,6 +72289,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomPostTypesInput = {
@@ -70291,6 +72400,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomPostTypesInput = {
@@ -70321,6 +72431,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomFieldUpsertWithWhereUniqueWithoutPostTypeInput = {
@@ -70398,6 +72509,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutThemeLocationRulesInput = {
@@ -70428,6 +72540,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutThemeLocationRulesInput = {
@@ -70474,6 +72587,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutThemeLocationRulesInput = {
@@ -70504,6 +72618,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -70547,6 +72662,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -70590,6 +72706,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -70649,6 +72766,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -70692,6 +72810,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutSftpConnectionsInput = {
@@ -70722,6 +72841,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutSftpConnectionsInput = {
@@ -70752,6 +72872,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutSftpConnectionsInput = {
@@ -70798,6 +72919,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutSftpConnectionsInput = {
@@ -70828,6 +72950,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutPluginIntegrationsInput = {
@@ -70858,6 +72981,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutPluginIntegrationsInput = {
@@ -70888,6 +73012,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutPluginIntegrationsInput = {
@@ -70934,6 +73059,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutPluginIntegrationsInput = {
@@ -70964,6 +73090,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomPostTypeCreateWithoutFieldsInput = {
@@ -71100,6 +73227,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCustomEntriesInput = {
@@ -71143,6 +73271,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCustomEntriesInput = {
@@ -71237,6 +73366,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomEntriesInput = {
@@ -71280,6 +73410,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDesignNotesInput = {
@@ -71310,6 +73441,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDesignNotesInput = {
@@ -71340,6 +73472,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDesignNotesInput = {
@@ -71388,6 +73521,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDesignNotesInput = {
@@ -71431,6 +73565,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDesignNotesInput = {
@@ -71477,6 +73612,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDesignNotesInput = {
@@ -71507,6 +73643,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDesignNotesInput = {
@@ -71561,6 +73698,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignNotesInput = {
@@ -71604,6 +73742,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutDeveloperApiKeysInput = {
@@ -71647,6 +73786,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeveloperApiKeysInput = {
@@ -71690,6 +73830,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeveloperApiKeysInput = {
@@ -71749,6 +73890,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeveloperApiKeysInput = {
@@ -71792,6 +73934,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutComponentAccessesInput = {
@@ -71822,6 +73965,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutComponentAccessesInput = {
@@ -71852,6 +73996,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutComponentAccessesInput = {
@@ -71900,6 +74045,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutComponentAccessesInput = {
@@ -71943,6 +74089,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutComponentAccessesInput = {
@@ -71989,6 +74136,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutComponentAccessesInput = {
@@ -72019,6 +74167,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutComponentAccessesInput = {
@@ -72073,6 +74222,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutComponentAccessesInput = {
@@ -72116,6 +74266,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCollaboratorsInput = {
@@ -72146,6 +74297,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCollaboratorsInput = {
@@ -72176,6 +74328,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCollaboratorsInput = {
@@ -72224,6 +74377,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCollaborationsInput = {
@@ -72267,6 +74421,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCollaborationsInput = {
@@ -72313,6 +74468,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCollaboratorsInput = {
@@ -72343,6 +74499,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutCollaborationsInput = {
@@ -72397,6 +74554,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollaborationsInput = {
@@ -72440,6 +74598,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutRevisionsInput = {
@@ -72470,6 +74629,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutRevisionsInput = {
@@ -72500,6 +74660,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutRevisionsInput = {
@@ -72548,6 +74709,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsiteRevisionsInput = {
@@ -72591,6 +74753,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsiteRevisionsInput = {
@@ -72637,6 +74800,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutRevisionsInput = {
@@ -72667,6 +74831,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWebsiteRevisionsInput = {
@@ -72721,6 +74886,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsiteRevisionsInput = {
@@ -72764,6 +74930,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDeploymentsInput = {
@@ -72794,6 +74961,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDeploymentsInput = {
@@ -72824,6 +74992,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDeploymentsInput = {
@@ -72872,6 +75041,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeploymentsInput = {
@@ -72915,6 +75085,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeploymentsInput = {
@@ -72961,6 +75132,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDeploymentsInput = {
@@ -72991,6 +75163,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDeploymentsInput = {
@@ -73045,6 +75218,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeploymentsInput = {
@@ -73088,6 +75262,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpConnectionInput = {
@@ -73118,6 +75293,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpConnectionInput = {
@@ -73148,6 +75324,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpConnectionInput = {
@@ -73196,6 +75373,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWpConnectionsInput = {
@@ -73239,6 +75417,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWpConnectionsInput = {
@@ -73285,6 +75464,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpConnectionInput = {
@@ -73315,6 +75495,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWpConnectionsInput = {
@@ -73369,6 +75550,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWpConnectionsInput = {
@@ -73412,6 +75594,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpPageMappingsInput = {
@@ -73442,6 +75625,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpPageMappingsInput = {
@@ -73472,6 +75656,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpPageMappingsInput = {
@@ -73518,6 +75703,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpPageMappingsInput = {
@@ -73548,6 +75734,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutGranularPermissionsInput = {
@@ -73578,6 +75765,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutGranularPermissionsInput = {
@@ -73608,6 +75796,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutGranularPermissionsInput = {
@@ -73656,6 +75845,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGranularPermissionsInput = {
@@ -73699,6 +75889,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGranularPermissionsInput = {
@@ -73745,6 +75936,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -73775,6 +75967,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutGranularPermissionsInput = {
@@ -73829,6 +76022,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -73872,6 +76066,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutOwnedTeamsInput = {
@@ -73915,6 +76110,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedTeamsInput = {
@@ -73958,6 +76154,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedTeamsInput = {
@@ -74019,6 +76216,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutTeamInput = {
@@ -74049,6 +76247,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutTeamInput = {
@@ -74147,6 +76346,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedTeamsInput = {
@@ -74190,6 +76390,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamMemberUpsertWithWhereUniqueWithoutTeamInput = {
@@ -74308,6 +76509,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTeamMembershipsInput = {
@@ -74351,6 +76553,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTeamMembershipsInput = {
@@ -74443,6 +76646,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMembershipsInput = {
@@ -74486,6 +76690,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamCreateWithoutInvitationsInput = {
@@ -74556,6 +76761,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentTeamInvitationsInput = {
@@ -74599,6 +76805,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentTeamInvitationsInput = {
@@ -74691,6 +76898,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTeamInvitationsInput = {
@@ -74734,6 +76942,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutInvitationsInput = {
@@ -74764,6 +76973,7 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutInvitationsInput = {
@@ -74794,6 +77004,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutInvitationsInput = {
@@ -74842,6 +77053,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentWebsiteInvitationsInput = {
@@ -74885,6 +77097,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentWebsiteInvitationsInput = {
@@ -74931,6 +77144,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutInvitationsInput = {
@@ -74961,6 +77175,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutSentWebsiteInvitationsInput = {
@@ -75015,6 +77230,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentWebsiteInvitationsInput = {
@@ -75058,6 +77274,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationCreateWithoutWorkspacesInput = {
@@ -75130,6 +77347,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -75173,6 +77391,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -75234,6 +77453,7 @@ export namespace Prisma {
     team?: TeamCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWorkspaceInput = {
@@ -75264,6 +77484,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWorkspaceInput = {
@@ -75363,6 +77584,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -75406,6 +77628,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -75481,6 +77704,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedOrganizationsInput = {
@@ -75524,6 +77748,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedOrganizationsInput = {
@@ -75619,6 +77844,7 @@ export namespace Prisma {
     team?: TeamCreateNestedOneWithoutWebsitesInput
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutOrganizationInput = {
@@ -75649,6 +77875,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutOrganizationInput = {
@@ -75713,6 +77940,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedOrganizationsInput = {
@@ -75756,6 +77984,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -75876,6 +78105,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationMembershipsInput = {
@@ -75919,6 +78149,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationMembershipsInput = {
@@ -76013,6 +78244,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationMembershipsInput = {
@@ -76056,6 +78288,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -76128,6 +78361,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
@@ -76171,6 +78405,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -76265,6 +78500,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
@@ -76308,6 +78544,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutApprovalRequestsInput = {
@@ -76338,6 +78575,7 @@ export namespace Prisma {
     team?: TeamCreateNestedOneWithoutWebsitesInput
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutApprovalRequestsInput = {
@@ -76368,6 +78606,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutApprovalRequestsInput = {
@@ -76416,6 +78655,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalRequestsInput = {
@@ -76459,6 +78699,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalRequestsInput = {
@@ -76507,6 +78748,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedApprovalsInput = {
@@ -76550,6 +78792,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedApprovalsInput = {
@@ -76596,6 +78839,7 @@ export namespace Prisma {
     team?: TeamUpdateOneWithoutWebsitesNestedInput
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -76626,6 +78870,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutApprovalRequestsInput = {
@@ -76680,6 +78925,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -76723,6 +78969,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutReviewedApprovalsInput = {
@@ -76777,6 +79024,7 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedApprovalsInput = {
@@ -76820,6 +79068,339 @@ export namespace Prisma {
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutMediaAssetsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+  }
+
+  export type UserUncheckedCreateWithoutMediaAssetsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+  }
+
+  export type UserCreateOrConnectWithoutMediaAssetsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
+  }
+
+  export type WebsiteCreateWithoutMediaAssetsInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    approvalWorkflowEnabled?: boolean
+    user: UserCreateNestedOneWithoutWebsitesInput
+    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
+    team?: TeamCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
+    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteUncheckedCreateWithoutMediaAssetsInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    teamId?: string | null
+    workspaceId?: string | null
+    organizationId?: string | null
+    approvalWorkflowEnabled?: boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteCreateOrConnectWithoutMediaAssetsInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
+  }
+
+  export type UserUpsertWithoutMediaAssetsInput = {
+    update: XOR<UserUpdateWithoutMediaAssetsInput, UserUncheckedUpdateWithoutMediaAssetsInput>
+    create: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMediaAssetsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMediaAssetsInput, UserUncheckedUpdateWithoutMediaAssetsInput>
+  }
+
+  export type UserUpdateWithoutMediaAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMediaAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  }
+
+  export type WebsiteUpsertWithoutMediaAssetsInput = {
+    update: XOR<WebsiteUpdateWithoutMediaAssetsInput, WebsiteUncheckedUpdateWithoutMediaAssetsInput>
+    create: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
+    where?: WebsiteWhereInput
+  }
+
+  export type WebsiteUpdateToOneWithWhereWithoutMediaAssetsInput = {
+    where?: WebsiteWhereInput
+    data: XOR<WebsiteUpdateWithoutMediaAssetsInput, WebsiteUncheckedUpdateWithoutMediaAssetsInput>
+  }
+
+  export type WebsiteUpdateWithoutMediaAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
+    team?: TeamUpdateOneWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
+    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateWithoutMediaAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -77105,6 +79686,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type MediaAssetCreateManyUserInput = {
+    id?: string
+    websiteId?: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type IdentityUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumIdentityProviderFieldUpdateOperationsInput | $Enums.IdentityProvider
@@ -77286,6 +79883,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutUserInput = {
@@ -77316,6 +79914,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutUserInput = {
@@ -78002,6 +80601,54 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MediaAssetUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    website?: WebsiteUpdateOneWithoutMediaAssetsNestedInput
+  }
+
+  export type MediaAssetUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaAssetUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CustomCodeSnippetCreateManyWebsiteInput = {
     id?: string
     name?: string | null
@@ -78170,6 +80817,22 @@ export namespace Prisma {
     reviewNotes?: string | null
     snapshot: JsonNullValueInput | InputJsonValue
     reviewedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetCreateManyWebsiteInput = {
+    id?: string
+    userId: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -78696,6 +81359,54 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MediaAssetUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMediaAssetsNestedInput
+  }
+
+  export type MediaAssetUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaAssetUncheckedUpdateManyWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserSubscriptionCreateManyPlanInput = {
     id?: string
     userId: string
@@ -78938,6 +81649,7 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutTeamInput = {
@@ -78968,6 +81680,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutTeamInput = {
@@ -79094,6 +81807,7 @@ export namespace Prisma {
     team?: TeamUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWorkspaceInput = {
@@ -79124,6 +81838,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -79258,6 +81973,7 @@ export namespace Prisma {
     team?: TeamUpdateOneWithoutWebsitesNestedInput
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutOrganizationInput = {
@@ -79288,6 +82004,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutOrganizationInput = {
