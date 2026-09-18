@@ -6,7 +6,7 @@ import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperM
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
+import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -7809,7 +7809,14 @@ onClick={() => importFileInputRef.current?.click()}
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
-                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
+                      {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
+                        siteParts.header?.elements &&
+                        siteParts.header.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.header?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -7834,7 +7841,14 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
-                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
+                      {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
+                        siteParts.footer?.elements &&
+                        siteParts.footer.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.footer?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>

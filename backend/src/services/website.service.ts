@@ -1187,6 +1187,167 @@ export interface PublicWebsiteDTO {
   }>;
 }
 
+export interface DynamicContext {
+  site?: {
+    id?: string;
+    name?: string;
+    slug?: string;
+    siteSettings?: {
+      siteName?: string;
+      siteLanguage?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
+  };
+  page?: {
+    id?: string;
+    name?: string;
+    title?: string;
+    slug?: string;
+    isHome?: boolean;
+    [key: string]: any;
+  };
+  entry?: {
+    id?: string;
+    title?: string;
+    slug?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  custom?: Record<string, string>;
+}
+
+/**
+ * Evaluates theme builder display conditions (include:all, include:singular:home, include:page:id, exclude:page:id, etc.)
+ */
+export function matchesThemeCondition(
+  conditions: string[] | undefined,
+  pageContext: { pageId?: string; isHome?: boolean; slug?: string }
+): boolean {
+  if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
+    return true; // Default: include everywhere
+  }
+
+  // 1. Check exclusions first (exclusion takes priority)
+  for (const cond of conditions) {
+    if (cond === "exclude:all") return false;
+    if (cond === "exclude:singular:home" && pageContext.isHome) return false;
+    if (cond.startsWith("exclude:page:")) {
+      const target = cond.replace("exclude:page:", "").trim();
+      if (target === pageContext.pageId || target === pageContext.slug) return false;
+    }
+  }
+
+  // 2. Check inclusions
+  let explicitlyIncluded = false;
+  let hasInclusionRule = false;
+
+  for (const cond of conditions) {
+    if (cond.startsWith("include:")) {
+      hasInclusionRule = true;
+      if (cond === "include:all") explicitlyIncluded = true;
+      if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
+      if (cond.startsWith("include:page:")) {
+        const target = cond.replace("include:page:", "").trim();
+        if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
+      }
+    }
+  }
+
+  return hasInclusionRule ? explicitlyIncluded : true;
+}
+
+/**
+ * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, etc. tokens inside a string.
+ */
+export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
+  if (typeof content !== "string" || !content.includes("{{")) {
+    return content;
+  }
+
+  const site = context.site || {};
+  const siteSettings = site.siteSettings || {};
+  const page = context.page || {};
+  const entry = context.entry || {};
+  const custom = context.custom || {};
+
+  return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
+    const key = rawKey.trim();
+
+    // Site level tokens
+    if (key === "site.name" || key === "site.title") {
+      return siteSettings.siteName || site.name || "";
+    }
+    if (key === "site.slug") {
+      return site.slug || "";
+    }
+    if (key === "site.language" || key === "site.lang") {
+      return siteSettings.siteLanguage || "en";
+    }
+
+    // System tokens
+    if (key === "current.year") {
+      return new Date().getFullYear().toString();
+    }
+    if (key === "current.date") {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    // Page level tokens
+    if (key === "page.title") {
+      return page.title || page.name || "";
+    }
+    if (key === "page.name") {
+      return page.name || page.title || "";
+    }
+    if (key === "page.slug") {
+      return page.slug || "";
+    }
+
+    // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}
+    if (key.startsWith("entry.") || key.startsWith("cpt.")) {
+      const field = key.replace(/^(entry|cpt)\./, "");
+      if (field === "title" || field === "name") return entry.title || "";
+      if (field === "slug") return entry.slug || "";
+      if (entry.data && entry.data[field] !== undefined) {
+        return String(entry.data[field]);
+      }
+      if (entry[field] !== undefined) {
+        return String(entry[field]);
+      }
+      return "";
+    }
+
+    // Custom dictionary fallback
+    if (custom[key] !== undefined) {
+      return custom[key];
+    }
+
+    return match;
+  });
+}
+
+/**
+ * Recursively resolves dynamic tag tokens across an object tree or array.
+ */
+export function resolveTokensInTree(obj: any, context: DynamicContext): any {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === "string") {
+    return resolveDynamicTokens(obj, context);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => resolveTokensInTree(item, context));
+  }
+  if (typeof obj === "object") {
+    const resolved: Record<string, any> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      resolved[k] = resolveTokensInTree(v, context);
+    }
+    return resolved;
+  }
+  return obj;
+}
+
 export async function getPublicWebsiteById(websiteId: string): Promise<PublicWebsiteDTO> {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(websiteId);
 
@@ -1234,20 +1395,56 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
   // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
   const sourceData = rawEditorData.publishedData || rawEditorData;
 
+  // Build site context for dynamic token resolution
+  const siteContext: DynamicContext = {
+    site: {
+      id: website.id,
+      name: website.name,
+      slug: website.slug,
+      siteSettings: sourceData.siteSettings,
+    },
+  };
+
+  // Resolve dynamic tokens across pages
+  const rawPages = Array.isArray(sourceData.pages) ? sourceData.pages : [];
+  const resolvedPages = rawPages.map((page: any) => {
+    const pageContext: DynamicContext = {
+      ...siteContext,
+      page: {
+        id: page.id,
+        name: page.name,
+        title: page.title,
+        slug: page.slug,
+        isHome: page.isHome,
+      },
+    };
+    return resolveTokensInTree(page, pageContext);
+  });
+
+  // Resolve dynamic tokens across siteParts
+  const resolvedSiteParts = sourceData.siteParts
+    ? resolveTokensInTree(sourceData.siteParts, siteContext)
+    : undefined;
+
+  // Resolve dynamic tokens across root elements
+  const resolvedElements = Array.isArray(sourceData.elements)
+    ? resolveTokensInTree(sourceData.elements, siteContext)
+    : [];
+
   // Build explicit sanitized public DTO projection (Comment 8)
   const publicEditorData = {
     version: sourceData.version || 1,
     homePageId: sourceData.homePageId,
-    pages: Array.isArray(sourceData.pages) ? sourceData.pages : [],
-    elements: Array.isArray(sourceData.elements) ? sourceData.elements : [],
-    siteParts: sourceData.siteParts || undefined,
+    pages: resolvedPages,
+    elements: resolvedElements,
+    siteParts: resolvedSiteParts,
     globalStyles: sourceData.globalStyles || undefined,
     breakpoints: sourceData.breakpoints || undefined,
     popups: sourceData.popups || undefined,
     pageCss: sourceData.pageCss || undefined,
     globalSettings: sourceData.globalSettings || undefined,
     siteSettings: sourceData.siteSettings ? {
-      siteName: sourceData.siteSettings.siteName,
+      siteName: resolveDynamicTokens(sourceData.siteSettings.siteName || "", siteContext) || sourceData.siteSettings.siteName,
       siteLogo: sourceData.siteSettings.siteLogo,
       favicon: sourceData.siteSettings.favicon,
       siteLanguage: sourceData.siteSettings.siteLanguage,

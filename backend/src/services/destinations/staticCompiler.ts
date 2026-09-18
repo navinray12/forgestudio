@@ -1,4 +1,5 @@
 import type { StaticBundle, GeneratedFile } from "./types.js";
+import { matchesThemeCondition, resolveTokensInTree } from "../website.service.js";
 
 function escapeHtml(str: string): string {
   if (!str) return "";
@@ -441,10 +442,15 @@ function generatePageHtml(
   if (pSettings.noindex) robotsDirectives.push("noindex");
   if (pSettings.nofollow) robotsDirectives.push("nofollow");
 
-  // Site Header (supports both isEnabled and enabled)
+  // Site Header (supports both isEnabled and enabled, plus theme conditions)
   let headerHtml = "";
   const headerPart = websiteData.siteParts?.header;
-  if ((headerPart?.isEnabled || headerPart?.enabled) && Array.isArray(headerPart.elements) && headerPart.elements.length > 0) {
+  const headerMatches = matchesThemeCondition(headerPart?.conditions, {
+    pageId: page.id,
+    isHome: page.isHome,
+    slug: page.slug,
+  });
+  if (headerMatches && (headerPart?.isEnabled || headerPart?.enabled) && Array.isArray(headerPart.elements) && headerPart.elements.length > 0) {
     headerHtml = `<header class="site-header">\n${headerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</header>`;
   }
 
@@ -452,10 +458,15 @@ function generatePageHtml(
   const pageElements = Array.isArray(page.elements) ? page.elements : [];
   const mainContent = pageElements.map((el: any) => renderElementToHtml(el, allPages)).join("\n");
 
-  // Site Footer (supports both isEnabled and enabled)
+  // Site Footer (supports both isEnabled and enabled, plus theme conditions)
   let footerHtml = "";
   const footerPart = websiteData.siteParts?.footer;
-  if ((footerPart?.isEnabled || footerPart?.enabled) && Array.isArray(footerPart.elements) && footerPart.elements.length > 0) {
+  const footerMatches = matchesThemeCondition(footerPart?.conditions, {
+    pageId: page.id,
+    isHome: page.isHome,
+    slug: page.slug,
+  });
+  if (footerMatches && (footerPart?.isEnabled || footerPart?.enabled) && Array.isArray(footerPart.elements) && footerPart.elements.length > 0) {
     footerHtml = `<footer class="site-footer">\n${footerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</footer>`;
   }
 
@@ -715,10 +726,37 @@ export function compileCanonicalToStaticBundle(
     slug: p.slug || (p.id === homePageId ? "" : p.id),
   }));
 
+  // Site context for dynamic token resolution
+  const siteContext = {
+    site: {
+      id: websiteId,
+      name: websiteData.siteSettings?.siteName || websiteData.name || "ForgeStudio Site",
+      slug: websiteData.slug,
+      siteSettings: websiteData.siteSettings,
+    },
+  };
+
   // 4. Compile HTML for each page
-  for (const page of normalizedPages) {
-    const fileName = page.isHome ? "index.html" : `${page.slug || page.id}.html`;
-    const pageHtml = generatePageHtml(page, websiteData, normalizedPages, compiledCss);
+  for (const rawPage of normalizedPages) {
+    const pageContext = {
+      ...siteContext,
+      page: {
+        id: rawPage.id,
+        name: rawPage.name,
+        title: rawPage.title,
+        slug: rawPage.slug,
+        isHome: rawPage.isHome,
+      },
+    };
+
+    const resolvedPage = resolveTokensInTree(rawPage, pageContext);
+    const resolvedWebsiteData = {
+      ...websiteData,
+      siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
+    };
+
+    const fileName = resolvedPage.isHome ? "index.html" : `${resolvedPage.slug || resolvedPage.id}.html`;
+    const pageHtml = generatePageHtml(resolvedPage, resolvedWebsiteData, normalizedPages, compiledCss);
 
     files.push({
       path: fileName,
