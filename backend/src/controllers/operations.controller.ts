@@ -198,7 +198,7 @@ export async function getAdminUsersHandler(req: Request, res: Response, next: Ne
 export async function updateAdminUserStatusHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const adminUser = res.locals.user || (req as any).user;
-    const targetUserId = req.params.userId;
+    const targetUserId = String(req.params.userId);
     const { status } = req.body;
 
     if (!status || !["ACTIVE", "SUSPENDED", "DELETED"].includes(status)) {

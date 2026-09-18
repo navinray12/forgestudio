@@ -166,6 +166,8 @@ export async function initWebsiteTable() {
           END IF;
           IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'workspaceId') THEN
             ALTER TABLE websites ADD COLUMN "workspaceId" UUID REFERENCES workspaces(id) ON DELETE SET NULL;
+          ELSE
+            ALTER TABLE websites ALTER COLUMN "workspaceId" DROP NOT NULL;
           END IF;
         END $$;
       `);

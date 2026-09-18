@@ -680,7 +680,7 @@ export default function PublishedSite() {
         const curPage = pages.find(p => p.id === activePageId) || pages[0];
         if (!curPage) return;
 
-        const pSettings = curPage.pageSettings || {};
+        const pSettings = (curPage as any).pageSettings || {};
         const title = pSettings.title || curPage.name || "Published Website";
         document.title = title;
 
@@ -713,7 +713,7 @@ export default function PublishedSite() {
             link.href = pSettings.canonicalUrl;
         }
 
-        const robots = [];
+        const robots: string[] = [];
         if (pSettings.noindex) robots.push("noindex");
         if (pSettings.nofollow) robots.push("nofollow");
         if (robots.length > 0) {

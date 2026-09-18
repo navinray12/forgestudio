@@ -397,7 +397,7 @@ function AdminDashboard() {
             <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-xs space-y-2">
               <div className="flex justify-between text-slate-400">
                 <span>Node.js Environment:</span>
-                <span className="font-mono text-slate-300">{stats?.health?.system?.nodeVersion}</span>
+                <span className="font-mono text-slate-300">{(stats?.health?.system as any)?.nodeVersion || "Node.js v20+"}</span>
               </div>
               <div className="flex justify-between text-slate-400">
                 <span>Heap Memory Used:</span>

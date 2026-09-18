@@ -718,13 +718,18 @@ export function compileCanonicalToStaticBundle(
         },
       ];
 
-  const homePageId = websiteData.homePageId || rawPages[0]?.id;
+  const homePageExists = websiteData.homePageId && rawPages.some((p: any) => p.id === websiteData.homePageId);
+  const homePageId = homePageExists ? websiteData.homePageId : undefined;
+  const hasExplicitHome = rawPages.some((p: any) => p.id === homePageId || p.isHome === true);
 
-  const normalizedPages = rawPages.map((p: any, idx: number) => ({
-    ...p,
-    isHome: p.id === homePageId || p.isHome === true || idx === 0,
-    slug: p.slug || (p.id === homePageId ? "" : p.id),
-  }));
+  const normalizedPages = rawPages.map((p: any, idx: number) => {
+    const isHome = p.id === homePageId || p.isHome === true || (!hasExplicitHome && p.isHome !== false && idx === 0);
+    return {
+      ...p,
+      isHome,
+      slug: p.slug !== undefined ? p.slug : (isHome ? "" : p.id),
+    };
+  });
 
   // Site context for dynamic token resolution
   const siteContext = {
