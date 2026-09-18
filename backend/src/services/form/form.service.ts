@@ -1,9 +1,32 @@
 import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
+import { enqueueJob } from "../jobs/jobRunner.js";
+import { isSafeUrl } from "../../utils/ssrf.validator.js";
+import nodemailer from "nodemailer";
 
 // In-memory rate limiting map: ip -> timestamps[]
 const rateLimitMap = new Map<string, number[]>();
+
+/**
+ * Reusable nodemailer transporter singleton
+ */
+let mailTransporter: any = null;
+function getMailTransporter() {
+  if (mailTransporter) return mailTransporter;
+  if (process.env.SMTP_HOST) {
+    mailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587", 10),
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER || "",
+        pass: process.env.SMTP_PASS || "",
+      },
+    });
+  }
+  return mailTransporter;
+}
 
 /**
  * Ensure form_submissions table exists in PostgreSQL
@@ -26,6 +49,15 @@ export async function initFormSubmissionsTable() {
     `);
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS idx_form_submissions_form_id ON form_submissions("formId");
+    `);
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS "formName" VARCHAR(255) DEFAULT 'Contact Form';
+    `);
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
+    `);
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS data JSONB NOT NULL DEFAULT '{}'::jsonb;
     `);
   } catch (error) {
     console.error("Form submissions table initialization log:", error);
@@ -186,7 +218,12 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
   // 5. Action: Webhook Dispatcher
   if (activeActions.includes("webhook") && actions?.webhookConfig?.endpointUrl) {
     const endpoint = actions.webhookConfig.endpointUrl.trim();
-    if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+    const ssrfCheck = isSafeUrl(endpoint);
+
+    if (!ssrfCheck.safe) {
+      console.warn(`[Form Webhook] Blocked unsafe endpoint URL "${endpoint}": ${ssrfCheck.reason}`);
+      executionResults.webhook = false;
+    } else {
       try {
         const webhookPayload = {
           event: "form.submitted",
@@ -206,14 +243,44 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
           headers["X-Webhook-Secret"] = actions.webhookConfig.secretKey;
         }
 
-        // Dispatch async without blocking response
+        // Dispatch async without blocking response; enqueue retry on failure
         fetch(endpoint, {
           method: "POST",
           headers,
           body: JSON.stringify(webhookPayload),
-        }).catch((webhookErr) => {
-          console.error("External webhook dispatch error:", webhookErr);
-        });
+        })
+          .then(async (res) => {
+            if (!res.ok) {
+              console.warn(`[Form Webhook] Endpoint returned HTTP ${res.status}, enqueuing retry job`);
+              await enqueueJob(
+                "WEBHOOK_RETRY",
+                {
+                  url: endpoint,
+                  event: "form.submitted",
+                  headers,
+                  body: webhookPayload,
+                },
+                { maxAttempts: 5, runAt: new Date(Date.now() + 15000) }
+              );
+            }
+          })
+          .catch(async (webhookErr) => {
+            console.error("[Form Webhook] Dispatch network error, enqueuing retry job:", webhookErr);
+            try {
+              await enqueueJob(
+                "WEBHOOK_RETRY",
+                {
+                  url: endpoint,
+                  event: "form.submitted",
+                  headers,
+                  body: webhookPayload,
+                },
+                { maxAttempts: 5, runAt: new Date(Date.now() + 15000) }
+              );
+            } catch (jobErr) {
+              console.error("Failed to enqueue WEBHOOK_RETRY job:", jobErr);
+            }
+          });
 
         executionResults.webhook = true;
       } catch (err) {
@@ -225,14 +292,51 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
 
   // 6. Action: Email Notification Dispatcher
   if (activeActions.includes("email") && actions?.emailConfig?.toEmail) {
-    // Log formatted email notification dispatch (production integrates nodemailer/SES)
-    console.log(
-      `[Form Email Dispatch] Sending lead email to: ${actions.emailConfig.toEmail} | Subject: ${
-        actions.emailConfig.subject || "New Lead Received"
-      }`,
-      sanitizedFields
-    );
-    executionResults.email = true;
+    const toEmail = actions.emailConfig.toEmail.trim();
+    const subject = actions.emailConfig.subject || "New Lead Received";
+    const fromName = actions.emailConfig.fromName || "ForgeStudio Forms";
+
+    const transporter = getMailTransporter();
+    if (transporter) {
+      // Build HTML summary of form fields
+      const rowsHtml = Object.entries(sanitizedFields)
+        .map(
+          ([k, v]) =>
+            `<tr><td style="padding:6px;font-weight:bold;border:1px solid #ddd">${k}</td><td style="padding:6px;border:1px solid #ddd">${String(
+              v
+            )}</td></tr>`
+        )
+        .join("");
+
+      const htmlBody = `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eee;border-radius:8px;">
+          <h2 style="color:#333;margin-top:0;">New Lead from ${formName || "Website Form"}</h2>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+            ${rowsHtml}
+          </table>
+          <p style="font-size:12px;color:#777;">Website ID: ${websiteId} | Form ID: ${formId} | Submitted: ${sanitizedMetadata.submittedAt}</p>
+        </div>
+      `;
+
+      transporter
+        .sendMail({
+          from: `"${fromName}" <${process.env.SMTP_FROM || "no-reply@forgestudio.io"}>`,
+          to: toEmail,
+          subject,
+          html: htmlBody,
+        })
+        .catch((mailErr: any) => {
+          console.error("[Form Email Dispatch] Failed to send email via SMTP:", mailErr);
+        });
+      executionResults.email = true;
+    } else {
+      // Fallback: log structured lead payload when SMTP host is unconfigured
+      console.log(
+        `[Form Email Dispatch] (SMTP unconfigured) Lead notification for: ${toEmail} | Subject: ${subject}`,
+        sanitizedFields
+      );
+      executionResults.email = true;
+    }
   }
 
   return {
