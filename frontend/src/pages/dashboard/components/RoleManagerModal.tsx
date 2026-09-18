@@ -30,28 +30,40 @@ interface RoleManagerModalProps {
 }
 
 const ROLE_DESC: Record<string, { desc: string, caps: string }> = {
-    OWNER: { desc: "Full control.", caps: "App Config" },
-    ADMIN: { desc: "Manage administration.", caps: "Members" },
-    DESIGNER: { desc: "Build & modify design.", caps: "Design" },
-    CONTENT_EDITOR: { desc: "Edit approved content.", caps: "Content" },
-    REVIEWER: { desc: "View & review.", caps: "View Only" },
+    OWNER: { desc: "Full control over website, settings & billing.", caps: "Full Control" },
+    PROJECT_OWNER: { desc: "Full control over website, settings & billing.", caps: "Full Control" },
+    ADMIN: { desc: "Manage members, settings, and publishing.", caps: "Admin Access" },
+    PROJECT_ADMIN: { desc: "Manage members, settings, and publishing.", caps: "Admin Access" },
+    DESIGNER: { desc: "Build & modify layout, styling, and design.", caps: "Design Access" },
+    DEVELOPER: { desc: "Custom code, integrations, and technical settings.", caps: "Code & APIs" },
+    CONTENT_EDITOR: { desc: "Edit text, media, and dynamic content.", caps: "Content Only" },
+    SEO_MANAGER: { desc: "Manage SEO metadata, sitemaps, and audits.", caps: "SEO & Audits" },
+    REVIEWER: { desc: "View and leave contextual design comments.", caps: "Review Access" },
+    VIEWER: { desc: "Read-only access to preview and design.", caps: "Read Only" },
 };
 
 const CAPABILITIES = [
     { id: "VIEW", label: "View Project" },
-    { id: "COMMENT", label: "Add Comments" },
+    { id: "COMMENT", label: "Add Comments & Notes" },
     { id: "EDIT_CONTENT", label: "Edit Content text & media" },
     { id: "EDIT_DESIGN", label: "Edit Layout & Design" },
-    { id: "PUBLISH", label: "Publish Website" },
-    { id: "MANAGE_PERMISSIONS", label: "Manage Permissions" }
+    { id: "CUSTOM_CODE", label: "Custom Code & Scripts" },
+    { id: "EDIT_SEO", label: "SEO Settings & Audits" },
+    { id: "PUBLISH", label: "Publish & Deploy Website" },
+    { id: "MANAGE_PERMISSIONS", label: "Manage Permissions & Team" }
 ];
 
 const DEFAULT_CAPABILITIES: Record<string, string[]> = {
-    OWNER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
-    ADMIN: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
+    OWNER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "CUSTOM_CODE", "EDIT_SEO", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
+    PROJECT_OWNER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "CUSTOM_CODE", "EDIT_SEO", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
+    ADMIN: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "CUSTOM_CODE", "EDIT_SEO", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
+    PROJECT_ADMIN: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "CUSTOM_CODE", "EDIT_SEO", "PUBLISH", "MANAGE_MEMBERS", "MANAGE_PERMISSIONS"],
     DESIGNER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "PUBLISH"],
-    CONTENT_EDITOR: ["VIEW", "COMMENT", "EDIT_CONTENT", "PUBLISH"],
-    REVIEWER: ["VIEW", "COMMENT"]
+    DEVELOPER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_DESIGN", "CUSTOM_CODE", "MANAGE_INTEGRATIONS"],
+    CONTENT_EDITOR: ["VIEW", "COMMENT", "EDIT_CONTENT"],
+    SEO_MANAGER: ["VIEW", "COMMENT", "EDIT_CONTENT", "EDIT_SEO"],
+    REVIEWER: ["VIEW", "COMMENT"],
+    VIEWER: ["VIEW"],
 };
 
 export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, websiteName, onClose, apiUrl }) => {
@@ -271,8 +283,11 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
                                     <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm focus:border-blue-500 outline-none bg-white cursor-pointer transition-colors font-semibold text-slate-700">
                                         <option value="ADMIN">Admin</option>
                                         <option value="DESIGNER">Designer</option>
+                                        <option value="DEVELOPER">Developer</option>
                                         <option value="CONTENT_EDITOR">Content Editor</option>
+                                        <option value="SEO_MANAGER">SEO Manager</option>
                                         <option value="REVIEWER">Reviewer</option>
+                                        <option value="VIEWER">Viewer</option>
                                     </select>
                                 </div>
                                 <button disabled={inviting} type="submit" className="h-10 px-5 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
@@ -310,8 +325,11 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
                                                             <option value="OWNER" disabled>Owner</option>
                                                             <option value="ADMIN">Admin</option>
                                                             <option value="DESIGNER">Designer</option>
+                                                            <option value="DEVELOPER">Developer</option>
                                                             <option value="CONTENT_EDITOR">Content Editor</option>
+                                                            <option value="SEO_MANAGER">SEO Manager</option>
                                                             <option value="REVIEWER">Reviewer</option>
+                                                            <option value="VIEWER">Viewer</option>
                                                         </select>
                                                         <div className="text-[9px] text-slate-400 mt-1">{ROLE_DESC[m.role]?.desc}</div>
                                                     </td>
