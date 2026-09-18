@@ -805,6 +805,13 @@ const [popups, setPopups] = useState<any[]>([]);
     customHead?: string;
     isMaintenanceMode?: boolean;
     siteLanguage?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    canonicalUrl?: string;
+    noindex?: boolean;
+    nofollow?: boolean;
+    [key: string]: any;
   }>({
     title: "Home",
     description: "",
@@ -813,6 +820,12 @@ const [popups, setPopups] = useState<any[]>([]);
     customHead: "",
     isMaintenanceMode: false,
     siteLanguage: "en",
+    ogTitle: "",
+    ogDescription: "",
+    ogImage: "",
+    canonicalUrl: "",
+    noindex: false,
+    nofollow: false,
   });
 
 // Multi-Page Management, Site Parts & Preview States
@@ -16120,6 +16133,96 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     placeholder="/"
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                   />
+                </div>
+
+                {/* Page SEO & Social Graph (Phase 4) */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>🌐</span>
+                      <span>SEO & Social Graph</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
+                      Metadata
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Canonical URL
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.canonicalUrl || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
+                      placeholder="https://example.com/canonical-page"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Title
+                    </label>
+                    <input
+                      type="text"
+                      value={pageSettings.ogTitle || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogTitle: e.target.value }))}
+                      placeholder={pageSettings.title || "Social title..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={pageSettings.ogDescription || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogDescription: e.target.value }))}
+                      placeholder={pageSettings.description || "Social share description..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Social Share Image URL (og:image)
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.ogImage || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogImage: e.target.value }))}
+                      placeholder="https://example.com/share-card.jpg"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Search Engine Robots Indexing */}
+                  <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Robots Directives
+                    </span>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.noindex}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, noindex: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Prevent search engine indexing (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">noindex</code>)</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.nofollow}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, nofollow: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
+                    </label>
+                  </div>
                 </div>
 
                 {/* Site / Website Published Language (F-022) */}

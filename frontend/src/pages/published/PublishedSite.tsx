@@ -674,6 +674,53 @@ export default function PublishedSite() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, [pages, activePageId]);
 
+    // Page-Level SEO, OpenGraph & Search Engine Indexing (Phase 4)
+    useEffect(() => {
+        if (!pages || pages.length === 0) return;
+        const curPage = pages.find(p => p.id === activePageId) || pages[0];
+        if (!curPage) return;
+
+        const pSettings = curPage.pageSettings || {};
+        const title = pSettings.title || curPage.name || "Published Website";
+        document.title = title;
+
+        const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
+            if (!content) return;
+            const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+            let el = document.querySelector(selector);
+            if (!el) {
+                el = document.createElement("meta");
+                if (isProperty) el.setAttribute("property", name);
+                else el.setAttribute("name", name);
+                document.head.appendChild(el);
+            }
+            el.setAttribute("content", content);
+        };
+
+        if (pSettings.description) upsertMeta("description", pSettings.description);
+        if (pSettings.ogTitle || title) upsertMeta("og:title", pSettings.ogTitle || title, true);
+        if (pSettings.ogDescription || pSettings.description) {
+            upsertMeta("og:description", pSettings.ogDescription || pSettings.description, true);
+        }
+        if (pSettings.ogImage) upsertMeta("og:image", pSettings.ogImage, true);
+        if (pSettings.canonicalUrl) {
+            let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+            if (!link) {
+                link = document.createElement("link");
+                link.rel = "canonical";
+                document.head.appendChild(link);
+            }
+            link.href = pSettings.canonicalUrl;
+        }
+
+        const robots = [];
+        if (pSettings.noindex) robots.push("noindex");
+        if (pSettings.nofollow) robots.push("nofollow");
+        if (robots.length > 0) {
+            upsertMeta("robots", robots.join(", "));
+        }
+    }, [pages, activePageId]);
+
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
 

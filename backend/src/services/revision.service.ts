@@ -14,6 +14,9 @@ export interface CreateRevisionInput {
   pages?: any[];
   siteParts?: any;
   globalSettings?: any;
+  globalStyles?: any;
+  navigation?: any[];
+  siteSettings?: any;
   breakpoints?: any[];
   popups?: any[];
   pageCss?: string;
@@ -149,6 +152,9 @@ export async function createRevision(websiteId: string, userId: string, payload:
       pageSettings: payload.pageSettings ?? currentEditorData.pageSettings ?? {},
       siteParts: payload.siteParts ?? currentEditorData.siteParts ?? null,
       globalSettings: payload.globalSettings ?? currentEditorData.globalSettings ?? null,
+      globalStyles: payload.globalStyles ?? currentEditorData.globalStyles ?? null,
+      navigation: payload.navigation ?? currentEditorData.navigation ?? [],
+      siteSettings: payload.siteSettings ?? currentEditorData.siteSettings ?? null,
       breakpoints: payload.breakpoints ?? currentEditorData.breakpoints ?? null,
       popups: payload.popups ?? currentEditorData.popups ?? null,
       pageCss: payload.pageCss ?? currentEditorData.pageCss ?? "",
