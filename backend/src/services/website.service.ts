@@ -549,6 +549,58 @@ export async function createWebsite(
 }
 
 /**
+ * Validates the canonical editorData structure and guards against malformed input or prototype pollution.
+ */
+export function validateCanonicalEditorData(data: any): void {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new AppError("Invalid editorData: must be a valid JSON object", 400, "INVALID_CANONICAL_DATA");
+  }
+
+  // Prototype pollution guard
+  if ("__proto__" in data || "constructor" in data || "prototype" in data) {
+    delete (data as any).__proto__;
+    delete (data as any).constructor;
+    delete (data as any).prototype;
+  }
+
+  // Check elements array
+  if (data.elements !== undefined && !Array.isArray(data.elements)) {
+    throw new AppError("Invalid editorData: elements must be an array", 400, "INVALID_CANONICAL_DATA");
+  }
+
+  // Check pages array
+  if (data.pages !== undefined) {
+    if (!Array.isArray(data.pages)) {
+      throw new AppError("Invalid editorData: pages must be an array", 400, "INVALID_CANONICAL_DATA");
+    }
+    for (const page of data.pages) {
+      if (!page || typeof page !== "object") {
+        throw new AppError("Invalid editorData: each page entry must be an object", 400, "INVALID_CANONICAL_DATA");
+      }
+      if (!page.id || typeof page.id !== "string") {
+        throw new AppError("Invalid editorData: page missing valid string id", 400, "INVALID_CANONICAL_DATA");
+      }
+      if (page.elements !== undefined && !Array.isArray(page.elements)) {
+        throw new AppError(`Invalid editorData: page "${page.id}" elements must be an array`, 400, "INVALID_CANONICAL_DATA");
+      }
+    }
+  }
+
+  // Check siteParts if present
+  if (data.siteParts !== undefined && data.siteParts !== null) {
+    if (typeof data.siteParts !== "object" || Array.isArray(data.siteParts)) {
+      throw new AppError("Invalid editorData: siteParts must be an object", 400, "INVALID_CANONICAL_DATA");
+    }
+    if (data.siteParts.header && data.siteParts.header.elements && !Array.isArray(data.siteParts.header.elements)) {
+      throw new AppError("Invalid editorData: siteParts.header.elements must be an array", 400, "INVALID_CANONICAL_DATA");
+    }
+    if (data.siteParts.footer && data.siteParts.footer.elements && !Array.isArray(data.siteParts.footer.elements)) {
+      throw new AppError("Invalid editorData: siteParts.footer.elements must be an array", 400, "INVALID_CANONICAL_DATA");
+    }
+  }
+}
+
+/**
  * Update general website metadata and attributes
  */
 export async function updateWebsite(
@@ -563,7 +615,10 @@ export async function updateWebsite(
   if (data.name !== undefined) updatePayload.name = data.name;
   if (data.slug !== undefined) updatePayload.slug = data.slug;
   if (data.status !== undefined) updatePayload.status = data.status;
-  if (data.editorData !== undefined) updatePayload.editorData = data.editorData;
+  if (data.editorData !== undefined) {
+    validateCanonicalEditorData(data.editorData);
+    updatePayload.editorData = data.editorData;
+  }
 
   const updated = await prisma.website.update({
     where: { id: websiteId },
@@ -582,6 +637,8 @@ export async function updateWebsiteEditorData(
   editorData: any,
   performanceSettings?: any
 ) {
+  validateCanonicalEditorData(editorData);
+
   // Ensure website exists and fetch permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 

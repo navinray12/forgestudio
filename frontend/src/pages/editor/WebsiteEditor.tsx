@@ -137,6 +137,7 @@ import {
   deleteTreeElement,
   duplicateTreeElement,
   moveTreeElement,
+  isDescendant,
   reorderTreeElement
 } from "./utils";
 
@@ -2194,7 +2195,7 @@ const navigate = useNavigate();
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-        if (targetId && data.id === targetId) return;
+        if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
         setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
