@@ -195,7 +195,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     submittedAt: new Date().toISOString(),
   };
 
-  const activeActions = actions?.activeActions || ["database"];
+  const activeActions = actions?.activeActions || (actions as any)?.submitActions || ["database"];
   const executionResults: Record<string, boolean> = {};
 
   // 4. Action: Database Persistence

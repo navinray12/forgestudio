@@ -14,6 +14,12 @@ export interface TransformedWordPressPage {
   meta: Record<string, any>;
   forms: Array<{ formId: string; fields: any[] }>;
   mediaReferences: Array<{ url: string; alt?: string; id?: string }>;
+  contentHtml?: string;
+  customCss?: string;
+  gutenbergBlocks?: any[];
+  yoastMeta?: Record<string, any>;
+  rankMathMeta?: Record<string, any>;
+  elementorData?: any;
 }
 
 export function transformPageToWordPress(

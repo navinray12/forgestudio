@@ -324,7 +324,7 @@ export async function publishToWordPress(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Forge-Api-Key": connection.apiKeyHash || "fs_test_token",
+          "X-Forge-Api-Key": (connection as any).apiKeyHash || "fs_test_token",
           "User-Agent": "ForgeStudio-Connector/1.0",
         },
         body: JSON.stringify({
