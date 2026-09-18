@@ -144,6 +144,61 @@ function SuperAdminDashboard() {
     }
   };
 
+  const handleRetryJob = async (jobId: string) => {
+    setActionLoading(jobId);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/operations/jobs/${jobId}/retry`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to retry job");
+      setFeedback({ type: "success", message: `Job ${jobId.substring(0, 8)} queued for retry` });
+      fetchPlatformData();
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err?.message || "Retry failed" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCancelJob = async (jobId: string) => {
+    if (!window.confirm("Cancel this background job?")) return;
+    setActionLoading(jobId);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/operations/jobs/${jobId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ reason: "Cancelled by SuperAdmin" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to cancel job");
+      setFeedback({ type: "success", message: `Job ${jobId.substring(0, 8)} cancelled` });
+      fetchPlatformData();
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err?.message || "Cancel failed" });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handlePurgeJobs = async () => {
+    if (!window.confirm("Purge all completed and cancelled background jobs from history?")) return;
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/operations/jobs/purge`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to purge jobs");
+      setFeedback({ type: "success", message: `Purged ${data.data?.purgedCount || 0} completed jobs.` });
+      fetchPlatformData();
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err?.message || "Purge failed" });
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
@@ -424,7 +479,30 @@ function SuperAdminDashboard() {
         {/* JOBS TAB */}
         {activeTab === "jobs" && (
           <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white tracking-tight">Background Worker Job Queue</h2>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Background Worker Job Queue</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Automated queue processing, retries, and scheduled executions.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePurgeJobs}
+                  className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-300 text-xs font-bold transition"
+                  title="Remove completed and cancelled jobs from history"
+                >
+                  🧹 Purge Completed
+                </button>
+                <button
+                  type="button"
+                  onClick={fetchPlatformData}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition"
+                >
+                  ↻ Refresh
+                </button>
+              </div>
+            </div>
+
             <div className="overflow-x-auto rounded-xl border border-slate-800">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
@@ -435,12 +513,13 @@ function SuperAdminDashboard() {
                     <th className="py-3 px-4">Attempts</th>
                     <th className="py-3 px-4">Scheduled Run At</th>
                     <th className="py-3 px-4">Created</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
                   {jobsList.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-slate-500">
+                      <td colSpan={7} className="py-8 text-center text-slate-500">
                         No active or historical background jobs found.
                       </td>
                     </tr>
@@ -467,6 +546,31 @@ function SuperAdminDashboard() {
                         </td>
                         <td className="py-3 px-4 text-slate-500">{new Date(job.runAt).toLocaleString()}</td>
                         <td className="py-3 px-4 text-slate-500">{new Date(job.createdAt).toLocaleString()}</td>
+                        <td className="py-3 px-4 text-right">
+                          {job.status === "FAILED" && (
+                            <button
+                              type="button"
+                              onClick={() => handleRetryJob(job.id)}
+                              disabled={actionLoading === job.id}
+                              className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] border border-amber-500/30 transition disabled:opacity-50"
+                            >
+                              {actionLoading === job.id ? "Retrying..." : "Retry"}
+                            </button>
+                          )}
+                          {(job.status === "QUEUED" || job.status === "RUNNING") && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelJob(job.id)}
+                              disabled={actionLoading === job.id}
+                              className="px-2.5 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[10px] border border-rose-500/30 transition disabled:opacity-50"
+                            >
+                              {actionLoading === job.id ? "Cancelling..." : "Cancel"}
+                            </button>
+                          )}
+                          {job.status === "COMPLETED" && (
+                            <span className="text-slate-600 text-[10px] font-sans">✓ Resolved</span>
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}

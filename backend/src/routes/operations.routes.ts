@@ -6,6 +6,9 @@ import {
   getOperationalStatusHandler,
   listJobsHandler,
   processNextJobHandler,
+  retryJobHandler,
+  cancelJobHandler,
+  purgeCompletedJobsHandler,
   getAlertsHandler,
   schedulePublishHandler,
   cancelScheduledPublishHandler,
@@ -25,6 +28,9 @@ router.get("/status", getOperationalStatusHandler);
 // Protected Operations Endpoints
 router.get("/jobs", requireAuth, listJobsHandler);
 router.post("/jobs/process-next", requireAuth, processNextJobHandler);
+router.post("/jobs/:id/retry", requireAuth, retryJobHandler);
+router.post("/jobs/:id/cancel", requireAuth, cancelJobHandler);
+router.delete("/jobs/purge", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), purgeCompletedJobsHandler);
 router.get("/alerts", requireAuth, getAlertsHandler);
 
 // Admin & Super Admin Operations Endpoints

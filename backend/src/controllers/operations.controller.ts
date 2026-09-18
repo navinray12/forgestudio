@@ -13,6 +13,9 @@ import {
   processNextJob,
   enqueueJob,
   getJobById,
+  retryJob,
+  cancelJob,
+  purgeCompletedJobs,
 } from "../services/jobs/jobRunner.js";
 import {
   schedulePublish,
@@ -68,6 +71,45 @@ export async function listJobsHandler(req: Request, res: Response, next: NextFun
 export async function processNextJobHandler(_req: Request, res: Response, next: NextFunction) {
   try {
     const result = await processNextJob();
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function retryJobHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const jobId = String(req.params.id);
+    const job = await retryJob(jobId);
+    return res.status(200).json({
+      success: true,
+      data: job,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function cancelJobHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const jobId = String(req.params.id);
+    const reason = req.body?.reason || "Cancelled via Operations Dashboard";
+    const result = await cancelJob(jobId, reason);
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function purgeCompletedJobsHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await purgeCompletedJobs();
     return res.status(200).json({
       success: true,
       data: result,
