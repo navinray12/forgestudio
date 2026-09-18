@@ -35,6 +35,7 @@ import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
+import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -121,6 +122,8 @@ app.use("/api/v1/forms", formRoutes);
 app.use("/api/forms", formRoutes);
 
 // Plugin compatibility and integrations.
+app.get("/api/v1/plugins/wordpress/download", downloadWordPressPluginHandler);
+app.get("/api/plugins/wordpress/download", downloadWordPressPluginHandler);
 app.use("/api/v1/plugins", pluginCompatRoutes);
 app.use("/api/plugins", pluginCompatRoutes);
 app.use("/api/v1/plugins-integration", pluginIntegrationRoutes);
