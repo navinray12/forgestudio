@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
+import { requireAuth, requireRole } from "../middlewares/auth.middleware.js";
 import { authorizeCapability } from "../services/permission.service.js";
 import {
   getHealthHandler,
@@ -10,6 +10,10 @@ import {
   schedulePublishHandler,
   cancelScheduledPublishHandler,
   promoteDeploymentHandler,
+  getAdminStatsHandler,
+  getAdminUsersHandler,
+  updateAdminUserStatusHandler,
+  getAdminWebsitesHandler,
 } from "../controllers/operations.controller.js";
 
 const router = Router();
@@ -22,6 +26,12 @@ router.get("/status", getOperationalStatusHandler);
 router.get("/jobs", requireAuth, listJobsHandler);
 router.post("/jobs/process-next", requireAuth, processNextJobHandler);
 router.get("/alerts", requireAuth, getAlertsHandler);
+
+// Admin & Super Admin Operations Endpoints
+router.get("/admin/stats", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminStatsHandler);
+router.get("/admin/users", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminUsersHandler);
+router.put("/admin/users/:userId/status", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminUserStatusHandler);
+router.get("/admin/websites", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminWebsitesHandler);
 
 // Website Operational Actions
 router.post("/websites/:id/schedule-publish", requireAuth, authorizeCapability("PUBLISH"), schedulePublishHandler);

@@ -119,3 +119,122 @@ export function getOperationalAlerts(limit: number = 50, levelFilter?: string): 
 export function clearOperationalAlerts() {
   recentAlerts.length = 0;
 }
+
+export async function getAdminPlatformStats() {
+  const health = await getSystemHealth();
+
+  let totalUsers = 0;
+  let activeUsers = 0;
+  let totalWebsites = 0;
+  let publishedWebsites = 0;
+  let totalDeployments = 0;
+  let totalOrganizations = 0;
+  let totalWorkspaces = 0;
+  let recentAuditLogs: any[] = [];
+  let recentDeployments: any[] = [];
+
+  try {
+    const [uCount, aUCount, wCount, pWCount, dCount, oCount, wsCount] = await Promise.all([
+      (prisma as any).user.count(),
+      (prisma as any).user.count({ where: { status: "ACTIVE" } }),
+      (prisma as any).website.count(),
+      (prisma as any).website.count({ where: { status: "PUBLISHED" } }),
+      (prisma as any).deployment.count(),
+      (prisma as any).organization ? (prisma as any).organization.count() : 0,
+      (prisma as any).workspace ? (prisma as any).workspace.count() : 0,
+    ]);
+
+    totalUsers = uCount;
+    activeUsers = aUCount;
+    totalWebsites = wCount;
+    publishedWebsites = pWCount;
+    totalDeployments = dCount;
+    totalOrganizations = oCount;
+    totalWorkspaces = wsCount;
+
+    recentAuditLogs = await (prisma as any).auditLog.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { id: true, fullName: true, email: true } } },
+    });
+
+    recentDeployments = await (prisma as any).deployment.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+      include: { website: { select: { id: true, name: true, slug: true } } },
+    });
+  } catch (err: any) {
+    recordOperationalAlert("WARNING", "admin-stats", "Failed to query full platform statistics", {
+      error: err?.message,
+    });
+  }
+
+  return {
+    health,
+    totals: {
+      totalUsers,
+      activeUsers,
+      totalWebsites,
+      publishedWebsites,
+      totalDeployments,
+      totalOrganizations,
+      totalWorkspaces,
+    },
+    recentAuditLogs,
+    recentDeployments,
+  };
+}
+
+export async function getAdminUsers(limit: number = 50) {
+  return await (prisma as any).user.findMany({
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      role: true,
+      status: true,
+      lastLoginAt: true,
+      createdAt: true,
+      _count: { select: { websites: true } },
+    },
+  });
+}
+
+export async function setAdminUserStatus(userId: string, status: "ACTIVE" | "SUSPENDED" | "DELETED", adminUserId?: string) {
+  const updatedUser = await (prisma as any).user.update({
+    where: { id: userId },
+    data: { status },
+    select: { id: true, email: true, status: true, role: true },
+  });
+
+  if (adminUserId) {
+    await recordAuditLog({
+      userId: adminUserId,
+      action: `USER_STATUS_${status}`,
+      targetResource: `user:${userId}`,
+      details: { newStatus: status, userEmail: updatedUser.email },
+    });
+  }
+
+  return updatedUser;
+}
+
+export async function getAdminWebsites(limit: number = 50) {
+  return await (prisma as any).website.findMany({
+    take: limit,
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      user: { select: { id: true, fullName: true, email: true } },
+      _count: { select: { deployments: true, revisions: true } },
+    },
+  });
+}
