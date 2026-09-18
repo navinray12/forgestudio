@@ -34,6 +34,7 @@ import {
 import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
+import mediaRoutes from "./routes/media.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -89,6 +90,8 @@ app.use("/api/teams", teamRoutes);
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/v1/media", mediaRoutes);
+app.use("/api/media", mediaRoutes);
 
 // API Keys & Developer Access
 app.use("/api/v1/apikeys", apiKeysRoutes);
