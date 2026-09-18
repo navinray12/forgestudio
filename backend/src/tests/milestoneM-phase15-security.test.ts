@@ -158,7 +158,7 @@ async function runMilestoneMTests() {
       formName: "Security Audit Form",
       fields: { name: "Alice", email: "alice@example.com" },
       actions: {
-        submitActions: ["database", "webhook"],
+        activeActions: ["database", "webhook"],
         webhookConfig: {
           endpointUrl: "http://127.0.0.1:5000/internal-admin",
         },

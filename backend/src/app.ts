@@ -29,6 +29,9 @@ import {
   sftpRoutes,
   pluginIntegrationRoutes,
   multisiteRoutes,
+  designTokenRoutes,
+  commerceRoutes,
+  enterpriseMultisiteRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -37,6 +40,7 @@ import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import healthRoutes from "./routes/health.routes.js";
 
 const app = express();
 
@@ -137,6 +141,18 @@ app.use("/api/multisite", multisiteRoutes);
 app.use("/api/v1/integrations", integrationRoutes);
 app.use("/api/integrations", integrationRoutes);
 
+// Phase 17: Design System / Tokens
+app.use("/api/v1/websites", designTokenRoutes);
+app.use("/api/websites", designTokenRoutes);
+
+// Phase 18: E-Commerce & WooCommerce Parity
+app.use("/api/v1/websites", commerceRoutes);
+app.use("/api/websites", commerceRoutes);
+
+// Phase 19: Custom Domains & Backups
+app.use("/api/v1/websites", enterpriseMultisiteRoutes);
+app.use("/api/websites", enterpriseMultisiteRoutes);
+
 // Audit Logs
 app.use("/api/v1/audit-logs", auditLogRoutes);
 app.use("/api/audit-logs", auditLogRoutes);
@@ -147,6 +163,9 @@ app.use("/api/operations", operationsRoutes);
 app.get("/api/health", (_req, res) => {
   res.redirect("/api/operations/health");
 });
+
+// Phase 20: Production Health & Canary
+app.use("/api", healthRoutes);
 
 app.use(errorMiddleware);
 

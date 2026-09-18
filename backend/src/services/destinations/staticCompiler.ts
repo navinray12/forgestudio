@@ -1,5 +1,10 @@
 import type { StaticBundle, GeneratedFile } from "./types.js";
 import { matchesThemeCondition, resolveTokensInTree } from "../website.service.js";
+import {
+  compileDesignSystemCss,
+  validateVariables,
+  validateClasses,
+} from "../tokens/designToken.service.js";
 
 function escapeHtml(str: string): string {
   if (!str) return "";
@@ -503,7 +508,11 @@ function generateGlobalCss(websiteData: any): string {
   const colors = globalStyles.colors || {};
   const typography = globalStyles.typography || {};
 
-  return `/* ForgeStudio Generated CSS */
+  const globalVars = validateVariables(websiteData.globalVariables || websiteData.editorData?.globalVariables || []);
+  const globalClasses = validateClasses(websiteData.globalClasses || websiteData.editorData?.globalClasses || []);
+  const designSystemCss = compileDesignSystemCss(globalVars, globalClasses);
+
+  return `${designSystemCss ? designSystemCss + "\n\n" : ""}/* ForgeStudio Generated CSS */
 :root {
   --primary-color: ${colors.primary || "#3b82f6"};
   --secondary-color: ${colors.secondary || "#10b981"};

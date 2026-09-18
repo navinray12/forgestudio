@@ -6,6 +6,8 @@ import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperM
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
+import { VariablesManagerModal } from "./components/VariablesManagerModal";
+import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
@@ -839,6 +841,10 @@ const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
 const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
 const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
 const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
+const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
+const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
+const [globalVariables, setGlobalVariables] = useState<any[]>([]);
+const [globalClasses, setGlobalClasses] = useState<any[]>([]);
 const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
 const [newPageName, setNewPageName] = useState<string>("");
 const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -1640,6 +1646,14 @@ const navigate = useNavigate();
           if (loadedSite?.editorData?.publishedData) {
             publishedDataRef.current = loadedSite.editorData.publishedData;
           }
+
+          if (Array.isArray(loadedSite?.editorData?.globalVariables)) {
+            setGlobalVariables(loadedSite.editorData.globalVariables);
+          }
+
+          if (Array.isArray(loadedSite?.editorData?.globalClasses)) {
+            setGlobalClasses(loadedSite.editorData.globalClasses);
+          }
         } else {
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
@@ -2083,6 +2097,8 @@ const navigate = useNavigate();
           breakpoints,
           globalSettings,
           globalStyles: globalSettings?.globalStyles,
+          globalVariables,
+          globalClasses,
           popups,
           pageCss,
           pageSettings,
@@ -6187,6 +6203,28 @@ const navigate = useNavigate();
                   >
                     <span>💬</span>
                     <span>Notes</span>
+                  </button>
+
+                  {/* F-339: Variables Manager (Tokens) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsVariablesModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Design Variables & CSS Tokens (F-339)"
+                  >
+                    <span>🎨</span>
+                    <span>Tokens</span>
+                  </button>
+
+                  {/* F-340: Global Class Manager */}
+                  <button
+                    type="button"
+                    onClick={() => setIsClassModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Global Utility Classes (F-340)"
+                  >
+                    <span>🏷️</span>
+                    <span>Classes</span>
                   </button>
 
                   <button
@@ -17502,6 +17540,29 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
             updateSelectedStyle("fontFamily", fontFamily);
           }
           setIsFontPickerModalOpen(false);
+        }}
+      />
+
+      {/* F-339: Variables Manager Modal */}
+      <VariablesManagerModal
+        isOpen={isVariablesModalOpen}
+        onClose={() => setIsVariablesModalOpen(false)}
+        variables={globalVariables}
+        onSaveVariables={(updated) => {
+          setGlobalVariables(updated);
+          handleSave();
+        }}
+      />
+
+      {/* F-340: Global Class Manager Modal */}
+      <ClassManagerModal
+        isOpen={isClassModalOpen}
+        onClose={() => setIsClassModalOpen(false)}
+        classes={globalClasses}
+        userRole="OWNER"
+        onSaveClasses={(updated) => {
+          setGlobalClasses(updated);
+          handleSave();
         }}
       />
     </div>
