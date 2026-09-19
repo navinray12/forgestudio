@@ -25,13 +25,13 @@ const router = Router();
 router.get("/health", getHealthHandler);
 router.get("/status", getOperationalStatusHandler);
 
-// Protected Operations Endpoints
-router.get("/jobs", requireAuth, listJobsHandler);
-router.post("/jobs/process-next", requireAuth, processNextJobHandler);
-router.post("/jobs/:id/retry", requireAuth, retryJobHandler);
-router.post("/jobs/:id/cancel", requireAuth, cancelJobHandler);
+// Protected Operations Endpoints (Restricted to Platform Admins)
+router.get("/jobs", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), listJobsHandler);
+router.post("/jobs/process-next", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), processNextJobHandler);
+router.post("/jobs/:id/retry", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), retryJobHandler);
+router.post("/jobs/:id/cancel", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), cancelJobHandler);
 router.delete("/jobs/purge", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), purgeCompletedJobsHandler);
-router.get("/alerts", requireAuth, getAlertsHandler);
+router.get("/alerts", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAlertsHandler);
 
 // Admin & Super Admin Operations Endpoints
 router.get("/admin/stats", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminStatsHandler);

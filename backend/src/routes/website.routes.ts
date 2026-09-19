@@ -96,8 +96,6 @@ router.post("/accept", acceptWebsiteInvitationHandler);
 router.post("/:id/invite", authorizeCapability("MANAGE_TEAM"), inviteWebsiteMemberHandler);
 router.delete("/:id/members/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), removeWebsiteMemberHandler);
 
-router.post("/invitations/:inviteId/revoke", revokeWebsiteInvitationHandler);
-router.post("/invitations/:inviteId/resend", resendWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/revoke", authorizeCapability("MANAGE_TEAM"), revokeWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEAM"), resendWebsiteInvitationHandler);
 
