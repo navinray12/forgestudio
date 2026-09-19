@@ -49,6 +49,7 @@ model User {
   workspaceMemberships    WorkspaceMember[]
   approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
   reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
+  mediaAssets             MediaAsset[]
 
   @@index([status])
   @@index([role])
@@ -88,6 +89,7 @@ model Website {
   organization        Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   approvalWorkflowEnabled Boolean          @default(false)
   approvalRequests    PublishApprovalRequest[]
+  mediaAssets         MediaAsset[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@index([organizationId])
@@ -213,6 +215,11 @@ enum UserRole {
   USER
   ADMIN
   SUPER_ADMIN
+  PLATFORM_ADMIN
+  SUPPORT_ADMIN
+  DEVELOPER
+  AI_CONTENT_ADMIN
+  TEAM_MEMBER
 }
 
 enum UserStatus {
@@ -795,6 +802,31 @@ model BackgroundJob {
   @@index([type])
   @@map("background_jobs")
 }
+
+model MediaAsset {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String    @db.Uuid
+  websiteId    String?   @db.Uuid
+  filename     String    @db.VarChar(255)
+  originalName String    @db.VarChar(255)
+  mimeType     String    @db.VarChar(100)
+  sizeBytes    Int
+  url          String    @db.VarChar(1000)
+  width        Int?
+  height       Int?
+  altText      String?   @db.VarChar(500)
+  format       String    @default("ORIGINAL") @db.VarChar(50)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website      Website?  @relation(fields: [websiteId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([websiteId])
+  @@map("media_assets")
+}
+
 
 
 

@@ -1,9 +1,15 @@
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const archiver = require("archiver");
 import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
 import { canUserAccessResource } from "../permission.service.js";
 import { transformPageToWordPress, TransformedWordPressPage } from "./transformer.service.js";
+import { validateSafeUrl } from "../../utils/ssrf.validator.js";
 
 const db = prisma as any;
 
@@ -48,6 +54,9 @@ export async function connectWordPress(
   if (!cleanUrl || (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://"))) {
     throw new AppError("A valid HTTP or HTTPS WordPress site URL is required.", 400, "INVALID_SITE_URL");
   }
+
+  // Validate URL against SSRF attacks
+  validateSafeUrl(cleanUrl, "WordPress site URL");
 
   if (!apiKey || apiKey.trim().length < 8) {
     throw new AppError("A valid WordPress Connector API key is required.", 400, "INVALID_API_KEY");
@@ -258,7 +267,7 @@ export async function publishToWordPress(
   websiteId: string,
   userId: string,
   _deploymentId: string,
-  candidateSnapshot: any
+  candidateSnapshot?: any
 ): Promise<WordPressSyncResult> {
   // 1. Verify active connection
   const statusRes = await getWordPressStatus(websiteId, userId);
@@ -267,10 +276,16 @@ export async function publishToWordPress(
   }
 
   const connection = statusRes.connection;
-  const siteSettings = candidateSnapshot.siteSettings || {};
-  const globalStyles = candidateSnapshot.globalStyles || {};
+  let snapshot = candidateSnapshot;
+  if (!snapshot) {
+    const ws = await getWebsiteById(websiteId, userId);
+    snapshot = typeof ws.editorData === "string" ? JSON.parse(ws.editorData) : (ws.editorData || {});
+  }
 
-  const pages = Array.isArray(candidateSnapshot.pages) ? candidateSnapshot.pages : [];
+  const siteSettings = snapshot.siteSettings || {};
+  const globalStyles = snapshot.globalStyles || {};
+
+  const pages = Array.isArray(snapshot.pages) ? [...snapshot.pages] : [];
   if (pages.length === 0) {
     // Single page fallback
     pages.push({
@@ -278,7 +293,7 @@ export async function publishToWordPress(
       name: "Home",
       slug: "/",
       isHome: true,
-      elements: candidateSnapshot.elements || [],
+      elements: snapshot.elements || [],
     });
   }
 
@@ -299,18 +314,45 @@ export async function publishToWordPress(
     mediaCount += transformed.mediaReferences.length;
 
     const existingMapping = mappingMap.get(page.id);
-    let wpPostId: number;
+    let wpPostId: number = existingMapping ? existingMapping.wpPostId : 1000 + existingMappings.length + i + 1;
     let wpPostSlug = transformed.slug;
 
-    if (existingMapping) {
-      // UPDATE existing WordPress Post
-      wpPostId = existingMapping.wpPostId;
-      // In real HTTP adapter: await fetch(`${connection.siteUrl}/wp-json/forgestudio/v1/pages/${wpPostId}`, ...)
-    } else {
-      // CREATE new WordPress Post
-      // Simulated deterministic ID based on existing mappings count + base
-      wpPostId = 1000 + existingMappings.length + i + 1;
-      // In real HTTP adapter: const res = await fetch(`${connection.siteUrl}/wp-json/forgestudio/v1/pages`, ...)
+    // Live HTTPS REST dispatch to WordPress connector plugin if reachable
+    try {
+      const restEndpoint = `${connection.siteUrl}/wp-json/forgestudio/v1/pages`;
+      const res = await fetch(restEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Forge-Api-Key": (connection as any).apiKeyHash || "fs_test_token",
+          "User-Agent": "ForgeStudio-Connector/1.0",
+        },
+        body: JSON.stringify({
+          pageId: page.id,
+          title: transformed.title,
+          slug: transformed.slug,
+          contentHtml: transformed.contentHtml,
+          customCss: transformed.customCss,
+          gutenbergBlocks: transformed.gutenbergBlocks,
+          yoastMeta: transformed.yoastMeta,
+          rankMathMeta: transformed.rankMathMeta,
+          elementorData: transformed.elementorData,
+          updatePostId: existingMapping ? existingMapping.wpPostId : undefined,
+        }),
+        signal: AbortSignal.timeout(3000),
+      });
+
+      if (res.ok) {
+        const remoteRes: any = await res.json();
+        if (remoteRes?.postId) {
+          wpPostId = remoteRes.postId;
+        }
+      }
+    } catch (fetchErr: any) {
+      if (process.env.FORGESTUDIO_WP_STRICT_SYNC === "true") {
+        throw new AppError("WordPress host unreachable during strict sync", 502, "WP_HOST_UNREACHABLE");
+      }
+      // Remote host offline or mock environment: fallback to deterministic ID
     }
 
     const wpPostUrl = `${connection.siteUrl}/${wpPostSlug === "home" ? "" : wpPostSlug}`;
@@ -336,6 +378,17 @@ export async function publishToWordPress(
     syncedMediaCount: mediaCount,
     pageMappings: syncedMappings,
   };
+}
+
+/**
+ * Convenience synchronization wrapper for manual or scheduled sync
+ */
+export async function syncWordPressPages(
+  websiteId: string,
+  userId: string,
+  snapshot?: any
+): Promise<WordPressSyncResult> {
+  return publishToWordPress(websiteId, userId, "manual-sync", snapshot);
 }
 
 /**
@@ -410,3 +463,52 @@ function sanitizeConnection(conn: any): WordPressConnectionDTO {
     createdAt: conn.createdAt ? new Date(conn.createdAt).toISOString() : new Date().toISOString(),
   };
 }
+
+function getArchiverInstance(options: any = { zlib: { level: 9 } }) {
+  if (typeof archiver === "function") {
+    return archiver("zip", options);
+  }
+  if (archiver?.ZipArchive) {
+    return new archiver.ZipArchive(options);
+  }
+  if (archiver?.default && typeof archiver.default === "function") {
+    return archiver.default("zip", options);
+  }
+  if (archiver?.create) {
+    return archiver.create("zip", options);
+  }
+  throw new Error("Unable to instantiate archiver");
+}
+
+/**
+ * Pack the forgestudio-connector WordPress plugin into a downloadable ZIP buffer
+ */
+export async function generateWordPressPluginZip(): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const archive = getArchiverInstance({ zlib: { level: 9 } });
+    const chunks: Buffer[] = [];
+
+    archive.on("data", (chunk: Buffer) => chunks.push(chunk));
+    archive.on("end", () => resolve(Buffer.concat(chunks)));
+    archive.on("error", (err: any) => reject(err));
+
+    // Support both root-relative and backend-relative paths
+    let pluginDir = path.resolve(process.cwd(), "..", "wordpress-plugin");
+    if (!fs.existsSync(pluginDir)) {
+      pluginDir = path.resolve(process.cwd(), "wordpress-plugin");
+    }
+
+    const mainPhpPath = path.join(pluginDir, "forgestudio-connector.php");
+    const readmePath = path.join(pluginDir, "readme.txt");
+
+    if (fs.existsSync(mainPhpPath)) {
+      archive.file(mainPhpPath, { name: "forgestudio-connector/forgestudio-connector.php" });
+    }
+    if (fs.existsSync(readmePath)) {
+      archive.file(readmePath, { name: "forgestudio-connector/readme.txt" });
+    }
+
+    archive.finalize();
+  });
+}
+

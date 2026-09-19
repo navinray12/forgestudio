@@ -5,8 +5,11 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
+import { VariablesManagerModal } from "./components/VariablesManagerModal";
+import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
+import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -138,6 +141,7 @@ import {
   deleteTreeElement,
   duplicateTreeElement,
   moveTreeElement,
+  isDescendant,
   reorderTreeElement
 } from "./utils";
 
@@ -287,9 +291,16 @@ export default function WebsiteEditor() {
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
-  const handleTrackPopupView = (id: string) => { };
-  const handleTrackPopupClick = (id: string) => { };
-
+  const handleTrackPopupView = (id: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
+    );
+  };
+  const handleTrackPopupClick = (id: string) => {
+    setPopups((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
+    );
+  };
 
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
     if (typeof window !== "undefined" && "EyeDropper" in window) {
@@ -305,14 +316,14 @@ export default function WebsiteEditor() {
     }
   };
 
-  const renderTypographySection = () => null;
+  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
 
   const [breakpoints, setBreakpoints] = useState<any[]>([
     { id: "desktop", name: "Desktop", minWidth: 1025 },
     { id: "tablet", name: "Tablet", minWidth: 768, maxWidth: 1024 },
     { id: "mobile", name: "Mobile", maxWidth: 767 }
   ]);
-  const activeBreakpointId = "desktop";
+  const activeBreakpointId = activeDevice;
 
   const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
     if (!element) return undefined;
@@ -646,6 +657,17 @@ export default function WebsiteEditor() {
     }
   };
 
+  const getAllElementIds = (list: EditorElement[]): string[] => {
+    let ids: string[] = [];
+    for (const item of list) {
+      ids.push(item.id);
+      if (item.children && item.children.length > 0) {
+        ids = ids.concat(getAllElementIds(item.children));
+      }
+    }
+    return ids;
+  };
+
   const handleSelectElement = (id: string | null, e?: React.MouseEvent) => {
     setActiveElementState("normal");
     if (!id) {
@@ -663,6 +685,20 @@ export default function WebsiteEditor() {
         setSelectedId(updated.length > 0 ? updated[updated.length - 1] : null);
         return updated;
       });
+    } else if (e && e.shiftKey && selectedId && elements.length > 0) {
+      const allIds = getAllElementIds(elements);
+      const startIdx = allIds.indexOf(selectedId);
+      const endIdx = allIds.indexOf(id);
+      if (startIdx !== -1 && endIdx !== -1) {
+        const minIdx = Math.min(startIdx, endIdx);
+        const maxIdx = Math.max(startIdx, endIdx);
+        const rangeIds = allIds.slice(minIdx, maxIdx + 1);
+        setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
+        setSelectedId(id);
+      } else {
+        setSelectedId(id);
+        setSelectedIds([id]);
+      }
     } else {
       setSelectedId(id);
       setSelectedIds([id]);
@@ -826,6 +862,13 @@ export default function WebsiteEditor() {
     customHead?: string;
     isMaintenanceMode?: boolean;
     siteLanguage?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    canonicalUrl?: string;
+    noindex?: boolean;
+    nofollow?: boolean;
+    [key: string]: any;
   }>({
     title: "Home",
     description: "",
@@ -834,30 +877,146 @@ export default function WebsiteEditor() {
     customHead: "",
     isMaintenanceMode: false,
     siteLanguage: "en",
+    ogTitle: "",
+    ogDescription: "",
+    ogImage: "",
+    canonicalUrl: "",
+    noindex: false,
+    nofollow: false,
   });
 
-  // Multi-Page Management, Site Parts & Preview States
-  const [pages, setPages] = useState<PageConfig[]>([]);
-  const [homePageId, setHomePageId] = useState<string>("home");
-  const [activePageId, setActivePageId] = useState<string>("home");
-  const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
-  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
-  const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
-  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
-  const [newPageName, setNewPageName] = useState<string>("");
-  const [newPageSlug, setNewPageSlug] = useState<string>("");
-  const [editingPageId, setEditingPageId] = useState<string | null>(null);
-  const [editPageName, setEditPageName] = useState<string>("");
-  const [editPageSlug, setEditPageSlug] = useState<string>("");
-  const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+// Multi-Page Management, Site Parts & Preview States
+const [pages, setPages] = useState<PageConfig[]>([]);
+const [homePageId, setHomePageId] = useState<string>("home");
+const [activePageId, setActivePageId] = useState<string>("home");
+const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
+const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
+const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
+const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
+const [globalVariables, setGlobalVariables] = useState<any[]>([]);
+const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+const [newPageName, setNewPageName] = useState<string>("");
+const [newPageSlug, setNewPageSlug] = useState<string>("");
+const [editingPageId, setEditingPageId] = useState<string | null>(null);
+const [editPageName, setEditPageName] = useState<string>("");
+const [editPageSlug, setEditPageSlug] = useState<string>("");
+const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  // F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
-  const [siteParts, setSiteParts] = useState<SitePartsConfig>({
-    header: { enabled: true, elements: [] },
-    footer: { enabled: true, elements: [] },
-  });
+// F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
+const [siteParts, setSiteParts] = useState<SitePartsConfig>({
+  header: { enabled: true, elements: [] },
+  footer: { enabled: true, elements: [] },
+});
+
+// Publishing State & Deployment Configuration
+const [publishing, setPublishing] = useState<PublishingState>({
+  status: "DRAFT",
+  publishedVersion: 1,
+});
+const [deployment, setDeployment] = useState<DeploymentConfig>({
+  provider: "static",
+});
+const publishedDataRef = useRef<any>(null);
+
+// Canvas Editing Target Mode: "page" | "header" | "footer"
+const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
+
+// Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
+// Advanced Icon Library Modal State
+const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
+const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
+
+const handleOpenIconPicker = (targetField = "iconName") => {
+  setIconPickerTargetField(targetField);
+  setIsIconPickerOpen(true);
+};
+
+// Dynamic Font System Modal State
+const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
+const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
+
+const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
+  if (onSelect) setFontPickerCallback(() => onSelect);
+  setIsFontPickerModalOpen(true);
+};
+
+// Global Site Products Catalog State (WooCommerce & Dynamic Navigation Data Engine)
+const [siteProducts, setSiteProducts] = useState<SiteProduct[]>([
+  {
+    id: "prod_1",
+    name: "Premium Wireless Headphones",
+    price: "$199.99",
+    regularPrice: "$249.99",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+    rating: 5,
+    category: "Electronics",
+    inStock: true,
+    url: "#product-headphones",
+    description: "High fidelity noise-canceling wireless headphones."
+  },
+  {
+    id: "prod_2",
+    name: "Ergonomic Smart Watch",
+    price: "$149.00",
+    regularPrice: "$179.00",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+    rating: 4.8,
+    category: "Wearables",
+    inStock: true,
+    url: "#product-watch",
+    description: "Track fitness, health metrics, and smart notifications."
+  },
+  {
+    id: "prod_3",
+    name: "Minimalist Leather Backpack",
+    price: "$89.50",
+    regularPrice: "$110.00",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
+    rating: 4.6,
+    category: "Accessories",
+    inStock: true,
+    url: "#product-backpack",
+    description: "Crafted from genuine full-grain leather for everyday carry."
+  }
+]);
+
+// Sync live editor state (elements & pageSettings) with the active page entry in pages array
+useEffect(() => {
+  if (!activePageId || canvasMode !== "page") return;
+
+  setPages((prevPages) => {
+    if (!prevPages || prevPages.length === 0) return prevPages;
+
+    const exists = prevPages.some((p) => p.id === activePageId);
+    if (!exists) return prevPages;
+
+    return prevPages.map((p) => {
+      if (p.id === activePageId) {
+        const updatedName = pageSettings.title || p.name;
+        const updatedSlug = pageSettings.path || p.slug;
+
+        if (
+          p.elements === elements &&
+          p.pageSettings === pageSettings &&
+          p.name === updatedName &&
+          p.slug === updatedSlug
+        ) {
+          return p;
+        }
+
+        return {
+          ...p,
+          name: updatedName,
+          slug: updatedSlug,
+          elements,
+          pageSettings,
+        };
+      }
 
   // Publishing State & Deployment Configuration
   const [publishing, setPublishing] = useState<PublishingState>({
@@ -1645,6 +1804,14 @@ export default function WebsiteEditor() {
           if (loadedSite?.editorData?.publishedData) {
             publishedDataRef.current = loadedSite.editorData.publishedData;
           }
+
+          if (Array.isArray(loadedSite?.editorData?.globalVariables)) {
+            setGlobalVariables(loadedSite.editorData.globalVariables);
+          }
+
+          if (Array.isArray(loadedSite?.editorData?.globalClasses)) {
+            setGlobalClasses(loadedSite.editorData.globalClasses);
+          }
         } else {
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
@@ -2088,6 +2255,8 @@ export default function WebsiteEditor() {
           breakpoints,
           globalSettings,
           globalStyles: globalSettings?.globalStyles,
+          globalVariables,
+          globalClasses,
           popups,
           pageCss,
           pageSettings,
@@ -2202,7 +2371,7 @@ export default function WebsiteEditor() {
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-        if (targetId && data.id === targetId) return;
+        if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
         setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
@@ -2557,6 +2726,174 @@ export default function WebsiteEditor() {
           }
         }
       })
+    );
+  };
+
+  const renderTypographySection = () => {
+    if (!selectedElementAny) return null;
+    const textTypes = ["heading", "text", "button", "paragraph", "blockquote"];
+    if (!textTypes.includes(selectedElementAny.type)) return null;
+
+    const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
+    const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
+    const hasItalic = FontService.hasItalic(currentFontFamily);
+
+    const weightLabels: Record<number, string> = {
+      100: "100 Thin",
+      200: "200 Extra Light",
+      300: "300 Light",
+      400: "400 Normal",
+      500: "500 Medium",
+      600: "600 Semi-Bold",
+      700: "700 Bold",
+      800: "800 Extra Bold",
+      900: "900 Black",
+    };
+
+    return (
+      <div className="space-y-3 p-3 bg-slate-50/80 rounded-lg border border-slate-200/80 mt-2 mb-3">
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold text-slate-800">
+            Typography
+          </label>
+          {(isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily") ||
+            isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontSize") ||
+            isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontWeight") ||
+            isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "lineHeight") ||
+            isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "textAlign")) && (
+            <button
+              type="button"
+              onClick={() => {
+                resetSelectedStyle("fontFamily");
+                resetSelectedStyle("fontSize");
+                resetSelectedStyle("fontWeight");
+                resetSelectedStyle("lineHeight");
+                resetSelectedStyle("textAlign");
+              }}
+              title="Reset typography to defaults"
+              className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+            >
+              ↺ Reset All
+            </button>
+          )}
+        </div>
+
+        {/* Font Family */}
+        <FontPickerControl
+          value={currentFontFamily}
+          onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
+          onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
+          onReset={() => resetSelectedStyle("fontFamily")}
+          isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+        />
+
+        {/* Font Size & Weight */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700">Font Size</label>
+              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontSize") && (
+                <button
+                  type="button"
+                  onClick={() => resetSelectedStyle("fontSize")}
+                  title="Reset font size"
+                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                >
+                  ↺
+                </button>
+              )}
+            </div>
+            <input
+              type="text"
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || ""}
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                updateSelectedStyle(
+                  "fontSize",
+                  val === "" ? undefined : (val.endsWith("px") || val.endsWith("rem") || val.endsWith("em") || val.endsWith("%") ? val : `${val}px`)
+                );
+              }}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+              placeholder="e.g. 16px"
+            />
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700">Font Weight</label>
+              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontWeight") && (
+                <button
+                  type="button"
+                  onClick={() => resetSelectedStyle("fontWeight")}
+                  title="Reset font weight"
+                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                >
+                  ↺
+                </button>
+              )}
+            </div>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "inherit"}
+              onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="inherit">Default</option>
+              {supportedWeights.map((w) => (
+                <option key={w} value={String(w)}>
+                  {weightLabels[w] || `${w}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Line Height & Text Align */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700">Line Height</label>
+              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "lineHeight") && (
+                <button
+                  type="button"
+                  onClick={() => resetSelectedStyle("lineHeight")}
+                  title="Reset line height"
+                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                >
+                  ↺
+                </button>
+              )}
+            </div>
+            <input
+              type="text"
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
+              onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+              placeholder="e.g. 1.5 or 24px"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Align</label>
+            <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+              {(["left", "center", "right", "justify"] as const).map((align) => {
+                const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
+                const isActive = currentAlign === align;
+                return (
+                  <button
+                    key={align}
+                    type="button"
+                    onClick={() => updateSelectedStyle("textAlign", align)}
+                    className={`py-1 text-[10px] font-semibold capitalize rounded transition-colors ${
+                      isActive ? "bg-white text-blue-600 shadow-sm font-bold" : "text-slate-600 hover:bg-slate-200"
+                    }`}
+                    title={`Align ${align}`}
+                  >
+                    {align.slice(0, 1).toUpperCase()}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -4271,12 +4608,23 @@ export default function WebsiteEditor() {
           }}
           style={{
             boxSizing: "border-box",
-            display: "flex",
-            flexDirection: mergedLayout.direction || "column",
-            flexWrap: (mergedLayout.flexWrap || mergedStyles.flexWrap || (mergedLayout.direction === "row" ? "wrap" : "nowrap")) as any,
-            justifyContent: mergedLayout.justifyContent || "flex-start",
-            alignItems: mergedLayout.alignItems || "stretch",
-            gap: `${mergedLayout.gap ?? 10}px`,
+display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
+            columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
+            columnGap: mergedLayout.layoutType === "masonry"
+              ? `${mergedLayout.masonryGap || mergedLayout.gap || 16}px`
+              : (mergedLayout.layoutType === "grid"
+                ? (mergedLayout.columnGap !== undefined ? (typeof mergedLayout.columnGap === "number" ? `${mergedLayout.columnGap}px` : mergedLayout.columnGap) : `${mergedLayout.gap ?? 10}px`)
+                : undefined),
+            flexDirection: (mergedLayout.layoutType === "grid" || mergedLayout.layoutType === "masonry") ? undefined : (mergedLayout.direction || "column"),
+            flexWrap: (mergedLayout.layoutType === "grid" || mergedLayout.layoutType === "masonry") ? undefined : (mergedLayout.flexWrap || mergedStyles.flexWrap || (mergedLayout.direction === "row" ? "wrap" : "nowrap")) as any,
+            justifyContent: (mergedLayout.layoutType === "grid" || mergedLayout.layoutType === "masonry") ? undefined : (mergedLayout.justifyContent || "flex-start"),
+            gridTemplateColumns: mergedLayout.layoutType === "grid" ? (mergedLayout.gridTemplateColumns || "repeat(2, minmax(0, 1fr))") : undefined,
+            gridTemplateRows: mergedLayout.layoutType === "grid" ? mergedLayout.gridTemplateRows : undefined,
+            gridAutoFlow: mergedLayout.layoutType === "grid" ? (mergedLayout.gridAutoFlow || "row") : undefined,
+            justifyItems: mergedLayout.layoutType === "grid" ? mergedLayout.justifyItems : undefined,
+            alignItems: mergedLayout.layoutType === "masonry" ? undefined : (mergedLayout.alignItems || "stretch"),
+            gap: mergedLayout.layoutType === "masonry" ? undefined : `${mergedLayout.gap ?? 10}px`,
+            rowGap: mergedLayout.rowGap !== undefined && mergedLayout.layoutType !== "masonry" ? (typeof mergedLayout.rowGap === "number" ? `${mergedLayout.rowGap}px` : mergedLayout.rowGap) : undefined,
             width: mergedStyles.width || "100%",
             maxWidth: mergedStyles.maxWidth || "100%",
             minWidth: mergedStyles.minWidth || "0px",
@@ -5958,7 +6306,7 @@ export default function WebsiteEditor() {
 
             {/* Vertical Divider */}
             <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
-
+https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc%252Fpages%252Feditor%252FWebsiteEditor.tsx&ancestor_oid=308ef2632df75edea24a1e7178f0d3cbe332d2a2&base_oid=5d42845543304e84f0f79503335dcd63e035f7ba&head_oid=cdb5052fb510f1649bab79c7fd23fc03254d2892
             {/* Developer Mode Button */}
             <button
               type="button"
@@ -6201,14 +6549,61 @@ export default function WebsiteEditor() {
               <Box className="w-4 h-4" />
             </button>
 
-            <button
-              onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Toggle Full Screen Canvas"
-              aria-label="Toggle Full Screen Canvas"
-            >
-              <span className="text-sm leading-none">⛶</span>
-            </button>
+<button
+                    type="button"
+                    onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+                    className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    title="Toggle Full Screen Canvas"
+                    aria-label="Toggle Full Screen Canvas"
+                  >
+                    <span className="text-sm leading-none">⛶</span>
+                  </button>
+
+                  {/* Collaborative Design Notes & Feedback */}
+                  <button
+                    type="button"
+                    onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
+                      isDesignNotesOpen
+                        ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
+                        : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
+                    }`}
+                    title="Toggle Collaborative Design Notes & Element Comments"
+                  >
+                    <span>💬</span>
+                    <span>Notes</span>
+                  </button>
+
+                  {/* F-339: Variables Manager (Tokens) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsVariablesModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Design Variables & CSS Tokens (F-339)"
+                  >
+                    <span>🎨</span>
+                    <span>Tokens</span>
+                  </button>
+
+                  {/* F-340: Global Class Manager */}
+                  <button
+                    type="button"
+                    onClick={() => setIsClassModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Global Utility Classes (F-340)"
+                  >
+                    <span>🏷️</span>
+                    <span>Classes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
+                  >
+                    {saving ? "Saving..." : "💾 Save"}
+                  </button>
 
             {/* Subtle Divider */}
             <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
@@ -7825,7 +8220,14 @@ export default function WebsiteEditor() {
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
-                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
+                      {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
+                        siteParts.header?.elements &&
+                        siteParts.header.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.header?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -7850,7 +8252,14 @@ export default function WebsiteEditor() {
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
-                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
+                      {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
+                        siteParts.footer?.elements &&
+                        siteParts.footer.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.footer?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -8049,116 +8458,567 @@ export default function WebsiteEditor() {
                   </div>
                 </div>
 
-                {/* Container Specific Flexbox Layout Controls */}
-                {selectedElementAny.type === "container" && (
-                  <div className="space-y-4">
-                    {/* Direction */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Direction
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.direction || "column"}
-                        onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="column">Column (Vertical)</option>
-                        <option value="row">Row (Horizontal)</option>
-                      </select>
-                    </div>
+                {/* Container Specific Layout Controls (Flexbox & CSS Grid) */}
+                {selectedElementAny.type === "container" && (() => {
+                  const effectiveLayoutType = getEffectiveLayout(selectedElementAny, activeDevice, "layoutType") ?? selectedElementAny.layout?.layoutType ?? "flex";
+                  const isGrid = effectiveLayoutType === "grid";
+                  const effectiveGridCols = getEffectiveLayout(selectedElementAny, activeDevice, "gridTemplateColumns") ?? selectedElementAny.layout?.gridTemplateColumns ?? "repeat(2, minmax(0, 1fr))";
+                  const effectiveGridFlow = getEffectiveLayout(selectedElementAny, activeDevice, "gridAutoFlow") ?? selectedElementAny.layout?.gridAutoFlow ?? "row";
+                  const effectiveJustifyItems = getEffectiveLayout(selectedElementAny, activeDevice, "justifyItems") ?? selectedElementAny.layout?.justifyItems ?? "stretch";
+                  const effectiveAlignItems = getEffectiveLayout(selectedElementAny, activeDevice, "alignItems") ?? selectedElementAny.layout?.alignItems ?? "stretch";
+                  const effectiveDirection = getEffectiveLayout(selectedElementAny, activeDevice, "direction") ?? selectedElementAny.layout?.direction ?? "column";
+                  const effectiveJustifyContent = getEffectiveLayout(selectedElementAny, activeDevice, "justifyContent") ?? selectedElementAny.layout?.justifyContent ?? "flex-start";
+                  const effectiveGap = getEffectiveLayout(selectedElementAny, activeDevice, "gap") ?? selectedElementAny.layout?.gap ?? 10;
+                  const effectiveRowGap = getEffectiveLayout(selectedElementAny, activeDevice, "rowGap") ?? selectedElementAny.layout?.rowGap ?? "";
+                  const effectiveColGap = getEffectiveLayout(selectedElementAny, activeDevice, "columnGap") ?? selectedElementAny.layout?.columnGap ?? "";
 
-                    {/* Justify Content */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Justify Content
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.justifyContent || "flex-start"}
-                        onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                        <option value="space-between">Space Between</option>
-                        <option value="space-around">Space Around</option>
-                        <option value="space-evenly">Space Evenly</option>
-                      </select>
-                    </div>
+                  const isMasonry = effectiveLayoutType === "masonry";
+                  const effectiveMasonryCols = getEffectiveLayout(selectedElementAny, activeDevice, "masonryColumns") ?? selectedElementAny.layout?.masonryColumns ?? 3;
+                  const effectiveMasonryGap = getEffectiveLayout(selectedElementAny, activeDevice, "masonryGap") ?? selectedElementAny.layout?.masonryGap ?? 16;
 
-                    {/* Align Items */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Align Items
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.alignItems || "stretch"}
-                        onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="stretch">Stretch</option>
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                      </select>
-                    </div>
+                  return (
+                    <div className="space-y-4">
+                      {/* Layout Type Toggle (F-041, F-042, F-043, F-051) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Layout Type
+                          </label>
+                          <span className="text-[10px] font-bold text-blue-600 uppercase bg-blue-50 px-1.5 py-0.5 rounded">
+                            {activeDevice}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1 border border-slate-200">
+                          <button
+                            type="button"
+                            onClick={() => updateSelectedLayout("layoutType", "flex")}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
+                              !isGrid && !isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            ⚡ Flexbox
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateSelectedLayout("layoutType", "grid")}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
+                              isGrid ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            ▦ CSS Grid
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateSelectedLayout("layoutType", "masonry")}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
+                              isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            🧱 Masonry
+                          </button>
+                        </div>
+                      </div>
 
-                    {/* Gap (px) */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Gap (px)
-                      </label>
-                      <ScrubbableNumberInput
-                        value={selectedElementAny.layout?.gap ?? 10}
-                        onChange={(val) => updateSelectedLayout("gap", Number(val))}
-                        min={0}
-                        step={1}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
+                      {/* Masonry Setup Controls (F-051) */}
+                      {isMasonry ? (
+                        <div className="space-y-3 p-3 bg-slate-50/80 rounded-lg border border-slate-200/80">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Masonry Columns (2 - 6)
+                            </label>
+                            <div className="grid grid-cols-5 gap-1 mb-2">
+                              {[2, 3, 4, 5, 6].map((cols) => {
+                                const isSelected = Number(effectiveMasonryCols) === cols;
+                                return (
+                                  <button
+                                    key={cols}
+                                    type="button"
+                                    onClick={() => updateSelectedLayout("masonryColumns", cols)}
+                                    className={`py-1 text-xs font-bold rounded border ${
+                                      isSelected
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    {cols} Col
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Masonry Column Gap (px)
+                            </label>
+                            <ScrubbableNumberInput
+                              value={effectiveMasonryGap}
+                              onChange={(val) => updateSelectedLayout("masonryGap", Number(val))}
+                              min={0}
+                              max={100}
+                              step={1}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                      ) : isGrid ? (
+                        /* CSS Grid Setup Controls (F-041, F-043, F-038) */
+                        <div className="space-y-3 p-3 bg-slate-50/80 rounded-lg border border-slate-200/80">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Equal Columns (F-038)
+                            </label>
+                            <div className="grid grid-cols-6 gap-1 mb-2">
+                              {[1, 2, 3, 4, 6, 12].map((cols) => {
+                                const template = `repeat(${cols}, minmax(0, 1fr))`;
+                                const isSelected = effectiveGridCols === template;
+                                return (
+                                  <button
+                                    key={cols}
+                                    type="button"
+                                    onClick={() => updateSelectedLayout("gridTemplateColumns", template)}
+                                    className={`py-1 text-xs font-bold rounded border ${
+                                      isSelected
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                                    }`}
+                                    title={`${cols} Column${cols > 1 ? "s" : ""}`}
+                                  >
+                                    {cols}c
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Column Split Ratios (F-038)
+                            </label>
+                            <div className="grid grid-cols-3 gap-1 mb-2">
+                              {[
+                                { label: "50 / 50", val: "repeat(2, minmax(0, 1fr))" },
+                                { label: "33 / 66", val: "1fr 2fr" },
+                                { label: "66 / 33", val: "2fr 1fr" },
+                                { label: "33 / 33 / 33", val: "repeat(3, minmax(0, 1fr))" },
+                                { label: "1:2:1", val: "1fr 2fr 1fr" },
+                                { label: "4 Equal", val: "repeat(4, minmax(0, 1fr))" },
+                              ].map((preset) => {
+                                const isSelected = effectiveGridCols === preset.val;
+                                return (
+                                  <button
+                                    key={preset.label}
+                                    type="button"
+                                    onClick={() => updateSelectedLayout("gridTemplateColumns", preset.val)}
+                                    className={`py-1 px-1 text-[10px] font-bold rounded border ${
+                                      isSelected
+                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <label className="block text-[11px] text-slate-500 mb-1">
+                              Custom Template (grid-template-columns)
+                            </label>
+                            <input
+                              type="text"
+                              value={effectiveGridCols}
+                              onChange={(e) => updateSelectedLayout("gridTemplateColumns", e.target.value)}
+                              placeholder="e.g. repeat(3, minmax(0, 1fr)) or 1fr 2fr"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Auto Flow
+                              </label>
+                              <select
+                                value={effectiveGridFlow}
+                                onChange={(e) => updateSelectedLayout("gridAutoFlow", e.target.value as any)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="row">Row</option>
+                                <option value="column">Column</option>
+                                <option value="dense">Dense</option>
+                                <option value="row dense">Row Dense</option>
+                                <option value="column dense">Column Dense</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Justify Items
+                              </label>
+                              <select
+                                value={effectiveJustifyItems}
+                                onChange={(e) => updateSelectedLayout("justifyItems", e.target.value as any)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              >
+                                <option value="stretch">Stretch</option>
+                                <option value="start">Start</option>
+                                <option value="center">Center</option>
+                                <option value="end">End</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Align Items
+                            </label>
+                            <select
+                              value={effectiveAlignItems}
+                              onChange={(e) => updateSelectedLayout("alignItems", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="stretch">Stretch</option>
+                              <option value="flex-start">Start</option>
+                              <option value="center">Center</option>
+                              <option value="flex-end">End</option>
+                            </select>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Flexbox Controls (F-042) */
+                        <div className="space-y-4">
+                          {/* Direction */}
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Direction (F-039, F-040)
+                            </label>
+                            <select
+                              value={effectiveDirection}
+                              onChange={(e) => updateSelectedLayout("direction", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="column">Column (Vertical Stack)</option>
+                              <option value="row">Row (Horizontal)</option>
+                            </select>
+                          </div>
+
+                          {/* Justify Content */}
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Justify Content (F-045)
+                            </label>
+                            <select
+                              value={effectiveJustifyContent}
+                              onChange={(e) => updateSelectedLayout("justifyContent", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="flex-start">Start (flex-start)</option>
+                              <option value="center">Center</option>
+                              <option value="flex-end">End (flex-end)</option>
+                              <option value="space-between">Space Between</option>
+                              <option value="space-around">Space Around</option>
+                              <option value="space-evenly">Space Evenly</option>
+                            </select>
+                          </div>
+
+                          {/* Align Items */}
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Align Items (F-045)
+                            </label>
+                            <select
+                              value={effectiveAlignItems}
+                              onChange={(e) => updateSelectedLayout("alignItems", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="stretch">Stretch</option>
+                              <option value="flex-start">Start (flex-start)</option>
+                              <option value="center">Center</option>
+                              <option value="flex-end">End (flex-end)</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Gap Controls (Common to Flex & Grid) */}
+                      {!isMasonry && (
+                        <div className="space-y-2 pt-1 border-t border-slate-200">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Gap (px)
+                            </label>
+                            <ScrubbableNumberInput
+                              value={effectiveGap}
+                              onChange={(val) => updateSelectedLayout("gap", Number(val))}
+                              min={0}
+                              step={1}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                                Row Gap (px)
+                              </label>
+                              <input
+                                type="number"
+                                value={effectiveRowGap}
+                                onChange={(e) => updateSelectedLayout("rowGap", e.target.value ? Number(e.target.value) : undefined)}
+                                placeholder="Inherit gap"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                                Col Gap (px)
+                              </label>
+                              <input
+                                type="number"
+                                value={effectiveColGap}
+                                onChange={(e) => updateSelectedLayout("columnGap", e.target.value ? Number(e.target.value) : undefined)}
+                                placeholder="Inherit gap"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  );
+                })()}
+
+                {/* F-050: Scroll Snap & Overflow Controls */}
+                {renderAccordion(
+                  "Scroll Snap & Overflow (F-050)",
+                  "scroll-snap",
+                  (() => {
+                    const snapType = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") || "none";
+                    const snapAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") || "none";
+                    const snapStop = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") || "normal";
+                    const overflowX = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowX") || "visible";
+                    const overflowY = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowY") || "visible";
+
+                    return (
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs font-semibold text-slate-700">
+                              Scroll Snap Type (Container)
+                            </label>
+                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") && (
+                              <button
+                                type="button"
+                                onClick={() => resetSelectedStyle("scrollSnapType")}
+                                className="text-[10px] text-slate-400 hover:text-blue-600"
+                                title="Reset snap type"
+                              >
+                                ↺ Reset
+                              </button>
+                            )}
+                          </div>
+                          <select
+                            value={snapType}
+                            onChange={(e) => updateSelectedStyle("scrollSnapType", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          >
+                            <option value="none">None</option>
+                            <option value="x mandatory">Horizontal Mandatory (x mandatory)</option>
+                            <option value="y mandatory">Vertical Mandatory (y mandatory)</option>
+                            <option value="both mandatory">Both Mandatory</option>
+                            <option value="x proximity">Horizontal Proximity</option>
+                            <option value="y proximity">Vertical Proximity</option>
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-semibold text-slate-700">
+                                Snap Align
+                              </label>
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("scrollSnapAlign")}
+                                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                                >
+                                  ↺
+                                </button>
+                              )}
+                            </div>
+                            <select
+                              value={snapAlign}
+                              onChange={(e) => updateSelectedStyle("scrollSnapAlign", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="none">None</option>
+                              <option value="start">Start</option>
+                              <option value="center">Center</option>
+                              <option value="end">End</option>
+                            </select>
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-semibold text-slate-700">
+                                Snap Stop
+                              </label>
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("scrollSnapStop")}
+                                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                                >
+                                  ↺
+                                </button>
+                              )}
+                            </div>
+                            <select
+                              value={snapStop}
+                              onChange={(e) => updateSelectedStyle("scrollSnapStop", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="normal">Normal</option>
+                              <option value="always">Always</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow X
+                            </label>
+                            <select
+                              value={overflowX}
+                              onChange={(e) => updateSelectedStyle("overflowX", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow Y
+                            </label>
+                            <select
+                              value={overflowY}
+                              onChange={(e) => updateSelectedStyle("overflowY", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
                 )}
 
-                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) */}
+                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) (F-002, F-035, F-052) */}
                 <div className="space-y-4 pt-2">
                   {/* Width & Height */}
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Width
-                      </label>
-                      <select
-                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "auto"}
-                        onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="100%">100%</option>
-                        <option value="75%">75%</option>
-                        <option value="50%">50%</option>
-                        <option value="33%">33%</option>
-                        <option value="25%">25%</option>
-                        <option value="fit-content">Fit Content</option>
-                      </select>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Width (F-052)
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "width") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("width")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                            title="Reset width"
+                          >
+                            ↺ Reset
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || ""}
+                        onChange={(e) => updateSelectedStyle("width", e.target.value || undefined)}
+                        placeholder="auto, 100%, 50vw"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Height
-                      </label>
-                      <select
-                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
-                        onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="100px">100px</option>
-                        <option value="200px">200px</option>
-                        <option value="300px">300px</option>
-                        <option value="400px">400px</option>
-                        <option value="500px">500px</option>
-                        <option value="100%">100%</option>
-                      </select>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Height (F-052)
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "height") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("height")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                            title="Reset height"
+                          >
+                            ↺ Reset
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || ""}
+                        onChange={(e) => updateSelectedStyle("height", e.target.value || undefined)}
+                        placeholder="auto, 100vh, 400px"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Min / Max Dimensions (F-052) */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Min Height
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "minHeight") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("minHeight")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                          >
+                            ↺
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "minHeight") || ""}
+                        onChange={(e) => updateSelectedStyle("minHeight", e.target.value || undefined)}
+                        placeholder="e.g. 100vh, 300px"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Max Width
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "maxWidth") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("maxWidth")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                          >
+                            ↺
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "maxWidth") || ""}
+                        onChange={(e) => updateSelectedStyle("maxWidth", e.target.value || undefined)}
+                        placeholder="e.g. 1200px, 100%"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
                     </div>
                   </div>
 
@@ -16130,6 +16990,96 @@ export default function WebsiteEditor() {
                   />
                 </div>
 
+                {/* Page SEO & Social Graph (Phase 4) */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>🌐</span>
+                      <span>SEO & Social Graph</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
+                      Metadata
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Canonical URL
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.canonicalUrl || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
+                      placeholder="https://example.com/canonical-page"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Title
+                    </label>
+                    <input
+                      type="text"
+                      value={pageSettings.ogTitle || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogTitle: e.target.value }))}
+                      placeholder={pageSettings.title || "Social title..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={pageSettings.ogDescription || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogDescription: e.target.value }))}
+                      placeholder={pageSettings.description || "Social share description..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Social Share Image URL (og:image)
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.ogImage || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogImage: e.target.value }))}
+                      placeholder="https://example.com/share-card.jpg"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Search Engine Robots Indexing */}
+                  <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Robots Directives
+                    </span>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.noindex}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, noindex: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Prevent search engine indexing (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">noindex</code>)</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.nofollow}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, nofollow: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
+                    </label>
+                  </div>
+                </div>
+
                 {/* Site / Website Published Language (F-022) */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
@@ -17313,6 +18263,7 @@ export default function WebsiteEditor() {
         pages={pages}
         websiteName={website?.name || "ForgeStudio Project"}
         websiteId={websiteId || ""}
+        approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
         onPublish={handlePublishWebsite}
         onRollback={handleRollbackDeployment}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
@@ -17320,6 +18271,14 @@ export default function WebsiteEditor() {
           setIsPublishModalOpen(false);
           setIsPreview(true);
         }}
+      />
+
+      {/* Collaborative Design Notes & Feedback Overlay */}
+      <DesignNotesOverlay
+        isOpen={isDesignNotesOpen}
+        onClose={() => setIsDesignNotesOpen(false)}
+        websiteId={websiteId || ""}
+        activeElementId={selectedElementAny?.id || null}
       />
 
       {/* Advanced Icon Library Modal */}
@@ -17360,6 +18319,29 @@ export default function WebsiteEditor() {
             updateSelectedStyle("fontFamily", fontFamily);
           }
           setIsFontPickerModalOpen(false);
+        }}
+      />
+
+      {/* F-339: Variables Manager Modal */}
+      <VariablesManagerModal
+        isOpen={isVariablesModalOpen}
+        onClose={() => setIsVariablesModalOpen(false)}
+        variables={globalVariables}
+        onSaveVariables={(updated) => {
+          setGlobalVariables(updated);
+          handleSave();
+        }}
+      />
+
+      {/* F-340: Global Class Manager Modal */}
+      <ClassManagerModal
+        isOpen={isClassModalOpen}
+        onClose={() => setIsClassModalOpen(false)}
+        classes={globalClasses}
+        userRole="OWNER"
+        onSaveClasses={(updated) => {
+          setGlobalClasses(updated);
+          handleSave();
         }}
       />
     </div>

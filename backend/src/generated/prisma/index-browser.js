@@ -595,6 +595,23 @@ exports.Prisma.BackgroundJobScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MediaAssetScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  websiteId: 'websiteId',
+  filename: 'filename',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  url: 'url',
+  width: 'width',
+  height: 'height',
+  altText: 'altText',
+  format: 'format',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -639,7 +656,12 @@ exports.UserStatus = exports.$Enums.UserStatus = {
 exports.UserRole = exports.$Enums.UserRole = {
   USER: 'USER',
   ADMIN: 'ADMIN',
-  SUPER_ADMIN: 'SUPER_ADMIN'
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  PLATFORM_ADMIN: 'PLATFORM_ADMIN',
+  SUPPORT_ADMIN: 'SUPPORT_ADMIN',
+  DEVELOPER: 'DEVELOPER',
+  AI_CONTENT_ADMIN: 'AI_CONTENT_ADMIN',
+  TEAM_MEMBER: 'TEAM_MEMBER'
 };
 
 exports.OtpPurpose = exports.$Enums.OtpPurpose = {
@@ -702,7 +724,8 @@ exports.Prisma.ModelName = {
   OrganizationMember: 'OrganizationMember',
   WorkspaceMember: 'WorkspaceMember',
   PublishApprovalRequest: 'PublishApprovalRequest',
-  BackgroundJob: 'BackgroundJob'
+  BackgroundJob: 'BackgroundJob',
+  MediaAsset: 'MediaAsset'
 };
 
 /**

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { RoleManagerModal } from "./components/RoleManagerModal";
 import { TeamSwitcher } from "./components/TeamSwitcher";
+import { WorkspaceSwitcher } from "./components/WorkspaceSwitcher";
 import { TeamDashboardView } from "./components/TeamDashboardView";
 import DeveloperApiSettings from "./components/DeveloperApiSettings";
 import PluginHub from "./components/PluginHub";
@@ -73,6 +74,7 @@ function UserDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [roleManagerSite, setRoleManagerSite] = useState<Website | null>(null);
   const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
@@ -234,6 +236,7 @@ function UserDashboard() {
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+            <WorkspaceSwitcher apiUrl={apiUrl} currentWorkspaceId={currentWorkspaceId} onSelectWorkspace={setCurrentWorkspaceId} />
             <TeamSwitcher apiUrl={apiUrl} currentTeamId={currentTeamId} onSelectTeam={setCurrentTeamId} />
             <Link
               to="/subscriptions"

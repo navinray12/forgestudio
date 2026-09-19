@@ -23,6 +23,9 @@ import integrationRoutes from "./integration.routes.js";
 import sftpRoutes from "./sftp.routes.js";
 import pluginIntegrationRoutes from "./pluginIntegration.routes.js";
 import multisiteRoutes from "./multisite.routes.js";
+import designTokenRoutes from "./designToken.routes.js";
+import commerceRoutes from "./commerce.routes.js";
+import enterpriseMultisiteRoutes from "./enterpriseMultisite.routes.js";
 
 const apiRouter = Router();
 
@@ -38,6 +41,9 @@ apiRouter.use("/subscriptions", subscriptionRoutes);
 
 // Websites & Content Management
 apiRouter.use("/websites", websiteRoutes);
+apiRouter.use("/websites", designTokenRoutes);
+apiRouter.use("/websites", commerceRoutes);
+apiRouter.use("/websites", enterpriseMultisiteRoutes);
 apiRouter.use("/teams", teamRoutes);
 apiRouter.use("/uploads", uploadRoutes);
 apiRouter.use("/api-keys", apiKeysRoutes);
@@ -82,3 +88,6 @@ export { default as integrationRoutes } from "./integration.routes.js";
 export { default as sftpRoutes } from "./sftp.routes.js";
 export { default as pluginIntegrationRoutes } from "./pluginIntegration.routes.js";
 export { default as multisiteRoutes } from "./multisite.routes.js";
+export { default as designTokenRoutes } from "./designToken.routes.js";
+export { default as commerceRoutes } from "./commerce.routes.js";
+export { default as enterpriseMultisiteRoutes } from "./enterpriseMultisite.routes.js";

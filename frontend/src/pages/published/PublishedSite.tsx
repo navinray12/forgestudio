@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { resolveElementStyles, getInnerStyles } from "../editor/utils";
+import { resolveElementStyles, getInnerStyles, getMergedLayout } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
@@ -527,37 +527,88 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </div>
     );
 
-    if (el.type === "container" || el.type === "div-block") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps}>
-                {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-                    <BackgroundSlideshow
-                        urls={
-                            Array.isArray(el.styles.backgroundSlideshowUrls)
-                                ? el.styles.backgroundSlideshowUrls
-                                : typeof el.styles.backgroundSlideshowUrls === "string"
-                                ? el.styles.backgroundSlideshowUrls.split(",")
-                                : []
-                        }
-                        interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
-                    />
-                )}
-                {el.children?.map(child => (
-                    <RenderNode
-                        key={child.id}
-                        el={child}
-                        isCritical={isCritical}
-                        activeBreakpointId={activeBreakpointId}
-                        breakpoints={breakpoints}
-                        globalSettings={globalSettings}
-                        elementClassMap={elementClassMap}
-                        apiUrl={apiUrl}
-                        allElements={allElements}
-                    />
-                ))}
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "container" || el.type === "div-block") {
+        const deviceMode = (activeBreakpointId === "mobile" || activeBreakpointId === "tablet") ? activeBreakpointId : "desktop";
+        const containerLayout = getMergedLayout(el, deviceMode);
+        const isMasonry = containerLayout.layoutType === "masonry";
+        const isGrid = containerLayout.layoutType === "grid";
+
+        const containerLayoutStyles: React.CSSProperties = isMasonry ? {
+            display: "block",
+            columnCount: containerLayout.masonryColumns || 3,
+            columnGap: containerLayout.columnGap !== undefined
+                ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap)
+                : `${containerLayout.gap ?? 16}px`,
+        } : isGrid ? {
+            display: "grid",
+            gridTemplateColumns: containerLayout.gridTemplateColumns || "repeat(2, minmax(0, 1fr))",
+            gridTemplateRows: containerLayout.gridTemplateRows,
+            gridAutoFlow: containerLayout.gridAutoFlow,
+            justifyItems: containerLayout.justifyItems,
+            alignItems: containerLayout.alignItems || "stretch",
+            gap: `${containerLayout.gap ?? 10}px`,
+            rowGap: containerLayout.rowGap !== undefined ? (typeof containerLayout.rowGap === "number" ? `${containerLayout.rowGap}px` : containerLayout.rowGap) : undefined,
+            columnGap: containerLayout.columnGap !== undefined ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap) : undefined,
+        } : {
+            display: "flex",
+            flexDirection: containerLayout.direction || "column",
+            justifyContent: containerLayout.justifyContent || "flex-start",
+            alignItems: containerLayout.alignItems || "stretch",
+            gap: `${containerLayout.gap ?? 10}px`,
+            rowGap: containerLayout.rowGap !== undefined ? (typeof containerLayout.rowGap === "number" ? `${containerLayout.rowGap}px` : containerLayout.rowGap) : undefined,
+            columnGap: containerLayout.columnGap !== undefined ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap) : undefined,
+        };
+
+        if (containerLayout.scrollSnapType && containerLayout.scrollSnapType !== "none") {
+            containerLayoutStyles.scrollSnapType = containerLayout.scrollSnapType as any;
+        }
+        if (containerLayout.overflowX) {
+            containerLayoutStyles.overflowX = containerLayout.overflowX as any;
+        }
+        if (containerLayout.overflowY) {
+            containerLayoutStyles.overflowY = containerLayout.overflowY as any;
+        }
+
+        const containerMergedProps = {
+            ...mergedProps,
+            style: {
+                ...containerLayoutStyles,
+                ...mergedProps.style,
+            }
+        };
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...containerMergedProps}>
+                    {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
+                        <BackgroundSlideshow
+                            urls={
+                                Array.isArray(el.styles.backgroundSlideshowUrls)
+                                    ? el.styles.backgroundSlideshowUrls
+                                    : typeof el.styles.backgroundSlideshowUrls === "string"
+                                    ? el.styles.backgroundSlideshowUrls.split(",")
+                                    : []
+                            }
+                            interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
+                        />
+                    )}
+                    {el.children?.map(child => (
+                        <RenderNode
+                            key={child.id}
+                            el={child}
+                            isCritical={isCritical}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={allElements}
+                        />
+                    ))}
+                </div>
+            </React.Fragment>
+        );
+    }
     return null;
 }, (prev, next) => {
     // Custom F-358 Comparator: Avoid full page rerender on style dedupe sweeps (elementClassMap mutations)
@@ -584,6 +635,43 @@ export default function PublishedSite() {
     const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
     const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
     const [customCodeSnippets, setCustomCodeSnippets] = useState<any[]>([]);
+    const [globalVariables, setGlobalVariables] = useState<any[]>([]);
+    const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+
+    // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
+    const compiledDesignTokensCss = useMemo(() => {
+        let css = "";
+        if (globalVariables && globalVariables.length > 0) {
+            css += ":root {\n";
+            for (const v of globalVariables) {
+                if (v && v.token && v.value) {
+                    css += `  ${v.token}: ${v.value};\n`;
+                }
+            }
+            css += "}\n\n";
+        }
+        if (globalClasses && globalClasses.length > 0) {
+            for (const c of globalClasses) {
+                if (c && c.className && c.styles) {
+                    const toCss = (obj: any) =>
+                        Object.entries(obj)
+                            .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
+                            .join("\n");
+                    css += `.${c.className} {\n${toCss(c.styles)}\n}\n`;
+                    if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
+                        css += `.${c.className}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
+                    }
+                    if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
+                        css += `.${c.className}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
+                    }
+                    if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
+                        css += `.${c.className}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
+                    }
+                }
+            }
+        }
+        return css;
+    }, [globalVariables, globalClasses]);
 
     // F-356 dynamic font analyzer integration
     useDynamicFonts(elements, globalSettings.fonts);
@@ -625,6 +713,8 @@ export default function PublishedSite() {
                 if (site?.editorData?.popups) setPopups(site.editorData.popups);
                 if (site?.editorData?.breakpoints) setBreakpoints(site.editorData.breakpoints);
                 if (site?.editorData?.globalSettings) setGlobalSettings(site.editorData.globalSettings);
+                if (site?.editorData?.globalVariables) setGlobalVariables(site.editorData.globalVariables);
+                if (site?.editorData?.globalClasses) setGlobalClasses(site.editorData.globalClasses);
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
@@ -672,6 +762,53 @@ export default function PublishedSite() {
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
+    }, [pages, activePageId]);
+
+    // Page-Level SEO, OpenGraph & Search Engine Indexing (Phase 4)
+    useEffect(() => {
+        if (!pages || pages.length === 0) return;
+        const curPage = pages.find(p => p.id === activePageId) || pages[0];
+        if (!curPage) return;
+
+        const pSettings = (curPage as any).pageSettings || {};
+        const title = pSettings.title || curPage.name || "Published Website";
+        document.title = title;
+
+        const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
+            if (!content) return;
+            const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+            let el = document.querySelector(selector);
+            if (!el) {
+                el = document.createElement("meta");
+                if (isProperty) el.setAttribute("property", name);
+                else el.setAttribute("name", name);
+                document.head.appendChild(el);
+            }
+            el.setAttribute("content", content);
+        };
+
+        if (pSettings.description) upsertMeta("description", pSettings.description);
+        if (pSettings.ogTitle || title) upsertMeta("og:title", pSettings.ogTitle || title, true);
+        if (pSettings.ogDescription || pSettings.description) {
+            upsertMeta("og:description", pSettings.ogDescription || pSettings.description, true);
+        }
+        if (pSettings.ogImage) upsertMeta("og:image", pSettings.ogImage, true);
+        if (pSettings.canonicalUrl) {
+            let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+            if (!link) {
+                link = document.createElement("link");
+                link.rel = "canonical";
+                document.head.appendChild(link);
+            }
+            link.href = pSettings.canonicalUrl;
+        }
+
+        const robots: string[] = [];
+        if (pSettings.noindex) robots.push("noindex");
+        if (pSettings.nofollow) robots.push("nofollow");
+        if (robots.length > 0) {
+            upsertMeta("robots", robots.join(", "));
+        }
     }, [pages, activePageId]);
 
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
@@ -782,6 +919,7 @@ export default function PublishedSite() {
     return (
         <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
+            {compiledDesignTokensCss && <style id="fs-design-tokens-styles">{compiledDesignTokensCss}</style>}
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
             {customCodeSnippets && customCodeSnippets.length > 0 && (
                 <React.Suspense fallback={null}>
