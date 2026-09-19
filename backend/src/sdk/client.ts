@@ -1,0 +1,238 @@
+export interface ForgeStudioClientOptions {
+  baseUrl?: string;
+  apiKey?: string;
+  sessionToken?: string;
+  fetch?: typeof fetch;
+}
+
+export class ForgeStudioApiError extends Error {
+  public code: string;
+  public status: number;
+  public details?: any;
+
+  constructor(message: string, code: string = "UNKNOWN_ERROR", status: number = 500, details?: any) {
+    super(message);
+    this.name = "ForgeStudioApiError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
+  }
+}
+
+export interface WebsiteListItem {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WebsitePage {
+  id: string;
+  name: string;
+  slug: string;
+  elements: any[];
+  seo?: Record<string, any>;
+  status?: string;
+}
+
+export interface PublishOptions {
+  environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
+  destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC" | "SFTP";
+  destinationRef?: string;
+}
+
+export interface DeploymentRecord {
+  id: string;
+  websiteId: string;
+  version: number;
+  status: string;
+  environment: string;
+  destinationType: string;
+  destinationRef?: string;
+  startedAt: string;
+  completedAt?: string;
+  error?: any;
+}
+
+export class ForgeStudioClient {
+  private baseUrl: string;
+  private apiKey?: string;
+  private sessionToken?: string;
+  private fetchFn: typeof fetch;
+
+  constructor(options: ForgeStudioClientOptions = {}) {
+    this.baseUrl = (options.baseUrl || "http://localhost:5000/api/v1").replace(/\/+$/, "");
+    this.apiKey = options.apiKey;
+    this.sessionToken = options.sessionToken;
+    this.fetchFn = options.fetch || globalThis.fetch;
+  }
+
+  private async request<T = any>(
+    path: string,
+    options: {
+      method?: string;
+      body?: any;
+      query?: Record<string, any>;
+      headers?: Record<string, string>;
+    } = {}
+  ): Promise<T> {
+    let url = `${this.baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+
+    if (options.query) {
+      const searchParams = new URLSearchParams();
+      for (const [k, v] of Object.entries(options.query)) {
+        if (v !== undefined && v !== null) {
+          searchParams.append(k, String(v));
+        }
+      }
+      const qs = searchParams.toString();
+      if (qs) {
+        url += (url.includes("?") ? "&" : "?") + qs;
+      }
+    }
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...options.headers,
+    };
+
+    if (this.apiKey) {
+      headers["Authorization"] = `Bearer ${this.apiKey}`;
+    } else if (this.sessionToken) {
+      headers["Authorization"] = `Bearer ${this.sessionToken}`;
+    }
+
+    const res = await this.fetchFn(url, {
+      method: options.method || "GET",
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+
+    let json: any;
+    try {
+      json = await res.json();
+    } catch {
+      throw new ForgeStudioApiError(
+        `Failed to parse server response (HTTP ${res.status})`,
+        "INVALID_RESPONSE",
+        res.status
+      );
+    }
+
+    if (!res.ok || json.success === false) {
+      const err = json.error || {};
+      throw new ForgeStudioApiError(
+        err.message || json.message || `Request failed with status ${res.status}`,
+        err.code || "REQUEST_FAILED",
+        res.status,
+        err.details
+      );
+    }
+
+    return json.data !== undefined ? json.data : json;
+  }
+
+  // 1. List websites
+  async listWebsites(query?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }): Promise<WebsiteListItem[]> {
+    return this.request<WebsiteListItem[]>("/websites", { query });
+  }
+
+  // 2. Create website
+  async createWebsite(data: {
+    name: string;
+    slug?: string;
+    editorData?: any;
+    templateId?: string;
+  }): Promise<any> {
+    return this.request("/websites", {
+      method: "POST",
+      body: data,
+    });
+  }
+
+  // 3. Get website by ID
+  async getWebsite(id: string): Promise<any> {
+    return this.request(`/websites/${id}`);
+  }
+
+  // 4. Update website
+  async updateWebsite(
+    id: string,
+    data: {
+      name?: string;
+      slug?: string;
+      editorData?: any;
+      status?: string;
+    }
+  ): Promise<any> {
+    return this.request(`/websites/${id}`, {
+      method: "PUT",
+      body: data,
+    });
+  }
+
+  // 5. Get pages
+  async getPages(websiteId: string): Promise<WebsitePage[]> {
+    return this.request<WebsitePage[]>(`/websites/${websiteId}/pages`);
+  }
+
+  // 6. Update pages
+  async updatePages(websiteId: string, pages: WebsitePage[]): Promise<{ pages: WebsitePage[] }> {
+    return this.request<{ pages: WebsitePage[] }>(`/websites/${websiteId}/pages`, {
+      method: "PUT",
+      body: { pages },
+    });
+  }
+
+  // 7. Validate publish (calls internal endpoint via API v1 website route)
+  async validatePublish(websiteId: string, candidateData?: any): Promise<{ valid: boolean; errors: any[]; warnings: any[] }> {
+    return this.request(`/websites/${websiteId}/validate-publish`, {
+      method: "POST",
+      body: { candidateData },
+    });
+  }
+
+  // 8. Publish website
+  async publish(websiteId: string, options?: PublishOptions): Promise<any> {
+    return this.request(`/websites/${websiteId}/publish`, {
+      method: "POST",
+      body: options || {},
+    });
+  }
+
+  // 9. List deployments
+  async listDeployments(websiteId: string): Promise<DeploymentRecord[]> {
+    return this.request<DeploymentRecord[]>(`/websites/${websiteId}/deployments`);
+  }
+
+  // 10. Get single deployment
+  async getDeployment(websiteId: string, deploymentId: string): Promise<DeploymentRecord> {
+    return this.request<DeploymentRecord>(`/websites/${websiteId}/deployments/${deploymentId}`);
+  }
+
+  // 11. Rollback deployment
+  async rollback(websiteId: string, deploymentId: string): Promise<any> {
+    return this.request(`/websites/${websiteId}/deployments/${deploymentId}/rollback`, {
+      method: "POST",
+    });
+  }
+
+  // 12. Create revision
+  async createRevision(
+    websiteId: string,
+    data: { data: any; description?: string; revisionType?: string }
+  ): Promise<any> {
+    return this.request(`/websites/${websiteId}/revisions`, {
+      method: "POST",
+      body: data,
+    });
+  }
+}
