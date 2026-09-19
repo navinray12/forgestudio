@@ -428,6 +428,7 @@ export interface PostItem {
 export interface ContainerLayout {
   layoutType?: string;
   direction?: "column" | "row";
+  flexWrap?: "wrap" | "nowrap" | "wrap-reverse" | string;
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;

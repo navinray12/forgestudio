@@ -5,6 +5,10 @@ import { AppError } from "../utils/app-error.js";
 const db = prisma as any;
 
 export const ALLOWED_CATEGORIES = [
+  "Home",
+  "About",
+  "Contact",
+  "Career",
   "Landing Page",
   "Business",
   "Portfolio",
