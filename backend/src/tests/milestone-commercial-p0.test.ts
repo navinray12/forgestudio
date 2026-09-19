@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
 import app from "../app.js";
 import { sanitizeCustomHead } from "../services/destinations/staticCompiler.js";
@@ -49,6 +50,32 @@ async function runCommercialP0Tests() {
         status: "ACTIVE",
       },
     });
+
+    // Create valid sessions for authentication
+    const normalRawToken = `norm_token_${timestamp}`;
+    const adminRawToken = `admin_token_${timestamp}`;
+
+    const normalTokenHash = crypto.createHash("sha256").update(normalRawToken).digest("hex");
+    const adminTokenHash = crypto.createHash("sha256").update(adminRawToken).digest("hex");
+
+    await db.session.create({
+      data: {
+        userId: normalUser.id,
+        tokenHash: normalTokenHash,
+        expiresAt: new Date(Date.now() + 3600000),
+      },
+    });
+
+    await db.session.create({
+      data: {
+        userId: adminUser.id,
+        tokenHash: adminTokenHash,
+        expiresAt: new Date(Date.now() + 3600000),
+      },
+    });
+
+    normalUser.rawToken = normalRawToken;
+    adminUser.rawToken = adminRawToken;
 
     testWebsite = await createWebsite({
       name: `P0 Security Test Site ${timestamp}`,
@@ -189,8 +216,14 @@ async function runCommercialP0Tests() {
         await db.wordPressConnection.deleteMany({ where: { websiteId: testWebsite.id } });
         await db.website.delete({ where: { id: testWebsite.id } });
       }
-      if (normalUser?.id) await db.user.delete({ where: { id: normalUser.id } });
-      if (adminUser?.id) await db.user.delete({ where: { id: adminUser.id } });
+      if (normalUser?.id) {
+        await db.session.deleteMany({ where: { userId: normalUser.id } });
+        await db.user.delete({ where: { id: normalUser.id } });
+      }
+      if (adminUser?.id) {
+        await db.session.deleteMany({ where: { userId: adminUser.id } });
+        await db.user.delete({ where: { id: adminUser.id } });
+      }
     } catch {}
   }
 
@@ -214,13 +247,15 @@ async function requestApp(
   body?: any
 ): Promise<{ status: number; body: any }> {
   return new Promise((resolve) => {
+    const token = user?.rawToken;
     const req: any = {
       method,
       url: urlPath,
       headers: {
         "content-type": "application/json",
+        cookie: token ? `forge_session=${token}` : "",
       },
-      cookies: {},
+      cookies: token ? { forge_session: token } : {},
       query: {},
       params: {},
       body: body || {},
@@ -235,6 +270,23 @@ async function requestApp(
       },
       status(code: number) {
         statusCode = code;
+        return this;
+      },
+      setHeader() {
+        return this;
+      },
+      getHeader() {
+        return undefined;
+      },
+      removeHeader() {
+        return this;
+      },
+      writeHead(code: number) {
+        statusCode = code;
+        return this;
+      },
+      end(data?: any) {
+        resolve({ status: statusCode, body: data || null });
         return this;
       },
       json(data: any) {
@@ -254,7 +306,7 @@ async function requestApp(
       if (err) {
         resolve({ status: err.statusCode || 500, body: { error: err.message } });
       } else {
-        resolve({ status: statusCode, body: null });
+        resolve({ status: 404, body: null });
       }
     });
   });

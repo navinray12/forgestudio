@@ -348,7 +348,10 @@ export async function publishToWordPress(
           wpPostId = remoteRes.postId;
         }
       }
-    } catch {
+    } catch (fetchErr: any) {
+      if (process.env.FORGESTUDIO_WP_STRICT_SYNC === "true") {
+        throw new AppError("WordPress host unreachable during strict sync", 502, "WP_HOST_UNREACHABLE");
+      }
       // Remote host offline or mock environment: fallback to deterministic ID
     }
 
