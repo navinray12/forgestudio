@@ -358,14 +358,6 @@ export function UniversalItemManager<T extends { id: string }>(props: {
             };
 
             return (
-<<<<<<< HEAD
-              <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5 transition hover:border-slate-300">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                  <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">
-                    #{idx + 1} {getItemHeaderLabel(item, idx)}
-                  </span>
-                  <div className="flex items-center gap-1">
-=======
               <div
                 key={item.id}
                 data-item-index={idx}
@@ -410,7 +402,6 @@ export function UniversalItemManager<T extends { id: string }>(props: {
                     </span>
                   </div>
                   <div className="flex items-center gap-1" onMouseDown={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     <button
                       type="button"
                       onClick={handleMoveUp}
@@ -448,13 +439,9 @@ export function UniversalItemManager<T extends { id: string }>(props: {
                   </div>
                 </div>
 
-<<<<<<< HEAD
-                {renderItemFields(item, idx, updateItem)}
-=======
                 <div onMouseDown={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
                   {renderItemFields(item, idx, updateItem)}
                 </div>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
               </div>
             );
           })}
@@ -4075,10 +4062,6 @@ export function PriceTableWidgetInspector({
             return (
               <div
                 key={plan.id}
-<<<<<<< HEAD
-                className={`rounded-xl border transition-all duration-200 bg-white ${
-                  isHighlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
-=======
                 data-plan-index={planIdx}
                 draggable={true}
                 onDragStart={(e) => {
@@ -4150,7 +4133,6 @@ export function PriceTableWidgetInspector({
                     : isHighlight
                     ? "border-amber-300 ring-1 ring-amber-200"
                     : "border-slate-200"
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                 }`}
               >
                 {/* Accordion Header */}
@@ -4197,11 +4179,7 @@ export function PriceTableWidgetInspector({
                     )}
                   </div>
 
-<<<<<<< HEAD
-                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-=======
                   <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     <button
                       type="button"
                       title="Move Up"
@@ -4241,11 +4219,7 @@ export function PriceTableWidgetInspector({
 
                 {/* Accordion Content */}
                 {isExpanded && (
-<<<<<<< HEAD
-                  <div className="p-3 border-t border-slate-100 space-y-3">
-=======
                   <div className="p-3 border-t border-slate-100 space-y-3" onDragStart={(e) => e.stopPropagation()}>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     {/* Name & Highlight */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -4390,80 +4364,6 @@ export function PriceTableWidgetInspector({
                       </div>
 
                       <div className="space-y-1.5">
-<<<<<<< HEAD
-                        {(plan.features || []).map((feat, featIdx) => (
-                          <div key={feat.id} className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
-                            {/* Toggle included */}
-                            <button
-                              type="button"
-                              title={feat.included ? "Mark as Excluded" : "Mark as Included"}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                copyFeats[featIdx] = { ...copyFeats[featIdx], included: !copyFeats[featIdx].included };
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className={`h-5 w-5 rounded text-[10px] font-extrabold shrink-0 flex items-center justify-center cursor-pointer transition ${
-                                feat.included ? "bg-emerald-100 text-emerald-700 border border-emerald-300" : "bg-slate-200 text-slate-500 border border-slate-300"
-                              }`}
-                            >
-                              {feat.included ? "✓" : "✕"}
-                            </button>
-
-                            {/* Feature Text */}
-                            <input
-                              type="text"
-                              value={feat.text}
-                              onChange={(e) => {
-                                const copyFeats = [...(plan.features || [])];
-                                copyFeats[featIdx] = { ...copyFeats[featIdx], text: e.target.value };
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="w-full text-xs text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 outline-none focus:border-blue-500"
-                            />
-
-                            {/* Move Up/Down */}
-                            <button
-                              type="button"
-                              disabled={featIdx === 0}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                const [m] = copyFeats.splice(featIdx, 1);
-                                copyFeats.splice(featIdx - 1, 0, m);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
-                            >
-                              ▲
-                            </button>
-
-                            <button
-                              type="button"
-                              disabled={featIdx === (plan.features || []).length - 1}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                const [m] = copyFeats.splice(featIdx, 1);
-                                copyFeats.splice(featIdx + 1, 0, m);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
-                            >
-                              ▼
-                            </button>
-
-                            {/* Delete Feature */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const copyFeats = (plan.features || []).filter((_, i) => i !== featIdx);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-red-200 bg-red-50 text-[10px] text-red-600 hover:bg-red-100 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-=======
                         {(plan.features || []).map((feat, featIdx) => {
                           const featKey = `${planIdx}_${featIdx}`;
                           return (
@@ -4641,7 +4541,6 @@ export function PriceTableWidgetInspector({
                             </div>
                           );
                         })}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                       </div>
                     </div>
                   </div>
@@ -6182,12 +6081,6 @@ export function NestedCarouselWidgetInspector({
           {children.map((slide, sIdx) => (
             <div
               key={slide.id}
-<<<<<<< HEAD
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2 text-xs"
-            >
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 font-bold text-indigo-700 text-[10px]">
-=======
               data-slide-index={sIdx}
               draggable={true}
               onDragStart={(e) => {
@@ -6280,7 +6173,6 @@ export function NestedCarouselWidgetInspector({
                   </svg>
                 </span>
                 <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 font-bold text-indigo-700 text-[10px] shrink-0">
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                   #{sIdx + 1}
                 </span>
                 <button
@@ -6294,11 +6186,7 @@ export function NestedCarouselWidgetInspector({
                 <span className="text-[10px] text-slate-400">({(slide.children || []).length} items)</span>
               </div>
 
-<<<<<<< HEAD
-              <div className="flex items-center gap-1">
-=======
               <div className="flex items-center gap-1" onDragStart={(e) => e.stopPropagation()}>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                 <button
                   type="button"
                   onClick={() => setSelectedId && setSelectedId(slide.id)}
@@ -8071,7 +7959,7 @@ export function IconListWidgetInspector({
         <span>📋</span> Icon List Settings
       </h3>
 
-      <UniversalItemManager
+      <UniversalItemManager<{ id: string; text: string; icon: string; color: string; url?: string }>
         title="List Items"
         items={items}
         onUpdate={(newItems) => updateProp("iconListItems", newItems)}
@@ -8079,7 +7967,8 @@ export function IconListWidgetInspector({
           id: "item_" + Date.now(),
           text: "New Feature Item",
           icon: "✓",
-          color: "#10b981"
+          color: "#10b981",
+          url: ""
         })}
         getItemHeaderLabel={(item) => item.text || "Untitled Item"}
         renderItemFields={(item, idx, updateItem) => (

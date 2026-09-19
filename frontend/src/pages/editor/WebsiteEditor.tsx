@@ -5,16 +5,11 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
-<<<<<<< HEAD
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
-=======
-import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -78,9 +73,6 @@ import {
   PaymentWidgetInspector,
   WooCommerceWidgetInspector,
   AudioPlaylistInspector,
-<<<<<<< HEAD
-  PayPalWidgetInspector
-=======
   PayPalWidgetInspector,
   LinkInBioWidgetInspector,
   ImageBoxWidgetInspector,
@@ -96,7 +88,6 @@ import {
   CustomSVGWidgetInspector,
   QueryBuilderWidgetInspector,
   DisplayConditionsWidgetInspector
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 } from "./inspector/DynamicWidgetInspectors";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
@@ -163,13 +154,8 @@ import {
   deleteTreeElement,
   duplicateTreeElement,
   moveTreeElement,
-<<<<<<< HEAD
   isDescendant,
   reorderTreeElement
-=======
-  reorderTreeElement,
-  isDescendant
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 } from "./utils";
 
 import {
@@ -318,7 +304,6 @@ const [popups, setPopups] = useState<any[]>([]);
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
-<<<<<<< HEAD
   const handleTrackPopupView = (id: string) => {
     setPopups((prev) =>
       prev.map((p) => (p.id === id ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
@@ -329,11 +314,6 @@ const [popups, setPopups] = useState<any[]>([]);
       prev.map((p) => (p.id === id ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
     );
   };
-=======
-  const handleTrackPopupView = (id: string) => {};
-  const handleTrackPopupClick = (id: string) => {};
-
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
     if (typeof window !== "undefined" && "EyeDropper" in window) {
@@ -349,22 +329,14 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
-<<<<<<< HEAD
   const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
-=======
-  const renderTypographySection = () => null;
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const [breakpoints, setBreakpoints] = useState<any[]>([
     { id: "desktop", name: "Desktop", minWidth: 1025 },
     { id: "tablet", name: "Tablet", minWidth: 768, maxWidth: 1024 },
     { id: "mobile", name: "Mobile", maxWidth: 767 }
   ]);
-<<<<<<< HEAD
   const activeBreakpointId = activeDevice;
-=======
-  const activeBreakpointId = "desktop";
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
     if (!element) return undefined;
@@ -750,7 +722,6 @@ const [popups, setPopups] = useState<any[]>([]);
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -2287,11 +2258,7 @@ const navigate = useNavigate();
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-<<<<<<< HEAD
         if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
-=======
-        if (targetId && data.id === targetId) return;
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
@@ -2336,14 +2303,6 @@ const navigate = useNavigate();
     const height = rect.height;
 
     let pos: "before" | "after" | "inside" = "after";
-<<<<<<< HEAD
-    if (isContainer && offsetY > height * 0.25 && offsetY < height * 0.75) {
-      pos = "inside";
-    } else if (offsetY < height * 0.5) {
-      pos = "before";
-    } else {
-      pos = "after";
-=======
     if (isContainer) {
       if (offsetY < Math.min(height * 0.25, 30)) {
         pos = "before";
@@ -2358,7 +2317,6 @@ const navigate = useNavigate();
       } else {
         pos = "after";
       }
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
     }
 
     setDropTargetId(elId);
@@ -4549,10 +4507,6 @@ const navigate = useNavigate();
             e.stopPropagation();
             e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
             e.dataTransfer.effectAllowed = "move";
-<<<<<<< HEAD
-            setDraggingId(el.id);
-          }}
-=======
             if (!isPreview) handleSelectElement(el.id, e);
             setDraggingId(el.id);
           }}
@@ -4575,7 +4529,6 @@ const navigate = useNavigate();
           onDrop={(e) => {
             handleDropElement(e, el.id, dropPosition);
           }}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
           onDragEnd={(e) => {
             e.stopPropagation();
             setDraggingId(null);
@@ -4588,13 +4541,9 @@ const navigate = useNavigate();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
           className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
-<<<<<<< HEAD
-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-=======
             draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
           } ${
             isPreview ? "" : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
           } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -4606,7 +4555,6 @@ const navigate = useNavigate();
           }}
           style={{
             boxSizing: "border-box",
-<<<<<<< HEAD
             display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
             columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
             columnGap: mergedLayout.layoutType === "masonry"
@@ -4623,13 +4571,6 @@ const navigate = useNavigate();
             alignItems: mergedLayout.layoutType === "masonry" ? undefined : (mergedLayout.alignItems || "stretch"),
             gap: mergedLayout.layoutType === "masonry" ? undefined : `${mergedLayout.gap ?? 10}px`,
             rowGap: mergedLayout.rowGap !== undefined && mergedLayout.layoutType !== "masonry" ? (typeof mergedLayout.rowGap === "number" ? `${mergedLayout.rowGap}px` : mergedLayout.rowGap) : undefined,
-=======
-            display: "flex",
-            flexDirection: mergedLayout.direction || "column",
-            justifyContent: mergedLayout.justifyContent || "flex-start",
-            alignItems: mergedLayout.alignItems || "stretch",
-            gap: `${mergedLayout.gap ?? 10}px`,
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
             width: mergedStyles.width || "100%",
             height: mergedStyles.height || "auto",
             paddingTop: mergedStyles.paddingTop ?? (mergedStyles.padding || "16px"),
@@ -4842,10 +4783,6 @@ const navigate = useNavigate();
           e.stopPropagation();
           e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
           e.dataTransfer.effectAllowed = "move";
-<<<<<<< HEAD
-          setDraggingId(el.id);
-        }}
-=======
           if (!isPreview) handleSelectElement(el.id, e);
           setDraggingId(el.id);
         }}
@@ -4868,7 +4805,6 @@ const navigate = useNavigate();
         onDrop={(e) => {
           handleDropElement(e, el.id, dropPosition);
         }}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         onDragEnd={(e) => {
           e.stopPropagation();
           setDraggingId(null);
@@ -4897,11 +4833,7 @@ const navigate = useNavigate();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
         className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
-<<<<<<< HEAD
-          draggingId === el.id ? "opacity-50 scale-95" : ""
-=======
           draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         } ${
           isPreview
             ? ""
@@ -5756,13 +5688,8 @@ const navigate = useNavigate();
                 }}
                 className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
                 style={{
-<<<<<<< HEAD
-                  backgroundColor: el.buttonBg || "#2563eb",
-                  color: el.buttonColor || "#ffffff",
-=======
                   backgroundColor: mergedStyles.backgroundColor || el.styles?.backgroundColor || el.buttonBg || "#2563eb",
                   color: mergedStyles.color || el.styles?.color || el.buttonColor || "#ffffff",
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                   fontSize: mergedStyles.fontSize,
                   fontFamily: mergedStyles.fontFamily,
                   fontWeight: mergedStyles.fontWeight,
@@ -8332,12 +8259,8 @@ onClick={() => importFileInputRef.current?.click()}
             onDragOver={(e) => {
               e.preventDefault();
               e.stopPropagation();
-<<<<<<< HEAD
-              e.dataTransfer.dropEffect = "copy";
-=======
               handleCanvasAutoScroll(e);
               e.dataTransfer.dropEffect = "move";
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
@@ -8495,7 +8418,6 @@ onClick={() => importFileInputRef.current?.click()}
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
-<<<<<<< HEAD
                       {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
                         siteParts.header?.elements &&
                         siteParts.header.elements.length > 0 &&
@@ -8504,9 +8426,6 @@ onClick={() => importFileInputRef.current?.click()}
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
-=======
-                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -8531,7 +8450,6 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
-<<<<<<< HEAD
                       {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
                         siteParts.footer?.elements &&
                         siteParts.footer.elements.length > 0 &&
@@ -8540,9 +8458,6 @@ onClick={() => importFileInputRef.current?.click()}
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
-=======
-                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -8743,7 +8658,6 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 </div>
 
-<<<<<<< HEAD
                 {/* Container Specific Layout Controls (Flexbox & CSS Grid) */}
                 {selectedElementAny.type === "container" && (() => {
                   const effectiveLayoutType = getEffectiveLayout(selectedElementAny, activeDevice, "layoutType") ?? selectedElementAny.layout?.layoutType ?? "flex";
@@ -9204,84 +9118,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 )}
 
                 {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) (F-002, F-035, F-052) */}
-=======
-                {/* Container Specific Flexbox Layout Controls */}
-                {selectedElementAny.type === "container" && (
-                  <div className="space-y-4">
-                    {/* Direction */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Direction
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.direction || "column"}
-                        onChange={(e) => updateSelectedLayout("direction", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="column">Column (Vertical)</option>
-                        <option value="row">Row (Horizontal)</option>
-                      </select>
-                    </div>
-
-                    {/* Justify Content */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Justify Content
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.justifyContent || "flex-start"}
-                        onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                        <option value="space-between">Space Between</option>
-                        <option value="space-around">Space Around</option>
-                        <option value="space-evenly">Space Evenly</option>
-                      </select>
-                    </div>
-
-                    {/* Align Items */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Align Items
-                      </label>
-                      <select
-                        value={selectedElementAny.layout?.alignItems || "stretch"}
-                        onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="stretch">Stretch</option>
-                        <option value="flex-start">Start (flex-start)</option>
-                        <option value="center">Center</option>
-                        <option value="flex-end">End (flex-end)</option>
-                      </select>
-                    </div>
-
-                    {/* Gap (px) */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Gap (px)
-                      </label>
-                      <ScrubbableNumberInput
-                        value={selectedElementAny.layout?.gap ?? 10}
-                        onChange={(val) => updateSelectedLayout("gap", Number(val))}
-                        min={0}
-                        step={1}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) */}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                 <div className="space-y-4 pt-2">
                   {/* Width & Height */}
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-<<<<<<< HEAD
                       <div className="flex items-center justify-between mb-1">
                         <label className="block text-xs font-semibold text-slate-700">
                           Width (F-052)
@@ -9379,43 +9219,6 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         placeholder="e.g. 1200px, 100%"
                         className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                       />
-=======
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Width
-                      </label>
-                      <select
-                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "auto"}
-                        onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="100%">100%</option>
-                        <option value="75%">75%</option>
-                        <option value="50%">50%</option>
-                        <option value="33%">33%</option>
-                        <option value="25%">25%</option>
-                        <option value="fit-content">Fit Content</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
-                        Height
-                      </label>
-                      <select
-                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
-                        onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="100px">100px</option>
-                        <option value="200px">200px</option>
-                        <option value="300px">300px</option>
-                        <option value="400px">400px</option>
-                        <option value="500px">500px</option>
-                        <option value="100%">100%</option>
-                      </select>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     </div>
                   </div>
 

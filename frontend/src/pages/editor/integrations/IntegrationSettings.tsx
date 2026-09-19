@@ -512,7 +512,3 @@ export const IntegrationSettingsPanel: React.FC<IntegrationSettingsProps> = ({
     </div>
   );
 };
-
-    </div>
-  );
-};

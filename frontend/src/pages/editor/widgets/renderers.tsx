@@ -1366,12 +1366,6 @@ export const NavMenuWidgetRenderer = ({
             : isVertical
             ? "flex-col items-stretch"
             : `hidden sm:flex flex-row items-center ${justifyClass}`
-<<<<<<< HEAD
-        } wrap`}
-        style={{ gap: `${gap}px` }}
-      >
-        {items.map((item) => {
-=======
         } wrap relative`}
         style={{
           gap: `${gap}px`,
@@ -1380,7 +1374,6 @@ export const NavMenuWidgetRenderer = ({
         }}
       >
         {items.map((item, idx) => {
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
           const { displayLabel, displayUrl, isOrphaned } = resolveItem(item);
           const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
           const triggerMode = item.trigger || globalTrigger;
@@ -1391,12 +1384,6 @@ export const NavMenuWidgetRenderer = ({
           const currentBg = isItemActive ? itemActiveBg : isItemHovered ? itemHoverBg : itemBg;
           const currentColor = isItemActive ? itemActiveColor : isItemHovered ? itemHoverColor : itemColor;
 
-<<<<<<< HEAD
-          return (
-            <li
-              key={item.id}
-              className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
-=======
           const activePos = itemDragState?.id === item.id
             ? { x: itemDragState.x, y: itemDragState.y }
             : item.position;
@@ -1417,7 +1404,6 @@ export const NavMenuWidgetRenderer = ({
                 zIndex: itemDragState?.id === item.id ? 40 : isOpen ? 30 : 10,
                 transition: itemDragState?.id === item.id ? "none" : "all 0.15s ease-out",
               }}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
                 if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(item.id);
@@ -3516,7 +3502,6 @@ export const LoopCarouselWidgetRenderer = ({
   isPreview: boolean;
   mergedStyles: ElementStyles;
 }) => {
-<<<<<<< HEAD
   // Dynamic Content Binding: if dynamic CPT entries are attached to element
   const dynamicCptItems: LoopCarouselItem[] = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0
     ? (el as any).cptEntries.map((entry: any, i: number) => ({
@@ -3533,9 +3518,6 @@ export const LoopCarouselWidgetRenderer = ({
   const items = el.loopCarouselItems && el.loopCarouselItems.length > 0
     ? el.loopCarouselItems
     : dynamicCptItems;
-=======
-  const items = el.loopCarouselItems && el.loopCarouselItems.length > 0 ? el.loopCarouselItems : [];
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
   const slidesPerView = el.loopCarouselSlidesPerView || 3;
   const gap = el.loopCarouselGap ?? 20;
   const autoplay = el.loopCarouselAutoplay !== false;
@@ -6265,10 +6247,6 @@ export const MegaMenuWidgetRenderer = ({
           </button>
 
           {/* Desktop Navigation Categories */}
-<<<<<<< HEAD
-          <ul className={`hidden sm:flex items-center ${alignClass} w-full gap-1 sm:gap-4 text-xs font-semibold`}>
-            {items.map((item) => {
-=======
           <ul
             ref={megaNavListRef}
             className={`hidden sm:flex items-center ${alignClass} w-full gap-1 sm:gap-4 text-xs font-semibold relative`}
@@ -6278,18 +6256,11 @@ export const MegaMenuWidgetRenderer = ({
             }}
           >
             {items.map((item, idx) => {
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
               const { displayTitle, displayHref } = resolveMegaCategory(item);
               const hasColumns = item.columns && item.columns.length > 0;
               const triggerMode = item.trigger || globalTrigger;
               const isOpen = activeMenuId === item.id;
 
-<<<<<<< HEAD
-              return (
-                <li
-                  key={item.id}
-                  className="relative py-2 px-3 rounded-lg hover:bg-slate-100/70 transition cursor-pointer select-none"
-=======
               const activePos = megaItemDragState?.id === item.id
                 ? { x: megaItemDragState.x, y: megaItemDragState.y }
                 : item.position;
@@ -6310,7 +6281,6 @@ export const MegaMenuWidgetRenderer = ({
                     zIndex: megaItemDragState?.id === item.id ? 40 : isOpen ? 30 : 10,
                     transition: megaItemDragState?.id === item.id ? "none" : "all 0.15s ease-out",
                   }}
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                   onMouseEnter={() => {
                     if (hasColumns && triggerMode === "hover") setActiveMenuId(item.id);
                   }}

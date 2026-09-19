@@ -736,7 +736,3 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
 
   return null;
 };
-
-
-  return null;
-};

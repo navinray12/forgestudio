@@ -10,14 +10,10 @@ interface PublishModalProps {
   pages: PageConfig[];
   websiteName: string;
   websiteId?: string;
-<<<<<<< HEAD
   approvalWorkflowEnabled?: boolean;
   canPublish?: boolean;
   onPublish: (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => Promise<void>;
   onSubmitApproval?: () => Promise<void>;
-=======
-  onPublish: (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => Promise<void>;
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
   onRollback?: (deploymentId: string) => Promise<void>;
   onUpdateDeployment: (config: DeploymentConfig) => void;
   onOpenPreview: () => void;
@@ -31,23 +27,15 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   pages,
   websiteName: _websiteName,
   websiteId,
-<<<<<<< HEAD
   approvalWorkflowEnabled = false,
   canPublish = true,
   onPublish,
   onSubmitApproval,
-=======
-  onPublish,
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
   onRollback,
   onUpdateDeployment,
   onOpenPreview,
 }) => {
-<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState<"internal" | "wordpress" | "sftp" | "zip">("internal");
-=======
-  const [activeTab, setActiveTab] = useState<"internal" | "wordpress">("internal");
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
   const [isPublishing, setIsPublishing] = useState(false);
   const [isRollingBack, setIsRollingBack] = useState<string | null>(null);
   const [customDomain, setCustomDomain] = useState(deployment?.customDomain || "");
@@ -79,7 +67,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     if (isOpen && websiteId) {
       loadDeployments();
       loadWordPressStatus();
-<<<<<<< HEAD
       loadSftpConfig();
     }
   }, [isOpen, websiteId]);
@@ -153,12 +140,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setIsSyncingSftp(false);
     }
   };
-
-=======
-    }
-  }, [isOpen, websiteId]);
-
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
   const loadDeployments = async () => {
     if (!websiteId) return;
     try {
@@ -500,7 +481,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       Validates integrity, processes all pages & components, and updates the live production snapshot.
                     </p>
                   </div>
-<<<<<<< HEAD
                   {approvalWorkflowEnabled && !canPublish ? (
                     <button
                       type="button"
@@ -521,16 +501,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       {isPublishing ? "Publishing..." : "🚀 Publish Now"}
                     </button>
                   )}
-=======
-                  <button
-                    type="button"
-                    onClick={() => handlePublishClick("INTERNAL")}
-                    disabled={isPublishing}
-                    className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                  >
-                    {isPublishing ? "Publishing..." : "🚀 Publish Now"}
-                  </button>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                 </div>
                 {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
                   <div className="pt-3 border-t border-emerald-900/40 flex items-center justify-between">
@@ -739,7 +709,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                           Transforms canonical Page JSON into native Gutenberg blocks, updates mapped pages, and syncs media.
                         </p>
                       </div>
-<<<<<<< HEAD
                       {approvalWorkflowEnabled && !canPublish ? (
                         <button
                           type="button"
@@ -760,16 +729,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                           {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
                         </button>
                       )}
-=======
-                      <button
-                        type="button"
-                        onClick={() => handlePublishClick("WORDPRESS")}
-                        disabled={isPublishing}
-                        className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                      >
-                        {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
-                      </button>
->>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     </div>
                   </div>
                 </div>
