@@ -78,3 +78,30 @@ export async function requireAuth(
     next(error);
   }
 }
+
+export function requireRole(allowedRoles: string | string[]) {
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = res.locals.user || (req as any).user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!roles.includes(user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: "FORBIDDEN",
+          message: "You do not have access to this resource.",
+        },
+      });
+    }
+
+    next();
+  };
+}

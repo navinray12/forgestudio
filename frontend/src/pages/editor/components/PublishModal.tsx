@@ -10,7 +10,10 @@ interface PublishModalProps {
   pages: PageConfig[];
   websiteName: string;
   websiteId?: string;
+  approvalWorkflowEnabled?: boolean;
+  canPublish?: boolean;
   onPublish: (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => Promise<void>;
+  onSubmitApproval?: () => Promise<void>;
   onRollback?: (deploymentId: string) => Promise<void>;
   onUpdateDeployment: (config: DeploymentConfig) => void;
   onOpenPreview: () => void;
@@ -24,12 +27,15 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   pages,
   websiteName: _websiteName,
   websiteId,
+  approvalWorkflowEnabled = false,
+  canPublish = true,
   onPublish,
+  onSubmitApproval,
   onRollback,
   onUpdateDeployment,
   onOpenPreview,
 }) => {
-  const [activeTab, setActiveTab] = useState<"internal" | "wordpress">("internal");
+  const [activeTab, setActiveTab] = useState<"internal" | "wordpress" | "sftp" | "zip">("internal");
   const [isPublishing, setIsPublishing] = useState(false);
   const [isRollingBack, setIsRollingBack] = useState<string | null>(null);
   const [customDomain, setCustomDomain] = useState(deployment?.customDomain || "");
@@ -46,12 +52,94 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [isConnectingWp, setIsConnectingWp] = useState(false);
   const [isVerifyingWp, setIsVerifyingWp] = useState(false);
 
+  // SFTP connection state
+  const [sftpHost, setSftpHost] = useState("");
+  const [sftpPort, setSftpPort] = useState("22");
+  const [sftpUsername, setSftpUsername] = useState("");
+  const [sftpPassword, setSftpPassword] = useState("");
+  const [sftpRemotePath, setSftpRemotePath] = useState("/var/www/html");
+  const [isTestingSftp, setIsTestingSftp] = useState(false);
+  const [isSyncingSftp, setIsSyncingSftp] = useState(false);
+  const [sftpFeedback, setSftpFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [sftpVerified, setSftpVerified] = useState(false);
+
   useEffect(() => {
     if (isOpen && websiteId) {
       loadDeployments();
       loadWordPressStatus();
+      loadSftpConfig();
     }
   }, [isOpen, websiteId]);
+
+  const loadSftpConfig = async () => {
+    if (!websiteId) return;
+    try {
+      const data = await publishingService.getSftpConfig(websiteId);
+      if (data?.config) {
+        setSftpHost(data.config.host || "");
+        setSftpPort(String(data.config.port || 22));
+        setSftpUsername(data.config.username || "");
+        setSftpRemotePath(data.config.remotePath || "/var/www/html");
+        setSftpVerified(data.config.status === "CONNECTED");
+      }
+    } catch (e) {}
+  };
+
+  const handleTestSftp = async () => {
+    if (!sftpHost || !sftpUsername) {
+      setSftpFeedback({ type: "error", message: "Host and Username are required." });
+      return;
+    }
+    setIsTestingSftp(true);
+    setSftpFeedback(null);
+    try {
+      await publishingService.saveSftpConfig({
+        websiteId,
+        host: sftpHost,
+        port: parseInt(sftpPort, 10) || 22,
+        username: sftpUsername,
+        password: sftpPassword,
+        remotePath: sftpRemotePath,
+      });
+      const res = await publishingService.verifySftpConfig({
+        host: sftpHost,
+        port: parseInt(sftpPort, 10) || 22,
+        username: sftpUsername,
+        password: sftpPassword,
+      });
+      if (res.success || res.verified) {
+        setSftpVerified(true);
+        setSftpFeedback({ type: "success", message: "SFTP connection verified successfully!" });
+      } else {
+        setSftpFeedback({ type: "error", message: res.error || "Connection test failed." });
+      }
+    } catch (err: any) {
+      setSftpFeedback({ type: "error", message: err.message || "Failed to verify SFTP connection." });
+    } finally {
+      setIsTestingSftp(false);
+    }
+  };
+
+  const handleSyncSftp = async () => {
+    if (!websiteId) return;
+    setIsSyncingSftp(true);
+    setSftpFeedback(null);
+    try {
+      const res = await publishingService.syncSftp(websiteId, {
+        environment: "PRODUCTION",
+      });
+      if (res.success) {
+        setSftpFeedback({ type: "success", message: `Successfully synced ${res.syncedFilesCount || "all"} files to SFTP server!` });
+        loadDeployments();
+      } else {
+        setSftpFeedback({ type: "error", message: res.error || "SFTP sync failed." });
+      }
+    } catch (err: any) {
+      setSftpFeedback({ type: "error", message: err.message || "SFTP sync failed." });
+    } finally {
+      setIsSyncingSftp(false);
+    }
+  };
 
   const loadDeployments = async () => {
     if (!websiteId) return;
@@ -101,6 +189,34 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setSaveFeedback(err?.message || "Failed to publish website.");
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
+  const handleSubmitApproval = async () => {
+    setIsSubmittingApproval(true);
+    setSaveFeedback("");
+    try {
+      if (onSubmitApproval) {
+        await onSubmitApproval();
+      } else if (websiteId) {
+        const res = await fetch(`/api/approval-requests`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ websiteId, note: "Ready for publication review." }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.message || "Failed to submit for approval");
+        }
+      }
+      setSaveFeedback("Publication request submitted for approval!");
+      setTimeout(() => setSaveFeedback(""), 4000);
+    } catch (err: any) {
+      setSaveFeedback(err?.message || "Failed to submit for approval.");
+    } finally {
+      setIsSubmittingApproval(false);
     }
   };
 
@@ -262,6 +378,29 @@ export const PublishModal: React.FC<PublishModalProps> = ({
             <span>WordPress Destination</span>
             {wpStatus?.isConnected && <span className="h-2 w-2 rounded-full bg-emerald-400"></span>}
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("sftp")}
+            className={`pb-2.5 px-4 text-xs font-bold border-b-2 transition cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "sftp"
+                ? "border-amber-500 text-amber-400"
+                : "border-transparent text-slate-400 hover:text-white"
+            }`}
+          >
+            <span>SFTP Server</span>
+            {sftpVerified && <span className="h-2 w-2 rounded-full bg-emerald-400"></span>}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("zip")}
+            className={`pb-2.5 px-4 text-xs font-bold border-b-2 transition cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "zip"
+                ? "border-purple-500 text-purple-400"
+                : "border-transparent text-slate-400 hover:text-white"
+            }`}
+          >
+            <span>Static ZIP Export</span>
+          </button>
         </div>
 
         {/* Content Body */}
@@ -343,14 +482,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       Validates integrity, processes all pages & components, and updates the live production snapshot.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePublishClick("INTERNAL")}
-                    disabled={isPublishing}
-                    className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                  >
-                    {isPublishing ? "Publishing..." : "🚀 Publish Now"}
-                  </button>
+                  {approvalWorkflowEnabled && !canPublish ? (
+                    <button
+                      type="button"
+                      onClick={handleSubmitApproval}
+                      disabled={isSubmittingApproval}
+                      className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
+                    >
+                      <span>📋</span>
+                      <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handlePublishClick("INTERNAL")}
+                      disabled={isPublishing}
+                      className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
+                    >
+                      {isPublishing ? "Publishing..." : "🚀 Publish Now"}
+                    </button>
+                  )}
                 </div>
                 {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
                   <div className="pt-3 border-t border-emerald-900/40 flex items-center justify-between">
@@ -559,14 +710,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                           Transforms canonical Page JSON into native Gutenberg blocks, updates mapped pages, and syncs media.
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePublishClick("WORDPRESS")}
-                        disabled={isPublishing}
-                        className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
-                      >
-                        {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
-                      </button>
+                      {approvalWorkflowEnabled && !canPublish ? (
+                        <button
+                          type="button"
+                          onClick={handleSubmitApproval}
+                          disabled={isSubmittingApproval}
+                          className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
+                        >
+                          <span>📋</span>
+                          <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handlePublishClick("WORDPRESS")}
+                          disabled={isPublishing}
+                          className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
+                        >
+                          {isPublishing ? "Syncing to WP..." : "Publish to WordPress"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -640,6 +803,144 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                   </div>
                 </form>
               )}
+            </div>
+          )}
+
+          {/* SFTP Destination Panel */}
+          {activeTab === "sftp" && (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="rounded-xl border border-amber-900/40 bg-amber-950/20 p-4">
+                <h4 className="text-xs font-bold text-amber-400">SFTP Direct Server Deployment</h4>
+                <p className="text-[11px] text-slate-300 mt-1">
+                  Publish compiled static website files directly to any Linux/UNIX web server, cPanel, AWS EC2, or DigitalOcean droplet via SSH File Transfer Protocol.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300">Server Host / IP</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. sftp.example.com or 203.0.113.10"
+                    value={sftpHost}
+                    onChange={(e) => setSftpHost(e.target.value)}
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white placeholder-slate-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300">Port</label>
+                  <input
+                    type="number"
+                    value={sftpPort}
+                    onChange={(e) => setSftpPort(e.target.value)}
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300">Username</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. deploy or root"
+                    value={sftpUsername}
+                    onChange={(e) => setSftpUsername(e.target.value)}
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-300">Password / SSH Key</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={sftpPassword}
+                    onChange={(e) => setSftpPassword(e.target.value)}
+                    className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-300">Remote Directory Path</label>
+                <input
+                  type="text"
+                  placeholder="e.g. /var/www/html or /public_html"
+                  value={sftpRemotePath}
+                  onChange={(e) => setSftpRemotePath(e.target.value)}
+                  className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white"
+                />
+              </div>
+
+              {sftpFeedback && (
+                <div
+                  className={`rounded-lg p-2.5 text-xs font-semibold text-center ${
+                    sftpFeedback.type === "success"
+                      ? "bg-emerald-950/60 border border-emerald-500/50 text-emerald-300"
+                      : "bg-rose-950/60 border border-rose-500/50 text-rose-300"
+                  }`}
+                >
+                  {sftpFeedback.message}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleTestSftp}
+                  disabled={isTestingSftp}
+                  className="rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 text-xs font-bold transition cursor-pointer"
+                >
+                  {isTestingSftp ? "Testing..." : "Test Connection"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSyncSftp}
+                  disabled={isSyncingSftp}
+                  className="rounded-lg bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 text-xs font-bold transition shadow-lg shadow-amber-600/30 cursor-pointer"
+                >
+                  {isSyncingSftp ? "Syncing Files..." : "Deploy via SFTP Now"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Static ZIP Bundle Panel */}
+          {activeTab === "zip" && (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="rounded-xl border border-purple-900/40 bg-purple-950/20 p-4">
+                <h4 className="text-xs font-bold text-purple-400">1-Click Static Website Export (.zip)</h4>
+                <p className="text-[11px] text-slate-300 mt-1">
+                  Download a production-optimized static website bundle ready for instant self-hosting on AWS S3, Cloudflare Pages, Netlify, Vercel, Apache, or Nginx.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 space-y-2">
+                <span className="block text-[10px] uppercase font-bold text-slate-400">Included in Bundle</span>
+                <ul className="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                  <li>HTML pages for all {pages.length} website routes with SEO meta tags</li>
+                  <li>Clean standalone stylesheet (<code className="text-blue-400">styles.css</code>) with responsive media queries</li>
+                  <li>Lightweight interactive JavaScript runtime (<code className="text-blue-400">runtime.js</code>)</li>
+                  <li>Form handling scripts and asset references</li>
+                </ul>
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2">
+                <a
+                  href={`/api/websites/${websiteId}/export/zip`}
+                  download
+                  className="w-full text-center rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-3 shadow-lg shadow-purple-600/30 transition cursor-pointer"
+                >
+                  📦 Download Static Website Bundle (.zip)
+                </a>
+                <a
+                  href="/api/plugins/wordpress/download"
+                  download
+                  className="w-full text-center rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-semibold text-xs py-2 transition"
+                >
+                  🔌 Download WordPress Connector Plugin (.zip)
+                </a>
+              </div>
             </div>
           )}
 

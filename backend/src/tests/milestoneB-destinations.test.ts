@@ -188,6 +188,70 @@ async function runMilestoneBTests() {
     );
 
     // =========================================================================
+    // Test 4B: Tri-Renderer Parity - Static Compiler renders Pro and Interactive Widgets
+    // =========================================================================
+    const proCanonicalData = {
+      ...canonicalData,
+      pages: [
+        {
+          id: "pricing-page",
+          name: "Pricing",
+          title: "Pricing Plans",
+          slug: "pricing",
+          isHome: false,
+          pageSettings: {
+            title: "Pricing Plans",
+            description: "Choose your subscription plan",
+            ogTitle: "Destinations Corp Pricing",
+            canonicalUrl: "https://destinations.test/pricing",
+            noindex: false,
+          },
+          elements: [
+            {
+              id: "pt1",
+              type: "pricing",
+              pricingPlans: [
+                { name: "Pro Plan", price: "49", currency: "$", period: "/mo", features: [{ text: "Unlimited Sites", included: true }] }
+              ]
+            },
+            {
+              id: "fb1",
+              type: "flip-box",
+              flipFrontTitle: "Front Feature",
+              flipBackTitle: "Back Details"
+            },
+            {
+              id: "cd1",
+              type: "countdown",
+              countdownTargetDate: "2026-12-31"
+            },
+            {
+              id: "al1",
+              type: "alert",
+              alertType: "success",
+              content: "Limited time launch offer!"
+            }
+          ]
+        }
+      ]
+    };
+    const proBundle = compileCanonicalToStaticBundle(testWebsite.id, 2, proCanonicalData);
+    const pricingFile = proBundle.files.find((f) => f.path === "pricing.html");
+    const pricingContent = String(pricingFile?.content || "");
+
+    const hasPricingTable = pricingContent.includes("fs-pricing-table") && pricingContent.includes("Pro Plan") && pricingContent.includes("49");
+    const hasFlipBox = pricingContent.includes("fs-flip-box") && pricingContent.includes("Front Feature") && pricingContent.includes("Back Details");
+    const hasCountdown = pricingContent.includes("fs-countdown");
+    const hasAlert = pricingContent.includes("fs-alert") && pricingContent.includes("Limited time launch offer!");
+    const hasOgMeta = pricingContent.includes('property="og:title" content="Destinations Corp Pricing"');
+    const hasCanonical = pricingContent.includes('rel="canonical" href="https://destinations.test/pricing"');
+
+    assert(
+      hasPricingTable && hasFlipBox && hasCountdown && hasAlert && hasOgMeta && hasCanonical,
+      "Test 4B: Tri-Renderer Parity - Static Compiler renders pricing tables, flip boxes, countdowns, alerts, and SEO/OG metadata"
+    );
+
+    // =========================================================================
     // Test 5: SFTP Publish fails safely when SFTP configuration is missing
     // =========================================================================
     let sftpConfigMissingCaught = false;

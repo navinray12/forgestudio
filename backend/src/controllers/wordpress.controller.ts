@@ -102,3 +102,17 @@ export async function handleWordPressWebhook(req: Request, res: Response, next: 
     next(error);
   }
 }
+
+export async function downloadWordPressPluginHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const { generateWordPressPluginZip } = await import("../services/wordpress/connector.service.js");
+    const zipBuffer = await generateWordPressPluginZip();
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", 'attachment; filename="forgestudio-connector.zip"');
+    return res.status(200).send(zipBuffer);
+  } catch (error) {
+    next(error);
+  }
+}
+

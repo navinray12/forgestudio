@@ -3,12 +3,19 @@ import {
   getSystemHealth,
   getOperationalAlerts,
   recordOperationalAlert,
+  getAdminPlatformStats,
+  getAdminUsers,
+  setAdminUserStatus,
+  getAdminWebsites,
 } from "../services/monitoring.service.js";
 import {
   listJobs,
   processNextJob,
   enqueueJob,
   getJobById,
+  retryJob,
+  cancelJob,
+  purgeCompletedJobs,
 } from "../services/jobs/jobRunner.js";
 import {
   schedulePublish,
@@ -64,6 +71,45 @@ export async function listJobsHandler(req: Request, res: Response, next: NextFun
 export async function processNextJobHandler(_req: Request, res: Response, next: NextFunction) {
   try {
     const result = await processNextJob();
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function retryJobHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const jobId = String(req.params.id);
+    const job = await retryJob(jobId);
+    return res.status(200).json({
+      success: true,
+      data: job,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function cancelJobHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const jobId = String(req.params.id);
+    const reason = req.body?.reason || "Cancelled via Operations Dashboard";
+    const result = await cancelJob(jobId, reason);
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function purgeCompletedJobsHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await purgeCompletedJobs();
     return res.status(200).json({
       success: true,
       data: result,
@@ -159,6 +205,70 @@ export async function cancelScheduledPublishHandler(req: Request, res: Response,
     return res.status(200).json({
       success: true,
       data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdminStatsHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const stats = await getAdminPlatformStats();
+    return res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdminUsersHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = parseInt((req.query.limit as string) || "50", 10);
+    const users = await getAdminUsers(limit);
+    return res.status(200).json({
+      success: true,
+      data: users,
+      meta: { total: users.length },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateAdminUserStatusHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminUser = res.locals.user || (req as any).user;
+    const targetUserId = String(req.params.userId);
+    const { status } = req.body;
+
+    if (!status || !["ACTIVE", "SUSPENDED", "DELETED"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "Status must be ACTIVE, SUSPENDED, or DELETED" },
+      });
+    }
+
+    const updated = await setAdminUserStatus(targetUserId, status, adminUser?.id);
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: `User status updated to ${status}`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdminWebsitesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = parseInt((req.query.limit as string) || "50", 10);
+    const websites = await getAdminWebsites(limit);
+    return res.status(200).json({
+      success: true,
+      data: websites,
+      meta: { total: websites.length },
     });
   } catch (err) {
     next(err);

@@ -3391,7 +3391,22 @@ export const LoopCarouselWidgetRenderer = ({
   isPreview: boolean;
   mergedStyles: ElementStyles;
 }) => {
-  const items = el.loopCarouselItems && el.loopCarouselItems.length > 0 ? el.loopCarouselItems : [];
+  // Dynamic Content Binding: if dynamic CPT entries are attached to element
+  const dynamicCptItems: LoopCarouselItem[] = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0
+    ? (el as any).cptEntries.map((entry: any, i: number) => ({
+        id: entry.id || `cpt-${i}`,
+        title: entry.title || entry.name || "Untitled Entry",
+        description: entry.data?.description || entry.data?.excerpt || entry.description || "",
+        imageUrl: entry.data?.image || entry.data?.featuredImage || entry.imageUrl || "",
+        badge: entry.data?.category || entry.badge || "",
+        buttonText: entry.data?.buttonText || "Read More",
+        linkUrl: entry.slug ? `/entry/${entry.slug}` : "#",
+      }))
+    : [];
+
+  const items = el.loopCarouselItems && el.loopCarouselItems.length > 0
+    ? el.loopCarouselItems
+    : dynamicCptItems;
   const slidesPerView = el.loopCarouselSlidesPerView || 3;
   const gap = el.loopCarouselGap ?? 20;
   const autoplay = el.loopCarouselAutoplay !== false;

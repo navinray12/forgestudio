@@ -5,8 +5,11 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
+import { VariablesManagerModal } from "./components/VariablesManagerModal";
+import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
+import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -137,6 +140,7 @@ import {
   deleteTreeElement,
   duplicateTreeElement,
   moveTreeElement,
+  isDescendant,
   reorderTreeElement
 } from "./utils";
 
@@ -805,6 +809,13 @@ const [popups, setPopups] = useState<any[]>([]);
     customHead?: string;
     isMaintenanceMode?: boolean;
     siteLanguage?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    canonicalUrl?: string;
+    noindex?: boolean;
+    nofollow?: boolean;
+    [key: string]: any;
   }>({
     title: "Home",
     description: "",
@@ -813,6 +824,12 @@ const [popups, setPopups] = useState<any[]>([]);
     customHead: "",
     isMaintenanceMode: false,
     siteLanguage: "en",
+    ogTitle: "",
+    ogDescription: "",
+    ogImage: "",
+    canonicalUrl: "",
+    noindex: false,
+    nofollow: false,
   });
 
 // Multi-Page Management, Site Parts & Preview States
@@ -823,6 +840,11 @@ const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
 const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
 const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
 const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
+const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
+const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
+const [globalVariables, setGlobalVariables] = useState<any[]>([]);
+const [globalClasses, setGlobalClasses] = useState<any[]>([]);
 const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
 const [newPageName, setNewPageName] = useState<string>("");
 const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -1624,6 +1646,14 @@ const navigate = useNavigate();
           if (loadedSite?.editorData?.publishedData) {
             publishedDataRef.current = loadedSite.editorData.publishedData;
           }
+
+          if (Array.isArray(loadedSite?.editorData?.globalVariables)) {
+            setGlobalVariables(loadedSite.editorData.globalVariables);
+          }
+
+          if (Array.isArray(loadedSite?.editorData?.globalClasses)) {
+            setGlobalClasses(loadedSite.editorData.globalClasses);
+          }
         } else {
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
@@ -2067,6 +2097,8 @@ const navigate = useNavigate();
           breakpoints,
           globalSettings,
           globalStyles: globalSettings?.globalStyles,
+          globalVariables,
+          globalClasses,
           popups,
           pageCss,
           pageSettings,
@@ -2181,7 +2213,7 @@ const navigate = useNavigate();
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-        if (targetId && data.id === targetId) return;
+        if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
         setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
@@ -6158,6 +6190,43 @@ const navigate = useNavigate();
                     {isPreview ? "Exit" : "👁️ Preview"}
                   </button>
 
+                  {/* Collaborative Design Notes & Feedback */}
+                  <button
+                    type="button"
+                    onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
+                      isDesignNotesOpen
+                        ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
+                        : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
+                    }`}
+                    title="Toggle Collaborative Design Notes & Element Comments"
+                  >
+                    <span>💬</span>
+                    <span>Notes</span>
+                  </button>
+
+                  {/* F-339: Variables Manager (Tokens) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsVariablesModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Design Variables & CSS Tokens (F-339)"
+                  >
+                    <span>🎨</span>
+                    <span>Tokens</span>
+                  </button>
+
+                  {/* F-340: Global Class Manager */}
+                  <button
+                    type="button"
+                    onClick={() => setIsClassModalOpen(true)}
+                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
+                    title="Global Utility Classes (F-340)"
+                  >
+                    <span>🏷️</span>
+                    <span>Classes</span>
+                  </button>
+
                   <button
                     onClick={handleSave}
                     disabled={saving}
@@ -7795,7 +7864,14 @@ onClick={() => importFileInputRef.current?.click()}
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
-                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
+                      {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
+                        siteParts.header?.elements &&
+                        siteParts.header.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.header?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -7820,7 +7896,14 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
-                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
+                      {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
+                        siteParts.footer?.elements &&
+                        siteParts.footer.elements.length > 0 &&
+                        matchesThemeCondition(siteParts.footer?.conditions, {
+                          pageId: currentPreviewPage?.id,
+                          isHome: currentPreviewPage?.isHome,
+                          slug: currentPreviewPage?.slug,
+                        }) && (
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -16122,6 +16205,96 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   />
                 </div>
 
+                {/* Page SEO & Social Graph (Phase 4) */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>🌐</span>
+                      <span>SEO & Social Graph</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
+                      Metadata
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Canonical URL
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.canonicalUrl || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
+                      placeholder="https://example.com/canonical-page"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Title
+                    </label>
+                    <input
+                      type="text"
+                      value={pageSettings.ogTitle || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogTitle: e.target.value }))}
+                      placeholder={pageSettings.title || "Social title..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      OpenGraph Description
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={pageSettings.ogDescription || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogDescription: e.target.value }))}
+                      placeholder={pageSettings.description || "Social share description..."}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Social Share Image URL (og:image)
+                    </label>
+                    <input
+                      type="url"
+                      value={pageSettings.ogImage || ""}
+                      onChange={(e) => setPageSettings((prev) => ({ ...prev, ogImage: e.target.value }))}
+                      placeholder="https://example.com/share-card.jpg"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Search Engine Robots Indexing */}
+                  <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Robots Directives
+                    </span>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.noindex}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, noindex: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Prevent search engine indexing (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">noindex</code>)</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!pageSettings.nofollow}
+                        onChange={(e) => setPageSettings((prev) => ({ ...prev, nofollow: e.target.checked }))}
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                      />
+                      <span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
+                    </label>
+                  </div>
+                </div>
+
                 {/* Site / Website Published Language (F-022) */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
@@ -17311,6 +17484,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         pages={pages}
         websiteName={website?.name || "ForgeStudio Project"}
         websiteId={websiteId || ""}
+        approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
         onPublish={handlePublishWebsite}
         onRollback={handleRollbackDeployment}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
@@ -17318,6 +17492,14 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
           setIsPublishModalOpen(false);
           setIsPreview(true);
         }}
+      />
+
+      {/* Collaborative Design Notes & Feedback Overlay */}
+      <DesignNotesOverlay
+        isOpen={isDesignNotesOpen}
+        onClose={() => setIsDesignNotesOpen(false)}
+        websiteId={websiteId || ""}
+        activeElementId={selectedElementAny?.id || null}
       />
 
       {/* Advanced Icon Library Modal */}
@@ -17358,6 +17540,29 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
             updateSelectedStyle("fontFamily", fontFamily);
           }
           setIsFontPickerModalOpen(false);
+        }}
+      />
+
+      {/* F-339: Variables Manager Modal */}
+      <VariablesManagerModal
+        isOpen={isVariablesModalOpen}
+        onClose={() => setIsVariablesModalOpen(false)}
+        variables={globalVariables}
+        onSaveVariables={(updated) => {
+          setGlobalVariables(updated);
+          handleSave();
+        }}
+      />
+
+      {/* F-340: Global Class Manager Modal */}
+      <ClassManagerModal
+        isOpen={isClassModalOpen}
+        onClose={() => setIsClassModalOpen(false)}
+        classes={globalClasses}
+        userRole="OWNER"
+        onSaveClasses={(updated) => {
+          setGlobalClasses(updated);
+          handleSave();
         }}
       />
     </div>

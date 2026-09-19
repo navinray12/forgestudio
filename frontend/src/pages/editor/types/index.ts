@@ -1200,13 +1200,53 @@ export interface SitePartsConfig {
     isEnabled?: boolean;
     elements: EditorElement[];
     customCss?: string;
+    conditions?: string[];
   };
   footer?: {
     enabled?: boolean;
     isEnabled?: boolean;
     elements: EditorElement[];
     customCss?: string;
+    conditions?: string[];
   };
+}
+
+/**
+ * Evaluates theme builder display conditions (include:all, include:singular:home, include:page:id, exclude:page:id, etc.)
+ */
+export function matchesThemeCondition(
+  conditions: string[] | undefined,
+  pageContext: { pageId?: string; isHome?: boolean; slug?: string }
+): boolean {
+  if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
+    return true;
+  }
+
+  for (const cond of conditions) {
+    if (cond === "exclude:all") return false;
+    if (cond === "exclude:singular:home" && pageContext.isHome) return false;
+    if (cond.startsWith("exclude:page:")) {
+      const target = cond.replace("exclude:page:", "").trim();
+      if (target === pageContext.pageId || target === pageContext.slug) return false;
+    }
+  }
+
+  let explicitlyIncluded = false;
+  let hasInclusionRule = false;
+
+  for (const cond of conditions) {
+    if (cond.startsWith("include:")) {
+      hasInclusionRule = true;
+      if (cond === "include:all") explicitlyIncluded = true;
+      if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
+      if (cond.startsWith("include:page:")) {
+        const target = cond.replace("include:page:", "").trim();
+        if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
+      }
+    }
+  }
+
+  return hasInclusionRule ? explicitlyIncluded : true;
 }
 
 export interface GlobalStylesConfig {
