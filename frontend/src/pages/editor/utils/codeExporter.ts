@@ -124,12 +124,19 @@ export function exportElementNodeToJSX(el: EditorElement, ctx: ExportContext): s
     // CONTAINER (Recursive traversal of arbitrary children)
     // -------------------------------------------------------------------
     case "container": {
+      const isGrid = layout?.layoutType === "grid";
       const containerStyles: Record<string, any> = {
-        display: "flex",
-        flexDirection: layout?.direction || "column",
-        justifyContent: layout?.justifyContent || "flex-start",
+        display: isGrid ? "grid" : "flex",
+        flexDirection: isGrid ? undefined : (layout?.direction || "column"),
+        justifyContent: isGrid ? undefined : (layout?.justifyContent || "flex-start"),
         alignItems: layout?.alignItems || "stretch",
+        gridTemplateColumns: isGrid ? (layout?.gridTemplateColumns || "repeat(2, minmax(0, 1fr))") : undefined,
+        gridTemplateRows: isGrid ? layout?.gridTemplateRows : undefined,
+        gridAutoFlow: isGrid ? layout?.gridAutoFlow : undefined,
+        justifyItems: isGrid ? layout?.justifyItems : undefined,
         gap: `${layout?.gap ?? 16}px`,
+        rowGap: layout?.rowGap !== undefined ? (typeof layout?.rowGap === "number" ? `${layout?.rowGap}px` : layout?.rowGap) : undefined,
+        columnGap: layout?.columnGap !== undefined ? (typeof layout?.columnGap === "number" ? `${layout?.columnGap}px` : layout?.columnGap) : undefined,
         boxSizing: "border-box",
         width: stylesObj.width || "100%",
         padding: stylesObj.padding || "24px",

@@ -149,7 +149,54 @@ function renderElementToHtml(el: any, allPages: any[]): string {
     case "div-block": {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
       const childrenHtml = children.map((child: any) => renderElementToHtml(child, allPages)).join("\n");
-      return `<div${idAttr}${classAttr}${styleAttr}>\n${childrenHtml}\n</div>`;
+
+      const layout = el.layout || {};
+      const isMasonry = layout.layoutType === "masonry";
+      const isGrid = layout.layoutType === "grid";
+      const containerStyles: Record<string, any> = {
+        ...styleObj,
+        display: isMasonry ? "block" : (isGrid ? "grid" : (styleObj.display || "flex")),
+      };
+      if (isMasonry) {
+        containerStyles["column-count"] = layout.masonryColumns || 3;
+        containerStyles["column-gap"] = layout.columnGap !== undefined
+          ? (typeof layout.columnGap === "number" ? `${layout.columnGap}px` : layout.columnGap)
+          : (layout.gap !== undefined ? `${layout.gap}px` : "16px");
+      } else if (isGrid) {
+        containerStyles["grid-template-columns"] = layout.gridTemplateColumns || "repeat(2, minmax(0, 1fr))";
+        if (layout.gridTemplateRows) containerStyles["grid-template-rows"] = layout.gridTemplateRows;
+        if (layout.gridAutoFlow) containerStyles["grid-auto-flow"] = layout.gridAutoFlow;
+        if (layout.justifyItems) containerStyles["justify-items"] = layout.justifyItems;
+        if (layout.alignItems) containerStyles["align-items"] = layout.alignItems;
+        if (layout.gap !== undefined) containerStyles["gap"] = `${layout.gap}px`;
+        if (layout.rowGap !== undefined) containerStyles["row-gap"] = typeof layout.rowGap === "number" ? `${layout.rowGap}px` : layout.rowGap;
+        if (layout.columnGap !== undefined) containerStyles["column-gap"] = typeof layout.columnGap === "number" ? `${layout.columnGap}px` : layout.columnGap;
+      } else {
+        containerStyles["flex-direction"] = layout.direction || "column";
+        containerStyles["justify-content"] = layout.justifyContent || "flex-start";
+        containerStyles["align-items"] = layout.alignItems || "stretch";
+        if (layout.gap !== undefined) containerStyles["gap"] = `${layout.gap}px`;
+        if (layout.rowGap !== undefined) containerStyles["row-gap"] = typeof layout.rowGap === "number" ? `${layout.rowGap}px` : layout.rowGap;
+        if (layout.columnGap !== undefined) containerStyles["column-gap"] = typeof layout.columnGap === "number" ? `${layout.columnGap}px` : layout.columnGap;
+      }
+
+      if (layout.scrollSnapType && layout.scrollSnapType !== "none") {
+        containerStyles["scroll-snap-type"] = layout.scrollSnapType;
+      }
+      if (layout.overflowX) {
+        containerStyles["overflow-x"] = layout.overflowX;
+      }
+      if (layout.overflowY) {
+        containerStyles["overflow-y"] = layout.overflowY;
+      }
+
+      const containerCss = Object.entries(containerStyles)
+        .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+        .map(([k, v]) => `${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v}`)
+        .join("; ");
+      const containerStyleAttr = containerCss ? ` style="${escapeHtml(containerCss)}"` : "";
+
+      return `<div${idAttr}${classAttr}${containerStyleAttr}>\n${childrenHtml}\n</div>`;
     }
     case "columns": {
       const cols = Array.isArray(el.columns) ? el.columns : [];

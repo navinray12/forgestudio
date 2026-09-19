@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { resolveElementStyles, getInnerStyles } from "../editor/utils";
+import { resolveElementStyles, getInnerStyles, getMergedLayout } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
@@ -527,37 +527,88 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </div>
     );
 
-    if (el.type === "container" || el.type === "div-block") return (
-        <React.Fragment key={el.id}>
-            <div ref={assignRefIfTracked as any} {...mergedProps}>
-                {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
-                    <BackgroundSlideshow
-                        urls={
-                            Array.isArray(el.styles.backgroundSlideshowUrls)
-                                ? el.styles.backgroundSlideshowUrls
-                                : typeof el.styles.backgroundSlideshowUrls === "string"
-                                ? el.styles.backgroundSlideshowUrls.split(",")
-                                : []
-                        }
-                        interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
-                    />
-                )}
-                {el.children?.map(child => (
-                    <RenderNode
-                        key={child.id}
-                        el={child}
-                        isCritical={isCritical}
-                        activeBreakpointId={activeBreakpointId}
-                        breakpoints={breakpoints}
-                        globalSettings={globalSettings}
-                        elementClassMap={elementClassMap}
-                        apiUrl={apiUrl}
-                        allElements={allElements}
-                    />
-                ))}
-            </div>
-        </React.Fragment>
-    );
+    if (el.type === "container" || el.type === "div-block") {
+        const deviceMode = (activeBreakpointId === "mobile" || activeBreakpointId === "tablet") ? activeBreakpointId : "desktop";
+        const containerLayout = getMergedLayout(el, deviceMode);
+        const isMasonry = containerLayout.layoutType === "masonry";
+        const isGrid = containerLayout.layoutType === "grid";
+
+        const containerLayoutStyles: React.CSSProperties = isMasonry ? {
+            display: "block",
+            columnCount: containerLayout.masonryColumns || 3,
+            columnGap: containerLayout.columnGap !== undefined
+                ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap)
+                : `${containerLayout.gap ?? 16}px`,
+        } : isGrid ? {
+            display: "grid",
+            gridTemplateColumns: containerLayout.gridTemplateColumns || "repeat(2, minmax(0, 1fr))",
+            gridTemplateRows: containerLayout.gridTemplateRows,
+            gridAutoFlow: containerLayout.gridAutoFlow,
+            justifyItems: containerLayout.justifyItems,
+            alignItems: containerLayout.alignItems || "stretch",
+            gap: `${containerLayout.gap ?? 10}px`,
+            rowGap: containerLayout.rowGap !== undefined ? (typeof containerLayout.rowGap === "number" ? `${containerLayout.rowGap}px` : containerLayout.rowGap) : undefined,
+            columnGap: containerLayout.columnGap !== undefined ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap) : undefined,
+        } : {
+            display: "flex",
+            flexDirection: containerLayout.direction || "column",
+            justifyContent: containerLayout.justifyContent || "flex-start",
+            alignItems: containerLayout.alignItems || "stretch",
+            gap: `${containerLayout.gap ?? 10}px`,
+            rowGap: containerLayout.rowGap !== undefined ? (typeof containerLayout.rowGap === "number" ? `${containerLayout.rowGap}px` : containerLayout.rowGap) : undefined,
+            columnGap: containerLayout.columnGap !== undefined ? (typeof containerLayout.columnGap === "number" ? `${containerLayout.columnGap}px` : containerLayout.columnGap) : undefined,
+        };
+
+        if (containerLayout.scrollSnapType && containerLayout.scrollSnapType !== "none") {
+            containerLayoutStyles.scrollSnapType = containerLayout.scrollSnapType as any;
+        }
+        if (containerLayout.overflowX) {
+            containerLayoutStyles.overflowX = containerLayout.overflowX as any;
+        }
+        if (containerLayout.overflowY) {
+            containerLayoutStyles.overflowY = containerLayout.overflowY as any;
+        }
+
+        const containerMergedProps = {
+            ...mergedProps,
+            style: {
+                ...containerLayoutStyles,
+                ...mergedProps.style,
+            }
+        };
+
+        return (
+            <React.Fragment key={el.id}>
+                <div ref={assignRefIfTracked as any} {...containerMergedProps}>
+                    {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
+                        <BackgroundSlideshow
+                            urls={
+                                Array.isArray(el.styles.backgroundSlideshowUrls)
+                                    ? el.styles.backgroundSlideshowUrls
+                                    : typeof el.styles.backgroundSlideshowUrls === "string"
+                                    ? el.styles.backgroundSlideshowUrls.split(",")
+                                    : []
+                            }
+                            interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
+                        />
+                    )}
+                    {el.children?.map(child => (
+                        <RenderNode
+                            key={child.id}
+                            el={child}
+                            isCritical={isCritical}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={allElements}
+                        />
+                    ))}
+                </div>
+            </React.Fragment>
+        );
+    }
     return null;
 }, (prev, next) => {
     // Custom F-358 Comparator: Avoid full page rerender on style dedupe sweeps (elementClassMap mutations)
