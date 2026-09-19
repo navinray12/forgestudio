@@ -22,7 +22,8 @@ import {
   HelpCircle, ExternalLink, RefreshCw, Database, Server, Cpu, HardDrive, Key,
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
   AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass,
-  Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu
+  Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu,
+  ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon
 } from "lucide-react";
 
 // ==========================================
@@ -259,7 +260,7 @@ export default function WebsiteEditor() {
 
   const [elements, setElements] = useState<EditorElement[]>([]);
 
-const [popups, setPopups] = useState<any[]>([]);
+  const [popups, setPopups] = useState<any[]>([]);
 
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -286,8 +287,8 @@ const [popups, setPopups] = useState<any[]>([]);
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
-  const handleTrackPopupView = (id: string) => {};
-  const handleTrackPopupClick = (id: string) => {};
+  const handleTrackPopupView = (id: string) => { };
+  const handleTrackPopupClick = (id: string) => { };
 
 
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
@@ -673,6 +674,26 @@ const [popups, setPopups] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
+  const [isScopeDropdownOpen, setIsScopeDropdownOpen] = useState<boolean>(false);
+  const scopeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close scope dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        scopeDropdownRef.current &&
+        !scopeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsScopeDropdownOpen(false);
+      }
+    };
+    if (isScopeDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isScopeDropdownOpen]);
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -815,520 +836,520 @@ const [popups, setPopups] = useState<any[]>([]);
     siteLanguage: "en",
   });
 
-// Multi-Page Management, Site Parts & Preview States
-const [pages, setPages] = useState<PageConfig[]>([]);
-const [homePageId, setHomePageId] = useState<string>("home");
-const [activePageId, setActivePageId] = useState<string>("home");
-const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
-const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
-const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
-const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
-const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
-const [newPageName, setNewPageName] = useState<string>("");
-const [newPageSlug, setNewPageSlug] = useState<string>("");
-const [editingPageId, setEditingPageId] = useState<string | null>(null);
-const [editPageName, setEditPageName] = useState<string>("");
-const [editPageSlug, setEditPageSlug] = useState<string>("");
-const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
-const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  // Multi-Page Management, Site Parts & Preview States
+  const [pages, setPages] = useState<PageConfig[]>([]);
+  const [homePageId, setHomePageId] = useState<string>("home");
+  const [activePageId, setActivePageId] = useState<string>("home");
+  const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+  const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+  const [newPageName, setNewPageName] = useState<string>("");
+  const [newPageSlug, setNewPageSlug] = useState<string>("");
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editPageName, setEditPageName] = useState<string>("");
+  const [editPageSlug, setEditPageSlug] = useState<string>("");
+  const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-// F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
-const [siteParts, setSiteParts] = useState<SitePartsConfig>({
-  header: { enabled: true, elements: [] },
-  footer: { enabled: true, elements: [] },
-});
-
-// Publishing State & Deployment Configuration
-const [publishing, setPublishing] = useState<PublishingState>({
-  status: "DRAFT",
-  publishedVersion: 1,
-});
-const [deployment, setDeployment] = useState<DeploymentConfig>({
-  provider: "static",
-});
-const publishedDataRef = useRef<any>(null);
-
-// Canvas Editing Target Mode: "page" | "header" | "footer"
-const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
-
-// Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
-// Advanced Icon Library Modal State
-const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
-const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
-
-const handleOpenIconPicker = (targetField = "iconName") => {
-  setIconPickerTargetField(targetField);
-  setIsIconPickerOpen(true);
-};
-
-// Dynamic Font System Modal State
-const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
-const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
-
-const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
-  if (onSelect) setFontPickerCallback(() => onSelect);
-  setIsFontPickerModalOpen(true);
-};
-
-// Global Site Products Catalog State (WooCommerce & Dynamic Navigation Data Engine)
-const [siteProducts, setSiteProducts] = useState<SiteProduct[]>([
-  {
-    id: "prod_1",
-    name: "Premium Wireless Headphones",
-    price: "$199.99",
-    regularPrice: "$249.99",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
-    rating: 5,
-    category: "Electronics",
-    inStock: true,
-    url: "#product-headphones",
-    description: "High fidelity noise-canceling wireless headphones."
-  },
-  {
-    id: "prod_2",
-    name: "Ergonomic Smart Watch",
-    price: "$149.00",
-    regularPrice: "$179.00",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
-    rating: 4.8,
-    category: "Wearables",
-    inStock: true,
-    url: "#product-watch",
-    description: "Track fitness, health metrics, and smart notifications."
-  },
-  {
-    id: "prod_3",
-    name: "Minimalist Leather Backpack",
-    price: "$89.50",
-    regularPrice: "$110.00",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
-    rating: 4.6,
-    category: "Accessories",
-    inStock: true,
-    url: "#product-backpack",
-    description: "Crafted from genuine full-grain leather for everyday carry."
-  }
-]);
-
-// Sync live editor state (elements & pageSettings) with the active page entry in pages array
-useEffect(() => {
-  if (!activePageId || canvasMode !== "page") return;
-
-  setPages((prevPages) => {
-    if (!prevPages || prevPages.length === 0) return prevPages;
-
-    const exists = prevPages.some((p) => p.id === activePageId);
-    if (!exists) return prevPages;
-
-    return prevPages.map((p) => {
-      if (p.id === activePageId) {
-        const updatedName = pageSettings.title || p.name;
-        const updatedSlug = pageSettings.path || p.slug;
-
-        if (
-          p.elements === elements &&
-          p.pageSettings === pageSettings &&
-          p.name === updatedName &&
-          p.slug === updatedSlug
-        ) {
-          return p;
-        }
-
-        return {
-          ...p,
-          name: updatedName,
-          slug: updatedSlug,
-          elements,
-          pageSettings,
-        };
-      }
-
-      return p;
-    });
+  // F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
+  const [siteParts, setSiteParts] = useState<SitePartsConfig>({
+    header: { enabled: true, elements: [] },
+    footer: { enabled: true, elements: [] },
   });
-}, [elements, pageSettings, activePageId, canvasMode]);
 
-// Sync active Header/Footer changes into siteParts when in header or footer canvasMode
-useEffect(() => {
-  if (canvasMode === "header") {
-    setSiteParts((prev) => ({
-      ...prev,
-      header: { ...prev.header, elements },
-    }));
-  } else if (canvasMode === "footer") {
-    setSiteParts((prev) => ({
-      ...prev,
-      footer: { ...prev.footer, elements },
-    }));
-  }
-}, [elements, canvasMode]);
+  // Publishing State & Deployment Configuration
+  const [publishing, setPublishing] = useState<PublishingState>({
+    status: "DRAFT",
+    publishedVersion: 1,
+  });
+  const [deployment, setDeployment] = useState<DeploymentConfig>({
+    provider: "static",
+  });
+  const publishedDataRef = useRef<any>(null);
 
-// Sync preview active page with URL query parameter "?page=..." and popstate listener
-useEffect(() => {
-  if (!isPreview || pages.length === 0) return;
+  // Canvas Editing Target Mode: "page" | "header" | "footer"
+  const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
 
-  const syncFromUrl = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const urlPageParam =
-      searchParams.get("page") || searchParams.get("previewPage");
+  // Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
+  // Advanced Icon Library Modal State
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
+  const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
 
-    if (urlPageParam) {
-      const found = pages.find(
-        (p) =>
-          p.id === urlPageParam ||
-          p.slug === urlPageParam ||
-          p.slug === `/${urlPageParam}` ||
-          p.name.toLowerCase() === urlPageParam.toLowerCase()
-      );
-
-      if (found) {
-        setActivePreviewPageId(found.id);
-        return;
-      }
-    }
-
-    const homePage =
-      pages.find(
-        (p) => p.id === homePageId || p.isHome || p.slug === "/" || p.id === "home"
-      ) || pages[0];
-
-    if (homePage) {
-      setActivePreviewPageId(homePage.id);
-    }
+  const handleOpenIconPicker = (targetField = "iconName") => {
+    setIconPickerTargetField(targetField);
+    setIsIconPickerOpen(true);
   };
 
-  syncFromUrl();
+  // Dynamic Font System Modal State
+  const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
+  const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
 
-  window.addEventListener("popstate", syncFromUrl);
+  const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
+    if (onSelect) setFontPickerCallback(() => onSelect);
+    setIsFontPickerModalOpen(true);
+  };
 
-  return () => window.removeEventListener("popstate", syncFromUrl);
-}, [isPreview, pages, homePageId]);
+  // Global Site Products Catalog State (WooCommerce & Dynamic Navigation Data Engine)
+  const [siteProducts, setSiteProducts] = useState<SiteProduct[]>([
+    {
+      id: "prod_1",
+      name: "Premium Wireless Headphones",
+      price: "$199.99",
+      regularPrice: "$249.99",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+      rating: 5,
+      category: "Electronics",
+      inStock: true,
+      url: "#product-headphones",
+      description: "High fidelity noise-canceling wireless headphones."
+    },
+    {
+      id: "prod_2",
+      name: "Ergonomic Smart Watch",
+      price: "$149.00",
+      regularPrice: "$179.00",
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+      rating: 4.8,
+      category: "Wearables",
+      inStock: true,
+      url: "#product-watch",
+      description: "Track fitness, health metrics, and smart notifications."
+    },
+    {
+      id: "prod_3",
+      name: "Minimalist Leather Backpack",
+      price: "$89.50",
+      regularPrice: "$110.00",
+      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
+      rating: 4.6,
+      category: "Accessories",
+      inStock: true,
+      url: "#product-backpack",
+      description: "Crafted from genuine full-grain leather for everyday carry."
+    }
+  ]);
 
-const handlePreviewPageNavigate = (targetPage: PageConfig) => {
-  setActivePreviewPageId(targetPage.id);
+  // Sync live editor state (elements & pageSettings) with the active page entry in pages array
+  useEffect(() => {
+    if (!activePageId || canvasMode !== "page") return;
 
-  const newUrl = new URL(window.location.href);
+    setPages((prevPages) => {
+      if (!prevPages || prevPages.length === 0) return prevPages;
 
-  const cleanSlug =
-    targetPage.id === homePageId || targetPage.slug === "/"
-      ? "home"
-      : targetPage.slug.replace(/^\//, "");
+      const exists = prevPages.some((p) => p.id === activePageId);
+      if (!exists) return prevPages;
 
-  newUrl.searchParams.set("page", cleanSlug);
+      return prevPages.map((p) => {
+        if (p.id === activePageId) {
+          const updatedName = pageSettings.title || p.name;
+          const updatedSlug = pageSettings.path || p.slug;
 
-  window.history.pushState({}, "", newUrl.toString());
-};
+          if (
+            p.elements === elements &&
+            p.pageSettings === pageSettings &&
+            p.name === updatedName &&
+            p.slug === updatedSlug
+          ) {
+            return p;
+          }
 
-const handleSwitchEditingPage = (targetPageId: string) => {
-  const target = pages.find((p) => p.id === targetPageId);
+          return {
+            ...p,
+            name: updatedName,
+            slug: updatedSlug,
+            elements,
+            pageSettings,
+          };
+        }
 
-  if (!target) return;
+        return p;
+      });
+    });
+  }, [elements, pageSettings, activePageId, canvasMode]);
 
-  // 1. Sync current page elements if we were editing a page
-  if (canvasMode === "page") {
-    setPages((prev) =>
-      prev.map((p) =>
-        p.id === activePageId
-          ? {
+  // Sync active Header/Footer changes into siteParts when in header or footer canvasMode
+  useEffect(() => {
+    if (canvasMode === "header") {
+      setSiteParts((prev) => ({
+        ...prev,
+        header: { ...prev.header, elements },
+      }));
+    } else if (canvasMode === "footer") {
+      setSiteParts((prev) => ({
+        ...prev,
+        footer: { ...prev.footer, elements },
+      }));
+    }
+  }, [elements, canvasMode]);
+
+  // Sync preview active page with URL query parameter "?page=..." and popstate listener
+  useEffect(() => {
+    if (!isPreview || pages.length === 0) return;
+
+    const syncFromUrl = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlPageParam =
+        searchParams.get("page") || searchParams.get("previewPage");
+
+      if (urlPageParam) {
+        const found = pages.find(
+          (p) =>
+            p.id === urlPageParam ||
+            p.slug === urlPageParam ||
+            p.slug === `/${urlPageParam}` ||
+            p.name.toLowerCase() === urlPageParam.toLowerCase()
+        );
+
+        if (found) {
+          setActivePreviewPageId(found.id);
+          return;
+        }
+      }
+
+      const homePage =
+        pages.find(
+          (p) => p.id === homePageId || p.isHome || p.slug === "/" || p.id === "home"
+        ) || pages[0];
+
+      if (homePage) {
+        setActivePreviewPageId(homePage.id);
+      }
+    };
+
+    syncFromUrl();
+
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [isPreview, pages, homePageId]);
+
+  const handlePreviewPageNavigate = (targetPage: PageConfig) => {
+    setActivePreviewPageId(targetPage.id);
+
+    const newUrl = new URL(window.location.href);
+
+    const cleanSlug =
+      targetPage.id === homePageId || targetPage.slug === "/"
+        ? "home"
+        : targetPage.slug.replace(/^\//, "");
+
+    newUrl.searchParams.set("page", cleanSlug);
+
+    window.history.pushState({}, "", newUrl.toString());
+  };
+
+  const handleSwitchEditingPage = (targetPageId: string) => {
+    const target = pages.find((p) => p.id === targetPageId);
+
+    if (!target) return;
+
+    // 1. Sync current page elements if we were editing a page
+    if (canvasMode === "page") {
+      setPages((prev) =>
+        prev.map((p) =>
+          p.id === activePageId
+            ? {
               ...p,
               elements,
               pageSettings,
               name: pageSettings.title || p.name,
               slug: pageSettings.path || p.slug,
             }
-          : p
-      )
-    );
-  }
-
-  // 2. Clear element selection to isolate inspector across pages (Comment 18)
-  setSelectedId(null);
-  setSelectedIds([]);
-  setCanvasMode("page");
-
-  // 3. Reset undo/redo history to isolate active page history (Comment 6)
-  setHistory([target.elements || []]);
-  setHistoryIndex(0);
-
-  setActivePageId(target.id);
-  setElements(target.elements || []);
-
-  setPageSettings(
-    target.pageSettings || {
-      title: target.name,
-      path: target.slug,
+            : p
+        )
+      );
     }
-  );
 
-  setIsPageSelectorOpen(false);
-};
+    // 2. Clear element selection to isolate inspector across pages (Comment 18)
+    setSelectedId(null);
+    setSelectedIds([]);
+    setCanvasMode("page");
 
-// Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
-const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
-  if (mode === canvasMode) return;
-
-  // 1. Save current elements into appropriate model
-  if (canvasMode === "page") {
-    setPages((prev) =>
-      prev.map((p) => (p.id === activePageId ? { ...p, elements, pageSettings } : p))
-    );
-  } else if (canvasMode === "header") {
-    setSiteParts((prev) => ({
-      ...prev,
-      header: { ...prev.header, elements },
-    }));
-  } else if (canvasMode === "footer") {
-    setSiteParts((prev) => ({
-      ...prev,
-      footer: { ...prev.footer, elements },
-    }));
-  }
-
-  // 2. Clear selections & reset undo/redo for new target
-  setSelectedId(null);
-  setSelectedIds([]);
-
-  // 3. Load target elements
-  if (mode === "page") {
-    const activePage = pages.find((p) => p.id === activePageId);
-    const targetEls = activePage?.elements || [];
-    setElements(targetEls);
-    setHistory([targetEls]);
+    // 3. Reset undo/redo history to isolate active page history (Comment 6)
+    setHistory([target.elements || []]);
     setHistoryIndex(0);
-  } else if (mode === "header") {
-    const targetEls = siteParts.header?.elements || [];
-    setElements(targetEls);
-    setHistory([targetEls]);
-    setHistoryIndex(0);
-  } else if (mode === "footer") {
-    const targetEls = siteParts.footer?.elements || [];
-    setElements(targetEls);
-    setHistory([targetEls]);
-    setHistoryIndex(0);
-  }
 
-  setCanvasMode(mode);
-  setIsPageSelectorOpen(false);
-};
-
-const handleCreateNewPage = () => {
-  const rawTitle =
-    newPageName.trim() || `Page ${pages.length + 1}`;
-
-  const existingSlugs = pages.map((p) => p.slug);
-  const initialSlug = newPageSlug.trim() || generateSlug(rawTitle, existingSlugs);
-  const validation = validateSlug(initialSlug, pages);
-
-  if (!validation.isValid) {
-    setErrorMessage(validation.error || "Invalid slug.");
-    setTimeout(() => setErrorMessage(""), 3000);
-    return;
-  }
-
-  const newPageObj: PageConfig = {
-    id: `page_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 6)}`,
-
-    name: rawTitle,
-    slug: validation.slug,
-
-    elements: [],
-
-    pageSettings: {
-      title: rawTitle,
-      path: validation.slug,
-      description: "",
-      backgroundColor: "#ffffff",
-      isMaintenanceMode: false,
-      siteLanguage: "en",
-    },
-
-    isHome: pages.length === 0,
-  };
-
-  const updatedPages = [...pages, newPageObj];
-
-  setPages(updatedPages);
-  setActivePageId(newPageObj.id);
-
-  setElements([]);
-  setPageSettings(newPageObj.pageSettings);
-
-  setSelectedId(null);
-  setSelectedIds([]);
-
-  setNewPageName("");
-  setNewPageSlug("");
-
-  setIsAddPageModalOpen(false);
-  setIsPageSelectorOpen(false);
-
-  setSaveMessage(`Page "${rawTitle}" created!`);
-
-  setTimeout(() => setSaveMessage(""), 3000);
-};
-
-const handleCreatePageQuick = (customName?: string): PageConfig => {
-  const count = pages.length + 1;
-  const rawTitle = customName || `New Page ${count}`;
-  const formattedSlug = `/${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
-  const newPageObj: PageConfig = {
-    id: `page_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    name: rawTitle,
-    slug: formattedSlug,
-    elements: [],
-    pageSettings: {
-      title: rawTitle,
-      path: formattedSlug,
-      description: "",
-      backgroundColor: "#ffffff",
-      isMaintenanceMode: false,
-      siteLanguage: "en",
-    },
-    isHome: pages.length === 0,
-  };
-  setPages((prev) => [...prev, newPageObj]);
-  setSaveMessage(`Page "${rawTitle}" created!`);
-  setTimeout(() => setSaveMessage(""), 3000);
-  return newPageObj;
-};
-
-const handleDeletePage = (
-  pageIdToDelete: string,
-  e: React.MouseEvent
-) => {
-  e.stopPropagation();
-
-  if (pages.length <= 1) {
-    setErrorMessage("Cannot delete the only remaining page.");
-
-    setTimeout(() => setErrorMessage(""), 3000);
-
-    return;
-  }
-
-  const target = pages.find(
-    (p) => p.id === pageIdToDelete
-  );
-
-  if (!target) return;
-
-  if (
-    !window.confirm(
-      `Are you sure you want to delete page "${target.name}"?`
-    )
-  ) {
-    return;
-  }
-
-  const res = safeDeletePage(pageIdToDelete, pages, homePageId);
-  if (!res.success) {
-    setErrorMessage(res.error || "Cannot delete page.");
-    setTimeout(() => setErrorMessage(""), 3000);
-    return;
-  }
-
-  setPages(res.updatedPages);
-  setHomePageId(res.newHomePageId);
-
-  if (activePageId === pageIdToDelete) {
-    const nextActive = res.updatedPages.find((p) => p.id === res.newHomePageId) || res.updatedPages[0];
-
-    setActivePageId(nextActive.id);
-    setElements(nextActive.elements || []);
+    setActivePageId(target.id);
+    setElements(target.elements || []);
 
     setPageSettings(
-      nextActive.pageSettings || {
-        title: nextActive.name,
-        path: nextActive.slug,
+      target.pageSettings || {
+        title: target.name,
+        path: target.slug,
       }
     );
 
+    setIsPageSelectorOpen(false);
+  };
+
+  // Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
+  const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
+    if (mode === canvasMode) return;
+
+    // 1. Save current elements into appropriate model
+    if (canvasMode === "page") {
+      setPages((prev) =>
+        prev.map((p) => (p.id === activePageId ? { ...p, elements, pageSettings } : p))
+      );
+    } else if (canvasMode === "header") {
+      setSiteParts((prev) => ({
+        ...prev,
+        header: { ...prev.header, elements },
+      }));
+    } else if (canvasMode === "footer") {
+      setSiteParts((prev) => ({
+        ...prev,
+        footer: { ...prev.footer, elements },
+      }));
+    }
+
+    // 2. Clear selections & reset undo/redo for new target
     setSelectedId(null);
     setSelectedIds([]);
-  }
 
-  setSaveMessage(`Deleted page "${target.name}".`);
+    // 3. Load target elements
+    if (mode === "page") {
+      const activePage = pages.find((p) => p.id === activePageId);
+      const targetEls = activePage?.elements || [];
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "header") {
+      const targetEls = siteParts.header?.elements || [];
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "footer") {
+      const targetEls = siteParts.footer?.elements || [];
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    }
 
-  setTimeout(() => setSaveMessage(""), 3000);
-};
+    setCanvasMode(mode);
+    setIsPageSelectorOpen(false);
+  };
 
-const openEditPageModal = (
-  page: PageConfig,
-  e: React.MouseEvent
-) => {
-  e.stopPropagation();
+  const handleCreateNewPage = () => {
+    const rawTitle =
+      newPageName.trim() || `Page ${pages.length + 1}`;
 
-  setEditingPageId(page.id);
-  setEditPageName(page.name);
-  setEditPageSlug(page.slug);
+    const existingSlugs = pages.map((p) => p.slug);
+    const initialSlug = newPageSlug.trim() || generateSlug(rawTitle, existingSlugs);
+    const validation = validateSlug(initialSlug, pages);
 
-  setIsEditPageModalOpen(true);
-  setIsPageSelectorOpen(false);
-};
-
-const handleSaveEditPage = () => {
-  if (!editingPageId) return;
-
-  const rawTitle = editPageName.trim();
-
-  if (!rawTitle) return;
-
-  const isCurrentHome = editingPageId === homePageId;
-  let targetSlug = editPageSlug.trim();
-
-  if (isCurrentHome && (targetSlug === "/" || targetSlug === "")) {
-    targetSlug = "/";
-  } else {
-    const fallbackSlug = targetSlug || generateSlug(rawTitle, pages.filter((p) => p.id !== editingPageId).map((p) => p.slug));
-    const validation = validateSlug(fallbackSlug, pages, editingPageId);
     if (!validation.isValid) {
       setErrorMessage(validation.error || "Invalid slug.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
-    targetSlug = validation.slug;
-  }
 
-  setPages((prev) =>
-    prev.map((p) => {
-      if (p.id === editingPageId) {
-        const updatedSettings = {
-          ...(p.pageSettings || {}),
-          title: rawTitle,
-          path: targetSlug,
-        };
+    const newPageObj: PageConfig = {
+      id: `page_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 6)}`,
 
-        return {
-          ...p,
-          name: rawTitle,
-          slug: targetSlug,
-          pageSettings: updatedSettings,
-        };
+      name: rawTitle,
+      slug: validation.slug,
+
+      elements: [],
+
+      pageSettings: {
+        title: rawTitle,
+        path: validation.slug,
+        description: "",
+        backgroundColor: "#ffffff",
+        isMaintenanceMode: false,
+        siteLanguage: "en",
+      },
+
+      isHome: pages.length === 0,
+    };
+
+    const updatedPages = [...pages, newPageObj];
+
+    setPages(updatedPages);
+    setActivePageId(newPageObj.id);
+
+    setElements([]);
+    setPageSettings(newPageObj.pageSettings);
+
+    setSelectedId(null);
+    setSelectedIds([]);
+
+    setNewPageName("");
+    setNewPageSlug("");
+
+    setIsAddPageModalOpen(false);
+    setIsPageSelectorOpen(false);
+
+    setSaveMessage(`Page "${rawTitle}" created!`);
+
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const handleCreatePageQuick = (customName?: string): PageConfig => {
+    const count = pages.length + 1;
+    const rawTitle = customName || `New Page ${count}`;
+    const formattedSlug = `/${rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
+    const newPageObj: PageConfig = {
+      id: `page_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      name: rawTitle,
+      slug: formattedSlug,
+      elements: [],
+      pageSettings: {
+        title: rawTitle,
+        path: formattedSlug,
+        description: "",
+        backgroundColor: "#ffffff",
+        isMaintenanceMode: false,
+        siteLanguage: "en",
+      },
+      isHome: pages.length === 0,
+    };
+    setPages((prev) => [...prev, newPageObj]);
+    setSaveMessage(`Page "${rawTitle}" created!`);
+    setTimeout(() => setSaveMessage(""), 3000);
+    return newPageObj;
+  };
+
+  const handleDeletePage = (
+    pageIdToDelete: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+
+    if (pages.length <= 1) {
+      setErrorMessage("Cannot delete the only remaining page.");
+
+      setTimeout(() => setErrorMessage(""), 3000);
+
+      return;
+    }
+
+    const target = pages.find(
+      (p) => p.id === pageIdToDelete
+    );
+
+    if (!target) return;
+
+    if (
+      !window.confirm(
+        `Are you sure you want to delete page "${target.name}"?`
+      )
+    ) {
+      return;
+    }
+
+    const res = safeDeletePage(pageIdToDelete, pages, homePageId);
+    if (!res.success) {
+      setErrorMessage(res.error || "Cannot delete page.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
+    setPages(res.updatedPages);
+    setHomePageId(res.newHomePageId);
+
+    if (activePageId === pageIdToDelete) {
+      const nextActive = res.updatedPages.find((p) => p.id === res.newHomePageId) || res.updatedPages[0];
+
+      setActivePageId(nextActive.id);
+      setElements(nextActive.elements || []);
+
+      setPageSettings(
+        nextActive.pageSettings || {
+          title: nextActive.name,
+          path: nextActive.slug,
+        }
+      );
+
+      setSelectedId(null);
+      setSelectedIds([]);
+    }
+
+    setSaveMessage(`Deleted page "${target.name}".`);
+
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const openEditPageModal = (
+    page: PageConfig,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+
+    setEditingPageId(page.id);
+    setEditPageName(page.name);
+    setEditPageSlug(page.slug);
+
+    setIsEditPageModalOpen(true);
+    setIsPageSelectorOpen(false);
+  };
+
+  const handleSaveEditPage = () => {
+    if (!editingPageId) return;
+
+    const rawTitle = editPageName.trim();
+
+    if (!rawTitle) return;
+
+    const isCurrentHome = editingPageId === homePageId;
+    let targetSlug = editPageSlug.trim();
+
+    if (isCurrentHome && (targetSlug === "/" || targetSlug === "")) {
+      targetSlug = "/";
+    } else {
+      const fallbackSlug = targetSlug || generateSlug(rawTitle, pages.filter((p) => p.id !== editingPageId).map((p) => p.slug));
+      const validation = validateSlug(fallbackSlug, pages, editingPageId);
+      if (!validation.isValid) {
+        setErrorMessage(validation.error || "Invalid slug.");
+        setTimeout(() => setErrorMessage(""), 3000);
+        return;
       }
+      targetSlug = validation.slug;
+    }
 
-      return p;
-    })
-  );
+    setPages((prev) =>
+      prev.map((p) => {
+        if (p.id === editingPageId) {
+          const updatedSettings = {
+            ...(p.pageSettings || {}),
+            title: rawTitle,
+            path: targetSlug,
+          };
 
-  if (activePageId === editingPageId) {
-    setPageSettings((prev) => ({
-      ...prev,
-      title: rawTitle,
-      path: targetSlug,
-    }));
-  }
+          return {
+            ...p,
+            name: rawTitle,
+            slug: targetSlug,
+            pageSettings: updatedSettings,
+          };
+        }
 
-  setIsEditPageModalOpen(false);
-  setEditingPageId(null);
+        return p;
+      })
+    );
 
-  setSaveMessage(`Page updated to "${rawTitle}"!`);
+    if (activePageId === editingPageId) {
+      setPageSettings((prev) => ({
+        ...prev,
+        title: rawTitle,
+        path: targetSlug,
+      }));
+    }
 
-  setTimeout(() => setSaveMessage(""), 3000);
-};
+    setIsEditPageModalOpen(false);
+    setEditingPageId(null);
 
-const navigate = useNavigate();
+    setSaveMessage(`Page updated to "${rawTitle}"!`);
+
+    setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const navigate = useNavigate();
 
   // Quit Visual Editor Handler (F-024)
   const handleQuitEditor = () => {
@@ -1653,12 +1674,12 @@ const navigate = useNavigate();
     return pages.map((p) =>
       p.id === activePageId && canvasMode === "page"
         ? {
-            ...p,
-            elements,
-            pageSettings,
-            name: pageSettings.title || p.name,
-            slug: pageSettings.path || p.slug,
-          }
+          ...p,
+          elements,
+          pageSettings,
+          name: pageSettings.title || p.name,
+          slug: pageSettings.path || p.slug,
+        }
         : p
     );
   }, [pages, activePageId, canvasMode, elements, pageSettings]);
@@ -1977,7 +1998,7 @@ const navigate = useNavigate();
 
     try {
       localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
-    } catch (e) {}
+    } catch (e) { }
 
     // Call server publishing endpoint
     const result = await publishingService.publishWebsite(websiteId, payload, apiUrl);
@@ -2598,16 +2619,16 @@ const navigate = useNavigate();
         case "posts":
           return "📰";
         case "wc-product-title":
-      return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-price":
-      return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-images":
-      return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-add-to-cart":
-      return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "wc-product-rating":
-      return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
-    case "share-buttons":
+          return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-price":
+          return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-images":
+          return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-add-to-cart":
+          return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "wc-product-rating":
+          return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "share-buttons":
           return "🔗";
         case "portfolio":
           return "💼";
@@ -2647,13 +2668,12 @@ const navigate = useNavigate();
             if (hoveredId === el.id) setHoveredId(null);
           }}
           style={{ paddingLeft: `${depth * 14 + 4}px` }}
-          className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${
-            isSelected
-              ? "bg-blue-600 font-bold text-white shadow-sm"
-              : hoveredId === el.id
+          className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${isSelected
+            ? "bg-blue-600 font-bold text-white shadow-sm"
+            : hoveredId === el.id
               ? "bg-blue-50 text-blue-700 font-semibold"
               : "text-slate-700 hover:bg-slate-100"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             {/* Visual Tree Branch Connectors (F-021) */}
@@ -2670,9 +2690,8 @@ const navigate = useNavigate();
                   e.stopPropagation();
                   toggleContainerCollapse(el.id);
                 }}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] transition ${
-                  isSelected ? "text-white hover:bg-blue-700" : "text-slate-400 hover:bg-slate-200 hover:text-slate-700"
-                }`}
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] transition ${isSelected ? "text-white hover:bg-blue-700" : "text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                  }`}
               >
                 {isCollapsed ? "▶" : "▼"}
               </button>
@@ -2689,9 +2708,8 @@ const navigate = useNavigate();
               type="button"
               title="Copy"
               onClick={(e) => handleCopyElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               📋
             </button>
@@ -2699,9 +2717,8 @@ const navigate = useNavigate();
               type="button"
               title="Duplicate"
               onClick={(e) => handleDuplicateElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ⧉
             </button>
@@ -2712,9 +2729,8 @@ const navigate = useNavigate();
                 e.stopPropagation();
                 handleReorderElement(el.id, "up");
               }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ▲
             </button>
@@ -2725,9 +2741,8 @@ const navigate = useNavigate();
                 e.stopPropagation();
                 handleReorderElement(el.id, "down");
               }}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${
-                isSelected ? "text-white" : "text-slate-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-black/10 ${isSelected ? "text-white" : "text-slate-500"
+                }`}
             >
               ▼
             </button>
@@ -2735,9 +2750,8 @@ const navigate = useNavigate();
               type="button"
               title="Delete"
               onClick={(e) => handleDeleteElement(el.id, e)}
-              className={`px-1 py-0.5 text-[9px] rounded hover:bg-red-500 hover:text-white ${
-                isSelected ? "text-red-200" : "text-red-500"
-              }`}
+              className={`px-1 py-0.5 text-[9px] rounded hover:bg-red-500 hover:text-white ${isSelected ? "text-red-200" : "text-red-500"
+                }`}
             >
               ✕
             </button>
@@ -3233,7 +3247,7 @@ const navigate = useNavigate();
         const history = historyRaw ? JSON.parse(historyRaw) : [];
         history.unshift({ name: file.name, url: finalUrl, type: file.type, date: new Date().toISOString() });
         localStorage.setItem("forgestudio_imported_assets", JSON.stringify(history.slice(0, 50)));
-      } catch {}
+      } catch { }
 
       if (selectedId) {
         const selected = findTreeElement(elements, selectedId);
@@ -3412,13 +3426,13 @@ const navigate = useNavigate();
     const isPosOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "position") : hasStyleOverride(selectedElement, activeDevice, "position");
     const isOffsetsOverridden = activeElementState === "hover"
       ? hasHoverStyleOverride(selectedElement, activeDevice, "top") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "right") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasHoverStyleOverride(selectedElement, activeDevice, "left")
+      hasHoverStyleOverride(selectedElement, activeDevice, "right") ||
+      hasHoverStyleOverride(selectedElement, activeDevice, "bottom") ||
+      hasHoverStyleOverride(selectedElement, activeDevice, "left")
       : hasStyleOverride(selectedElement, activeDevice, "top") ||
-        hasStyleOverride(selectedElement, activeDevice, "right") ||
-        hasStyleOverride(selectedElement, activeDevice, "bottom") ||
-        hasStyleOverride(selectedElement, activeDevice, "left");
+      hasStyleOverride(selectedElement, activeDevice, "right") ||
+      hasStyleOverride(selectedElement, activeDevice, "bottom") ||
+      hasStyleOverride(selectedElement, activeDevice, "left");
     const isZIndexOverridden = activeElementState === "hover" ? hasHoverStyleOverride(selectedElement, activeDevice, "zIndex") : hasStyleOverride(selectedElement, activeDevice, "zIndex");
 
     const handleOffsetChange = (key: keyof ElementStyles, numVal: string, unitVal: string) => {
@@ -3983,11 +3997,10 @@ const navigate = useNavigate();
               <button
                 type="button"
                 onClick={() => setIsBorderRadiusLinked(!isBorderRadiusLinked)}
-                className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold transition ${
-                  isBorderRadiusLinked
-                    ? "bg-blue-100 text-blue-700 border border-blue-200"
-                    : "bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
+                className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-bold transition ${isBorderRadiusLinked
+                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
                 title={isBorderRadiusLinked ? "Unlink Corners" : "Link Corners"}
               >
                 <span>{isBorderRadiusLinked ? "🔗" : "🔓"}</span>
@@ -4246,9 +4259,8 @@ const navigate = useNavigate();
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
-            isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+            } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -4261,10 +4273,14 @@ const navigate = useNavigate();
             boxSizing: "border-box",
             display: "flex",
             flexDirection: mergedLayout.direction || "column",
+            flexWrap: (mergedLayout.flexWrap || mergedStyles.flexWrap || (mergedLayout.direction === "row" ? "wrap" : "nowrap")) as any,
             justifyContent: mergedLayout.justifyContent || "flex-start",
             alignItems: mergedLayout.alignItems || "stretch",
             gap: `${mergedLayout.gap ?? 10}px`,
             width: mergedStyles.width || "100%",
+            maxWidth: mergedStyles.maxWidth || "100%",
+            minWidth: mergedStyles.minWidth || "0px",
+            flex: mergedStyles.flex || undefined,
             height: mergedStyles.height || "auto",
             paddingTop: mergedStyles.paddingTop ?? (mergedStyles.padding || "16px"),
             paddingRight: mergedStyles.paddingRight ?? (mergedStyles.padding || "16px"),
@@ -4311,12 +4327,12 @@ const navigate = useNavigate();
                   style={{ opacity: 1 }}
                 />
               )) || (
-                <img
-                  src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80"
-                  alt="Background Slide"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              )}
+                  <img
+                    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&auto=format&fit=crop&q=80"
+                    alt="Background Slide"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
               {el.containerSlideshowOverlay && (
                 <div className="absolute inset-0 z-1" style={{ backgroundColor: el.containerSlideshowOverlay }} />
               )}
@@ -4340,9 +4356,8 @@ const navigate = useNavigate();
                           e.stopPropagation();
                           setSelectedId(item.id);
                         }}
-                        className={`capitalize hover:underline ${
-                          item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                        }`}
+                        className={`capitalize hover:underline ${item.id === el.id ? "font-bold text-white" : "text-blue-200"
+                          }`}
                       >
                         {item.type}
                       </button>
@@ -4414,9 +4429,8 @@ const navigate = useNavigate();
                   e.stopPropagation();
                   handleSaveAsComponent(el.id);
                 }}
-                className={`hover:underline ${
-                  el.isComponent ? "text-purple-200 font-bold" : "text-blue-100"
-                }`}
+                className={`hover:underline ${el.isComponent ? "text-purple-200 font-bold" : "text-blue-100"
+                  }`}
                 title={el.isComponent ? `Component: ${el.componentName}` : "Save as Reusable Component"}
               >
                 {el.isComponent ? "Component 🧩" : "Save Comp"}
@@ -4490,25 +4504,21 @@ const navigate = useNavigate();
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
-          draggingId === el.id ? "opacity-50 scale-95" : ""
-        } ${
-          isPreview
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-50 scale-95" : ""
+          } ${isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
-        } ${
-          isSelected
+          } ${isSelected
             ? "border-2 border-blue-500 p-2.5"
             : isHovered
-            ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
-            : "p-2.5 border border-transparent"
-        } ${
-          isDropTarget && dropPosition === "before"
+              ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
+              : "p-2.5 border border-transparent"
+          } ${isDropTarget && dropPosition === "before"
             ? "border-t-4 border-t-blue-500"
             : isDropTarget && dropPosition === "after"
-            ? "border-b-4 border-b-blue-500"
-            : ""
-        }`}
+              ? "border-b-4 border-b-blue-500"
+              : ""
+          }`}
         style={{
           boxSizing: "border-box",
           width: mergedStyles.width,
@@ -4545,9 +4555,8 @@ const navigate = useNavigate();
                         e.stopPropagation();
                         setSelectedId(item.id);
                       }}
-                      className={`capitalize hover:underline ${
-                        item.id === el.id ? "font-bold text-white" : "text-blue-200"
-                      }`}
+                      className={`capitalize hover:underline ${item.id === el.id ? "font-bold text-white" : "text-blue-200"
+                        }`}
                     >
                       {item.type}
                     </button>
@@ -4740,14 +4749,14 @@ const navigate = useNavigate();
                 mergedStyles.textAlign === "center"
                   ? "auto"
                   : mergedStyles.textAlign === "right"
-                  ? "auto"
-                  : "0";
+                    ? "auto"
+                    : "0";
               const alignMarginRight =
                 mergedStyles.textAlign === "center"
                   ? "auto"
                   : mergedStyles.textAlign === "left"
-                  ? "auto"
-                  : "0";
+                    ? "auto"
+                    : "0";
 
               const containerStyle: React.CSSProperties = {
                 width: mergedStyles.width || "100%",
@@ -5067,19 +5076,17 @@ const navigate = useNavigate();
                               key={item.id || idx}
                               type="button"
                               onClick={(e) => handleSelectItem(item.id, e)}
-                              className={`w-full text-left p-2.5 rounded-lg transition flex items-center gap-3 group ${
-                                isActive
-                                  ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
-                                  : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                              }`}
+                              className={`w-full text-left p-2.5 rounded-lg transition flex items-center gap-3 group ${isActive
+                                ? "bg-blue-600 text-white shadow-sm ring-1 ring-blue-600"
+                                : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
+                                }`}
                             >
                               {/* Item Index / Active Icon */}
                               <div
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold ${
-                                  isActive
-                                    ? "bg-white/20 text-white"
-                                    : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
-                                }`}
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold ${isActive
+                                  ? "bg-white/20 text-white"
+                                  : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
+                                  }`}
                               >
                                 {isActive ? "▶" : String(idx + 1).padStart(2, "0")}
                               </div>
@@ -5096,17 +5103,15 @@ const navigate = useNavigate();
                               {/* Title & Duration */}
                               <div className="flex-1 min-w-0">
                                 <h5
-                                  className={`truncate text-xs font-semibold ${
-                                    isActive ? "text-white" : "text-slate-800 group-hover:text-blue-600"
-                                  }`}
+                                  className={`truncate text-xs font-semibold ${isActive ? "text-white" : "text-slate-800 group-hover:text-blue-600"
+                                    }`}
                                 >
                                   {item.title || `Video ${idx + 1}`}
                                 </h5>
                                 {item.duration && (
                                   <span
-                                    className={`text-[10px] font-mono ${
-                                      isActive ? "text-blue-100" : "text-slate-400"
-                                    }`}
+                                    className={`text-[10px] font-mono ${isActive ? "text-blue-100" : "text-slate-400"
+                                      }`}
                                   >
                                     ⏱️ {item.duration}
                                   </span>
@@ -5162,14 +5167,14 @@ const navigate = useNavigate();
                   mergedStyles.textAlign === "center"
                     ? "auto"
                     : mergedStyles.textAlign === "right"
-                    ? "auto"
-                    : "0",
+                      ? "auto"
+                      : "0",
                 marginRight:
                   mergedStyles.textAlign === "center"
                     ? "auto"
                     : mergedStyles.textAlign === "left"
-                    ? "auto"
-                    : "0",
+                      ? "auto"
+                      : "0",
                 ...compileBackgroundAndBorderStyles(mergedStyles),
               }}
             />
@@ -5349,9 +5354,8 @@ const navigate = useNavigate();
                 {...customAttrProps}
               >
                 <span
-                  className={`inline-flex items-center justify-center ${
-                    isFlexCol ? "flex-col" : "flex-row"
-                  } ${isReverse ? "flex-col-reverse" : ""}`}
+                  className={`inline-flex items-center justify-center ${isFlexCol ? "flex-col" : "flex-row"
+                    } ${isReverse ? "flex-col-reverse" : ""}`}
                   style={{ gap: `${gap}px` }}
                 >
                   {!isReverse && renderIcon}
@@ -5855,47 +5859,53 @@ const navigate = useNavigate();
       {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
-        <header className={`flex h-12 shrink-0 items-center justify-between px-5 shadow-md transition ${
-          userPreferences.themeMode === "light"
+        <header
+          className={`relative w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-clip ${userPreferences.themeMode === "light"
             ? "bg-white border-b border-slate-200 text-slate-800"
             : "bg-[#0b1329] text-white"
-        }`}>
-          {/* Left: Quit Editor & Site Info */}
-          <div className="flex items-center gap-3">
+            }`}
+        >
+          {/* 1. Left Region: Brand / Back / Breadcrumb & Utility Tools */}
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
+            {/* Quit Editor Button */}
             <button
               type="button"
               onClick={handleQuitEditor}
-              className="text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Quit visual editor and return to dashboard"
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Quit Editor"
+              aria-label="Quit Editor"
             >
-              <span>←</span>
-              <span>{t("quitEditor", "Quit Editor")}</span>
+              <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-3">
+            {/* Project Title / Breadcrumb */}
+            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-2.5 hidden sm:inline-block max-w-[100px] md:max-w-[140px] truncate">
               {website?.name || "ForgeStudio Project"}
             </span>
 
-            {/* Multi-Page Selector Dropdown & Page Manager Trigger (Comments 3, 6, 11, 22) */}
-            <div className="relative ml-1">
+            {/* Multi-Page Selector Dropdown & Page Manager Trigger */}
+            <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsPageSelectorOpen(!isPageSelectorOpen)}
-                className="text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                className="h-8 px-2.5 text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
                 title="Switch Active Page or Manage Site Pages"
+                aria-label="Switch Active Page"
+                aria-expanded={isPageSelectorOpen}
+                aria-haspopup="listbox"
               >
                 <span className="text-amber-400">📄</span>
-                <span className="max-w-[100px] sm:max-w-[130px] truncate font-bold">
+                <span className="max-w-[70px] sm:max-w-[110px] truncate font-bold">
                   {pages.find((p) => p.id === activePageId)?.name || "Page"}
                 </span>
                 {homePageId === activePageId && (
-                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold">Home</span>
+                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold hidden md:inline">Home</span>
                 )}
                 <span className="text-[10px] text-slate-400">▾</span>
               </button>
 
               {isPageSelectorOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 mt-1.5 w-64 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
                   <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex items-center justify-between">
                     <span>Site Pages</span>
                     <button
@@ -5918,9 +5928,8 @@ const navigate = useNavigate();
                           handleSwitchEditingPage(p.id);
                           setIsPageSelectorOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-slate-800 transition cursor-pointer ${
-                          p.id === activePageId ? "bg-blue-600/20 text-blue-300 font-bold" : "text-slate-300"
-                        }`}
+                        className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-slate-800 transition cursor-pointer ${p.id === activePageId ? "bg-blue-600/20 text-blue-300 font-bold" : "text-slate-300"
+                          }`}
                       >
                         <div className="flex items-center gap-2 truncate">
                           <span>{p.id === homePageId ? "🏠" : "📄"}</span>
@@ -5947,244 +5956,312 @@ const navigate = useNavigate();
               )}
             </div>
 
-            {/* Global Site Parts / Canvas Mode Switcher (Comments 5, 17) */}
-            <div className="hidden lg:flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 ml-1">
-              <button
-                type="button"
-                onClick={() => handleSwitchCanvasMode("page")}
-                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
-                  canvasMode === "page"
-                    ? "bg-blue-600 text-white shadow-xs font-bold"
-                    : "text-slate-400 hover:text-white"
-                }`}
-                title="Edit Active Page Content"
-              >
-                <span>📄 Page</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSwitchCanvasMode("header")}
-                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
-                  canvasMode === "header"
-                    ? "bg-purple-600 text-white shadow-xs font-bold"
-                    : "text-slate-400 hover:text-white"
-                }`}
-                title="Edit Global Header (Shared Across All Pages)"
-              >
-                <span>🌐 Header</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSwitchCanvasMode("footer")}
-                className={`px-2 py-1 text-xs font-semibold rounded transition flex items-center gap-1 cursor-pointer ${
-                  canvasMode === "footer"
-                    ? "bg-purple-600 text-white shadow-xs font-bold"
-                    : "text-slate-400 hover:text-white"
-                }`}
-                title="Edit Global Footer (Shared Across All Pages)"
-              >
-                <span>🌐 Footer</span>
-              </button>
-            </div>
+            {/* Vertical Divider */}
+            <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
 
+            {/* Developer Mode Button */}
             <button
               type="button"
-              onClick={() => setIsFinderOpen(true)}
-              className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer ml-1"
-              title="Search pages, templates, settings and features (Ctrl+K)"
+              onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
+              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 ${devModalMode === "export-code"
+                ? "bg-blue-600 text-white border-blue-500 shadow-blue-500/20"
+                : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
+                }`}
+              title="Developer Mode"
+              aria-label="Developer Mode"
             >
-              <span>🔍</span>
-              <span>Search</span>
-              <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">Ctrl+K</kbd>
+              <Code2 className="w-4 h-4" />
             </button>
 
+            {/* Shortcuts Button */}
             <button
               type="button"
               onClick={() => setIsShortcutsHelpOpen(true)}
-              className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="View Keyboard Shortcuts Cheat Sheet (?)"
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Keyboard Shortcuts"
+              aria-label="Keyboard Shortcuts"
             >
-              <span>⌨️</span>
-              <span>Shortcuts</span>
+              <Keyboard className="w-4 h-4" />
             </button>
 
-            {/* Developer Mode Code Export Button */}
+            {/* Search Control */}
             <button
               type="button"
-              onClick={() => setDevModalMode("export-code")}
-              className="text-xs font-bold text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 px-3 py-1.5 rounded-lg border border-blue-700/60 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Export Component Code (.js, .ts, .jsx, .tsx)"
+              onClick={() => setIsFinderOpen(true)}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Search (Ctrl+K)"
+              aria-label="Search"
             >
-              <span>{"</>"}</span>
-              <span>Dev Mode</span>
+              <Search className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Middle: Responsive Device Selector */}
-          <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-slate-700">
-                {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => setActiveDevice(mode)}
-                    className={`px-3 py-1 text-xs font-semibold rounded-md capitalize transition flex items-center gap-1 ${
-                      activeDevice === mode
-                        ? "bg-blue-600 text-white shadow-sm font-bold"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+          {/* 2. Center Region: True Dead Center Device Viewport Switcher */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setActiveDevice("desktop")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "desktop"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Desktop View"
+                aria-label="Desktop View"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDevice("tablet")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "tablet"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Tablet View"
+                aria-label="Tablet View"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDevice("mobile")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "mobile"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Mobile View"
+                aria-label="Mobile View"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 3. Right Region: Scope Switcher, History, Kit, Fullscreen, Preview, Save, Publish */}
+          <div className="flex items-center justify-end gap-2 md:gap-2.5 shrink-0">
+            {/* Status Messages */}
+            {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden 2xl:inline">✓ {saveMessage}</span>}
+            {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden 2xl:inline">{errorMessage}</span>}
+
+            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
+            <div className="relative" ref={scopeDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
+                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Switch Canvas Scope (Page / Header / Footer)"
+                aria-label="Switch Canvas Scope"
+                aria-expanded={isScopeDropdownOpen}
+                aria-haspopup="listbox"
+              >
+                <span className="text-xs">
+                  {canvasMode === "page" && "📄"}
+                  {canvasMode === "header" && "🌐"}
+                  {canvasMode === "footer" && "🌐"}
+                </span>
+                <span className="capitalize font-semibold">{canvasMode}</span>
+                <ChevronDown
+                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
                     }`}
-                  >
-                    <span>
-                      {mode === "desktop" && "💻"}
-                      {mode === "tablet" && "📱"}
-                      {mode === "mobile" && "📲"}
-                    </span>
-                    <span>{mode}</span>
-                  </button>
-                ))}
+                />
+              </button>
+
+              {isScopeDropdownOpen && (
+                <div className="absolute top-full right-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                  {(
+                    [
+                      { mode: "page", label: "Page", icon: "📄" },
+                      { mode: "header", label: "Header", icon: "🌐" },
+                      { mode: "footer", label: "Footer", icon: "🌐" },
+                    ] as const
+                  ).map(({ mode, label, icon }) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => {
+                        handleSwitchCanvasMode(mode);
+                        setIsScopeDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
+                        ? "bg-blue-600/20 text-blue-300 font-bold"
+                        : "text-slate-300 hover:text-white"
+                        }`}
+                      role="option"
+                      aria-selected={canvasMode === mode}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{icon}</span>
+                        <span>{label}</span>
+                      </div>
+                      {canvasMode === mode && (
+                        <span className="text-blue-400 text-xs">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Subtle Divider */}
+            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+
+            {/* History Controls Group (Undo / Redo / History) */}
+            <div className="flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-slate-700/80 shrink-0">
+              <button
+                onClick={handleUndo}
+                disabled={historyIndex <= 0}
+                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
+                title="Undo (Ctrl+Z)"
+                aria-label="Undo"
+              >
+                <Undo className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleRedo}
+                disabled={historyIndex >= history.length - 1}
+                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
+                title="Redo (Ctrl+Y)"
+                aria-label="Redo"
+              >
+                <Redo className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setIsRevisionHistoryOpen(true)}
+                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 cursor-pointer"
+                title="Revision History"
+                aria-label="Revision History"
+              >
+                <HistoryIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Selected Element Controls (Only active when element selected) */}
+            {selectedId && (
+              <div className="hidden 2xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/30 shrink-0">
+                <button
+                  onClick={() => handleReorderElement(selectedId, "up")}
+                  className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Move Up"
+                  aria-label="Move Up"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => handleReorderElement(selectedId, "down")}
+                  className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Move Down"
+                  aria-label="Move Down"
+                >
+                  ▼
+                </button>
+                <button
+                  onClick={(e) => handleCopyElement(selectedId, e)}
+                  className="px-1.5 py-0.5 text-[10px] font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Copy (Ctrl+C)"
+                  aria-label="Copy Element"
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={(e) => handleDuplicateElement(selectedId, e)}
+                  className="px-1.5 py-0.5 text-[10px] font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  title="Duplicate (Ctrl+D)"
+                  aria-label="Duplicate Element"
+                >
+                  Dup
+                </button>
+                <button
+                  onClick={() => handleSaveAsComponent(selectedId)}
+                  className="px-1.5 py-0.5 text-[10px] font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
+                  title="Save as Reusable Component"
+                  aria-label="Save Component"
+                >
+                  🧩
+                </button>
+                <button
+                  onClick={handleOpenReplaceTemplate}
+                  className="px-1.5 py-0.5 text-[10px] font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
+                  title="Replace with Template"
+                  aria-label="Replace with Template"
+                >
+                  🔄
+                </button>
               </div>
+            )}
 
-{/* Right: Actions */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                {/* History Controls */}
-                <div className="flex items-center gap-0.5 bg-[#16203a] p-1 rounded-lg border border-slate-700/80 shrink-0">
-                  <button
-                    onClick={handleUndo}
-                    disabled={historyIndex <= 0}
-                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                    title="Undo (Ctrl+Z)"
-                  >
-                    ↩
-                  </button>
-                  <button
-                    onClick={handleRedo}
-                    disabled={historyIndex >= history.length - 1}
-                    className="px-2 py-1 text-xs font-bold rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                    title="Redo (Ctrl+Y)"
-                  >
-                    ↪
-                  </button>
-                  <button
-                    onClick={() => setIsRevisionHistoryOpen(true)}
-                    className="px-2 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 pl-1.5 cursor-pointer flex items-center gap-1"
-                    title="Revision History"
-                  >
-                    <span>🕓</span>
-                    <span className="hidden md:inline">History</span>
-                  </button>
-                </div>
+            {/* Kit & Tools Actions */}
+            <button
+              type="button"
+              onClick={handleExportWebsiteKit}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-blue-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Export Website Kit JSON"
+              aria-label="Export Website Kit JSON"
+            >
+              <Box className="w-4 h-4" />
+            </button>
 
-                {/* Selected Element Controls (Only active when element selected) */}
-                {selectedId && (
-                  <div className="flex items-center gap-1 bg-[#16203a] p-1 rounded-lg border border-blue-500/30 shrink-0">
-                    <button
-                      onClick={() => handleReorderElement(selectedId, "up")}
-                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Move Up"
-                    >
-                      ▲
-                    </button>
-                    <button
-                      onClick={() => handleReorderElement(selectedId, "down")}
-                      className="px-1.5 py-0.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Move Down"
-                    >
-                      ▼
-                    </button>
-                    <button
-                      onClick={(e) => handleCopyElement(selectedId, e)}
-                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Copy (Ctrl+C)"
-                    >
-                      Copy
-                    </button>
-                    <button
-                      onClick={(e) => handleDuplicateElement(selectedId, e)}
-                      className="px-2 py-0.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                      title="Duplicate (Ctrl+D)"
-                    >
-                      Duplicate
-                    </button>
-                    <button
-                      onClick={() => handleSaveAsComponent(selectedId)}
-                      className="px-2 py-0.5 text-xs font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
-                      title="Save as Reusable Component"
-                    >
-                      🧩 Comp
-                    </button>
-                    <button
-                      onClick={handleOpenReplaceTemplate}
-                      className="px-2 py-0.5 text-xs font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
-                      title="Replace with Template"
-                    >
-                      🔄 Replace
-                    </button>
-                  </div>
-                )}
+            <button
+              onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Toggle Full Screen Canvas"
+              aria-label="Toggle Full Screen Canvas"
+            >
+              <span className="text-sm leading-none">⛶</span>
+            </button>
 
-                {/* Status Messages */}
-                {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0">✓ {saveMessage}</span>}
-                {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0">{errorMessage}</span>}
+            {/* Subtle Divider */}
+            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
 
-                {/* Kit & Tools Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleExportWebsiteKit}
-                    className="px-2.5 py-1 text-xs font-semibold text-blue-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
-                    title="Export Website Kit JSON"
-                  >
-                    📦 Kit
-                  </button>
+            {/* Primary Action Buttons: Preview, Save, Publish */}
+            {/* Preview Button */}
+            <button
+              type="button"
+              onClick={() => setIsPreview(!isPreview)}
+              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 ${isPreview
+                ? "bg-amber-500/20 text-amber-300 border-amber-500/60 hover:bg-amber-500/30"
+                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700/80 hover:text-white"
+                }`}
+              title={isPreview ? "Exit Preview (Ctrl+P)" : "Preview"}
+              aria-label={isPreview ? "Exit Preview" : "Preview"}
+            >
+              <Eye className="w-4 h-4" />
+            </button>
 
-                  <button
-                    onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                    className="px-2 py-1 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition cursor-pointer"
-                    title="Toggle Full Screen Canvas"
-                  >
-                    ⛶
-                  </button>
-                </div>
+            {/* Save Button */}
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="w-8 h-8 rounded-lg border border-blue-500 bg-blue-600 hover:bg-blue-500 text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-blue-400"
+              title="Save (Ctrl+S)"
+              aria-label="Save"
+            >
+              {saving ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+            </button>
 
-                {/* Primary Preview & Save */}
-                <div className="flex items-center gap-1.5 ml-1 shrink-0">
-                  <button
-                    onClick={() => setIsPreview(!isPreview)}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg border transition cursor-pointer ${
-                      isPreview
-                        ? "bg-amber-500/20 text-amber-300 border-amber-500/60"
-                        : "bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700"
-                    }`}
-                  >
-                    {isPreview ? "Exit" : "👁️ Preview"}
-                  </button>
-
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
-                  >
-                    {saving ? "Saving..." : "💾 Save"}
-                  </button>
-
-                  {/* F-PUBLISH: Website Publish & Deploy Trigger (Comment 8) */}
-                  <button
-                    type="button"
-                    onClick={() => setIsPublishModalOpen(true)}
-                    className="px-3.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer"
-                    title="Publish or Deploy Full Website"
-                  >
-                    <span>🚀</span>
-                    <span>Publish</span>
-                    {publishing.status === "PUBLISHED" && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
-                    )}
-                  </button>
-                </div>
-              </div>
+            {/* Publish Button */}
+            <button
+              type="button"
+              onClick={() => setIsPublishModalOpen(true)}
+              className="w-8 h-8 relative rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-emerald-400"
+              title="Publish"
+              aria-label="Publish"
+            >
+              <Rocket className="w-4 h-4" />
+              {publishing.status === "PUBLISHED" && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-300 animate-pulse ring-1 ring-emerald-950"></span>
+              )}
+            </button>
+          </div>
         </header>
       )}
 
-{/* ========================================== */}
+      {/* ========================================== */}
       {/* Main Workspace Body                         */}
       {/* ========================================== */}
       <div className="flex flex-1 overflow-hidden">
@@ -6197,44 +6274,40 @@ const navigate = useNavigate();
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("elements")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "elements"
-                    ? "bg-slate-100 text-blue-600"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "elements"
+                  ? "bg-slate-100 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("elements", "Elements")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("navigator")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "navigator"
-                    ? "bg-slate-100 text-blue-600"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "navigator"
+                  ? "bg-slate-100 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("navigator", "Navigator")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("templates")}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === "templates"
-                    ? "bg-purple-100 text-purple-700 font-bold"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === "templates"
+                  ? "bg-purple-100 text-purple-700 font-bold"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 {t("templates", "Templates")}
               </button>
               <button
                 type="button"
                 onClick={() => setLeftSidebarTab("atomic" as any)}
-                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${
-                  leftSidebarTab === ("atomic" as any)
-                    ? "bg-purple-100 text-purple-700 font-bold"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
+                className={`flex-1 py-1 text-[11px] font-bold uppercase tracking-wider rounded-md transition ${leftSidebarTab === ("atomic" as any)
+                  ? "bg-purple-100 text-purple-700 font-bold"
+                  : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
                 ⚛️ Atomic
               </button>
@@ -6281,7 +6354,7 @@ const navigate = useNavigate();
                     />
                     <button
                       type="button"
-onClick={() => importFileInputRef.current?.click()}
+                      onClick={() => importFileInputRef.current?.click()}
                       disabled={isUploading}
                       className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 p-2.5 text-xs font-bold text-blue-700 hover:border-blue-500 hover:bg-blue-100/60 transition disabled:opacity-50 shadow-xs"
                     >
@@ -6335,43 +6408,43 @@ onClick={() => importFileInputRef.current?.click()}
                                 ★
                               </button>
                               {type === "container" ? <ContainerBoxIcon /> :
-                               type === "heading" ? <HeadingBoxIcon /> :
-                               type === "text" ? <TextBoxIcon /> :
-                               type === "image" ? <ImageBoxIcon /> :
-                               type === "button" ? <ButtonBoxIcon /> :
-                               type === "posts" ? <PostsBoxIcon /> :
-                               type === "share-buttons" ? <ShareButtonsBoxIcon /> :
-                               type === "portfolio" ? <PortfolioBoxIcon /> :
-                               type === "slides" ? <SlidesBoxIcon /> :
-                               type === "form" ? <FormBoxIcon /> :
-                               type === "login" ? <LoginBoxIcon /> :
-                               type === "nav-menu" ? <NavMenuBoxIcon /> :
-                               type === "animated-headline" ? <AnimatedHeadlineBoxIcon /> :
-                               type === "price-table" ? <PriceTableBoxIcon /> :
-                               type === "price-list" ? <PriceListBoxIcon /> :
-                               type === "gallery" ? <GalleryBoxIcon /> :
-                               type === "flip-box" ? <FlipBoxIcon /> :
-                               type === "call-to-action" ? <CtaBoxIcon /> :
-                               type === "media-carousel" ? <MediaCarouselBoxIcon /> :
-                               type === "testimonial-carousel" ? <TestimonialBoxIcon /> :
-                               type === "nested-carousel" ? <NestedCarouselBoxIcon /> :
-                               type === "loop-carousel" ? <LoopCarouselBoxIcon /> :
-                               type === "facebook-page" ? <FacebookPageBoxIcon /> :
-                               type === "blockquote" ? <BlockquoteBoxIcon /> :
-                               type === "template" ? <TemplateBoxIcon /> :
-                               type === "reviews" ? <ReviewsBoxIcon /> :
-                               type === "facebook-button" ? <FacebookButtonBoxIcon /> :
-                               type === "facebook-embed" ? <FacebookEmbedBoxIcon /> :
-                               type === "facebook-comments" ? <FacebookCommentsBoxIcon /> :
-                               type === "paypal-button" ? <PayPalButtonBoxIcon /> :
-                               type === "stripe-button" ? <StripeButtonBoxIcon /> :
-                               type === "lottie" ? <LottieBoxIcon /> :
-                               type === "code-highlight" ? <CodeHighlightBoxIcon /> :
-                               type === "video-playlist" ? <VideoPlaylistBoxIcon /> :
-                               type === "mega-menu" ? <MegaMenuBoxIcon /> :
-                               type === "off-canvas" ? <OffCanvasBoxIcon /> :
-                               type === "image-carousel" ? <ImageCarouselBoxIcon /> :
-                               <span className="text-xl">{widgetDef?.icon || "📦"}</span>}
+                                type === "heading" ? <HeadingBoxIcon /> :
+                                  type === "text" ? <TextBoxIcon /> :
+                                    type === "image" ? <ImageBoxIcon /> :
+                                      type === "button" ? <ButtonBoxIcon /> :
+                                        type === "posts" ? <PostsBoxIcon /> :
+                                          type === "share-buttons" ? <ShareButtonsBoxIcon /> :
+                                            type === "portfolio" ? <PortfolioBoxIcon /> :
+                                              type === "slides" ? <SlidesBoxIcon /> :
+                                                type === "form" ? <FormBoxIcon /> :
+                                                  type === "login" ? <LoginBoxIcon /> :
+                                                    type === "nav-menu" ? <NavMenuBoxIcon /> :
+                                                      type === "animated-headline" ? <AnimatedHeadlineBoxIcon /> :
+                                                        type === "price-table" ? <PriceTableBoxIcon /> :
+                                                          type === "price-list" ? <PriceListBoxIcon /> :
+                                                            type === "gallery" ? <GalleryBoxIcon /> :
+                                                              type === "flip-box" ? <FlipBoxIcon /> :
+                                                                type === "call-to-action" ? <CtaBoxIcon /> :
+                                                                  type === "media-carousel" ? <MediaCarouselBoxIcon /> :
+                                                                    type === "testimonial-carousel" ? <TestimonialBoxIcon /> :
+                                                                      type === "nested-carousel" ? <NestedCarouselBoxIcon /> :
+                                                                        type === "loop-carousel" ? <LoopCarouselBoxIcon /> :
+                                                                          type === "facebook-page" ? <FacebookPageBoxIcon /> :
+                                                                            type === "blockquote" ? <BlockquoteBoxIcon /> :
+                                                                              type === "template" ? <TemplateBoxIcon /> :
+                                                                                type === "reviews" ? <ReviewsBoxIcon /> :
+                                                                                  type === "facebook-button" ? <FacebookButtonBoxIcon /> :
+                                                                                    type === "facebook-embed" ? <FacebookEmbedBoxIcon /> :
+                                                                                      type === "facebook-comments" ? <FacebookCommentsBoxIcon /> :
+                                                                                        type === "paypal-button" ? <PayPalButtonBoxIcon /> :
+                                                                                          type === "stripe-button" ? <StripeButtonBoxIcon /> :
+                                                                                            type === "lottie" ? <LottieBoxIcon /> :
+                                                                                              type === "code-highlight" ? <CodeHighlightBoxIcon /> :
+                                                                                                type === "video-playlist" ? <VideoPlaylistBoxIcon /> :
+                                                                                                  type === "mega-menu" ? <MegaMenuBoxIcon /> :
+                                                                                                    type === "off-canvas" ? <OffCanvasBoxIcon /> :
+                                                                                                      type === "image-carousel" ? <ImageCarouselBoxIcon /> :
+                                                                                                        <span className="text-xl">{widgetDef?.icon || "📦"}</span>}
                               <span className="mt-1 text-[11px] font-semibold text-slate-700 text-center line-clamp-1 group-hover:text-amber-700">
                                 {name}
                               </span>
@@ -6420,9 +6493,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("container", e)}
-                        className={`absolute top-2 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("container") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-2 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("container") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("container") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("container") ? "★" : "☆"}
@@ -6448,9 +6520,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("heading", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("heading") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("heading") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("heading") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("heading") ? "★" : "☆"}
@@ -6476,9 +6547,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("text", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("text") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("text") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("text") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("text") ? "★" : "☆"}
@@ -6504,9 +6574,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("image", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("image") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("image") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("image") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("image") ? "★" : "☆"}
@@ -6532,9 +6601,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("button") ? "★" : "☆"}
@@ -6560,9 +6628,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("posts", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("posts") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("posts") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("posts") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("posts") ? "★" : "☆"}
@@ -6588,9 +6655,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("share-buttons", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("share-buttons") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("share-buttons") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("share-buttons") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("share-buttons") ? "★" : "☆"}
@@ -6616,9 +6682,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("portfolio", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("portfolio") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("portfolio") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("portfolio") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("portfolio") ? "★" : "☆"}
@@ -6644,9 +6709,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("slides", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("slides") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("slides") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("slides") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("slides") ? "★" : "☆"}
@@ -6672,9 +6736,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("form", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("form") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("form") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("form") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("form") ? "★" : "☆"}
@@ -6700,9 +6763,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("login", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("login") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("login") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("login") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("login") ? "★" : "☆"}
@@ -6728,9 +6790,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("nav-menu", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("nav-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("nav-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("nav-menu") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("nav-menu") ? "★" : "☆"}
@@ -6756,9 +6817,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("animated-headline", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("animated-headline") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("animated-headline") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("animated-headline") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("animated-headline") ? "★" : "☆"}
@@ -6784,9 +6844,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("price-table", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("price-table") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("price-table") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("price-table") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("price-table") ? "★" : "☆"}
@@ -6812,9 +6871,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("price-list", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("price-list") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("price-list") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("price-list") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("price-list") ? "★" : "☆"}
@@ -6840,9 +6898,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("gallery", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("gallery") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("gallery") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("gallery") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("gallery") ? "★" : "☆"}
@@ -6868,9 +6925,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("flip-box", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("flip-box") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("flip-box") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("flip-box") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("flip-box") ? "★" : "☆"}
@@ -6896,9 +6952,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("call-to-action", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("call-to-action") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("call-to-action") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("call-to-action") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("call-to-action") ? "★" : "☆"}
@@ -6924,9 +6979,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("media-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("media-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("media-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("media-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("media-carousel") ? "★" : "☆"}
@@ -6952,9 +7006,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("testimonial-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("testimonial-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("testimonial-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("testimonial-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("testimonial-carousel") ? "★" : "☆"}
@@ -6980,9 +7033,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("nested-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("nested-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("nested-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("nested-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("nested-carousel") ? "★" : "☆"}
@@ -7008,9 +7060,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("loop-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("loop-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("loop-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("loop-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("loop-carousel") ? "★" : "☆"}
@@ -7036,9 +7087,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("table-of-contents", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("table-of-contents") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("table-of-contents") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("table-of-contents") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("table-of-contents") ? "★" : "☆"}
@@ -7064,9 +7114,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("countdown", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("countdown") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("countdown") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("countdown") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("countdown") ? "★" : "☆"}
@@ -7092,9 +7141,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("facebook-page", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("facebook-page") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("facebook-page") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("facebook-page") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("facebook-page") ? "★" : "☆"}
@@ -7120,9 +7168,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("blockquote", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("blockquote") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("blockquote") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("blockquote") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("blockquote") ? "★" : "☆"}
@@ -7148,9 +7195,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("template", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("template") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("template") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("template") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("template") ? "★" : "☆"}
@@ -7176,9 +7222,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("reviews", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("reviews") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("reviews") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("reviews") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("reviews") ? "★" : "☆"}
@@ -7206,9 +7251,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("paypal-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("paypal-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("paypal-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("paypal-button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("paypal-button") ? "★" : "☆"}
@@ -7234,9 +7278,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("stripe-button", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("stripe-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("stripe-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("stripe-button") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("stripe-button") ? "★" : "☆"}
@@ -7262,9 +7305,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("lottie", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("lottie") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("lottie") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("lottie") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("lottie") ? "★" : "☆"}
@@ -7290,9 +7332,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("code-highlight", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("code-highlight") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("code-highlight") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("code-highlight") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("code-highlight") ? "★" : "☆"}
@@ -7318,9 +7359,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("video-playlist", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("video-playlist") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("video-playlist") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("video-playlist") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("video-playlist") ? "★" : "☆"}
@@ -7346,9 +7386,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("mega-menu", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("mega-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("mega-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("mega-menu") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("mega-menu") ? "★" : "☆"}
@@ -7374,9 +7413,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("off-canvas", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("off-canvas") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("off-canvas") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("off-canvas") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("off-canvas") ? "★" : "☆"}
@@ -7402,9 +7440,8 @@ onClick={() => importFileInputRef.current?.click()}
                       <button
                         type="button"
                         onClick={(e) => toggleFavoriteWidget("image-carousel", e)}
-                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                          favoriteWidgets.includes("image-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                        }`}
+                        className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("image-carousel") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          }`}
                         title={favoriteWidgets.includes("image-carousel") ? "Remove favorite" : "Mark as favorite"}
                       >
                         {favoriteWidgets.includes("image-carousel") ? "★" : "☆"}
@@ -7440,9 +7477,8 @@ onClick={() => importFileInputRef.current?.click()}
                         <button
                           type="button"
                           onClick={(e) => toggleFavoriteWidget(widget.type, e)}
-                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${
-                            isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
-                          }`}
+                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                            }`}
                           title={isFav ? "Remove favorite" : "Mark as favorite"}
                         >
                           {isFav ? "★" : "☆"}
@@ -7541,11 +7577,10 @@ onClick={() => importFileInputRef.current?.click()}
                             e.stopPropagation();
                             handleSelectElement(element.id, e);
                           }}
-                          className={`flex items-center justify-between rounded-lg p-2 text-xs transition cursor-pointer border ${
-                            selectedId === element.id || selectedIds.includes(element.id)
-                              ? "bg-blue-600 font-bold text-white border-blue-600 shadow-sm"
-                              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-blue-300"
-                          }`}
+                          className={`flex items-center justify-between rounded-lg p-2 text-xs transition cursor-pointer border ${selectedId === element.id || selectedIds.includes(element.id)
+                            ? "bg-blue-600 font-bold text-white border-blue-600 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-blue-300"
+                            }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-xs">
@@ -7558,10 +7593,10 @@ onClick={() => importFileInputRef.current?.click()}
                             <div className="flex flex-col min-w-0">
                               <span className="truncate font-semibold capitalize">
                                 {element.type === "heading" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Heading") :
-                                 element.type === "text" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Text") :
-                                 element.type === "button" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Button") :
-                                 element.type === "image" ? (element.alt ? `Image (${element.alt})` : "Image") :
-                                 element.type === "container" ? "Container" : element.type}
+                                  element.type === "text" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Text") :
+                                    element.type === "button" ? (element.content ? `"${element.content.slice(0, 15)}"` : "Button") :
+                                      element.type === "image" ? (element.alt ? `Image (${element.alt})` : "Image") :
+                                        element.type === "container" ? "Container" : element.type}
                               </span>
                               <span className={`text-[9px] truncate ${selectedId === element.id || selectedIds.includes(element.id) ? "text-blue-200" : "text-slate-400"}`}>
                                 {path}
@@ -7614,7 +7649,7 @@ onClick={() => importFileInputRef.current?.click()}
             e.dataTransfer.dropEffect = "move";
           }}
           onDrop={(e) => handleDropElement(e, null, "after")}
-          className="relative flex flex-1 justify-center items-start overflow-y-auto bg-[#f1f5f9] p-6 sm:p-10"
+          className="relative flex flex-1 justify-center items-start overflow-y-auto overflow-x-auto min-w-0 max-w-full bg-[#f1f5f9] p-4 sm:p-8 box-border"
         >
           {/* Dynamic Hover Styles Block (F-036) */}
           <style dangerouslySetInnerHTML={{ __html: generateElementsHoverCSS(elements, activeDevice) }} />
@@ -7646,14 +7681,11 @@ onClick={() => importFileInputRef.current?.click()}
                 ? "linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)"
                 : undefined,
               backgroundSize: userPreferences.gridOverlay ? "20px 20px" : undefined,
+              width: activeDevice === "mobile" ? "380px" : activeDevice === "tablet" ? "520px" : "100%",
+              maxWidth: activeDevice === "mobile" ? "380px" : activeDevice === "tablet" ? "min(520px, 90%)" : "100%",
             }}
-            className={`relative w-full transition-all duration-300 min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-sm pb-20 ${
-              activeDevice === "mobile"
-                ? "max-w-[380px]"
-                : activeDevice === "tablet"
-                ? "max-w-[768px]"
-                : "max-w-[1024px]"
-            }`}
+            className={`relative transition-all duration-300 ease-in-out min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-6 sm:p-8 pb-20 box-border overflow-x-hidden ${activeDevice !== "desktop" ? "ring-1 ring-slate-300 shadow-md" : "shadow-sm"
+              }`}
           >
             {/* Global Design Tokens / CSS Variables (Comment 14) */}
             <style>{`
@@ -7705,11 +7737,10 @@ onClick={() => importFileInputRef.current?.click()}
                               key={p.id}
                               type="button"
                               onClick={() => handlePreviewPageNavigate(p)}
-                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                                isCurrent
-                                  ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
-                                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-                              }`}
+                              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isCurrent
+                                ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                }`}
                             >
                               {p.name || p.pageSettings?.title || "Untitled"}
                             </button>
@@ -7744,11 +7775,10 @@ onClick={() => importFileInputRef.current?.click()}
                               handlePreviewPageNavigate(p);
                               setMobileMenuOpen(false);
                             }}
-                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
-                              isCurrent
-                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
-                                : "text-slate-700 hover:bg-slate-200/70"
-                            }`}
+                            className={`w-full text-left px-3.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${isCurrent
+                              ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                              : "text-slate-700 hover:bg-slate-200/70"
+                              }`}
                           >
                             <span>{p.name || p.pageSettings?.title || "Untitled"}</span>
                             <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
@@ -7905,19 +7935,19 @@ onClick={() => importFileInputRef.current?.click()}
                       {canvasMode === "header"
                         ? "Global Header is Empty"
                         : canvasMode === "footer"
-                        ? "Global Footer is Empty"
-                        : "Your Page Canvas is Empty"}
+                          ? "Global Footer is Empty"
+                          : "Your Page Canvas is Empty"}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
                       {canvasMode === "header"
                         ? "Add navigation menu, logo, buttons, or links from the left panel."
                         : canvasMode === "footer"
-                        ? "Add footer links, copyright text, or social icons from the left panel."
-                        : "Click any element from the left panel to start building."}
+                          ? "Add footer links, copyright text, or social icons from the left panel."
+                          : "Click any element from the left panel to start building."}
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full max-w-full box-border overflow-x-hidden">
                     {elements.map((el) => renderElementTree(el))}
                   </div>
                 )}
@@ -7975,7 +8005,7 @@ onClick={() => importFileInputRef.current?.click()}
                       Duplicate
                     </button>
                     <button
-onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
+                      onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                       className="text-red-500 hover:underline"
                     >
                       Delete
@@ -7999,22 +8029,20 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     <button
                       type="button"
                       onClick={() => setActiveElementState("normal")}
-                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
-                        activeElementState === "normal"
-                          ? "bg-white text-blue-600 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "normal"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
                     >
                       Normal
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveElementState("hover")}
-                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
-                        activeElementState === "hover"
-                          ? "bg-white text-blue-600 shadow-sm"
-                          : "text-slate-600 hover:text-slate-900"
-                      }`}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "hover"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
                     >
                       Hover (:hover)
                     </button>
@@ -8159,10 +8187,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 align === "left"
                                   ? "flex-start"
                                   : align === "right"
-                                  ? "flex-end"
-                                  : align === "center"
-                                  ? "center"
-                                  : "space-between";
+                                    ? "flex-end"
+                                    : align === "center"
+                                      ? "center"
+                                      : "space-between";
                               updateSelectedStyle("justifyContent", flexJustify);
                               if (selectedElementAny.type === "nav-menu") {
                                 updateSelectedProp("navAlignment", align as any);
@@ -8198,11 +8226,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 updateSelectedLayout("justifyContent", flexJustify);
                               }
                             }}
-                            className={`rounded py-1 text-xs font-bold capitalize transition ${
-                              isActive
-                                ? "bg-white text-blue-600 shadow-xs"
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
+                            className={`rounded py-1 text-xs font-bold capitalize transition ${isActive
+                              ? "bg-white text-blue-600 shadow-xs"
+                              : "text-slate-600 hover:text-slate-900"
+                              }`}
                           >
                             {align}
                           </button>
@@ -8410,7 +8437,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         </button>
                       </div>
 
-<div className="space-y-3">
+                      <div className="space-y-3">
                         {(selectedElementAny.posts || []).map((post, idx) => (
                           <div key={post.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
@@ -8746,439 +8773,438 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 )}
 
 
-{selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "basic-gallery" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "form" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && (
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
-                              {selectedElementAny.type === "html" ? "Raw HTML Editor" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode" : "Content"}
-                            </label>
-                            {selectedElementAny.type === "html" || selectedElementAny.type === "text" || selectedElementAny.type === "shortcode" ? (
-                              <textarea
-                                value={selectedElementAny.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                rows={selectedElementAny.type === "html" ? 8 : selectedElementAny.type === "shortcode" ? 3 : 4}
-                                className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElementAny.type === "html" || selectedElementAny.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
-                                placeholder={selectedElementAny.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElementAny.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
-                              />
-                            ) : (
-                              <input
-                                type="text"
-                                value={selectedElementAny.content || ""}
-                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
-                              />
-                            )}
-                          </div>
-                        )}
+                {selectedElementAny.type !== "container" && selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "spacer" && selectedElementAny.type !== "divider" && selectedElementAny.type !== "icon" && selectedElementAny.type !== "counter" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "basic-gallery" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "form" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wide">
+                      {selectedElementAny.type === "html" ? "Raw HTML Editor" : selectedElementAny.type === "shortcode" ? "Dynamic Shortcode" : "Content"}
+                    </label>
+                    {selectedElementAny.type === "html" || selectedElementAny.type === "text" || selectedElementAny.type === "shortcode" ? (
+                      <textarea
+                        value={selectedElementAny.content || ""}
+                        onChange={(e) => updateSelectedProp("content", e.target.value)}
+                        rows={selectedElementAny.type === "html" ? 8 : selectedElementAny.type === "shortcode" ? 3 : 4}
+                        className={`w-full rounded-lg border border-slate-200 px-3 py-2 text-[12px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm ${selectedElementAny.type === "html" || selectedElementAny.type === "shortcode" ? "font-mono bg-[#1E1E1E] text-slate-300 resize-y" : "bg-white text-slate-800"}`}
+                        placeholder={selectedElementAny.type === "html" ? "<div class=\"custom\">\n  Your HTML\n</div>" : selectedElementAny.type === "shortcode" ? "wp_plugin_id='xyz'" : "Enter text..."}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={selectedElementAny.content || ""}
+                        onChange={(e) => updateSelectedProp("content", e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+                      />
+                    )}
+                  </div>
+                )}
 
-                        {/* Smart Link & URL Controls */}
-                        {selectedElementAny.type !== "button" && (selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
-                          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
-                            <label className="block text-[10px] font-bold text-slate-600 uppercase">
-                              Link & Smart Actions
+                {/* Smart Link & URL Controls */}
+                {selectedElementAny.type !== "button" && (selectedElementAny.type === "image" || selectedElementAny.href !== undefined) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase">
+                      Link & Smart Actions
+                    </label>
+                    <input
+                      type="text"
+                      value={selectedElementAny.href || ""}
+                      onChange={(e) => updateSelectedProp("href", e.target.value)}
+                      placeholder="https://..., popup:open(id), scroll:to(id)"
+                      className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {popups.length > 0 && (
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              updateSelectedProp("href", `popup:open(${e.target.value})`);
+                              e.target.value = "";
+                            }
+                          }}
+                          className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
+                        >
+                          <option value="">+ Open Popup...</option>
+                          {popups.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => updateSelectedProp("href", "popup:close")}
+                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        Close Popup
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateSelectedProp("href", "scroll:to(top)")}
+                        className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        Scroll to Top
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {renderAccordion(
+                  "Typography & Colors",
+                  "typography",
+                  (() => {
+                    const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
+                    const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
+                    const hasItalic = FontService.hasItalic(currentFontFamily);
+
+                    const weightLabels: Record<number, string> = {
+                      100: "100 Thin",
+                      200: "200 Extra Light",
+                      300: "300 Light",
+                      400: "400 Normal",
+                      500: "500 Medium",
+                      600: "600 Semi-Bold",
+                      700: "700 Bold",
+                      800: "800 Extra Bold",
+                      900: "900 Black"
+                    };
+
+                    return (
+                      <div className="space-y-3">
+                        {/* Font Family */}
+                        <FontPickerControl
+                          value={currentFontFamily}
+                          onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
+                          onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
+                          onReset={() => resetSelectedStyle("fontFamily")}
+                          isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+                        />
+
+                        {/* Font Size & Weight */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            {renderResponsiveLabel("Font Size")}
+                            <input
+                              type="text"
+                              value={
+                                getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"
+                              }
+                              onChange={(e) =>
+                                updateSelectedStyle(
+                                  "fontSize",
+                                  e.target.value.endsWith("px") || e.target.value.endsWith("rem")
+                                    ? e.target.value
+                                    : `${e.target.value}px`
+                                )
+                              }
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                              placeholder="16px"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Font Weight
+                            </label>
+                            <select
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
+                              onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="inherit">Default</option>
+                              {supportedWeights.map((w) => (
+                                <option key={w} value={String(w)}>
+                                  {weightLabels[w] || `${w}`}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Font Style & Alignment */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Font Style
+                            </label>
+                            <select
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
+                              onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="normal">Normal</option>
+                              <option value="italic" disabled={!hasItalic}>
+                                Italic {!hasItalic ? "(N/A)" : ""}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Text Align
+                        </label>
+                        <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+                          {(["left", "center", "right", "justify"] as const).map((align) => {
+                            const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
+                            const isActive = currentAlign === align;
+                            return (
+                              <button
+                                key={align}
+                                type="button"
+                                onClick={() => updateSelectedStyle("textAlign", align)}
+                                className={`rounded py-1 text-[10px] font-bold uppercase transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-500 hover:text-slate-900"
+                                  }`}
+                              >
+                                {align.slice(0, 1).toUpperCase()}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Line Height & Letter Spacing */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Line Height
                             </label>
                             <input
                               type="text"
-                              value={selectedElementAny.href || ""}
-                              onChange={(e) => updateSelectedProp("href", e.target.value)}
-                              placeholder="https://..., popup:open(id), scroll:to(id)"
-                              className="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono"
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
+                              onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
+                              placeholder="e.g. 1.5 or 24px"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                             />
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                              {popups.length > 0 && (
-                                <select
-                                  onChange={(e) => {
-                                    if (e.target.value) {
-                                      updateSelectedProp("href", `popup:open(${e.target.value})`);
-                                      e.target.value = "";
-                                    }
-                                  }}
-                                  className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700"
-                                >
-                                  <option value="">+ Open Popup...</option>
-                                  {popups.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                      {p.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Letter Spacing
+                            </label>
+                            <input
+                              type="text"
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "letterSpacing") || ""}
+                              onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value)}
+                              placeholder="e.g. 0.5px"
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Text Transform & Decoration */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Text Transform
+                            </label>
+                            <select
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textTransform") || "none"}
+                              onChange={(e) => updateSelectedStyle("textTransform", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="none">None</option>
+                              <option value="capitalize">Capitalize</option>
+                              <option value="uppercase">Uppercase</option>
+                              <option value="lowercase">Lowercase</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Decoration
+                            </label>
+                            <select
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textDecoration") || "none"}
+                              onChange={(e) => updateSelectedStyle("textDecoration", e.target.value as any)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="none">None</option>
+                              <option value="underline">Underline</option>
+                              <option value="line-through">Line-Through</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Text Color Picker */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs font-semibold text-slate-700">
+                              Text Color
+                            </label>
+                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
                               <button
                                 type="button"
-                                onClick={() => updateSelectedProp("href", "popup:close")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
+                                onClick={() => resetSelectedStyle("color")}
+                                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
                               >
-                                Close Popup
+                                ↺ Reset
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => updateSelectedProp("href", "scroll:to(top)")}
-                                className="rounded border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                              >
-                                Scroll to Top
-                              </button>
-                            </div>
+                            )}
                           </div>
-                        )}
-
-                        {renderAccordion(
-                          "Typography & Colors",
-                          "typography",
-                          (() => {
-                            const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
-                            const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
-                            const hasItalic = FontService.hasItalic(currentFontFamily);
-
-                            const weightLabels: Record<number, string> = {
-                              100: "100 Thin",
-                              200: "200 Extra Light",
-                              300: "300 Light",
-                              400: "400 Normal",
-                              500: "500 Medium",
-                              600: "600 Semi-Bold",
-                              700: "700 Bold",
-                              800: "800 Extra Bold",
-                              900: "900 Black"
-                            };
-
-                            return (
-                              <div className="space-y-3">
-                                {/* Font Family */}
-                                <FontPickerControl
-                                  value={currentFontFamily}
-                                  onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
-                                  onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
-                                  onReset={() => resetSelectedStyle("fontFamily")}
-                                  isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
-                                />
-
-                                {/* Font Size & Weight */}
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    {renderResponsiveLabel("Font Size")}
-                                    <input
-                                      type="text"
-                                      value={
-                                        getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"
-                                      }
-                                      onChange={(e) =>
-                                        updateSelectedStyle(
-                                          "fontSize",
-                                          e.target.value.endsWith("px") || e.target.value.endsWith("rem")
-                                            ? e.target.value
-                                            : `${e.target.value}px`
-                                        )
-                                      }
-                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                      placeholder="16px"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                      Font Weight
-                                    </label>
-                                    <select
-                                      value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
-                                      onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
-                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                    >
-                                      <option value="inherit">Default</option>
-                                      {supportedWeights.map((w) => (
-                                        <option key={w} value={String(w)}>
-                                          {weightLabels[w] || `${w}`}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                </div>
-
-                                {/* Font Style & Alignment */}
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                      Font Style
-                                    </label>
-                                    <select
-                                      value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
-                                      onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
-                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                    >
-                                      <option value="normal">Normal</option>
-                                      <option value="italic" disabled={!hasItalic}>
-                                        Italic {!hasItalic ? "(N/A)" : ""}
-                                      </option>
-                                    </select>
-                                  </div>
-                                </div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Text Align
-                                </label>
-                                <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
-                                  {(["left", "center", "right", "justify"] as const).map((align) => {
-                                    const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
-                                    const isActive = currentAlign === align;
-                                    return (
-                                      <button
-                                        key={align}
-                                        type="button"
-                                        onClick={() => updateSelectedStyle("textAlign", align)}
-                                        className={`rounded py-1 text-[10px] font-bold uppercase transition ${
-                                          isActive
-                                            ? "bg-white text-blue-600 shadow-xs"
-                                            : "text-slate-500 hover:text-slate-900"
-                                        }`}
-                                      >
-                                        {align.slice(0, 1).toUpperCase()}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-
-                            {/* Line Height & Letter Spacing */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Line Height
-                                </label>
-                                <input
-                                  type="text"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
-                                  onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
-                                  placeholder="e.g. 1.5 or 24px"
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Letter Spacing
-                                </label>
-                                <input
-                                  type="text"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "letterSpacing") || ""}
-                                  onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value)}
-                                  placeholder="e.g. 0.5px"
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Text Transform & Decoration */}
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Text Transform
-                                </label>
-                                <select
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textTransform") || "none"}
-                                  onChange={(e) => updateSelectedStyle("textTransform", e.target.value as any)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                >
-                                  <option value="none">None</option>
-                                  <option value="capitalize">Capitalize</option>
-                                  <option value="uppercase">Uppercase</option>
-                                  <option value="lowercase">Lowercase</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Decoration
-                                </label>
-                                <select
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textDecoration") || "none"}
-                                  onChange={(e) => updateSelectedStyle("textDecoration", e.target.value as any)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                >
-                                  <option value="none">None</option>
-                                  <option value="underline">Underline</option>
-                                  <option value="line-through">Line-Through</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            {/* Text Color Picker */}
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <label className="block text-xs font-semibold text-slate-700">
-                                  Text Color
-                                </label>
-                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
-                                  <button
-                                    type="button"
-                                    onClick={() => resetSelectedStyle("color")}
-                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                  >
-                                    ↺ Reset
-                                  </button>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="color"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                />
-                                <input
-                                  type="text"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                />
-                              </div>
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                              className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                            />
+                            <input
+                              type="text"
+                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                              onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                            />
                           </div>
-                        );
-                      })())}
+                        </div>
+                      </div>
+                    );
+                  })())}
 
-                        {renderAccordion(
-                          "Borders & Radius",
-                          "borders",
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Border Style
-                                </label>
-                                <select
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderStyle") || "none"}
-                                  onChange={(e) => updateSelectedStyle("borderStyle", e.target.value as any)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                >
-                                  <option value="none">None</option>
-                                  <option value="solid">Solid</option>
-                                  <option value="dashed">Dashed</option>
-                                  <option value="dotted">Dotted</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                  Border Width
-                                </label>
-                                <input
-                                  type="text"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderWidth") || "1px"}
-                                  onChange={(e) =>
-                                    updateSelectedStyle(
-                                      "borderWidth",
-                                      e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`
-                                    )
-                                  }
-                                  placeholder="1px"
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                />
-                              </div>
-                            </div>
+                {renderAccordion(
+                  "Borders & Radius",
+                  "borders",
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Border Style
+                        </label>
+                        <select
+                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderStyle") || "none"}
+                          onChange={(e) => updateSelectedStyle("borderStyle", e.target.value as any)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        >
+                          <option value="none">None</option>
+                          <option value="solid">Solid</option>
+                          <option value="dashed">Dashed</option>
+                          <option value="dotted">Dotted</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Border Width
+                        </label>
+                        <input
+                          type="text"
+                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderWidth") || "1px"}
+                          onChange={(e) =>
+                            updateSelectedStyle(
+                              "borderWidth",
+                              e.target.value.endsWith("px") ? e.target.value : `${e.target.value}px`
+                            )
+                          }
+                          placeholder="1px"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
 
-                            {/* Border Color */}
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <label className="block text-xs font-semibold text-slate-700">
-                                  Border Color
-                                </label>
-                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "borderColor") && (
-                                  <button
-                                    type="button"
-                                    onClick={() => resetSelectedStyle("borderColor")}
-                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                  >
-                                    ↺ Reset
-                                  </button>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="color"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
-                                  onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
-                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                />
-                                <input
-                                  type="text"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
-                                  onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
-                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                />
-                              </div>
-                            </div>
-
-                            {/* Border Radius */}
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                Border Radius
-                              </label>
-                              <input
-                                type="text"
-                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || ""}
-                                onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                placeholder="e.g. 8px or 50%"
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {renderAccordion(
-                          "Box Shadow & Effects",
-                          "box-shadow",
-                          <div className="space-y-3">
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                Box Shadow Presets
-                              </label>
-                              <select
-                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "boxShadow") || "none"}
-                                onChange={(e) => updateSelectedStyle("boxShadow", e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                              >
-                                <option value="none">None</option>
-                                <option value="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">Subtle (SM)</option>
-                                <option value="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)">Soft (MD)</option>
-                                <option value="0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)">Medium (LG)</option>
-                                <option value="0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)">Large (XL)</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                Opacity
-                              </label>
-                              <input
-                                type="text"
-                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? "1"}
-                                onChange={(e) => updateSelectedStyle("opacity", e.target.value)}
-                                placeholder="0.0 - 1.0"
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                              />
-                            </div>
-                          </div>
+                    {/* Border Color */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Border Color
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "borderColor") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("borderColor")}
+                            className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                          >
+                            ↺ Reset
+                          </button>
                         )}
                       </div>
-                      ) : activeSidebarTab === "advanced" && selectedElementAny ? (
-                      <div className="space-y-4">
-                        {/* Developer Options for Element (F-102, F-105 to F-109) */}
-                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
-                            <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <div>
-                            <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
-                            <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                          </div>
-                          <hr className="border-slate-200" />
-                          <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
-                          </button>
-                          <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
-                          </button>
-                          <button onClick={() => setDevModalMode(selectedElementAny.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                            <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
-                          </button>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
+                          onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                          className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                        />
+                        <input
+                          type="text"
+                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
+                          onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Border Radius */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Border Radius
+                      </label>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || ""}
+                        onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
+                        placeholder="e.g. 8px or 50%"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {renderAccordion(
+                  "Box Shadow & Effects",
+                  "box-shadow",
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Box Shadow Presets
+                      </label>
+                      <select
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "boxShadow") || "none"}
+                        onChange={(e) => updateSelectedStyle("boxShadow", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="none">None</option>
+                        <option value="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">Subtle (SM)</option>
+                        <option value="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)">Soft (MD)</option>
+                        <option value="0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)">Medium (LG)</option>
+                        <option value="0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)">Large (XL)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Opacity
+                      </label>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? "1"}
+                        onChange={(e) => updateSelectedStyle("opacity", e.target.value)}
+                        placeholder="0.0 - 1.0"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : activeSidebarTab === "advanced" && selectedElementAny ? (
+              <div className="space-y-4">
+                {/* Developer Options for Element (F-102, F-105 to F-109) */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
+                    <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
+                    <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
+                  </div>
+                  <hr className="border-slate-200" />
+                  <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
+                  </button>
+                  <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
+                  </button>
+                  <button onClick={() => setDevModalMode(selectedElementAny.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
+                  </button>
+                </div>
                 {/* Slider Specific Controls */}
                 {selectedElementAny.type === "slider" && (
                   <div className="space-y-4 pt-2 border-t border-slate-100">
-{/* Display Navigation Controls */}
+                    {/* Display Navigation Controls */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
                       <span className="block text-[11px] font-bold text-slate-600 mb-1">
                         Navigation Controls
@@ -9233,11 +9259,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         {(selectedElementAny.slidesItems || []).map((slide, idx) => (
                           <div
                             key={slide.id}
-                            className={`rounded-xl border p-3 shadow-xs space-y-2 transition ${
-                              (selectedElementAny.slidesActiveIndex ?? 0) === idx
-                                ? "border-pink-400 bg-pink-50/20 ring-1 ring-pink-400"
-                                : "border-slate-200 bg-white"
-                            }`}
+                            className={`rounded-xl border p-3 shadow-xs space-y-2 transition ${(selectedElementAny.slidesActiveIndex ?? 0) === idx
+                              ? "border-pink-400 bg-pink-50/20 ring-1 ring-pink-400"
+                              : "border-slate-200 bg-white"
+                              }`}
                           >
                             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                               <button
@@ -9700,10 +9725,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     const updated = (selectedElementAny.formFields || []).map((f) =>
                                       f.id === field.id
                                         ? {
-                                            ...f,
-                                            type: newType,
-                                            options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
-                                          }
+                                          ...f,
+                                          type: newType,
+                                          options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
+                                        }
                                         : f
                                     );
                                     updateSelectedProp("formFields", updated);
@@ -11275,11 +11300,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         <button
                           type="button"
                           onClick={() => updateSelectedProp("flipIsFlippedManual", !selectedElementAny.flipIsFlippedManual)}
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${
-                            selectedElementAny.flipIsFlippedManual
-                              ? "bg-amber-600 text-white"
-                              : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                          }`}
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${selectedElementAny.flipIsFlippedManual
+                            ? "bg-amber-600 text-white"
+                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                            }`}
                         >
                           {selectedElementAny.flipIsFlippedManual ? "Viewing: BACK" : "Flip to Back"}
                         </button>
@@ -12225,11 +12249,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 updateSelectedProp("templatePresetName", "hero");
                               }
                             }}
-                            className={`py-1 text-xs font-bold rounded-md transition ${
-                              selectedElementAny.templateSource !== "custom"
-                                ? "bg-white text-purple-700 shadow-2xs"
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
+                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource !== "custom"
+                              ? "bg-white text-purple-700 shadow-2xs"
+                              : "text-slate-600 hover:text-slate-900"
+                              }`}
                           >
                             Presets
                           </button>
@@ -12243,11 +12266,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 updateSelectedProp("templateId", firstCompKey);
                               }
                             }}
-                            className={`py-1 text-xs font-bold rounded-md transition ${
-                              selectedElementAny.templateSource === "custom"
-                                ? "bg-white text-purple-700 shadow-2xs"
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
+                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource === "custom"
+                              ? "bg-white text-purple-700 shadow-2xs"
+                              : "text-slate-600 hover:text-slate-900"
+                              }`}
                           >
                             Saved Components
                           </button>
@@ -12355,11 +12377,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("reviewAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.reviewAlignment || "left") === align
-                                  ? "bg-white text-amber-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.reviewAlignment || "left") === align
+                                ? "bg-white text-amber-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -12749,11 +12770,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbButtonAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbButtonAlignment || "left") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbButtonAlignment || "left") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -12880,11 +12900,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbEmbedAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbEmbedAlignment || "center") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbEmbedAlignment || "center") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -12948,11 +12967,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                               key={align}
                               type="button"
                               onClick={() => updateSelectedProp("fbCommentsAlignment", align)}
-                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                (selectedElementAny.fbCommentsAlignment || "center") === align
-                                  ? "bg-white text-blue-700 shadow-2xs"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
+                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbCommentsAlignment || "center") === align
+                                ? "bg-white text-blue-700 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                                }`}
                             >
                               {align}
                             </button>
@@ -13215,25 +13233,25 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   const items: PlaylistItem[] = selectedElementAny.playlistItems?.length
                     ? selectedElementAny.playlistItems
                     : [
-                        {
-                          id: "1",
-                          title: "ForgeStudio Platform Overview & Quick Start Guide",
-                          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                          videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                          duration: "3:45",
-                          thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                          thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                        },
-                        {
-                          id: "2",
-                          title: "Designing Responsive SaaS Layouts in Record Time",
-                          url: "https://vimeo.com/76979871",
-                          videoUrl: "https://vimeo.com/76979871",
-                          duration: "5:12",
-                          thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                          thumbnailUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                        },
-                      ];
+                      {
+                        id: "1",
+                        title: "ForgeStudio Platform Overview & Quick Start Guide",
+                        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        duration: "3:45",
+                        thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+                        thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+                      },
+                      {
+                        id: "2",
+                        title: "Designing Responsive SaaS Layouts in Record Time",
+                        url: "https://vimeo.com/76979871",
+                        videoUrl: "https://vimeo.com/76979871",
+                        duration: "5:12",
+                        thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
+                        thumbnailUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
+                      },
+                    ];
 
                   return (
                     <div className="space-y-4">
@@ -13253,11 +13271,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={pos}
                                 type="button"
                                 onClick={() => updateSelectedProp("playlistPosition", pos)}
-                                className={`py-1 text-xs font-bold capitalize rounded-md transition ${
-                                  (selectedElementAny.playlistPosition || "right") === pos
-                                    ? "bg-white text-red-700 shadow-2xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.playlistPosition || "right") === pos
+                                  ? "bg-white text-red-700 shadow-2xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {pos}
                               </button>
@@ -14537,11 +14554,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedProp("imageCarouselAlignment", align)}
-                                className={`py-1 text-xs font-bold capitalize rounded-md transition cursor-pointer ${
-                                  (selectedElementAny.imageCarouselAlignment || "center") === align
-                                    ? "bg-white text-blue-700 shadow-2xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`py-1 text-xs font-bold capitalize rounded-md transition cursor-pointer ${(selectedElementAny.imageCarouselAlignment || "center") === align
+                                  ? "bg-white text-blue-700 shadow-2xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -14928,11 +14944,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -15016,11 +15031,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           return (
                             <div
                               key={item.id || index}
-                              className={`rounded-xl border p-3 transition space-y-2.5 ${
-                                isActive
-                                  ? "border-blue-400 bg-blue-50/40 ring-1 ring-blue-400/50 shadow-xs"
-                                  : "border-slate-200 bg-white hover:border-slate-300"
-                              }`}
+                              className={`rounded-xl border p-3 transition space-y-2.5 ${isActive
+                                ? "border-blue-400 bg-blue-50/40 ring-1 ring-blue-400/50 shadow-xs"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                                }`}
                             >
                               {/* Header & Item Actions */}
                               <div className="flex items-center justify-between">
@@ -15029,11 +15043,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                     type="button"
                                     onClick={() => updateSelectedProp("playlistActiveId", item.id)}
                                     title={isActive ? "Currently Active Video" : "Set as Active Video"}
-                                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${
-                                      isActive
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
-                                    }`}
+                                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${isActive
+                                      ? "bg-blue-600 text-white"
+                                      : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
+                                      }`}
                                   >
                                     {isActive ? "▶" : index + 1}
                                   </button>
@@ -15199,11 +15212,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           <button
                             type="button"
                             onClick={() => updateSelectedProp("playlistPosition", "right")}
-                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                              (selectedElementAny.playlistPosition || "right") === "right"
-                                ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                            }`}
+                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${(selectedElementAny.playlistPosition || "right") === "right"
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                              }`}
                           >
                             <span>▶️</span>
                             <span>Right Sidebar</span>
@@ -15212,11 +15224,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                           <button
                             type="button"
                             onClick={() => updateSelectedProp("playlistPosition", "bottom")}
-                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                              selectedElementAny.playlistPosition === "bottom"
-                                ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                            }`}
+                            className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${selectedElementAny.playlistPosition === "bottom"
+                              ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                              }`}
                           >
                             <span>🔽</span>
                             <span>Bottom List</span>
@@ -15257,11 +15268,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -15389,11 +15399,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             }}
                             onDragLeave={() => setDragOver(false)}
                             onDrop={handleDrop}
-                            className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${
-                              dragOver
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
-                            }`}
+                            className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
+                              }`}
                           >
                             <UploadCloudIcon />
                             <p className="mt-2 text-xs font-bold text-slate-700">
@@ -15548,11 +15557,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                                 key={align}
                                 type="button"
                                 onClick={() => updateSelectedStyle("textAlign", align)}
-                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${
-                                  isActive
-                                    ? "bg-white text-blue-600 shadow-xs"
-                                    : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
+                                  ? "bg-white text-blue-600 shadow-xs"
+                                  : "text-slate-600 hover:text-slate-900"
+                                  }`}
                               >
                                 {align}
                               </button>
@@ -15863,7 +15871,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
               </div>
             ) : (
               <div className="space-y-5">
-              {/* Page Settings Section (F-018 & F-019) */}
+                {/* Page Settings Section (F-018 & F-019) */}
                 <div className="border-b border-slate-100 pb-3">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-blue-600 flex items-center gap-1.5">
                     <span>📄</span>
@@ -15873,187 +15881,187 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     Configure page-level properties & SEO settings.
                   </p>
                 </div>
-                        {/* Site Identity */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                          <input
-                            type="text"
-                            value={globalSettings.siteIdentity?.name || ""}
-                            onChange={(e) =>
-                              setGlobalSettings((prev: any) => ({
-                                ...prev,
-                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
-                              }))
-                            }
-                            placeholder="Site Name"
-                            className="w-full rounded border px-2 py-1 text-xs"
-                          />
-                        </div>
+                {/* Site Identity */}
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                  <input
+                    type="text"
+                    value={globalSettings.siteIdentity?.name || ""}
+                    onChange={(e) =>
+                      setGlobalSettings((prev: any) => ({
+                        ...prev,
+                        siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                      }))
+                    }
+                    placeholder="Site Name"
+                    className="w-full rounded border px-2 py-1 text-xs"
+                  />
+                </div>
 
-                        {/* Back To Top Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.backToTop?.enabled !== false}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
-                          {globalSettings.backToTop?.enabled !== false && (
-                            <div className="space-y-2 pt-1">
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.backToTop?.position || "bottom-right"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, position: e.target.value },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-right">Bottom Right</option>
-                                  <option value="bottom-left">Bottom Left</option>
-                                </select>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                                <input
-                                  type="number"
-                                  value={globalSettings.backToTop?.offset ?? 300}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                    }))
-                                  }
-                                  className="w-20 rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                {/* Back To Top Button Settings */}
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
+                    <input
+                      type="checkbox"
+                      checked={globalSettings.backToTop?.enabled !== false}
+                      onChange={(e) =>
+                        setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          backToTop: { ...prev.backToTop, enabled: e.target.checked },
+                        }))
+                      }
+                      className="h-4 w-4 rounded text-blue-600"
+                    />
+                  </div>
+                  {globalSettings.backToTop?.enabled !== false && (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                        <select
+                          value={globalSettings.backToTop?.position || "bottom-right"}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              backToTop: { ...prev.backToTop, position: e.target.value },
+                            }))
+                          }
+                          className="rounded border px-2 py-1 text-[11px]"
+                        >
+                          <option value="bottom-right">Bottom Right</option>
+                          <option value="bottom-left">Bottom Left</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                        <input
+                          type="number"
+                          value={globalSettings.backToTop?.offset ?? 300}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                            }))
+                          }
+                          className="w-20 rounded border px-2 py-1 text-[11px]"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                        {/* Floating Action Button Settings */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                            <input
-                              type="checkbox"
-                              checked={globalSettings.floatingActionButton?.enabled === true}
-                              onChange={(e) =>
-                                setGlobalSettings((prev: any) => ({
-                                  ...prev,
-                                  floatingActionButton: {
-                                    ...prev.floatingActionButton,
-                                    enabled: e.target.checked,
-                                  },
-                                }))
-                              }
-                              className="h-4 w-4 rounded text-blue-600"
-                            />
-                          </div>
+                {/* Floating Action Button Settings */}
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
+                    <input
+                      type="checkbox"
+                      checked={globalSettings.floatingActionButton?.enabled === true}
+                      onChange={(e) =>
+                        setGlobalSettings((prev: any) => ({
+                          ...prev,
+                          floatingActionButton: {
+                            ...prev.floatingActionButton,
+                            enabled: e.target.checked,
+                          },
+                        }))
+                      }
+                      className="h-4 w-4 rounded text-blue-600"
+                    />
+                  </div>
 
-                          {globalSettings.floatingActionButton?.enabled && (
-                            <div className="space-y-2 pt-1">
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Icon & Type
-                                </label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        icon: e.target.value,
-                                        backgroundColor:
-                                          e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                      },
-                                    }))
-                                  }
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="whatsapp">WhatsApp Button</option>
-                                  <option value="chat">Live Chat / Message</option>
-                                  <option value="phone">Call Now (Phone)</option>
-                                  <option value="email">Email Us</option>
-                                </select>
-                              </div>
+                  {globalSettings.floatingActionButton?.enabled && (
+                    <div className="space-y-2 pt-1">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                          Icon & Type
+                        </label>
+                        <select
+                          value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              floatingActionButton: {
+                                ...prev.floatingActionButton,
+                                icon: e.target.value,
+                                backgroundColor:
+                                  e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                              },
+                            }))
+                          }
+                          className="w-full rounded border px-2 py-1 text-[11px]"
+                        >
+                          <option value="whatsapp">WhatsApp Button</option>
+                          <option value="chat">Live Chat / Message</option>
+                          <option value="phone">Call Now (Phone)</option>
+                          <option value="email">Email Us</option>
+                        </select>
+                      </div>
 
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Label
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.label || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        label: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="Chat with us"
-                                  className="w-full rounded border px-2 py-1 text-[11px]"
-                                />
-                              </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                          Label
+                        </label>
+                        <input
+                          type="text"
+                          value={globalSettings.floatingActionButton?.label || ""}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              floatingActionButton: {
+                                ...prev.floatingActionButton,
+                                label: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="Chat with us"
+                          className="w-full rounded border px-2 py-1 text-[11px]"
+                        />
+                      </div>
 
-                              <div>
-                                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                  Link or Smart Action
-                                </label>
-                                <input
-                                  type="text"
-                                  value={globalSettings.floatingActionButton?.link || ""}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        link: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  placeholder="https://wa.me/... or popup:open(id)"
-                                  className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                                />
-                              </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                          Link or Smart Action
+                        </label>
+                        <input
+                          type="text"
+                          value={globalSettings.floatingActionButton?.link || ""}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              floatingActionButton: {
+                                ...prev.floatingActionButton,
+                                link: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="https://wa.me/... or popup:open(id)"
+                          className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                        />
+                      </div>
 
-                              <div className="flex items-center justify-between gap-2">
-                                <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                <select
-                                  value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                  onChange={(e) =>
-                                    setGlobalSettings((prev: any) => ({
-                                      ...prev,
-                                      floatingActionButton: {
-                                        ...prev.floatingActionButton,
-                                        position: e.target.value,
-                                      },
-                                    }))
-                                  }
-                                  className="rounded border px-2 py-1 text-[11px]"
-                                >
-                                  <option value="bottom-left">Bottom Left</option>
-                                  <option value="bottom-right">Bottom Right</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                        <select
+                          value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                          onChange={(e) =>
+                            setGlobalSettings((prev: any) => ({
+                              ...prev,
+                              floatingActionButton: {
+                                ...prev.floatingActionButton,
+                                position: e.target.value,
+                              },
+                            }))
+                          }
+                          className="rounded border px-2 py-1 text-[11px]"
+                        >
+                          <option value="bottom-left">Bottom Left</option>
+                          <option value="bottom-right">Bottom Right</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Maintenance Mode Toggle (F-019) */}
                 <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-2">
@@ -16704,15 +16712,14 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-2">
                           <span>{item.title}</span>
                           <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                              item.category === "page"
-                                ? "bg-slate-100 text-slate-600"
-                                : item.category === "template"
+                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.category === "page"
+                              ? "bg-slate-100 text-slate-600"
+                              : item.category === "template"
                                 ? "bg-purple-100 text-purple-700"
                                 : item.category === "setting"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-emerald-100 text-emerald-700"
-                            }`}
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-emerald-100 text-emerald-700"
+                              }`}
                           >
                             {item.category}
                           </span>
@@ -16928,11 +16935,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   key={cat}
                   type="button"
                   onClick={() => setManagerCategoryFilter(cat)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${
-                    managerCategoryFilter === cat
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${managerCategoryFilter === cat
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -16957,11 +16963,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 return (
                   <div
                     key={w.type}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition ${
-                      isDisabled
-                        ? "border-slate-200 bg-slate-50/60 opacity-80"
-                        : "border-emerald-200 bg-emerald-50/20 shadow-xs"
-                    }`}
+                    className={`flex items-center justify-between p-3 rounded-xl border transition ${isDisabled
+                      ? "border-slate-200 bg-slate-50/60 opacity-80"
+                      : "border-emerald-200 bg-emerald-50/20 shadow-xs"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-xl flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-xs">
@@ -16974,11 +16979,10 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                             {w.category}
                           </span>
                           <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                              isDisabled
-                                ? "bg-slate-200 text-slate-600"
-                                : "bg-emerald-100 text-emerald-700"
-                            }`}
+                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDisabled
+                              ? "bg-slate-200 text-slate-600"
+                              : "bg-emerald-100 text-emerald-700"
+                              }`}
                           >
                             {isDisabled ? "Hidden" : "Visible"}
                           </span>
@@ -16990,15 +16994,13 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     <button
                       type="button"
                       onClick={() => toggleWidgetAvailability(w.type)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isDisabled ? "bg-slate-300" : "bg-emerald-500"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDisabled ? "bg-slate-300" : "bg-emerald-500"
+                        }`}
                       title={isDisabled ? `Enable ${w.name} in Widget Library` : `Hide ${w.name} from Widget Library`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          isDisabled ? "translate-x-0" : "translate-x-5"
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDisabled ? "translate-x-0" : "translate-x-5"
+                          }`}
                       />
                     </button>
                   </div>
@@ -17023,7 +17025,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         </div>
       )}
 
-{/* Popup Manager Modal */}
+      {/* Popup Manager Modal */}
       <PopupManagerModal
         isOpen={isPopupManagerOpen}
         onClose={() => setIsPopupManagerOpen(false)}
@@ -17082,7 +17084,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
         }}
       />
 
-{/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
+      {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
       <SaveTemplateDialog
         isOpen={isSaveTemplateOpen}
         isUpdateMode={isSaveTemplateUpdateMode}
