@@ -1,0 +1,12 @@
+[33m5f489ba[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/atomic-editor-fix[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33m6a2f2b3[m[33m ([m[1;31morigin/feature/atomic-editor-fix[m[33m)[m HEAD@{1}: checkout: moving from feature/atomic-editor-fix to feature/atomic-editor-fix
+[33m6a2f2b3[m[33m ([m[1;31morigin/feature/atomic-editor-fix[m[33m)[m HEAD@{2}: commit (merge): Merge main into atomic editor feature
+[33me631119[m HEAD@{3}: commit: Add automic editor, templet, do some chnages in core visual editor also add pro widgets, media
+[33m066e72f[m[33m ([m[1;32mfeature/H-branch[m[33m)[m HEAD@{4}: checkout: moving from feature/H-branch to feature/atomic-editor-fix
+[33m066e72f[m[33m ([m[1;32mfeature/H-branch[m[33m)[m HEAD@{5}: commit: Add password and OTP verification for OAuth signup
+[33mbfbd261[m HEAD@{6}: commit: Add core visual editor fetures in out forgestudio.
+[33m59d82a2[m[33m ([m[1;32mmain[m[33m)[m HEAD@{7}: checkout: moving from main to feature/H-branch
+[33m59d82a2[m[33m ([m[1;32mmain[m[33m)[m HEAD@{8}: commit: Add subscription plan & Complete core website builder foundation
+[33m165e5b8[m HEAD@{9}: pull origin main --allow-unrelated-histories: Merge made by the 'ort' strategy.
+[33ma003b1a[m HEAD@{10}: Branch: renamed refs/heads/master to refs/heads/main
+[33ma003b1a[m HEAD@{12}: commit (initial): Save local ForgeStudio changes

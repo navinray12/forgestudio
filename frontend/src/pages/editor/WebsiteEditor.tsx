@@ -5,11 +5,16 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+<<<<<<< HEAD
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
+=======
+import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
+import type { SitePartsConfig, PublishingState, DeploymentConfig, CanonicalWebsiteData } from "./types";
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -73,7 +78,25 @@ import {
   PaymentWidgetInspector,
   WooCommerceWidgetInspector,
   AudioPlaylistInspector,
+<<<<<<< HEAD
   PayPalWidgetInspector
+=======
+  PayPalWidgetInspector,
+  LinkInBioWidgetInspector,
+  ImageBoxWidgetInspector,
+  IconBoxWidgetInspector,
+  IconListWidgetInspector,
+  CounterWidgetInspector,
+  ProgressBarWidgetInspector,
+  RatingWidgetInspector,
+  AlertWidgetInspector,
+  GoogleMapsWidgetInspector,
+  DividerWidgetInspector,
+  SpacerWidgetInspector,
+  CustomSVGWidgetInspector,
+  QueryBuilderWidgetInspector,
+  DisplayConditionsWidgetInspector
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 } from "./inspector/DynamicWidgetInspectors";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
@@ -140,8 +163,13 @@ import {
   deleteTreeElement,
   duplicateTreeElement,
   moveTreeElement,
+<<<<<<< HEAD
   isDescendant,
   reorderTreeElement
+=======
+  reorderTreeElement,
+  isDescendant
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 } from "./utils";
 
 import {
@@ -290,6 +318,7 @@ const [popups, setPopups] = useState<any[]>([]);
     const p = popups.find((pop) => pop.id === id);
     if (p) setPopups((prev) => [...prev, { ...p, id: generateId(), title: `${p.title} (Copy)` }]);
   };
+<<<<<<< HEAD
   const handleTrackPopupView = (id: string) => {
     setPopups((prev) =>
       prev.map((p) => (p.id === id ? { ...p, viewsCount: (p.viewsCount || 0) + 1 } : p))
@@ -300,6 +329,11 @@ const [popups, setPopups] = useState<any[]>([]);
       prev.map((p) => (p.id === id ? { ...p, clicksCount: (p.clicksCount || 0) + 1 } : p))
     );
   };
+=======
+  const handleTrackPopupView = (id: string) => {};
+  const handleTrackPopupClick = (id: string) => {};
+
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const handleSampleColor = async (onColorPicked: (hex: string) => void) => {
     if (typeof window !== "undefined" && "EyeDropper" in window) {
@@ -315,14 +349,22 @@ const [popups, setPopups] = useState<any[]>([]);
     }
   };
 
+<<<<<<< HEAD
   const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
+=======
+  const renderTypographySection = () => null;
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const [breakpoints, setBreakpoints] = useState<any[]>([
     { id: "desktop", name: "Desktop", minWidth: 1025 },
     { id: "tablet", name: "Tablet", minWidth: 768, maxWidth: 1024 },
     { id: "mobile", name: "Mobile", maxWidth: 767 }
   ]);
+<<<<<<< HEAD
   const activeBreakpointId = activeDevice;
+=======
+  const activeBreakpointId = "desktop";
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 
   const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
     if (!element) return undefined;
@@ -707,6 +749,8 @@ const [popups, setPopups] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -2243,13 +2287,32 @@ const navigate = useNavigate();
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
+<<<<<<< HEAD
         if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
+=======
+        if (targetId && data.id === targetId) return;
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
       }
     } catch (err) {
       console.error("Drag and drop parse error:", err);
+    }
+  };
+
+  const handleCanvasAutoScroll = (e: React.DragEvent) => {
+    const mainContainer = e.currentTarget.closest("main") || document.querySelector("main");
+    if (!mainContainer) return;
+
+    const rect = mainContainer.getBoundingClientRect();
+    const edgeThreshold = 60;
+    const scrollSpeed = 15;
+
+    if (e.clientY - rect.top < edgeThreshold) {
+      mainContainer.scrollTop -= scrollSpeed;
+    } else if (rect.bottom - e.clientY < edgeThreshold) {
+      mainContainer.scrollTop += scrollSpeed;
     }
   };
 
@@ -2262,17 +2325,40 @@ const navigate = useNavigate();
     e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
 
+    if (draggingId === elId || (draggingId && isDescendant(elements, draggingId, elId))) {
+      setDropTargetId(null);
+      setDropPosition(null);
+      return;
+    }
+
     const rect = e.currentTarget.getBoundingClientRect();
     const offsetY = e.clientY - rect.top;
     const height = rect.height;
 
     let pos: "before" | "after" | "inside" = "after";
+<<<<<<< HEAD
     if (isContainer && offsetY > height * 0.25 && offsetY < height * 0.75) {
       pos = "inside";
     } else if (offsetY < height * 0.5) {
       pos = "before";
     } else {
       pos = "after";
+=======
+    if (isContainer) {
+      if (offsetY < Math.min(height * 0.25, 30)) {
+        pos = "before";
+      } else if (offsetY > height - Math.min(height * 0.25, 30)) {
+        pos = "after";
+      } else {
+        pos = "inside";
+      }
+    } else {
+      if (offsetY < height * 0.5) {
+        pos = "before";
+      } else {
+        pos = "after";
+      }
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
     }
 
     setDropTargetId(elId);
@@ -4463,8 +4549,33 @@ const navigate = useNavigate();
             e.stopPropagation();
             e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
             e.dataTransfer.effectAllowed = "move";
+<<<<<<< HEAD
             setDraggingId(el.id);
           }}
+=======
+            if (!isPreview) handleSelectElement(el.id, e);
+            setDraggingId(el.id);
+          }}
+          onDragOver={(e) => {
+            handleCanvasAutoScroll(e);
+            handleDragOverElement(e, el.id, true);
+          }}
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (dropTargetId === el.id) {
+              setDropTargetId(null);
+              setDropPosition(null);
+            }
+          }}
+          onDrop={(e) => {
+            handleDropElement(e, el.id, dropPosition);
+          }}
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
           onDragEnd={(e) => {
             e.stopPropagation();
             setDraggingId(null);
@@ -4477,7 +4588,13 @@ const navigate = useNavigate();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
           className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${
+<<<<<<< HEAD
             isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+=======
+            draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+          } ${
+            isPreview ? "" : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
           } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -4489,6 +4606,7 @@ const navigate = useNavigate();
           }}
           style={{
             boxSizing: "border-box",
+<<<<<<< HEAD
             display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
             columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
             columnGap: mergedLayout.layoutType === "masonry"
@@ -4505,6 +4623,13 @@ const navigate = useNavigate();
             alignItems: mergedLayout.layoutType === "masonry" ? undefined : (mergedLayout.alignItems || "stretch"),
             gap: mergedLayout.layoutType === "masonry" ? undefined : `${mergedLayout.gap ?? 10}px`,
             rowGap: mergedLayout.rowGap !== undefined && mergedLayout.layoutType !== "masonry" ? (typeof mergedLayout.rowGap === "number" ? `${mergedLayout.rowGap}px` : mergedLayout.rowGap) : undefined,
+=======
+            display: "flex",
+            flexDirection: mergedLayout.direction || "column",
+            justifyContent: mergedLayout.justifyContent || "flex-start",
+            alignItems: mergedLayout.alignItems || "stretch",
+            gap: `${mergedLayout.gap ?? 10}px`,
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
             width: mergedStyles.width || "100%",
             height: mergedStyles.height || "auto",
             paddingTop: mergedStyles.paddingTop ?? (mergedStyles.padding || "16px"),
@@ -4519,6 +4644,21 @@ const navigate = useNavigate();
             ...compilePositioningStyles(mergedStyles),
           }}
         >
+          {/* Drop Indicators for Container */}
+          {isDropTarget && dropPosition === "before" && (
+            <div className="absolute -top-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+          )}
+          {isDropTarget && dropPosition === "after" && (
+            <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+          )}
+          {isDropTarget && dropPosition === "inside" && (
+            <div className="absolute inset-0 border-2 border-blue-500 border-dashed bg-blue-500/10 z-40 pointer-events-none rounded-lg flex items-center justify-center">
+              <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow pointer-events-none tracking-wide uppercase">
+                Drop Inside Container
+              </span>
+            </div>
+          )}
+
           {/* F-217: Background Video Layer */}
           {(el.containerBgType === "video" || el.containerVideoUrl) && (
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -4702,8 +4842,33 @@ const navigate = useNavigate();
           e.stopPropagation();
           e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
           e.dataTransfer.effectAllowed = "move";
+<<<<<<< HEAD
           setDraggingId(el.id);
         }}
+=======
+          if (!isPreview) handleSelectElement(el.id, e);
+          setDraggingId(el.id);
+        }}
+        onDragOver={(e) => {
+          handleCanvasAutoScroll(e);
+          handleDragOverElement(e, el.id, false);
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (dropTargetId === el.id) {
+            setDropTargetId(null);
+            setDropPosition(null);
+          }
+        }}
+        onDrop={(e) => {
+          handleDropElement(e, el.id, dropPosition);
+        }}
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         onDragEnd={(e) => {
           e.stopPropagation();
           setDraggingId(null);
@@ -4732,7 +4897,11 @@ const navigate = useNavigate();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
         className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
+<<<<<<< HEAD
           draggingId === el.id ? "opacity-50 scale-95" : ""
+=======
+          draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
         } ${
           isPreview
             ? ""
@@ -4769,6 +4938,14 @@ const navigate = useNavigate();
           ...(el.type === "button" && el.containerBg ? { backgroundColor: el.containerBg } : {}),
         }}
       >
+        {/* Drop Indicators for Leaf Element */}
+        {isDropTarget && dropPosition === "before" && (
+          <div className="absolute -top-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+        )}
+        {isDropTarget && dropPosition === "after" && (
+          <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+        )}
+
         {isHovered && !isSelected && !isPreview && (
           <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
             {el.type}
@@ -5579,8 +5756,13 @@ const navigate = useNavigate();
                 }}
                 className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
                 style={{
+<<<<<<< HEAD
                   backgroundColor: el.buttonBg || "#2563eb",
                   color: el.buttonColor || "#ffffff",
+=======
+                  backgroundColor: mergedStyles.backgroundColor || el.styles?.backgroundColor || el.buttonBg || "#2563eb",
+                  color: mergedStyles.color || el.styles?.color || el.buttonColor || "#ffffff",
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                   fontSize: mergedStyles.fontSize,
                   fontFamily: mergedStyles.fontFamily,
                   fontWeight: mergedStyles.fontWeight,
@@ -5820,6 +6002,9 @@ const navigate = useNavigate();
             mergedStyles={mergedStyles}
             pages={pages}
             homePageId={homePageId}
+            onUpdateElement={(updater) => {
+              setElements((prev) => updateTreeElement(prev, el.id, updater));
+            }}
             onNavigatePage={(targetIdOrSlug) => {
               const clean = targetIdOrSlug.replace(/^\//, "");
               const targetPage = pages.find(
@@ -6015,6 +6200,9 @@ const navigate = useNavigate();
             isPreview={isPreview}
             mergedStyles={mergedStyles}
             pages={pages}
+            onUpdateElement={(updater) => {
+              setElements((prev) => updateTreeElement(prev, el.id, updater));
+            }}
             onNavigatePage={(targetIdOrSlug) => {
               const clean = targetIdOrSlug.replace(/^\//, "");
               const targetPage = pages.find(
@@ -6062,6 +6250,234 @@ const navigate = useNavigate();
 
         {el.type === "wc-product-rating" && (
           <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "link-in-bio" && (() => {
+          const links = el.bioLinks || [
+            { id: "b1", label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
+            { id: "b2", label: "Subscribe to Newsletter", url: "#", icon: "📩" }
+          ];
+          return (
+            <div className="w-full max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-xl border border-slate-100 text-center space-y-4">
+              {el.bioAvatarUrl ? (
+                <img src={resolveImageUrl(el.bioAvatarUrl, apiUrl)} alt="Bio Avatar" className="w-20 h-20 rounded-full mx-auto object-cover ring-4 ring-pink-100 shadow-md" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center text-2xl font-bold mx-auto shadow-md ring-4 ring-pink-100">
+                  {(el.bioName || "@user").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <h3 className="font-bold text-base text-slate-900">{el.bioName || "@username"}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">{el.bioTagline || "Digital Creator & Designer"}</p>
+              </div>
+              <div className="space-y-2.5 pt-2">
+                {links.map((link: any) => (
+                  <a
+                    key={link.id}
+                    href={link.url || "#"}
+                    onClick={(e) => { if (!isPreview) e.preventDefault(); }}
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200/80 hover:border-pink-200 text-xs font-semibold text-slate-700 hover:text-pink-600 transition shadow-xs group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{link.icon || "🔗"}</span>
+                      <span>{link.label}</span>
+                    </span>
+                    {link.badge && (
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-pink-100 text-pink-700">
+                        {link.badge}
+                      </span>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "image-box" && (() => {
+          const pos = el.imageBoxPosition || "top";
+          const isRow = pos === "left" || pos === "right";
+          const isReverse = pos === "right";
+          return (
+            <div className={`w-full flex ${isRow ? "flex-row" : "flex-col"} ${isReverse ? "flex-row-reverse" : ""} items-center gap-4 p-4 rounded-xl border border-slate-100 bg-white shadow-xs group hover:shadow-md transition`}>
+              {el.src ? (
+                <img src={resolveImageUrl(el.src, apiUrl)} alt={el.title || "Image Box"} className={`${isRow ? "w-1/3" : "w-full"} h-44 object-cover rounded-lg group-hover:scale-102 transition duration-300`} />
+              ) : (
+                <div className={`${isRow ? "w-1/3" : "w-full"} h-36 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-medium`}>
+                  🖼️ Image Box
+                </div>
+              )}
+              <div className="flex-1 text-left space-y-1">
+                <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition">{el.title || "Image Box Feature"}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">{el.content || "Detailed description of the feature or highlight box element."}</p>
+                {el.href && (
+                  <a href={el.href} onClick={(e) => { if (!isPreview) e.preventDefault(); }} className="inline-block pt-1 text-xs font-bold text-blue-600 hover:underline">
+                    Learn More →
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "icon-box" && (() => {
+          const pos = el.iconBoxPosition || "top";
+          const isRow = pos === "left" || pos === "right";
+          const isReverse = pos === "right";
+          return (
+            <div className={`w-full flex ${isRow ? "flex-row" : "flex-col"} ${isReverse ? "flex-row-reverse" : ""} items-start gap-3.5 p-5 rounded-xl border border-slate-100 bg-white shadow-xs group hover:shadow-md transition`}>
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition">
+                {el.iconName || el.icon || "⚡"}
+              </div>
+              <div className="space-y-1 text-left">
+                <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition">{el.title || "Icon Box Heading"}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">{el.content || "Brief explanatory text about this service, capability, or key benefit."}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "icon-list" && (() => {
+          const items = el.iconListItems || [
+            { id: "1", text: "High priority SLA support", icon: "✓", color: "#10b981" },
+            { id: "2", text: "Unlimited custom domains", icon: "✓", color: "#10b981" },
+            { id: "3", text: "Advanced analytics dashboard", icon: "✓", color: "#10b981" }
+          ];
+          return (
+            <div className="w-full space-y-2 text-left">
+              {items.map((item: any) => (
+                <div key={item.id} className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {item.icon || "✓"}
+                  </span>
+                  {item.url ? (
+                    <a href={item.url} onClick={(e) => { if (!isPreview) e.preventDefault(); }} className="hover:text-emerald-600 hover:underline">
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span>{item.text}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {el.type === "counter" && (
+          <div className="w-full p-5 rounded-xl bg-white border border-slate-100 text-center shadow-xs">
+            <div className="text-3xl font-extrabold text-blue-600 tracking-tight font-mono">
+              <span>{el.counterPrefix || ""}</span>
+              <span>{el.counterEnd ?? 100}</span>
+              <span>{el.counterSuffix || "+"}</span>
+            </div>
+            <p className="text-xs font-semibold text-slate-600 mt-1 uppercase tracking-wider">{el.counterTitle || "Happy Customers"}</p>
+          </div>
+        )}
+
+        {el.type === "progress-bar" && (
+          <div className="w-full space-y-1.5 text-left">
+            <div className="flex justify-between text-xs font-bold text-slate-700">
+              <span>{el.progressLabel || "Skill Level"}</span>
+              <span className="font-mono text-teal-600">{el.progressValue ?? 85}%</span>
+            </div>
+            <div className="w-full bg-slate-100 rounded-full overflow-hidden" style={{ height: `${el.progressHeight || 12}px` }}>
+              <div
+                className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-1000"
+                style={{ width: `${el.progressValue ?? 85}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {el.type === "rating" && (() => {
+          const max = el.ratingMax || 5;
+          const score = el.ratingValue ?? 4.8;
+          const stars = Array.from({ length: max }, (_, i) => i + 1);
+          return (
+            <div className="w-full flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                {stars.map((s) => (
+                  <span key={s} style={{ color: s <= Math.round(score) ? (el.ratingColor || "#f59e0b") : "#cbd5e1" }} className="text-lg">
+                    ★
+                  </span>
+                ))}
+              </div>
+              {el.ratingShowText !== false && (
+                <span className="text-xs font-bold text-slate-700 font-mono">
+                  {score} / {max}
+                </span>
+              )}
+            </div>
+          );
+        })()}
+
+        {el.type === "alert" && (() => {
+          const type = el.alertType || "info";
+          const bgMap: Record<string, string> = {
+            info: "bg-blue-50 border-blue-200 text-blue-900",
+            success: "bg-emerald-50 border-emerald-200 text-emerald-900",
+            warning: "bg-amber-50 border-amber-200 text-amber-900",
+            danger: "bg-rose-50 border-rose-200 text-rose-900"
+          };
+          const iconMap: Record<string, string> = {
+            info: "ℹ️",
+            success: "✅",
+            warning: "⚠️",
+            danger: "🚨"
+          };
+          return (
+            <div className={`w-full p-4 rounded-xl border flex items-start justify-between gap-3 text-left ${bgMap[type] || bgMap.info}`}>
+              <div className="flex items-start gap-2.5">
+                <span className="text-base leading-none">{iconMap[type]}</span>
+                <div className="space-y-0.5">
+                  <h5 className="font-bold text-xs">{el.alertTitle || "Notice"}</h5>
+                  <p className="text-xs opacity-90">{el.content || "This is an important alert banner message."}</p>
+                </div>
+              </div>
+              {el.alertDismissible && (
+                <button type="button" className="text-xs opacity-60 hover:opacity-100 font-bold">✕</button>
+              )}
+            </div>
+          );
+        })()}
+
+        {el.type === "google-maps" && (
+          <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100 relative" style={{ height: `${el.mapHeight || 350}px` }}>
+            <iframe
+              title="Google Map Location"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(el.mapAddress || "San Francisco, CA")}&t=&z=${el.mapZoom || 14}&ie=UTF8&iwloc=&output=embed`}
+            />
+          </div>
+        )}
+
+        {el.type === "divider" && (
+          <div className="w-full flex justify-center my-3">
+            <hr
+              style={{
+                borderTopStyle: (el.dividerStyle as any) || "solid",
+                borderTopWidth: `${el.dividerWeight || 2}px`,
+                borderTopColor: el.dividerColor || "#cbd5e1",
+                width: el.dividerWidth || "100%",
+                borderBottom: "none",
+                borderLeft: "none",
+                borderRight: "none"
+              }}
+            />
+          </div>
+        )}
+
+        {el.type === "spacer" && (
+          <div
+            className="w-full flex items-center justify-center border border-dashed border-slate-300/60 bg-slate-50/40 rounded my-1 text-[10px] text-slate-400 font-mono select-none"
+            style={{ height: `${el.spacerHeight || 40}px` }}
+          >
+            {!isPreview && `Spacer (${el.spacerHeight || 40}px)`}
+          </div>
         )}
 
         {el.type === "html" && (
@@ -7889,6 +8305,7 @@ onClick={() => importFileInputRef.current?.click()}
           onClick={() => handleSelectElement(null)}
           onDragOver={(e) => {
             e.preventDefault();
+            handleCanvasAutoScroll(e);
             e.dataTransfer.dropEffect = "move";
           }}
           onDrop={(e) => handleDropElement(e, null, "after")}
@@ -7915,7 +8332,12 @@ onClick={() => importFileInputRef.current?.click()}
             onDragOver={(e) => {
               e.preventDefault();
               e.stopPropagation();
+<<<<<<< HEAD
               e.dataTransfer.dropEffect = "copy";
+=======
+              handleCanvasAutoScroll(e);
+              e.dataTransfer.dropEffect = "move";
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
@@ -8073,6 +8495,7 @@ onClick={() => importFileInputRef.current?.click()}
                   return (
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
+<<<<<<< HEAD
                       {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
                         siteParts.header?.elements &&
                         siteParts.header.elements.length > 0 &&
@@ -8081,6 +8504,9 @@ onClick={() => importFileInputRef.current?.click()}
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
+=======
+                      {siteParts.header?.enabled && siteParts.header.elements.length > 0 && (
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                         <div className="site-global-header border-b border-slate-100 pb-4">
                           {siteParts.header.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -8105,6 +8531,7 @@ onClick={() => importFileInputRef.current?.click()}
                       </div>
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
+<<<<<<< HEAD
                       {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
                         siteParts.footer?.elements &&
                         siteParts.footer.elements.length > 0 &&
@@ -8113,6 +8540,9 @@ onClick={() => importFileInputRef.current?.click()}
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
+=======
+                      {siteParts.footer?.enabled && siteParts.footer.elements.length > 0 && (
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                         <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
                           {siteParts.footer.elements.map((el) => renderElementTree(el))}
                         </div>
@@ -8313,6 +8743,7 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                   </div>
                 </div>
 
+<<<<<<< HEAD
                 {/* Container Specific Layout Controls (Flexbox & CSS Grid) */}
                 {selectedElementAny.type === "container" && (() => {
                   const effectiveLayoutType = getEffectiveLayout(selectedElementAny, activeDevice, "layoutType") ?? selectedElementAny.layout?.layoutType ?? "flex";
@@ -8773,10 +9204,84 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                 )}
 
                 {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) (F-002, F-035, F-052) */}
+=======
+                {/* Container Specific Flexbox Layout Controls */}
+                {selectedElementAny.type === "container" && (
+                  <div className="space-y-4">
+                    {/* Direction */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Direction
+                      </label>
+                      <select
+                        value={selectedElementAny.layout?.direction || "column"}
+                        onChange={(e) => updateSelectedLayout("direction", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="column">Column (Vertical)</option>
+                        <option value="row">Row (Horizontal)</option>
+                      </select>
+                    </div>
+
+                    {/* Justify Content */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Justify Content
+                      </label>
+                      <select
+                        value={selectedElementAny.layout?.justifyContent || "flex-start"}
+                        onChange={(e) => updateSelectedLayout("justifyContent", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="flex-start">Start (flex-start)</option>
+                        <option value="center">Center</option>
+                        <option value="flex-end">End (flex-end)</option>
+                        <option value="space-between">Space Between</option>
+                        <option value="space-around">Space Around</option>
+                        <option value="space-evenly">Space Evenly</option>
+                      </select>
+                    </div>
+
+                    {/* Align Items */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Align Items
+                      </label>
+                      <select
+                        value={selectedElementAny.layout?.alignItems || "stretch"}
+                        onChange={(e) => updateSelectedLayout("alignItems", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="stretch">Stretch</option>
+                        <option value="flex-start">Start (flex-start)</option>
+                        <option value="center">Center</option>
+                        <option value="flex-end">End (flex-end)</option>
+                      </select>
+                    </div>
+
+                    {/* Gap (px) */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Gap (px)
+                      </label>
+                      <ScrubbableNumberInput
+                        value={selectedElementAny.layout?.gap ?? 10}
+                        onChange={(val) => updateSelectedLayout("gap", Number(val))}
+                        min={0}
+                        step={1}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) */}
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                 <div className="space-y-4 pt-2">
                   {/* Width & Height */}
                   <div className="grid grid-cols-2 gap-2">
                     <div>
+<<<<<<< HEAD
                       <div className="flex items-center justify-between mb-1">
                         <label className="block text-xs font-semibold text-slate-700">
                           Width (F-052)
@@ -8874,6 +9379,43 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                         placeholder="e.g. 1200px, 100%"
                         className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                       />
+=======
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Width
+                      </label>
+                      <select
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "auto"}
+                        onChange={(e) => updateSelectedStyle("width", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="auto">Auto</option>
+                        <option value="100%">100%</option>
+                        <option value="75%">75%</option>
+                        <option value="50%">50%</option>
+                        <option value="33%">33%</option>
+                        <option value="25%">25%</option>
+                        <option value="fit-content">Fit Content</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Height
+                      </label>
+                      <select
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
+                        onChange={(e) => updateSelectedStyle("height", e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      >
+                        <option value="auto">Auto</option>
+                        <option value="100px">100px</option>
+                        <option value="200px">200px</option>
+                        <option value="300px">300px</option>
+                        <option value="400px">400px</option>
+                        <option value="500px">500px</option>
+                        <option value="100%">100%</option>
+                      </select>
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     </div>
                   </div>
 
@@ -9485,6 +10027,120 @@ onClick={(e) => handleDeleteElement(selectedElementAny.id, e)}
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
                     siteProducts={siteProducts}
+                  />
+                )}
+
+                {/* Link in Bio Inspector */}
+                {selectedElementAny.type === "link-in-bio" && (
+                  <LinkInBioWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Image Box Inspector */}
+                {selectedElementAny.type === "image-box" && (
+                  <ImageBoxWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Icon Box Inspector */}
+                {selectedElementAny.type === "icon-box" && (
+                  <IconBoxWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Icon List Inspector */}
+                {selectedElementAny.type === "icon-list" && (
+                  <IconListWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Counter Inspector */}
+                {selectedElementAny.type === "counter" && (
+                  <CounterWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Progress Bar Inspector */}
+                {selectedElementAny.type === "progress-bar" && (
+                  <ProgressBarWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Rating Inspector */}
+                {selectedElementAny.type === "rating" && (
+                  <RatingWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Alert Inspector */}
+                {selectedElementAny.type === "alert" && (
+                  <AlertWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Google Maps Inspector */}
+                {selectedElementAny.type === "google-maps" && (
+                  <GoogleMapsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Divider Inspector */}
+                {selectedElementAny.type === "divider" && (
+                  <DividerWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Spacer Inspector */}
+                {selectedElementAny.type === "spacer" && (
+                  <SpacerWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Custom SVG Inspector */}
+                {selectedElementAny.type === "custom-svg" && (
+                  <CustomSVGWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Query Builder Inspector */}
+                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                  <QueryBuilderWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Display Conditions Inspector */}
+                {selectedElementAny.type === "template" && (
+                  <DisplayConditionsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
                   />
                 )}
 

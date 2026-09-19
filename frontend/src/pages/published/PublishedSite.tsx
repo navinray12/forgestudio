@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
+<<<<<<< HEAD
 import { resolveElementStyles, getInnerStyles, getMergedLayout } from "../editor/utils";
+=======
+import { resolveElementStyles, getInnerStyles } from "../editor/utils";
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
@@ -264,6 +268,9 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
             />
         ) : null;
 
+        const buttonBgColor = resolvedStyles.backgroundColor || el.styles?.backgroundColor || el.buttonBg || "#2563eb";
+        const buttonTextColor = resolvedStyles.color || el.styles?.color || el.buttonColor || "#ffffff";
+
         return (
             <React.Fragment key={el.id}>
                 <div ref={assignRefIfTracked as any} {...mergedProps} style={{ ...mergedProps.style, textAlign: (resolvedStyles.textAlign as any) || "left" }}>
@@ -290,8 +297,22 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                                 if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                             }
                         }}
+<<<<<<< HEAD
                         className={`inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow ${optInnerClass}`}
                         style={finalInnerStyles}
+=======
+                        className={`inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow ${optInnerClass}`}
+                        style={{
+                            backgroundColor: buttonBgColor,
+                            color: buttonTextColor,
+                            fontSize: resolvedStyles.fontSize,
+                            fontFamily: resolvedStyles.fontFamily,
+                            fontWeight: resolvedStyles.fontWeight,
+                            borderRadius: resolvedStyles.borderRadius || "8px",
+                            boxShadow: resolvedStyles.boxShadow,
+                            ...finalInnerStyles,
+                        }}
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
                     >
                         <span
                             className={`inline-flex items-center justify-center ${
@@ -527,6 +548,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </div>
     );
 
+<<<<<<< HEAD
     if (el.type === "container" || el.type === "div-block") {
         const deviceMode = (activeBreakpointId === "mobile" || activeBreakpointId === "tablet") ? activeBreakpointId : "desktop";
         const containerLayout = getMergedLayout(el, deviceMode);
@@ -609,6 +631,39 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
             </React.Fragment>
         );
     }
+=======
+    if (el.type === "container" || el.type === "div-block") return (
+        <React.Fragment key={el.id}>
+            <div ref={assignRefIfTracked as any} {...mergedProps}>
+                {el.styles?.backgroundType === "slideshow" && el.styles.backgroundSlideshowUrls && (
+                    <BackgroundSlideshow
+                        urls={
+                            Array.isArray(el.styles.backgroundSlideshowUrls)
+                                ? el.styles.backgroundSlideshowUrls
+                                : typeof el.styles.backgroundSlideshowUrls === "string"
+                                ? el.styles.backgroundSlideshowUrls.split(",")
+                                : []
+                        }
+                        interval={Number(el.styles.backgroundSlideshowSpeed) || 5000}
+                    />
+                )}
+                {el.children?.map(child => (
+                    <RenderNode
+                        key={child.id}
+                        el={child}
+                        isCritical={isCritical}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={allElements}
+                    />
+                ))}
+            </div>
+        </React.Fragment>
+    );
+>>>>>>> 064a142f7cf2be8325e27bca92f7f7c1b4ef0c0a
     return null;
 }, (prev, next) => {
     // Custom F-358 Comparator: Avoid full page rerender on style dedupe sweeps (elementClassMap mutations)

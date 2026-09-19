@@ -40,6 +40,11 @@ import {
   disconnectWordPressHandler,
   syncWordPressPagesHandler,
   handleWordPressWebhook,
+  getAcfFieldsHandler,
+  getToolsetFieldsHandler,
+  getPodsFieldsHandler,
+  syncGutenbergBlocksHandler,
+  getMultisiteSitesHandler,
 } from "../controllers/wordpress.controller.js";
 import {
   schedulePublishHandler,
@@ -70,6 +75,12 @@ router.get("/:id/wordpress/status", authorizeCapability("VIEW"), getWordPressSta
 router.post("/:id/wordpress/verify", authorizeCapability("MANAGE_INTEGRATIONS"), verifyWordPressHandler);
 router.post("/:id/wordpress/disconnect", authorizeCapability("MANAGE_INTEGRATIONS"), disconnectWordPressHandler);
 router.post("/:id/wordpress/sync-pages", authorizeCapability("MANAGE_INTEGRATIONS"), syncWordPressPagesHandler);
+router.get("/:id/wordpress/acf-fields", authorizeCapability("VIEW"), getAcfFieldsHandler);
+router.get("/:id/wordpress/toolset-fields", authorizeCapability("VIEW"), getToolsetFieldsHandler);
+router.get("/:id/wordpress/pods-fields", authorizeCapability("VIEW"), getPodsFieldsHandler);
+router.post("/:id/wordpress/gutenberg-sync", authorizeCapability("MANAGE_INTEGRATIONS"), syncGutenbergBlocksHandler);
+router.get("/:id/wordpress/multisite-sites", authorizeCapability("VIEW"), getMultisiteSitesHandler);
+
 
 // Production Publishing & Deployment API
 router.post("/:id/validate-publish", authorizeCapability("PUBLISH"), validatePublishHandler);
@@ -96,6 +107,8 @@ router.post("/accept", acceptWebsiteInvitationHandler);
 router.post("/:id/invite", authorizeCapability("MANAGE_TEAM"), inviteWebsiteMemberHandler);
 router.delete("/:id/members/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), removeWebsiteMemberHandler);
 
+router.post("/invitations/:inviteId/revoke", revokeWebsiteInvitationHandler);
+router.post("/invitations/:inviteId/resend", resendWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/revoke", authorizeCapability("MANAGE_TEAM"), revokeWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEAM"), resendWebsiteInvitationHandler);
 

@@ -425,6 +425,94 @@ export const IntegrationSettingsPanel: React.FC<IntegrationSettingsProps> = ({
           </div>
         </div>
       )}
+
+      {/* F-262: ACF Integration Settings */}
+      {(type as string) === "acf-integration" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">ACF Field Key / Name</label>
+            <input
+              type="text"
+              value={getStyleVal("acfFieldKey", "hero_banner_text")}
+              onChange={(e) => updateSelectedElementStyle("acfFieldKey", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Target Post ID</label>
+            <input
+              type="number"
+              value={getStyleVal("acfPostId", "1")}
+              onChange={(e) => updateSelectedElementStyle("acfPostId", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* F-263: Toolset Integration Settings */}
+      {(type as string) === "toolset-integration" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Toolset Field Slug (wpcf-)</label>
+            <input
+              type="text"
+              value={getStyleVal("toolsetFieldSlug", "wpcf-custom-header")}
+              onChange={(e) => updateSelectedElementStyle("toolsetFieldSlug", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* F-264: Pods Integration Settings */}
+      {(type as string) === "pods-integration" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Pods Name / Field Identifier</label>
+            <input
+              type="text"
+              value={getStyleVal("podsFieldKey", "pod_title")}
+              onChange={(e) => updateSelectedElementStyle("podsFieldKey", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* F-267: Gutenberg Blocks Integration Settings */}
+      {(type as string) === "gutenberg-blocks" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Block Type / Namespace</label>
+            <input
+              type="text"
+              value={getStyleVal("gutenbergBlockType", "core/paragraph")}
+              onChange={(e) => updateSelectedElementStyle("gutenbergBlockType", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* F-269: Multisite Support Settings */}
+      {(type as string) === "multisite-support" && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Target Blog / Site ID</label>
+            <input
+              type="text"
+              value={getStyleVal("multisiteSiteId", "1")}
+              onChange={(e) => updateSelectedElementStyle("multisiteSiteId", e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
     </div>
   );
 };
