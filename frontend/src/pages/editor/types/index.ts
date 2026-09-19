@@ -443,6 +443,11 @@ rowGap?: number | string;
   // Masonry Controls
   masonryColumns?: number;
   masonryGap?: number | string;
+
+  // Scroll Snap & Overflow Controls (F-050)
+  scrollSnapType?: string;
+  overflowX?: string;
+  overflowY?: string;
 }
 
 export interface ElementStyles {

@@ -9,6 +9,7 @@ import {
 import {
   AuthProvider,
   useAuth,
+  type UserRole,
 } from "./context/AuthContext";
 
 import LoginPage from "./pages/auth/LoginPage";
@@ -26,8 +27,6 @@ const CustomEntriesList = lazy(() => import("./pages/dashboard/CustomEntriesList
 const CustomEntryEditor = lazy(() => import("./pages/dashboard/CustomEntryEditor"));
 const SharedTemplatePreviewPage = lazy(() => import("./pages/templates/SharedTemplatePreviewPage"));
 const PublishedSite = lazy(() => import("./pages/published/PublishedSite"));
-
-type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
 interface RoleRouteProps {
   allowedRoles: UserRole[];

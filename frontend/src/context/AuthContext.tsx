@@ -12,7 +12,12 @@ const API_URL =
 export type UserRole =
   | "USER"
   | "ADMIN"
-  | "SUPER_ADMIN";
+  | "SUPER_ADMIN"
+  | "PLATFORM_ADMIN"
+  | "SUPPORT_ADMIN"
+  | "DEVELOPER"
+  | "AI_CONTENT_ADMIN"
+  | "TEAM_MEMBER";
 
 export interface AuthUser {
   id: string;

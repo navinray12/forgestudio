@@ -168,10 +168,19 @@ export function getMergedStyles(el: EditorElement, device: DeviceMode, state: El
 export function getMergedLayout(el: EditorElement, device: DeviceMode): ContainerLayout {
   const base = el.layout || {};
   return {
+    layoutType: getEffectiveLayout(el, device, "layoutType") ?? base.layoutType ?? "flex",
     direction: getEffectiveLayout(el, device, "direction") ?? base.direction ?? "column",
     justifyContent: getEffectiveLayout(el, device, "justifyContent") ?? base.justifyContent ?? "flex-start",
     alignItems: getEffectiveLayout(el, device, "alignItems") ?? base.alignItems ?? "stretch",
     gap: getEffectiveLayout(el, device, "gap") ?? base.gap ?? 10,
+    rowGap: getEffectiveLayout(el, device, "rowGap") ?? base.rowGap,
+    columnGap: getEffectiveLayout(el, device, "columnGap") ?? base.columnGap,
+    gridTemplateColumns: getEffectiveLayout(el, device, "gridTemplateColumns") ?? base.gridTemplateColumns,
+    gridTemplateRows: getEffectiveLayout(el, device, "gridTemplateRows") ?? base.gridTemplateRows,
+    gridAutoFlow: getEffectiveLayout(el, device, "gridAutoFlow") ?? base.gridAutoFlow,
+    justifyItems: getEffectiveLayout(el, device, "justifyItems") ?? base.justifyItems,
+    masonryColumns: getEffectiveLayout(el, device, "masonryColumns") ?? base.masonryColumns,
+    masonryGap: getEffectiveLayout(el, device, "masonryGap") ?? base.masonryGap,
   };
 }
 

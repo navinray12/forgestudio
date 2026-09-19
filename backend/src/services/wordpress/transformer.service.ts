@@ -151,6 +151,46 @@ function transformElementToGutenberg(
       return `<!-- wp:shortcode -->\n${shortcode}\n<!-- /wp:shortcode -->`;
     }
 
+    case "container":
+    case "section":
+    case "div":
+    case "div-block": {
+      const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
+      const childrenBlocks = children
+        .map((child: any) => transformElementToGutenberg(child, mediaRefs, forms))
+        .filter(Boolean)
+        .join("\n\n");
+      const isMasonry = el.layout?.layoutType === "masonry";
+      const isGrid = el.layout?.layoutType === "grid";
+      const layoutStyles: Record<string, any> = {
+        ...styles,
+        display: isMasonry ? "block" : (isGrid ? "grid" : "flex"),
+        ...(isMasonry
+          ? {
+              columnCount: el.layout?.masonryColumns || 3,
+              columnGap: `${el.layout?.gap ?? 16}px`,
+            }
+          : isGrid
+          ? {
+              gridTemplateColumns: el.layout?.gridTemplateColumns || "repeat(2, minmax(0, 1fr))",
+              gridAutoFlow: el.layout?.gridAutoFlow || undefined,
+              gap: `${el.layout?.gap ?? 10}px`,
+            }
+          : {
+              flexDirection: el.layout?.direction || "column",
+              justifyContent: el.layout?.justifyContent || "flex-start",
+              alignItems: el.layout?.alignItems || "stretch",
+              gap: `${el.layout?.gap ?? 10}px`,
+            }),
+      };
+      if (el.layout?.scrollSnapType && el.layout?.scrollSnapType !== "none") {
+        layoutStyles.scrollSnapType = el.layout.scrollSnapType;
+      }
+      if (el.layout?.overflowX) layoutStyles.overflowX = el.layout.overflowX;
+      if (el.layout?.overflowY) layoutStyles.overflowY = el.layout.overflowY;
+      return `<!-- wp:group {"attrs":${JSON.stringify(attrs)}} -->\n<div class="fs-container" style="${formatInlineStyles(layoutStyles)}">\n${childrenBlocks}\n</div>\n<!-- /wp:group -->`;
+    }
+
     default: {
       const inner = escapeHtml(el.content || el.text || "");
       return `<!-- wp:forgestudio/element {"id":"${el.id}","type":"${type}"} -->\n<div class="fs-custom-element fs-type-${type}" style="${formatInlineStyles(styles)}">\n  ${inner}\n</div>\n<!-- /wp:forgestudio/element -->`;
