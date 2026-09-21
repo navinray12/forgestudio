@@ -16,6 +16,10 @@ import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKi
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
 import { ManagedSiteModal } from "./components/ManagedSiteModal";
 import { ActivityLogModal } from "./components/ActivityLogModal";
+import LicensingPanel from "./components/LicensingPanel";
+import UsageTelemetryWidget from "./components/UsageTelemetryWidget";
+import WhiteLabelPanel from "./components/WhiteLabelPanel";
+import SubscriptionBillingPanel from "./components/SubscriptionBillingPanel";
 
 interface Website {
   id: string;
@@ -44,6 +48,10 @@ interface Website {
 
 type Tab =
   | "websites"
+  | "licensing"
+  | "usage-limits"
+  | "white-label"
+  | "subscription-billing"
   | "developer-api"
   | "plugin-hub"
   | "custom-code"
@@ -62,6 +70,15 @@ const NAV_GROUPS: NavGroup[] = [
     label: "General",
     items: [
       { id: "websites", label: "My Websites", icon: "🌐" },
+    ],
+  },
+  {
+    label: "Licensing & Billing",
+    items: [
+      { id: "licensing", label: "Software Licenses", icon: "🔐" },
+      { id: "usage-limits", label: "Resource Quotas", icon: "📊" },
+      { id: "white-label", label: "Agency Branding", icon: "🏷️" },
+      { id: "subscription-billing", label: "Subscription & Invoices", icon: "💳" },
     ],
   },
   {
@@ -304,6 +321,10 @@ function UserDashboard() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "licensing": return <LicensingPanel />;
+      case "usage-limits": return <UsageTelemetryWidget />;
+      case "white-label": return <WhiteLabelPanel />;
+      case "subscription-billing": return <SubscriptionBillingPanel />;
       case "developer-api": return <DeveloperApiSettings />;
       case "plugin-hub": return <PluginHub />;
       case "custom-code": return <CustomCodePanel />;
@@ -370,6 +391,9 @@ function UserDashboard() {
             </button>
           </div>
         </div>
+
+        {/* Real-Time Resource Usage & Quota Bar (F-450, F-452) */}
+        <UsageTelemetryWidget compact />
 
         {currentTeamId ? (
           <TeamDashboardView teamId={currentTeamId} apiUrl={apiUrl} onNavigateEditor={id => navigate(`/editor/${id}`)} />

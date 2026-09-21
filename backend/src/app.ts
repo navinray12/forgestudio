@@ -32,6 +32,9 @@ import {
   designTokenRoutes,
   commerceRoutes,
   enterpriseMultisiteRoutes,
+  licenseRoutes,
+  whitelabelRoutes,
+  usageRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -101,9 +104,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/v1/auth", oauthRoutes);
 app.use("/api/v1/auth", meRoutes);
 
-// Subscriptions
+// Subscriptions, Licensing, Whitelabel & Usage (F-440 to F-452)
 app.use("/api/v1/subscriptions", subscriptionRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/v1/licenses", licenseRoutes);
+app.use("/api/licenses", licenseRoutes);
+app.use("/api/v1/agency", whitelabelRoutes);
+app.use("/api/agency", whitelabelRoutes);
+app.use("/api/v1/users/me", usageRoutes);
+app.use("/api/users/me", usageRoutes);
 
 // Public API v1 Standardized Endpoints
 app.use("/api/v1", apiV1Routes);

@@ -243,6 +243,26 @@ export type MediaOptimizationAsset = $Result.DefaultSelection<Prisma.$MediaOptim
  * 
  */
 export type OptimizationCreditLedger = $Result.DefaultSelection<Prisma.$OptimizationCreditLedgerPayload>
+/**
+ * Model License
+ * 
+ */
+export type License = $Result.DefaultSelection<Prisma.$LicensePayload>
+/**
+ * Model LicenseActivation
+ * 
+ */
+export type LicenseActivation = $Result.DefaultSelection<Prisma.$LicenseActivationPayload>
+/**
+ * Model WhiteLabelConfig
+ * 
+ */
+export type WhiteLabelConfig = $Result.DefaultSelection<Prisma.$WhiteLabelConfigPayload>
+/**
+ * Model BillingInvoice
+ * 
+ */
+export type BillingInvoice = $Result.DefaultSelection<Prisma.$BillingInvoicePayload>
 
 /**
  * Enums
@@ -914,6 +934,46 @@ export class PrismaClient<
     * ```
     */
   get optimizationCreditLedger(): Prisma.OptimizationCreditLedgerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.license`: Exposes CRUD operations for the **License** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Licenses
+    * const licenses = await prisma.license.findMany()
+    * ```
+    */
+  get license(): Prisma.LicenseDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.licenseActivation`: Exposes CRUD operations for the **LicenseActivation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LicenseActivations
+    * const licenseActivations = await prisma.licenseActivation.findMany()
+    * ```
+    */
+  get licenseActivation(): Prisma.LicenseActivationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.whiteLabelConfig`: Exposes CRUD operations for the **WhiteLabelConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WhiteLabelConfigs
+    * const whiteLabelConfigs = await prisma.whiteLabelConfig.findMany()
+    * ```
+    */
+  get whiteLabelConfig(): Prisma.WhiteLabelConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.billingInvoice`: Exposes CRUD operations for the **BillingInvoice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BillingInvoices
+    * const billingInvoices = await prisma.billingInvoice.findMany()
+    * ```
+    */
+  get billingInvoice(): Prisma.BillingInvoiceDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1406,7 +1466,11 @@ export namespace Prisma {
     EmailDeliveryLog: 'EmailDeliveryLog',
     SitePerformanceMetric: 'SitePerformanceMetric',
     MediaOptimizationAsset: 'MediaOptimizationAsset',
-    OptimizationCreditLedger: 'OptimizationCreditLedger'
+    OptimizationCreditLedger: 'OptimizationCreditLedger',
+    License: 'License',
+    LicenseActivation: 'LicenseActivation',
+    WhiteLabelConfig: 'WhiteLabelConfig',
+    BillingInvoice: 'BillingInvoice'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1422,7 +1486,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4830,6 +4894,302 @@ export namespace Prisma {
           }
         }
       }
+      License: {
+        payload: Prisma.$LicensePayload<ExtArgs>
+        fields: Prisma.LicenseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LicenseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LicenseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          findFirst: {
+            args: Prisma.LicenseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LicenseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          findMany: {
+            args: Prisma.LicenseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>[]
+          }
+          create: {
+            args: Prisma.LicenseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          createMany: {
+            args: Prisma.LicenseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LicenseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>[]
+          }
+          delete: {
+            args: Prisma.LicenseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          update: {
+            args: Prisma.LicenseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          deleteMany: {
+            args: Prisma.LicenseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LicenseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LicenseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>[]
+          }
+          upsert: {
+            args: Prisma.LicenseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicensePayload>
+          }
+          aggregate: {
+            args: Prisma.LicenseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLicense>
+          }
+          groupBy: {
+            args: Prisma.LicenseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LicenseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LicenseCountArgs<ExtArgs>
+            result: $Utils.Optional<LicenseCountAggregateOutputType> | number
+          }
+        }
+      }
+      LicenseActivation: {
+        payload: Prisma.$LicenseActivationPayload<ExtArgs>
+        fields: Prisma.LicenseActivationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LicenseActivationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LicenseActivationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          findFirst: {
+            args: Prisma.LicenseActivationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LicenseActivationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          findMany: {
+            args: Prisma.LicenseActivationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>[]
+          }
+          create: {
+            args: Prisma.LicenseActivationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          createMany: {
+            args: Prisma.LicenseActivationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LicenseActivationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>[]
+          }
+          delete: {
+            args: Prisma.LicenseActivationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          update: {
+            args: Prisma.LicenseActivationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          deleteMany: {
+            args: Prisma.LicenseActivationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LicenseActivationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LicenseActivationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>[]
+          }
+          upsert: {
+            args: Prisma.LicenseActivationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LicenseActivationPayload>
+          }
+          aggregate: {
+            args: Prisma.LicenseActivationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLicenseActivation>
+          }
+          groupBy: {
+            args: Prisma.LicenseActivationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LicenseActivationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LicenseActivationCountArgs<ExtArgs>
+            result: $Utils.Optional<LicenseActivationCountAggregateOutputType> | number
+          }
+        }
+      }
+      WhiteLabelConfig: {
+        payload: Prisma.$WhiteLabelConfigPayload<ExtArgs>
+        fields: Prisma.WhiteLabelConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WhiteLabelConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WhiteLabelConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.WhiteLabelConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WhiteLabelConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          findMany: {
+            args: Prisma.WhiteLabelConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>[]
+          }
+          create: {
+            args: Prisma.WhiteLabelConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          createMany: {
+            args: Prisma.WhiteLabelConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WhiteLabelConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.WhiteLabelConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          update: {
+            args: Prisma.WhiteLabelConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.WhiteLabelConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WhiteLabelConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WhiteLabelConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.WhiteLabelConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhiteLabelConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.WhiteLabelConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWhiteLabelConfig>
+          }
+          groupBy: {
+            args: Prisma.WhiteLabelConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WhiteLabelConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WhiteLabelConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<WhiteLabelConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      BillingInvoice: {
+        payload: Prisma.$BillingInvoicePayload<ExtArgs>
+        fields: Prisma.BillingInvoiceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BillingInvoiceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BillingInvoiceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          findFirst: {
+            args: Prisma.BillingInvoiceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BillingInvoiceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          findMany: {
+            args: Prisma.BillingInvoiceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>[]
+          }
+          create: {
+            args: Prisma.BillingInvoiceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          createMany: {
+            args: Prisma.BillingInvoiceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BillingInvoiceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>[]
+          }
+          delete: {
+            args: Prisma.BillingInvoiceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          update: {
+            args: Prisma.BillingInvoiceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          deleteMany: {
+            args: Prisma.BillingInvoiceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BillingInvoiceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BillingInvoiceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>[]
+          }
+          upsert: {
+            args: Prisma.BillingInvoiceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingInvoicePayload>
+          }
+          aggregate: {
+            args: Prisma.BillingInvoiceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBillingInvoice>
+          }
+          groupBy: {
+            args: Prisma.BillingInvoiceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BillingInvoiceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BillingInvoiceCountArgs<ExtArgs>
+            result: $Utils.Optional<BillingInvoiceCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4999,6 +5359,10 @@ export namespace Prisma {
     sitePerformanceMetric?: SitePerformanceMetricOmit
     mediaOptimizationAsset?: MediaOptimizationAssetOmit
     optimizationCreditLedger?: OptimizationCreditLedgerOmit
+    license?: LicenseOmit
+    licenseActivation?: LicenseActivationOmit
+    whiteLabelConfig?: WhiteLabelConfigOmit
+    billingInvoice?: BillingInvoiceOmit
   }
 
   /* Types for Logging */
@@ -5108,6 +5472,8 @@ export namespace Prisma {
     reviewedApprovals: number
     mediaAssets: number
     creditLedgers: number
+    licenses: number
+    invoices: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5140,6 +5506,8 @@ export namespace Prisma {
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
     creditLedgers?: boolean | UserCountOutputTypeCountCreditLedgersArgs
+    licenses?: boolean | UserCountOutputTypeCountLicensesArgs
+    invoices?: boolean | UserCountOutputTypeCountInvoicesArgs
   }
 
   // Custom InputTypes
@@ -5354,6 +5722,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCreditLedgersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OptimizationCreditLedgerWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLicensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LicenseWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillingInvoiceWhereInput
   }
 
 
@@ -5791,6 +6173,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type LicenseCountOutputType
+   */
+
+  export type LicenseCountOutputType = {
+    activations: number
+  }
+
+  export type LicenseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activations?: boolean | LicenseCountOutputTypeCountActivationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LicenseCountOutputType without action
+   */
+  export type LicenseCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseCountOutputType
+     */
+    select?: LicenseCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LicenseCountOutputType without action
+   */
+  export type LicenseCountOutputTypeCountActivationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LicenseActivationWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -6094,6 +6507,9 @@ export namespace Prisma {
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
     creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
+    licenses?: boolean | User$licensesArgs<ExtArgs>
+    whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
+    invoices?: boolean | User$invoicesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6180,6 +6596,9 @@ export namespace Prisma {
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
     creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
+    licenses?: boolean | User$licensesArgs<ExtArgs>
+    whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
+    invoices?: boolean | User$invoicesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6218,6 +6637,9 @@ export namespace Prisma {
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
       creditLedgers: Prisma.$OptimizationCreditLedgerPayload<ExtArgs>[]
+      licenses: Prisma.$LicensePayload<ExtArgs>[]
+      whiteLabelConfig: Prisma.$WhiteLabelConfigPayload<ExtArgs> | null
+      invoices: Prisma.$BillingInvoicePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6658,6 +7080,9 @@ export namespace Prisma {
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     creditLedgers<T extends User$creditLedgersArgs<ExtArgs> = {}>(args?: Subset<T, User$creditLedgersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    licenses<T extends User$licensesArgs<ExtArgs> = {}>(args?: Subset<T, User$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    whiteLabelConfig<T extends User$whiteLabelConfigArgs<ExtArgs> = {}>(args?: Subset<T, User$whiteLabelConfigArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    invoices<T extends User$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, User$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7806,6 +8231,73 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OptimizationCreditLedgerScalarFieldEnum | OptimizationCreditLedgerScalarFieldEnum[]
+  }
+
+  /**
+   * User.licenses
+   */
+  export type User$licensesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    where?: LicenseWhereInput
+    orderBy?: LicenseOrderByWithRelationInput | LicenseOrderByWithRelationInput[]
+    cursor?: LicenseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LicenseScalarFieldEnum | LicenseScalarFieldEnum[]
+  }
+
+  /**
+   * User.whiteLabelConfig
+   */
+  export type User$whiteLabelConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    where?: WhiteLabelConfigWhereInput
+  }
+
+  /**
+   * User.invoices
+   */
+  export type User$invoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    where?: BillingInvoiceWhereInput
+    orderBy?: BillingInvoiceOrderByWithRelationInput | BillingInvoiceOrderByWithRelationInput[]
+    cursor?: BillingInvoiceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BillingInvoiceScalarFieldEnum | BillingInvoiceScalarFieldEnum[]
   }
 
   /**
@@ -59570,6 +60062,4564 @@ export namespace Prisma {
 
 
   /**
+   * Model License
+   */
+
+  export type AggregateLicense = {
+    _count: LicenseCountAggregateOutputType | null
+    _avg: LicenseAvgAggregateOutputType | null
+    _sum: LicenseSumAggregateOutputType | null
+    _min: LicenseMinAggregateOutputType | null
+    _max: LicenseMaxAggregateOutputType | null
+  }
+
+  export type LicenseAvgAggregateOutputType = {
+    maxSites: number | null
+  }
+
+  export type LicenseSumAggregateOutputType = {
+    maxSites: number | null
+  }
+
+  export type LicenseMinAggregateOutputType = {
+    id: string | null
+    key: string | null
+    userId: string | null
+    planSlug: string | null
+    maxSites: number | null
+    status: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LicenseMaxAggregateOutputType = {
+    id: string | null
+    key: string | null
+    userId: string | null
+    planSlug: string | null
+    maxSites: number | null
+    status: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LicenseCountAggregateOutputType = {
+    id: number
+    key: number
+    userId: number
+    planSlug: number
+    maxSites: number
+    status: number
+    expiresAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LicenseAvgAggregateInputType = {
+    maxSites?: true
+  }
+
+  export type LicenseSumAggregateInputType = {
+    maxSites?: true
+  }
+
+  export type LicenseMinAggregateInputType = {
+    id?: true
+    key?: true
+    userId?: true
+    planSlug?: true
+    maxSites?: true
+    status?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LicenseMaxAggregateInputType = {
+    id?: true
+    key?: true
+    userId?: true
+    planSlug?: true
+    maxSites?: true
+    status?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LicenseCountAggregateInputType = {
+    id?: true
+    key?: true
+    userId?: true
+    planSlug?: true
+    maxSites?: true
+    status?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LicenseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which License to aggregate.
+     */
+    where?: LicenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Licenses to fetch.
+     */
+    orderBy?: LicenseOrderByWithRelationInput | LicenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LicenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Licenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Licenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Licenses
+    **/
+    _count?: true | LicenseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LicenseAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LicenseSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LicenseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LicenseMaxAggregateInputType
+  }
+
+  export type GetLicenseAggregateType<T extends LicenseAggregateArgs> = {
+        [P in keyof T & keyof AggregateLicense]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLicense[P]>
+      : GetScalarType<T[P], AggregateLicense[P]>
+  }
+
+
+
+
+  export type LicenseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LicenseWhereInput
+    orderBy?: LicenseOrderByWithAggregationInput | LicenseOrderByWithAggregationInput[]
+    by: LicenseScalarFieldEnum[] | LicenseScalarFieldEnum
+    having?: LicenseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LicenseCountAggregateInputType | true
+    _avg?: LicenseAvgAggregateInputType
+    _sum?: LicenseSumAggregateInputType
+    _min?: LicenseMinAggregateInputType
+    _max?: LicenseMaxAggregateInputType
+  }
+
+  export type LicenseGroupByOutputType = {
+    id: string
+    key: string
+    userId: string
+    planSlug: string
+    maxSites: number
+    status: string
+    expiresAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: LicenseCountAggregateOutputType | null
+    _avg: LicenseAvgAggregateOutputType | null
+    _sum: LicenseSumAggregateOutputType | null
+    _min: LicenseMinAggregateOutputType | null
+    _max: LicenseMaxAggregateOutputType | null
+  }
+
+  type GetLicenseGroupByPayload<T extends LicenseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LicenseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LicenseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LicenseGroupByOutputType[P]>
+            : GetScalarType<T[P], LicenseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LicenseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    userId?: boolean
+    planSlug?: boolean
+    maxSites?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    activations?: boolean | License$activationsArgs<ExtArgs>
+    _count?: boolean | LicenseCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["license"]>
+
+  export type LicenseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    userId?: boolean
+    planSlug?: boolean
+    maxSites?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["license"]>
+
+  export type LicenseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    userId?: boolean
+    planSlug?: boolean
+    maxSites?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["license"]>
+
+  export type LicenseSelectScalar = {
+    id?: boolean
+    key?: boolean
+    userId?: boolean
+    planSlug?: boolean
+    maxSites?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LicenseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "userId" | "planSlug" | "maxSites" | "status" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["license"]>
+  export type LicenseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    activations?: boolean | License$activationsArgs<ExtArgs>
+    _count?: boolean | LicenseCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type LicenseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LicenseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $LicensePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "License"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      activations: Prisma.$LicenseActivationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      key: string
+      userId: string
+      planSlug: string
+      maxSites: number
+      status: string
+      expiresAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["license"]>
+    composites: {}
+  }
+
+  type LicenseGetPayload<S extends boolean | null | undefined | LicenseDefaultArgs> = $Result.GetResult<Prisma.$LicensePayload, S>
+
+  type LicenseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LicenseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LicenseCountAggregateInputType | true
+    }
+
+  export interface LicenseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['License'], meta: { name: 'License' } }
+    /**
+     * Find zero or one License that matches the filter.
+     * @param {LicenseFindUniqueArgs} args - Arguments to find a License
+     * @example
+     * // Get one License
+     * const license = await prisma.license.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LicenseFindUniqueArgs>(args: SelectSubset<T, LicenseFindUniqueArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one License that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LicenseFindUniqueOrThrowArgs} args - Arguments to find a License
+     * @example
+     * // Get one License
+     * const license = await prisma.license.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LicenseFindUniqueOrThrowArgs>(args: SelectSubset<T, LicenseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first License that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseFindFirstArgs} args - Arguments to find a License
+     * @example
+     * // Get one License
+     * const license = await prisma.license.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LicenseFindFirstArgs>(args?: SelectSubset<T, LicenseFindFirstArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first License that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseFindFirstOrThrowArgs} args - Arguments to find a License
+     * @example
+     * // Get one License
+     * const license = await prisma.license.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LicenseFindFirstOrThrowArgs>(args?: SelectSubset<T, LicenseFindFirstOrThrowArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Licenses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Licenses
+     * const licenses = await prisma.license.findMany()
+     * 
+     * // Get first 10 Licenses
+     * const licenses = await prisma.license.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const licenseWithIdOnly = await prisma.license.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LicenseFindManyArgs>(args?: SelectSubset<T, LicenseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a License.
+     * @param {LicenseCreateArgs} args - Arguments to create a License.
+     * @example
+     * // Create one License
+     * const License = await prisma.license.create({
+     *   data: {
+     *     // ... data to create a License
+     *   }
+     * })
+     * 
+     */
+    create<T extends LicenseCreateArgs>(args: SelectSubset<T, LicenseCreateArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Licenses.
+     * @param {LicenseCreateManyArgs} args - Arguments to create many Licenses.
+     * @example
+     * // Create many Licenses
+     * const license = await prisma.license.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LicenseCreateManyArgs>(args?: SelectSubset<T, LicenseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Licenses and returns the data saved in the database.
+     * @param {LicenseCreateManyAndReturnArgs} args - Arguments to create many Licenses.
+     * @example
+     * // Create many Licenses
+     * const license = await prisma.license.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Licenses and only return the `id`
+     * const licenseWithIdOnly = await prisma.license.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LicenseCreateManyAndReturnArgs>(args?: SelectSubset<T, LicenseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a License.
+     * @param {LicenseDeleteArgs} args - Arguments to delete one License.
+     * @example
+     * // Delete one License
+     * const License = await prisma.license.delete({
+     *   where: {
+     *     // ... filter to delete one License
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LicenseDeleteArgs>(args: SelectSubset<T, LicenseDeleteArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one License.
+     * @param {LicenseUpdateArgs} args - Arguments to update one License.
+     * @example
+     * // Update one License
+     * const license = await prisma.license.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LicenseUpdateArgs>(args: SelectSubset<T, LicenseUpdateArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Licenses.
+     * @param {LicenseDeleteManyArgs} args - Arguments to filter Licenses to delete.
+     * @example
+     * // Delete a few Licenses
+     * const { count } = await prisma.license.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LicenseDeleteManyArgs>(args?: SelectSubset<T, LicenseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Licenses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Licenses
+     * const license = await prisma.license.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LicenseUpdateManyArgs>(args: SelectSubset<T, LicenseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Licenses and returns the data updated in the database.
+     * @param {LicenseUpdateManyAndReturnArgs} args - Arguments to update many Licenses.
+     * @example
+     * // Update many Licenses
+     * const license = await prisma.license.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Licenses and only return the `id`
+     * const licenseWithIdOnly = await prisma.license.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LicenseUpdateManyAndReturnArgs>(args: SelectSubset<T, LicenseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one License.
+     * @param {LicenseUpsertArgs} args - Arguments to update or create a License.
+     * @example
+     * // Update or create a License
+     * const license = await prisma.license.upsert({
+     *   create: {
+     *     // ... data to create a License
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the License we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LicenseUpsertArgs>(args: SelectSubset<T, LicenseUpsertArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Licenses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseCountArgs} args - Arguments to filter Licenses to count.
+     * @example
+     * // Count the number of Licenses
+     * const count = await prisma.license.count({
+     *   where: {
+     *     // ... the filter for the Licenses we want to count
+     *   }
+     * })
+    **/
+    count<T extends LicenseCountArgs>(
+      args?: Subset<T, LicenseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LicenseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a License.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LicenseAggregateArgs>(args: Subset<T, LicenseAggregateArgs>): Prisma.PrismaPromise<GetLicenseAggregateType<T>>
+
+    /**
+     * Group by License.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LicenseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LicenseGroupByArgs['orderBy'] }
+        : { orderBy?: LicenseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LicenseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLicenseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the License model
+   */
+  readonly fields: LicenseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for License.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LicenseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    activations<T extends License$activationsArgs<ExtArgs> = {}>(args?: Subset<T, License$activationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the License model
+   */
+  interface LicenseFieldRefs {
+    readonly id: FieldRef<"License", 'String'>
+    readonly key: FieldRef<"License", 'String'>
+    readonly userId: FieldRef<"License", 'String'>
+    readonly planSlug: FieldRef<"License", 'String'>
+    readonly maxSites: FieldRef<"License", 'Int'>
+    readonly status: FieldRef<"License", 'String'>
+    readonly expiresAt: FieldRef<"License", 'DateTime'>
+    readonly createdAt: FieldRef<"License", 'DateTime'>
+    readonly updatedAt: FieldRef<"License", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * License findUnique
+   */
+  export type LicenseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter, which License to fetch.
+     */
+    where: LicenseWhereUniqueInput
+  }
+
+  /**
+   * License findUniqueOrThrow
+   */
+  export type LicenseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter, which License to fetch.
+     */
+    where: LicenseWhereUniqueInput
+  }
+
+  /**
+   * License findFirst
+   */
+  export type LicenseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter, which License to fetch.
+     */
+    where?: LicenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Licenses to fetch.
+     */
+    orderBy?: LicenseOrderByWithRelationInput | LicenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Licenses.
+     */
+    cursor?: LicenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Licenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Licenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Licenses.
+     */
+    distinct?: LicenseScalarFieldEnum | LicenseScalarFieldEnum[]
+  }
+
+  /**
+   * License findFirstOrThrow
+   */
+  export type LicenseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter, which License to fetch.
+     */
+    where?: LicenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Licenses to fetch.
+     */
+    orderBy?: LicenseOrderByWithRelationInput | LicenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Licenses.
+     */
+    cursor?: LicenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Licenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Licenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Licenses.
+     */
+    distinct?: LicenseScalarFieldEnum | LicenseScalarFieldEnum[]
+  }
+
+  /**
+   * License findMany
+   */
+  export type LicenseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter, which Licenses to fetch.
+     */
+    where?: LicenseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Licenses to fetch.
+     */
+    orderBy?: LicenseOrderByWithRelationInput | LicenseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Licenses.
+     */
+    cursor?: LicenseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Licenses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Licenses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Licenses.
+     */
+    distinct?: LicenseScalarFieldEnum | LicenseScalarFieldEnum[]
+  }
+
+  /**
+   * License create
+   */
+  export type LicenseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * The data needed to create a License.
+     */
+    data: XOR<LicenseCreateInput, LicenseUncheckedCreateInput>
+  }
+
+  /**
+   * License createMany
+   */
+  export type LicenseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Licenses.
+     */
+    data: LicenseCreateManyInput | LicenseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * License createManyAndReturn
+   */
+  export type LicenseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * The data used to create many Licenses.
+     */
+    data: LicenseCreateManyInput | LicenseCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * License update
+   */
+  export type LicenseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * The data needed to update a License.
+     */
+    data: XOR<LicenseUpdateInput, LicenseUncheckedUpdateInput>
+    /**
+     * Choose, which License to update.
+     */
+    where: LicenseWhereUniqueInput
+  }
+
+  /**
+   * License updateMany
+   */
+  export type LicenseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Licenses.
+     */
+    data: XOR<LicenseUpdateManyMutationInput, LicenseUncheckedUpdateManyInput>
+    /**
+     * Filter which Licenses to update
+     */
+    where?: LicenseWhereInput
+    /**
+     * Limit how many Licenses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * License updateManyAndReturn
+   */
+  export type LicenseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * The data used to update Licenses.
+     */
+    data: XOR<LicenseUpdateManyMutationInput, LicenseUncheckedUpdateManyInput>
+    /**
+     * Filter which Licenses to update
+     */
+    where?: LicenseWhereInput
+    /**
+     * Limit how many Licenses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * License upsert
+   */
+  export type LicenseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * The filter to search for the License to update in case it exists.
+     */
+    where: LicenseWhereUniqueInput
+    /**
+     * In case the License found by the `where` argument doesn't exist, create a new License with this data.
+     */
+    create: XOR<LicenseCreateInput, LicenseUncheckedCreateInput>
+    /**
+     * In case the License was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LicenseUpdateInput, LicenseUncheckedUpdateInput>
+  }
+
+  /**
+   * License delete
+   */
+  export type LicenseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+    /**
+     * Filter which License to delete.
+     */
+    where: LicenseWhereUniqueInput
+  }
+
+  /**
+   * License deleteMany
+   */
+  export type LicenseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Licenses to delete
+     */
+    where?: LicenseWhereInput
+    /**
+     * Limit how many Licenses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * License.activations
+   */
+  export type License$activationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    where?: LicenseActivationWhereInput
+    orderBy?: LicenseActivationOrderByWithRelationInput | LicenseActivationOrderByWithRelationInput[]
+    cursor?: LicenseActivationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LicenseActivationScalarFieldEnum | LicenseActivationScalarFieldEnum[]
+  }
+
+  /**
+   * License without action
+   */
+  export type LicenseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the License
+     */
+    select?: LicenseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the License
+     */
+    omit?: LicenseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LicenseActivation
+   */
+
+  export type AggregateLicenseActivation = {
+    _count: LicenseActivationCountAggregateOutputType | null
+    _min: LicenseActivationMinAggregateOutputType | null
+    _max: LicenseActivationMaxAggregateOutputType | null
+  }
+
+  export type LicenseActivationMinAggregateOutputType = {
+    id: string | null
+    licenseId: string | null
+    siteUrl: string | null
+    siteDomain: string | null
+    ipAddress: string | null
+    isLocalhost: boolean | null
+    activatedAt: Date | null
+    lastPingAt: Date | null
+  }
+
+  export type LicenseActivationMaxAggregateOutputType = {
+    id: string | null
+    licenseId: string | null
+    siteUrl: string | null
+    siteDomain: string | null
+    ipAddress: string | null
+    isLocalhost: boolean | null
+    activatedAt: Date | null
+    lastPingAt: Date | null
+  }
+
+  export type LicenseActivationCountAggregateOutputType = {
+    id: number
+    licenseId: number
+    siteUrl: number
+    siteDomain: number
+    ipAddress: number
+    isLocalhost: number
+    activatedAt: number
+    lastPingAt: number
+    _all: number
+  }
+
+
+  export type LicenseActivationMinAggregateInputType = {
+    id?: true
+    licenseId?: true
+    siteUrl?: true
+    siteDomain?: true
+    ipAddress?: true
+    isLocalhost?: true
+    activatedAt?: true
+    lastPingAt?: true
+  }
+
+  export type LicenseActivationMaxAggregateInputType = {
+    id?: true
+    licenseId?: true
+    siteUrl?: true
+    siteDomain?: true
+    ipAddress?: true
+    isLocalhost?: true
+    activatedAt?: true
+    lastPingAt?: true
+  }
+
+  export type LicenseActivationCountAggregateInputType = {
+    id?: true
+    licenseId?: true
+    siteUrl?: true
+    siteDomain?: true
+    ipAddress?: true
+    isLocalhost?: true
+    activatedAt?: true
+    lastPingAt?: true
+    _all?: true
+  }
+
+  export type LicenseActivationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LicenseActivation to aggregate.
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LicenseActivations to fetch.
+     */
+    orderBy?: LicenseActivationOrderByWithRelationInput | LicenseActivationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LicenseActivationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LicenseActivations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LicenseActivations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LicenseActivations
+    **/
+    _count?: true | LicenseActivationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LicenseActivationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LicenseActivationMaxAggregateInputType
+  }
+
+  export type GetLicenseActivationAggregateType<T extends LicenseActivationAggregateArgs> = {
+        [P in keyof T & keyof AggregateLicenseActivation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLicenseActivation[P]>
+      : GetScalarType<T[P], AggregateLicenseActivation[P]>
+  }
+
+
+
+
+  export type LicenseActivationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LicenseActivationWhereInput
+    orderBy?: LicenseActivationOrderByWithAggregationInput | LicenseActivationOrderByWithAggregationInput[]
+    by: LicenseActivationScalarFieldEnum[] | LicenseActivationScalarFieldEnum
+    having?: LicenseActivationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LicenseActivationCountAggregateInputType | true
+    _min?: LicenseActivationMinAggregateInputType
+    _max?: LicenseActivationMaxAggregateInputType
+  }
+
+  export type LicenseActivationGroupByOutputType = {
+    id: string
+    licenseId: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress: string | null
+    isLocalhost: boolean
+    activatedAt: Date
+    lastPingAt: Date
+    _count: LicenseActivationCountAggregateOutputType | null
+    _min: LicenseActivationMinAggregateOutputType | null
+    _max: LicenseActivationMaxAggregateOutputType | null
+  }
+
+  type GetLicenseActivationGroupByPayload<T extends LicenseActivationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LicenseActivationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LicenseActivationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LicenseActivationGroupByOutputType[P]>
+            : GetScalarType<T[P], LicenseActivationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LicenseActivationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    licenseId?: boolean
+    siteUrl?: boolean
+    siteDomain?: boolean
+    ipAddress?: boolean
+    isLocalhost?: boolean
+    activatedAt?: boolean
+    lastPingAt?: boolean
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["licenseActivation"]>
+
+  export type LicenseActivationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    licenseId?: boolean
+    siteUrl?: boolean
+    siteDomain?: boolean
+    ipAddress?: boolean
+    isLocalhost?: boolean
+    activatedAt?: boolean
+    lastPingAt?: boolean
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["licenseActivation"]>
+
+  export type LicenseActivationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    licenseId?: boolean
+    siteUrl?: boolean
+    siteDomain?: boolean
+    ipAddress?: boolean
+    isLocalhost?: boolean
+    activatedAt?: boolean
+    lastPingAt?: boolean
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["licenseActivation"]>
+
+  export type LicenseActivationSelectScalar = {
+    id?: boolean
+    licenseId?: boolean
+    siteUrl?: boolean
+    siteDomain?: boolean
+    ipAddress?: boolean
+    isLocalhost?: boolean
+    activatedAt?: boolean
+    lastPingAt?: boolean
+  }
+
+  export type LicenseActivationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "licenseId" | "siteUrl" | "siteDomain" | "ipAddress" | "isLocalhost" | "activatedAt" | "lastPingAt", ExtArgs["result"]["licenseActivation"]>
+  export type LicenseActivationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }
+  export type LicenseActivationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }
+  export type LicenseActivationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    license?: boolean | LicenseDefaultArgs<ExtArgs>
+  }
+
+  export type $LicenseActivationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LicenseActivation"
+    objects: {
+      license: Prisma.$LicensePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      licenseId: string
+      siteUrl: string
+      siteDomain: string
+      ipAddress: string | null
+      isLocalhost: boolean
+      activatedAt: Date
+      lastPingAt: Date
+    }, ExtArgs["result"]["licenseActivation"]>
+    composites: {}
+  }
+
+  type LicenseActivationGetPayload<S extends boolean | null | undefined | LicenseActivationDefaultArgs> = $Result.GetResult<Prisma.$LicenseActivationPayload, S>
+
+  type LicenseActivationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LicenseActivationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LicenseActivationCountAggregateInputType | true
+    }
+
+  export interface LicenseActivationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LicenseActivation'], meta: { name: 'LicenseActivation' } }
+    /**
+     * Find zero or one LicenseActivation that matches the filter.
+     * @param {LicenseActivationFindUniqueArgs} args - Arguments to find a LicenseActivation
+     * @example
+     * // Get one LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LicenseActivationFindUniqueArgs>(args: SelectSubset<T, LicenseActivationFindUniqueArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LicenseActivation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LicenseActivationFindUniqueOrThrowArgs} args - Arguments to find a LicenseActivation
+     * @example
+     * // Get one LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LicenseActivationFindUniqueOrThrowArgs>(args: SelectSubset<T, LicenseActivationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LicenseActivation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationFindFirstArgs} args - Arguments to find a LicenseActivation
+     * @example
+     * // Get one LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LicenseActivationFindFirstArgs>(args?: SelectSubset<T, LicenseActivationFindFirstArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LicenseActivation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationFindFirstOrThrowArgs} args - Arguments to find a LicenseActivation
+     * @example
+     * // Get one LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LicenseActivationFindFirstOrThrowArgs>(args?: SelectSubset<T, LicenseActivationFindFirstOrThrowArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LicenseActivations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LicenseActivations
+     * const licenseActivations = await prisma.licenseActivation.findMany()
+     * 
+     * // Get first 10 LicenseActivations
+     * const licenseActivations = await prisma.licenseActivation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const licenseActivationWithIdOnly = await prisma.licenseActivation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LicenseActivationFindManyArgs>(args?: SelectSubset<T, LicenseActivationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LicenseActivation.
+     * @param {LicenseActivationCreateArgs} args - Arguments to create a LicenseActivation.
+     * @example
+     * // Create one LicenseActivation
+     * const LicenseActivation = await prisma.licenseActivation.create({
+     *   data: {
+     *     // ... data to create a LicenseActivation
+     *   }
+     * })
+     * 
+     */
+    create<T extends LicenseActivationCreateArgs>(args: SelectSubset<T, LicenseActivationCreateArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LicenseActivations.
+     * @param {LicenseActivationCreateManyArgs} args - Arguments to create many LicenseActivations.
+     * @example
+     * // Create many LicenseActivations
+     * const licenseActivation = await prisma.licenseActivation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LicenseActivationCreateManyArgs>(args?: SelectSubset<T, LicenseActivationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LicenseActivations and returns the data saved in the database.
+     * @param {LicenseActivationCreateManyAndReturnArgs} args - Arguments to create many LicenseActivations.
+     * @example
+     * // Create many LicenseActivations
+     * const licenseActivation = await prisma.licenseActivation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LicenseActivations and only return the `id`
+     * const licenseActivationWithIdOnly = await prisma.licenseActivation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LicenseActivationCreateManyAndReturnArgs>(args?: SelectSubset<T, LicenseActivationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LicenseActivation.
+     * @param {LicenseActivationDeleteArgs} args - Arguments to delete one LicenseActivation.
+     * @example
+     * // Delete one LicenseActivation
+     * const LicenseActivation = await prisma.licenseActivation.delete({
+     *   where: {
+     *     // ... filter to delete one LicenseActivation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LicenseActivationDeleteArgs>(args: SelectSubset<T, LicenseActivationDeleteArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LicenseActivation.
+     * @param {LicenseActivationUpdateArgs} args - Arguments to update one LicenseActivation.
+     * @example
+     * // Update one LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LicenseActivationUpdateArgs>(args: SelectSubset<T, LicenseActivationUpdateArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LicenseActivations.
+     * @param {LicenseActivationDeleteManyArgs} args - Arguments to filter LicenseActivations to delete.
+     * @example
+     * // Delete a few LicenseActivations
+     * const { count } = await prisma.licenseActivation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LicenseActivationDeleteManyArgs>(args?: SelectSubset<T, LicenseActivationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LicenseActivations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LicenseActivations
+     * const licenseActivation = await prisma.licenseActivation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LicenseActivationUpdateManyArgs>(args: SelectSubset<T, LicenseActivationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LicenseActivations and returns the data updated in the database.
+     * @param {LicenseActivationUpdateManyAndReturnArgs} args - Arguments to update many LicenseActivations.
+     * @example
+     * // Update many LicenseActivations
+     * const licenseActivation = await prisma.licenseActivation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LicenseActivations and only return the `id`
+     * const licenseActivationWithIdOnly = await prisma.licenseActivation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LicenseActivationUpdateManyAndReturnArgs>(args: SelectSubset<T, LicenseActivationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LicenseActivation.
+     * @param {LicenseActivationUpsertArgs} args - Arguments to update or create a LicenseActivation.
+     * @example
+     * // Update or create a LicenseActivation
+     * const licenseActivation = await prisma.licenseActivation.upsert({
+     *   create: {
+     *     // ... data to create a LicenseActivation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LicenseActivation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LicenseActivationUpsertArgs>(args: SelectSubset<T, LicenseActivationUpsertArgs<ExtArgs>>): Prisma__LicenseActivationClient<$Result.GetResult<Prisma.$LicenseActivationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LicenseActivations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationCountArgs} args - Arguments to filter LicenseActivations to count.
+     * @example
+     * // Count the number of LicenseActivations
+     * const count = await prisma.licenseActivation.count({
+     *   where: {
+     *     // ... the filter for the LicenseActivations we want to count
+     *   }
+     * })
+    **/
+    count<T extends LicenseActivationCountArgs>(
+      args?: Subset<T, LicenseActivationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LicenseActivationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LicenseActivation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LicenseActivationAggregateArgs>(args: Subset<T, LicenseActivationAggregateArgs>): Prisma.PrismaPromise<GetLicenseActivationAggregateType<T>>
+
+    /**
+     * Group by LicenseActivation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LicenseActivationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LicenseActivationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LicenseActivationGroupByArgs['orderBy'] }
+        : { orderBy?: LicenseActivationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LicenseActivationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLicenseActivationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LicenseActivation model
+   */
+  readonly fields: LicenseActivationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LicenseActivation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LicenseActivationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    license<T extends LicenseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LicenseDefaultArgs<ExtArgs>>): Prisma__LicenseClient<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LicenseActivation model
+   */
+  interface LicenseActivationFieldRefs {
+    readonly id: FieldRef<"LicenseActivation", 'String'>
+    readonly licenseId: FieldRef<"LicenseActivation", 'String'>
+    readonly siteUrl: FieldRef<"LicenseActivation", 'String'>
+    readonly siteDomain: FieldRef<"LicenseActivation", 'String'>
+    readonly ipAddress: FieldRef<"LicenseActivation", 'String'>
+    readonly isLocalhost: FieldRef<"LicenseActivation", 'Boolean'>
+    readonly activatedAt: FieldRef<"LicenseActivation", 'DateTime'>
+    readonly lastPingAt: FieldRef<"LicenseActivation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LicenseActivation findUnique
+   */
+  export type LicenseActivationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter, which LicenseActivation to fetch.
+     */
+    where: LicenseActivationWhereUniqueInput
+  }
+
+  /**
+   * LicenseActivation findUniqueOrThrow
+   */
+  export type LicenseActivationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter, which LicenseActivation to fetch.
+     */
+    where: LicenseActivationWhereUniqueInput
+  }
+
+  /**
+   * LicenseActivation findFirst
+   */
+  export type LicenseActivationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter, which LicenseActivation to fetch.
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LicenseActivations to fetch.
+     */
+    orderBy?: LicenseActivationOrderByWithRelationInput | LicenseActivationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LicenseActivations.
+     */
+    cursor?: LicenseActivationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LicenseActivations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LicenseActivations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LicenseActivations.
+     */
+    distinct?: LicenseActivationScalarFieldEnum | LicenseActivationScalarFieldEnum[]
+  }
+
+  /**
+   * LicenseActivation findFirstOrThrow
+   */
+  export type LicenseActivationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter, which LicenseActivation to fetch.
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LicenseActivations to fetch.
+     */
+    orderBy?: LicenseActivationOrderByWithRelationInput | LicenseActivationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LicenseActivations.
+     */
+    cursor?: LicenseActivationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LicenseActivations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LicenseActivations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LicenseActivations.
+     */
+    distinct?: LicenseActivationScalarFieldEnum | LicenseActivationScalarFieldEnum[]
+  }
+
+  /**
+   * LicenseActivation findMany
+   */
+  export type LicenseActivationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter, which LicenseActivations to fetch.
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LicenseActivations to fetch.
+     */
+    orderBy?: LicenseActivationOrderByWithRelationInput | LicenseActivationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LicenseActivations.
+     */
+    cursor?: LicenseActivationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LicenseActivations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LicenseActivations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LicenseActivations.
+     */
+    distinct?: LicenseActivationScalarFieldEnum | LicenseActivationScalarFieldEnum[]
+  }
+
+  /**
+   * LicenseActivation create
+   */
+  export type LicenseActivationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LicenseActivation.
+     */
+    data: XOR<LicenseActivationCreateInput, LicenseActivationUncheckedCreateInput>
+  }
+
+  /**
+   * LicenseActivation createMany
+   */
+  export type LicenseActivationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LicenseActivations.
+     */
+    data: LicenseActivationCreateManyInput | LicenseActivationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LicenseActivation createManyAndReturn
+   */
+  export type LicenseActivationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * The data used to create many LicenseActivations.
+     */
+    data: LicenseActivationCreateManyInput | LicenseActivationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LicenseActivation update
+   */
+  export type LicenseActivationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LicenseActivation.
+     */
+    data: XOR<LicenseActivationUpdateInput, LicenseActivationUncheckedUpdateInput>
+    /**
+     * Choose, which LicenseActivation to update.
+     */
+    where: LicenseActivationWhereUniqueInput
+  }
+
+  /**
+   * LicenseActivation updateMany
+   */
+  export type LicenseActivationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LicenseActivations.
+     */
+    data: XOR<LicenseActivationUpdateManyMutationInput, LicenseActivationUncheckedUpdateManyInput>
+    /**
+     * Filter which LicenseActivations to update
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * Limit how many LicenseActivations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LicenseActivation updateManyAndReturn
+   */
+  export type LicenseActivationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * The data used to update LicenseActivations.
+     */
+    data: XOR<LicenseActivationUpdateManyMutationInput, LicenseActivationUncheckedUpdateManyInput>
+    /**
+     * Filter which LicenseActivations to update
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * Limit how many LicenseActivations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LicenseActivation upsert
+   */
+  export type LicenseActivationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LicenseActivation to update in case it exists.
+     */
+    where: LicenseActivationWhereUniqueInput
+    /**
+     * In case the LicenseActivation found by the `where` argument doesn't exist, create a new LicenseActivation with this data.
+     */
+    create: XOR<LicenseActivationCreateInput, LicenseActivationUncheckedCreateInput>
+    /**
+     * In case the LicenseActivation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LicenseActivationUpdateInput, LicenseActivationUncheckedUpdateInput>
+  }
+
+  /**
+   * LicenseActivation delete
+   */
+  export type LicenseActivationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+    /**
+     * Filter which LicenseActivation to delete.
+     */
+    where: LicenseActivationWhereUniqueInput
+  }
+
+  /**
+   * LicenseActivation deleteMany
+   */
+  export type LicenseActivationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LicenseActivations to delete
+     */
+    where?: LicenseActivationWhereInput
+    /**
+     * Limit how many LicenseActivations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LicenseActivation without action
+   */
+  export type LicenseActivationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LicenseActivation
+     */
+    select?: LicenseActivationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LicenseActivation
+     */
+    omit?: LicenseActivationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LicenseActivationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WhiteLabelConfig
+   */
+
+  export type AggregateWhiteLabelConfig = {
+    _count: WhiteLabelConfigCountAggregateOutputType | null
+    _min: WhiteLabelConfigMinAggregateOutputType | null
+    _max: WhiteLabelConfigMaxAggregateOutputType | null
+  }
+
+  export type WhiteLabelConfigMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    agencyName: string | null
+    logoUrl: string | null
+    faviconUrl: string | null
+    hideForgeBranding: boolean | null
+    customCss: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhiteLabelConfigMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    agencyName: string | null
+    logoUrl: string | null
+    faviconUrl: string | null
+    hideForgeBranding: boolean | null
+    customCss: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WhiteLabelConfigCountAggregateOutputType = {
+    id: number
+    userId: number
+    agencyName: number
+    logoUrl: number
+    faviconUrl: number
+    hideForgeBranding: number
+    customCss: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WhiteLabelConfigMinAggregateInputType = {
+    id?: true
+    userId?: true
+    agencyName?: true
+    logoUrl?: true
+    faviconUrl?: true
+    hideForgeBranding?: true
+    customCss?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhiteLabelConfigMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    agencyName?: true
+    logoUrl?: true
+    faviconUrl?: true
+    hideForgeBranding?: true
+    customCss?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WhiteLabelConfigCountAggregateInputType = {
+    id?: true
+    userId?: true
+    agencyName?: true
+    logoUrl?: true
+    faviconUrl?: true
+    hideForgeBranding?: true
+    customCss?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WhiteLabelConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhiteLabelConfig to aggregate.
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhiteLabelConfigs to fetch.
+     */
+    orderBy?: WhiteLabelConfigOrderByWithRelationInput | WhiteLabelConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WhiteLabelConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhiteLabelConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhiteLabelConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WhiteLabelConfigs
+    **/
+    _count?: true | WhiteLabelConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WhiteLabelConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WhiteLabelConfigMaxAggregateInputType
+  }
+
+  export type GetWhiteLabelConfigAggregateType<T extends WhiteLabelConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateWhiteLabelConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWhiteLabelConfig[P]>
+      : GetScalarType<T[P], AggregateWhiteLabelConfig[P]>
+  }
+
+
+
+
+  export type WhiteLabelConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhiteLabelConfigWhereInput
+    orderBy?: WhiteLabelConfigOrderByWithAggregationInput | WhiteLabelConfigOrderByWithAggregationInput[]
+    by: WhiteLabelConfigScalarFieldEnum[] | WhiteLabelConfigScalarFieldEnum
+    having?: WhiteLabelConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WhiteLabelConfigCountAggregateInputType | true
+    _min?: WhiteLabelConfigMinAggregateInputType
+    _max?: WhiteLabelConfigMaxAggregateInputType
+  }
+
+  export type WhiteLabelConfigGroupByOutputType = {
+    id: string
+    userId: string
+    agencyName: string | null
+    logoUrl: string | null
+    faviconUrl: string | null
+    hideForgeBranding: boolean
+    customCss: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: WhiteLabelConfigCountAggregateOutputType | null
+    _min: WhiteLabelConfigMinAggregateOutputType | null
+    _max: WhiteLabelConfigMaxAggregateOutputType | null
+  }
+
+  type GetWhiteLabelConfigGroupByPayload<T extends WhiteLabelConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WhiteLabelConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WhiteLabelConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WhiteLabelConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], WhiteLabelConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WhiteLabelConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    agencyName?: boolean
+    logoUrl?: boolean
+    faviconUrl?: boolean
+    hideForgeBranding?: boolean
+    customCss?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whiteLabelConfig"]>
+
+  export type WhiteLabelConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    agencyName?: boolean
+    logoUrl?: boolean
+    faviconUrl?: boolean
+    hideForgeBranding?: boolean
+    customCss?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whiteLabelConfig"]>
+
+  export type WhiteLabelConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    agencyName?: boolean
+    logoUrl?: boolean
+    faviconUrl?: boolean
+    hideForgeBranding?: boolean
+    customCss?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whiteLabelConfig"]>
+
+  export type WhiteLabelConfigSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    agencyName?: boolean
+    logoUrl?: boolean
+    faviconUrl?: boolean
+    hideForgeBranding?: boolean
+    customCss?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WhiteLabelConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "agencyName" | "logoUrl" | "faviconUrl" | "hideForgeBranding" | "customCss" | "createdAt" | "updatedAt", ExtArgs["result"]["whiteLabelConfig"]>
+  export type WhiteLabelConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WhiteLabelConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WhiteLabelConfigIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $WhiteLabelConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WhiteLabelConfig"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      agencyName: string | null
+      logoUrl: string | null
+      faviconUrl: string | null
+      hideForgeBranding: boolean
+      customCss: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["whiteLabelConfig"]>
+    composites: {}
+  }
+
+  type WhiteLabelConfigGetPayload<S extends boolean | null | undefined | WhiteLabelConfigDefaultArgs> = $Result.GetResult<Prisma.$WhiteLabelConfigPayload, S>
+
+  type WhiteLabelConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WhiteLabelConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WhiteLabelConfigCountAggregateInputType | true
+    }
+
+  export interface WhiteLabelConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WhiteLabelConfig'], meta: { name: 'WhiteLabelConfig' } }
+    /**
+     * Find zero or one WhiteLabelConfig that matches the filter.
+     * @param {WhiteLabelConfigFindUniqueArgs} args - Arguments to find a WhiteLabelConfig
+     * @example
+     * // Get one WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WhiteLabelConfigFindUniqueArgs>(args: SelectSubset<T, WhiteLabelConfigFindUniqueArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WhiteLabelConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WhiteLabelConfigFindUniqueOrThrowArgs} args - Arguments to find a WhiteLabelConfig
+     * @example
+     * // Get one WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WhiteLabelConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, WhiteLabelConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhiteLabelConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigFindFirstArgs} args - Arguments to find a WhiteLabelConfig
+     * @example
+     * // Get one WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WhiteLabelConfigFindFirstArgs>(args?: SelectSubset<T, WhiteLabelConfigFindFirstArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhiteLabelConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigFindFirstOrThrowArgs} args - Arguments to find a WhiteLabelConfig
+     * @example
+     * // Get one WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WhiteLabelConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, WhiteLabelConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WhiteLabelConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WhiteLabelConfigs
+     * const whiteLabelConfigs = await prisma.whiteLabelConfig.findMany()
+     * 
+     * // Get first 10 WhiteLabelConfigs
+     * const whiteLabelConfigs = await prisma.whiteLabelConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const whiteLabelConfigWithIdOnly = await prisma.whiteLabelConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WhiteLabelConfigFindManyArgs>(args?: SelectSubset<T, WhiteLabelConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WhiteLabelConfig.
+     * @param {WhiteLabelConfigCreateArgs} args - Arguments to create a WhiteLabelConfig.
+     * @example
+     * // Create one WhiteLabelConfig
+     * const WhiteLabelConfig = await prisma.whiteLabelConfig.create({
+     *   data: {
+     *     // ... data to create a WhiteLabelConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends WhiteLabelConfigCreateArgs>(args: SelectSubset<T, WhiteLabelConfigCreateArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WhiteLabelConfigs.
+     * @param {WhiteLabelConfigCreateManyArgs} args - Arguments to create many WhiteLabelConfigs.
+     * @example
+     * // Create many WhiteLabelConfigs
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WhiteLabelConfigCreateManyArgs>(args?: SelectSubset<T, WhiteLabelConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WhiteLabelConfigs and returns the data saved in the database.
+     * @param {WhiteLabelConfigCreateManyAndReturnArgs} args - Arguments to create many WhiteLabelConfigs.
+     * @example
+     * // Create many WhiteLabelConfigs
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WhiteLabelConfigs and only return the `id`
+     * const whiteLabelConfigWithIdOnly = await prisma.whiteLabelConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WhiteLabelConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, WhiteLabelConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WhiteLabelConfig.
+     * @param {WhiteLabelConfigDeleteArgs} args - Arguments to delete one WhiteLabelConfig.
+     * @example
+     * // Delete one WhiteLabelConfig
+     * const WhiteLabelConfig = await prisma.whiteLabelConfig.delete({
+     *   where: {
+     *     // ... filter to delete one WhiteLabelConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WhiteLabelConfigDeleteArgs>(args: SelectSubset<T, WhiteLabelConfigDeleteArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WhiteLabelConfig.
+     * @param {WhiteLabelConfigUpdateArgs} args - Arguments to update one WhiteLabelConfig.
+     * @example
+     * // Update one WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WhiteLabelConfigUpdateArgs>(args: SelectSubset<T, WhiteLabelConfigUpdateArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WhiteLabelConfigs.
+     * @param {WhiteLabelConfigDeleteManyArgs} args - Arguments to filter WhiteLabelConfigs to delete.
+     * @example
+     * // Delete a few WhiteLabelConfigs
+     * const { count } = await prisma.whiteLabelConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WhiteLabelConfigDeleteManyArgs>(args?: SelectSubset<T, WhiteLabelConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhiteLabelConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WhiteLabelConfigs
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WhiteLabelConfigUpdateManyArgs>(args: SelectSubset<T, WhiteLabelConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhiteLabelConfigs and returns the data updated in the database.
+     * @param {WhiteLabelConfigUpdateManyAndReturnArgs} args - Arguments to update many WhiteLabelConfigs.
+     * @example
+     * // Update many WhiteLabelConfigs
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WhiteLabelConfigs and only return the `id`
+     * const whiteLabelConfigWithIdOnly = await prisma.whiteLabelConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WhiteLabelConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, WhiteLabelConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WhiteLabelConfig.
+     * @param {WhiteLabelConfigUpsertArgs} args - Arguments to update or create a WhiteLabelConfig.
+     * @example
+     * // Update or create a WhiteLabelConfig
+     * const whiteLabelConfig = await prisma.whiteLabelConfig.upsert({
+     *   create: {
+     *     // ... data to create a WhiteLabelConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WhiteLabelConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WhiteLabelConfigUpsertArgs>(args: SelectSubset<T, WhiteLabelConfigUpsertArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WhiteLabelConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigCountArgs} args - Arguments to filter WhiteLabelConfigs to count.
+     * @example
+     * // Count the number of WhiteLabelConfigs
+     * const count = await prisma.whiteLabelConfig.count({
+     *   where: {
+     *     // ... the filter for the WhiteLabelConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends WhiteLabelConfigCountArgs>(
+      args?: Subset<T, WhiteLabelConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WhiteLabelConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WhiteLabelConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WhiteLabelConfigAggregateArgs>(args: Subset<T, WhiteLabelConfigAggregateArgs>): Prisma.PrismaPromise<GetWhiteLabelConfigAggregateType<T>>
+
+    /**
+     * Group by WhiteLabelConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhiteLabelConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WhiteLabelConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WhiteLabelConfigGroupByArgs['orderBy'] }
+        : { orderBy?: WhiteLabelConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WhiteLabelConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWhiteLabelConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WhiteLabelConfig model
+   */
+  readonly fields: WhiteLabelConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WhiteLabelConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WhiteLabelConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WhiteLabelConfig model
+   */
+  interface WhiteLabelConfigFieldRefs {
+    readonly id: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly userId: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly agencyName: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly logoUrl: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly faviconUrl: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly hideForgeBranding: FieldRef<"WhiteLabelConfig", 'Boolean'>
+    readonly customCss: FieldRef<"WhiteLabelConfig", 'String'>
+    readonly createdAt: FieldRef<"WhiteLabelConfig", 'DateTime'>
+    readonly updatedAt: FieldRef<"WhiteLabelConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WhiteLabelConfig findUnique
+   */
+  export type WhiteLabelConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which WhiteLabelConfig to fetch.
+     */
+    where: WhiteLabelConfigWhereUniqueInput
+  }
+
+  /**
+   * WhiteLabelConfig findUniqueOrThrow
+   */
+  export type WhiteLabelConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which WhiteLabelConfig to fetch.
+     */
+    where: WhiteLabelConfigWhereUniqueInput
+  }
+
+  /**
+   * WhiteLabelConfig findFirst
+   */
+  export type WhiteLabelConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which WhiteLabelConfig to fetch.
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhiteLabelConfigs to fetch.
+     */
+    orderBy?: WhiteLabelConfigOrderByWithRelationInput | WhiteLabelConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhiteLabelConfigs.
+     */
+    cursor?: WhiteLabelConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhiteLabelConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhiteLabelConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhiteLabelConfigs.
+     */
+    distinct?: WhiteLabelConfigScalarFieldEnum | WhiteLabelConfigScalarFieldEnum[]
+  }
+
+  /**
+   * WhiteLabelConfig findFirstOrThrow
+   */
+  export type WhiteLabelConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which WhiteLabelConfig to fetch.
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhiteLabelConfigs to fetch.
+     */
+    orderBy?: WhiteLabelConfigOrderByWithRelationInput | WhiteLabelConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhiteLabelConfigs.
+     */
+    cursor?: WhiteLabelConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhiteLabelConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhiteLabelConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhiteLabelConfigs.
+     */
+    distinct?: WhiteLabelConfigScalarFieldEnum | WhiteLabelConfigScalarFieldEnum[]
+  }
+
+  /**
+   * WhiteLabelConfig findMany
+   */
+  export type WhiteLabelConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which WhiteLabelConfigs to fetch.
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhiteLabelConfigs to fetch.
+     */
+    orderBy?: WhiteLabelConfigOrderByWithRelationInput | WhiteLabelConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WhiteLabelConfigs.
+     */
+    cursor?: WhiteLabelConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhiteLabelConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhiteLabelConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhiteLabelConfigs.
+     */
+    distinct?: WhiteLabelConfigScalarFieldEnum | WhiteLabelConfigScalarFieldEnum[]
+  }
+
+  /**
+   * WhiteLabelConfig create
+   */
+  export type WhiteLabelConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WhiteLabelConfig.
+     */
+    data: XOR<WhiteLabelConfigCreateInput, WhiteLabelConfigUncheckedCreateInput>
+  }
+
+  /**
+   * WhiteLabelConfig createMany
+   */
+  export type WhiteLabelConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WhiteLabelConfigs.
+     */
+    data: WhiteLabelConfigCreateManyInput | WhiteLabelConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WhiteLabelConfig createManyAndReturn
+   */
+  export type WhiteLabelConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many WhiteLabelConfigs.
+     */
+    data: WhiteLabelConfigCreateManyInput | WhiteLabelConfigCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhiteLabelConfig update
+   */
+  export type WhiteLabelConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WhiteLabelConfig.
+     */
+    data: XOR<WhiteLabelConfigUpdateInput, WhiteLabelConfigUncheckedUpdateInput>
+    /**
+     * Choose, which WhiteLabelConfig to update.
+     */
+    where: WhiteLabelConfigWhereUniqueInput
+  }
+
+  /**
+   * WhiteLabelConfig updateMany
+   */
+  export type WhiteLabelConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WhiteLabelConfigs.
+     */
+    data: XOR<WhiteLabelConfigUpdateManyMutationInput, WhiteLabelConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which WhiteLabelConfigs to update
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * Limit how many WhiteLabelConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhiteLabelConfig updateManyAndReturn
+   */
+  export type WhiteLabelConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update WhiteLabelConfigs.
+     */
+    data: XOR<WhiteLabelConfigUpdateManyMutationInput, WhiteLabelConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which WhiteLabelConfigs to update
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * Limit how many WhiteLabelConfigs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhiteLabelConfig upsert
+   */
+  export type WhiteLabelConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WhiteLabelConfig to update in case it exists.
+     */
+    where: WhiteLabelConfigWhereUniqueInput
+    /**
+     * In case the WhiteLabelConfig found by the `where` argument doesn't exist, create a new WhiteLabelConfig with this data.
+     */
+    create: XOR<WhiteLabelConfigCreateInput, WhiteLabelConfigUncheckedCreateInput>
+    /**
+     * In case the WhiteLabelConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WhiteLabelConfigUpdateInput, WhiteLabelConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * WhiteLabelConfig delete
+   */
+  export type WhiteLabelConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+    /**
+     * Filter which WhiteLabelConfig to delete.
+     */
+    where: WhiteLabelConfigWhereUniqueInput
+  }
+
+  /**
+   * WhiteLabelConfig deleteMany
+   */
+  export type WhiteLabelConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhiteLabelConfigs to delete
+     */
+    where?: WhiteLabelConfigWhereInput
+    /**
+     * Limit how many WhiteLabelConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhiteLabelConfig without action
+   */
+  export type WhiteLabelConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhiteLabelConfig
+     */
+    select?: WhiteLabelConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhiteLabelConfig
+     */
+    omit?: WhiteLabelConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhiteLabelConfigInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BillingInvoice
+   */
+
+  export type AggregateBillingInvoice = {
+    _count: BillingInvoiceCountAggregateOutputType | null
+    _avg: BillingInvoiceAvgAggregateOutputType | null
+    _sum: BillingInvoiceSumAggregateOutputType | null
+    _min: BillingInvoiceMinAggregateOutputType | null
+    _max: BillingInvoiceMaxAggregateOutputType | null
+  }
+
+  export type BillingInvoiceAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type BillingInvoiceSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type BillingInvoiceMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    planId: string | null
+    amount: number | null
+    currency: string | null
+    status: string | null
+    invoiceNumber: string | null
+    billingPeriodStart: Date | null
+    billingPeriodEnd: Date | null
+    createdAt: Date | null
+  }
+
+  export type BillingInvoiceMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    planId: string | null
+    amount: number | null
+    currency: string | null
+    status: string | null
+    invoiceNumber: string | null
+    billingPeriodStart: Date | null
+    billingPeriodEnd: Date | null
+    createdAt: Date | null
+  }
+
+  export type BillingInvoiceCountAggregateOutputType = {
+    id: number
+    userId: number
+    planId: number
+    amount: number
+    currency: number
+    status: number
+    invoiceNumber: number
+    billingPeriodStart: number
+    billingPeriodEnd: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type BillingInvoiceAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type BillingInvoiceSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type BillingInvoiceMinAggregateInputType = {
+    id?: true
+    userId?: true
+    planId?: true
+    amount?: true
+    currency?: true
+    status?: true
+    invoiceNumber?: true
+    billingPeriodStart?: true
+    billingPeriodEnd?: true
+    createdAt?: true
+  }
+
+  export type BillingInvoiceMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    planId?: true
+    amount?: true
+    currency?: true
+    status?: true
+    invoiceNumber?: true
+    billingPeriodStart?: true
+    billingPeriodEnd?: true
+    createdAt?: true
+  }
+
+  export type BillingInvoiceCountAggregateInputType = {
+    id?: true
+    userId?: true
+    planId?: true
+    amount?: true
+    currency?: true
+    status?: true
+    invoiceNumber?: true
+    billingPeriodStart?: true
+    billingPeriodEnd?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type BillingInvoiceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillingInvoice to aggregate.
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingInvoices to fetch.
+     */
+    orderBy?: BillingInvoiceOrderByWithRelationInput | BillingInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BillingInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BillingInvoices
+    **/
+    _count?: true | BillingInvoiceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BillingInvoiceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BillingInvoiceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BillingInvoiceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BillingInvoiceMaxAggregateInputType
+  }
+
+  export type GetBillingInvoiceAggregateType<T extends BillingInvoiceAggregateArgs> = {
+        [P in keyof T & keyof AggregateBillingInvoice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBillingInvoice[P]>
+      : GetScalarType<T[P], AggregateBillingInvoice[P]>
+  }
+
+
+
+
+  export type BillingInvoiceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillingInvoiceWhereInput
+    orderBy?: BillingInvoiceOrderByWithAggregationInput | BillingInvoiceOrderByWithAggregationInput[]
+    by: BillingInvoiceScalarFieldEnum[] | BillingInvoiceScalarFieldEnum
+    having?: BillingInvoiceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BillingInvoiceCountAggregateInputType | true
+    _avg?: BillingInvoiceAvgAggregateInputType
+    _sum?: BillingInvoiceSumAggregateInputType
+    _min?: BillingInvoiceMinAggregateInputType
+    _max?: BillingInvoiceMaxAggregateInputType
+  }
+
+  export type BillingInvoiceGroupByOutputType = {
+    id: string
+    userId: string
+    planId: string
+    amount: number
+    currency: string
+    status: string
+    invoiceNumber: string
+    billingPeriodStart: Date
+    billingPeriodEnd: Date
+    createdAt: Date
+    _count: BillingInvoiceCountAggregateOutputType | null
+    _avg: BillingInvoiceAvgAggregateOutputType | null
+    _sum: BillingInvoiceSumAggregateOutputType | null
+    _min: BillingInvoiceMinAggregateOutputType | null
+    _max: BillingInvoiceMaxAggregateOutputType | null
+  }
+
+  type GetBillingInvoiceGroupByPayload<T extends BillingInvoiceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BillingInvoiceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BillingInvoiceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BillingInvoiceGroupByOutputType[P]>
+            : GetScalarType<T[P], BillingInvoiceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BillingInvoiceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    planId?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    invoiceNumber?: boolean
+    billingPeriodStart?: boolean
+    billingPeriodEnd?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["billingInvoice"]>
+
+  export type BillingInvoiceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    planId?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    invoiceNumber?: boolean
+    billingPeriodStart?: boolean
+    billingPeriodEnd?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["billingInvoice"]>
+
+  export type BillingInvoiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    planId?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    invoiceNumber?: boolean
+    billingPeriodStart?: boolean
+    billingPeriodEnd?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["billingInvoice"]>
+
+  export type BillingInvoiceSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    planId?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    invoiceNumber?: boolean
+    billingPeriodStart?: boolean
+    billingPeriodEnd?: boolean
+    createdAt?: boolean
+  }
+
+  export type BillingInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "planId" | "amount" | "currency" | "status" | "invoiceNumber" | "billingPeriodStart" | "billingPeriodEnd" | "createdAt", ExtArgs["result"]["billingInvoice"]>
+  export type BillingInvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BillingInvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BillingInvoiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $BillingInvoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BillingInvoice"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      planId: string
+      amount: number
+      currency: string
+      status: string
+      invoiceNumber: string
+      billingPeriodStart: Date
+      billingPeriodEnd: Date
+      createdAt: Date
+    }, ExtArgs["result"]["billingInvoice"]>
+    composites: {}
+  }
+
+  type BillingInvoiceGetPayload<S extends boolean | null | undefined | BillingInvoiceDefaultArgs> = $Result.GetResult<Prisma.$BillingInvoicePayload, S>
+
+  type BillingInvoiceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BillingInvoiceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BillingInvoiceCountAggregateInputType | true
+    }
+
+  export interface BillingInvoiceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BillingInvoice'], meta: { name: 'BillingInvoice' } }
+    /**
+     * Find zero or one BillingInvoice that matches the filter.
+     * @param {BillingInvoiceFindUniqueArgs} args - Arguments to find a BillingInvoice
+     * @example
+     * // Get one BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BillingInvoiceFindUniqueArgs>(args: SelectSubset<T, BillingInvoiceFindUniqueArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BillingInvoice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BillingInvoiceFindUniqueOrThrowArgs} args - Arguments to find a BillingInvoice
+     * @example
+     * // Get one BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BillingInvoiceFindUniqueOrThrowArgs>(args: SelectSubset<T, BillingInvoiceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BillingInvoice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceFindFirstArgs} args - Arguments to find a BillingInvoice
+     * @example
+     * // Get one BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BillingInvoiceFindFirstArgs>(args?: SelectSubset<T, BillingInvoiceFindFirstArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BillingInvoice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceFindFirstOrThrowArgs} args - Arguments to find a BillingInvoice
+     * @example
+     * // Get one BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BillingInvoiceFindFirstOrThrowArgs>(args?: SelectSubset<T, BillingInvoiceFindFirstOrThrowArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BillingInvoices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BillingInvoices
+     * const billingInvoices = await prisma.billingInvoice.findMany()
+     * 
+     * // Get first 10 BillingInvoices
+     * const billingInvoices = await prisma.billingInvoice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const billingInvoiceWithIdOnly = await prisma.billingInvoice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BillingInvoiceFindManyArgs>(args?: SelectSubset<T, BillingInvoiceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BillingInvoice.
+     * @param {BillingInvoiceCreateArgs} args - Arguments to create a BillingInvoice.
+     * @example
+     * // Create one BillingInvoice
+     * const BillingInvoice = await prisma.billingInvoice.create({
+     *   data: {
+     *     // ... data to create a BillingInvoice
+     *   }
+     * })
+     * 
+     */
+    create<T extends BillingInvoiceCreateArgs>(args: SelectSubset<T, BillingInvoiceCreateArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BillingInvoices.
+     * @param {BillingInvoiceCreateManyArgs} args - Arguments to create many BillingInvoices.
+     * @example
+     * // Create many BillingInvoices
+     * const billingInvoice = await prisma.billingInvoice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BillingInvoiceCreateManyArgs>(args?: SelectSubset<T, BillingInvoiceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BillingInvoices and returns the data saved in the database.
+     * @param {BillingInvoiceCreateManyAndReturnArgs} args - Arguments to create many BillingInvoices.
+     * @example
+     * // Create many BillingInvoices
+     * const billingInvoice = await prisma.billingInvoice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BillingInvoices and only return the `id`
+     * const billingInvoiceWithIdOnly = await prisma.billingInvoice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BillingInvoiceCreateManyAndReturnArgs>(args?: SelectSubset<T, BillingInvoiceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BillingInvoice.
+     * @param {BillingInvoiceDeleteArgs} args - Arguments to delete one BillingInvoice.
+     * @example
+     * // Delete one BillingInvoice
+     * const BillingInvoice = await prisma.billingInvoice.delete({
+     *   where: {
+     *     // ... filter to delete one BillingInvoice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BillingInvoiceDeleteArgs>(args: SelectSubset<T, BillingInvoiceDeleteArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BillingInvoice.
+     * @param {BillingInvoiceUpdateArgs} args - Arguments to update one BillingInvoice.
+     * @example
+     * // Update one BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BillingInvoiceUpdateArgs>(args: SelectSubset<T, BillingInvoiceUpdateArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BillingInvoices.
+     * @param {BillingInvoiceDeleteManyArgs} args - Arguments to filter BillingInvoices to delete.
+     * @example
+     * // Delete a few BillingInvoices
+     * const { count } = await prisma.billingInvoice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BillingInvoiceDeleteManyArgs>(args?: SelectSubset<T, BillingInvoiceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BillingInvoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BillingInvoices
+     * const billingInvoice = await prisma.billingInvoice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BillingInvoiceUpdateManyArgs>(args: SelectSubset<T, BillingInvoiceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BillingInvoices and returns the data updated in the database.
+     * @param {BillingInvoiceUpdateManyAndReturnArgs} args - Arguments to update many BillingInvoices.
+     * @example
+     * // Update many BillingInvoices
+     * const billingInvoice = await prisma.billingInvoice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BillingInvoices and only return the `id`
+     * const billingInvoiceWithIdOnly = await prisma.billingInvoice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BillingInvoiceUpdateManyAndReturnArgs>(args: SelectSubset<T, BillingInvoiceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BillingInvoice.
+     * @param {BillingInvoiceUpsertArgs} args - Arguments to update or create a BillingInvoice.
+     * @example
+     * // Update or create a BillingInvoice
+     * const billingInvoice = await prisma.billingInvoice.upsert({
+     *   create: {
+     *     // ... data to create a BillingInvoice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BillingInvoice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BillingInvoiceUpsertArgs>(args: SelectSubset<T, BillingInvoiceUpsertArgs<ExtArgs>>): Prisma__BillingInvoiceClient<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BillingInvoices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceCountArgs} args - Arguments to filter BillingInvoices to count.
+     * @example
+     * // Count the number of BillingInvoices
+     * const count = await prisma.billingInvoice.count({
+     *   where: {
+     *     // ... the filter for the BillingInvoices we want to count
+     *   }
+     * })
+    **/
+    count<T extends BillingInvoiceCountArgs>(
+      args?: Subset<T, BillingInvoiceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BillingInvoiceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BillingInvoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BillingInvoiceAggregateArgs>(args: Subset<T, BillingInvoiceAggregateArgs>): Prisma.PrismaPromise<GetBillingInvoiceAggregateType<T>>
+
+    /**
+     * Group by BillingInvoice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingInvoiceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BillingInvoiceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BillingInvoiceGroupByArgs['orderBy'] }
+        : { orderBy?: BillingInvoiceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BillingInvoiceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBillingInvoiceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BillingInvoice model
+   */
+  readonly fields: BillingInvoiceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BillingInvoice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BillingInvoiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BillingInvoice model
+   */
+  interface BillingInvoiceFieldRefs {
+    readonly id: FieldRef<"BillingInvoice", 'String'>
+    readonly userId: FieldRef<"BillingInvoice", 'String'>
+    readonly planId: FieldRef<"BillingInvoice", 'String'>
+    readonly amount: FieldRef<"BillingInvoice", 'Float'>
+    readonly currency: FieldRef<"BillingInvoice", 'String'>
+    readonly status: FieldRef<"BillingInvoice", 'String'>
+    readonly invoiceNumber: FieldRef<"BillingInvoice", 'String'>
+    readonly billingPeriodStart: FieldRef<"BillingInvoice", 'DateTime'>
+    readonly billingPeriodEnd: FieldRef<"BillingInvoice", 'DateTime'>
+    readonly createdAt: FieldRef<"BillingInvoice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BillingInvoice findUnique
+   */
+  export type BillingInvoiceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingInvoice to fetch.
+     */
+    where: BillingInvoiceWhereUniqueInput
+  }
+
+  /**
+   * BillingInvoice findUniqueOrThrow
+   */
+  export type BillingInvoiceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingInvoice to fetch.
+     */
+    where: BillingInvoiceWhereUniqueInput
+  }
+
+  /**
+   * BillingInvoice findFirst
+   */
+  export type BillingInvoiceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingInvoice to fetch.
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingInvoices to fetch.
+     */
+    orderBy?: BillingInvoiceOrderByWithRelationInput | BillingInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillingInvoices.
+     */
+    cursor?: BillingInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillingInvoices.
+     */
+    distinct?: BillingInvoiceScalarFieldEnum | BillingInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * BillingInvoice findFirstOrThrow
+   */
+  export type BillingInvoiceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingInvoice to fetch.
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingInvoices to fetch.
+     */
+    orderBy?: BillingInvoiceOrderByWithRelationInput | BillingInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillingInvoices.
+     */
+    cursor?: BillingInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillingInvoices.
+     */
+    distinct?: BillingInvoiceScalarFieldEnum | BillingInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * BillingInvoice findMany
+   */
+  export type BillingInvoiceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingInvoices to fetch.
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingInvoices to fetch.
+     */
+    orderBy?: BillingInvoiceOrderByWithRelationInput | BillingInvoiceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BillingInvoices.
+     */
+    cursor?: BillingInvoiceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingInvoices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingInvoices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillingInvoices.
+     */
+    distinct?: BillingInvoiceScalarFieldEnum | BillingInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * BillingInvoice create
+   */
+  export type BillingInvoiceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BillingInvoice.
+     */
+    data: XOR<BillingInvoiceCreateInput, BillingInvoiceUncheckedCreateInput>
+  }
+
+  /**
+   * BillingInvoice createMany
+   */
+  export type BillingInvoiceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BillingInvoices.
+     */
+    data: BillingInvoiceCreateManyInput | BillingInvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BillingInvoice createManyAndReturn
+   */
+  export type BillingInvoiceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to create many BillingInvoices.
+     */
+    data: BillingInvoiceCreateManyInput | BillingInvoiceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BillingInvoice update
+   */
+  export type BillingInvoiceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BillingInvoice.
+     */
+    data: XOR<BillingInvoiceUpdateInput, BillingInvoiceUncheckedUpdateInput>
+    /**
+     * Choose, which BillingInvoice to update.
+     */
+    where: BillingInvoiceWhereUniqueInput
+  }
+
+  /**
+   * BillingInvoice updateMany
+   */
+  export type BillingInvoiceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BillingInvoices.
+     */
+    data: XOR<BillingInvoiceUpdateManyMutationInput, BillingInvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which BillingInvoices to update
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * Limit how many BillingInvoices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BillingInvoice updateManyAndReturn
+   */
+  export type BillingInvoiceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * The data used to update BillingInvoices.
+     */
+    data: XOR<BillingInvoiceUpdateManyMutationInput, BillingInvoiceUncheckedUpdateManyInput>
+    /**
+     * Filter which BillingInvoices to update
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * Limit how many BillingInvoices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BillingInvoice upsert
+   */
+  export type BillingInvoiceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BillingInvoice to update in case it exists.
+     */
+    where: BillingInvoiceWhereUniqueInput
+    /**
+     * In case the BillingInvoice found by the `where` argument doesn't exist, create a new BillingInvoice with this data.
+     */
+    create: XOR<BillingInvoiceCreateInput, BillingInvoiceUncheckedCreateInput>
+    /**
+     * In case the BillingInvoice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BillingInvoiceUpdateInput, BillingInvoiceUncheckedUpdateInput>
+  }
+
+  /**
+   * BillingInvoice delete
+   */
+  export type BillingInvoiceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+    /**
+     * Filter which BillingInvoice to delete.
+     */
+    where: BillingInvoiceWhereUniqueInput
+  }
+
+  /**
+   * BillingInvoice deleteMany
+   */
+  export type BillingInvoiceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillingInvoices to delete
+     */
+    where?: BillingInvoiceWhereInput
+    /**
+     * Limit how many BillingInvoices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BillingInvoice without action
+   */
+  export type BillingInvoiceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingInvoice
+     */
+    select?: BillingInvoiceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BillingInvoice
+     */
+    omit?: BillingInvoiceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingInvoiceInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -60275,6 +65325,66 @@ export namespace Prisma {
   export type OptimizationCreditLedgerScalarFieldEnum = (typeof OptimizationCreditLedgerScalarFieldEnum)[keyof typeof OptimizationCreditLedgerScalarFieldEnum]
 
 
+  export const LicenseScalarFieldEnum: {
+    id: 'id',
+    key: 'key',
+    userId: 'userId',
+    planSlug: 'planSlug',
+    maxSites: 'maxSites',
+    status: 'status',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LicenseScalarFieldEnum = (typeof LicenseScalarFieldEnum)[keyof typeof LicenseScalarFieldEnum]
+
+
+  export const LicenseActivationScalarFieldEnum: {
+    id: 'id',
+    licenseId: 'licenseId',
+    siteUrl: 'siteUrl',
+    siteDomain: 'siteDomain',
+    ipAddress: 'ipAddress',
+    isLocalhost: 'isLocalhost',
+    activatedAt: 'activatedAt',
+    lastPingAt: 'lastPingAt'
+  };
+
+  export type LicenseActivationScalarFieldEnum = (typeof LicenseActivationScalarFieldEnum)[keyof typeof LicenseActivationScalarFieldEnum]
+
+
+  export const WhiteLabelConfigScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    agencyName: 'agencyName',
+    logoUrl: 'logoUrl',
+    faviconUrl: 'faviconUrl',
+    hideForgeBranding: 'hideForgeBranding',
+    customCss: 'customCss',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WhiteLabelConfigScalarFieldEnum = (typeof WhiteLabelConfigScalarFieldEnum)[keyof typeof WhiteLabelConfigScalarFieldEnum]
+
+
+  export const BillingInvoiceScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    planId: 'planId',
+    amount: 'amount',
+    currency: 'currency',
+    status: 'status',
+    invoiceNumber: 'invoiceNumber',
+    billingPeriodStart: 'billingPeriodStart',
+    billingPeriodEnd: 'billingPeriodEnd',
+    createdAt: 'createdAt'
+  };
+
+  export type BillingInvoiceScalarFieldEnum = (typeof BillingInvoiceScalarFieldEnum)[keyof typeof BillingInvoiceScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -60540,6 +65650,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
     creditLedgers?: OptimizationCreditLedgerListRelationFilter
+    licenses?: LicenseListRelationFilter
+    whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
+    invoices?: BillingInvoiceListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -60587,6 +65700,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
     creditLedgers?: OptimizationCreditLedgerOrderByRelationAggregateInput
+    licenses?: LicenseOrderByRelationAggregateInput
+    whiteLabelConfig?: WhiteLabelConfigOrderByWithRelationInput
+    invoices?: BillingInvoiceOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -60637,6 +65753,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
     creditLedgers?: OptimizationCreditLedgerListRelationFilter
+    licenses?: LicenseListRelationFilter
+    whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
+    invoices?: BillingInvoiceListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -64235,6 +69354,314 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"OptimizationCreditLedger"> | Date | string
   }
 
+  export type LicenseWhereInput = {
+    AND?: LicenseWhereInput | LicenseWhereInput[]
+    OR?: LicenseWhereInput[]
+    NOT?: LicenseWhereInput | LicenseWhereInput[]
+    id?: UuidFilter<"License"> | string
+    key?: StringFilter<"License"> | string
+    userId?: UuidFilter<"License"> | string
+    planSlug?: StringFilter<"License"> | string
+    maxSites?: IntFilter<"License"> | number
+    status?: StringFilter<"License"> | string
+    expiresAt?: DateTimeNullableFilter<"License"> | Date | string | null
+    createdAt?: DateTimeFilter<"License"> | Date | string
+    updatedAt?: DateTimeFilter<"License"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    activations?: LicenseActivationListRelationFilter
+  }
+
+  export type LicenseOrderByWithRelationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    userId?: SortOrder
+    planSlug?: SortOrder
+    maxSites?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    activations?: LicenseActivationOrderByRelationAggregateInput
+  }
+
+  export type LicenseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    key?: string
+    AND?: LicenseWhereInput | LicenseWhereInput[]
+    OR?: LicenseWhereInput[]
+    NOT?: LicenseWhereInput | LicenseWhereInput[]
+    userId?: UuidFilter<"License"> | string
+    planSlug?: StringFilter<"License"> | string
+    maxSites?: IntFilter<"License"> | number
+    status?: StringFilter<"License"> | string
+    expiresAt?: DateTimeNullableFilter<"License"> | Date | string | null
+    createdAt?: DateTimeFilter<"License"> | Date | string
+    updatedAt?: DateTimeFilter<"License"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    activations?: LicenseActivationListRelationFilter
+  }, "id" | "key">
+
+  export type LicenseOrderByWithAggregationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    userId?: SortOrder
+    planSlug?: SortOrder
+    maxSites?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LicenseCountOrderByAggregateInput
+    _avg?: LicenseAvgOrderByAggregateInput
+    _max?: LicenseMaxOrderByAggregateInput
+    _min?: LicenseMinOrderByAggregateInput
+    _sum?: LicenseSumOrderByAggregateInput
+  }
+
+  export type LicenseScalarWhereWithAggregatesInput = {
+    AND?: LicenseScalarWhereWithAggregatesInput | LicenseScalarWhereWithAggregatesInput[]
+    OR?: LicenseScalarWhereWithAggregatesInput[]
+    NOT?: LicenseScalarWhereWithAggregatesInput | LicenseScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"License"> | string
+    key?: StringWithAggregatesFilter<"License"> | string
+    userId?: UuidWithAggregatesFilter<"License"> | string
+    planSlug?: StringWithAggregatesFilter<"License"> | string
+    maxSites?: IntWithAggregatesFilter<"License"> | number
+    status?: StringWithAggregatesFilter<"License"> | string
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"License"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"License"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"License"> | Date | string
+  }
+
+  export type LicenseActivationWhereInput = {
+    AND?: LicenseActivationWhereInput | LicenseActivationWhereInput[]
+    OR?: LicenseActivationWhereInput[]
+    NOT?: LicenseActivationWhereInput | LicenseActivationWhereInput[]
+    id?: UuidFilter<"LicenseActivation"> | string
+    licenseId?: UuidFilter<"LicenseActivation"> | string
+    siteUrl?: StringFilter<"LicenseActivation"> | string
+    siteDomain?: StringFilter<"LicenseActivation"> | string
+    ipAddress?: StringNullableFilter<"LicenseActivation"> | string | null
+    isLocalhost?: BoolFilter<"LicenseActivation"> | boolean
+    activatedAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+    lastPingAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+    license?: XOR<LicenseScalarRelationFilter, LicenseWhereInput>
+  }
+
+  export type LicenseActivationOrderByWithRelationInput = {
+    id?: SortOrder
+    licenseId?: SortOrder
+    siteUrl?: SortOrder
+    siteDomain?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    isLocalhost?: SortOrder
+    activatedAt?: SortOrder
+    lastPingAt?: SortOrder
+    license?: LicenseOrderByWithRelationInput
+  }
+
+  export type LicenseActivationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    licenseId_siteDomain?: LicenseActivationLicenseIdSiteDomainCompoundUniqueInput
+    AND?: LicenseActivationWhereInput | LicenseActivationWhereInput[]
+    OR?: LicenseActivationWhereInput[]
+    NOT?: LicenseActivationWhereInput | LicenseActivationWhereInput[]
+    licenseId?: UuidFilter<"LicenseActivation"> | string
+    siteUrl?: StringFilter<"LicenseActivation"> | string
+    siteDomain?: StringFilter<"LicenseActivation"> | string
+    ipAddress?: StringNullableFilter<"LicenseActivation"> | string | null
+    isLocalhost?: BoolFilter<"LicenseActivation"> | boolean
+    activatedAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+    lastPingAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+    license?: XOR<LicenseScalarRelationFilter, LicenseWhereInput>
+  }, "id" | "licenseId_siteDomain">
+
+  export type LicenseActivationOrderByWithAggregationInput = {
+    id?: SortOrder
+    licenseId?: SortOrder
+    siteUrl?: SortOrder
+    siteDomain?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    isLocalhost?: SortOrder
+    activatedAt?: SortOrder
+    lastPingAt?: SortOrder
+    _count?: LicenseActivationCountOrderByAggregateInput
+    _max?: LicenseActivationMaxOrderByAggregateInput
+    _min?: LicenseActivationMinOrderByAggregateInput
+  }
+
+  export type LicenseActivationScalarWhereWithAggregatesInput = {
+    AND?: LicenseActivationScalarWhereWithAggregatesInput | LicenseActivationScalarWhereWithAggregatesInput[]
+    OR?: LicenseActivationScalarWhereWithAggregatesInput[]
+    NOT?: LicenseActivationScalarWhereWithAggregatesInput | LicenseActivationScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LicenseActivation"> | string
+    licenseId?: UuidWithAggregatesFilter<"LicenseActivation"> | string
+    siteUrl?: StringWithAggregatesFilter<"LicenseActivation"> | string
+    siteDomain?: StringWithAggregatesFilter<"LicenseActivation"> | string
+    ipAddress?: StringNullableWithAggregatesFilter<"LicenseActivation"> | string | null
+    isLocalhost?: BoolWithAggregatesFilter<"LicenseActivation"> | boolean
+    activatedAt?: DateTimeWithAggregatesFilter<"LicenseActivation"> | Date | string
+    lastPingAt?: DateTimeWithAggregatesFilter<"LicenseActivation"> | Date | string
+  }
+
+  export type WhiteLabelConfigWhereInput = {
+    AND?: WhiteLabelConfigWhereInput | WhiteLabelConfigWhereInput[]
+    OR?: WhiteLabelConfigWhereInput[]
+    NOT?: WhiteLabelConfigWhereInput | WhiteLabelConfigWhereInput[]
+    id?: UuidFilter<"WhiteLabelConfig"> | string
+    userId?: UuidFilter<"WhiteLabelConfig"> | string
+    agencyName?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    logoUrl?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    faviconUrl?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    hideForgeBranding?: BoolFilter<"WhiteLabelConfig"> | boolean
+    customCss?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    createdAt?: DateTimeFilter<"WhiteLabelConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"WhiteLabelConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type WhiteLabelConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    agencyName?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    faviconUrl?: SortOrderInput | SortOrder
+    hideForgeBranding?: SortOrder
+    customCss?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type WhiteLabelConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: WhiteLabelConfigWhereInput | WhiteLabelConfigWhereInput[]
+    OR?: WhiteLabelConfigWhereInput[]
+    NOT?: WhiteLabelConfigWhereInput | WhiteLabelConfigWhereInput[]
+    agencyName?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    logoUrl?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    faviconUrl?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    hideForgeBranding?: BoolFilter<"WhiteLabelConfig"> | boolean
+    customCss?: StringNullableFilter<"WhiteLabelConfig"> | string | null
+    createdAt?: DateTimeFilter<"WhiteLabelConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"WhiteLabelConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type WhiteLabelConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    agencyName?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    faviconUrl?: SortOrderInput | SortOrder
+    hideForgeBranding?: SortOrder
+    customCss?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WhiteLabelConfigCountOrderByAggregateInput
+    _max?: WhiteLabelConfigMaxOrderByAggregateInput
+    _min?: WhiteLabelConfigMinOrderByAggregateInput
+  }
+
+  export type WhiteLabelConfigScalarWhereWithAggregatesInput = {
+    AND?: WhiteLabelConfigScalarWhereWithAggregatesInput | WhiteLabelConfigScalarWhereWithAggregatesInput[]
+    OR?: WhiteLabelConfigScalarWhereWithAggregatesInput[]
+    NOT?: WhiteLabelConfigScalarWhereWithAggregatesInput | WhiteLabelConfigScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"WhiteLabelConfig"> | string
+    userId?: UuidWithAggregatesFilter<"WhiteLabelConfig"> | string
+    agencyName?: StringNullableWithAggregatesFilter<"WhiteLabelConfig"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"WhiteLabelConfig"> | string | null
+    faviconUrl?: StringNullableWithAggregatesFilter<"WhiteLabelConfig"> | string | null
+    hideForgeBranding?: BoolWithAggregatesFilter<"WhiteLabelConfig"> | boolean
+    customCss?: StringNullableWithAggregatesFilter<"WhiteLabelConfig"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"WhiteLabelConfig"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WhiteLabelConfig"> | Date | string
+  }
+
+  export type BillingInvoiceWhereInput = {
+    AND?: BillingInvoiceWhereInput | BillingInvoiceWhereInput[]
+    OR?: BillingInvoiceWhereInput[]
+    NOT?: BillingInvoiceWhereInput | BillingInvoiceWhereInput[]
+    id?: UuidFilter<"BillingInvoice"> | string
+    userId?: UuidFilter<"BillingInvoice"> | string
+    planId?: StringFilter<"BillingInvoice"> | string
+    amount?: FloatFilter<"BillingInvoice"> | number
+    currency?: StringFilter<"BillingInvoice"> | string
+    status?: StringFilter<"BillingInvoice"> | string
+    invoiceNumber?: StringFilter<"BillingInvoice"> | string
+    billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
+    billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type BillingInvoiceOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    planId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    invoiceNumber?: SortOrder
+    billingPeriodStart?: SortOrder
+    billingPeriodEnd?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type BillingInvoiceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    invoiceNumber?: string
+    AND?: BillingInvoiceWhereInput | BillingInvoiceWhereInput[]
+    OR?: BillingInvoiceWhereInput[]
+    NOT?: BillingInvoiceWhereInput | BillingInvoiceWhereInput[]
+    userId?: UuidFilter<"BillingInvoice"> | string
+    planId?: StringFilter<"BillingInvoice"> | string
+    amount?: FloatFilter<"BillingInvoice"> | number
+    currency?: StringFilter<"BillingInvoice"> | string
+    status?: StringFilter<"BillingInvoice"> | string
+    billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
+    billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "invoiceNumber">
+
+  export type BillingInvoiceOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    planId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    invoiceNumber?: SortOrder
+    billingPeriodStart?: SortOrder
+    billingPeriodEnd?: SortOrder
+    createdAt?: SortOrder
+    _count?: BillingInvoiceCountOrderByAggregateInput
+    _avg?: BillingInvoiceAvgOrderByAggregateInput
+    _max?: BillingInvoiceMaxOrderByAggregateInput
+    _min?: BillingInvoiceMinOrderByAggregateInput
+    _sum?: BillingInvoiceSumOrderByAggregateInput
+  }
+
+  export type BillingInvoiceScalarWhereWithAggregatesInput = {
+    AND?: BillingInvoiceScalarWhereWithAggregatesInput | BillingInvoiceScalarWhereWithAggregatesInput[]
+    OR?: BillingInvoiceScalarWhereWithAggregatesInput[]
+    NOT?: BillingInvoiceScalarWhereWithAggregatesInput | BillingInvoiceScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"BillingInvoice"> | string
+    userId?: UuidWithAggregatesFilter<"BillingInvoice"> | string
+    planId?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    amount?: FloatWithAggregatesFilter<"BillingInvoice"> | number
+    currency?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    status?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    invoiceNumber?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    billingPeriodStart?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
+    billingPeriodEnd?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     fullName?: string | null
@@ -64280,6 +69707,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -64327,6 +69757,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -64374,6 +69807,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -64421,6 +69857,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -68302,6 +73741,342 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LicenseCreateInput = {
+    id?: string
+    key: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutLicensesInput
+    activations?: LicenseActivationCreateNestedManyWithoutLicenseInput
+  }
+
+  export type LicenseUncheckedCreateInput = {
+    id?: string
+    key: string
+    userId: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activations?: LicenseActivationUncheckedCreateNestedManyWithoutLicenseInput
+  }
+
+  export type LicenseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutLicensesNestedInput
+    activations?: LicenseActivationUpdateManyWithoutLicenseNestedInput
+  }
+
+  export type LicenseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activations?: LicenseActivationUncheckedUpdateManyWithoutLicenseNestedInput
+  }
+
+  export type LicenseCreateManyInput = {
+    id?: string
+    key: string
+    userId: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LicenseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseActivationCreateInput = {
+    id?: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+    license: LicenseCreateNestedOneWithoutActivationsInput
+  }
+
+  export type LicenseActivationUncheckedCreateInput = {
+    id?: string
+    licenseId: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+  }
+
+  export type LicenseActivationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    license?: LicenseUpdateOneRequiredWithoutActivationsNestedInput
+  }
+
+  export type LicenseActivationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    licenseId?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseActivationCreateManyInput = {
+    id?: string
+    licenseId: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+  }
+
+  export type LicenseActivationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseActivationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    licenseId?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhiteLabelConfigCreateInput = {
+    id?: string
+    agencyName?: string | null
+    logoUrl?: string | null
+    faviconUrl?: string | null
+    hideForgeBranding?: boolean
+    customCss?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutWhiteLabelConfigInput
+  }
+
+  export type WhiteLabelConfigUncheckedCreateInput = {
+    id?: string
+    userId: string
+    agencyName?: string | null
+    logoUrl?: string | null
+    faviconUrl?: string | null
+    hideForgeBranding?: boolean
+    customCss?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhiteLabelConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutWhiteLabelConfigNestedInput
+  }
+
+  export type WhiteLabelConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhiteLabelConfigCreateManyInput = {
+    id?: string
+    userId: string
+    agencyName?: string | null
+    logoUrl?: string | null
+    faviconUrl?: string | null
+    hideForgeBranding?: boolean
+    customCss?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhiteLabelConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhiteLabelConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceCreateInput = {
+    id?: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutInvoicesInput
+  }
+
+  export type BillingInvoiceUncheckedCreateInput = {
+    id?: string
+    userId: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
+  }
+
+  export type BillingInvoiceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutInvoicesNestedInput
+  }
+
+  export type BillingInvoiceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceCreateManyInput = {
+    id?: string
+    userId: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
+  }
+
+  export type BillingInvoiceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -68561,6 +74336,23 @@ export namespace Prisma {
     none?: OptimizationCreditLedgerWhereInput
   }
 
+  export type LicenseListRelationFilter = {
+    every?: LicenseWhereInput
+    some?: LicenseWhereInput
+    none?: LicenseWhereInput
+  }
+
+  export type WhiteLabelConfigNullableScalarRelationFilter = {
+    is?: WhiteLabelConfigWhereInput | null
+    isNot?: WhiteLabelConfigWhereInput | null
+  }
+
+  export type BillingInvoiceListRelationFilter = {
+    every?: BillingInvoiceWhereInput
+    some?: BillingInvoiceWhereInput
+    none?: BillingInvoiceWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -68675,6 +74467,14 @@ export namespace Prisma {
   }
 
   export type OptimizationCreditLedgerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LicenseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BillingInvoiceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -71047,6 +76847,213 @@ export namespace Prisma {
     creditsUsed?: SortOrder
   }
 
+  export type LicenseActivationListRelationFilter = {
+    every?: LicenseActivationWhereInput
+    some?: LicenseActivationWhereInput
+    none?: LicenseActivationWhereInput
+  }
+
+  export type LicenseActivationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LicenseCountOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    userId?: SortOrder
+    planSlug?: SortOrder
+    maxSites?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LicenseAvgOrderByAggregateInput = {
+    maxSites?: SortOrder
+  }
+
+  export type LicenseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    userId?: SortOrder
+    planSlug?: SortOrder
+    maxSites?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LicenseMinOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    userId?: SortOrder
+    planSlug?: SortOrder
+    maxSites?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LicenseSumOrderByAggregateInput = {
+    maxSites?: SortOrder
+  }
+
+  export type LicenseScalarRelationFilter = {
+    is?: LicenseWhereInput
+    isNot?: LicenseWhereInput
+  }
+
+  export type LicenseActivationLicenseIdSiteDomainCompoundUniqueInput = {
+    licenseId: string
+    siteDomain: string
+  }
+
+  export type LicenseActivationCountOrderByAggregateInput = {
+    id?: SortOrder
+    licenseId?: SortOrder
+    siteUrl?: SortOrder
+    siteDomain?: SortOrder
+    ipAddress?: SortOrder
+    isLocalhost?: SortOrder
+    activatedAt?: SortOrder
+    lastPingAt?: SortOrder
+  }
+
+  export type LicenseActivationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    licenseId?: SortOrder
+    siteUrl?: SortOrder
+    siteDomain?: SortOrder
+    ipAddress?: SortOrder
+    isLocalhost?: SortOrder
+    activatedAt?: SortOrder
+    lastPingAt?: SortOrder
+  }
+
+  export type LicenseActivationMinOrderByAggregateInput = {
+    id?: SortOrder
+    licenseId?: SortOrder
+    siteUrl?: SortOrder
+    siteDomain?: SortOrder
+    ipAddress?: SortOrder
+    isLocalhost?: SortOrder
+    activatedAt?: SortOrder
+    lastPingAt?: SortOrder
+  }
+
+  export type WhiteLabelConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    agencyName?: SortOrder
+    logoUrl?: SortOrder
+    faviconUrl?: SortOrder
+    hideForgeBranding?: SortOrder
+    customCss?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhiteLabelConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    agencyName?: SortOrder
+    logoUrl?: SortOrder
+    faviconUrl?: SortOrder
+    hideForgeBranding?: SortOrder
+    customCss?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WhiteLabelConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    agencyName?: SortOrder
+    logoUrl?: SortOrder
+    faviconUrl?: SortOrder
+    hideForgeBranding?: SortOrder
+    customCss?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type BillingInvoiceCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    planId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    invoiceNumber?: SortOrder
+    billingPeriodStart?: SortOrder
+    billingPeriodEnd?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BillingInvoiceAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type BillingInvoiceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    planId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    invoiceNumber?: SortOrder
+    billingPeriodStart?: SortOrder
+    billingPeriodEnd?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BillingInvoiceMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    planId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    invoiceNumber?: SortOrder
+    billingPeriodStart?: SortOrder
+    billingPeriodEnd?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BillingInvoiceSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -71256,6 +77263,26 @@ export namespace Prisma {
     connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
   }
 
+  export type LicenseCreateNestedManyWithoutUserInput = {
+    create?: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput> | LicenseCreateWithoutUserInput[] | LicenseUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LicenseCreateOrConnectWithoutUserInput | LicenseCreateOrConnectWithoutUserInput[]
+    createMany?: LicenseCreateManyUserInputEnvelope
+    connect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+  }
+
+  export type WhiteLabelConfigCreateNestedOneWithoutUserInput = {
+    create?: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+    connectOrCreate?: WhiteLabelConfigCreateOrConnectWithoutUserInput
+    connect?: WhiteLabelConfigWhereUniqueInput
+  }
+
+  export type BillingInvoiceCreateNestedManyWithoutUserInput = {
+    create?: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput> | BillingInvoiceCreateWithoutUserInput[] | BillingInvoiceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
+    createMany?: BillingInvoiceCreateManyUserInputEnvelope
+    connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+  }
+
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -71463,6 +77490,26 @@ export namespace Prisma {
     connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
     createMany?: OptimizationCreditLedgerCreateManyUserInputEnvelope
     connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+  }
+
+  export type LicenseUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput> | LicenseCreateWithoutUserInput[] | LicenseUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LicenseCreateOrConnectWithoutUserInput | LicenseCreateOrConnectWithoutUserInput[]
+    createMany?: LicenseCreateManyUserInputEnvelope
+    connect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+  }
+
+  export type WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+    connectOrCreate?: WhiteLabelConfigCreateOrConnectWithoutUserInput
+    connect?: WhiteLabelConfigWhereUniqueInput
+  }
+
+  export type BillingInvoiceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput> | BillingInvoiceCreateWithoutUserInput[] | BillingInvoiceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
+    createMany?: BillingInvoiceCreateManyUserInputEnvelope
+    connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -71921,6 +77968,44 @@ export namespace Prisma {
     deleteMany?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
   }
 
+  export type LicenseUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput> | LicenseCreateWithoutUserInput[] | LicenseUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LicenseCreateOrConnectWithoutUserInput | LicenseCreateOrConnectWithoutUserInput[]
+    upsert?: LicenseUpsertWithWhereUniqueWithoutUserInput | LicenseUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LicenseCreateManyUserInputEnvelope
+    set?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    disconnect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    delete?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    connect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    update?: LicenseUpdateWithWhereUniqueWithoutUserInput | LicenseUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LicenseUpdateManyWithWhereWithoutUserInput | LicenseUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LicenseScalarWhereInput | LicenseScalarWhereInput[]
+  }
+
+  export type WhiteLabelConfigUpdateOneWithoutUserNestedInput = {
+    create?: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+    connectOrCreate?: WhiteLabelConfigCreateOrConnectWithoutUserInput
+    upsert?: WhiteLabelConfigUpsertWithoutUserInput
+    disconnect?: WhiteLabelConfigWhereInput | boolean
+    delete?: WhiteLabelConfigWhereInput | boolean
+    connect?: WhiteLabelConfigWhereUniqueInput
+    update?: XOR<XOR<WhiteLabelConfigUpdateToOneWithWhereWithoutUserInput, WhiteLabelConfigUpdateWithoutUserInput>, WhiteLabelConfigUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BillingInvoiceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput> | BillingInvoiceCreateWithoutUserInput[] | BillingInvoiceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
+    upsert?: BillingInvoiceUpsertWithWhereUniqueWithoutUserInput | BillingInvoiceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BillingInvoiceCreateManyUserInputEnvelope
+    set?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    disconnect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    delete?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    update?: BillingInvoiceUpdateWithWhereUniqueWithoutUserInput | BillingInvoiceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BillingInvoiceUpdateManyWithWhereWithoutUserInput | BillingInvoiceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
+  }
+
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -72335,6 +78420,44 @@ export namespace Prisma {
     update?: OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput | OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput | OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
+  }
+
+  export type LicenseUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput> | LicenseCreateWithoutUserInput[] | LicenseUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LicenseCreateOrConnectWithoutUserInput | LicenseCreateOrConnectWithoutUserInput[]
+    upsert?: LicenseUpsertWithWhereUniqueWithoutUserInput | LicenseUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LicenseCreateManyUserInputEnvelope
+    set?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    disconnect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    delete?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    connect?: LicenseWhereUniqueInput | LicenseWhereUniqueInput[]
+    update?: LicenseUpdateWithWhereUniqueWithoutUserInput | LicenseUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LicenseUpdateManyWithWhereWithoutUserInput | LicenseUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LicenseScalarWhereInput | LicenseScalarWhereInput[]
+  }
+
+  export type WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+    connectOrCreate?: WhiteLabelConfigCreateOrConnectWithoutUserInput
+    upsert?: WhiteLabelConfigUpsertWithoutUserInput
+    disconnect?: WhiteLabelConfigWhereInput | boolean
+    delete?: WhiteLabelConfigWhereInput | boolean
+    connect?: WhiteLabelConfigWhereUniqueInput
+    update?: XOR<XOR<WhiteLabelConfigUpdateToOneWithWhereWithoutUserInput, WhiteLabelConfigUpdateWithoutUserInput>, WhiteLabelConfigUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput> | BillingInvoiceCreateWithoutUserInput[] | BillingInvoiceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
+    upsert?: BillingInvoiceUpsertWithWhereUniqueWithoutUserInput | BillingInvoiceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BillingInvoiceCreateManyUserInputEnvelope
+    set?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    disconnect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    delete?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+    update?: BillingInvoiceUpdateWithWhereUniqueWithoutUserInput | BillingInvoiceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BillingInvoiceUpdateManyWithWhereWithoutUserInput | BillingInvoiceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutWebsitesInput = {
@@ -74631,6 +80754,112 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreditLedgersInput, UserUpdateWithoutCreditLedgersInput>, UserUncheckedUpdateWithoutCreditLedgersInput>
   }
 
+  export type UserCreateNestedOneWithoutLicensesInput = {
+    create?: XOR<UserCreateWithoutLicensesInput, UserUncheckedCreateWithoutLicensesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLicensesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type LicenseActivationCreateNestedManyWithoutLicenseInput = {
+    create?: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput> | LicenseActivationCreateWithoutLicenseInput[] | LicenseActivationUncheckedCreateWithoutLicenseInput[]
+    connectOrCreate?: LicenseActivationCreateOrConnectWithoutLicenseInput | LicenseActivationCreateOrConnectWithoutLicenseInput[]
+    createMany?: LicenseActivationCreateManyLicenseInputEnvelope
+    connect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+  }
+
+  export type LicenseActivationUncheckedCreateNestedManyWithoutLicenseInput = {
+    create?: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput> | LicenseActivationCreateWithoutLicenseInput[] | LicenseActivationUncheckedCreateWithoutLicenseInput[]
+    connectOrCreate?: LicenseActivationCreateOrConnectWithoutLicenseInput | LicenseActivationCreateOrConnectWithoutLicenseInput[]
+    createMany?: LicenseActivationCreateManyLicenseInputEnvelope
+    connect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutLicensesNestedInput = {
+    create?: XOR<UserCreateWithoutLicensesInput, UserUncheckedCreateWithoutLicensesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLicensesInput
+    upsert?: UserUpsertWithoutLicensesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLicensesInput, UserUpdateWithoutLicensesInput>, UserUncheckedUpdateWithoutLicensesInput>
+  }
+
+  export type LicenseActivationUpdateManyWithoutLicenseNestedInput = {
+    create?: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput> | LicenseActivationCreateWithoutLicenseInput[] | LicenseActivationUncheckedCreateWithoutLicenseInput[]
+    connectOrCreate?: LicenseActivationCreateOrConnectWithoutLicenseInput | LicenseActivationCreateOrConnectWithoutLicenseInput[]
+    upsert?: LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput | LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput[]
+    createMany?: LicenseActivationCreateManyLicenseInputEnvelope
+    set?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    disconnect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    delete?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    connect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    update?: LicenseActivationUpdateWithWhereUniqueWithoutLicenseInput | LicenseActivationUpdateWithWhereUniqueWithoutLicenseInput[]
+    updateMany?: LicenseActivationUpdateManyWithWhereWithoutLicenseInput | LicenseActivationUpdateManyWithWhereWithoutLicenseInput[]
+    deleteMany?: LicenseActivationScalarWhereInput | LicenseActivationScalarWhereInput[]
+  }
+
+  export type LicenseActivationUncheckedUpdateManyWithoutLicenseNestedInput = {
+    create?: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput> | LicenseActivationCreateWithoutLicenseInput[] | LicenseActivationUncheckedCreateWithoutLicenseInput[]
+    connectOrCreate?: LicenseActivationCreateOrConnectWithoutLicenseInput | LicenseActivationCreateOrConnectWithoutLicenseInput[]
+    upsert?: LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput | LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput[]
+    createMany?: LicenseActivationCreateManyLicenseInputEnvelope
+    set?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    disconnect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    delete?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    connect?: LicenseActivationWhereUniqueInput | LicenseActivationWhereUniqueInput[]
+    update?: LicenseActivationUpdateWithWhereUniqueWithoutLicenseInput | LicenseActivationUpdateWithWhereUniqueWithoutLicenseInput[]
+    updateMany?: LicenseActivationUpdateManyWithWhereWithoutLicenseInput | LicenseActivationUpdateManyWithWhereWithoutLicenseInput[]
+    deleteMany?: LicenseActivationScalarWhereInput | LicenseActivationScalarWhereInput[]
+  }
+
+  export type LicenseCreateNestedOneWithoutActivationsInput = {
+    create?: XOR<LicenseCreateWithoutActivationsInput, LicenseUncheckedCreateWithoutActivationsInput>
+    connectOrCreate?: LicenseCreateOrConnectWithoutActivationsInput
+    connect?: LicenseWhereUniqueInput
+  }
+
+  export type LicenseUpdateOneRequiredWithoutActivationsNestedInput = {
+    create?: XOR<LicenseCreateWithoutActivationsInput, LicenseUncheckedCreateWithoutActivationsInput>
+    connectOrCreate?: LicenseCreateOrConnectWithoutActivationsInput
+    upsert?: LicenseUpsertWithoutActivationsInput
+    connect?: LicenseWhereUniqueInput
+    update?: XOR<XOR<LicenseUpdateToOneWithWhereWithoutActivationsInput, LicenseUpdateWithoutActivationsInput>, LicenseUncheckedUpdateWithoutActivationsInput>
+  }
+
+  export type UserCreateNestedOneWithoutWhiteLabelConfigInput = {
+    create?: XOR<UserCreateWithoutWhiteLabelConfigInput, UserUncheckedCreateWithoutWhiteLabelConfigInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWhiteLabelConfigInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutWhiteLabelConfigNestedInput = {
+    create?: XOR<UserCreateWithoutWhiteLabelConfigInput, UserUncheckedCreateWithoutWhiteLabelConfigInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWhiteLabelConfigInput
+    upsert?: UserUpsertWithoutWhiteLabelConfigInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWhiteLabelConfigInput, UserUpdateWithoutWhiteLabelConfigInput>, UserUncheckedUpdateWithoutWhiteLabelConfigInput>
+  }
+
+  export type UserCreateNestedOneWithoutInvoicesInput = {
+    create?: XOR<UserCreateWithoutInvoicesInput, UserUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInvoicesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutInvoicesNestedInput = {
+    create?: XOR<UserCreateWithoutInvoicesInput, UserUncheckedCreateWithoutInvoicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInvoicesInput
+    upsert?: UserUpsertWithoutInvoicesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInvoicesInput, UserUpdateWithoutInvoicesInput>, UserUncheckedUpdateWithoutInvoicesInput>
+  }
+
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -75028,6 +81257,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type IdentityCreateWithoutUserInput = {
@@ -76019,6 +82264,101 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type LicenseCreateWithoutUserInput = {
+    id?: string
+    key: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activations?: LicenseActivationCreateNestedManyWithoutLicenseInput
+  }
+
+  export type LicenseUncheckedCreateWithoutUserInput = {
+    id?: string
+    key: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activations?: LicenseActivationUncheckedCreateNestedManyWithoutLicenseInput
+  }
+
+  export type LicenseCreateOrConnectWithoutUserInput = {
+    where: LicenseWhereUniqueInput
+    create: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput>
+  }
+
+  export type LicenseCreateManyUserInputEnvelope = {
+    data: LicenseCreateManyUserInput | LicenseCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WhiteLabelConfigCreateWithoutUserInput = {
+    id?: string
+    agencyName?: string | null
+    logoUrl?: string | null
+    faviconUrl?: string | null
+    hideForgeBranding?: boolean
+    customCss?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhiteLabelConfigUncheckedCreateWithoutUserInput = {
+    id?: string
+    agencyName?: string | null
+    logoUrl?: string | null
+    faviconUrl?: string | null
+    hideForgeBranding?: boolean
+    customCss?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WhiteLabelConfigCreateOrConnectWithoutUserInput = {
+    where: WhiteLabelConfigWhereUniqueInput
+    create: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+  }
+
+  export type BillingInvoiceCreateWithoutUserInput = {
+    id?: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
+  }
+
+  export type BillingInvoiceUncheckedCreateWithoutUserInput = {
+    id?: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
+  }
+
+  export type BillingInvoiceCreateOrConnectWithoutUserInput = {
+    where: BillingInvoiceWhereUniqueInput
+    create: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput>
+  }
+
+  export type BillingInvoiceCreateManyUserInputEnvelope = {
+    data: BillingInvoiceCreateManyUserInput | BillingInvoiceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type IdentityUpsertWithWhereUniqueWithoutUserInput = {
     where: IdentityWhereUniqueInput
     update: XOR<IdentityUpdateWithoutUserInput, IdentityUncheckedUpdateWithoutUserInput>
@@ -76921,6 +83261,102 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
   }
 
+  export type LicenseUpsertWithWhereUniqueWithoutUserInput = {
+    where: LicenseWhereUniqueInput
+    update: XOR<LicenseUpdateWithoutUserInput, LicenseUncheckedUpdateWithoutUserInput>
+    create: XOR<LicenseCreateWithoutUserInput, LicenseUncheckedCreateWithoutUserInput>
+  }
+
+  export type LicenseUpdateWithWhereUniqueWithoutUserInput = {
+    where: LicenseWhereUniqueInput
+    data: XOR<LicenseUpdateWithoutUserInput, LicenseUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LicenseUpdateManyWithWhereWithoutUserInput = {
+    where: LicenseScalarWhereInput
+    data: XOR<LicenseUpdateManyMutationInput, LicenseUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LicenseScalarWhereInput = {
+    AND?: LicenseScalarWhereInput | LicenseScalarWhereInput[]
+    OR?: LicenseScalarWhereInput[]
+    NOT?: LicenseScalarWhereInput | LicenseScalarWhereInput[]
+    id?: UuidFilter<"License"> | string
+    key?: StringFilter<"License"> | string
+    userId?: UuidFilter<"License"> | string
+    planSlug?: StringFilter<"License"> | string
+    maxSites?: IntFilter<"License"> | number
+    status?: StringFilter<"License"> | string
+    expiresAt?: DateTimeNullableFilter<"License"> | Date | string | null
+    createdAt?: DateTimeFilter<"License"> | Date | string
+    updatedAt?: DateTimeFilter<"License"> | Date | string
+  }
+
+  export type WhiteLabelConfigUpsertWithoutUserInput = {
+    update: XOR<WhiteLabelConfigUpdateWithoutUserInput, WhiteLabelConfigUncheckedUpdateWithoutUserInput>
+    create: XOR<WhiteLabelConfigCreateWithoutUserInput, WhiteLabelConfigUncheckedCreateWithoutUserInput>
+    where?: WhiteLabelConfigWhereInput
+  }
+
+  export type WhiteLabelConfigUpdateToOneWithWhereWithoutUserInput = {
+    where?: WhiteLabelConfigWhereInput
+    data: XOR<WhiteLabelConfigUpdateWithoutUserInput, WhiteLabelConfigUncheckedUpdateWithoutUserInput>
+  }
+
+  export type WhiteLabelConfigUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhiteLabelConfigUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    faviconUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    hideForgeBranding?: BoolFieldUpdateOperationsInput | boolean
+    customCss?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceUpsertWithWhereUniqueWithoutUserInput = {
+    where: BillingInvoiceWhereUniqueInput
+    update: XOR<BillingInvoiceUpdateWithoutUserInput, BillingInvoiceUncheckedUpdateWithoutUserInput>
+    create: XOR<BillingInvoiceCreateWithoutUserInput, BillingInvoiceUncheckedCreateWithoutUserInput>
+  }
+
+  export type BillingInvoiceUpdateWithWhereUniqueWithoutUserInput = {
+    where: BillingInvoiceWhereUniqueInput
+    data: XOR<BillingInvoiceUpdateWithoutUserInput, BillingInvoiceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BillingInvoiceUpdateManyWithWhereWithoutUserInput = {
+    where: BillingInvoiceScalarWhereInput
+    data: XOR<BillingInvoiceUpdateManyMutationInput, BillingInvoiceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BillingInvoiceScalarWhereInput = {
+    AND?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
+    OR?: BillingInvoiceScalarWhereInput[]
+    NOT?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
+    id?: UuidFilter<"BillingInvoice"> | string
+    userId?: UuidFilter<"BillingInvoice"> | string
+    planId?: StringFilter<"BillingInvoice"> | string
+    amount?: FloatFilter<"BillingInvoice"> | number
+    currency?: StringFilter<"BillingInvoice"> | string
+    status?: StringFilter<"BillingInvoice"> | string
+    invoiceNumber?: StringFilter<"BillingInvoice"> | string
+    billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
+    billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
+    createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
+  }
+
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -76965,6 +83401,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -77011,6 +83450,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -77862,6 +84304,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsitesInput = {
@@ -77908,6 +84353,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CustomCodeSnippetUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -78593,6 +85041,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -78639,6 +85090,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -78701,6 +85155,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -78747,6 +85204,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -78793,6 +85253,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -78839,6 +85302,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -78901,6 +85367,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -78947,6 +85416,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -78993,6 +85465,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -79039,6 +85514,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -79101,6 +85579,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -79147,6 +85628,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -79193,6 +85677,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -79239,6 +85726,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -79301,6 +85791,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -79347,6 +85840,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -79490,6 +85986,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -79536,6 +86035,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -79641,6 +86143,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -79687,6 +86192,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTemplatesInput = {
@@ -79733,6 +86241,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -79779,6 +86290,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -79841,6 +86355,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -79887,6 +86404,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCustomCodeSnippetsInput = {
@@ -80180,6 +86700,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCodeRevisionsInput = {
@@ -80226,6 +86749,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCodeRevisionsInput = {
@@ -80345,6 +86871,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCodeRevisionsInput = {
@@ -80391,6 +86920,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutFormSubmissionsInput = {
@@ -81016,6 +87548,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -81062,6 +87597,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -81124,6 +87662,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -81170,6 +87711,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutSftpConnectionsInput = {
@@ -81621,6 +88165,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCustomEntriesInput = {
@@ -81667,6 +88214,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCustomEntriesInput = {
@@ -81764,6 +88314,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomEntriesInput = {
@@ -81810,6 +88363,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDesignNotesInput = {
@@ -81931,6 +88487,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDesignNotesInput = {
@@ -81977,6 +88536,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDesignNotesInput = {
@@ -82120,6 +88682,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignNotesInput = {
@@ -82166,6 +88731,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutDeveloperApiKeysInput = {
@@ -82212,6 +88780,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeveloperApiKeysInput = {
@@ -82258,6 +88829,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeveloperApiKeysInput = {
@@ -82320,6 +88894,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeveloperApiKeysInput = {
@@ -82366,6 +88943,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutComponentAccessesInput = {
@@ -82487,6 +89067,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutComponentAccessesInput = {
@@ -82533,6 +89116,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutComponentAccessesInput = {
@@ -82676,6 +89262,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutComponentAccessesInput = {
@@ -82722,6 +89311,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCollaboratorsInput = {
@@ -82843,6 +89435,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCollaborationsInput = {
@@ -82889,6 +89484,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCollaborationsInput = {
@@ -83032,6 +89630,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollaborationsInput = {
@@ -83078,6 +89679,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutRevisionsInput = {
@@ -83199,6 +89803,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsiteRevisionsInput = {
@@ -83245,6 +89852,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsiteRevisionsInput = {
@@ -83388,6 +89998,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsiteRevisionsInput = {
@@ -83434,6 +90047,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDeploymentsInput = {
@@ -83555,6 +90171,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeploymentsInput = {
@@ -83601,6 +90220,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeploymentsInput = {
@@ -83744,6 +90366,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeploymentsInput = {
@@ -83790,6 +90415,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpConnectionInput = {
@@ -83911,6 +90539,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWpConnectionsInput = {
@@ -83957,6 +90588,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWpConnectionsInput = {
@@ -84100,6 +90734,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWpConnectionsInput = {
@@ -84146,6 +90783,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpPageMappingsInput = {
@@ -84423,6 +91063,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGranularPermissionsInput = {
@@ -84469,6 +91112,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGranularPermissionsInput = {
@@ -84612,6 +91258,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -84658,6 +91307,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutOwnedTeamsInput = {
@@ -84704,6 +91356,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedTeamsInput = {
@@ -84750,6 +91405,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedTeamsInput = {
@@ -84952,6 +91610,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedTeamsInput = {
@@ -84998,6 +91659,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamMemberUpsertWithWhereUniqueWithoutTeamInput = {
@@ -85119,6 +91783,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTeamMembershipsInput = {
@@ -85165,6 +91832,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTeamMembershipsInput = {
@@ -85260,6 +91930,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMembershipsInput = {
@@ -85306,6 +91979,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamCreateWithoutInvitationsInput = {
@@ -85379,6 +92055,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentTeamInvitationsInput = {
@@ -85425,6 +92104,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentTeamInvitationsInput = {
@@ -85520,6 +92202,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTeamInvitationsInput = {
@@ -85566,6 +92251,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutInvitationsInput = {
@@ -85687,6 +92375,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentWebsiteInvitationsInput = {
@@ -85733,6 +92424,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentWebsiteInvitationsInput = {
@@ -85876,6 +92570,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentWebsiteInvitationsInput = {
@@ -85922,6 +92619,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationCreateWithoutWorkspacesInput = {
@@ -85997,6 +92697,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -86043,6 +92746,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -86246,6 +92952,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -86292,6 +93001,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -86370,6 +93082,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedOrganizationsInput = {
@@ -86416,6 +93131,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedOrganizationsInput = {
@@ -86618,6 +93336,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedOrganizationsInput = {
@@ -86664,6 +93385,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -86787,6 +93511,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationMembershipsInput = {
@@ -86833,6 +93560,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationMembershipsInput = {
@@ -86930,6 +93660,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationMembershipsInput = {
@@ -86976,6 +93709,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -87051,6 +93787,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
@@ -87097,6 +93836,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -87194,6 +93936,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
@@ -87240,6 +93985,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutApprovalRequestsInput = {
@@ -87361,6 +94109,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalRequestsInput = {
@@ -87407,6 +94158,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalRequestsInput = {
@@ -87458,6 +94212,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedApprovalsInput = {
@@ -87504,6 +94261,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedApprovalsInput = {
@@ -87647,6 +94407,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -87693,6 +94456,9 @@ export namespace Prisma {
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutReviewedApprovalsInput = {
@@ -87750,6 +94516,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedApprovalsInput = {
@@ -87796,6 +94565,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMediaAssetsInput = {
@@ -87842,6 +94614,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMediaAssetsInput = {
@@ -87888,6 +94663,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMediaAssetsInput = {
@@ -88025,6 +94803,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMediaAssetsInput = {
@@ -88071,6 +94852,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteUpsertWithoutMediaAssetsInput = {
@@ -88822,6 +95606,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreditLedgersInput = {
@@ -88868,6 +95655,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreditLedgersInput = {
@@ -88930,6 +95720,9 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreditLedgersInput = {
@@ -88976,6 +95769,769 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLicensesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLicensesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLicensesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLicensesInput, UserUncheckedCreateWithoutLicensesInput>
+  }
+
+  export type LicenseActivationCreateWithoutLicenseInput = {
+    id?: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+  }
+
+  export type LicenseActivationUncheckedCreateWithoutLicenseInput = {
+    id?: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+  }
+
+  export type LicenseActivationCreateOrConnectWithoutLicenseInput = {
+    where: LicenseActivationWhereUniqueInput
+    create: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput>
+  }
+
+  export type LicenseActivationCreateManyLicenseInputEnvelope = {
+    data: LicenseActivationCreateManyLicenseInput | LicenseActivationCreateManyLicenseInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutLicensesInput = {
+    update: XOR<UserUpdateWithoutLicensesInput, UserUncheckedUpdateWithoutLicensesInput>
+    create: XOR<UserCreateWithoutLicensesInput, UserUncheckedCreateWithoutLicensesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLicensesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLicensesInput, UserUncheckedUpdateWithoutLicensesInput>
+  }
+
+  export type UserUpdateWithoutLicensesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLicensesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput = {
+    where: LicenseActivationWhereUniqueInput
+    update: XOR<LicenseActivationUpdateWithoutLicenseInput, LicenseActivationUncheckedUpdateWithoutLicenseInput>
+    create: XOR<LicenseActivationCreateWithoutLicenseInput, LicenseActivationUncheckedCreateWithoutLicenseInput>
+  }
+
+  export type LicenseActivationUpdateWithWhereUniqueWithoutLicenseInput = {
+    where: LicenseActivationWhereUniqueInput
+    data: XOR<LicenseActivationUpdateWithoutLicenseInput, LicenseActivationUncheckedUpdateWithoutLicenseInput>
+  }
+
+  export type LicenseActivationUpdateManyWithWhereWithoutLicenseInput = {
+    where: LicenseActivationScalarWhereInput
+    data: XOR<LicenseActivationUpdateManyMutationInput, LicenseActivationUncheckedUpdateManyWithoutLicenseInput>
+  }
+
+  export type LicenseActivationScalarWhereInput = {
+    AND?: LicenseActivationScalarWhereInput | LicenseActivationScalarWhereInput[]
+    OR?: LicenseActivationScalarWhereInput[]
+    NOT?: LicenseActivationScalarWhereInput | LicenseActivationScalarWhereInput[]
+    id?: UuidFilter<"LicenseActivation"> | string
+    licenseId?: UuidFilter<"LicenseActivation"> | string
+    siteUrl?: StringFilter<"LicenseActivation"> | string
+    siteDomain?: StringFilter<"LicenseActivation"> | string
+    ipAddress?: StringNullableFilter<"LicenseActivation"> | string | null
+    isLocalhost?: BoolFilter<"LicenseActivation"> | boolean
+    activatedAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+    lastPingAt?: DateTimeFilter<"LicenseActivation"> | Date | string
+  }
+
+  export type LicenseCreateWithoutActivationsInput = {
+    id?: string
+    key: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutLicensesInput
+  }
+
+  export type LicenseUncheckedCreateWithoutActivationsInput = {
+    id?: string
+    key: string
+    userId: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LicenseCreateOrConnectWithoutActivationsInput = {
+    where: LicenseWhereUniqueInput
+    create: XOR<LicenseCreateWithoutActivationsInput, LicenseUncheckedCreateWithoutActivationsInput>
+  }
+
+  export type LicenseUpsertWithoutActivationsInput = {
+    update: XOR<LicenseUpdateWithoutActivationsInput, LicenseUncheckedUpdateWithoutActivationsInput>
+    create: XOR<LicenseCreateWithoutActivationsInput, LicenseUncheckedCreateWithoutActivationsInput>
+    where?: LicenseWhereInput
+  }
+
+  export type LicenseUpdateToOneWithWhereWithoutActivationsInput = {
+    where?: LicenseWhereInput
+    data: XOR<LicenseUpdateWithoutActivationsInput, LicenseUncheckedUpdateWithoutActivationsInput>
+  }
+
+  export type LicenseUpdateWithoutActivationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutLicensesNestedInput
+  }
+
+  export type LicenseUncheckedUpdateWithoutActivationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateWithoutWhiteLabelConfigInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutWhiteLabelConfigInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutWhiteLabelConfigInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutWhiteLabelConfigInput, UserUncheckedCreateWithoutWhiteLabelConfigInput>
+  }
+
+  export type UserUpsertWithoutWhiteLabelConfigInput = {
+    update: XOR<UserUpdateWithoutWhiteLabelConfigInput, UserUncheckedUpdateWithoutWhiteLabelConfigInput>
+    create: XOR<UserCreateWithoutWhiteLabelConfigInput, UserUncheckedCreateWithoutWhiteLabelConfigInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutWhiteLabelConfigInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutWhiteLabelConfigInput, UserUncheckedUpdateWithoutWhiteLabelConfigInput>
+  }
+
+  export type UserUpdateWithoutWhiteLabelConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutWhiteLabelConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutInvoicesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutInvoicesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutInvoicesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInvoicesInput, UserUncheckedCreateWithoutInvoicesInput>
+  }
+
+  export type UserUpsertWithoutInvoicesInput = {
+    update: XOR<UserUpdateWithoutInvoicesInput, UserUncheckedUpdateWithoutInvoicesInput>
+    create: XOR<UserCreateWithoutInvoicesInput, UserUncheckedCreateWithoutInvoicesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInvoicesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInvoicesInput, UserUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type UserUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInvoicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -89284,6 +96840,29 @@ export namespace Prisma {
     actionType: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type LicenseCreateManyUserInput = {
+    id?: string
+    key: string
+    planSlug: string
+    maxSites?: number
+    status?: string
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingInvoiceCreateManyUserInput = {
+    id?: string
+    planId: string
+    amount: number
+    currency?: string
+    status?: string
+    invoiceNumber: string
+    billingPeriodStart: Date | string
+    billingPeriodEnd: Date | string
+    createdAt?: Date | string
   }
 
   export type IdentityUpdateWithoutUserInput = {
@@ -90266,6 +97845,77 @@ export namespace Prisma {
     actionType?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activations?: LicenseActivationUpdateManyWithoutLicenseNestedInput
+  }
+
+  export type LicenseUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activations?: LicenseActivationUncheckedUpdateManyWithoutLicenseNestedInput
+  }
+
+  export type LicenseUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    planSlug?: StringFieldUpdateOperationsInput | string
+    maxSites?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingInvoiceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    planId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    invoiceNumber?: StringFieldUpdateOperationsInput | string
+    billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomCodeSnippetCreateManyWebsiteInput = {
@@ -91798,6 +99448,46 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type LicenseActivationCreateManyLicenseInput = {
+    id?: string
+    siteUrl: string
+    siteDomain: string
+    ipAddress?: string | null
+    isLocalhost?: boolean
+    activatedAt?: Date | string
+    lastPingAt?: Date | string
+  }
+
+  export type LicenseActivationUpdateWithoutLicenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseActivationUncheckedUpdateWithoutLicenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LicenseActivationUncheckedUpdateManyWithoutLicenseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    siteUrl?: StringFieldUpdateOperationsInput | string
+    siteDomain?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    isLocalhost?: BoolFieldUpdateOperationsInput | boolean
+    activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

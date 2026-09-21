@@ -674,6 +674,54 @@ exports.Prisma.OptimizationCreditLedgerScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.LicenseScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  userId: 'userId',
+  planSlug: 'planSlug',
+  maxSites: 'maxSites',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LicenseActivationScalarFieldEnum = {
+  id: 'id',
+  licenseId: 'licenseId',
+  siteUrl: 'siteUrl',
+  siteDomain: 'siteDomain',
+  ipAddress: 'ipAddress',
+  isLocalhost: 'isLocalhost',
+  activatedAt: 'activatedAt',
+  lastPingAt: 'lastPingAt'
+};
+
+exports.Prisma.WhiteLabelConfigScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  agencyName: 'agencyName',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  hideForgeBranding: 'hideForgeBranding',
+  customCss: 'customCss',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillingInvoiceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  invoiceNumber: 'invoiceNumber',
+  billingPeriodStart: 'billingPeriodStart',
+  billingPeriodEnd: 'billingPeriodEnd',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -792,7 +840,11 @@ exports.Prisma.ModelName = {
   EmailDeliveryLog: 'EmailDeliveryLog',
   SitePerformanceMetric: 'SitePerformanceMetric',
   MediaOptimizationAsset: 'MediaOptimizationAsset',
-  OptimizationCreditLedger: 'OptimizationCreditLedger'
+  OptimizationCreditLedger: 'OptimizationCreditLedger',
+  License: 'License',
+  LicenseActivation: 'LicenseActivation',
+  WhiteLabelConfig: 'WhiteLabelConfig',
+  BillingInvoice: 'BillingInvoice'
 };
 
 /**

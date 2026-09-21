@@ -3,6 +3,8 @@ import {
   getAllActivePlans,
   getUserSubscription,
   changeUserPlan,
+  cancelSubscription,
+  getUserInvoices,
 } from "../services/subscription.service.js";
 
 /**
@@ -112,3 +114,67 @@ export async function selectPlan(
     next(error);
   }
 }
+
+/**
+ * POST /api/v1/subscriptions/cancel (Feature F-449)
+ * Cancels current user subscription gracefully
+ */
+export async function cancelUserSubscription(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    if (!user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const result = await cancelSubscription(user.id);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: {
+        subscription: result.subscription,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/v1/subscriptions/invoices (Features F-444, F-445, F-449)
+ * Fetches user's billing invoice history
+ */
+export async function getBillingInvoices(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    if (!user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const invoices = await getUserInvoices(user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        invoices,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
