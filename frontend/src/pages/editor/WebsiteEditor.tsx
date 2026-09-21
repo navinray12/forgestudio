@@ -5,6 +5,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
@@ -260,6 +261,8 @@ import {
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
+import { DefaultWebsiteNavbar } from "./components/DefaultWebsiteNavbar";
+import { createDefaultHeaderElements } from "./navigation/navigationDefaults";
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -816,6 +819,37 @@ export default function WebsiteEditor() {
     setTimeout(() => setSaveMessage(""), 3500);
   };
 
+  const handleUpdateElementPropById = useCallback((elementId: string, propKey: string, propValue: any) => {
+    const updateInTree = (items: EditorElement[]): EditorElement[] => {
+      return items.map((el) => {
+        if (el.id === elementId) {
+          return {
+            ...el,
+            props: {
+              ...(el.props || {}),
+              [propKey]: propValue,
+            },
+          };
+        }
+        let updated = { ...el };
+        if (Array.isArray(el.children)) {
+          updated.children = updateInTree(el.children);
+        }
+        if (Array.isArray(el.elements)) {
+          updated.elements = updateInTree(el.elements);
+        }
+        return updated;
+      });
+    };
+
+    setElements((prev) => updateInTree(prev));
+  }, []);
+
+  const handleSelectElementFromAudit = useCallback((elementId: string) => {
+    setSelectedId(elementId);
+    setSelectedIds([elementId]);
+  }, []);
+
   const toggleWidgetAvailability = (type: ElementType) => {
     setDisabledWidgets((prev) => {
       const updated = prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type];
@@ -906,6 +940,7 @@ export default function WebsiteEditor() {
   const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
   const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+  const [isSeoModalOpen, setIsSeoModalOpen] = useState<boolean>(false);
   const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
   const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
   const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
@@ -1184,7 +1219,17 @@ export default function WebsiteEditor() {
             setHistory([targetEls]);
             setHistoryIndex(0);
           } else if (mode === "header") {
-            const targetEls = siteParts.header?.elements || [];
+            let targetEls = siteParts.header?.elements || [];
+            if (targetEls.length === 0) {
+              targetEls = createDefaultHeaderElements(
+                website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+                pages
+              );
+              setSiteParts((prev) => ({
+                ...prev,
+                header: { ...prev.header, elements: targetEls },
+              }));
+            }
             setElements(targetEls);
             setHistory([targetEls]);
             setHistoryIndex(0);
@@ -6540,7 +6585,7 @@ export default function WebsiteEditor() {
 
                   {/* Vertical Divider */}
                   <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
-                  https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc%252Fpages%252Feditor%252FWebsiteEditor.tsx&ancestor_oid=308ef2632df75edea24a1e7178f0d3cbe332d2a2&base_oid=5d42845543304e84f0f79503335dcd63e035f7ba&head_oid=cdb5052fb510f1649bab79c7fd23fc03254d2892
+
                   {/* Developer Mode Button */}
                   <button
                     type="button"
@@ -6840,6 +6885,18 @@ export default function WebsiteEditor() {
 
                   {/* Subtle Divider */}
                   <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+
+                  {/* SEO & Quality Audit Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsSeoModalOpen(true)}
+                    className="h-8 px-2.5 rounded-lg border border-indigo-500/40 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-white transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    title="SEO & Quality Audit"
+                    aria-label="SEO & Quality Audit"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="hidden sm:inline">SEO & Quality</span>
+                  </button>
 
                   {/* Primary Action Buttons: Preview, Save, Publish */}
                   {/* Preview Button */}
@@ -8456,15 +8513,28 @@ export default function WebsiteEditor() {
                           <div className="space-y-6 py-2">
                             {/* Global Header in Preview (Comment 5, 21) */}
                             {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
-                              siteParts.header?.elements &&
-                              siteParts.header.elements.length > 0 &&
                               matchesThemeCondition(siteParts.header?.conditions, {
                                 pageId: currentPreviewPage?.id,
                                 isHome: currentPreviewPage?.isHome,
                                 slug: currentPreviewPage?.slug,
                               }) && (
-                                <div className="site-global-header border-b border-slate-100 pb-4">
-                                  {siteParts.header.elements.map((el) => renderElementTree(el))}
+                                <div className="site-global-header border-b border-slate-100 pb-4 mb-4">
+                                  {siteParts.header?.elements && siteParts.header.elements.length > 0 ? (
+                                    siteParts.header.elements.map((el) => renderElementTree(el))
+                                  ) : (
+                                    <DefaultWebsiteNavbar
+                                      websiteName={website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}
+                                      pages={pages}
+                                      activePageId={currentPreviewPage?.id || activePageId}
+                                      isPreview={true}
+                                      activeDevice={activeDevice}
+                                      onNavigatePage={(targetPage) => handlePreviewPageNavigate(targetPage)}
+                                      onEditHeader={() => {
+                                        setIsPreview(false);
+                                        handleSwitchCanvasMode("header");
+                                      }}
+                                    />
+                                  )}
                                 </div>
                               )}
 
@@ -8488,15 +8558,19 @@ export default function WebsiteEditor() {
 
                             {/* Global Footer in Preview (Comment 5, 21) */}
                             {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
-                              siteParts.footer?.elements &&
-                              siteParts.footer.elements.length > 0 &&
                               matchesThemeCondition(siteParts.footer?.conditions, {
                                 pageId: currentPreviewPage?.id,
                                 isHome: currentPreviewPage?.isHome,
                                 slug: currentPreviewPage?.slug,
                               }) && (
                                 <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
-                                  {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                                  {siteParts.footer?.elements && siteParts.footer.elements.length > 0 ? (
+                                    siteParts.footer.elements.map((el) => renderElementTree(el))
+                                  ) : (
+                                    <div className="py-6 text-center text-xs text-slate-500">
+                                      © {new Date().getFullYear()} {website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}. All rights reserved.
+                                    </div>
+                                  )}
                                 </div>
                               )}
                           </div>
@@ -8558,7 +8632,41 @@ export default function WebsiteEditor() {
                       {/* Blank Page Layout Bar (F-016) - Page Mode */}
                       {canvasMode === "page" && (
                         <>
-                          {/* Shared Global Header Preview Banner in Page Mode (Hidden per user request) */}
+                          {/* Shared Global Header & Navigation in Page Mode Canvas */}
+                          {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) && (
+                            <div className="mb-6 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
+                              <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
+                                <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                                  <span>🌐</span>
+                                  <span>Website Header & Navigation (Shared Across Pages)</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSwitchCanvasMode("header")}
+                                  className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                                  title="Customize Header & Navigation"
+                                >
+                                  <span>✏️</span>
+                                  <span>Edit Header</span>
+                                </button>
+                              </div>
+                              {siteParts.header?.elements && siteParts.header.elements.length > 0 ? (
+                                <div className="space-y-3">
+                                  {siteParts.header.elements.map((el) => renderElementTree(el))}
+                                </div>
+                              ) : (
+                                <DefaultWebsiteNavbar
+                                  websiteName={website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}
+                                  pages={pages}
+                                  activePageId={activePageId}
+                                  isPreview={false}
+                                  activeDevice={activeDevice}
+                                  onNavigatePage={(page) => handleSwitchEditingPage(page.id)}
+                                  onEditHeader={() => handleSwitchCanvasMode("header")}
+                                />
+                              )}
+                            </div>
+                          )}
 
                           <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -8596,7 +8704,35 @@ export default function WebsiteEditor() {
                         </div>
                       )}
 
-                      {/* Shared Global Footer Preview Banner in Page Mode (Hidden per user request) */}
+                      {/* Shared Global Footer in Page Mode Canvas */}
+                      {canvasMode === "page" && (siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) && (
+                        <div className="mt-8 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
+                          <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
+                            <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                              <span>🌐</span>
+                              <span>Website Footer (Shared Across Pages)</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchCanvasMode("footer")}
+                              className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                              title="Customize Footer"
+                            >
+                              <span>✏️</span>
+                              <span>Edit Footer</span>
+                            </button>
+                          </div>
+                          {siteParts.footer?.elements && siteParts.footer.elements.length > 0 ? (
+                            <div className="space-y-3">
+                              {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                            </div>
+                          ) : (
+                            <div className="py-3 text-center text-xs text-slate-400 italic">
+                              Global footer is empty. Click "Edit Footer" to add footer links, copyright, or social widgets.
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -17345,6 +17481,15 @@ export default function WebsiteEditor() {
                           </span>
                         </div>
 
+                        <button
+                          type="button"
+                          onClick={() => setIsSeoModalOpen(true)}
+                          className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Open Full SEO & Quality Audit</span>
+                        </button>
+
                         <div>
                           <label className="block text-[11px] font-semibold text-slate-600 mb-1">
                             Canonical URL
@@ -18614,6 +18759,23 @@ export default function WebsiteEditor() {
                 setIsPublishModalOpen(false);
                 setIsPreview(true);
               }}
+            />
+
+            {/* SEO & Quality Analyzer Modal */}
+            <SeoAnalyzerModal
+              isOpen={isSeoModalOpen}
+              onClose={() => setIsSeoModalOpen(false)}
+              websiteId={websiteId || ""}
+              activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
+              allPages={pages}
+              websiteData={{
+                name: website?.name,
+                siteSettings: globalSettings || {},
+                pages,
+              }}
+              onSelectElement={handleSelectElementFromAudit}
+              onUpdateElementProp={handleUpdateElementPropById}
+              onUpdatePageSettings={setPageSettings}
             />
 
             {/* Collaborative Design Notes & Feedback Overlay */}

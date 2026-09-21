@@ -1156,7 +1156,19 @@ export const NavMenuWidgetRenderer = ({
     { id: "5", label: "Contact", url: "/contact" },
   ];
 
-  const items: NavMenuItem[] = el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : defaultNavItems;
+  const pagesNavItems: NavMenuItem[] =
+    pages && pages.length > 0
+      ? pages.map((p) => ({
+          id: p.id,
+          label: p.name,
+          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+          pageId: p.id,
+          isActive: p.isHome || p.id === homePageId,
+        }))
+      : defaultNavItems;
+
+  const items: NavMenuItem[] =
+    el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : pagesNavItems;
 
   const isVertical = el.navLayout === "vertical";
   const alignment = el.navAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "left";

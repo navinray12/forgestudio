@@ -51,6 +51,13 @@ import {
   cancelScheduledPublishHandler,
   promoteDeploymentHandler,
 } from "../controllers/operations.controller.js";
+import {
+  analyzeSeoHandler,
+  auditImagesHandler,
+  auditAccessibilityHandler,
+  generateStructuredDataHandler,
+  saveWebsiteSeoHandler,
+} from "../controllers/seo.controller.js";
 
 const router = Router();
 
@@ -93,6 +100,13 @@ router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLL
 router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
 router.post("/:id/cancel-scheduled-publish", authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);
+
+// Quality & SEO Analysis API
+router.post("/:id/seo/analyze", authorizeCapability("VIEW"), analyzeSeoHandler);
+router.post("/:id/seo/audit-images", authorizeCapability("VIEW"), auditImagesHandler);
+router.post("/:id/seo/audit-a11y", authorizeCapability("VIEW"), auditAccessibilityHandler);
+router.post("/:id/seo/structured-data", authorizeCapability("VIEW"), generateStructuredDataHandler);
+router.put("/:id/seo", authorizeCapability("EDIT_SEO"), saveWebsiteSeoHandler);
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);

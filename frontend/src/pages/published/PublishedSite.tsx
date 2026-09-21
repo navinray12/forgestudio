@@ -776,14 +776,15 @@ export default function PublishedSite() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, [pages, activePageId]);
 
-    // Page-Level SEO, OpenGraph & Search Engine Indexing (Phase 4)
+    // Page-Level SEO, OpenGraph, Twitter Cards & Structured Data
     useEffect(() => {
         if (!pages || pages.length === 0) return;
         const curPage = pages.find(p => p.id === activePageId) || pages[0];
         if (!curPage) return;
 
         const pSettings = (curPage as any).pageSettings || {};
-        const title = pSettings.title || curPage.name || "Published Website";
+        const siteSettings = (globalSettings as any)?.siteSettings || globalSettings || {};
+        const title = pSettings.title || curPage.name || siteSettings.siteName || "Published Website";
         document.title = title;
 
         const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
@@ -799,12 +800,26 @@ export default function PublishedSite() {
             el.setAttribute("content", content);
         };
 
-        if (pSettings.description) upsertMeta("description", pSettings.description);
-        if (pSettings.ogTitle || title) upsertMeta("og:title", pSettings.ogTitle || title, true);
-        if (pSettings.ogDescription || pSettings.description) {
-            upsertMeta("og:description", pSettings.ogDescription || pSettings.description, true);
+        const ogImg = pSettings.ogImage || siteSettings.ogImage || siteSettings.logo;
+        const ogTitle = pSettings.ogTitle || title;
+        const ogDesc = pSettings.ogDescription || pSettings.description || siteSettings.metaDescription;
+
+        if (pSettings.description || siteSettings.metaDescription) {
+            upsertMeta("description", pSettings.description || siteSettings.metaDescription);
         }
-        if (pSettings.ogImage) upsertMeta("og:image", pSettings.ogImage, true);
+        upsertMeta("og:title", ogTitle, true);
+        if (ogDesc) {
+            upsertMeta("og:description", ogDesc, true);
+        }
+        if (ogImg) upsertMeta("og:image", ogImg, true);
+
+        // Twitter Cards
+        const twitterCard = pSettings.twitterCard || siteSettings.twitterCard || (ogImg ? "summary_large_image" : "summary");
+        upsertMeta("twitter:card", twitterCard);
+        upsertMeta("twitter:title", pSettings.twitterTitle || ogTitle);
+        if (ogDesc) upsertMeta("twitter:description", pSettings.twitterDescription || ogDesc);
+        if (ogImg) upsertMeta("twitter:image", pSettings.twitterImage || ogImg);
+
         if (pSettings.canonicalUrl) {
             let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
             if (!link) {
@@ -821,7 +836,20 @@ export default function PublishedSite() {
         if (robots.length > 0) {
             upsertMeta("robots", robots.join(", "));
         }
-    }, [pages, activePageId]);
+
+        // Schema.org Structured Data (JSON-LD)
+        const structuredData = pSettings.structuredData || siteSettings.structuredData;
+        if (structuredData) {
+            let script = document.querySelector('script[data-forgestudio-schema="true"]') as HTMLScriptElement | null;
+            if (!script) {
+                script = document.createElement("script");
+                script.type = "application/ld+json";
+                script.setAttribute("data-forgestudio-schema", "true");
+                document.head.appendChild(script);
+            }
+            script.textContent = JSON.stringify(structuredData);
+        }
+    }, [pages, activePageId, globalSettings]);
 
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
