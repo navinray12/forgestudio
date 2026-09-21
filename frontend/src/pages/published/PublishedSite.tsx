@@ -88,11 +88,35 @@ import {
     MegaMenuWidgetRenderer,
     OffCanvasWidgetRenderer,
     ShareButtonsWidgetRenderer,
+    WcProductWidgetRenderer,
     WcProductTitleWidgetRenderer,
     WcProductPriceWidgetRenderer,
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
     WcProductRatingWidgetRenderer,
+    WcProductStockWidgetRenderer,
+    WcProductMetaWidgetRenderer,
+    WcProductContentWidgetRenderer,
+    WcShortDescriptionWidgetRenderer,
+    WcProductDataTabsWidgetRenderer,
+    WcAdditionalInformationWidgetRenderer,
+    WcRelatedProductsWidgetRenderer,
+    WcUpsellsWidgetRenderer,
+    WcProductsWidgetRenderer,
+    WcCustomAddToCartWidgetRenderer,
+    WcProductCategoriesWidgetRenderer,
+    WcMenuCartWidgetRenderer,
+    WcCartWidgetRenderer,
+    WcCheckoutWidgetRenderer,
+    WcMyAccountWidgetRenderer,
+    WcPurchaseSummaryWidgetRenderer,
+    WcNoticesWidgetRenderer,
+    WcShopLayoutsWidgetRenderer,
+    WcProductArchiveWidgetRenderer,
+    WcProductPageTemplatesWidgetRenderer,
+    WcProductArchiveTemplatesWidgetRenderer,
+    WcShopFiltersWidgetRenderer,
+    LanguageSwitcherWidgetRenderer,
     resolveButtonHref
 } from "../editor/widgets";
 import { IconRenderer } from "../editor/widgets/icons";
@@ -114,17 +138,46 @@ const renderSvgIcon = (_name: string, size: string, color: string) => (
 
 const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
     if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
-    return pagesList.find(
+    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+
+    // 1. Direct ID, slug, or name match
+    let matched = pagesList.find(
         (p) =>
             p.id === target ||
             p.slug === target ||
             p.slug === `/${clean}` ||
-            p.slug.replace(/^\//, "") === clean ||
+            p.slug.replace(/^\//, "").toLowerCase() === clean ||
+            p.id.toLowerCase() === clean ||
             p.name.toLowerCase() === target.toLowerCase() ||
-            p.name.toLowerCase() === clean.toLowerCase() ||
+            p.name.toLowerCase() === clean ||
             (clean === "" && (p.isHome || p.id === "home"))
     );
+    if (matched) return matched;
+
+    // 2. Element widget type match (e.g. page containing wc-cart, wc-checkout, wc-product, wc-products, etc.)
+    matched = pagesList.find((p) =>
+        p.elements?.some(
+            (e) =>
+                e.type === clean ||
+                e.type === `wc-${clean}` ||
+                e.type === `woocommerce-${clean}`
+        )
+    );
+    if (matched) return matched;
+
+    // 3. Keyword / partial slug match
+    if (clean) {
+        matched = pagesList.find(
+            (p) =>
+                p.slug.toLowerCase().includes(clean) ||
+                p.name.toLowerCase().includes(clean) ||
+                clean.includes(p.slug.replace(/^\//, "").toLowerCase())
+        );
+    }
+    if (matched) return matched;
+
+    // 4. Fallback to home page or first available page to prevent blank screen
+    return pagesList.find((p) => p.isHome || p.id === "home") || pagesList[0];
 };
 
 interface RenderNodeProps {
@@ -205,6 +258,10 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                 rel={rel}
                 download={isDownload ? true : undefined}
                 onClick={(e) => {
+                    const isExternal = /^https?:\/\//i.test(imageHref) || /^mailto:/i.test(imageHref) || /^tel:/i.test(imageHref);
+                    if (!isExternal && target !== "_blank") {
+                        e.preventDefault();
+                    }
                     let targetPage: PageConfig | undefined;
                     if (el.pageId && pages) {
                         targetPage = pages.find((p) => p.id === el.pageId);
@@ -213,10 +270,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         targetPage = findTargetPage(pages, imageHref);
                     }
                     if (targetPage && target !== "_blank" && onSwitchPage) {
-                        e.preventDefault();
                         onSwitchPage(targetPage);
                     } else if (imageHref.startsWith("#") && imageHref.length > 1) {
-                        e.preventDefault();
                         const targetEl = document.querySelector(imageHref);
                         if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                     }
@@ -272,6 +327,10 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         rel={rel}
                         download={isDownload ? true : undefined}
                         onClick={(e) => {
+                            const isExternal = /^https?:\/\//i.test(resolvedHref) || /^mailto:/i.test(resolvedHref) || /^tel:/i.test(resolvedHref);
+                            if (!isExternal && target !== "_blank") {
+                                e.preventDefault();
+                            }
                             let targetPage: PageConfig | undefined;
                             if (el.pageId && pages) {
                                 targetPage = pages.find((p) => p.id === el.pageId);
@@ -281,10 +340,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                             }
 
                             if (targetPage && target !== "_blank" && onSwitchPage) {
-                                e.preventDefault();
                                 onSwitchPage(targetPage);
                             } else if (resolvedHref.startsWith("#") && resolvedHref.length > 1) {
-                                e.preventDefault();
                                 const targetEl = document.querySelector(resolvedHref);
                                 if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                             }
@@ -471,11 +528,41 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     );
     if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} pages={pages} activePageId={pages?.find(p => p.elements?.some(e => e.id === el.id))?.id || pages?.[0]?.id} /></div>;
 
-    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    const wcNavHandler = (targetSlugOrId: string) => {
+        if (!pages || !onSwitchPage) return;
+        const targetPage = findTargetPage(pages, targetSlugOrId);
+        if (targetPage) onSwitchPage(targetPage);
+    };
+
+    if (el.type === "wc-product" || el.type === "woocommerce-product") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-price" || el.type === "woocommerce-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-images" || el.type === "woocommerce-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-add-to-cart" || el.type === "woocommerce-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-rating" || el.type === "woocommerce-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-stock") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductStockWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-meta" || el.type === "woocommerce-product-meta") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductMetaWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-content" || el.type === "woocommerce-product-content") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductContentWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-short-description" || el.type === "woocommerce-product-short-description") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShortDescriptionWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-data-tabs" || el.type === "woocommerce-product-data-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductDataTabsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-additional-information" || el.type === "woocommerce-additional-information") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAdditionalInformationWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-related-products" || el.type === "woocommerce-related-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcRelatedProductsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-upsells" || el.type === "woocommerce-upsells") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcUpsellsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-products" || el.type === "woocommerce-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-custom-add-to-cart" || el.type === "woocommerce-custom-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCustomAddToCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-categories" || el.type === "woocommerce-product-categories") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductCategoriesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-menu-cart" || el.type === "woocommerce-menu-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMenuCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-cart" || el.type === "woocommerce-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-checkout" || el.type === "woocommerce-checkout") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCheckoutWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-my-account" || el.type === "woocommerce-my-account") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMyAccountWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-purchase-summary" || el.type === "woocommerce-purchase-summary") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcPurchaseSummaryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-notices" || el.type === "woocommerce-notices") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcNoticesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-shop-layouts" || el.type === "woocommerce-shop-layouts") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopLayoutsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-archive" || el.type === "woocommerce-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-page-templates" || el.type === "woocommerce-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-archive-templates" || el.type === "woocommerce-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-shop-filters" || el.type === "woocommerce-shop-filters") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopFiltersWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "language-switcher") return <div ref={assignRefIfTracked as any} {...mergedProps}><LanguageSwitcherWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
 
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>

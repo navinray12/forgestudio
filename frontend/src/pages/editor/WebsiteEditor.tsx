@@ -3,6 +3,7 @@ import PopupManagerModal from "./components/PopupManagerModal";
 import IconPickerModal from "./components/IconPickerModal";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
+import EditorErrorBoundary from "../../components/EditorErrorBoundary";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
@@ -228,17 +229,46 @@ import {
   CustomSvgWidgetRenderer,
   IconLibraryWidgetRenderer,
   ShareButtonsWidgetRenderer,
+  WcProductWidgetRenderer,
   WcProductTitleWidgetRenderer,
   WcProductPriceWidgetRenderer,
   WcProductImagesWidgetRenderer,
   WcAddToCartWidgetRenderer,
   WcProductRatingWidgetRenderer,
+  WcProductStockWidgetRenderer,
+  WcProductMetaWidgetRenderer,
+  WcProductContentWidgetRenderer,
+  WcShortDescriptionWidgetRenderer,
+  WcProductDataTabsWidgetRenderer,
+  WcAdditionalInformationWidgetRenderer,
+  WcRelatedProductsWidgetRenderer,
+  WcUpsellsWidgetRenderer,
+  WcProductsWidgetRenderer,
+  WcCustomAddToCartWidgetRenderer,
+  WcProductCategoriesWidgetRenderer,
+  WcMenuCartWidgetRenderer,
+  WcCartWidgetRenderer,
+  WcCheckoutWidgetRenderer,
+  WcMyAccountWidgetRenderer,
+  WcPurchaseSummaryWidgetRenderer,
+  WcNoticesWidgetRenderer,
+  WcShopLayoutsWidgetRenderer,
+  WcProductArchiveWidgetRenderer,
+  WcProductPageTemplatesWidgetRenderer,
+  WcProductArchiveTemplatesWidgetRenderer,
+  WcShopFiltersWidgetRenderer,
+  LanguageSwitcherWidgetRenderer,
   SearchBarWidgetRenderer,
   ImportAssetWidgetRenderer,
   ReusableComponentWidgetRenderer,
   FavoriteWidgetsWidgetRenderer,
   resolveButtonHref
 } from "./widgets";
+
+import { AccessibilityWidgetRuntime } from "./components/accessibility/AccessibilityWidgetRuntime";
+import { AccessibilityAuditorModal } from "./components/accessibility/AccessibilityAuditorModal";
+import { AccessibilitySettingsModal } from "./components/accessibility/AccessibilitySettingsModal";
+import { AccessibilityService } from "./services/AccessibilityService";
 
 import { SpacingControl } from "./inspector";
 
@@ -269,6 +299,8 @@ export default function WebsiteEditor() {
   const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>("widgets");
   const [pageCss, setPageCss] = useState<string>("");
+  const [isAccessibilityAuditorOpen, setIsAccessibilityAuditorOpen] = useState(false);
+  const [isAccessibilitySettingsOpen, setIsAccessibilitySettingsOpen] = useState(false);
 
   const handleSelectPopupForEdit = (popup: any) => {
     setActivePopupId(popup.id);
@@ -304,21 +336,17 @@ export default function WebsiteEditor() {
     }
   };
 
-  const renderTypographySection = () => null;
-
-  const [breakpoints, setBreakpoints] = useState<any[]>([
-    { id: "desktop", name: "Desktop", minWidth: 1025 },
-    { id: "tablet", name: "Tablet", minWidth: 768, maxWidth: 1024 },
-    { id: "mobile", name: "Mobile", maxWidth: 767 }
+  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
+  const [breakpoints, setBreakpoints] = useState<Breakpoint[]>([
+    { id: "desktop", name: "Desktop", width: 1024, minWidth: 1025, active: true },
+    { id: "tablet", name: "Tablet", width: 768, minWidth: 768, maxWidth: 1024, active: true },
+    { id: "mobile", name: "Mobile", width: 380, maxWidth: 767, active: true }
   ]);
-  const activeBreakpointId = "desktop";
+  const activeBreakpointId = activeDevice;
 
-  const getStyleVal = (element: any, key: string, breakpointId: string, _bpList: any[]) => {
+  const getStyleVal = (element: any, key: string, breakpointId: DeviceMode, _bpList: any[]) => {
     if (!element) return undefined;
-    if (element.responsiveStyles && element.responsiveStyles[breakpointId]?.[key]) {
-      return element.responsiveStyles[breakpointId][key];
-    }
-    return element.styles?.[key];
+    return getEffectiveStyle(element, breakpointId, key as any);
   };
 
   const renderResponsiveLabel = (label: string) => (
@@ -672,7 +700,6 @@ export default function WebsiteEditor() {
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -2619,6 +2646,222 @@ export default function WebsiteEditor() {
     return results;
   };
 
+  const renderTypographySection = () => {
+    if (!selectedElementAny) return null;
+
+    const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
+    const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
+    const hasItalic = FontService.hasItalic(currentFontFamily);
+
+    const weightLabels: Record<number, string> = {
+      100: "100 Thin",
+      200: "200 Extra Light",
+      300: "300 Light",
+      400: "400 Normal",
+      500: "500 Medium",
+      600: "600 Semi-Bold",
+      700: "700 Bold",
+      800: "800 Extra Bold",
+      900: "900 Black"
+    };
+
+    const applyTypographyToken = (token: { fontSize?: string; fontWeight?: string; lineHeight?: string; letterSpacing?: string; textTransform?: any }) => {
+      if (token.fontSize) updateSelectedStyle("fontSize", token.fontSize);
+      if (token.fontWeight) updateSelectedStyle("fontWeight", token.fontWeight);
+      if (token.lineHeight) updateSelectedStyle("lineHeight", token.lineHeight);
+      if (token.letterSpacing) updateSelectedStyle("letterSpacing", token.letterSpacing);
+      if (token.textTransform) updateSelectedStyle("textTransform", token.textTransform);
+    };
+
+    return (
+      <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3 shadow-xs my-2">
+        <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <span>🔤</span>
+            <span>Typography Controls</span>
+          </span>
+          <span className="text-[10px] font-semibold text-blue-600 capitalize">
+            {activeDevice}
+          </span>
+        </div>
+
+        {/* Global Typography Tokens / Presets */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Typography Preset / Design Token</label>
+          <select
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "h1") applyTypographyToken({ fontSize: "36px", fontWeight: "700", lineHeight: "1.2", letterSpacing: "-0.5px" });
+              if (val === "h2") applyTypographyToken({ fontSize: "28px", fontWeight: "700", lineHeight: "1.3", letterSpacing: "-0.3px" });
+              if (val === "h3") applyTypographyToken({ fontSize: "22px", fontWeight: "600", lineHeight: "1.4", letterSpacing: "0px" });
+              if (val === "body") applyTypographyToken({ fontSize: "16px", fontWeight: "400", lineHeight: "1.6", letterSpacing: "0px" });
+              if (val === "lead") applyTypographyToken({ fontSize: "18px", fontWeight: "400", lineHeight: "1.7", letterSpacing: "0px" });
+              if (val === "small") applyTypographyToken({ fontSize: "13px", fontWeight: "400", lineHeight: "1.5", letterSpacing: "0.2px" });
+              if (val === "caption") applyTypographyToken({ fontSize: "11px", fontWeight: "500", lineHeight: "1.4", letterSpacing: "0.5px", textTransform: "uppercase" });
+              if (val === "button") applyTypographyToken({ fontSize: "14px", fontWeight: "600", lineHeight: "1", letterSpacing: "0.5px", textTransform: "uppercase" });
+            }}
+            defaultValue=""
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+          >
+            <option value="" disabled>Select Preset / Design Token...</option>
+            <option value="h1">H1 Heading (36px, Bold)</option>
+            <option value="h2">H2 Subtitle (28px, Bold)</option>
+            <option value="h3">H3 Section Header (22px, Semi-Bold)</option>
+            <option value="body">Body Text (16px, Regular)</option>
+            <option value="lead">Lead Paragraph (18px, Regular)</option>
+            <option value="small">Small (13px, Regular)</option>
+            <option value="caption">Caption (11px, Uppercase)</option>
+            <option value="button">Button Text (14px, Semi-Bold)</option>
+          </select>
+        </div>
+
+        {/* Font Family Picker */}
+        <FontPickerControl
+          value={currentFontFamily}
+          onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
+          onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
+          onReset={() => resetSelectedStyle("fontFamily")}
+          isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+        />
+
+        {/* Font Size & Weight */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            {renderResponsiveLabel("Font Size")}
+            <input
+              type="text"
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"}
+              onChange={(e) => updateSelectedStyle("fontSize", e.target.value.endsWith("px") || e.target.value.endsWith("rem") || e.target.value.endsWith("em") ? e.target.value : `${e.target.value}px`)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+              placeholder="16px"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Font Weight</label>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
+              onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="inherit">Default</option>
+              {supportedWeights.map((w) => (
+                <option key={w} value={String(w)}>
+                  {weightLabels[w] || `${w}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Font Style & Text Transform */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Font Style</label>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
+              onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="normal">Normal</option>
+              <option value="italic" disabled={!hasItalic}>
+                Italic {!hasItalic ? "(N/A)" : ""}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Transform</label>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textTransform") || "none"}
+              onChange={(e) => updateSelectedStyle("textTransform", e.target.value as any)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="none">None</option>
+              <option value="capitalize">Capitalize</option>
+              <option value="uppercase">Uppercase</option>
+              <option value="lowercase">Lowercase</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Text Alignment */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Text Alignment</label>
+          <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+            {(["left", "center", "right", "justify"] as const).map((align) => {
+              const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
+              const isActive = currentAlign === align;
+              return (
+                <button
+                  key={align}
+                  type="button"
+                  onClick={() => updateSelectedStyle("textAlign", align)}
+                  className={`rounded py-1 text-[10px] font-bold uppercase transition ${isActive ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:text-slate-900"}`}
+                >
+                  {align}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Line Height & Letter Spacing */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Line Height</label>
+            <input
+              type="text"
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
+              onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
+              placeholder="e.g. 1.5 or 24px"
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Letter Spacing</label>
+            <input
+              type="text"
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "letterSpacing") || ""}
+              onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value)}
+              placeholder="e.g. 0.5px"
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Text Decoration & Text Shadow */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Decoration</label>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textDecoration") || "none"}
+              onChange={(e) => updateSelectedStyle("textDecoration", e.target.value as any)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="none">None</option>
+              <option value="underline">Underline</option>
+              <option value="line-through">Line-Through</option>
+              <option value="overline">Overline</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Shadow</label>
+            <select
+              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textShadow") || "none"}
+              onChange={(e) => updateSelectedStyle("textShadow", e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+            >
+              <option value="none">None</option>
+              <option value="1px 1px 2px rgba(0,0,0,0.25)">Subtle Soft</option>
+              <option value="2px 4px 6px rgba(0,0,0,0.35)">Drop Shadow</option>
+              <option value="0 0 10px rgba(59,130,246,0.6)">Neon Glow</option>
+              <option value="2px 2px 0px #000000">Hard Retro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderNavigatorTreeItem = (el: EditorElement, depth: number = 0, isLast: boolean = true): React.ReactNode => {
     const isSelected = selectedIds.includes(el.id) || selectedId === el.id;
     const isContainer = el.type === "container";
@@ -2638,16 +2881,146 @@ export default function WebsiteEditor() {
           return "🔘";
         case "posts":
           return "📰";
+        case "woocommerce-product":
+        case "wc-product":
+          return <WcProductWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
         case "wc-product-title":
-          return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+          return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-price":
         case "wc-product-price":
-          return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+          return <WcProductPriceWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-images":
         case "wc-product-images":
-          return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+          return <WcProductImagesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-add-to-cart":
         case "wc-add-to-cart":
-          return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+          return <WcAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-rating":
         case "wc-product-rating":
-          return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+          return <WcProductRatingWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "wc-product-stock":
+          return <WcProductStockWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-meta":
+        case "wc-product-meta":
+          return <WcProductMetaWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-content":
+        case "wc-product-content":
+          return <WcProductContentWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-short-description":
+        case "wc-short-description":
+          return <WcShortDescriptionWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-product-data-tabs":
+        case "wc-product-data-tabs":
+          return <WcProductDataTabsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-additional-information":
+        case "wc-additional-information":
+          return <WcAdditionalInformationWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-related-products":
+        case "wc-related-products":
+          return <WcRelatedProductsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} />;
+        case "woocommerce-upsells":
+        case "wc-upsells":
+          return <WcUpsellsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-products":
+        case "wc-products":
+          return <WcProductsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-custom-add-to-cart":
+        case "wc-custom-add-to-cart":
+          return <WcCustomAddToCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-product-categories":
+        case "wc-product-categories":
+          return <WcProductCategoriesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-menu-cart":
+        case "wc-menu-cart":
+          return <WcMenuCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-cart":
+        case "wc-cart":
+          return <WcCartWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-checkout":
+        case "wc-checkout":
+          return <WcCheckoutWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-my-account":
+        case "wc-my-account":
+          return <WcMyAccountWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-purchase-summary":
+        case "wc-purchase-summary":
+          return <WcPurchaseSummaryWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-notices":
+        case "wc-notices":
+          return <WcNoticesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
+        case "woocommerce-shop-layouts":
+        case "wc-shop-layouts":
+          return <WcShopLayoutsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-product-archive":
+        case "wc-product-archive":
+          return <WcProductArchiveWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-product-page-templates":
+        case "wc-product-page-templates":
+          return <WcProductPageTemplatesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-product-archive-templates":
+        case "wc-product-archive-templates":
+          return <WcProductArchiveTemplatesWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "woocommerce-shop-filters":
+        case "wc-shop-filters":
+          return <WcShopFiltersWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} siteProducts={siteProducts} pages={pages} onNavigatePage={(slug) => {
+            const clean = slug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            const target = pages.find(p => p.id === slug || p.slug === slug || p.slug.replace(/^\//, "").toLowerCase() === clean || p.name.toLowerCase() === clean || p.elements?.some(e => e.type === slug || e.type === `wc-${slug}`));
+            if (target) handlePreviewPageNavigate(target);
+          }} />;
+        case "language-switcher":
+          return <LanguageSwitcherWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
         case "share-buttons":
           return "🔗";
         case "portfolio":
@@ -5207,25 +5580,28 @@ export default function WebsiteEditor() {
                   return;
                 }
                 let targetPage: PageConfig | undefined;
+                const isExternal = /^https?:\/\//i.test(imageHref) || /^mailto:/i.test(imageHref) || /^tel:/i.test(imageHref);
+                if (!isExternal && imageTarget !== "_blank") {
+                  e.preventDefault();
+                }
                 if (el.pageId && pages) {
                   targetPage = pages.find((p) => p.id === el.pageId);
                 }
                 if (!targetPage && imageHref && pages) {
-                  const clean = imageHref.replace(/^\//, "").split("?")[0].split("#")[0];
+                  const clean = imageHref.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
                   targetPage = pages.find(
                     (p) =>
                       p.slug === imageHref ||
                       p.slug === `/${clean}` ||
-                      p.slug.replace(/^\//, "") === clean ||
-                      p.id === clean ||
+                      p.slug.replace(/^\//, "").toLowerCase() === clean ||
+                      p.id.toLowerCase() === clean ||
+                      p.name.toLowerCase() === clean ||
                       (clean === "" && (p.isHome || p.id === "home"))
                   );
                 }
                 if (targetPage && imageTarget !== "_blank") {
-                  e.preventDefault();
                   handlePreviewPageNavigate(targetPage);
                 } else if (imageHref.startsWith("#") && imageHref.length > 1) {
-                  e.preventDefault();
                   const targetEl = document.querySelector(imageHref);
                   if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                 }
@@ -5323,33 +5699,38 @@ export default function WebsiteEditor() {
                     }
 
                     // Preview Mode navigation handler
+                    const isExternal = /^https?:\/\//i.test(resolvedHref) || /^mailto:/i.test(resolvedHref) || /^tel:/i.test(resolvedHref);
+                    if (!isExternal && target !== "_blank") {
+                      e.preventDefault();
+                    }
                     let targetPage: PageConfig | undefined;
 
                     if (el.pageId) {
                       targetPage = pages.find((p) => p.id === el.pageId);
                     }
                     if (!targetPage && resolvedHref) {
-                      const clean = resolvedHref.replace(/^\//, "");
+                      const clean = resolvedHref.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
                       targetPage = pages.find(
-                        (p) => p.slug === resolvedHref || p.slug === clean || p.id === clean || (resolvedHref === "/" && (p.isHome || p.id === "home"))
+                        (p) =>
+                          p.slug === resolvedHref ||
+                          p.slug === `/${clean}` ||
+                          p.slug.replace(/^\//, "").toLowerCase() === clean ||
+                          p.id.toLowerCase() === clean ||
+                          p.name.toLowerCase() === clean ||
+                          (clean === "" && (p.isHome || p.id === "home"))
                       );
                     }
 
                     if (targetPage && target !== "_blank") {
-                      e.preventDefault();
                       handlePreviewPageNavigate(targetPage);
                     } else if (resolvedHref.startsWith("popup:open(")) {
-                      e.preventDefault();
                       const popupId = resolvedHref.match(/popup:open\(([^)]+)\)/)?.[1];
                       if (popupId) setActivePopupId(popupId);
                     } else if (resolvedHref === "popup:close") {
-                      e.preventDefault();
                       setActivePopupId(null);
                     } else if (resolvedHref === "scroll:to(top)") {
-                      e.preventDefault();
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     } else if (resolvedHref.startsWith("scroll:to(")) {
-                      e.preventDefault();
                       const targetId = resolvedHref.match(/scroll:to\(([^)]+)\)/)?.[1];
                       if (targetId) {
                         const targetEl = document.getElementById(targetId);
@@ -5904,35 +6285,70 @@ export default function WebsiteEditor() {
           )
         }
 
-        {
-          el.type === "wc-product-title" && (
-            <WcProductTitleWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-          )
-        }
+        {(() => {
+          const handleWcNavigate = (targetIdOrSlug: string) => {
+            const clean = targetIdOrSlug.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+            let targetPage = pages.find(
+              (p) =>
+                p.id === targetIdOrSlug ||
+                p.slug === targetIdOrSlug ||
+                p.slug === `/${clean}` ||
+                p.slug.replace(/^\//, "").toLowerCase() === clean ||
+                p.name.toLowerCase() === targetIdOrSlug.toLowerCase() ||
+                p.name.toLowerCase() === clean ||
+                (clean === "" && (p.isHome || p.id === "home")) ||
+                p.elements?.some((e) => e.type === targetIdOrSlug || e.type === `wc-${targetIdOrSlug}` || e.type === `woocommerce-${targetIdOrSlug}`)
+            );
+            if (!targetPage && clean) {
+              targetPage = pages.find(
+                (p) =>
+                  p.slug.toLowerCase().includes(clean) ||
+                  p.name.toLowerCase().includes(clean) ||
+                  clean.includes(p.slug.replace(/^\//, "").toLowerCase())
+              );
+            }
+            if (!targetPage && pages.length > 0) {
+              targetPage = pages.find((p) => p.isHome || p.id === "home") || pages[0];
+            }
+            if (targetPage) {
+              handlePreviewPageNavigate(targetPage);
+            }
+          };
 
-        {
-          el.type === "wc-product-price" && (
-            <WcProductPriceWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-          )
-        }
-
-        {
-          el.type === "wc-product-images" && (
-            <WcProductImagesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-          )
-        }
-
-        {
-          el.type === "wc-add-to-cart" && (
-            <WcAddToCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-          )
-        }
-
-        {
-          el.type === "wc-product-rating" && (
-            <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
-          )
-        }
+          return (
+            <>
+              {(el.type === "wc-product" || el.type === "woocommerce-product") && <WcProductWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {el.type === "wc-product-title" && <WcProductTitleWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-product-price" || el.type === "woocommerce-product-price") && <WcProductPriceWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-product-images" || el.type === "woocommerce-product-images") && <WcProductImagesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-add-to-cart" || el.type === "woocommerce-add-to-cart") && <WcAddToCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-product-rating" || el.type === "woocommerce-product-rating") && <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {el.type === "wc-product-stock" && <WcProductStockWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-product-meta" || el.type === "woocommerce-product-meta") && <WcProductMetaWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-product-content" || el.type === "woocommerce-product-content") && <WcProductContentWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-short-description" || el.type === "woocommerce-product-short-description") && <WcShortDescriptionWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-product-data-tabs" || el.type === "woocommerce-product-data-tabs") && <WcProductDataTabsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-additional-information" || el.type === "woocommerce-additional-information") && <WcAdditionalInformationWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} />}
+              {(el.type === "wc-related-products" || el.type === "woocommerce-related-products") && <WcRelatedProductsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-upsells" || el.type === "woocommerce-upsells") && <WcUpsellsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-products" || el.type === "woocommerce-products") && <WcProductsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-custom-add-to-cart" || el.type === "woocommerce-custom-add-to-cart") && <WcCustomAddToCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-product-categories" || el.type === "woocommerce-product-categories") && <WcProductCategoriesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-menu-cart" || el.type === "woocommerce-menu-cart") && <WcMenuCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-cart" || el.type === "woocommerce-cart") && <WcCartWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-checkout" || el.type === "woocommerce-checkout") && <WcCheckoutWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-my-account" || el.type === "woocommerce-my-account") && <WcMyAccountWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-purchase-summary" || el.type === "woocommerce-purchase-summary") && <WcPurchaseSummaryWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-notices" || el.type === "woocommerce-notices") && <WcNoticesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />}
+              {(el.type === "wc-shop-layouts" || el.type === "woocommerce-shop-layouts") && <WcShopLayoutsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-product-archive" || el.type === "woocommerce-product-archive") && <WcProductArchiveWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-product-page-templates" || el.type === "woocommerce-product-page-templates") && <WcProductPageTemplatesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-product-archive-templates" || el.type === "woocommerce-product-archive-templates") && <WcProductArchiveTemplatesWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {(el.type === "wc-shop-filters" || el.type === "woocommerce-shop-filters") && <WcShopFiltersWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={handleWcNavigate} />}
+              {el.type === "language-switcher" && <LanguageSwitcherWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />}
+            </>
+          );
+        })()}
 
         {
           el.type === "html" && (
@@ -6127,6 +6543,28 @@ export default function WebsiteEditor() {
             >
               <span>{"</>"}</span>
               <span>Dev Mode</span>
+            </button>
+
+            {/* Accessibility Auditor Button */}
+            <button
+              type="button"
+              onClick={() => setIsAccessibilityAuditorOpen(true)}
+              className="text-xs font-bold text-amber-300 bg-amber-900/40 hover:bg-amber-800/60 px-3 py-1.5 rounded-lg border border-amber-700/60 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+              title="Open Accessibility & Compliance Auditor (WCAG 2.1 AA)"
+            >
+              <span>♿</span>
+              <span>Auditor</span>
+            </button>
+
+            {/* Accessibility Settings Button */}
+            <button
+              type="button"
+              onClick={() => setIsAccessibilitySettingsOpen(true)}
+              className="text-xs font-bold text-purple-300 bg-purple-900/40 hover:bg-purple-800/60 px-3 py-1.5 rounded-lg border border-purple-700/60 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+              title="Accessibility & Language Settings (i18n & RTL)"
+            >
+              <span>⚙️</span>
+              <span>A11y & i18n</span>
             </button>
           </div>
 
@@ -7676,17 +8114,21 @@ export default function WebsiteEditor() {
                 )}
               </div>
             ) : leftSidebarTab === ("atomic" as any) ? (
-              <AtomicEditor
-                onClose={() => setLeftSidebarTab("elements")}
-                onInsertGlobalElement={handleInsertGlobalElement}
-                onInsertComponent={handleInsertReusableComponent}
-              />
+              <EditorErrorBoundary fallbackTitle="Error loading Atomic Editor" onReset={() => setLeftSidebarTab("elements")}>
+                <AtomicEditor
+                  onClose={() => setLeftSidebarTab("elements")}
+                  onInsertGlobalElement={handleInsertGlobalElement}
+                  onInsertComponent={handleInsertReusableComponent}
+                />
+              </EditorErrorBoundary>
             ) : (
-              <TemplateLibrary
-                apiUrl={apiUrl}
-                onInsertTemplate={handleInsertTemplate}
-                onOpenSaveTemplate={openSaveTemplateDialog}
-              />
+              <EditorErrorBoundary fallbackTitle="Error loading Template Library" onReset={() => setLeftSidebarTab("elements")}>
+                <TemplateLibrary
+                  apiUrl={apiUrl}
+                  onInsertTemplate={handleInsertTemplate}
+                  onOpenSaveTemplate={openSaveTemplateDialog}
+                />
+              </EditorErrorBoundary>
             )}
 
           </aside >
@@ -7729,18 +8171,14 @@ export default function WebsiteEditor() {
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
+              maxWidth: `${(breakpoints.find((b: any) => b.id === activeDevice)?.width) || (activeDevice === "mobile" ? 380 : activeDevice === "tablet" ? 768 : 1024)}px`,
               backgroundColor: pageSettings.backgroundColor || "#ffffff",
               backgroundImage: userPreferences.gridOverlay
                 ? "linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)"
                 : undefined,
               backgroundSize: userPreferences.gridOverlay ? "20px 20px" : undefined,
             }}
-            className={`relative w-full transition-all duration-300 min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-sm pb-20 ${activeDevice === "mobile"
-              ? "max-w-[380px]"
-              : activeDevice === "tablet"
-                ? "max-w-[768px]"
-                : "max-w-[1024px]"
-              }`}
+            className="relative w-full transition-all duration-300 min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-sm pb-20 mx-auto"
           >
             {/* Global Design Tokens / CSS Variables (Comment 14) */}
             <style>{`
@@ -8067,6 +8505,21 @@ export default function WebsiteEditor() {
                         Delete
                       </button>
                     </div>
+                  </div>
+
+                  {/* Active Breakpoint Indicator */}
+                  <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2.5 shadow-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Active Breakpoint
+                    </span>
+                    <span className="flex items-center gap-1.5 rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-bold text-white capitalize shadow-xs">
+                      <span>
+                        {activeDevice === "desktop" && "💻"}
+                        {activeDevice === "tablet" && "📱"}
+                        {activeDevice === "mobile" && "📲"}
+                      </span>
+                      <span>{activeDevice}</span>
+                    </span>
                   </div>
 
                   {/* Element State Selector (F-036) */}
@@ -9240,22 +9693,22 @@ export default function WebsiteEditor() {
                   {/* Developer Options for Element (F-102, F-105 to F-109) */}
                   <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
                     <div>
-                      <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
+                      <label className="text-[11px] font-bold text-slate-700">Custom CSS ID</label>
                       <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
+                      <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes</label>
                       <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
                     </div>
                     <hr className="border-slate-200" />
                     <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                      <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
+                      <span className="text-blue-500">{"</>"}</span> Edit Element CSS
                     </button>
                     <button onClick={() => setDevModalMode("css-selectors")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                      <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo (F-107)
+                      <span className="text-pink-500">{""}</span> Edit Selectors & Pseudo
                     </button>
                     <button onClick={() => setDevModalMode(selectedElementAny.type === "button" ? "custom-attributes" : "custom-attributes")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
-                      <span className="text-emerald-500">{""}</span> Manage DOM Attributes (F-108 & F-109)
+                      <span className="text-emerald-500">{""}</span> Manage DOM Attributes
                     </button>
                   </div>
                   {/* Slider Specific Controls */}
@@ -17440,6 +17893,22 @@ export default function WebsiteEditor() {
           }
           setIsFontPickerModalOpen(false);
         }}
+      />
+
+      {/* Visitor Accessibility Widget */}
+      <AccessibilityWidgetRuntime isPreview={isPreview} />
+
+      {/* In-Editor Accessibility & Compliance Auditor Modal */}
+      <AccessibilityAuditorModal
+        isOpen={isAccessibilityAuditorOpen}
+        onClose={() => setIsAccessibilityAuditorOpen(false)}
+        websiteData={website?.editorData || null}
+      />
+
+      {/* Accessibility & Language Settings Modal */}
+      <AccessibilitySettingsModal
+        isOpen={isAccessibilitySettingsOpen}
+        onClose={() => setIsAccessibilitySettingsOpen(false)}
       />
     </div >
   );
