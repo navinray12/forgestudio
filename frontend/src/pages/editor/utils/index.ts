@@ -786,6 +786,15 @@ export function resolveElementStyles(
   const textShadow = getVal("textShadow");
   if (textShadow) styles.textShadow = textShadow;
 
+  const boxSizing = getVal("boxSizing" as any);
+  if (boxSizing) (styles as any).boxSizing = boxSizing;
+
+  const flex = getVal("flex" as any);
+  if (flex) (styles as any).flex = flex;
+
+  const flexWrap = getVal("flexWrap" as any);
+  if (flexWrap) (styles as any).flexWrap = flexWrap;
+
   return styles;
 }
 

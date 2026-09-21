@@ -1,6 +1,16 @@
 import type { Template } from "../types/template.types";
+import { HOME_TEMPLATES } from "./homeTemplates";
+import { ABOUT_TEMPLATES } from "./aboutTemplates";
+import { CONTACT_TEMPLATES } from "./contactTemplates";
+import { CAREER_TEMPLATES } from "./careerTemplates";
+
+export { HOME_TEMPLATES, ABOUT_TEMPLATES, CONTACT_TEMPLATES, CAREER_TEMPLATES };
 
 export const PRO_TEMPLATES: Template[] = [
+  ...HOME_TEMPLATES,
+  ...ABOUT_TEMPLATES,
+  ...CONTACT_TEMPLATES,
+  ...CAREER_TEMPLATES,
   {
     id: "pro-template-saas-launch",
     userId: "system-pro",

@@ -123,12 +123,18 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
 
   const categoryFilterList = [
     { id: "ALL", label: "All" },
+    { id: "Home", label: "🏠 Home" },
+    { id: "About", label: "🏢 About" },
+    { id: "Contact", label: "📞 Contact" },
+    { id: "Career", label: "💼 Career" },
     { id: "WEBSITE_KIT", label: "📦 Website Kits" },
     { id: "GLOBAL_WIDGET", label: "🌐 Global Widgets" },
     { id: "PRO", label: "👑 Pro Templates" },
     { id: "FAVORITES", label: "⭐ Favorites" },
     { id: "POPUP", label: "💬 Popup Templates" },
-    ...TEMPLATE_CATEGORIES.map((cat) => ({ id: cat, label: cat })),
+    ...TEMPLATE_CATEGORIES.filter(
+      (cat) => !["Home", "About", "Contact", "Career"].includes(cat)
+    ).map((cat) => ({ id: cat, label: cat })),
   ];
 
   return (
