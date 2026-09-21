@@ -26,7 +26,7 @@ import {
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
   AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass,
   Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu,
-  ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon
+  ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon, Wrench
 } from "lucide-react";
 
 // ==========================================
@@ -709,11 +709,12 @@ export default function WebsiteEditor() {
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
   const [isScopeDropdownOpen, setIsScopeDropdownOpen] = useState<boolean>(false);
   const scopeDropdownRef = useRef<HTMLDivElement>(null);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState<boolean>(false);
+  const toolsDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close scope dropdown on outside click
+  // Close scope & tools dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -722,14 +723,20 @@ export default function WebsiteEditor() {
       ) {
         setIsScopeDropdownOpen(false);
       }
+      if (
+        toolsDropdownRef.current &&
+        !toolsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsToolsDropdownOpen(false);
+      }
     };
-    if (isScopeDropdownOpen) {
+    if (isScopeDropdownOpen || isToolsDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isScopeDropdownOpen]);
+  }, [isScopeDropdownOpen, isToolsDropdownOpen]);
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -885,138 +892,33 @@ export default function WebsiteEditor() {
     nofollow: false,
   });
 
-// Multi-Page Management, Site Parts & Preview States
-const [pages, setPages] = useState<PageConfig[]>([]);
-const [homePageId, setHomePageId] = useState<string>("home");
-const [activePageId, setActivePageId] = useState<string>("home");
-const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
-const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
-const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
-const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
-const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
-const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
-const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
-const [globalVariables, setGlobalVariables] = useState<any[]>([]);
-const [globalClasses, setGlobalClasses] = useState<any[]>([]);
-const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
-const [newPageName, setNewPageName] = useState<string>("");
-const [newPageSlug, setNewPageSlug] = useState<string>("");
-const [editingPageId, setEditingPageId] = useState<string | null>(null);
-const [editPageName, setEditPageName] = useState<string>("");
-const [editPageSlug, setEditPageSlug] = useState<string>("");
-const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
-const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  // Multi-Page Management, Site Parts & Preview States
+  const [pages, setPages] = useState<PageConfig[]>([]);
+  const [homePageId, setHomePageId] = useState<string>("home");
+  const [activePageId, setActivePageId] = useState<string>("home");
+  const [activePreviewPageId, setActivePreviewPageId] = useState<string>("home");
+  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
+  const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+  const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
+  const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
+  const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
+  const [globalVariables, setGlobalVariables] = useState<any[]>([]);
+  const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
+  const [newPageName, setNewPageName] = useState<string>("");
+  const [newPageSlug, setNewPageSlug] = useState<string>("");
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editPageName, setEditPageName] = useState<string>("");
+  const [editPageSlug, setEditPageSlug] = useState<string>("");
+  const [isEditPageModalOpen, setIsEditPageModalOpen] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-// F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
-const [siteParts, setSiteParts] = useState<SitePartsConfig>({
-  header: { enabled: true, elements: [] },
-  footer: { enabled: true, elements: [] },
-});
-
-// Publishing State & Deployment Configuration
-const [publishing, setPublishing] = useState<PublishingState>({
-  status: "DRAFT",
-  publishedVersion: 1,
-});
-const [deployment, setDeployment] = useState<DeploymentConfig>({
-  provider: "static",
-});
-const publishedDataRef = useRef<any>(null);
-
-// Canvas Editing Target Mode: "page" | "header" | "footer"
-const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
-
-// Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
-// Advanced Icon Library Modal State
-const [isIconPickerOpen, setIsIconPickerOpen] = useState<boolean>(false);
-const [iconPickerTargetField, setIconPickerTargetField] = useState<string>("iconName");
-
-const handleOpenIconPicker = (targetField = "iconName") => {
-  setIconPickerTargetField(targetField);
-  setIsIconPickerOpen(true);
-};
-
-// Dynamic Font System Modal State
-const [isFontPickerModalOpen, setIsFontPickerModalOpen] = useState<boolean>(false);
-const [fontPickerCallback, setFontPickerCallback] = useState<((family: string) => void) | null>(null);
-
-const handleOpenFontPicker = (onSelect?: (family: string) => void) => {
-  if (onSelect) setFontPickerCallback(() => onSelect);
-  setIsFontPickerModalOpen(true);
-};
-
-// Global Site Products Catalog State (WooCommerce & Dynamic Navigation Data Engine)
-const [siteProducts, setSiteProducts] = useState<SiteProduct[]>([
-  {
-    id: "prod_1",
-    name: "Premium Wireless Headphones",
-    price: "$199.99",
-    regularPrice: "$249.99",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
-    rating: 5,
-    category: "Electronics",
-    inStock: true,
-    url: "#product-headphones",
-    description: "High fidelity noise-canceling wireless headphones."
-  },
-  {
-    id: "prod_2",
-    name: "Ergonomic Smart Watch",
-    price: "$149.00",
-    regularPrice: "$179.00",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
-    rating: 4.8,
-    category: "Wearables",
-    inStock: true,
-    url: "#product-watch",
-    description: "Track fitness, health metrics, and smart notifications."
-  },
-  {
-    id: "prod_3",
-    name: "Minimalist Leather Backpack",
-    price: "$89.50",
-    regularPrice: "$110.00",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
-    rating: 4.6,
-    category: "Accessories",
-    inStock: true,
-    url: "#product-backpack",
-    description: "Crafted from genuine full-grain leather for everyday carry."
-  }
-]);
-
-// Sync live editor state (elements & pageSettings) with the active page entry in pages array
-useEffect(() => {
-  if (!activePageId || canvasMode !== "page") return;
-
-  setPages((prevPages) => {
-    if (!prevPages || prevPages.length === 0) return prevPages;
-
-    const exists = prevPages.some((p) => p.id === activePageId);
-    if (!exists) return prevPages;
-
-    return prevPages.map((p) => {
-      if (p.id === activePageId) {
-        const updatedName = pageSettings.title || p.name;
-        const updatedSlug = pageSettings.path || p.slug;
-
-        if (
-          p.elements === elements &&
-          p.pageSettings === pageSettings &&
-          p.name === updatedName &&
-          p.slug === updatedSlug
-        ) {
-          return p;
-        }
-
-        return {
-          ...p,
-          name: updatedName,
-          slug: updatedSlug,
-          elements,
-          pageSettings,
-        };
-      }
+  // F-SITE-PARTS: Global Header & Footer Canonical State (Comment 5)
+  const [siteParts, setSiteParts] = useState<SitePartsConfig>({
+    header: { enabled: true, elements: [] },
+    footer: { enabled: true, elements: [] },
+  });
 
   // Publishing State & Deployment Configuration
   const [publishing, setPublishing] = useState<PublishingState>({
@@ -2761,21 +2663,21 @@ useEffect(() => {
             isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontWeight") ||
             isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "lineHeight") ||
             isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "textAlign")) && (
-            <button
-              type="button"
-              onClick={() => {
-                resetSelectedStyle("fontFamily");
-                resetSelectedStyle("fontSize");
-                resetSelectedStyle("fontWeight");
-                resetSelectedStyle("lineHeight");
-                resetSelectedStyle("textAlign");
-              }}
-              title="Reset typography to defaults"
-              className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-            >
-              ↺ Reset All
-            </button>
-          )}
+              <button
+                type="button"
+                onClick={() => {
+                  resetSelectedStyle("fontFamily");
+                  resetSelectedStyle("fontSize");
+                  resetSelectedStyle("fontWeight");
+                  resetSelectedStyle("lineHeight");
+                  resetSelectedStyle("textAlign");
+                }}
+                title="Reset typography to defaults"
+                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+              >
+                ↺ Reset All
+              </button>
+            )}
         </div>
 
         {/* Font Family */}
@@ -2881,9 +2783,8 @@ useEffect(() => {
                     key={align}
                     type="button"
                     onClick={() => updateSelectedStyle("textAlign", align)}
-                    className={`py-1 text-[10px] font-semibold capitalize rounded transition-colors ${
-                      isActive ? "bg-white text-blue-600 shadow-sm font-bold" : "text-slate-600 hover:bg-slate-200"
-                    }`}
+                    className={`py-1 text-[10px] font-semibold capitalize rounded transition-colors ${isActive ? "bg-white text-blue-600 shadow-sm font-bold" : "text-slate-600 hover:bg-slate-200"
+                      }`}
                     title={`Align ${align}`}
                   >
                     {align.slice(0, 1).toUpperCase()}
@@ -4608,7 +4509,7 @@ useEffect(() => {
           }}
           style={{
             boxSizing: "border-box",
-display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
+            display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
             columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
             columnGap: mergedLayout.layoutType === "masonry"
               ? `${mergedLayout.masonryGap || mergedLayout.gap || 16}px`
@@ -6207,14 +6108,9 @@ display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutT
       {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
-        <header
-          className={`relative w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-clip ${userPreferences.themeMode === "light"
-            ? "bg-white border-b border-slate-200 text-slate-800"
-            : "bg-[#0b1329] text-white"
-            }`}
-        >
-          {/* 1. Left Region: Brand / Back / Breadcrumb & Utility Tools */}
-          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
+        <header className="w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 bg-[#0b1329] text-white overflow-x-clip">
+          {/* 1. Left Region: Brand / Back / Breadcrumb & Scope Switcher */}
+          <div className="flex items-center gap-2 shrink-0">
             {/* Quit Editor Button */}
             <button
               type="button"
@@ -6304,49 +6200,72 @@ display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutT
               )}
             </div>
 
-            {/* Vertical Divider */}
-            <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
-https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc%252Fpages%252Feditor%252FWebsiteEditor.tsx&ancestor_oid=308ef2632df75edea24a1e7178f0d3cbe332d2a2&base_oid=5d42845543304e84f0f79503335dcd63e035f7ba&head_oid=cdb5052fb510f1649bab79c7fd23fc03254d2892
-            {/* Developer Mode Button */}
-            <button
-              type="button"
-              onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
-              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 ${devModalMode === "export-code"
-                ? "bg-blue-600 text-white border-blue-500 shadow-blue-500/20"
-                : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
-                }`}
-              title="Developer Mode"
-              aria-label="Developer Mode"
-            >
-              <Code2 className="w-4 h-4" />
-            </button>
+            {/* Subtle Divider */}
+            <div className="h-5 w-px bg-slate-700 shrink-0" />
 
-            {/* Shortcuts Button */}
-            <button
-              type="button"
-              onClick={() => setIsShortcutsHelpOpen(true)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Keyboard Shortcuts"
-              aria-label="Keyboard Shortcuts"
-            >
-              <Keyboard className="w-4 h-4" />
-            </button>
+            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
+            <div className="relative" ref={scopeDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
+                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Switch Canvas Scope (Page / Header / Footer)"
+                aria-label="Switch Canvas Scope"
+                aria-expanded={isScopeDropdownOpen}
+                aria-haspopup="listbox"
+              >
+                <span className="text-xs">
+                  {canvasMode === "page" && "📄"}
+                  {canvasMode === "header" && "🌐"}
+                  {canvasMode === "footer" && "🌐"}
+                </span>
+                <span className="capitalize font-semibold">{canvasMode}</span>
+                <ChevronDown
+                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
 
-            {/* Search Control */}
-            <button
-              type="button"
-              onClick={() => setIsFinderOpen(true)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Search (Ctrl+K)"
-              aria-label="Search"
-            >
-              <Search className="w-4 h-4" />
-            </button>
+              {isScopeDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                  {(
+                    [
+                      { mode: "page", label: "Page", icon: "📄" },
+                      { mode: "header", label: "Header", icon: "🌐" },
+                      { mode: "footer", label: "Footer", icon: "🌐" },
+                    ] as const
+                  ).map(({ mode, label, icon }) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => {
+                        handleSwitchCanvasMode(mode);
+                        setIsScopeDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
+                        ? "bg-blue-600/20 text-blue-300 font-bold"
+                        : "text-slate-300 hover:text-white"
+                        }`}
+                      role="option"
+                      aria-selected={canvasMode === mode}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{icon}</span>
+                        <span>{label}</span>
+                      </div>
+                      {canvasMode === mode && (
+                        <span className="text-blue-400 text-xs">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* 2. Center Region: True Dead Center Device Viewport Switcher */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
-            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
+          {/* 2. Center Region: Isolated Device Viewport Switcher */}
+          <div className="flex items-center justify-center flex-1">
+            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80">
               <button
                 type="button"
                 onClick={() => setActiveDevice("desktop")}
@@ -6386,73 +6305,92 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
             </div>
           </div>
 
-          {/* 3. Right Region: Scope Switcher, History, Kit, Fullscreen, Preview, Save, Publish */}
-          <div className="flex items-center justify-end gap-2 md:gap-2.5 shrink-0">
+          {/* 3. Right Region: Tools Dropdown, History, Kit, Actions */}
+          <div className="flex items-center justify-end gap-2 shrink-0">
             {/* Status Messages */}
             {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden 2xl:inline">✓ {saveMessage}</span>}
             {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden 2xl:inline">{errorMessage}</span>}
 
-            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
-            <div className="relative" ref={scopeDropdownRef}>
+            {/* Unified Tools & Utilities Dropdown (Search, Shortcuts, Dev Mode) */}
+            <div className="relative" ref={toolsDropdownRef}>
               <button
                 type="button"
-                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
-                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
-                title="Switch Canvas Scope (Page / Header / Footer)"
-                aria-label="Switch Canvas Scope"
-                aria-expanded={isScopeDropdownOpen}
-                aria-haspopup="listbox"
+                onClick={() => setIsToolsDropdownOpen((prev) => !prev)}
+                className={`h-8 px-2.5 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 ${isToolsDropdownOpen || devModalMode === "export-code"
+                  ? "bg-blue-600/30 text-blue-200 border-blue-500/60 shadow-sm"
+                  : "text-slate-300 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white border-slate-700"
+                  }`}
+                title="Tools & Utilities"
+                aria-label="Tools and Utilities"
+                aria-expanded={isToolsDropdownOpen}
+                aria-haspopup="true"
               >
-                <span className="text-xs">
-                  {canvasMode === "page" && "📄"}
-                  {canvasMode === "header" && "🌐"}
-                  {canvasMode === "footer" && "🌐"}
-                </span>
-                <span className="capitalize font-semibold">{canvasMode}</span>
+                <Wrench className="w-3.5 h-3.5 text-slate-300" />
+                <span className="hidden xl:inline text-xs font-medium">Tools</span>
                 <ChevronDown
-                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
+                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isToolsDropdownOpen ? "rotate-180" : ""
                     }`}
                 />
               </button>
 
-              {isScopeDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
-                  {(
-                    [
-                      { mode: "page", label: "Page", icon: "📄" },
-                      { mode: "header", label: "Header", icon: "🌐" },
-                      { mode: "footer", label: "Footer", icon: "🌐" },
-                    ] as const
-                  ).map(({ mode, label, icon }) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => {
-                        handleSwitchCanvasMode(mode);
-                        setIsScopeDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
-                        ? "bg-blue-600/20 text-blue-300 font-bold"
-                        : "text-slate-300 hover:text-white"
-                        }`}
-                      role="option"
-                      aria-selected={canvasMode === mode}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{icon}</span>
-                        <span>{label}</span>
-                      </div>
-                      {canvasMode === mode && (
-                        <span className="text-blue-400 text-xs">✓</span>
-                      )}
-                    </button>
-                  ))}
+              {isToolsDropdownOpen && (
+                <div className="absolute top-full right-0 mt-1.5 w-56 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                  <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                    Tools & Utilities
+                  </div>
+                  {/* Search */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsDropdownOpen(false);
+                      setIsFinderOpen(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Search className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Search</span>
+                    </div>
+                    <kbd className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">Ctrl+K</kbd>
+                  </button>
+
+                  {/* Shortcuts */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsDropdownOpen(false);
+                      setIsShortcutsHelpOpen(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Keyboard className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Shortcuts</span>
+                    </div>
+                    <kbd className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">?</kbd>
+                  </button>
+
+                  {/* Developer Mode */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsToolsDropdownOpen(false);
+                      setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"));
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Developer Mode</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono">&lt;/&gt;</span>
+                  </button>
                 </div>
               )}
             </div>
 
             {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+            <div className="h-4 w-px bg-slate-700 shrink-0" />
 
             {/* History Controls Group (Undo / Redo / History) */}
             <div className="flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-slate-700/80 shrink-0">
@@ -6484,7 +6422,7 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
               </button>
             </div>
 
-            {/* Selected Element Controls (Only active when element selected) */}
+            {/* Selected Element Controls (Only active when element selected on ultra-wide screens) */}
             {selectedId && (
               <div className="hidden 2xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/30 shrink-0">
                 <button
@@ -6538,7 +6476,50 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
               </div>
             )}
 
-            {/* Kit & Tools Actions */}
+            {/* Subtle Divider */}
+            <div className="h-4 w-px bg-slate-700 shrink-0" />
+
+            {/* Notes, Tokens, Classes Secondary Tools */}
+            {/* Collaborative Design Notes & Feedback */}
+            <button
+              type="button"
+              onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer shrink-0 ${isDesignNotesOpen
+                ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
+                : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
+                }`}
+              title="Toggle Collaborative Design Notes & Element Comments"
+            >
+              <span>💬</span>
+              <span>Notes</span>
+            </button>
+
+            {/* F-339: Variables Manager (Tokens) */}
+            <button
+              type="button"
+              onClick={() => setIsVariablesModalOpen(true)}
+              className="px-2.5 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+              title="Design Variables & CSS Tokens (F-339)"
+            >
+              <span>🎨</span>
+              <span>Tokens</span>
+            </button>
+
+            {/* F-340: Global Class Manager */}
+            <button
+              type="button"
+              onClick={() => setIsClassModalOpen(true)}
+              className="px-2.5 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+              title="Global Utility Classes (F-340)"
+            >
+              <span>🏷️</span>
+              <span>Classes</span>
+            </button>
+
+            {/* Subtle Divider */}
+            <div className="h-4 w-px bg-slate-700 shrink-0" />
+
+            {/* Kit & Fullscreen Utility Tools */}
             <button
               type="button"
               onClick={handleExportWebsiteKit}
@@ -6549,64 +6530,18 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
               <Box className="w-4 h-4" />
             </button>
 
-<button
-                    type="button"
-                    onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                    className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-                    title="Toggle Full Screen Canvas"
-                    aria-label="Toggle Full Screen Canvas"
-                  >
-                    <span className="text-sm leading-none">⛶</span>
-                  </button>
-
-                  {/* Collaborative Design Notes & Feedback */}
-                  <button
-                    type="button"
-                    onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
-                    className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
-                      isDesignNotesOpen
-                        ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
-                        : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
-                    }`}
-                    title="Toggle Collaborative Design Notes & Element Comments"
-                  >
-                    <span>💬</span>
-                    <span>Notes</span>
-                  </button>
-
-                  {/* F-339: Variables Manager (Tokens) */}
-                  <button
-                    type="button"
-                    onClick={() => setIsVariablesModalOpen(true)}
-                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
-                    title="Design Variables & CSS Tokens (F-339)"
-                  >
-                    <span>🎨</span>
-                    <span>Tokens</span>
-                  </button>
-
-                  {/* F-340: Global Class Manager */}
-                  <button
-                    type="button"
-                    onClick={() => setIsClassModalOpen(true)}
-                    className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
-                    title="Global Utility Classes (F-340)"
-                  >
-                    <span>🏷️</span>
-                    <span>Classes</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
-                  >
-                    {saving ? "Saving..." : "💾 Save"}
-                  </button>
+            <button
+              type="button"
+              onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Toggle Full Screen Canvas"
+              aria-label="Toggle Full Screen Canvas"
+            >
+              <span className="text-sm leading-none">⛶</span>
+            </button>
 
             {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+            <div className="h-4 w-px bg-slate-700 shrink-0" />
 
             {/* Primary Action Buttons: Preview, Save, Publish */}
             {/* Preview Button */}
@@ -8228,10 +8163,10 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
-                        <div className="site-global-header border-b border-slate-100 pb-4">
-                          {siteParts.header.elements.map((el) => renderElementTree(el))}
-                        </div>
-                      )}
+                          <div className="site-global-header border-b border-slate-100 pb-4">
+                            {siteParts.header.elements.map((el) => renderElementTree(el))}
+                          </div>
+                        )}
 
                       {/* Active Page Elements */}
                       <div className="site-page-content">
@@ -8260,10 +8195,10 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
-                        <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
-                          {siteParts.footer.elements.map((el) => renderElementTree(el))}
-                        </div>
-                      )}
+                          <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
+                            {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                          </div>
+                        )}
                     </div>
                   );
                 })()}
@@ -8492,27 +8427,24 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                           <button
                             type="button"
                             onClick={() => updateSelectedLayout("layoutType", "flex")}
-                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
-                              !isGrid && !isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
-                            }`}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${!isGrid && !isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                              }`}
                           >
                             ⚡ Flexbox
                           </button>
                           <button
                             type="button"
                             onClick={() => updateSelectedLayout("layoutType", "grid")}
-                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
-                              isGrid ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
-                            }`}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${isGrid ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                              }`}
                           >
                             ▦ CSS Grid
                           </button>
                           <button
                             type="button"
                             onClick={() => updateSelectedLayout("layoutType", "masonry")}
-                            className={`py-1.5 text-xs font-bold rounded transition-colors ${
-                              isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
-                            }`}
+                            className={`py-1.5 text-xs font-bold rounded transition-colors ${isMasonry ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:bg-slate-200"
+                              }`}
                           >
                             🧱 Masonry
                           </button>
@@ -8534,11 +8466,10 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                                     key={cols}
                                     type="button"
                                     onClick={() => updateSelectedLayout("masonryColumns", cols)}
-                                    className={`py-1 text-xs font-bold rounded border ${
-                                      isSelected
-                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
-                                    }`}
+                                    className={`py-1 text-xs font-bold rounded border ${isSelected
+                                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                                      }`}
                                   >
                                     {cols} Col
                                   </button>
@@ -8576,11 +8507,10 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                                     key={cols}
                                     type="button"
                                     onClick={() => updateSelectedLayout("gridTemplateColumns", template)}
-                                    className={`py-1 text-xs font-bold rounded border ${
-                                      isSelected
-                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
-                                    }`}
+                                    className={`py-1 text-xs font-bold rounded border ${isSelected
+                                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                                      }`}
                                     title={`${cols} Column${cols > 1 ? "s" : ""}`}
                                   >
                                     {cols}c
@@ -8607,11 +8537,10 @@ https://github.com/navinray12/forgestudio/pull/30/conflict?name=frontend%252Fsrc
                                     key={preset.label}
                                     type="button"
                                     onClick={() => updateSelectedLayout("gridTemplateColumns", preset.val)}
-                                    className={`py-1 px-1 text-[10px] font-bold rounded border ${
-                                      isSelected
-                                        ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
-                                    }`}
+                                    className={`py-1 px-1 text-[10px] font-bold rounded border ${isSelected
+                                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                                      }`}
                                   >
                                     {preset.label}
                                   </button>
