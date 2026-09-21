@@ -14,9 +14,32 @@ import CustomPostTypesPanel from "./components/CustomPostTypesPanel";
 import PerformancePanel from "./components/PerformancePanel";
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
+import { ManagedSiteModal } from "./components/ManagedSiteModal";
+import { ActivityLogModal } from "./components/ActivityLogModal";
 
 interface Website {
-  id: string; name: string; slug: string; status: string; createdAt: string; updatedAt: string;
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  wpConnection?: {
+    id: string;
+    siteUrl: string;
+    wpSiteName?: string | null;
+    status: string;
+    lastVerifiedAt?: string | null;
+  } | null;
+  mailerConfig?: {
+    id: string;
+    host: string;
+    port: number;
+    username: string;
+    fromName: string;
+    fromEmail: string;
+    isVerified: boolean;
+  } | null;
 }
 
 type Tab =
@@ -73,13 +96,88 @@ function UserDashboard() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [roleManagerSite, setRoleManagerSite] = useState<Website | null>(null);
+  const [managedSiteTarget, setManagedSiteTarget] = useState<Website | null>(null);
+  const [isGlobalActivityLogOpen, setIsGlobalActivityLogOpen] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
+  const [selectedSiteIds, setSelectedSiteIds] = useState<string[]>([]);
+  const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
+  const [bulkResultsModalOpen, setBulkResultsModalOpen] = useState(false);
+  const [bulkResultsTitle, setBulkResultsTitle] = useState("");
+  const [bulkResults, setBulkResults] = useState<any[]>([]);
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  const handleBulkVerify = async () => {
+    if (selectedSiteIds.length === 0) return;
+    setBulkOperationLoading(true);
+    setBulkResultsTitle("Bulk WordPress Connection Verification");
+    try {
+      const res = await fetch(`${apiUrl}/api/websites/bulk/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ websiteIds: selectedSiteIds }),
+      });
+      const data = await res.json();
+      setBulkResults(data.results || []);
+      setBulkResultsModalOpen(true);
+      fetchWebsites();
+    } catch {
+      alert("Bulk verification request failed.");
+    } finally {
+      setBulkOperationLoading(false);
+    }
+  };
+
+  const handleBulkSync = async () => {
+    if (selectedSiteIds.length === 0) return;
+    setBulkOperationLoading(true);
+    setBulkResultsTitle("Bulk WordPress Page Synchronization");
+    try {
+      const res = await fetch(`${apiUrl}/api/websites/bulk/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ websiteIds: selectedSiteIds }),
+      });
+      const data = await res.json();
+      setBulkResults(data.results || []);
+      setBulkResultsModalOpen(true);
+      fetchWebsites();
+    } catch {
+      alert("Bulk synchronization request failed.");
+    } finally {
+      setBulkOperationLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedSiteIds.length === 0) return;
+    if (!window.confirm(`Are you sure you want to permanently delete ${selectedSiteIds.length} selected website(s)? This action cannot be undone.`)) return;
+    setBulkOperationLoading(true);
+    setBulkResultsTitle("Bulk Website Deletion");
+    try {
+      const res = await fetch(`${apiUrl}/api/websites/bulk/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ websiteIds: selectedSiteIds }),
+      });
+      const data = await res.json();
+      setBulkResults(data.results || []);
+      setBulkResultsModalOpen(true);
+      setSelectedSiteIds([]);
+      fetchWebsites();
+    } catch {
+      alert("Bulk delete request failed.");
+    } finally {
+      setBulkOperationLoading(false);
+    }
+  };
 
   const handleExportDashboardKit = async (site: Website) => {
     try {
@@ -277,8 +375,27 @@ function UserDashboard() {
           <TeamDashboardView teamId={currentTeamId} apiUrl={apiUrl} onNavigateEditor={id => navigate(`/editor/${id}`)} />
         ) : (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-900">Your Websites</h3>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <div className="flex items-center gap-3">
+                <h3 className="text-base font-bold text-slate-900">Your Websites</h3>
+                {websites.length > 0 && (
+                  <label className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold cursor-pointer select-none bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50">
+                    <input
+                      type="checkbox"
+                      checked={selectedSiteIds.length > 0 && selectedSiteIds.length === websites.length}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedSiteIds(websites.map(w => w.id));
+                        } else {
+                          setSelectedSiteIds([]);
+                        }
+                      }}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <span>Select All ({selectedSiteIds.length}/{websites.length})</span>
+                  </label>
+                )}
+              </div>
               <button onClick={() => { setError(""); setWebsiteName(""); setIsModalOpen(true); }} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-700 transition shadow-sm">+ New Website</button>
             </div>
             <div className="mt-6">
@@ -311,13 +428,41 @@ function UserDashboard() {
                   {websites.map((site) => (
                     <div
                       key={site.id}
-                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:shadow-md hover:border-slate-300"
+                      className={`flex flex-col justify-between rounded-2xl border bg-white p-6 shadow-sm transition duration-200 hover:shadow-md ${
+                        selectedSiteIds.includes(site.id) ? "border-blue-500 ring-2 ring-blue-500/10" : "border-slate-200 hover:border-slate-300"
+                      }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between">
-                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${site.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
-                            {site.status}
-                          </span>
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <input
+                              type="checkbox"
+                              checked={selectedSiteIds.includes(site.id)}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                if (e.target.checked) {
+                                  setSelectedSiteIds(prev => [...prev, site.id]);
+                                } else {
+                                  setSelectedSiteIds(prev => prev.filter(id => id !== site.id));
+                                }
+                              }}
+                              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer h-4 w-4"
+                              title="Select site for bulk action"
+                            />
+                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${site.status === "PUBLISHED" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-blue-50 text-blue-600 border border-blue-100"}`}>
+                              {site.status}
+                            </span>
+                            {site.wpConnection?.status === "CONNECTED" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700" title={`WordPress site: ${site.wpConnection.siteUrl}`}>
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                {site.wpConnection.wpSiteName || "WP Connected"}
+                              </span>
+                            ) : site.wpConnection?.status ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                                WP: {site.wpConnection.status}
+                              </span>
+                            ) : null}
+                          </div>
                           <span className="text-[11px] text-slate-400">
                             {new Date(site.createdAt).toLocaleDateString()}
                           </span>
@@ -339,10 +484,19 @@ function UserDashboard() {
                           Delete
                         </button>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => setManagedSiteTarget(site)}
+                            className="inline-flex h-8 items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/60 px-2.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100/80 transition shadow-2xs"
+                            title="Manage WordPress sync, Site Mailer SMTP, and security/audit logs"
+                          >
+                            <span>⚡</span>
+                            <span>Manage</span>
+                          </button>
+
                           <button
                             onClick={() => setRoleManagerSite(site)}
-                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-sm"
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition shadow-2xs"
                           >
                             Roles
                           </button>
@@ -391,6 +545,14 @@ function UserDashboard() {
             <span className="hidden sm:inline text-sm font-semibold text-slate-500">Dashboard</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsGlobalActivityLogOpen(true)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
+              title="View all audit and activity logs across your account"
+            >
+              <span>📜</span>
+              <span className="hidden sm:inline">Activity Log</span>
+            </button>
             <Link to="/subscriptions" className="hidden sm:inline-flex h-8 items-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shadow-sm">⭐ Subscription</Link>
             <button onClick={handleLogout} className="inline-flex h-8 items-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition shadow-sm">Logout</button>
           </div>
@@ -493,6 +655,105 @@ function UserDashboard() {
         onClose={() => setIsImportKitOpen(false)}
         onImportKit={handleImportDashboardKit}
       />
+
+      {/* Managed Site Modal (F-426, F-427, F-435-437) */}
+      {managedSiteTarget && (
+        <ManagedSiteModal
+          website={managedSiteTarget}
+          isOpen={!!managedSiteTarget}
+          onClose={() => setManagedSiteTarget(null)}
+          onWebsiteUpdated={fetchWebsites}
+        />
+      )}
+
+      {/* Global Activity Log Modal (F-428) */}
+      <ActivityLogModal
+        isOpen={isGlobalActivityLogOpen}
+        onClose={() => setIsGlobalActivityLogOpen(false)}
+      />
+
+      {/* Floating Bulk Action Bar (F-430) */}
+      {selectedSiteIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white border border-slate-800 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom duration-200">
+          <span className="text-xs font-bold text-slate-300">
+            Selected: <strong className="text-white">{selectedSiteIds.length}</strong> site{selectedSiteIds.length > 1 ? "s" : ""}
+          </span>
+          <div className="h-4 w-px bg-slate-700" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBulkVerify}
+              disabled={bulkOperationLoading}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold flex items-center gap-1 transition disabled:opacity-50"
+            >
+              ⚡ Bulk Verify
+            </button>
+            <button
+              onClick={handleBulkSync}
+              disabled={bulkOperationLoading}
+              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold flex items-center gap-1 transition disabled:opacity-50"
+            >
+              🔄 Bulk Sync
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkOperationLoading}
+              className="px-3 py-1.5 rounded-xl bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white text-xs font-bold flex items-center gap-1 transition disabled:opacity-50"
+            >
+              🗑️ Bulk Delete
+            </button>
+          </div>
+          <button
+            onClick={() => setSelectedSiteIds([])}
+            className="text-slate-400 hover:text-white text-xs underline font-semibold ml-2"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Bulk Results Dialog Modal (F-430) */}
+      {bulkResultsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">{bulkResultsTitle}</h3>
+              <button
+                onClick={() => setBulkResultsModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="max-h-72 overflow-y-auto space-y-2 pr-1 text-xs">
+              {bulkResults.map((r) => (
+                <div key={r.websiteId} className="p-3 rounded-xl border border-slate-100 bg-slate-50 flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-bold text-slate-800">{r.siteName}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{r.message}</div>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${
+                    r.status === "SUCCESS"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : r.status === "SKIPPED"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}>
+                    {r.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="pt-2 flex justify-end border-t border-slate-100">
+              <button
+                onClick={() => setBulkResultsModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,6 +41,22 @@ import mediaRoutes from "./routes/media.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
+import mailerRoutes from "./routes/mailer.routes.js";
+import { rateLimit } from "express-rate-limit";
+
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: "RATE_LIMITED",
+      message: "Too many authentication requests, please try again after 15 minutes.",
+    },
+  },
+});
 
 const app = express();
 
@@ -71,6 +87,12 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
   });
 });
 
+// Auth & Session Rate Limiting (F-439)
+app.use("/api/v1/auth/login", authRateLimiter);
+app.use("/api/auth/login", authRateLimiter);
+app.use("/api/v1/auth/signup", authRateLimiter);
+app.use("/api/auth/signup", authRateLimiter);
+
 // Auth & Session
 app.use("/api/v1/auth", loginRoutes);
 app.use("/api/v1/auth", signupRoutes);
@@ -89,6 +111,8 @@ app.use("/api/v1", apiV1Routes);
 // Websites & Workspace
 app.use("/api/v1/websites", websiteRoutes);
 app.use("/api/websites", websiteRoutes);
+app.use("/api/v1/websites", mailerRoutes);
+app.use("/api/websites", mailerRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
 

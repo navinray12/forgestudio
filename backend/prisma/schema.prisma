@@ -50,6 +50,8 @@ model User {
   approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
   reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
   mediaAssets             MediaAsset[]
+  optimizationCredits     Int                      @default(250)
+  creditLedgers           OptimizationCreditLedger[]
 
   @@index([status])
   @@index([role])
@@ -90,6 +92,10 @@ model Website {
   approvalWorkflowEnabled Boolean          @default(false)
   approvalRequests    PublishApprovalRequest[]
   mediaAssets         MediaAsset[]
+  mailerConfig        SiteMailerConfig?
+  emailLogs           EmailDeliveryLog[]
+  performanceMetrics  SitePerformanceMetric[]
+  optimizedMedia      MediaOptimizationAsset[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@index([organizationId])
@@ -826,6 +832,93 @@ model MediaAsset {
   @@index([websiteId])
   @@map("media_assets")
 }
+
+model SiteMailerConfig {
+  id          String   @id @default(uuid()) @db.Uuid
+  websiteId   String   @unique @db.Uuid
+  host        String   @db.VarChar(255)
+  port        Int      @default(587)
+  username    String   @db.VarChar(255)
+  password    String   @db.VarChar(500)
+  fromName    String   @db.VarChar(255)
+  fromEmail   String   @db.VarChar(255)
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("site_mailer_configs")
+}
+
+model EmailDeliveryLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  recipient  String   @db.VarChar(255)
+  subject    String   @db.VarChar(500)
+  status     String   @default("SENT") @db.VarChar(50)
+  error      String?  @db.VarChar(2000)
+  sentAt     DateTime @default(now()) @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website    Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, sentAt])
+  @@map("email_delivery_logs")
+}
+
+model SitePerformanceMetric {
+  id             String   @id @default(uuid()) @db.Uuid
+  websiteId      String   @db.Uuid
+  responseTimeMs Int
+  ttfbMs         Int
+  statusCode     Int      @default(200)
+  score          Int      @default(95)
+  checkedAt      DateTime @default(now()) @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website        Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, checkedAt])
+  @@map("site_performance_metrics")
+}
+
+model MediaOptimizationAsset {
+  id             String   @id @default(uuid()) @db.Uuid
+  websiteId      String   @db.Uuid
+  originalUrl    String   @db.VarChar(1000)
+  optimizedUrl   String   @db.VarChar(1000)
+  originalBytes  Int
+  optimizedBytes Int
+  format         String   @default("webp") @db.VarChar(50)
+  status         String   @default("OPTIMIZED") @db.VarChar(50)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website        Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, createdAt])
+  @@map("media_optimization_assets")
+}
+
+model OptimizationCreditLedger {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  websiteId   String?  @db.Uuid
+  creditsUsed Int
+  actionType  String   @db.VarChar(100)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("optimization_credit_ledgers")
+}
+
+
 
 
 

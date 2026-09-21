@@ -49,6 +49,7 @@ export function getGlobalCustomCss(_pages: any, _popups: any, _breakpoints: any,
 
 const CodeInjectionRuntime = React.lazy(() => import("../editor/components/CodeInjectionRuntime"));
 const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
+import { CookieConsentBanner } from "../../components/CookieConsentBanner";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
 
@@ -637,6 +638,7 @@ export default function PublishedSite() {
     const [customCodeSnippets, setCustomCodeSnippets] = useState<any[]>([]);
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+    const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
@@ -718,6 +720,9 @@ export default function PublishedSite() {
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
+                if (site?.editorData?.siteSettings?.cookieConsent || site?.editorData?.cookieConsent) {
+                    setCookieConsentConfig(site.editorData.siteSettings?.cookieConsent || site.editorData.cookieConsent);
+                }
 
             } catch (_err: any) {
                 setErrorMessage("This website is unavailable.");
@@ -1019,6 +1024,9 @@ export default function PublishedSite() {
                     websiteId={websiteId}
                 />
             ))}
+
+            {/* F-438: Cookie Consent Runtime Banner */}
+            <CookieConsentBanner config={cookieConsentConfig} />
         </div>
     );
 }

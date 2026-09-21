@@ -386,16 +386,47 @@ export async function getUserWebsites(userId: string) {
     if (db?.website?.findMany) {
       const websites = await db.website.findMany({
         where: { userId },
+        include: {
+          wpConnection: {
+            select: {
+              id: true,
+              siteUrl: true,
+              wpSiteName: true,
+              status: true,
+              lastVerifiedAt: true,
+              createdAt: true,
+            },
+          },
+          mailerConfig: {
+            select: {
+              id: true,
+              host: true,
+              port: true,
+              username: true,
+              fromName: true,
+              fromEmail: true,
+              isVerified: true,
+            },
+          },
+        },
         orderBy: { createdAt: "desc" },
       });
       if (websites) return websites;
     }
 
     const rawWebsites: any[] = await prisma.$queryRaw`
-      SELECT id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
-      FROM websites
-      WHERE "userId" = ${userId}::uuid
-      ORDER BY "createdAt" DESC
+      SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
+        (SELECT row_to_json(wp) FROM (
+          SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
+          FROM wordpress_connections WHERE "websiteId" = w.id
+        ) wp) as "wpConnection",
+        (SELECT row_to_json(mc) FROM (
+          SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
+          FROM site_mailer_configs WHERE "websiteId" = w.id
+        ) mc) as "mailerConfig"
+      FROM websites w
+      WHERE w."userId" = ${userId}::uuid
+      ORDER BY w."createdAt" DESC
     `;
     return rawWebsites || [];
   } catch (error) {
@@ -403,6 +434,136 @@ export async function getUserWebsites(userId: string) {
     return [];
   }
 }
+
+/**
+ * Aggregated details for Managed Site View (F-427)
+ */
+export async function getManagedWebsiteDetails(websiteId: string, userId: string) {
+  const website = await getWebsiteById(websiteId, userId);
+
+  let wpConnection: any = null;
+  let wpPageMappings: any[] = [];
+  let mailerConfig: any = null;
+  let recentDeployments: any[] = [];
+  let recentLogs: any[] = [];
+
+  try {
+    if (db?.wordPressConnection?.findUnique) {
+      wpConnection = await db.wordPressConnection.findUnique({ where: { websiteId } });
+    }
+  } catch {}
+
+  try {
+    if (db?.wordPressPageMapping?.findMany) {
+      wpPageMappings = await db.wordPressPageMapping.findMany({
+        where: { websiteId },
+        orderBy: { lastSyncedAt: "desc" },
+        take: 20,
+      });
+    }
+  } catch {}
+
+  try {
+    const { getMailerConfig } = await import("./siteMailer.service.js");
+    mailerConfig = await getMailerConfig(websiteId);
+  } catch {}
+
+  try {
+    if (db?.deployment?.findMany) {
+      recentDeployments = await db.deployment.findMany({
+        where: { websiteId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      });
+    }
+  } catch {}
+
+  try {
+    const { getDeliveryLogs } = await import("./siteMailer.service.js");
+    const logRes = await getDeliveryLogs(websiteId, { page: 1, limit: 5 });
+    recentLogs = logRes.logs || [];
+  } catch {}
+
+  const editorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  const cookieConsent = editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent || {
+    enabled: false,
+    message: "We use cookies to improve your experience on our website.",
+    buttonText: "Accept All",
+    policyUrl: "",
+    theme: "dark",
+  };
+
+  let performanceStats: any = null;
+  let optimizationStats: any = null;
+
+  try {
+    const { getPerformanceSummary } = await import("./sitePerformance.service.js");
+    performanceStats = await getPerformanceSummary(websiteId, userId);
+  } catch {}
+
+  try {
+    const { getOptimizationStats } = await import("./imageOptimization.service.js");
+    optimizationStats = await getOptimizationStats(websiteId, userId);
+  } catch {}
+
+  return {
+    website: {
+      id: website.id,
+      name: website.name,
+      slug: website.slug,
+      status: website.status,
+      createdAt: website.createdAt,
+      updatedAt: website.updatedAt,
+      pagesCount: Array.isArray(editorData.pages) ? editorData.pages.length : 1,
+    },
+    wpConnection: wpConnection
+      ? {
+          id: wpConnection.id,
+          siteUrl: wpConnection.siteUrl,
+          wpSiteName: wpConnection.wpSiteName,
+          status: wpConnection.status,
+          capabilities: wpConnection.capabilities,
+          lastVerifiedAt: wpConnection.lastVerifiedAt,
+        }
+      : null,
+    wpPageMappings,
+    mailerConfig,
+    cookieConsent,
+    recentDeployments,
+    recentLogs,
+    performanceStats,
+    optimizationStats,
+  };
+}
+
+/**
+ * F-438: Update cookie consent configuration for a website
+ */
+export async function updateCookieConsentConfig(websiteId: string, userId: string, config: any) {
+  const website = await getWebsiteById(websiteId, userId);
+  const editorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  if (!editorData.siteSettings) {
+    editorData.siteSettings = {};
+  }
+
+  editorData.siteSettings.cookieConsent = {
+    enabled: Boolean(config.enabled),
+    message: String(config.message || "We use cookies to enhance your experience."),
+    buttonText: String(config.buttonText || "Accept All"),
+    policyUrl: String(config.policyUrl || ""),
+    theme: config.theme === "light" ? "light" : "dark",
+  };
+
+  await updateWebsiteEditorData(websiteId, userId, editorData);
+  return editorData.siteSettings.cookieConsent;
+}
+
 
 /**
  * Get a single website by ID with ownership check

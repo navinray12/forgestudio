@@ -218,6 +218,31 @@ export type BackgroundJob = $Result.DefaultSelection<Prisma.$BackgroundJobPayloa
  * 
  */
 export type MediaAsset = $Result.DefaultSelection<Prisma.$MediaAssetPayload>
+/**
+ * Model SiteMailerConfig
+ * 
+ */
+export type SiteMailerConfig = $Result.DefaultSelection<Prisma.$SiteMailerConfigPayload>
+/**
+ * Model EmailDeliveryLog
+ * 
+ */
+export type EmailDeliveryLog = $Result.DefaultSelection<Prisma.$EmailDeliveryLogPayload>
+/**
+ * Model SitePerformanceMetric
+ * 
+ */
+export type SitePerformanceMetric = $Result.DefaultSelection<Prisma.$SitePerformanceMetricPayload>
+/**
+ * Model MediaOptimizationAsset
+ * 
+ */
+export type MediaOptimizationAsset = $Result.DefaultSelection<Prisma.$MediaOptimizationAssetPayload>
+/**
+ * Model OptimizationCreditLedger
+ * 
+ */
+export type OptimizationCreditLedger = $Result.DefaultSelection<Prisma.$OptimizationCreditLedgerPayload>
 
 /**
  * Enums
@@ -839,6 +864,56 @@ export class PrismaClient<
     * ```
     */
   get mediaAsset(): Prisma.MediaAssetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.siteMailerConfig`: Exposes CRUD operations for the **SiteMailerConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SiteMailerConfigs
+    * const siteMailerConfigs = await prisma.siteMailerConfig.findMany()
+    * ```
+    */
+  get siteMailerConfig(): Prisma.SiteMailerConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailDeliveryLog`: Exposes CRUD operations for the **EmailDeliveryLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailDeliveryLogs
+    * const emailDeliveryLogs = await prisma.emailDeliveryLog.findMany()
+    * ```
+    */
+  get emailDeliveryLog(): Prisma.EmailDeliveryLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sitePerformanceMetric`: Exposes CRUD operations for the **SitePerformanceMetric** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SitePerformanceMetrics
+    * const sitePerformanceMetrics = await prisma.sitePerformanceMetric.findMany()
+    * ```
+    */
+  get sitePerformanceMetric(): Prisma.SitePerformanceMetricDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mediaOptimizationAsset`: Exposes CRUD operations for the **MediaOptimizationAsset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MediaOptimizationAssets
+    * const mediaOptimizationAssets = await prisma.mediaOptimizationAsset.findMany()
+    * ```
+    */
+  get mediaOptimizationAsset(): Prisma.MediaOptimizationAssetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.optimizationCreditLedger`: Exposes CRUD operations for the **OptimizationCreditLedger** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OptimizationCreditLedgers
+    * const optimizationCreditLedgers = await prisma.optimizationCreditLedger.findMany()
+    * ```
+    */
+  get optimizationCreditLedger(): Prisma.OptimizationCreditLedgerDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1326,7 +1401,12 @@ export namespace Prisma {
     WorkspaceMember: 'WorkspaceMember',
     PublishApprovalRequest: 'PublishApprovalRequest',
     BackgroundJob: 'BackgroundJob',
-    MediaAsset: 'MediaAsset'
+    MediaAsset: 'MediaAsset',
+    SiteMailerConfig: 'SiteMailerConfig',
+    EmailDeliveryLog: 'EmailDeliveryLog',
+    SitePerformanceMetric: 'SitePerformanceMetric',
+    MediaOptimizationAsset: 'MediaOptimizationAsset',
+    OptimizationCreditLedger: 'OptimizationCreditLedger'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1342,7 +1422,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4380,6 +4460,376 @@ export namespace Prisma {
           }
         }
       }
+      SiteMailerConfig: {
+        payload: Prisma.$SiteMailerConfigPayload<ExtArgs>
+        fields: Prisma.SiteMailerConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SiteMailerConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SiteMailerConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.SiteMailerConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SiteMailerConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          findMany: {
+            args: Prisma.SiteMailerConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>[]
+          }
+          create: {
+            args: Prisma.SiteMailerConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          createMany: {
+            args: Prisma.SiteMailerConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SiteMailerConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.SiteMailerConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          update: {
+            args: Prisma.SiteMailerConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.SiteMailerConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SiteMailerConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SiteMailerConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.SiteMailerConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SiteMailerConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.SiteMailerConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSiteMailerConfig>
+          }
+          groupBy: {
+            args: Prisma.SiteMailerConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SiteMailerConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SiteMailerConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<SiteMailerConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmailDeliveryLog: {
+        payload: Prisma.$EmailDeliveryLogPayload<ExtArgs>
+        fields: Prisma.EmailDeliveryLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailDeliveryLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailDeliveryLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailDeliveryLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailDeliveryLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          findMany: {
+            args: Prisma.EmailDeliveryLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>[]
+          }
+          create: {
+            args: Prisma.EmailDeliveryLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          createMany: {
+            args: Prisma.EmailDeliveryLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailDeliveryLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailDeliveryLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          update: {
+            args: Prisma.EmailDeliveryLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailDeliveryLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailDeliveryLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailDeliveryLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailDeliveryLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailDeliveryLogPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailDeliveryLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailDeliveryLog>
+          }
+          groupBy: {
+            args: Prisma.EmailDeliveryLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailDeliveryLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailDeliveryLogCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailDeliveryLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      SitePerformanceMetric: {
+        payload: Prisma.$SitePerformanceMetricPayload<ExtArgs>
+        fields: Prisma.SitePerformanceMetricFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SitePerformanceMetricFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SitePerformanceMetricFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          findFirst: {
+            args: Prisma.SitePerformanceMetricFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SitePerformanceMetricFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          findMany: {
+            args: Prisma.SitePerformanceMetricFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>[]
+          }
+          create: {
+            args: Prisma.SitePerformanceMetricCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          createMany: {
+            args: Prisma.SitePerformanceMetricCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SitePerformanceMetricCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>[]
+          }
+          delete: {
+            args: Prisma.SitePerformanceMetricDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          update: {
+            args: Prisma.SitePerformanceMetricUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          deleteMany: {
+            args: Prisma.SitePerformanceMetricDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SitePerformanceMetricUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SitePerformanceMetricUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>[]
+          }
+          upsert: {
+            args: Prisma.SitePerformanceMetricUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SitePerformanceMetricPayload>
+          }
+          aggregate: {
+            args: Prisma.SitePerformanceMetricAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSitePerformanceMetric>
+          }
+          groupBy: {
+            args: Prisma.SitePerformanceMetricGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SitePerformanceMetricGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SitePerformanceMetricCountArgs<ExtArgs>
+            result: $Utils.Optional<SitePerformanceMetricCountAggregateOutputType> | number
+          }
+        }
+      }
+      MediaOptimizationAsset: {
+        payload: Prisma.$MediaOptimizationAssetPayload<ExtArgs>
+        fields: Prisma.MediaOptimizationAssetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MediaOptimizationAssetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MediaOptimizationAssetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          findFirst: {
+            args: Prisma.MediaOptimizationAssetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MediaOptimizationAssetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          findMany: {
+            args: Prisma.MediaOptimizationAssetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>[]
+          }
+          create: {
+            args: Prisma.MediaOptimizationAssetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          createMany: {
+            args: Prisma.MediaOptimizationAssetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MediaOptimizationAssetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>[]
+          }
+          delete: {
+            args: Prisma.MediaOptimizationAssetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          update: {
+            args: Prisma.MediaOptimizationAssetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          deleteMany: {
+            args: Prisma.MediaOptimizationAssetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MediaOptimizationAssetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MediaOptimizationAssetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>[]
+          }
+          upsert: {
+            args: Prisma.MediaOptimizationAssetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MediaOptimizationAssetPayload>
+          }
+          aggregate: {
+            args: Prisma.MediaOptimizationAssetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMediaOptimizationAsset>
+          }
+          groupBy: {
+            args: Prisma.MediaOptimizationAssetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MediaOptimizationAssetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MediaOptimizationAssetCountArgs<ExtArgs>
+            result: $Utils.Optional<MediaOptimizationAssetCountAggregateOutputType> | number
+          }
+        }
+      }
+      OptimizationCreditLedger: {
+        payload: Prisma.$OptimizationCreditLedgerPayload<ExtArgs>
+        fields: Prisma.OptimizationCreditLedgerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OptimizationCreditLedgerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OptimizationCreditLedgerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          findFirst: {
+            args: Prisma.OptimizationCreditLedgerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OptimizationCreditLedgerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          findMany: {
+            args: Prisma.OptimizationCreditLedgerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>[]
+          }
+          create: {
+            args: Prisma.OptimizationCreditLedgerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          createMany: {
+            args: Prisma.OptimizationCreditLedgerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OptimizationCreditLedgerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>[]
+          }
+          delete: {
+            args: Prisma.OptimizationCreditLedgerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          update: {
+            args: Prisma.OptimizationCreditLedgerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          deleteMany: {
+            args: Prisma.OptimizationCreditLedgerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OptimizationCreditLedgerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OptimizationCreditLedgerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>[]
+          }
+          upsert: {
+            args: Prisma.OptimizationCreditLedgerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OptimizationCreditLedgerPayload>
+          }
+          aggregate: {
+            args: Prisma.OptimizationCreditLedgerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOptimizationCreditLedger>
+          }
+          groupBy: {
+            args: Prisma.OptimizationCreditLedgerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OptimizationCreditLedgerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OptimizationCreditLedgerCountArgs<ExtArgs>
+            result: $Utils.Optional<OptimizationCreditLedgerCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4544,6 +4994,11 @@ export namespace Prisma {
     publishApprovalRequest?: PublishApprovalRequestOmit
     backgroundJob?: BackgroundJobOmit
     mediaAsset?: MediaAssetOmit
+    siteMailerConfig?: SiteMailerConfigOmit
+    emailDeliveryLog?: EmailDeliveryLogOmit
+    sitePerformanceMetric?: SitePerformanceMetricOmit
+    mediaOptimizationAsset?: MediaOptimizationAssetOmit
+    optimizationCreditLedger?: OptimizationCreditLedgerOmit
   }
 
   /* Types for Logging */
@@ -4652,6 +5107,7 @@ export namespace Prisma {
     approvalRequests: number
     reviewedApprovals: number
     mediaAssets: number
+    creditLedgers: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4683,6 +5139,7 @@ export namespace Prisma {
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
+    creditLedgers?: boolean | UserCountOutputTypeCountCreditLedgersArgs
   }
 
   // Custom InputTypes
@@ -4892,6 +5349,13 @@ export namespace Prisma {
     where?: MediaAssetWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCreditLedgersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OptimizationCreditLedgerWhereInput
+  }
+
 
   /**
    * Count Type WebsiteCountOutputType
@@ -4914,6 +5378,9 @@ export namespace Prisma {
     invitations: number
     approvalRequests: number
     mediaAssets: number
+    emailLogs: number
+    performanceMetrics: number
+    optimizedMedia: number
   }
 
   export type WebsiteCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4933,6 +5400,9 @@ export namespace Prisma {
     invitations?: boolean | WebsiteCountOutputTypeCountInvitationsArgs
     approvalRequests?: boolean | WebsiteCountOutputTypeCountApprovalRequestsArgs
     mediaAssets?: boolean | WebsiteCountOutputTypeCountMediaAssetsArgs
+    emailLogs?: boolean | WebsiteCountOutputTypeCountEmailLogsArgs
+    performanceMetrics?: boolean | WebsiteCountOutputTypeCountPerformanceMetricsArgs
+    optimizedMedia?: boolean | WebsiteCountOutputTypeCountOptimizedMediaArgs
   }
 
   // Custom InputTypes
@@ -5056,6 +5526,27 @@ export namespace Prisma {
    */
   export type WebsiteCountOutputTypeCountMediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MediaAssetWhereInput
+  }
+
+  /**
+   * WebsiteCountOutputType without action
+   */
+  export type WebsiteCountOutputTypeCountEmailLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailDeliveryLogWhereInput
+  }
+
+  /**
+   * WebsiteCountOutputType without action
+   */
+  export type WebsiteCountOutputTypeCountPerformanceMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SitePerformanceMetricWhereInput
+  }
+
+  /**
+   * WebsiteCountOutputType without action
+   */
+  export type WebsiteCountOutputTypeCountOptimizedMediaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MediaOptimizationAssetWhereInput
   }
 
 
@@ -5309,8 +5800,18 @@ export namespace Prisma {
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    optimizationCredits: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    optimizationCredits: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -5327,6 +5828,7 @@ export namespace Prisma {
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    optimizationCredits: number | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -5343,6 +5845,7 @@ export namespace Prisma {
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    optimizationCredits: number | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -5359,9 +5862,18 @@ export namespace Prisma {
     lastLoginAt: number
     createdAt: number
     updatedAt: number
+    optimizationCredits: number
     _all: number
   }
 
+
+  export type UserAvgAggregateInputType = {
+    optimizationCredits?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    optimizationCredits?: true
+  }
 
   export type UserMinAggregateInputType = {
     id?: true
@@ -5377,6 +5889,7 @@ export namespace Prisma {
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
+    optimizationCredits?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -5393,6 +5906,7 @@ export namespace Prisma {
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
+    optimizationCredits?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -5409,6 +5923,7 @@ export namespace Prisma {
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
+    optimizationCredits?: true
     _all?: true
   }
 
@@ -5450,6 +5965,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
@@ -5480,6 +6007,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
     _min?: UserMinAggregateInputType
     _max?: UserMaxAggregateInputType
   }
@@ -5498,7 +6027,10 @@ export namespace Prisma {
     lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
+    optimizationCredits: number
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
   }
@@ -5531,6 +6063,7 @@ export namespace Prisma {
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    optimizationCredits?: boolean
     identities?: boolean | User$identitiesArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
@@ -5560,6 +6093,7 @@ export namespace Prisma {
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
+    creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5577,6 +6111,7 @@ export namespace Prisma {
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    optimizationCredits?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5593,6 +6128,7 @@ export namespace Prisma {
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    optimizationCredits?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -5609,9 +6145,10 @@ export namespace Prisma {
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    optimizationCredits?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "lastLoginAt" | "createdAt" | "updatedAt" | "optimizationCredits", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     identities?: boolean | User$identitiesArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
@@ -5642,6 +6179,7 @@ export namespace Prisma {
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
+    creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5679,6 +6217,7 @@ export namespace Prisma {
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
+      creditLedgers: Prisma.$OptimizationCreditLedgerPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5694,6 +6233,7 @@ export namespace Prisma {
       lastLoginAt: Date | null
       createdAt: Date
       updatedAt: Date
+      optimizationCredits: number
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -6117,6 +6657,7 @@ export namespace Prisma {
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    creditLedgers<T extends User$creditLedgersArgs<ExtArgs> = {}>(args?: Subset<T, User$creditLedgersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6159,6 +6700,7 @@ export namespace Prisma {
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
+    readonly optimizationCredits: FieldRef<"User", 'Int'>
   }
     
 
@@ -7243,6 +7785,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.creditLedgers
+   */
+  export type User$creditLedgersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    where?: OptimizationCreditLedgerWhereInput
+    orderBy?: OptimizationCreditLedgerOrderByWithRelationInput | OptimizationCreditLedgerOrderByWithRelationInput[]
+    cursor?: OptimizationCreditLedgerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OptimizationCreditLedgerScalarFieldEnum | OptimizationCreditLedgerScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7498,6 +8064,10 @@ export namespace Prisma {
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
     mediaAssets?: boolean | Website$mediaAssetsArgs<ExtArgs>
+    mailerConfig?: boolean | Website$mailerConfigArgs<ExtArgs>
+    emailLogs?: boolean | Website$emailLogsArgs<ExtArgs>
+    performanceMetrics?: boolean | Website$performanceMetricsArgs<ExtArgs>
+    optimizedMedia?: boolean | Website$optimizedMediaArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["website"]>
 
@@ -7577,6 +8147,10 @@ export namespace Prisma {
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
     mediaAssets?: boolean | Website$mediaAssetsArgs<ExtArgs>
+    mailerConfig?: boolean | Website$mailerConfigArgs<ExtArgs>
+    emailLogs?: boolean | Website$emailLogsArgs<ExtArgs>
+    performanceMetrics?: boolean | Website$performanceMetricsArgs<ExtArgs>
+    optimizedMedia?: boolean | Website$optimizedMediaArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7616,6 +8190,10 @@ export namespace Prisma {
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
+      mailerConfig: Prisma.$SiteMailerConfigPayload<ExtArgs> | null
+      emailLogs: Prisma.$EmailDeliveryLogPayload<ExtArgs>[]
+      performanceMetrics: Prisma.$SitePerformanceMetricPayload<ExtArgs>[]
+      optimizedMedia: Prisma.$MediaOptimizationAssetPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8045,6 +8623,10 @@ export namespace Prisma {
     organization<T extends Website$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Website$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     approvalRequests<T extends Website$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Website$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends Website$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, Website$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mailerConfig<T extends Website$mailerConfigArgs<ExtArgs> = {}>(args?: Subset<T, Website$mailerConfigArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    emailLogs<T extends Website$emailLogsArgs<ExtArgs> = {}>(args?: Subset<T, Website$emailLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    performanceMetrics<T extends Website$performanceMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Website$performanceMetricsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    optimizedMedia<T extends Website$optimizedMediaArgs<ExtArgs> = {}>(args?: Subset<T, Website$optimizedMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8944,6 +9526,97 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MediaAssetScalarFieldEnum | MediaAssetScalarFieldEnum[]
+  }
+
+  /**
+   * Website.mailerConfig
+   */
+  export type Website$mailerConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    where?: SiteMailerConfigWhereInput
+  }
+
+  /**
+   * Website.emailLogs
+   */
+  export type Website$emailLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    where?: EmailDeliveryLogWhereInput
+    orderBy?: EmailDeliveryLogOrderByWithRelationInput | EmailDeliveryLogOrderByWithRelationInput[]
+    cursor?: EmailDeliveryLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmailDeliveryLogScalarFieldEnum | EmailDeliveryLogScalarFieldEnum[]
+  }
+
+  /**
+   * Website.performanceMetrics
+   */
+  export type Website$performanceMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    where?: SitePerformanceMetricWhereInput
+    orderBy?: SitePerformanceMetricOrderByWithRelationInput | SitePerformanceMetricOrderByWithRelationInput[]
+    cursor?: SitePerformanceMetricWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SitePerformanceMetricScalarFieldEnum | SitePerformanceMetricScalarFieldEnum[]
+  }
+
+  /**
+   * Website.optimizedMedia
+   */
+  export type Website$optimizedMediaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    where?: MediaOptimizationAssetWhereInput
+    orderBy?: MediaOptimizationAssetOrderByWithRelationInput | MediaOptimizationAssetOrderByWithRelationInput[]
+    cursor?: MediaOptimizationAssetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MediaOptimizationAssetScalarFieldEnum | MediaOptimizationAssetScalarFieldEnum[]
   }
 
   /**
@@ -53157,6 +53830,5746 @@ export namespace Prisma {
 
 
   /**
+   * Model SiteMailerConfig
+   */
+
+  export type AggregateSiteMailerConfig = {
+    _count: SiteMailerConfigCountAggregateOutputType | null
+    _avg: SiteMailerConfigAvgAggregateOutputType | null
+    _sum: SiteMailerConfigSumAggregateOutputType | null
+    _min: SiteMailerConfigMinAggregateOutputType | null
+    _max: SiteMailerConfigMaxAggregateOutputType | null
+  }
+
+  export type SiteMailerConfigAvgAggregateOutputType = {
+    port: number | null
+  }
+
+  export type SiteMailerConfigSumAggregateOutputType = {
+    port: number | null
+  }
+
+  export type SiteMailerConfigMinAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    host: string | null
+    port: number | null
+    username: string | null
+    password: string | null
+    fromName: string | null
+    fromEmail: string | null
+    isVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SiteMailerConfigMaxAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    host: string | null
+    port: number | null
+    username: string | null
+    password: string | null
+    fromName: string | null
+    fromEmail: string | null
+    isVerified: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SiteMailerConfigCountAggregateOutputType = {
+    id: number
+    websiteId: number
+    host: number
+    port: number
+    username: number
+    password: number
+    fromName: number
+    fromEmail: number
+    isVerified: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SiteMailerConfigAvgAggregateInputType = {
+    port?: true
+  }
+
+  export type SiteMailerConfigSumAggregateInputType = {
+    port?: true
+  }
+
+  export type SiteMailerConfigMinAggregateInputType = {
+    id?: true
+    websiteId?: true
+    host?: true
+    port?: true
+    username?: true
+    password?: true
+    fromName?: true
+    fromEmail?: true
+    isVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SiteMailerConfigMaxAggregateInputType = {
+    id?: true
+    websiteId?: true
+    host?: true
+    port?: true
+    username?: true
+    password?: true
+    fromName?: true
+    fromEmail?: true
+    isVerified?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SiteMailerConfigCountAggregateInputType = {
+    id?: true
+    websiteId?: true
+    host?: true
+    port?: true
+    username?: true
+    password?: true
+    fromName?: true
+    fromEmail?: true
+    isVerified?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SiteMailerConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SiteMailerConfig to aggregate.
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SiteMailerConfigs to fetch.
+     */
+    orderBy?: SiteMailerConfigOrderByWithRelationInput | SiteMailerConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SiteMailerConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SiteMailerConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SiteMailerConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SiteMailerConfigs
+    **/
+    _count?: true | SiteMailerConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SiteMailerConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SiteMailerConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SiteMailerConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SiteMailerConfigMaxAggregateInputType
+  }
+
+  export type GetSiteMailerConfigAggregateType<T extends SiteMailerConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateSiteMailerConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSiteMailerConfig[P]>
+      : GetScalarType<T[P], AggregateSiteMailerConfig[P]>
+  }
+
+
+
+
+  export type SiteMailerConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SiteMailerConfigWhereInput
+    orderBy?: SiteMailerConfigOrderByWithAggregationInput | SiteMailerConfigOrderByWithAggregationInput[]
+    by: SiteMailerConfigScalarFieldEnum[] | SiteMailerConfigScalarFieldEnum
+    having?: SiteMailerConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SiteMailerConfigCountAggregateInputType | true
+    _avg?: SiteMailerConfigAvgAggregateInputType
+    _sum?: SiteMailerConfigSumAggregateInputType
+    _min?: SiteMailerConfigMinAggregateInputType
+    _max?: SiteMailerConfigMaxAggregateInputType
+  }
+
+  export type SiteMailerConfigGroupByOutputType = {
+    id: string
+    websiteId: string
+    host: string
+    port: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: SiteMailerConfigCountAggregateOutputType | null
+    _avg: SiteMailerConfigAvgAggregateOutputType | null
+    _sum: SiteMailerConfigSumAggregateOutputType | null
+    _min: SiteMailerConfigMinAggregateOutputType | null
+    _max: SiteMailerConfigMaxAggregateOutputType | null
+  }
+
+  type GetSiteMailerConfigGroupByPayload<T extends SiteMailerConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SiteMailerConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SiteMailerConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SiteMailerConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], SiteMailerConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SiteMailerConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    host?: boolean
+    port?: boolean
+    username?: boolean
+    password?: boolean
+    fromName?: boolean
+    fromEmail?: boolean
+    isVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["siteMailerConfig"]>
+
+  export type SiteMailerConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    host?: boolean
+    port?: boolean
+    username?: boolean
+    password?: boolean
+    fromName?: boolean
+    fromEmail?: boolean
+    isVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["siteMailerConfig"]>
+
+  export type SiteMailerConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    host?: boolean
+    port?: boolean
+    username?: boolean
+    password?: boolean
+    fromName?: boolean
+    fromEmail?: boolean
+    isVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["siteMailerConfig"]>
+
+  export type SiteMailerConfigSelectScalar = {
+    id?: boolean
+    websiteId?: boolean
+    host?: boolean
+    port?: boolean
+    username?: boolean
+    password?: boolean
+    fromName?: boolean
+    fromEmail?: boolean
+    isVerified?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SiteMailerConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "host" | "port" | "username" | "password" | "fromName" | "fromEmail" | "isVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["siteMailerConfig"]>
+  export type SiteMailerConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type SiteMailerConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type SiteMailerConfigIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+
+  export type $SiteMailerConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SiteMailerConfig"
+    objects: {
+      website: Prisma.$WebsitePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      websiteId: string
+      host: string
+      port: number
+      username: string
+      password: string
+      fromName: string
+      fromEmail: string
+      isVerified: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["siteMailerConfig"]>
+    composites: {}
+  }
+
+  type SiteMailerConfigGetPayload<S extends boolean | null | undefined | SiteMailerConfigDefaultArgs> = $Result.GetResult<Prisma.$SiteMailerConfigPayload, S>
+
+  type SiteMailerConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SiteMailerConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SiteMailerConfigCountAggregateInputType | true
+    }
+
+  export interface SiteMailerConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SiteMailerConfig'], meta: { name: 'SiteMailerConfig' } }
+    /**
+     * Find zero or one SiteMailerConfig that matches the filter.
+     * @param {SiteMailerConfigFindUniqueArgs} args - Arguments to find a SiteMailerConfig
+     * @example
+     * // Get one SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SiteMailerConfigFindUniqueArgs>(args: SelectSubset<T, SiteMailerConfigFindUniqueArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SiteMailerConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SiteMailerConfigFindUniqueOrThrowArgs} args - Arguments to find a SiteMailerConfig
+     * @example
+     * // Get one SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SiteMailerConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, SiteMailerConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SiteMailerConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigFindFirstArgs} args - Arguments to find a SiteMailerConfig
+     * @example
+     * // Get one SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SiteMailerConfigFindFirstArgs>(args?: SelectSubset<T, SiteMailerConfigFindFirstArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SiteMailerConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigFindFirstOrThrowArgs} args - Arguments to find a SiteMailerConfig
+     * @example
+     * // Get one SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SiteMailerConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, SiteMailerConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SiteMailerConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SiteMailerConfigs
+     * const siteMailerConfigs = await prisma.siteMailerConfig.findMany()
+     * 
+     * // Get first 10 SiteMailerConfigs
+     * const siteMailerConfigs = await prisma.siteMailerConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const siteMailerConfigWithIdOnly = await prisma.siteMailerConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SiteMailerConfigFindManyArgs>(args?: SelectSubset<T, SiteMailerConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SiteMailerConfig.
+     * @param {SiteMailerConfigCreateArgs} args - Arguments to create a SiteMailerConfig.
+     * @example
+     * // Create one SiteMailerConfig
+     * const SiteMailerConfig = await prisma.siteMailerConfig.create({
+     *   data: {
+     *     // ... data to create a SiteMailerConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends SiteMailerConfigCreateArgs>(args: SelectSubset<T, SiteMailerConfigCreateArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SiteMailerConfigs.
+     * @param {SiteMailerConfigCreateManyArgs} args - Arguments to create many SiteMailerConfigs.
+     * @example
+     * // Create many SiteMailerConfigs
+     * const siteMailerConfig = await prisma.siteMailerConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SiteMailerConfigCreateManyArgs>(args?: SelectSubset<T, SiteMailerConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SiteMailerConfigs and returns the data saved in the database.
+     * @param {SiteMailerConfigCreateManyAndReturnArgs} args - Arguments to create many SiteMailerConfigs.
+     * @example
+     * // Create many SiteMailerConfigs
+     * const siteMailerConfig = await prisma.siteMailerConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SiteMailerConfigs and only return the `id`
+     * const siteMailerConfigWithIdOnly = await prisma.siteMailerConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SiteMailerConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, SiteMailerConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SiteMailerConfig.
+     * @param {SiteMailerConfigDeleteArgs} args - Arguments to delete one SiteMailerConfig.
+     * @example
+     * // Delete one SiteMailerConfig
+     * const SiteMailerConfig = await prisma.siteMailerConfig.delete({
+     *   where: {
+     *     // ... filter to delete one SiteMailerConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SiteMailerConfigDeleteArgs>(args: SelectSubset<T, SiteMailerConfigDeleteArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SiteMailerConfig.
+     * @param {SiteMailerConfigUpdateArgs} args - Arguments to update one SiteMailerConfig.
+     * @example
+     * // Update one SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SiteMailerConfigUpdateArgs>(args: SelectSubset<T, SiteMailerConfigUpdateArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SiteMailerConfigs.
+     * @param {SiteMailerConfigDeleteManyArgs} args - Arguments to filter SiteMailerConfigs to delete.
+     * @example
+     * // Delete a few SiteMailerConfigs
+     * const { count } = await prisma.siteMailerConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SiteMailerConfigDeleteManyArgs>(args?: SelectSubset<T, SiteMailerConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SiteMailerConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SiteMailerConfigs
+     * const siteMailerConfig = await prisma.siteMailerConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SiteMailerConfigUpdateManyArgs>(args: SelectSubset<T, SiteMailerConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SiteMailerConfigs and returns the data updated in the database.
+     * @param {SiteMailerConfigUpdateManyAndReturnArgs} args - Arguments to update many SiteMailerConfigs.
+     * @example
+     * // Update many SiteMailerConfigs
+     * const siteMailerConfig = await prisma.siteMailerConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SiteMailerConfigs and only return the `id`
+     * const siteMailerConfigWithIdOnly = await prisma.siteMailerConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SiteMailerConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, SiteMailerConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SiteMailerConfig.
+     * @param {SiteMailerConfigUpsertArgs} args - Arguments to update or create a SiteMailerConfig.
+     * @example
+     * // Update or create a SiteMailerConfig
+     * const siteMailerConfig = await prisma.siteMailerConfig.upsert({
+     *   create: {
+     *     // ... data to create a SiteMailerConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SiteMailerConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SiteMailerConfigUpsertArgs>(args: SelectSubset<T, SiteMailerConfigUpsertArgs<ExtArgs>>): Prisma__SiteMailerConfigClient<$Result.GetResult<Prisma.$SiteMailerConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SiteMailerConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigCountArgs} args - Arguments to filter SiteMailerConfigs to count.
+     * @example
+     * // Count the number of SiteMailerConfigs
+     * const count = await prisma.siteMailerConfig.count({
+     *   where: {
+     *     // ... the filter for the SiteMailerConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends SiteMailerConfigCountArgs>(
+      args?: Subset<T, SiteMailerConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SiteMailerConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SiteMailerConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SiteMailerConfigAggregateArgs>(args: Subset<T, SiteMailerConfigAggregateArgs>): Prisma.PrismaPromise<GetSiteMailerConfigAggregateType<T>>
+
+    /**
+     * Group by SiteMailerConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SiteMailerConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SiteMailerConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SiteMailerConfigGroupByArgs['orderBy'] }
+        : { orderBy?: SiteMailerConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SiteMailerConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSiteMailerConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SiteMailerConfig model
+   */
+  readonly fields: SiteMailerConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SiteMailerConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SiteMailerConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SiteMailerConfig model
+   */
+  interface SiteMailerConfigFieldRefs {
+    readonly id: FieldRef<"SiteMailerConfig", 'String'>
+    readonly websiteId: FieldRef<"SiteMailerConfig", 'String'>
+    readonly host: FieldRef<"SiteMailerConfig", 'String'>
+    readonly port: FieldRef<"SiteMailerConfig", 'Int'>
+    readonly username: FieldRef<"SiteMailerConfig", 'String'>
+    readonly password: FieldRef<"SiteMailerConfig", 'String'>
+    readonly fromName: FieldRef<"SiteMailerConfig", 'String'>
+    readonly fromEmail: FieldRef<"SiteMailerConfig", 'String'>
+    readonly isVerified: FieldRef<"SiteMailerConfig", 'Boolean'>
+    readonly createdAt: FieldRef<"SiteMailerConfig", 'DateTime'>
+    readonly updatedAt: FieldRef<"SiteMailerConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SiteMailerConfig findUnique
+   */
+  export type SiteMailerConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which SiteMailerConfig to fetch.
+     */
+    where: SiteMailerConfigWhereUniqueInput
+  }
+
+  /**
+   * SiteMailerConfig findUniqueOrThrow
+   */
+  export type SiteMailerConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which SiteMailerConfig to fetch.
+     */
+    where: SiteMailerConfigWhereUniqueInput
+  }
+
+  /**
+   * SiteMailerConfig findFirst
+   */
+  export type SiteMailerConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which SiteMailerConfig to fetch.
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SiteMailerConfigs to fetch.
+     */
+    orderBy?: SiteMailerConfigOrderByWithRelationInput | SiteMailerConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SiteMailerConfigs.
+     */
+    cursor?: SiteMailerConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SiteMailerConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SiteMailerConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SiteMailerConfigs.
+     */
+    distinct?: SiteMailerConfigScalarFieldEnum | SiteMailerConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SiteMailerConfig findFirstOrThrow
+   */
+  export type SiteMailerConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which SiteMailerConfig to fetch.
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SiteMailerConfigs to fetch.
+     */
+    orderBy?: SiteMailerConfigOrderByWithRelationInput | SiteMailerConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SiteMailerConfigs.
+     */
+    cursor?: SiteMailerConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SiteMailerConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SiteMailerConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SiteMailerConfigs.
+     */
+    distinct?: SiteMailerConfigScalarFieldEnum | SiteMailerConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SiteMailerConfig findMany
+   */
+  export type SiteMailerConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which SiteMailerConfigs to fetch.
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SiteMailerConfigs to fetch.
+     */
+    orderBy?: SiteMailerConfigOrderByWithRelationInput | SiteMailerConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SiteMailerConfigs.
+     */
+    cursor?: SiteMailerConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SiteMailerConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SiteMailerConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SiteMailerConfigs.
+     */
+    distinct?: SiteMailerConfigScalarFieldEnum | SiteMailerConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SiteMailerConfig create
+   */
+  export type SiteMailerConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SiteMailerConfig.
+     */
+    data: XOR<SiteMailerConfigCreateInput, SiteMailerConfigUncheckedCreateInput>
+  }
+
+  /**
+   * SiteMailerConfig createMany
+   */
+  export type SiteMailerConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SiteMailerConfigs.
+     */
+    data: SiteMailerConfigCreateManyInput | SiteMailerConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SiteMailerConfig createManyAndReturn
+   */
+  export type SiteMailerConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many SiteMailerConfigs.
+     */
+    data: SiteMailerConfigCreateManyInput | SiteMailerConfigCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SiteMailerConfig update
+   */
+  export type SiteMailerConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SiteMailerConfig.
+     */
+    data: XOR<SiteMailerConfigUpdateInput, SiteMailerConfigUncheckedUpdateInput>
+    /**
+     * Choose, which SiteMailerConfig to update.
+     */
+    where: SiteMailerConfigWhereUniqueInput
+  }
+
+  /**
+   * SiteMailerConfig updateMany
+   */
+  export type SiteMailerConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SiteMailerConfigs.
+     */
+    data: XOR<SiteMailerConfigUpdateManyMutationInput, SiteMailerConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which SiteMailerConfigs to update
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * Limit how many SiteMailerConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SiteMailerConfig updateManyAndReturn
+   */
+  export type SiteMailerConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update SiteMailerConfigs.
+     */
+    data: XOR<SiteMailerConfigUpdateManyMutationInput, SiteMailerConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which SiteMailerConfigs to update
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * Limit how many SiteMailerConfigs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SiteMailerConfig upsert
+   */
+  export type SiteMailerConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SiteMailerConfig to update in case it exists.
+     */
+    where: SiteMailerConfigWhereUniqueInput
+    /**
+     * In case the SiteMailerConfig found by the `where` argument doesn't exist, create a new SiteMailerConfig with this data.
+     */
+    create: XOR<SiteMailerConfigCreateInput, SiteMailerConfigUncheckedCreateInput>
+    /**
+     * In case the SiteMailerConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SiteMailerConfigUpdateInput, SiteMailerConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * SiteMailerConfig delete
+   */
+  export type SiteMailerConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+    /**
+     * Filter which SiteMailerConfig to delete.
+     */
+    where: SiteMailerConfigWhereUniqueInput
+  }
+
+  /**
+   * SiteMailerConfig deleteMany
+   */
+  export type SiteMailerConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SiteMailerConfigs to delete
+     */
+    where?: SiteMailerConfigWhereInput
+    /**
+     * Limit how many SiteMailerConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SiteMailerConfig without action
+   */
+  export type SiteMailerConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SiteMailerConfig
+     */
+    select?: SiteMailerConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SiteMailerConfig
+     */
+    omit?: SiteMailerConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SiteMailerConfigInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmailDeliveryLog
+   */
+
+  export type AggregateEmailDeliveryLog = {
+    _count: EmailDeliveryLogCountAggregateOutputType | null
+    _min: EmailDeliveryLogMinAggregateOutputType | null
+    _max: EmailDeliveryLogMaxAggregateOutputType | null
+  }
+
+  export type EmailDeliveryLogMinAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    recipient: string | null
+    subject: string | null
+    status: string | null
+    error: string | null
+    sentAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailDeliveryLogMaxAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    recipient: string | null
+    subject: string | null
+    status: string | null
+    error: string | null
+    sentAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailDeliveryLogCountAggregateOutputType = {
+    id: number
+    websiteId: number
+    recipient: number
+    subject: number
+    status: number
+    error: number
+    sentAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailDeliveryLogMinAggregateInputType = {
+    id?: true
+    websiteId?: true
+    recipient?: true
+    subject?: true
+    status?: true
+    error?: true
+    sentAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailDeliveryLogMaxAggregateInputType = {
+    id?: true
+    websiteId?: true
+    recipient?: true
+    subject?: true
+    status?: true
+    error?: true
+    sentAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailDeliveryLogCountAggregateInputType = {
+    id?: true
+    websiteId?: true
+    recipient?: true
+    subject?: true
+    status?: true
+    error?: true
+    sentAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailDeliveryLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailDeliveryLog to aggregate.
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDeliveryLogs to fetch.
+     */
+    orderBy?: EmailDeliveryLogOrderByWithRelationInput | EmailDeliveryLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailDeliveryLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDeliveryLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDeliveryLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailDeliveryLogs
+    **/
+    _count?: true | EmailDeliveryLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailDeliveryLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailDeliveryLogMaxAggregateInputType
+  }
+
+  export type GetEmailDeliveryLogAggregateType<T extends EmailDeliveryLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailDeliveryLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailDeliveryLog[P]>
+      : GetScalarType<T[P], AggregateEmailDeliveryLog[P]>
+  }
+
+
+
+
+  export type EmailDeliveryLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailDeliveryLogWhereInput
+    orderBy?: EmailDeliveryLogOrderByWithAggregationInput | EmailDeliveryLogOrderByWithAggregationInput[]
+    by: EmailDeliveryLogScalarFieldEnum[] | EmailDeliveryLogScalarFieldEnum
+    having?: EmailDeliveryLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailDeliveryLogCountAggregateInputType | true
+    _min?: EmailDeliveryLogMinAggregateInputType
+    _max?: EmailDeliveryLogMaxAggregateInputType
+  }
+
+  export type EmailDeliveryLogGroupByOutputType = {
+    id: string
+    websiteId: string
+    recipient: string
+    subject: string
+    status: string
+    error: string | null
+    sentAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailDeliveryLogCountAggregateOutputType | null
+    _min: EmailDeliveryLogMinAggregateOutputType | null
+    _max: EmailDeliveryLogMaxAggregateOutputType | null
+  }
+
+  type GetEmailDeliveryLogGroupByPayload<T extends EmailDeliveryLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailDeliveryLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailDeliveryLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailDeliveryLogGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailDeliveryLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailDeliveryLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    recipient?: boolean
+    subject?: boolean
+    status?: boolean
+    error?: boolean
+    sentAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailDeliveryLog"]>
+
+  export type EmailDeliveryLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    recipient?: boolean
+    subject?: boolean
+    status?: boolean
+    error?: boolean
+    sentAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailDeliveryLog"]>
+
+  export type EmailDeliveryLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    recipient?: boolean
+    subject?: boolean
+    status?: boolean
+    error?: boolean
+    sentAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["emailDeliveryLog"]>
+
+  export type EmailDeliveryLogSelectScalar = {
+    id?: boolean
+    websiteId?: boolean
+    recipient?: boolean
+    subject?: boolean
+    status?: boolean
+    error?: boolean
+    sentAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailDeliveryLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "recipient" | "subject" | "status" | "error" | "sentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["emailDeliveryLog"]>
+  export type EmailDeliveryLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type EmailDeliveryLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type EmailDeliveryLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+
+  export type $EmailDeliveryLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailDeliveryLog"
+    objects: {
+      website: Prisma.$WebsitePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      websiteId: string
+      recipient: string
+      subject: string
+      status: string
+      error: string | null
+      sentAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["emailDeliveryLog"]>
+    composites: {}
+  }
+
+  type EmailDeliveryLogGetPayload<S extends boolean | null | undefined | EmailDeliveryLogDefaultArgs> = $Result.GetResult<Prisma.$EmailDeliveryLogPayload, S>
+
+  type EmailDeliveryLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailDeliveryLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailDeliveryLogCountAggregateInputType | true
+    }
+
+  export interface EmailDeliveryLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailDeliveryLog'], meta: { name: 'EmailDeliveryLog' } }
+    /**
+     * Find zero or one EmailDeliveryLog that matches the filter.
+     * @param {EmailDeliveryLogFindUniqueArgs} args - Arguments to find a EmailDeliveryLog
+     * @example
+     * // Get one EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailDeliveryLogFindUniqueArgs>(args: SelectSubset<T, EmailDeliveryLogFindUniqueArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailDeliveryLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailDeliveryLogFindUniqueOrThrowArgs} args - Arguments to find a EmailDeliveryLog
+     * @example
+     * // Get one EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailDeliveryLogFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailDeliveryLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailDeliveryLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogFindFirstArgs} args - Arguments to find a EmailDeliveryLog
+     * @example
+     * // Get one EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailDeliveryLogFindFirstArgs>(args?: SelectSubset<T, EmailDeliveryLogFindFirstArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailDeliveryLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogFindFirstOrThrowArgs} args - Arguments to find a EmailDeliveryLog
+     * @example
+     * // Get one EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailDeliveryLogFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailDeliveryLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailDeliveryLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailDeliveryLogs
+     * const emailDeliveryLogs = await prisma.emailDeliveryLog.findMany()
+     * 
+     * // Get first 10 EmailDeliveryLogs
+     * const emailDeliveryLogs = await prisma.emailDeliveryLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailDeliveryLogWithIdOnly = await prisma.emailDeliveryLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailDeliveryLogFindManyArgs>(args?: SelectSubset<T, EmailDeliveryLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailDeliveryLog.
+     * @param {EmailDeliveryLogCreateArgs} args - Arguments to create a EmailDeliveryLog.
+     * @example
+     * // Create one EmailDeliveryLog
+     * const EmailDeliveryLog = await prisma.emailDeliveryLog.create({
+     *   data: {
+     *     // ... data to create a EmailDeliveryLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailDeliveryLogCreateArgs>(args: SelectSubset<T, EmailDeliveryLogCreateArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailDeliveryLogs.
+     * @param {EmailDeliveryLogCreateManyArgs} args - Arguments to create many EmailDeliveryLogs.
+     * @example
+     * // Create many EmailDeliveryLogs
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailDeliveryLogCreateManyArgs>(args?: SelectSubset<T, EmailDeliveryLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailDeliveryLogs and returns the data saved in the database.
+     * @param {EmailDeliveryLogCreateManyAndReturnArgs} args - Arguments to create many EmailDeliveryLogs.
+     * @example
+     * // Create many EmailDeliveryLogs
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailDeliveryLogs and only return the `id`
+     * const emailDeliveryLogWithIdOnly = await prisma.emailDeliveryLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailDeliveryLogCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailDeliveryLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailDeliveryLog.
+     * @param {EmailDeliveryLogDeleteArgs} args - Arguments to delete one EmailDeliveryLog.
+     * @example
+     * // Delete one EmailDeliveryLog
+     * const EmailDeliveryLog = await prisma.emailDeliveryLog.delete({
+     *   where: {
+     *     // ... filter to delete one EmailDeliveryLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailDeliveryLogDeleteArgs>(args: SelectSubset<T, EmailDeliveryLogDeleteArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailDeliveryLog.
+     * @param {EmailDeliveryLogUpdateArgs} args - Arguments to update one EmailDeliveryLog.
+     * @example
+     * // Update one EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailDeliveryLogUpdateArgs>(args: SelectSubset<T, EmailDeliveryLogUpdateArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailDeliveryLogs.
+     * @param {EmailDeliveryLogDeleteManyArgs} args - Arguments to filter EmailDeliveryLogs to delete.
+     * @example
+     * // Delete a few EmailDeliveryLogs
+     * const { count } = await prisma.emailDeliveryLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailDeliveryLogDeleteManyArgs>(args?: SelectSubset<T, EmailDeliveryLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailDeliveryLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailDeliveryLogs
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailDeliveryLogUpdateManyArgs>(args: SelectSubset<T, EmailDeliveryLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailDeliveryLogs and returns the data updated in the database.
+     * @param {EmailDeliveryLogUpdateManyAndReturnArgs} args - Arguments to update many EmailDeliveryLogs.
+     * @example
+     * // Update many EmailDeliveryLogs
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailDeliveryLogs and only return the `id`
+     * const emailDeliveryLogWithIdOnly = await prisma.emailDeliveryLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailDeliveryLogUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailDeliveryLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailDeliveryLog.
+     * @param {EmailDeliveryLogUpsertArgs} args - Arguments to update or create a EmailDeliveryLog.
+     * @example
+     * // Update or create a EmailDeliveryLog
+     * const emailDeliveryLog = await prisma.emailDeliveryLog.upsert({
+     *   create: {
+     *     // ... data to create a EmailDeliveryLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailDeliveryLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailDeliveryLogUpsertArgs>(args: SelectSubset<T, EmailDeliveryLogUpsertArgs<ExtArgs>>): Prisma__EmailDeliveryLogClient<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailDeliveryLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogCountArgs} args - Arguments to filter EmailDeliveryLogs to count.
+     * @example
+     * // Count the number of EmailDeliveryLogs
+     * const count = await prisma.emailDeliveryLog.count({
+     *   where: {
+     *     // ... the filter for the EmailDeliveryLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailDeliveryLogCountArgs>(
+      args?: Subset<T, EmailDeliveryLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailDeliveryLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailDeliveryLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailDeliveryLogAggregateArgs>(args: Subset<T, EmailDeliveryLogAggregateArgs>): Prisma.PrismaPromise<GetEmailDeliveryLogAggregateType<T>>
+
+    /**
+     * Group by EmailDeliveryLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailDeliveryLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailDeliveryLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailDeliveryLogGroupByArgs['orderBy'] }
+        : { orderBy?: EmailDeliveryLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailDeliveryLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailDeliveryLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailDeliveryLog model
+   */
+  readonly fields: EmailDeliveryLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailDeliveryLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailDeliveryLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailDeliveryLog model
+   */
+  interface EmailDeliveryLogFieldRefs {
+    readonly id: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly websiteId: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly recipient: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly subject: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly status: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly error: FieldRef<"EmailDeliveryLog", 'String'>
+    readonly sentAt: FieldRef<"EmailDeliveryLog", 'DateTime'>
+    readonly createdAt: FieldRef<"EmailDeliveryLog", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmailDeliveryLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailDeliveryLog findUnique
+   */
+  export type EmailDeliveryLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDeliveryLog to fetch.
+     */
+    where: EmailDeliveryLogWhereUniqueInput
+  }
+
+  /**
+   * EmailDeliveryLog findUniqueOrThrow
+   */
+  export type EmailDeliveryLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDeliveryLog to fetch.
+     */
+    where: EmailDeliveryLogWhereUniqueInput
+  }
+
+  /**
+   * EmailDeliveryLog findFirst
+   */
+  export type EmailDeliveryLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDeliveryLog to fetch.
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDeliveryLogs to fetch.
+     */
+    orderBy?: EmailDeliveryLogOrderByWithRelationInput | EmailDeliveryLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailDeliveryLogs.
+     */
+    cursor?: EmailDeliveryLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDeliveryLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDeliveryLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailDeliveryLogs.
+     */
+    distinct?: EmailDeliveryLogScalarFieldEnum | EmailDeliveryLogScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDeliveryLog findFirstOrThrow
+   */
+  export type EmailDeliveryLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDeliveryLog to fetch.
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDeliveryLogs to fetch.
+     */
+    orderBy?: EmailDeliveryLogOrderByWithRelationInput | EmailDeliveryLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailDeliveryLogs.
+     */
+    cursor?: EmailDeliveryLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDeliveryLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDeliveryLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailDeliveryLogs.
+     */
+    distinct?: EmailDeliveryLogScalarFieldEnum | EmailDeliveryLogScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDeliveryLog findMany
+   */
+  export type EmailDeliveryLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter, which EmailDeliveryLogs to fetch.
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailDeliveryLogs to fetch.
+     */
+    orderBy?: EmailDeliveryLogOrderByWithRelationInput | EmailDeliveryLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailDeliveryLogs.
+     */
+    cursor?: EmailDeliveryLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailDeliveryLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailDeliveryLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailDeliveryLogs.
+     */
+    distinct?: EmailDeliveryLogScalarFieldEnum | EmailDeliveryLogScalarFieldEnum[]
+  }
+
+  /**
+   * EmailDeliveryLog create
+   */
+  export type EmailDeliveryLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmailDeliveryLog.
+     */
+    data: XOR<EmailDeliveryLogCreateInput, EmailDeliveryLogUncheckedCreateInput>
+  }
+
+  /**
+   * EmailDeliveryLog createMany
+   */
+  export type EmailDeliveryLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailDeliveryLogs.
+     */
+    data: EmailDeliveryLogCreateManyInput | EmailDeliveryLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailDeliveryLog createManyAndReturn
+   */
+  export type EmailDeliveryLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailDeliveryLogs.
+     */
+    data: EmailDeliveryLogCreateManyInput | EmailDeliveryLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmailDeliveryLog update
+   */
+  export type EmailDeliveryLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmailDeliveryLog.
+     */
+    data: XOR<EmailDeliveryLogUpdateInput, EmailDeliveryLogUncheckedUpdateInput>
+    /**
+     * Choose, which EmailDeliveryLog to update.
+     */
+    where: EmailDeliveryLogWhereUniqueInput
+  }
+
+  /**
+   * EmailDeliveryLog updateMany
+   */
+  export type EmailDeliveryLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailDeliveryLogs.
+     */
+    data: XOR<EmailDeliveryLogUpdateManyMutationInput, EmailDeliveryLogUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailDeliveryLogs to update
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * Limit how many EmailDeliveryLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailDeliveryLog updateManyAndReturn
+   */
+  export type EmailDeliveryLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailDeliveryLogs.
+     */
+    data: XOR<EmailDeliveryLogUpdateManyMutationInput, EmailDeliveryLogUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailDeliveryLogs to update
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * Limit how many EmailDeliveryLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmailDeliveryLog upsert
+   */
+  export type EmailDeliveryLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmailDeliveryLog to update in case it exists.
+     */
+    where: EmailDeliveryLogWhereUniqueInput
+    /**
+     * In case the EmailDeliveryLog found by the `where` argument doesn't exist, create a new EmailDeliveryLog with this data.
+     */
+    create: XOR<EmailDeliveryLogCreateInput, EmailDeliveryLogUncheckedCreateInput>
+    /**
+     * In case the EmailDeliveryLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailDeliveryLogUpdateInput, EmailDeliveryLogUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailDeliveryLog delete
+   */
+  export type EmailDeliveryLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+    /**
+     * Filter which EmailDeliveryLog to delete.
+     */
+    where: EmailDeliveryLogWhereUniqueInput
+  }
+
+  /**
+   * EmailDeliveryLog deleteMany
+   */
+  export type EmailDeliveryLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailDeliveryLogs to delete
+     */
+    where?: EmailDeliveryLogWhereInput
+    /**
+     * Limit how many EmailDeliveryLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailDeliveryLog without action
+   */
+  export type EmailDeliveryLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailDeliveryLog
+     */
+    select?: EmailDeliveryLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailDeliveryLog
+     */
+    omit?: EmailDeliveryLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmailDeliveryLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SitePerformanceMetric
+   */
+
+  export type AggregateSitePerformanceMetric = {
+    _count: SitePerformanceMetricCountAggregateOutputType | null
+    _avg: SitePerformanceMetricAvgAggregateOutputType | null
+    _sum: SitePerformanceMetricSumAggregateOutputType | null
+    _min: SitePerformanceMetricMinAggregateOutputType | null
+    _max: SitePerformanceMetricMaxAggregateOutputType | null
+  }
+
+  export type SitePerformanceMetricAvgAggregateOutputType = {
+    responseTimeMs: number | null
+    ttfbMs: number | null
+    statusCode: number | null
+    score: number | null
+  }
+
+  export type SitePerformanceMetricSumAggregateOutputType = {
+    responseTimeMs: number | null
+    ttfbMs: number | null
+    statusCode: number | null
+    score: number | null
+  }
+
+  export type SitePerformanceMetricMinAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    responseTimeMs: number | null
+    ttfbMs: number | null
+    statusCode: number | null
+    score: number | null
+    checkedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SitePerformanceMetricMaxAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    responseTimeMs: number | null
+    ttfbMs: number | null
+    statusCode: number | null
+    score: number | null
+    checkedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SitePerformanceMetricCountAggregateOutputType = {
+    id: number
+    websiteId: number
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode: number
+    score: number
+    checkedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SitePerformanceMetricAvgAggregateInputType = {
+    responseTimeMs?: true
+    ttfbMs?: true
+    statusCode?: true
+    score?: true
+  }
+
+  export type SitePerformanceMetricSumAggregateInputType = {
+    responseTimeMs?: true
+    ttfbMs?: true
+    statusCode?: true
+    score?: true
+  }
+
+  export type SitePerformanceMetricMinAggregateInputType = {
+    id?: true
+    websiteId?: true
+    responseTimeMs?: true
+    ttfbMs?: true
+    statusCode?: true
+    score?: true
+    checkedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SitePerformanceMetricMaxAggregateInputType = {
+    id?: true
+    websiteId?: true
+    responseTimeMs?: true
+    ttfbMs?: true
+    statusCode?: true
+    score?: true
+    checkedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SitePerformanceMetricCountAggregateInputType = {
+    id?: true
+    websiteId?: true
+    responseTimeMs?: true
+    ttfbMs?: true
+    statusCode?: true
+    score?: true
+    checkedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SitePerformanceMetricAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SitePerformanceMetric to aggregate.
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SitePerformanceMetrics to fetch.
+     */
+    orderBy?: SitePerformanceMetricOrderByWithRelationInput | SitePerformanceMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SitePerformanceMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SitePerformanceMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SitePerformanceMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SitePerformanceMetrics
+    **/
+    _count?: true | SitePerformanceMetricCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SitePerformanceMetricAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SitePerformanceMetricSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SitePerformanceMetricMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SitePerformanceMetricMaxAggregateInputType
+  }
+
+  export type GetSitePerformanceMetricAggregateType<T extends SitePerformanceMetricAggregateArgs> = {
+        [P in keyof T & keyof AggregateSitePerformanceMetric]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSitePerformanceMetric[P]>
+      : GetScalarType<T[P], AggregateSitePerformanceMetric[P]>
+  }
+
+
+
+
+  export type SitePerformanceMetricGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SitePerformanceMetricWhereInput
+    orderBy?: SitePerformanceMetricOrderByWithAggregationInput | SitePerformanceMetricOrderByWithAggregationInput[]
+    by: SitePerformanceMetricScalarFieldEnum[] | SitePerformanceMetricScalarFieldEnum
+    having?: SitePerformanceMetricScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SitePerformanceMetricCountAggregateInputType | true
+    _avg?: SitePerformanceMetricAvgAggregateInputType
+    _sum?: SitePerformanceMetricSumAggregateInputType
+    _min?: SitePerformanceMetricMinAggregateInputType
+    _max?: SitePerformanceMetricMaxAggregateInputType
+  }
+
+  export type SitePerformanceMetricGroupByOutputType = {
+    id: string
+    websiteId: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode: number
+    score: number
+    checkedAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: SitePerformanceMetricCountAggregateOutputType | null
+    _avg: SitePerformanceMetricAvgAggregateOutputType | null
+    _sum: SitePerformanceMetricSumAggregateOutputType | null
+    _min: SitePerformanceMetricMinAggregateOutputType | null
+    _max: SitePerformanceMetricMaxAggregateOutputType | null
+  }
+
+  type GetSitePerformanceMetricGroupByPayload<T extends SitePerformanceMetricGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SitePerformanceMetricGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SitePerformanceMetricGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SitePerformanceMetricGroupByOutputType[P]>
+            : GetScalarType<T[P], SitePerformanceMetricGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SitePerformanceMetricSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    responseTimeMs?: boolean
+    ttfbMs?: boolean
+    statusCode?: boolean
+    score?: boolean
+    checkedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sitePerformanceMetric"]>
+
+  export type SitePerformanceMetricSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    responseTimeMs?: boolean
+    ttfbMs?: boolean
+    statusCode?: boolean
+    score?: boolean
+    checkedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sitePerformanceMetric"]>
+
+  export type SitePerformanceMetricSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    responseTimeMs?: boolean
+    ttfbMs?: boolean
+    statusCode?: boolean
+    score?: boolean
+    checkedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sitePerformanceMetric"]>
+
+  export type SitePerformanceMetricSelectScalar = {
+    id?: boolean
+    websiteId?: boolean
+    responseTimeMs?: boolean
+    ttfbMs?: boolean
+    statusCode?: boolean
+    score?: boolean
+    checkedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SitePerformanceMetricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "responseTimeMs" | "ttfbMs" | "statusCode" | "score" | "checkedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["sitePerformanceMetric"]>
+  export type SitePerformanceMetricInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type SitePerformanceMetricIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type SitePerformanceMetricIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+
+  export type $SitePerformanceMetricPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SitePerformanceMetric"
+    objects: {
+      website: Prisma.$WebsitePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      websiteId: string
+      responseTimeMs: number
+      ttfbMs: number
+      statusCode: number
+      score: number
+      checkedAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["sitePerformanceMetric"]>
+    composites: {}
+  }
+
+  type SitePerformanceMetricGetPayload<S extends boolean | null | undefined | SitePerformanceMetricDefaultArgs> = $Result.GetResult<Prisma.$SitePerformanceMetricPayload, S>
+
+  type SitePerformanceMetricCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SitePerformanceMetricFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SitePerformanceMetricCountAggregateInputType | true
+    }
+
+  export interface SitePerformanceMetricDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SitePerformanceMetric'], meta: { name: 'SitePerformanceMetric' } }
+    /**
+     * Find zero or one SitePerformanceMetric that matches the filter.
+     * @param {SitePerformanceMetricFindUniqueArgs} args - Arguments to find a SitePerformanceMetric
+     * @example
+     * // Get one SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SitePerformanceMetricFindUniqueArgs>(args: SelectSubset<T, SitePerformanceMetricFindUniqueArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SitePerformanceMetric that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SitePerformanceMetricFindUniqueOrThrowArgs} args - Arguments to find a SitePerformanceMetric
+     * @example
+     * // Get one SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SitePerformanceMetricFindUniqueOrThrowArgs>(args: SelectSubset<T, SitePerformanceMetricFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SitePerformanceMetric that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricFindFirstArgs} args - Arguments to find a SitePerformanceMetric
+     * @example
+     * // Get one SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SitePerformanceMetricFindFirstArgs>(args?: SelectSubset<T, SitePerformanceMetricFindFirstArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SitePerformanceMetric that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricFindFirstOrThrowArgs} args - Arguments to find a SitePerformanceMetric
+     * @example
+     * // Get one SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SitePerformanceMetricFindFirstOrThrowArgs>(args?: SelectSubset<T, SitePerformanceMetricFindFirstOrThrowArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SitePerformanceMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SitePerformanceMetrics
+     * const sitePerformanceMetrics = await prisma.sitePerformanceMetric.findMany()
+     * 
+     * // Get first 10 SitePerformanceMetrics
+     * const sitePerformanceMetrics = await prisma.sitePerformanceMetric.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sitePerformanceMetricWithIdOnly = await prisma.sitePerformanceMetric.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SitePerformanceMetricFindManyArgs>(args?: SelectSubset<T, SitePerformanceMetricFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SitePerformanceMetric.
+     * @param {SitePerformanceMetricCreateArgs} args - Arguments to create a SitePerformanceMetric.
+     * @example
+     * // Create one SitePerformanceMetric
+     * const SitePerformanceMetric = await prisma.sitePerformanceMetric.create({
+     *   data: {
+     *     // ... data to create a SitePerformanceMetric
+     *   }
+     * })
+     * 
+     */
+    create<T extends SitePerformanceMetricCreateArgs>(args: SelectSubset<T, SitePerformanceMetricCreateArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SitePerformanceMetrics.
+     * @param {SitePerformanceMetricCreateManyArgs} args - Arguments to create many SitePerformanceMetrics.
+     * @example
+     * // Create many SitePerformanceMetrics
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SitePerformanceMetricCreateManyArgs>(args?: SelectSubset<T, SitePerformanceMetricCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SitePerformanceMetrics and returns the data saved in the database.
+     * @param {SitePerformanceMetricCreateManyAndReturnArgs} args - Arguments to create many SitePerformanceMetrics.
+     * @example
+     * // Create many SitePerformanceMetrics
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SitePerformanceMetrics and only return the `id`
+     * const sitePerformanceMetricWithIdOnly = await prisma.sitePerformanceMetric.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SitePerformanceMetricCreateManyAndReturnArgs>(args?: SelectSubset<T, SitePerformanceMetricCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SitePerformanceMetric.
+     * @param {SitePerformanceMetricDeleteArgs} args - Arguments to delete one SitePerformanceMetric.
+     * @example
+     * // Delete one SitePerformanceMetric
+     * const SitePerformanceMetric = await prisma.sitePerformanceMetric.delete({
+     *   where: {
+     *     // ... filter to delete one SitePerformanceMetric
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SitePerformanceMetricDeleteArgs>(args: SelectSubset<T, SitePerformanceMetricDeleteArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SitePerformanceMetric.
+     * @param {SitePerformanceMetricUpdateArgs} args - Arguments to update one SitePerformanceMetric.
+     * @example
+     * // Update one SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SitePerformanceMetricUpdateArgs>(args: SelectSubset<T, SitePerformanceMetricUpdateArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SitePerformanceMetrics.
+     * @param {SitePerformanceMetricDeleteManyArgs} args - Arguments to filter SitePerformanceMetrics to delete.
+     * @example
+     * // Delete a few SitePerformanceMetrics
+     * const { count } = await prisma.sitePerformanceMetric.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SitePerformanceMetricDeleteManyArgs>(args?: SelectSubset<T, SitePerformanceMetricDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SitePerformanceMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SitePerformanceMetrics
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SitePerformanceMetricUpdateManyArgs>(args: SelectSubset<T, SitePerformanceMetricUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SitePerformanceMetrics and returns the data updated in the database.
+     * @param {SitePerformanceMetricUpdateManyAndReturnArgs} args - Arguments to update many SitePerformanceMetrics.
+     * @example
+     * // Update many SitePerformanceMetrics
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SitePerformanceMetrics and only return the `id`
+     * const sitePerformanceMetricWithIdOnly = await prisma.sitePerformanceMetric.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SitePerformanceMetricUpdateManyAndReturnArgs>(args: SelectSubset<T, SitePerformanceMetricUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SitePerformanceMetric.
+     * @param {SitePerformanceMetricUpsertArgs} args - Arguments to update or create a SitePerformanceMetric.
+     * @example
+     * // Update or create a SitePerformanceMetric
+     * const sitePerformanceMetric = await prisma.sitePerformanceMetric.upsert({
+     *   create: {
+     *     // ... data to create a SitePerformanceMetric
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SitePerformanceMetric we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SitePerformanceMetricUpsertArgs>(args: SelectSubset<T, SitePerformanceMetricUpsertArgs<ExtArgs>>): Prisma__SitePerformanceMetricClient<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SitePerformanceMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricCountArgs} args - Arguments to filter SitePerformanceMetrics to count.
+     * @example
+     * // Count the number of SitePerformanceMetrics
+     * const count = await prisma.sitePerformanceMetric.count({
+     *   where: {
+     *     // ... the filter for the SitePerformanceMetrics we want to count
+     *   }
+     * })
+    **/
+    count<T extends SitePerformanceMetricCountArgs>(
+      args?: Subset<T, SitePerformanceMetricCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SitePerformanceMetricCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SitePerformanceMetric.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SitePerformanceMetricAggregateArgs>(args: Subset<T, SitePerformanceMetricAggregateArgs>): Prisma.PrismaPromise<GetSitePerformanceMetricAggregateType<T>>
+
+    /**
+     * Group by SitePerformanceMetric.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SitePerformanceMetricGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SitePerformanceMetricGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SitePerformanceMetricGroupByArgs['orderBy'] }
+        : { orderBy?: SitePerformanceMetricGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SitePerformanceMetricGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSitePerformanceMetricGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SitePerformanceMetric model
+   */
+  readonly fields: SitePerformanceMetricFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SitePerformanceMetric.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SitePerformanceMetricClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SitePerformanceMetric model
+   */
+  interface SitePerformanceMetricFieldRefs {
+    readonly id: FieldRef<"SitePerformanceMetric", 'String'>
+    readonly websiteId: FieldRef<"SitePerformanceMetric", 'String'>
+    readonly responseTimeMs: FieldRef<"SitePerformanceMetric", 'Int'>
+    readonly ttfbMs: FieldRef<"SitePerformanceMetric", 'Int'>
+    readonly statusCode: FieldRef<"SitePerformanceMetric", 'Int'>
+    readonly score: FieldRef<"SitePerformanceMetric", 'Int'>
+    readonly checkedAt: FieldRef<"SitePerformanceMetric", 'DateTime'>
+    readonly createdAt: FieldRef<"SitePerformanceMetric", 'DateTime'>
+    readonly updatedAt: FieldRef<"SitePerformanceMetric", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SitePerformanceMetric findUnique
+   */
+  export type SitePerformanceMetricFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which SitePerformanceMetric to fetch.
+     */
+    where: SitePerformanceMetricWhereUniqueInput
+  }
+
+  /**
+   * SitePerformanceMetric findUniqueOrThrow
+   */
+  export type SitePerformanceMetricFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which SitePerformanceMetric to fetch.
+     */
+    where: SitePerformanceMetricWhereUniqueInput
+  }
+
+  /**
+   * SitePerformanceMetric findFirst
+   */
+  export type SitePerformanceMetricFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which SitePerformanceMetric to fetch.
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SitePerformanceMetrics to fetch.
+     */
+    orderBy?: SitePerformanceMetricOrderByWithRelationInput | SitePerformanceMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SitePerformanceMetrics.
+     */
+    cursor?: SitePerformanceMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SitePerformanceMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SitePerformanceMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SitePerformanceMetrics.
+     */
+    distinct?: SitePerformanceMetricScalarFieldEnum | SitePerformanceMetricScalarFieldEnum[]
+  }
+
+  /**
+   * SitePerformanceMetric findFirstOrThrow
+   */
+  export type SitePerformanceMetricFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which SitePerformanceMetric to fetch.
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SitePerformanceMetrics to fetch.
+     */
+    orderBy?: SitePerformanceMetricOrderByWithRelationInput | SitePerformanceMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SitePerformanceMetrics.
+     */
+    cursor?: SitePerformanceMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SitePerformanceMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SitePerformanceMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SitePerformanceMetrics.
+     */
+    distinct?: SitePerformanceMetricScalarFieldEnum | SitePerformanceMetricScalarFieldEnum[]
+  }
+
+  /**
+   * SitePerformanceMetric findMany
+   */
+  export type SitePerformanceMetricFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which SitePerformanceMetrics to fetch.
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SitePerformanceMetrics to fetch.
+     */
+    orderBy?: SitePerformanceMetricOrderByWithRelationInput | SitePerformanceMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SitePerformanceMetrics.
+     */
+    cursor?: SitePerformanceMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SitePerformanceMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SitePerformanceMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SitePerformanceMetrics.
+     */
+    distinct?: SitePerformanceMetricScalarFieldEnum | SitePerformanceMetricScalarFieldEnum[]
+  }
+
+  /**
+   * SitePerformanceMetric create
+   */
+  export type SitePerformanceMetricCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SitePerformanceMetric.
+     */
+    data: XOR<SitePerformanceMetricCreateInput, SitePerformanceMetricUncheckedCreateInput>
+  }
+
+  /**
+   * SitePerformanceMetric createMany
+   */
+  export type SitePerformanceMetricCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SitePerformanceMetrics.
+     */
+    data: SitePerformanceMetricCreateManyInput | SitePerformanceMetricCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SitePerformanceMetric createManyAndReturn
+   */
+  export type SitePerformanceMetricCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * The data used to create many SitePerformanceMetrics.
+     */
+    data: SitePerformanceMetricCreateManyInput | SitePerformanceMetricCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SitePerformanceMetric update
+   */
+  export type SitePerformanceMetricUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SitePerformanceMetric.
+     */
+    data: XOR<SitePerformanceMetricUpdateInput, SitePerformanceMetricUncheckedUpdateInput>
+    /**
+     * Choose, which SitePerformanceMetric to update.
+     */
+    where: SitePerformanceMetricWhereUniqueInput
+  }
+
+  /**
+   * SitePerformanceMetric updateMany
+   */
+  export type SitePerformanceMetricUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SitePerformanceMetrics.
+     */
+    data: XOR<SitePerformanceMetricUpdateManyMutationInput, SitePerformanceMetricUncheckedUpdateManyInput>
+    /**
+     * Filter which SitePerformanceMetrics to update
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * Limit how many SitePerformanceMetrics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SitePerformanceMetric updateManyAndReturn
+   */
+  export type SitePerformanceMetricUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * The data used to update SitePerformanceMetrics.
+     */
+    data: XOR<SitePerformanceMetricUpdateManyMutationInput, SitePerformanceMetricUncheckedUpdateManyInput>
+    /**
+     * Filter which SitePerformanceMetrics to update
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * Limit how many SitePerformanceMetrics to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SitePerformanceMetric upsert
+   */
+  export type SitePerformanceMetricUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SitePerformanceMetric to update in case it exists.
+     */
+    where: SitePerformanceMetricWhereUniqueInput
+    /**
+     * In case the SitePerformanceMetric found by the `where` argument doesn't exist, create a new SitePerformanceMetric with this data.
+     */
+    create: XOR<SitePerformanceMetricCreateInput, SitePerformanceMetricUncheckedCreateInput>
+    /**
+     * In case the SitePerformanceMetric was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SitePerformanceMetricUpdateInput, SitePerformanceMetricUncheckedUpdateInput>
+  }
+
+  /**
+   * SitePerformanceMetric delete
+   */
+  export type SitePerformanceMetricDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+    /**
+     * Filter which SitePerformanceMetric to delete.
+     */
+    where: SitePerformanceMetricWhereUniqueInput
+  }
+
+  /**
+   * SitePerformanceMetric deleteMany
+   */
+  export type SitePerformanceMetricDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SitePerformanceMetrics to delete
+     */
+    where?: SitePerformanceMetricWhereInput
+    /**
+     * Limit how many SitePerformanceMetrics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SitePerformanceMetric without action
+   */
+  export type SitePerformanceMetricDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SitePerformanceMetric
+     */
+    select?: SitePerformanceMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SitePerformanceMetric
+     */
+    omit?: SitePerformanceMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SitePerformanceMetricInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MediaOptimizationAsset
+   */
+
+  export type AggregateMediaOptimizationAsset = {
+    _count: MediaOptimizationAssetCountAggregateOutputType | null
+    _avg: MediaOptimizationAssetAvgAggregateOutputType | null
+    _sum: MediaOptimizationAssetSumAggregateOutputType | null
+    _min: MediaOptimizationAssetMinAggregateOutputType | null
+    _max: MediaOptimizationAssetMaxAggregateOutputType | null
+  }
+
+  export type MediaOptimizationAssetAvgAggregateOutputType = {
+    originalBytes: number | null
+    optimizedBytes: number | null
+  }
+
+  export type MediaOptimizationAssetSumAggregateOutputType = {
+    originalBytes: number | null
+    optimizedBytes: number | null
+  }
+
+  export type MediaOptimizationAssetMinAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    originalUrl: string | null
+    optimizedUrl: string | null
+    originalBytes: number | null
+    optimizedBytes: number | null
+    format: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MediaOptimizationAssetMaxAggregateOutputType = {
+    id: string | null
+    websiteId: string | null
+    originalUrl: string | null
+    optimizedUrl: string | null
+    originalBytes: number | null
+    optimizedBytes: number | null
+    format: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MediaOptimizationAssetCountAggregateOutputType = {
+    id: number
+    websiteId: number
+    originalUrl: number
+    optimizedUrl: number
+    originalBytes: number
+    optimizedBytes: number
+    format: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MediaOptimizationAssetAvgAggregateInputType = {
+    originalBytes?: true
+    optimizedBytes?: true
+  }
+
+  export type MediaOptimizationAssetSumAggregateInputType = {
+    originalBytes?: true
+    optimizedBytes?: true
+  }
+
+  export type MediaOptimizationAssetMinAggregateInputType = {
+    id?: true
+    websiteId?: true
+    originalUrl?: true
+    optimizedUrl?: true
+    originalBytes?: true
+    optimizedBytes?: true
+    format?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MediaOptimizationAssetMaxAggregateInputType = {
+    id?: true
+    websiteId?: true
+    originalUrl?: true
+    optimizedUrl?: true
+    originalBytes?: true
+    optimizedBytes?: true
+    format?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MediaOptimizationAssetCountAggregateInputType = {
+    id?: true
+    websiteId?: true
+    originalUrl?: true
+    optimizedUrl?: true
+    originalBytes?: true
+    optimizedBytes?: true
+    format?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MediaOptimizationAssetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MediaOptimizationAsset to aggregate.
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaOptimizationAssets to fetch.
+     */
+    orderBy?: MediaOptimizationAssetOrderByWithRelationInput | MediaOptimizationAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MediaOptimizationAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaOptimizationAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaOptimizationAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MediaOptimizationAssets
+    **/
+    _count?: true | MediaOptimizationAssetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MediaOptimizationAssetAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MediaOptimizationAssetSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MediaOptimizationAssetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MediaOptimizationAssetMaxAggregateInputType
+  }
+
+  export type GetMediaOptimizationAssetAggregateType<T extends MediaOptimizationAssetAggregateArgs> = {
+        [P in keyof T & keyof AggregateMediaOptimizationAsset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMediaOptimizationAsset[P]>
+      : GetScalarType<T[P], AggregateMediaOptimizationAsset[P]>
+  }
+
+
+
+
+  export type MediaOptimizationAssetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MediaOptimizationAssetWhereInput
+    orderBy?: MediaOptimizationAssetOrderByWithAggregationInput | MediaOptimizationAssetOrderByWithAggregationInput[]
+    by: MediaOptimizationAssetScalarFieldEnum[] | MediaOptimizationAssetScalarFieldEnum
+    having?: MediaOptimizationAssetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MediaOptimizationAssetCountAggregateInputType | true
+    _avg?: MediaOptimizationAssetAvgAggregateInputType
+    _sum?: MediaOptimizationAssetSumAggregateInputType
+    _min?: MediaOptimizationAssetMinAggregateInputType
+    _max?: MediaOptimizationAssetMaxAggregateInputType
+  }
+
+  export type MediaOptimizationAssetGroupByOutputType = {
+    id: string
+    websiteId: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format: string
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    _count: MediaOptimizationAssetCountAggregateOutputType | null
+    _avg: MediaOptimizationAssetAvgAggregateOutputType | null
+    _sum: MediaOptimizationAssetSumAggregateOutputType | null
+    _min: MediaOptimizationAssetMinAggregateOutputType | null
+    _max: MediaOptimizationAssetMaxAggregateOutputType | null
+  }
+
+  type GetMediaOptimizationAssetGroupByPayload<T extends MediaOptimizationAssetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MediaOptimizationAssetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MediaOptimizationAssetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MediaOptimizationAssetGroupByOutputType[P]>
+            : GetScalarType<T[P], MediaOptimizationAssetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MediaOptimizationAssetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    originalUrl?: boolean
+    optimizedUrl?: boolean
+    originalBytes?: boolean
+    optimizedBytes?: boolean
+    format?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaOptimizationAsset"]>
+
+  export type MediaOptimizationAssetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    originalUrl?: boolean
+    optimizedUrl?: boolean
+    originalBytes?: boolean
+    optimizedBytes?: boolean
+    format?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaOptimizationAsset"]>
+
+  export type MediaOptimizationAssetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    websiteId?: boolean
+    originalUrl?: boolean
+    optimizedUrl?: boolean
+    originalBytes?: boolean
+    optimizedBytes?: boolean
+    format?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mediaOptimizationAsset"]>
+
+  export type MediaOptimizationAssetSelectScalar = {
+    id?: boolean
+    websiteId?: boolean
+    originalUrl?: boolean
+    optimizedUrl?: boolean
+    originalBytes?: boolean
+    optimizedBytes?: boolean
+    format?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MediaOptimizationAssetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "originalUrl" | "optimizedUrl" | "originalBytes" | "optimizedBytes" | "format" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["mediaOptimizationAsset"]>
+  export type MediaOptimizationAssetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type MediaOptimizationAssetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+  export type MediaOptimizationAssetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    website?: boolean | WebsiteDefaultArgs<ExtArgs>
+  }
+
+  export type $MediaOptimizationAssetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MediaOptimizationAsset"
+    objects: {
+      website: Prisma.$WebsitePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      websiteId: string
+      originalUrl: string
+      optimizedUrl: string
+      originalBytes: number
+      optimizedBytes: number
+      format: string
+      status: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["mediaOptimizationAsset"]>
+    composites: {}
+  }
+
+  type MediaOptimizationAssetGetPayload<S extends boolean | null | undefined | MediaOptimizationAssetDefaultArgs> = $Result.GetResult<Prisma.$MediaOptimizationAssetPayload, S>
+
+  type MediaOptimizationAssetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MediaOptimizationAssetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MediaOptimizationAssetCountAggregateInputType | true
+    }
+
+  export interface MediaOptimizationAssetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MediaOptimizationAsset'], meta: { name: 'MediaOptimizationAsset' } }
+    /**
+     * Find zero or one MediaOptimizationAsset that matches the filter.
+     * @param {MediaOptimizationAssetFindUniqueArgs} args - Arguments to find a MediaOptimizationAsset
+     * @example
+     * // Get one MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MediaOptimizationAssetFindUniqueArgs>(args: SelectSubset<T, MediaOptimizationAssetFindUniqueArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MediaOptimizationAsset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MediaOptimizationAssetFindUniqueOrThrowArgs} args - Arguments to find a MediaOptimizationAsset
+     * @example
+     * // Get one MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MediaOptimizationAssetFindUniqueOrThrowArgs>(args: SelectSubset<T, MediaOptimizationAssetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MediaOptimizationAsset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetFindFirstArgs} args - Arguments to find a MediaOptimizationAsset
+     * @example
+     * // Get one MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MediaOptimizationAssetFindFirstArgs>(args?: SelectSubset<T, MediaOptimizationAssetFindFirstArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MediaOptimizationAsset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetFindFirstOrThrowArgs} args - Arguments to find a MediaOptimizationAsset
+     * @example
+     * // Get one MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MediaOptimizationAssetFindFirstOrThrowArgs>(args?: SelectSubset<T, MediaOptimizationAssetFindFirstOrThrowArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MediaOptimizationAssets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MediaOptimizationAssets
+     * const mediaOptimizationAssets = await prisma.mediaOptimizationAsset.findMany()
+     * 
+     * // Get first 10 MediaOptimizationAssets
+     * const mediaOptimizationAssets = await prisma.mediaOptimizationAsset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mediaOptimizationAssetWithIdOnly = await prisma.mediaOptimizationAsset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MediaOptimizationAssetFindManyArgs>(args?: SelectSubset<T, MediaOptimizationAssetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MediaOptimizationAsset.
+     * @param {MediaOptimizationAssetCreateArgs} args - Arguments to create a MediaOptimizationAsset.
+     * @example
+     * // Create one MediaOptimizationAsset
+     * const MediaOptimizationAsset = await prisma.mediaOptimizationAsset.create({
+     *   data: {
+     *     // ... data to create a MediaOptimizationAsset
+     *   }
+     * })
+     * 
+     */
+    create<T extends MediaOptimizationAssetCreateArgs>(args: SelectSubset<T, MediaOptimizationAssetCreateArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MediaOptimizationAssets.
+     * @param {MediaOptimizationAssetCreateManyArgs} args - Arguments to create many MediaOptimizationAssets.
+     * @example
+     * // Create many MediaOptimizationAssets
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MediaOptimizationAssetCreateManyArgs>(args?: SelectSubset<T, MediaOptimizationAssetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MediaOptimizationAssets and returns the data saved in the database.
+     * @param {MediaOptimizationAssetCreateManyAndReturnArgs} args - Arguments to create many MediaOptimizationAssets.
+     * @example
+     * // Create many MediaOptimizationAssets
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MediaOptimizationAssets and only return the `id`
+     * const mediaOptimizationAssetWithIdOnly = await prisma.mediaOptimizationAsset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MediaOptimizationAssetCreateManyAndReturnArgs>(args?: SelectSubset<T, MediaOptimizationAssetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MediaOptimizationAsset.
+     * @param {MediaOptimizationAssetDeleteArgs} args - Arguments to delete one MediaOptimizationAsset.
+     * @example
+     * // Delete one MediaOptimizationAsset
+     * const MediaOptimizationAsset = await prisma.mediaOptimizationAsset.delete({
+     *   where: {
+     *     // ... filter to delete one MediaOptimizationAsset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MediaOptimizationAssetDeleteArgs>(args: SelectSubset<T, MediaOptimizationAssetDeleteArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MediaOptimizationAsset.
+     * @param {MediaOptimizationAssetUpdateArgs} args - Arguments to update one MediaOptimizationAsset.
+     * @example
+     * // Update one MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MediaOptimizationAssetUpdateArgs>(args: SelectSubset<T, MediaOptimizationAssetUpdateArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MediaOptimizationAssets.
+     * @param {MediaOptimizationAssetDeleteManyArgs} args - Arguments to filter MediaOptimizationAssets to delete.
+     * @example
+     * // Delete a few MediaOptimizationAssets
+     * const { count } = await prisma.mediaOptimizationAsset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MediaOptimizationAssetDeleteManyArgs>(args?: SelectSubset<T, MediaOptimizationAssetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MediaOptimizationAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MediaOptimizationAssets
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MediaOptimizationAssetUpdateManyArgs>(args: SelectSubset<T, MediaOptimizationAssetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MediaOptimizationAssets and returns the data updated in the database.
+     * @param {MediaOptimizationAssetUpdateManyAndReturnArgs} args - Arguments to update many MediaOptimizationAssets.
+     * @example
+     * // Update many MediaOptimizationAssets
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MediaOptimizationAssets and only return the `id`
+     * const mediaOptimizationAssetWithIdOnly = await prisma.mediaOptimizationAsset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MediaOptimizationAssetUpdateManyAndReturnArgs>(args: SelectSubset<T, MediaOptimizationAssetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MediaOptimizationAsset.
+     * @param {MediaOptimizationAssetUpsertArgs} args - Arguments to update or create a MediaOptimizationAsset.
+     * @example
+     * // Update or create a MediaOptimizationAsset
+     * const mediaOptimizationAsset = await prisma.mediaOptimizationAsset.upsert({
+     *   create: {
+     *     // ... data to create a MediaOptimizationAsset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MediaOptimizationAsset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MediaOptimizationAssetUpsertArgs>(args: SelectSubset<T, MediaOptimizationAssetUpsertArgs<ExtArgs>>): Prisma__MediaOptimizationAssetClient<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MediaOptimizationAssets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetCountArgs} args - Arguments to filter MediaOptimizationAssets to count.
+     * @example
+     * // Count the number of MediaOptimizationAssets
+     * const count = await prisma.mediaOptimizationAsset.count({
+     *   where: {
+     *     // ... the filter for the MediaOptimizationAssets we want to count
+     *   }
+     * })
+    **/
+    count<T extends MediaOptimizationAssetCountArgs>(
+      args?: Subset<T, MediaOptimizationAssetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MediaOptimizationAssetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MediaOptimizationAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MediaOptimizationAssetAggregateArgs>(args: Subset<T, MediaOptimizationAssetAggregateArgs>): Prisma.PrismaPromise<GetMediaOptimizationAssetAggregateType<T>>
+
+    /**
+     * Group by MediaOptimizationAsset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MediaOptimizationAssetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MediaOptimizationAssetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MediaOptimizationAssetGroupByArgs['orderBy'] }
+        : { orderBy?: MediaOptimizationAssetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MediaOptimizationAssetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMediaOptimizationAssetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MediaOptimizationAsset model
+   */
+  readonly fields: MediaOptimizationAssetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MediaOptimizationAsset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MediaOptimizationAssetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MediaOptimizationAsset model
+   */
+  interface MediaOptimizationAssetFieldRefs {
+    readonly id: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly websiteId: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly originalUrl: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly optimizedUrl: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly originalBytes: FieldRef<"MediaOptimizationAsset", 'Int'>
+    readonly optimizedBytes: FieldRef<"MediaOptimizationAsset", 'Int'>
+    readonly format: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly status: FieldRef<"MediaOptimizationAsset", 'String'>
+    readonly createdAt: FieldRef<"MediaOptimizationAsset", 'DateTime'>
+    readonly updatedAt: FieldRef<"MediaOptimizationAsset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MediaOptimizationAsset findUnique
+   */
+  export type MediaOptimizationAssetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaOptimizationAsset to fetch.
+     */
+    where: MediaOptimizationAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaOptimizationAsset findUniqueOrThrow
+   */
+  export type MediaOptimizationAssetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaOptimizationAsset to fetch.
+     */
+    where: MediaOptimizationAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaOptimizationAsset findFirst
+   */
+  export type MediaOptimizationAssetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaOptimizationAsset to fetch.
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaOptimizationAssets to fetch.
+     */
+    orderBy?: MediaOptimizationAssetOrderByWithRelationInput | MediaOptimizationAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MediaOptimizationAssets.
+     */
+    cursor?: MediaOptimizationAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaOptimizationAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaOptimizationAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaOptimizationAssets.
+     */
+    distinct?: MediaOptimizationAssetScalarFieldEnum | MediaOptimizationAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaOptimizationAsset findFirstOrThrow
+   */
+  export type MediaOptimizationAssetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaOptimizationAsset to fetch.
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaOptimizationAssets to fetch.
+     */
+    orderBy?: MediaOptimizationAssetOrderByWithRelationInput | MediaOptimizationAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MediaOptimizationAssets.
+     */
+    cursor?: MediaOptimizationAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaOptimizationAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaOptimizationAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaOptimizationAssets.
+     */
+    distinct?: MediaOptimizationAssetScalarFieldEnum | MediaOptimizationAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaOptimizationAsset findMany
+   */
+  export type MediaOptimizationAssetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter, which MediaOptimizationAssets to fetch.
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MediaOptimizationAssets to fetch.
+     */
+    orderBy?: MediaOptimizationAssetOrderByWithRelationInput | MediaOptimizationAssetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MediaOptimizationAssets.
+     */
+    cursor?: MediaOptimizationAssetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MediaOptimizationAssets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MediaOptimizationAssets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MediaOptimizationAssets.
+     */
+    distinct?: MediaOptimizationAssetScalarFieldEnum | MediaOptimizationAssetScalarFieldEnum[]
+  }
+
+  /**
+   * MediaOptimizationAsset create
+   */
+  export type MediaOptimizationAssetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MediaOptimizationAsset.
+     */
+    data: XOR<MediaOptimizationAssetCreateInput, MediaOptimizationAssetUncheckedCreateInput>
+  }
+
+  /**
+   * MediaOptimizationAsset createMany
+   */
+  export type MediaOptimizationAssetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MediaOptimizationAssets.
+     */
+    data: MediaOptimizationAssetCreateManyInput | MediaOptimizationAssetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MediaOptimizationAsset createManyAndReturn
+   */
+  export type MediaOptimizationAssetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * The data used to create many MediaOptimizationAssets.
+     */
+    data: MediaOptimizationAssetCreateManyInput | MediaOptimizationAssetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MediaOptimizationAsset update
+   */
+  export type MediaOptimizationAssetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MediaOptimizationAsset.
+     */
+    data: XOR<MediaOptimizationAssetUpdateInput, MediaOptimizationAssetUncheckedUpdateInput>
+    /**
+     * Choose, which MediaOptimizationAsset to update.
+     */
+    where: MediaOptimizationAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaOptimizationAsset updateMany
+   */
+  export type MediaOptimizationAssetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MediaOptimizationAssets.
+     */
+    data: XOR<MediaOptimizationAssetUpdateManyMutationInput, MediaOptimizationAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which MediaOptimizationAssets to update
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * Limit how many MediaOptimizationAssets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MediaOptimizationAsset updateManyAndReturn
+   */
+  export type MediaOptimizationAssetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * The data used to update MediaOptimizationAssets.
+     */
+    data: XOR<MediaOptimizationAssetUpdateManyMutationInput, MediaOptimizationAssetUncheckedUpdateManyInput>
+    /**
+     * Filter which MediaOptimizationAssets to update
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * Limit how many MediaOptimizationAssets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MediaOptimizationAsset upsert
+   */
+  export type MediaOptimizationAssetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MediaOptimizationAsset to update in case it exists.
+     */
+    where: MediaOptimizationAssetWhereUniqueInput
+    /**
+     * In case the MediaOptimizationAsset found by the `where` argument doesn't exist, create a new MediaOptimizationAsset with this data.
+     */
+    create: XOR<MediaOptimizationAssetCreateInput, MediaOptimizationAssetUncheckedCreateInput>
+    /**
+     * In case the MediaOptimizationAsset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MediaOptimizationAssetUpdateInput, MediaOptimizationAssetUncheckedUpdateInput>
+  }
+
+  /**
+   * MediaOptimizationAsset delete
+   */
+  export type MediaOptimizationAssetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+    /**
+     * Filter which MediaOptimizationAsset to delete.
+     */
+    where: MediaOptimizationAssetWhereUniqueInput
+  }
+
+  /**
+   * MediaOptimizationAsset deleteMany
+   */
+  export type MediaOptimizationAssetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MediaOptimizationAssets to delete
+     */
+    where?: MediaOptimizationAssetWhereInput
+    /**
+     * Limit how many MediaOptimizationAssets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MediaOptimizationAsset without action
+   */
+  export type MediaOptimizationAssetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MediaOptimizationAsset
+     */
+    select?: MediaOptimizationAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MediaOptimizationAsset
+     */
+    omit?: MediaOptimizationAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MediaOptimizationAssetInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OptimizationCreditLedger
+   */
+
+  export type AggregateOptimizationCreditLedger = {
+    _count: OptimizationCreditLedgerCountAggregateOutputType | null
+    _avg: OptimizationCreditLedgerAvgAggregateOutputType | null
+    _sum: OptimizationCreditLedgerSumAggregateOutputType | null
+    _min: OptimizationCreditLedgerMinAggregateOutputType | null
+    _max: OptimizationCreditLedgerMaxAggregateOutputType | null
+  }
+
+  export type OptimizationCreditLedgerAvgAggregateOutputType = {
+    creditsUsed: number | null
+  }
+
+  export type OptimizationCreditLedgerSumAggregateOutputType = {
+    creditsUsed: number | null
+  }
+
+  export type OptimizationCreditLedgerMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    websiteId: string | null
+    creditsUsed: number | null
+    actionType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OptimizationCreditLedgerMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    websiteId: string | null
+    creditsUsed: number | null
+    actionType: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OptimizationCreditLedgerCountAggregateOutputType = {
+    id: number
+    userId: number
+    websiteId: number
+    creditsUsed: number
+    actionType: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OptimizationCreditLedgerAvgAggregateInputType = {
+    creditsUsed?: true
+  }
+
+  export type OptimizationCreditLedgerSumAggregateInputType = {
+    creditsUsed?: true
+  }
+
+  export type OptimizationCreditLedgerMinAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    creditsUsed?: true
+    actionType?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OptimizationCreditLedgerMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    creditsUsed?: true
+    actionType?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OptimizationCreditLedgerCountAggregateInputType = {
+    id?: true
+    userId?: true
+    websiteId?: true
+    creditsUsed?: true
+    actionType?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OptimizationCreditLedgerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OptimizationCreditLedger to aggregate.
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OptimizationCreditLedgers to fetch.
+     */
+    orderBy?: OptimizationCreditLedgerOrderByWithRelationInput | OptimizationCreditLedgerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OptimizationCreditLedgerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OptimizationCreditLedgers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OptimizationCreditLedgers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OptimizationCreditLedgers
+    **/
+    _count?: true | OptimizationCreditLedgerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OptimizationCreditLedgerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OptimizationCreditLedgerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OptimizationCreditLedgerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OptimizationCreditLedgerMaxAggregateInputType
+  }
+
+  export type GetOptimizationCreditLedgerAggregateType<T extends OptimizationCreditLedgerAggregateArgs> = {
+        [P in keyof T & keyof AggregateOptimizationCreditLedger]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOptimizationCreditLedger[P]>
+      : GetScalarType<T[P], AggregateOptimizationCreditLedger[P]>
+  }
+
+
+
+
+  export type OptimizationCreditLedgerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OptimizationCreditLedgerWhereInput
+    orderBy?: OptimizationCreditLedgerOrderByWithAggregationInput | OptimizationCreditLedgerOrderByWithAggregationInput[]
+    by: OptimizationCreditLedgerScalarFieldEnum[] | OptimizationCreditLedgerScalarFieldEnum
+    having?: OptimizationCreditLedgerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OptimizationCreditLedgerCountAggregateInputType | true
+    _avg?: OptimizationCreditLedgerAvgAggregateInputType
+    _sum?: OptimizationCreditLedgerSumAggregateInputType
+    _min?: OptimizationCreditLedgerMinAggregateInputType
+    _max?: OptimizationCreditLedgerMaxAggregateInputType
+  }
+
+  export type OptimizationCreditLedgerGroupByOutputType = {
+    id: string
+    userId: string
+    websiteId: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt: Date
+    updatedAt: Date
+    _count: OptimizationCreditLedgerCountAggregateOutputType | null
+    _avg: OptimizationCreditLedgerAvgAggregateOutputType | null
+    _sum: OptimizationCreditLedgerSumAggregateOutputType | null
+    _min: OptimizationCreditLedgerMinAggregateOutputType | null
+    _max: OptimizationCreditLedgerMaxAggregateOutputType | null
+  }
+
+  type GetOptimizationCreditLedgerGroupByPayload<T extends OptimizationCreditLedgerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OptimizationCreditLedgerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OptimizationCreditLedgerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OptimizationCreditLedgerGroupByOutputType[P]>
+            : GetScalarType<T[P], OptimizationCreditLedgerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OptimizationCreditLedgerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    creditsUsed?: boolean
+    actionType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["optimizationCreditLedger"]>
+
+  export type OptimizationCreditLedgerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    creditsUsed?: boolean
+    actionType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["optimizationCreditLedger"]>
+
+  export type OptimizationCreditLedgerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    creditsUsed?: boolean
+    actionType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["optimizationCreditLedger"]>
+
+  export type OptimizationCreditLedgerSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    websiteId?: boolean
+    creditsUsed?: boolean
+    actionType?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OptimizationCreditLedgerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "websiteId" | "creditsUsed" | "actionType" | "createdAt" | "updatedAt", ExtArgs["result"]["optimizationCreditLedger"]>
+  export type OptimizationCreditLedgerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type OptimizationCreditLedgerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type OptimizationCreditLedgerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $OptimizationCreditLedgerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OptimizationCreditLedger"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      websiteId: string | null
+      creditsUsed: number
+      actionType: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["optimizationCreditLedger"]>
+    composites: {}
+  }
+
+  type OptimizationCreditLedgerGetPayload<S extends boolean | null | undefined | OptimizationCreditLedgerDefaultArgs> = $Result.GetResult<Prisma.$OptimizationCreditLedgerPayload, S>
+
+  type OptimizationCreditLedgerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OptimizationCreditLedgerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OptimizationCreditLedgerCountAggregateInputType | true
+    }
+
+  export interface OptimizationCreditLedgerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OptimizationCreditLedger'], meta: { name: 'OptimizationCreditLedger' } }
+    /**
+     * Find zero or one OptimizationCreditLedger that matches the filter.
+     * @param {OptimizationCreditLedgerFindUniqueArgs} args - Arguments to find a OptimizationCreditLedger
+     * @example
+     * // Get one OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OptimizationCreditLedgerFindUniqueArgs>(args: SelectSubset<T, OptimizationCreditLedgerFindUniqueArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OptimizationCreditLedger that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OptimizationCreditLedgerFindUniqueOrThrowArgs} args - Arguments to find a OptimizationCreditLedger
+     * @example
+     * // Get one OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OptimizationCreditLedgerFindUniqueOrThrowArgs>(args: SelectSubset<T, OptimizationCreditLedgerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OptimizationCreditLedger that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerFindFirstArgs} args - Arguments to find a OptimizationCreditLedger
+     * @example
+     * // Get one OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OptimizationCreditLedgerFindFirstArgs>(args?: SelectSubset<T, OptimizationCreditLedgerFindFirstArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OptimizationCreditLedger that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerFindFirstOrThrowArgs} args - Arguments to find a OptimizationCreditLedger
+     * @example
+     * // Get one OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OptimizationCreditLedgerFindFirstOrThrowArgs>(args?: SelectSubset<T, OptimizationCreditLedgerFindFirstOrThrowArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OptimizationCreditLedgers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OptimizationCreditLedgers
+     * const optimizationCreditLedgers = await prisma.optimizationCreditLedger.findMany()
+     * 
+     * // Get first 10 OptimizationCreditLedgers
+     * const optimizationCreditLedgers = await prisma.optimizationCreditLedger.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const optimizationCreditLedgerWithIdOnly = await prisma.optimizationCreditLedger.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OptimizationCreditLedgerFindManyArgs>(args?: SelectSubset<T, OptimizationCreditLedgerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OptimizationCreditLedger.
+     * @param {OptimizationCreditLedgerCreateArgs} args - Arguments to create a OptimizationCreditLedger.
+     * @example
+     * // Create one OptimizationCreditLedger
+     * const OptimizationCreditLedger = await prisma.optimizationCreditLedger.create({
+     *   data: {
+     *     // ... data to create a OptimizationCreditLedger
+     *   }
+     * })
+     * 
+     */
+    create<T extends OptimizationCreditLedgerCreateArgs>(args: SelectSubset<T, OptimizationCreditLedgerCreateArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OptimizationCreditLedgers.
+     * @param {OptimizationCreditLedgerCreateManyArgs} args - Arguments to create many OptimizationCreditLedgers.
+     * @example
+     * // Create many OptimizationCreditLedgers
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OptimizationCreditLedgerCreateManyArgs>(args?: SelectSubset<T, OptimizationCreditLedgerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OptimizationCreditLedgers and returns the data saved in the database.
+     * @param {OptimizationCreditLedgerCreateManyAndReturnArgs} args - Arguments to create many OptimizationCreditLedgers.
+     * @example
+     * // Create many OptimizationCreditLedgers
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OptimizationCreditLedgers and only return the `id`
+     * const optimizationCreditLedgerWithIdOnly = await prisma.optimizationCreditLedger.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OptimizationCreditLedgerCreateManyAndReturnArgs>(args?: SelectSubset<T, OptimizationCreditLedgerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OptimizationCreditLedger.
+     * @param {OptimizationCreditLedgerDeleteArgs} args - Arguments to delete one OptimizationCreditLedger.
+     * @example
+     * // Delete one OptimizationCreditLedger
+     * const OptimizationCreditLedger = await prisma.optimizationCreditLedger.delete({
+     *   where: {
+     *     // ... filter to delete one OptimizationCreditLedger
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OptimizationCreditLedgerDeleteArgs>(args: SelectSubset<T, OptimizationCreditLedgerDeleteArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OptimizationCreditLedger.
+     * @param {OptimizationCreditLedgerUpdateArgs} args - Arguments to update one OptimizationCreditLedger.
+     * @example
+     * // Update one OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OptimizationCreditLedgerUpdateArgs>(args: SelectSubset<T, OptimizationCreditLedgerUpdateArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OptimizationCreditLedgers.
+     * @param {OptimizationCreditLedgerDeleteManyArgs} args - Arguments to filter OptimizationCreditLedgers to delete.
+     * @example
+     * // Delete a few OptimizationCreditLedgers
+     * const { count } = await prisma.optimizationCreditLedger.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OptimizationCreditLedgerDeleteManyArgs>(args?: SelectSubset<T, OptimizationCreditLedgerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OptimizationCreditLedgers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OptimizationCreditLedgers
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OptimizationCreditLedgerUpdateManyArgs>(args: SelectSubset<T, OptimizationCreditLedgerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OptimizationCreditLedgers and returns the data updated in the database.
+     * @param {OptimizationCreditLedgerUpdateManyAndReturnArgs} args - Arguments to update many OptimizationCreditLedgers.
+     * @example
+     * // Update many OptimizationCreditLedgers
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OptimizationCreditLedgers and only return the `id`
+     * const optimizationCreditLedgerWithIdOnly = await prisma.optimizationCreditLedger.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OptimizationCreditLedgerUpdateManyAndReturnArgs>(args: SelectSubset<T, OptimizationCreditLedgerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OptimizationCreditLedger.
+     * @param {OptimizationCreditLedgerUpsertArgs} args - Arguments to update or create a OptimizationCreditLedger.
+     * @example
+     * // Update or create a OptimizationCreditLedger
+     * const optimizationCreditLedger = await prisma.optimizationCreditLedger.upsert({
+     *   create: {
+     *     // ... data to create a OptimizationCreditLedger
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OptimizationCreditLedger we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OptimizationCreditLedgerUpsertArgs>(args: SelectSubset<T, OptimizationCreditLedgerUpsertArgs<ExtArgs>>): Prisma__OptimizationCreditLedgerClient<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OptimizationCreditLedgers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerCountArgs} args - Arguments to filter OptimizationCreditLedgers to count.
+     * @example
+     * // Count the number of OptimizationCreditLedgers
+     * const count = await prisma.optimizationCreditLedger.count({
+     *   where: {
+     *     // ... the filter for the OptimizationCreditLedgers we want to count
+     *   }
+     * })
+    **/
+    count<T extends OptimizationCreditLedgerCountArgs>(
+      args?: Subset<T, OptimizationCreditLedgerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OptimizationCreditLedgerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OptimizationCreditLedger.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OptimizationCreditLedgerAggregateArgs>(args: Subset<T, OptimizationCreditLedgerAggregateArgs>): Prisma.PrismaPromise<GetOptimizationCreditLedgerAggregateType<T>>
+
+    /**
+     * Group by OptimizationCreditLedger.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OptimizationCreditLedgerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OptimizationCreditLedgerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OptimizationCreditLedgerGroupByArgs['orderBy'] }
+        : { orderBy?: OptimizationCreditLedgerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OptimizationCreditLedgerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOptimizationCreditLedgerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OptimizationCreditLedger model
+   */
+  readonly fields: OptimizationCreditLedgerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OptimizationCreditLedger.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OptimizationCreditLedgerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OptimizationCreditLedger model
+   */
+  interface OptimizationCreditLedgerFieldRefs {
+    readonly id: FieldRef<"OptimizationCreditLedger", 'String'>
+    readonly userId: FieldRef<"OptimizationCreditLedger", 'String'>
+    readonly websiteId: FieldRef<"OptimizationCreditLedger", 'String'>
+    readonly creditsUsed: FieldRef<"OptimizationCreditLedger", 'Int'>
+    readonly actionType: FieldRef<"OptimizationCreditLedger", 'String'>
+    readonly createdAt: FieldRef<"OptimizationCreditLedger", 'DateTime'>
+    readonly updatedAt: FieldRef<"OptimizationCreditLedger", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OptimizationCreditLedger findUnique
+   */
+  export type OptimizationCreditLedgerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter, which OptimizationCreditLedger to fetch.
+     */
+    where: OptimizationCreditLedgerWhereUniqueInput
+  }
+
+  /**
+   * OptimizationCreditLedger findUniqueOrThrow
+   */
+  export type OptimizationCreditLedgerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter, which OptimizationCreditLedger to fetch.
+     */
+    where: OptimizationCreditLedgerWhereUniqueInput
+  }
+
+  /**
+   * OptimizationCreditLedger findFirst
+   */
+  export type OptimizationCreditLedgerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter, which OptimizationCreditLedger to fetch.
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OptimizationCreditLedgers to fetch.
+     */
+    orderBy?: OptimizationCreditLedgerOrderByWithRelationInput | OptimizationCreditLedgerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OptimizationCreditLedgers.
+     */
+    cursor?: OptimizationCreditLedgerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OptimizationCreditLedgers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OptimizationCreditLedgers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OptimizationCreditLedgers.
+     */
+    distinct?: OptimizationCreditLedgerScalarFieldEnum | OptimizationCreditLedgerScalarFieldEnum[]
+  }
+
+  /**
+   * OptimizationCreditLedger findFirstOrThrow
+   */
+  export type OptimizationCreditLedgerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter, which OptimizationCreditLedger to fetch.
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OptimizationCreditLedgers to fetch.
+     */
+    orderBy?: OptimizationCreditLedgerOrderByWithRelationInput | OptimizationCreditLedgerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OptimizationCreditLedgers.
+     */
+    cursor?: OptimizationCreditLedgerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OptimizationCreditLedgers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OptimizationCreditLedgers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OptimizationCreditLedgers.
+     */
+    distinct?: OptimizationCreditLedgerScalarFieldEnum | OptimizationCreditLedgerScalarFieldEnum[]
+  }
+
+  /**
+   * OptimizationCreditLedger findMany
+   */
+  export type OptimizationCreditLedgerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter, which OptimizationCreditLedgers to fetch.
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OptimizationCreditLedgers to fetch.
+     */
+    orderBy?: OptimizationCreditLedgerOrderByWithRelationInput | OptimizationCreditLedgerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OptimizationCreditLedgers.
+     */
+    cursor?: OptimizationCreditLedgerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OptimizationCreditLedgers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OptimizationCreditLedgers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OptimizationCreditLedgers.
+     */
+    distinct?: OptimizationCreditLedgerScalarFieldEnum | OptimizationCreditLedgerScalarFieldEnum[]
+  }
+
+  /**
+   * OptimizationCreditLedger create
+   */
+  export type OptimizationCreditLedgerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OptimizationCreditLedger.
+     */
+    data: XOR<OptimizationCreditLedgerCreateInput, OptimizationCreditLedgerUncheckedCreateInput>
+  }
+
+  /**
+   * OptimizationCreditLedger createMany
+   */
+  export type OptimizationCreditLedgerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OptimizationCreditLedgers.
+     */
+    data: OptimizationCreditLedgerCreateManyInput | OptimizationCreditLedgerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OptimizationCreditLedger createManyAndReturn
+   */
+  export type OptimizationCreditLedgerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * The data used to create many OptimizationCreditLedgers.
+     */
+    data: OptimizationCreditLedgerCreateManyInput | OptimizationCreditLedgerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OptimizationCreditLedger update
+   */
+  export type OptimizationCreditLedgerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OptimizationCreditLedger.
+     */
+    data: XOR<OptimizationCreditLedgerUpdateInput, OptimizationCreditLedgerUncheckedUpdateInput>
+    /**
+     * Choose, which OptimizationCreditLedger to update.
+     */
+    where: OptimizationCreditLedgerWhereUniqueInput
+  }
+
+  /**
+   * OptimizationCreditLedger updateMany
+   */
+  export type OptimizationCreditLedgerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OptimizationCreditLedgers.
+     */
+    data: XOR<OptimizationCreditLedgerUpdateManyMutationInput, OptimizationCreditLedgerUncheckedUpdateManyInput>
+    /**
+     * Filter which OptimizationCreditLedgers to update
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * Limit how many OptimizationCreditLedgers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OptimizationCreditLedger updateManyAndReturn
+   */
+  export type OptimizationCreditLedgerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * The data used to update OptimizationCreditLedgers.
+     */
+    data: XOR<OptimizationCreditLedgerUpdateManyMutationInput, OptimizationCreditLedgerUncheckedUpdateManyInput>
+    /**
+     * Filter which OptimizationCreditLedgers to update
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * Limit how many OptimizationCreditLedgers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OptimizationCreditLedger upsert
+   */
+  export type OptimizationCreditLedgerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OptimizationCreditLedger to update in case it exists.
+     */
+    where: OptimizationCreditLedgerWhereUniqueInput
+    /**
+     * In case the OptimizationCreditLedger found by the `where` argument doesn't exist, create a new OptimizationCreditLedger with this data.
+     */
+    create: XOR<OptimizationCreditLedgerCreateInput, OptimizationCreditLedgerUncheckedCreateInput>
+    /**
+     * In case the OptimizationCreditLedger was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OptimizationCreditLedgerUpdateInput, OptimizationCreditLedgerUncheckedUpdateInput>
+  }
+
+  /**
+   * OptimizationCreditLedger delete
+   */
+  export type OptimizationCreditLedgerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+    /**
+     * Filter which OptimizationCreditLedger to delete.
+     */
+    where: OptimizationCreditLedgerWhereUniqueInput
+  }
+
+  /**
+   * OptimizationCreditLedger deleteMany
+   */
+  export type OptimizationCreditLedgerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OptimizationCreditLedgers to delete
+     */
+    where?: OptimizationCreditLedgerWhereInput
+    /**
+     * Limit how many OptimizationCreditLedgers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OptimizationCreditLedger without action
+   */
+  export type OptimizationCreditLedgerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OptimizationCreditLedger
+     */
+    select?: OptimizationCreditLedgerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OptimizationCreditLedger
+     */
+    omit?: OptimizationCreditLedgerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OptimizationCreditLedgerInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -53183,7 +59596,8 @@ export namespace Prisma {
     role: 'role',
     lastLoginAt: 'lastLoginAt',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    optimizationCredits: 'optimizationCredits'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -53785,6 +60199,82 @@ export namespace Prisma {
   export type MediaAssetScalarFieldEnum = (typeof MediaAssetScalarFieldEnum)[keyof typeof MediaAssetScalarFieldEnum]
 
 
+  export const SiteMailerConfigScalarFieldEnum: {
+    id: 'id',
+    websiteId: 'websiteId',
+    host: 'host',
+    port: 'port',
+    username: 'username',
+    password: 'password',
+    fromName: 'fromName',
+    fromEmail: 'fromEmail',
+    isVerified: 'isVerified',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SiteMailerConfigScalarFieldEnum = (typeof SiteMailerConfigScalarFieldEnum)[keyof typeof SiteMailerConfigScalarFieldEnum]
+
+
+  export const EmailDeliveryLogScalarFieldEnum: {
+    id: 'id',
+    websiteId: 'websiteId',
+    recipient: 'recipient',
+    subject: 'subject',
+    status: 'status',
+    error: 'error',
+    sentAt: 'sentAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailDeliveryLogScalarFieldEnum = (typeof EmailDeliveryLogScalarFieldEnum)[keyof typeof EmailDeliveryLogScalarFieldEnum]
+
+
+  export const SitePerformanceMetricScalarFieldEnum: {
+    id: 'id',
+    websiteId: 'websiteId',
+    responseTimeMs: 'responseTimeMs',
+    ttfbMs: 'ttfbMs',
+    statusCode: 'statusCode',
+    score: 'score',
+    checkedAt: 'checkedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SitePerformanceMetricScalarFieldEnum = (typeof SitePerformanceMetricScalarFieldEnum)[keyof typeof SitePerformanceMetricScalarFieldEnum]
+
+
+  export const MediaOptimizationAssetScalarFieldEnum: {
+    id: 'id',
+    websiteId: 'websiteId',
+    originalUrl: 'originalUrl',
+    optimizedUrl: 'optimizedUrl',
+    originalBytes: 'originalBytes',
+    optimizedBytes: 'optimizedBytes',
+    format: 'format',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MediaOptimizationAssetScalarFieldEnum = (typeof MediaOptimizationAssetScalarFieldEnum)[keyof typeof MediaOptimizationAssetScalarFieldEnum]
+
+
+  export const OptimizationCreditLedgerScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    websiteId: 'websiteId',
+    creditsUsed: 'creditsUsed',
+    actionType: 'actionType',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OptimizationCreditLedgerScalarFieldEnum = (typeof OptimizationCreditLedgerScalarFieldEnum)[keyof typeof OptimizationCreditLedgerScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -53916,6 +60406,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -53954,20 +60458,6 @@ export namespace Prisma {
    * Reference to a field of type 'OtpChannel[]'
    */
   export type ListEnumOtpChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OtpChannel[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -54019,6 +60509,7 @@ export namespace Prisma {
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    optimizationCredits?: IntFilter<"User"> | number
     identities?: IdentityListRelationFilter
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
@@ -54048,6 +60539,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    creditLedgers?: OptimizationCreditLedgerListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -54064,6 +60556,7 @@ export namespace Prisma {
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    optimizationCredits?: SortOrder
     identities?: IdentityOrderByRelationAggregateInput
     otpVerifications?: OtpVerificationOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
@@ -54093,6 +60586,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
+    creditLedgers?: OptimizationCreditLedgerOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -54112,6 +60606,7 @@ export namespace Prisma {
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    optimizationCredits?: IntFilter<"User"> | number
     identities?: IdentityListRelationFilter
     otpVerifications?: OtpVerificationListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
@@ -54141,6 +60636,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    creditLedgers?: OptimizationCreditLedgerListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -54157,9 +60653,12 @@ export namespace Prisma {
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    optimizationCredits?: SortOrder
     _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
   }
 
   export type UserScalarWhereWithAggregatesInput = {
@@ -54179,6 +60678,7 @@ export namespace Prisma {
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    optimizationCredits?: IntWithAggregatesFilter<"User"> | number
   }
 
   export type WebsiteWhereInput = {
@@ -54218,6 +60718,10 @@ export namespace Prisma {
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    mailerConfig?: XOR<SiteMailerConfigNullableScalarRelationFilter, SiteMailerConfigWhereInput> | null
+    emailLogs?: EmailDeliveryLogListRelationFilter
+    performanceMetrics?: SitePerformanceMetricListRelationFilter
+    optimizedMedia?: MediaOptimizationAssetListRelationFilter
   }
 
   export type WebsiteOrderByWithRelationInput = {
@@ -54254,6 +60758,10 @@ export namespace Prisma {
     organization?: OrganizationOrderByWithRelationInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
+    mailerConfig?: SiteMailerConfigOrderByWithRelationInput
+    emailLogs?: EmailDeliveryLogOrderByRelationAggregateInput
+    performanceMetrics?: SitePerformanceMetricOrderByRelationAggregateInput
+    optimizedMedia?: MediaOptimizationAssetOrderByRelationAggregateInput
   }
 
   export type WebsiteWhereUniqueInput = Prisma.AtLeast<{
@@ -54293,6 +60801,10 @@ export namespace Prisma {
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    mailerConfig?: XOR<SiteMailerConfigNullableScalarRelationFilter, SiteMailerConfigWhereInput> | null
+    emailLogs?: EmailDeliveryLogListRelationFilter
+    performanceMetrics?: SitePerformanceMetricListRelationFilter
+    optimizedMedia?: MediaOptimizationAssetListRelationFilter
   }, "id">
 
   export type WebsiteOrderByWithAggregationInput = {
@@ -57335,6 +63847,394 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"MediaAsset"> | Date | string
   }
 
+  export type SiteMailerConfigWhereInput = {
+    AND?: SiteMailerConfigWhereInput | SiteMailerConfigWhereInput[]
+    OR?: SiteMailerConfigWhereInput[]
+    NOT?: SiteMailerConfigWhereInput | SiteMailerConfigWhereInput[]
+    id?: UuidFilter<"SiteMailerConfig"> | string
+    websiteId?: UuidFilter<"SiteMailerConfig"> | string
+    host?: StringFilter<"SiteMailerConfig"> | string
+    port?: IntFilter<"SiteMailerConfig"> | number
+    username?: StringFilter<"SiteMailerConfig"> | string
+    password?: StringFilter<"SiteMailerConfig"> | string
+    fromName?: StringFilter<"SiteMailerConfig"> | string
+    fromEmail?: StringFilter<"SiteMailerConfig"> | string
+    isVerified?: BoolFilter<"SiteMailerConfig"> | boolean
+    createdAt?: DateTimeFilter<"SiteMailerConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"SiteMailerConfig"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }
+
+  export type SiteMailerConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    host?: SortOrder
+    port?: SortOrder
+    username?: SortOrder
+    password?: SortOrder
+    fromName?: SortOrder
+    fromEmail?: SortOrder
+    isVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    website?: WebsiteOrderByWithRelationInput
+  }
+
+  export type SiteMailerConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    websiteId?: string
+    AND?: SiteMailerConfigWhereInput | SiteMailerConfigWhereInput[]
+    OR?: SiteMailerConfigWhereInput[]
+    NOT?: SiteMailerConfigWhereInput | SiteMailerConfigWhereInput[]
+    host?: StringFilter<"SiteMailerConfig"> | string
+    port?: IntFilter<"SiteMailerConfig"> | number
+    username?: StringFilter<"SiteMailerConfig"> | string
+    password?: StringFilter<"SiteMailerConfig"> | string
+    fromName?: StringFilter<"SiteMailerConfig"> | string
+    fromEmail?: StringFilter<"SiteMailerConfig"> | string
+    isVerified?: BoolFilter<"SiteMailerConfig"> | boolean
+    createdAt?: DateTimeFilter<"SiteMailerConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"SiteMailerConfig"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }, "id" | "websiteId">
+
+  export type SiteMailerConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    host?: SortOrder
+    port?: SortOrder
+    username?: SortOrder
+    password?: SortOrder
+    fromName?: SortOrder
+    fromEmail?: SortOrder
+    isVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SiteMailerConfigCountOrderByAggregateInput
+    _avg?: SiteMailerConfigAvgOrderByAggregateInput
+    _max?: SiteMailerConfigMaxOrderByAggregateInput
+    _min?: SiteMailerConfigMinOrderByAggregateInput
+    _sum?: SiteMailerConfigSumOrderByAggregateInput
+  }
+
+  export type SiteMailerConfigScalarWhereWithAggregatesInput = {
+    AND?: SiteMailerConfigScalarWhereWithAggregatesInput | SiteMailerConfigScalarWhereWithAggregatesInput[]
+    OR?: SiteMailerConfigScalarWhereWithAggregatesInput[]
+    NOT?: SiteMailerConfigScalarWhereWithAggregatesInput | SiteMailerConfigScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"SiteMailerConfig"> | string
+    websiteId?: UuidWithAggregatesFilter<"SiteMailerConfig"> | string
+    host?: StringWithAggregatesFilter<"SiteMailerConfig"> | string
+    port?: IntWithAggregatesFilter<"SiteMailerConfig"> | number
+    username?: StringWithAggregatesFilter<"SiteMailerConfig"> | string
+    password?: StringWithAggregatesFilter<"SiteMailerConfig"> | string
+    fromName?: StringWithAggregatesFilter<"SiteMailerConfig"> | string
+    fromEmail?: StringWithAggregatesFilter<"SiteMailerConfig"> | string
+    isVerified?: BoolWithAggregatesFilter<"SiteMailerConfig"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"SiteMailerConfig"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SiteMailerConfig"> | Date | string
+  }
+
+  export type EmailDeliveryLogWhereInput = {
+    AND?: EmailDeliveryLogWhereInput | EmailDeliveryLogWhereInput[]
+    OR?: EmailDeliveryLogWhereInput[]
+    NOT?: EmailDeliveryLogWhereInput | EmailDeliveryLogWhereInput[]
+    id?: UuidFilter<"EmailDeliveryLog"> | string
+    websiteId?: UuidFilter<"EmailDeliveryLog"> | string
+    recipient?: StringFilter<"EmailDeliveryLog"> | string
+    subject?: StringFilter<"EmailDeliveryLog"> | string
+    status?: StringFilter<"EmailDeliveryLog"> | string
+    error?: StringNullableFilter<"EmailDeliveryLog"> | string | null
+    sentAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    createdAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }
+
+  export type EmailDeliveryLogOrderByWithRelationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    status?: SortOrder
+    error?: SortOrderInput | SortOrder
+    sentAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    website?: WebsiteOrderByWithRelationInput
+  }
+
+  export type EmailDeliveryLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmailDeliveryLogWhereInput | EmailDeliveryLogWhereInput[]
+    OR?: EmailDeliveryLogWhereInput[]
+    NOT?: EmailDeliveryLogWhereInput | EmailDeliveryLogWhereInput[]
+    websiteId?: UuidFilter<"EmailDeliveryLog"> | string
+    recipient?: StringFilter<"EmailDeliveryLog"> | string
+    subject?: StringFilter<"EmailDeliveryLog"> | string
+    status?: StringFilter<"EmailDeliveryLog"> | string
+    error?: StringNullableFilter<"EmailDeliveryLog"> | string | null
+    sentAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    createdAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }, "id">
+
+  export type EmailDeliveryLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    status?: SortOrder
+    error?: SortOrderInput | SortOrder
+    sentAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailDeliveryLogCountOrderByAggregateInput
+    _max?: EmailDeliveryLogMaxOrderByAggregateInput
+    _min?: EmailDeliveryLogMinOrderByAggregateInput
+  }
+
+  export type EmailDeliveryLogScalarWhereWithAggregatesInput = {
+    AND?: EmailDeliveryLogScalarWhereWithAggregatesInput | EmailDeliveryLogScalarWhereWithAggregatesInput[]
+    OR?: EmailDeliveryLogScalarWhereWithAggregatesInput[]
+    NOT?: EmailDeliveryLogScalarWhereWithAggregatesInput | EmailDeliveryLogScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"EmailDeliveryLog"> | string
+    websiteId?: UuidWithAggregatesFilter<"EmailDeliveryLog"> | string
+    recipient?: StringWithAggregatesFilter<"EmailDeliveryLog"> | string
+    subject?: StringWithAggregatesFilter<"EmailDeliveryLog"> | string
+    status?: StringWithAggregatesFilter<"EmailDeliveryLog"> | string
+    error?: StringNullableWithAggregatesFilter<"EmailDeliveryLog"> | string | null
+    sentAt?: DateTimeWithAggregatesFilter<"EmailDeliveryLog"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"EmailDeliveryLog"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmailDeliveryLog"> | Date | string
+  }
+
+  export type SitePerformanceMetricWhereInput = {
+    AND?: SitePerformanceMetricWhereInput | SitePerformanceMetricWhereInput[]
+    OR?: SitePerformanceMetricWhereInput[]
+    NOT?: SitePerformanceMetricWhereInput | SitePerformanceMetricWhereInput[]
+    id?: UuidFilter<"SitePerformanceMetric"> | string
+    websiteId?: UuidFilter<"SitePerformanceMetric"> | string
+    responseTimeMs?: IntFilter<"SitePerformanceMetric"> | number
+    ttfbMs?: IntFilter<"SitePerformanceMetric"> | number
+    statusCode?: IntFilter<"SitePerformanceMetric"> | number
+    score?: IntFilter<"SitePerformanceMetric"> | number
+    checkedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    createdAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    updatedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }
+
+  export type SitePerformanceMetricOrderByWithRelationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+    checkedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    website?: WebsiteOrderByWithRelationInput
+  }
+
+  export type SitePerformanceMetricWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SitePerformanceMetricWhereInput | SitePerformanceMetricWhereInput[]
+    OR?: SitePerformanceMetricWhereInput[]
+    NOT?: SitePerformanceMetricWhereInput | SitePerformanceMetricWhereInput[]
+    websiteId?: UuidFilter<"SitePerformanceMetric"> | string
+    responseTimeMs?: IntFilter<"SitePerformanceMetric"> | number
+    ttfbMs?: IntFilter<"SitePerformanceMetric"> | number
+    statusCode?: IntFilter<"SitePerformanceMetric"> | number
+    score?: IntFilter<"SitePerformanceMetric"> | number
+    checkedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    createdAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    updatedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }, "id">
+
+  export type SitePerformanceMetricOrderByWithAggregationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+    checkedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SitePerformanceMetricCountOrderByAggregateInput
+    _avg?: SitePerformanceMetricAvgOrderByAggregateInput
+    _max?: SitePerformanceMetricMaxOrderByAggregateInput
+    _min?: SitePerformanceMetricMinOrderByAggregateInput
+    _sum?: SitePerformanceMetricSumOrderByAggregateInput
+  }
+
+  export type SitePerformanceMetricScalarWhereWithAggregatesInput = {
+    AND?: SitePerformanceMetricScalarWhereWithAggregatesInput | SitePerformanceMetricScalarWhereWithAggregatesInput[]
+    OR?: SitePerformanceMetricScalarWhereWithAggregatesInput[]
+    NOT?: SitePerformanceMetricScalarWhereWithAggregatesInput | SitePerformanceMetricScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"SitePerformanceMetric"> | string
+    websiteId?: UuidWithAggregatesFilter<"SitePerformanceMetric"> | string
+    responseTimeMs?: IntWithAggregatesFilter<"SitePerformanceMetric"> | number
+    ttfbMs?: IntWithAggregatesFilter<"SitePerformanceMetric"> | number
+    statusCode?: IntWithAggregatesFilter<"SitePerformanceMetric"> | number
+    score?: IntWithAggregatesFilter<"SitePerformanceMetric"> | number
+    checkedAt?: DateTimeWithAggregatesFilter<"SitePerformanceMetric"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"SitePerformanceMetric"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SitePerformanceMetric"> | Date | string
+  }
+
+  export type MediaOptimizationAssetWhereInput = {
+    AND?: MediaOptimizationAssetWhereInput | MediaOptimizationAssetWhereInput[]
+    OR?: MediaOptimizationAssetWhereInput[]
+    NOT?: MediaOptimizationAssetWhereInput | MediaOptimizationAssetWhereInput[]
+    id?: UuidFilter<"MediaOptimizationAsset"> | string
+    websiteId?: UuidFilter<"MediaOptimizationAsset"> | string
+    originalUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    optimizedUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    originalBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    optimizedBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    format?: StringFilter<"MediaOptimizationAsset"> | string
+    status?: StringFilter<"MediaOptimizationAsset"> | string
+    createdAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }
+
+  export type MediaOptimizationAssetOrderByWithRelationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    originalUrl?: SortOrder
+    optimizedUrl?: SortOrder
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+    format?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    website?: WebsiteOrderByWithRelationInput
+  }
+
+  export type MediaOptimizationAssetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MediaOptimizationAssetWhereInput | MediaOptimizationAssetWhereInput[]
+    OR?: MediaOptimizationAssetWhereInput[]
+    NOT?: MediaOptimizationAssetWhereInput | MediaOptimizationAssetWhereInput[]
+    websiteId?: UuidFilter<"MediaOptimizationAsset"> | string
+    originalUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    optimizedUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    originalBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    optimizedBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    format?: StringFilter<"MediaOptimizationAsset"> | string
+    status?: StringFilter<"MediaOptimizationAsset"> | string
+    createdAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
+  }, "id">
+
+  export type MediaOptimizationAssetOrderByWithAggregationInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    originalUrl?: SortOrder
+    optimizedUrl?: SortOrder
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+    format?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MediaOptimizationAssetCountOrderByAggregateInput
+    _avg?: MediaOptimizationAssetAvgOrderByAggregateInput
+    _max?: MediaOptimizationAssetMaxOrderByAggregateInput
+    _min?: MediaOptimizationAssetMinOrderByAggregateInput
+    _sum?: MediaOptimizationAssetSumOrderByAggregateInput
+  }
+
+  export type MediaOptimizationAssetScalarWhereWithAggregatesInput = {
+    AND?: MediaOptimizationAssetScalarWhereWithAggregatesInput | MediaOptimizationAssetScalarWhereWithAggregatesInput[]
+    OR?: MediaOptimizationAssetScalarWhereWithAggregatesInput[]
+    NOT?: MediaOptimizationAssetScalarWhereWithAggregatesInput | MediaOptimizationAssetScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    websiteId?: UuidWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    originalUrl?: StringWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    optimizedUrl?: StringWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    originalBytes?: IntWithAggregatesFilter<"MediaOptimizationAsset"> | number
+    optimizedBytes?: IntWithAggregatesFilter<"MediaOptimizationAsset"> | number
+    format?: StringWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    status?: StringWithAggregatesFilter<"MediaOptimizationAsset"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"MediaOptimizationAsset"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MediaOptimizationAsset"> | Date | string
+  }
+
+  export type OptimizationCreditLedgerWhereInput = {
+    AND?: OptimizationCreditLedgerWhereInput | OptimizationCreditLedgerWhereInput[]
+    OR?: OptimizationCreditLedgerWhereInput[]
+    NOT?: OptimizationCreditLedgerWhereInput | OptimizationCreditLedgerWhereInput[]
+    id?: UuidFilter<"OptimizationCreditLedger"> | string
+    userId?: UuidFilter<"OptimizationCreditLedger"> | string
+    websiteId?: UuidNullableFilter<"OptimizationCreditLedger"> | string | null
+    creditsUsed?: IntFilter<"OptimizationCreditLedger"> | number
+    actionType?: StringFilter<"OptimizationCreditLedger"> | string
+    createdAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+    updatedAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type OptimizationCreditLedgerOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrderInput | SortOrder
+    creditsUsed?: SortOrder
+    actionType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type OptimizationCreditLedgerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OptimizationCreditLedgerWhereInput | OptimizationCreditLedgerWhereInput[]
+    OR?: OptimizationCreditLedgerWhereInput[]
+    NOT?: OptimizationCreditLedgerWhereInput | OptimizationCreditLedgerWhereInput[]
+    userId?: UuidFilter<"OptimizationCreditLedger"> | string
+    websiteId?: UuidNullableFilter<"OptimizationCreditLedger"> | string | null
+    creditsUsed?: IntFilter<"OptimizationCreditLedger"> | number
+    actionType?: StringFilter<"OptimizationCreditLedger"> | string
+    createdAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+    updatedAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type OptimizationCreditLedgerOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrderInput | SortOrder
+    creditsUsed?: SortOrder
+    actionType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OptimizationCreditLedgerCountOrderByAggregateInput
+    _avg?: OptimizationCreditLedgerAvgOrderByAggregateInput
+    _max?: OptimizationCreditLedgerMaxOrderByAggregateInput
+    _min?: OptimizationCreditLedgerMinOrderByAggregateInput
+    _sum?: OptimizationCreditLedgerSumOrderByAggregateInput
+  }
+
+  export type OptimizationCreditLedgerScalarWhereWithAggregatesInput = {
+    AND?: OptimizationCreditLedgerScalarWhereWithAggregatesInput | OptimizationCreditLedgerScalarWhereWithAggregatesInput[]
+    OR?: OptimizationCreditLedgerScalarWhereWithAggregatesInput[]
+    NOT?: OptimizationCreditLedgerScalarWhereWithAggregatesInput | OptimizationCreditLedgerScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"OptimizationCreditLedger"> | string
+    userId?: UuidWithAggregatesFilter<"OptimizationCreditLedger"> | string
+    websiteId?: UuidNullableWithAggregatesFilter<"OptimizationCreditLedger"> | string | null
+    creditsUsed?: IntWithAggregatesFilter<"OptimizationCreditLedger"> | number
+    actionType?: StringWithAggregatesFilter<"OptimizationCreditLedger"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OptimizationCreditLedger"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OptimizationCreditLedger"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     fullName?: string | null
@@ -57349,6 +64249,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -57378,6 +64279,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -57394,6 +64296,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -57423,6 +64326,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -57439,6 +64343,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -57468,6 +64373,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -57484,6 +64390,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -57513,6 +64420,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -57529,6 +64437,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
   }
 
   export type UserUpdateManyMutationInput = {
@@ -57545,6 +64454,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -57561,6 +64471,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
   }
 
   export type WebsiteCreateInput = {
@@ -57593,6 +64504,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateInput = {
@@ -57625,6 +64540,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUpdateInput = {
@@ -57657,6 +64576,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateInput = {
@@ -57689,6 +64612,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateManyInput = {
@@ -60953,6 +67880,428 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SiteMailerConfigCreateInput = {
+    id?: string
+    host: string
+    port?: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    website: WebsiteCreateNestedOneWithoutMailerConfigInput
+  }
+
+  export type SiteMailerConfigUncheckedCreateInput = {
+    id?: string
+    websiteId: string
+    host: string
+    port?: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SiteMailerConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    website?: WebsiteUpdateOneRequiredWithoutMailerConfigNestedInput
+  }
+
+  export type SiteMailerConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SiteMailerConfigCreateManyInput = {
+    id?: string
+    websiteId: string
+    host: string
+    port?: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SiteMailerConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SiteMailerConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogCreateInput = {
+    id?: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    website: WebsiteCreateNestedOneWithoutEmailLogsInput
+  }
+
+  export type EmailDeliveryLogUncheckedCreateInput = {
+    id?: string
+    websiteId: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDeliveryLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    website?: WebsiteUpdateOneRequiredWithoutEmailLogsNestedInput
+  }
+
+  export type EmailDeliveryLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogCreateManyInput = {
+    id?: string
+    websiteId: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDeliveryLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricCreateInput = {
+    id?: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    website: WebsiteCreateNestedOneWithoutPerformanceMetricsInput
+  }
+
+  export type SitePerformanceMetricUncheckedCreateInput = {
+    id?: string
+    websiteId: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SitePerformanceMetricUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    website?: WebsiteUpdateOneRequiredWithoutPerformanceMetricsNestedInput
+  }
+
+  export type SitePerformanceMetricUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricCreateManyInput = {
+    id?: string
+    websiteId: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SitePerformanceMetricUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetCreateInput = {
+    id?: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    website: WebsiteCreateNestedOneWithoutOptimizedMediaInput
+  }
+
+  export type MediaOptimizationAssetUncheckedCreateInput = {
+    id?: string
+    websiteId: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaOptimizationAssetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    website?: WebsiteUpdateOneRequiredWithoutOptimizedMediaNestedInput
+  }
+
+  export type MediaOptimizationAssetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetCreateManyInput = {
+    id?: string
+    websiteId: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaOptimizationAssetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OptimizationCreditLedgerCreateInput = {
+    id?: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutCreditLedgersInput
+  }
+
+  export type OptimizationCreditLedgerUncheckedCreateInput = {
+    id?: string
+    userId: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OptimizationCreditLedgerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCreditLedgersNestedInput
+  }
+
+  export type OptimizationCreditLedgerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OptimizationCreditLedgerCreateManyInput = {
+    id?: string
+    userId: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OptimizationCreditLedgerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OptimizationCreditLedgerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -61026,6 +68375,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type IdentityListRelationFilter = {
@@ -61195,6 +68555,12 @@ export namespace Prisma {
     none?: MediaAssetWhereInput
   }
 
+  export type OptimizationCreditLedgerListRelationFilter = {
+    every?: OptimizationCreditLedgerWhereInput
+    some?: OptimizationCreditLedgerWhereInput
+    none?: OptimizationCreditLedgerWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -61308,6 +68674,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type OptimizationCreditLedgerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     fullName?: SortOrder
@@ -61322,6 +68692,11 @@ export namespace Prisma {
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    optimizationCredits?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    optimizationCredits?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -61338,6 +68713,7 @@ export namespace Prisma {
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    optimizationCredits?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -61354,6 +68730,11 @@ export namespace Prisma {
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    optimizationCredits?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    optimizationCredits?: SortOrder
   }
 
   export type UuidWithAggregatesFilter<$PrismaModel = never> = {
@@ -61453,6 +68834,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -61572,6 +68969,29 @@ export namespace Prisma {
     isNot?: OrganizationWhereInput | null
   }
 
+  export type SiteMailerConfigNullableScalarRelationFilter = {
+    is?: SiteMailerConfigWhereInput | null
+    isNot?: SiteMailerConfigWhereInput | null
+  }
+
+  export type EmailDeliveryLogListRelationFilter = {
+    every?: EmailDeliveryLogWhereInput
+    some?: EmailDeliveryLogWhereInput
+    none?: EmailDeliveryLogWhereInput
+  }
+
+  export type SitePerformanceMetricListRelationFilter = {
+    every?: SitePerformanceMetricWhereInput
+    some?: SitePerformanceMetricWhereInput
+    none?: SitePerformanceMetricWhereInput
+  }
+
+  export type MediaOptimizationAssetListRelationFilter = {
+    every?: MediaOptimizationAssetWhereInput
+    some?: MediaOptimizationAssetWhereInput
+    none?: MediaOptimizationAssetWhereInput
+  }
+
   export type CustomCodeSnippetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -61597,6 +69017,18 @@ export namespace Prisma {
   }
 
   export type WordPressPageMappingOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmailDeliveryLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SitePerformanceMetricOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MediaOptimizationAssetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -61716,17 +69148,6 @@ export namespace Prisma {
     not?: NestedEnumOtpChannelNullableFilter<$PrismaModel> | $Enums.OtpChannel | null
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -61797,22 +69218,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumOtpChannelNullableFilter<$PrismaModel>
     _max?: NestedEnumOtpChannelNullableFilter<$PrismaModel>
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type EnumIdentityProviderFilter<$PrismaModel = never> = {
@@ -63419,6 +70824,229 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type SiteMailerConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    host?: SortOrder
+    port?: SortOrder
+    username?: SortOrder
+    password?: SortOrder
+    fromName?: SortOrder
+    fromEmail?: SortOrder
+    isVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SiteMailerConfigAvgOrderByAggregateInput = {
+    port?: SortOrder
+  }
+
+  export type SiteMailerConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    host?: SortOrder
+    port?: SortOrder
+    username?: SortOrder
+    password?: SortOrder
+    fromName?: SortOrder
+    fromEmail?: SortOrder
+    isVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SiteMailerConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    host?: SortOrder
+    port?: SortOrder
+    username?: SortOrder
+    password?: SortOrder
+    fromName?: SortOrder
+    fromEmail?: SortOrder
+    isVerified?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SiteMailerConfigSumOrderByAggregateInput = {
+    port?: SortOrder
+  }
+
+  export type EmailDeliveryLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    status?: SortOrder
+    error?: SortOrder
+    sentAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailDeliveryLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    status?: SortOrder
+    error?: SortOrder
+    sentAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailDeliveryLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    recipient?: SortOrder
+    subject?: SortOrder
+    status?: SortOrder
+    error?: SortOrder
+    sentAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SitePerformanceMetricCountOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+    checkedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SitePerformanceMetricAvgOrderByAggregateInput = {
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+  }
+
+  export type SitePerformanceMetricMaxOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+    checkedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SitePerformanceMetricMinOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+    checkedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SitePerformanceMetricSumOrderByAggregateInput = {
+    responseTimeMs?: SortOrder
+    ttfbMs?: SortOrder
+    statusCode?: SortOrder
+    score?: SortOrder
+  }
+
+  export type MediaOptimizationAssetCountOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    originalUrl?: SortOrder
+    optimizedUrl?: SortOrder
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+    format?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaOptimizationAssetAvgOrderByAggregateInput = {
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+  }
+
+  export type MediaOptimizationAssetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    originalUrl?: SortOrder
+    optimizedUrl?: SortOrder
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+    format?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaOptimizationAssetMinOrderByAggregateInput = {
+    id?: SortOrder
+    websiteId?: SortOrder
+    originalUrl?: SortOrder
+    optimizedUrl?: SortOrder
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+    format?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MediaOptimizationAssetSumOrderByAggregateInput = {
+    originalBytes?: SortOrder
+    optimizedBytes?: SortOrder
+  }
+
+  export type OptimizationCreditLedgerCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    creditsUsed?: SortOrder
+    actionType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OptimizationCreditLedgerAvgOrderByAggregateInput = {
+    creditsUsed?: SortOrder
+  }
+
+  export type OptimizationCreditLedgerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    creditsUsed?: SortOrder
+    actionType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OptimizationCreditLedgerMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    websiteId?: SortOrder
+    creditsUsed?: SortOrder
+    actionType?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OptimizationCreditLedgerSumOrderByAggregateInput = {
+    creditsUsed?: SortOrder
+  }
+
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -63619,6 +71247,13 @@ export namespace Prisma {
     connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
     createMany?: MediaAssetCreateManyUserInputEnvelope
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+  }
+
+  export type OptimizationCreditLedgerCreateNestedManyWithoutUserInput = {
+    create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
+    createMany?: OptimizationCreditLedgerCreateManyUserInputEnvelope
+    connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
   }
 
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
@@ -63823,6 +71458,13 @@ export namespace Prisma {
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
   }
 
+  export type OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
+    createMany?: OptimizationCreditLedgerCreateManyUserInputEnvelope
+    connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -63853,6 +71495,14 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type IdentityUpdateManyWithoutUserNestedInput = {
@@ -64257,6 +71907,20 @@ export namespace Prisma {
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
+  export type OptimizationCreditLedgerUpdateManyWithoutUserNestedInput = {
+    create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
+    upsert?: OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput | OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: OptimizationCreditLedgerCreateManyUserInputEnvelope
+    set?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    disconnect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    delete?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    update?: OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput | OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput | OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
+  }
+
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -64659,6 +72323,20 @@ export namespace Prisma {
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
+  export type OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
+    upsert?: OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput | OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: OptimizationCreditLedgerCreateManyUserInputEnvelope
+    set?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    disconnect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    delete?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    connect?: OptimizationCreditLedgerWhereUniqueInput | OptimizationCreditLedgerWhereUniqueInput[]
+    update?: OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput | OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput | OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutWebsitesInput = {
     create?: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
     connectOrCreate?: UserCreateOrConnectWithoutWebsitesInput
@@ -64801,6 +72479,33 @@ export namespace Prisma {
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
   }
 
+  export type SiteMailerConfigCreateNestedOneWithoutWebsiteInput = {
+    create?: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: SiteMailerConfigCreateOrConnectWithoutWebsiteInput
+    connect?: SiteMailerConfigWhereUniqueInput
+  }
+
+  export type EmailDeliveryLogCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput> | EmailDeliveryLogCreateWithoutWebsiteInput[] | EmailDeliveryLogUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: EmailDeliveryLogCreateOrConnectWithoutWebsiteInput | EmailDeliveryLogCreateOrConnectWithoutWebsiteInput[]
+    createMany?: EmailDeliveryLogCreateManyWebsiteInputEnvelope
+    connect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+  }
+
+  export type SitePerformanceMetricCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput> | SitePerformanceMetricCreateWithoutWebsiteInput[] | SitePerformanceMetricUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: SitePerformanceMetricCreateOrConnectWithoutWebsiteInput | SitePerformanceMetricCreateOrConnectWithoutWebsiteInput[]
+    createMany?: SitePerformanceMetricCreateManyWebsiteInputEnvelope
+    connect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+  }
+
+  export type MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput> | MediaOptimizationAssetCreateWithoutWebsiteInput[] | MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput | MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput[]
+    createMany?: MediaOptimizationAssetCreateManyWebsiteInputEnvelope
+    connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+  }
+
   export type CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -64917,6 +72622,33 @@ export namespace Prisma {
     connectOrCreate?: MediaAssetCreateOrConnectWithoutWebsiteInput | MediaAssetCreateOrConnectWithoutWebsiteInput[]
     createMany?: MediaAssetCreateManyWebsiteInputEnvelope
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+  }
+
+  export type SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput = {
+    create?: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: SiteMailerConfigCreateOrConnectWithoutWebsiteInput
+    connect?: SiteMailerConfigWhereUniqueInput
+  }
+
+  export type EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput> | EmailDeliveryLogCreateWithoutWebsiteInput[] | EmailDeliveryLogUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: EmailDeliveryLogCreateOrConnectWithoutWebsiteInput | EmailDeliveryLogCreateOrConnectWithoutWebsiteInput[]
+    createMany?: EmailDeliveryLogCreateManyWebsiteInputEnvelope
+    connect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+  }
+
+  export type SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput> | SitePerformanceMetricCreateWithoutWebsiteInput[] | SitePerformanceMetricUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: SitePerformanceMetricCreateOrConnectWithoutWebsiteInput | SitePerformanceMetricCreateOrConnectWithoutWebsiteInput[]
+    createMany?: SitePerformanceMetricCreateManyWebsiteInputEnvelope
+    connect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+  }
+
+  export type MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput = {
+    create?: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput> | MediaOptimizationAssetCreateWithoutWebsiteInput[] | MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput | MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput[]
+    createMany?: MediaOptimizationAssetCreateManyWebsiteInputEnvelope
+    connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutWebsitesNestedInput = {
@@ -65191,6 +72923,58 @@ export namespace Prisma {
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
+  export type SiteMailerConfigUpdateOneWithoutWebsiteNestedInput = {
+    create?: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: SiteMailerConfigCreateOrConnectWithoutWebsiteInput
+    upsert?: SiteMailerConfigUpsertWithoutWebsiteInput
+    disconnect?: SiteMailerConfigWhereInput | boolean
+    delete?: SiteMailerConfigWhereInput | boolean
+    connect?: SiteMailerConfigWhereUniqueInput
+    update?: XOR<XOR<SiteMailerConfigUpdateToOneWithWhereWithoutWebsiteInput, SiteMailerConfigUpdateWithoutWebsiteInput>, SiteMailerConfigUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput> | EmailDeliveryLogCreateWithoutWebsiteInput[] | EmailDeliveryLogUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: EmailDeliveryLogCreateOrConnectWithoutWebsiteInput | EmailDeliveryLogCreateOrConnectWithoutWebsiteInput[]
+    upsert?: EmailDeliveryLogUpsertWithWhereUniqueWithoutWebsiteInput | EmailDeliveryLogUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: EmailDeliveryLogCreateManyWebsiteInputEnvelope
+    set?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    disconnect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    delete?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    connect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    update?: EmailDeliveryLogUpdateWithWhereUniqueWithoutWebsiteInput | EmailDeliveryLogUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: EmailDeliveryLogUpdateManyWithWhereWithoutWebsiteInput | EmailDeliveryLogUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: EmailDeliveryLogScalarWhereInput | EmailDeliveryLogScalarWhereInput[]
+  }
+
+  export type SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput> | SitePerformanceMetricCreateWithoutWebsiteInput[] | SitePerformanceMetricUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: SitePerformanceMetricCreateOrConnectWithoutWebsiteInput | SitePerformanceMetricCreateOrConnectWithoutWebsiteInput[]
+    upsert?: SitePerformanceMetricUpsertWithWhereUniqueWithoutWebsiteInput | SitePerformanceMetricUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: SitePerformanceMetricCreateManyWebsiteInputEnvelope
+    set?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    disconnect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    delete?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    connect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    update?: SitePerformanceMetricUpdateWithWhereUniqueWithoutWebsiteInput | SitePerformanceMetricUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: SitePerformanceMetricUpdateManyWithWhereWithoutWebsiteInput | SitePerformanceMetricUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: SitePerformanceMetricScalarWhereInput | SitePerformanceMetricScalarWhereInput[]
+  }
+
+  export type MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput> | MediaOptimizationAssetCreateWithoutWebsiteInput[] | MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput | MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput[]
+    upsert?: MediaOptimizationAssetUpsertWithWhereUniqueWithoutWebsiteInput | MediaOptimizationAssetUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: MediaOptimizationAssetCreateManyWebsiteInputEnvelope
+    set?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    disconnect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    delete?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    update?: MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput | MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput | MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
+  }
+
   export type CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -65425,6 +73209,58 @@ export namespace Prisma {
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
+  export type SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput = {
+    create?: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+    connectOrCreate?: SiteMailerConfigCreateOrConnectWithoutWebsiteInput
+    upsert?: SiteMailerConfigUpsertWithoutWebsiteInput
+    disconnect?: SiteMailerConfigWhereInput | boolean
+    delete?: SiteMailerConfigWhereInput | boolean
+    connect?: SiteMailerConfigWhereUniqueInput
+    update?: XOR<XOR<SiteMailerConfigUpdateToOneWithWhereWithoutWebsiteInput, SiteMailerConfigUpdateWithoutWebsiteInput>, SiteMailerConfigUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput> | EmailDeliveryLogCreateWithoutWebsiteInput[] | EmailDeliveryLogUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: EmailDeliveryLogCreateOrConnectWithoutWebsiteInput | EmailDeliveryLogCreateOrConnectWithoutWebsiteInput[]
+    upsert?: EmailDeliveryLogUpsertWithWhereUniqueWithoutWebsiteInput | EmailDeliveryLogUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: EmailDeliveryLogCreateManyWebsiteInputEnvelope
+    set?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    disconnect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    delete?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    connect?: EmailDeliveryLogWhereUniqueInput | EmailDeliveryLogWhereUniqueInput[]
+    update?: EmailDeliveryLogUpdateWithWhereUniqueWithoutWebsiteInput | EmailDeliveryLogUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: EmailDeliveryLogUpdateManyWithWhereWithoutWebsiteInput | EmailDeliveryLogUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: EmailDeliveryLogScalarWhereInput | EmailDeliveryLogScalarWhereInput[]
+  }
+
+  export type SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput> | SitePerformanceMetricCreateWithoutWebsiteInput[] | SitePerformanceMetricUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: SitePerformanceMetricCreateOrConnectWithoutWebsiteInput | SitePerformanceMetricCreateOrConnectWithoutWebsiteInput[]
+    upsert?: SitePerformanceMetricUpsertWithWhereUniqueWithoutWebsiteInput | SitePerformanceMetricUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: SitePerformanceMetricCreateManyWebsiteInputEnvelope
+    set?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    disconnect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    delete?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    connect?: SitePerformanceMetricWhereUniqueInput | SitePerformanceMetricWhereUniqueInput[]
+    update?: SitePerformanceMetricUpdateWithWhereUniqueWithoutWebsiteInput | SitePerformanceMetricUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: SitePerformanceMetricUpdateManyWithWhereWithoutWebsiteInput | SitePerformanceMetricUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: SitePerformanceMetricScalarWhereInput | SitePerformanceMetricScalarWhereInput[]
+  }
+
+  export type MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput = {
+    create?: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput> | MediaOptimizationAssetCreateWithoutWebsiteInput[] | MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput[]
+    connectOrCreate?: MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput | MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput[]
+    upsert?: MediaOptimizationAssetUpsertWithWhereUniqueWithoutWebsiteInput | MediaOptimizationAssetUpsertWithWhereUniqueWithoutWebsiteInput[]
+    createMany?: MediaOptimizationAssetCreateManyWebsiteInputEnvelope
+    set?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    disconnect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    delete?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
+    update?: MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput | MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput[]
+    updateMany?: MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput | MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput[]
+    deleteMany?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutOtpVerificationsInput = {
     create?: XOR<UserCreateWithoutOtpVerificationsInput, UserUncheckedCreateWithoutOtpVerificationsInput>
     connectOrCreate?: UserCreateOrConnectWithoutOtpVerificationsInput
@@ -65437,14 +73273,6 @@ export namespace Prisma {
 
   export type NullableEnumOtpChannelFieldUpdateOperationsInput = {
     set?: $Enums.OtpChannel | null
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type UserUpdateOneWithoutOtpVerificationsNestedInput = {
@@ -66733,6 +74561,76 @@ export namespace Prisma {
     update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutMediaAssetsInput, WebsiteUpdateWithoutMediaAssetsInput>, WebsiteUncheckedUpdateWithoutMediaAssetsInput>
   }
 
+  export type WebsiteCreateNestedOneWithoutMailerConfigInput = {
+    create?: XOR<WebsiteCreateWithoutMailerConfigInput, WebsiteUncheckedCreateWithoutMailerConfigInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutMailerConfigInput
+    connect?: WebsiteWhereUniqueInput
+  }
+
+  export type WebsiteUpdateOneRequiredWithoutMailerConfigNestedInput = {
+    create?: XOR<WebsiteCreateWithoutMailerConfigInput, WebsiteUncheckedCreateWithoutMailerConfigInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutMailerConfigInput
+    upsert?: WebsiteUpsertWithoutMailerConfigInput
+    connect?: WebsiteWhereUniqueInput
+    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutMailerConfigInput, WebsiteUpdateWithoutMailerConfigInput>, WebsiteUncheckedUpdateWithoutMailerConfigInput>
+  }
+
+  export type WebsiteCreateNestedOneWithoutEmailLogsInput = {
+    create?: XOR<WebsiteCreateWithoutEmailLogsInput, WebsiteUncheckedCreateWithoutEmailLogsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutEmailLogsInput
+    connect?: WebsiteWhereUniqueInput
+  }
+
+  export type WebsiteUpdateOneRequiredWithoutEmailLogsNestedInput = {
+    create?: XOR<WebsiteCreateWithoutEmailLogsInput, WebsiteUncheckedCreateWithoutEmailLogsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutEmailLogsInput
+    upsert?: WebsiteUpsertWithoutEmailLogsInput
+    connect?: WebsiteWhereUniqueInput
+    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutEmailLogsInput, WebsiteUpdateWithoutEmailLogsInput>, WebsiteUncheckedUpdateWithoutEmailLogsInput>
+  }
+
+  export type WebsiteCreateNestedOneWithoutPerformanceMetricsInput = {
+    create?: XOR<WebsiteCreateWithoutPerformanceMetricsInput, WebsiteUncheckedCreateWithoutPerformanceMetricsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutPerformanceMetricsInput
+    connect?: WebsiteWhereUniqueInput
+  }
+
+  export type WebsiteUpdateOneRequiredWithoutPerformanceMetricsNestedInput = {
+    create?: XOR<WebsiteCreateWithoutPerformanceMetricsInput, WebsiteUncheckedCreateWithoutPerformanceMetricsInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutPerformanceMetricsInput
+    upsert?: WebsiteUpsertWithoutPerformanceMetricsInput
+    connect?: WebsiteWhereUniqueInput
+    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutPerformanceMetricsInput, WebsiteUpdateWithoutPerformanceMetricsInput>, WebsiteUncheckedUpdateWithoutPerformanceMetricsInput>
+  }
+
+  export type WebsiteCreateNestedOneWithoutOptimizedMediaInput = {
+    create?: XOR<WebsiteCreateWithoutOptimizedMediaInput, WebsiteUncheckedCreateWithoutOptimizedMediaInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutOptimizedMediaInput
+    connect?: WebsiteWhereUniqueInput
+  }
+
+  export type WebsiteUpdateOneRequiredWithoutOptimizedMediaNestedInput = {
+    create?: XOR<WebsiteCreateWithoutOptimizedMediaInput, WebsiteUncheckedCreateWithoutOptimizedMediaInput>
+    connectOrCreate?: WebsiteCreateOrConnectWithoutOptimizedMediaInput
+    upsert?: WebsiteUpsertWithoutOptimizedMediaInput
+    connect?: WebsiteWhereUniqueInput
+    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutOptimizedMediaInput, WebsiteUpdateWithoutOptimizedMediaInput>, WebsiteUncheckedUpdateWithoutOptimizedMediaInput>
+  }
+
+  export type UserCreateNestedOneWithoutCreditLedgersInput = {
+    create?: XOR<UserCreateWithoutCreditLedgersInput, UserUncheckedCreateWithoutCreditLedgersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreditLedgersInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutCreditLedgersNestedInput = {
+    create?: XOR<UserCreateWithoutCreditLedgersInput, UserUncheckedCreateWithoutCreditLedgersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreditLedgersInput
+    upsert?: UserUpsertWithoutCreditLedgersInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreditLedgersInput, UserUpdateWithoutCreditLedgersInput>, UserUncheckedUpdateWithoutCreditLedgersInput>
+  }
+
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -66806,6 +74704,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedUuidWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -66818,17 +74727,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -66939,6 +74837,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedUuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -67036,33 +74961,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumOtpChannelNullableFilter<$PrismaModel>
     _max?: NestedEnumOtpChannelNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumIdentityProviderFilter<$PrismaModel = never> = {
@@ -67338,6 +75236,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutUserInput = {
@@ -67369,6 +75271,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutUserInput = {
@@ -68082,6 +75988,34 @@ export namespace Prisma {
 
   export type MediaAssetCreateManyUserInputEnvelope = {
     data: MediaAssetCreateManyUserInput | MediaAssetCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OptimizationCreditLedgerCreateWithoutUserInput = {
+    id?: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OptimizationCreditLedgerUncheckedCreateWithoutUserInput = {
+    id?: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OptimizationCreditLedgerCreateOrConnectWithoutUserInput = {
+    where: OptimizationCreditLedgerWhereUniqueInput
+    create: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput>
+  }
+
+  export type OptimizationCreditLedgerCreateManyUserInputEnvelope = {
+    data: OptimizationCreditLedgerCreateManyUserInput | OptimizationCreditLedgerCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -68958,6 +76892,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
   }
 
+  export type OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput = {
+    where: OptimizationCreditLedgerWhereUniqueInput
+    update: XOR<OptimizationCreditLedgerUpdateWithoutUserInput, OptimizationCreditLedgerUncheckedUpdateWithoutUserInput>
+    create: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput>
+  }
+
+  export type OptimizationCreditLedgerUpdateWithWhereUniqueWithoutUserInput = {
+    where: OptimizationCreditLedgerWhereUniqueInput
+    data: XOR<OptimizationCreditLedgerUpdateWithoutUserInput, OptimizationCreditLedgerUncheckedUpdateWithoutUserInput>
+  }
+
+  export type OptimizationCreditLedgerUpdateManyWithWhereWithoutUserInput = {
+    where: OptimizationCreditLedgerScalarWhereInput
+    data: XOR<OptimizationCreditLedgerUpdateManyMutationInput, OptimizationCreditLedgerUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type OptimizationCreditLedgerScalarWhereInput = {
+    AND?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
+    OR?: OptimizationCreditLedgerScalarWhereInput[]
+    NOT?: OptimizationCreditLedgerScalarWhereInput | OptimizationCreditLedgerScalarWhereInput[]
+    id?: UuidFilter<"OptimizationCreditLedger"> | string
+    userId?: UuidFilter<"OptimizationCreditLedger"> | string
+    websiteId?: UuidNullableFilter<"OptimizationCreditLedger"> | string | null
+    creditsUsed?: IntFilter<"OptimizationCreditLedger"> | number
+    actionType?: StringFilter<"OptimizationCreditLedger"> | string
+    createdAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+    updatedAt?: DateTimeFilter<"OptimizationCreditLedger"> | Date | string
+  }
+
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -68972,6 +76935,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -69000,6 +76964,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -69016,6 +76981,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -69044,6 +77010,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -69711,6 +77678,135 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SiteMailerConfigCreateWithoutWebsiteInput = {
+    id?: string
+    host: string
+    port?: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SiteMailerConfigUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    host: string
+    port?: number
+    username: string
+    password: string
+    fromName: string
+    fromEmail: string
+    isVerified?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SiteMailerConfigCreateOrConnectWithoutWebsiteInput = {
+    where: SiteMailerConfigWhereUniqueInput
+    create: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogCreateWithoutWebsiteInput = {
+    id?: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDeliveryLogUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDeliveryLogCreateOrConnectWithoutWebsiteInput = {
+    where: EmailDeliveryLogWhereUniqueInput
+    create: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogCreateManyWebsiteInputEnvelope = {
+    data: EmailDeliveryLogCreateManyWebsiteInput | EmailDeliveryLogCreateManyWebsiteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SitePerformanceMetricCreateWithoutWebsiteInput = {
+    id?: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SitePerformanceMetricUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SitePerformanceMetricCreateOrConnectWithoutWebsiteInput = {
+    where: SitePerformanceMetricWhereUniqueInput
+    create: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type SitePerformanceMetricCreateManyWebsiteInputEnvelope = {
+    data: SitePerformanceMetricCreateManyWebsiteInput | SitePerformanceMetricCreateManyWebsiteInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MediaOptimizationAssetCreateWithoutWebsiteInput = {
+    id?: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput = {
+    id?: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput = {
+    where: MediaOptimizationAssetWhereUniqueInput
+    create: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type MediaOptimizationAssetCreateManyWebsiteInputEnvelope = {
+    data: MediaOptimizationAssetCreateManyWebsiteInput | MediaOptimizationAssetCreateManyWebsiteInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutWebsitesInput = {
     update: XOR<UserUpdateWithoutWebsitesInput, UserUncheckedUpdateWithoutWebsitesInput>
     create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
@@ -69736,6 +77832,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -69764,6 +77861,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsitesInput = {
@@ -69780,6 +77878,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -69808,6 +77907,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CustomCodeSnippetUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -70318,6 +78418,137 @@ export namespace Prisma {
     data: XOR<MediaAssetUpdateManyMutationInput, MediaAssetUncheckedUpdateManyWithoutWebsiteInput>
   }
 
+  export type SiteMailerConfigUpsertWithoutWebsiteInput = {
+    update: XOR<SiteMailerConfigUpdateWithoutWebsiteInput, SiteMailerConfigUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<SiteMailerConfigCreateWithoutWebsiteInput, SiteMailerConfigUncheckedCreateWithoutWebsiteInput>
+    where?: SiteMailerConfigWhereInput
+  }
+
+  export type SiteMailerConfigUpdateToOneWithWhereWithoutWebsiteInput = {
+    where?: SiteMailerConfigWhereInput
+    data: XOR<SiteMailerConfigUpdateWithoutWebsiteInput, SiteMailerConfigUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type SiteMailerConfigUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SiteMailerConfigUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    host?: StringFieldUpdateOperationsInput | string
+    port?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fromName?: StringFieldUpdateOperationsInput | string
+    fromEmail?: StringFieldUpdateOperationsInput | string
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogUpsertWithWhereUniqueWithoutWebsiteInput = {
+    where: EmailDeliveryLogWhereUniqueInput
+    update: XOR<EmailDeliveryLogUpdateWithoutWebsiteInput, EmailDeliveryLogUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<EmailDeliveryLogCreateWithoutWebsiteInput, EmailDeliveryLogUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogUpdateWithWhereUniqueWithoutWebsiteInput = {
+    where: EmailDeliveryLogWhereUniqueInput
+    data: XOR<EmailDeliveryLogUpdateWithoutWebsiteInput, EmailDeliveryLogUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogUpdateManyWithWhereWithoutWebsiteInput = {
+    where: EmailDeliveryLogScalarWhereInput
+    data: XOR<EmailDeliveryLogUpdateManyMutationInput, EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteInput>
+  }
+
+  export type EmailDeliveryLogScalarWhereInput = {
+    AND?: EmailDeliveryLogScalarWhereInput | EmailDeliveryLogScalarWhereInput[]
+    OR?: EmailDeliveryLogScalarWhereInput[]
+    NOT?: EmailDeliveryLogScalarWhereInput | EmailDeliveryLogScalarWhereInput[]
+    id?: UuidFilter<"EmailDeliveryLog"> | string
+    websiteId?: UuidFilter<"EmailDeliveryLog"> | string
+    recipient?: StringFilter<"EmailDeliveryLog"> | string
+    subject?: StringFilter<"EmailDeliveryLog"> | string
+    status?: StringFilter<"EmailDeliveryLog"> | string
+    error?: StringNullableFilter<"EmailDeliveryLog"> | string | null
+    sentAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    createdAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailDeliveryLog"> | Date | string
+  }
+
+  export type SitePerformanceMetricUpsertWithWhereUniqueWithoutWebsiteInput = {
+    where: SitePerformanceMetricWhereUniqueInput
+    update: XOR<SitePerformanceMetricUpdateWithoutWebsiteInput, SitePerformanceMetricUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<SitePerformanceMetricCreateWithoutWebsiteInput, SitePerformanceMetricUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type SitePerformanceMetricUpdateWithWhereUniqueWithoutWebsiteInput = {
+    where: SitePerformanceMetricWhereUniqueInput
+    data: XOR<SitePerformanceMetricUpdateWithoutWebsiteInput, SitePerformanceMetricUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type SitePerformanceMetricUpdateManyWithWhereWithoutWebsiteInput = {
+    where: SitePerformanceMetricScalarWhereInput
+    data: XOR<SitePerformanceMetricUpdateManyMutationInput, SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteInput>
+  }
+
+  export type SitePerformanceMetricScalarWhereInput = {
+    AND?: SitePerformanceMetricScalarWhereInput | SitePerformanceMetricScalarWhereInput[]
+    OR?: SitePerformanceMetricScalarWhereInput[]
+    NOT?: SitePerformanceMetricScalarWhereInput | SitePerformanceMetricScalarWhereInput[]
+    id?: UuidFilter<"SitePerformanceMetric"> | string
+    websiteId?: UuidFilter<"SitePerformanceMetric"> | string
+    responseTimeMs?: IntFilter<"SitePerformanceMetric"> | number
+    ttfbMs?: IntFilter<"SitePerformanceMetric"> | number
+    statusCode?: IntFilter<"SitePerformanceMetric"> | number
+    score?: IntFilter<"SitePerformanceMetric"> | number
+    checkedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    createdAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+    updatedAt?: DateTimeFilter<"SitePerformanceMetric"> | Date | string
+  }
+
+  export type MediaOptimizationAssetUpsertWithWhereUniqueWithoutWebsiteInput = {
+    where: MediaOptimizationAssetWhereUniqueInput
+    update: XOR<MediaOptimizationAssetUpdateWithoutWebsiteInput, MediaOptimizationAssetUncheckedUpdateWithoutWebsiteInput>
+    create: XOR<MediaOptimizationAssetCreateWithoutWebsiteInput, MediaOptimizationAssetUncheckedCreateWithoutWebsiteInput>
+  }
+
+  export type MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput = {
+    where: MediaOptimizationAssetWhereUniqueInput
+    data: XOR<MediaOptimizationAssetUpdateWithoutWebsiteInput, MediaOptimizationAssetUncheckedUpdateWithoutWebsiteInput>
+  }
+
+  export type MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput = {
+    where: MediaOptimizationAssetScalarWhereInput
+    data: XOR<MediaOptimizationAssetUpdateManyMutationInput, MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteInput>
+  }
+
+  export type MediaOptimizationAssetScalarWhereInput = {
+    AND?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
+    OR?: MediaOptimizationAssetScalarWhereInput[]
+    NOT?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
+    id?: UuidFilter<"MediaOptimizationAsset"> | string
+    websiteId?: UuidFilter<"MediaOptimizationAsset"> | string
+    originalUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    optimizedUrl?: StringFilter<"MediaOptimizationAsset"> | string
+    originalBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    optimizedBytes?: IntFilter<"MediaOptimizationAsset"> | number
+    format?: StringFilter<"MediaOptimizationAsset"> | string
+    status?: StringFilter<"MediaOptimizationAsset"> | string
+    createdAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+    updatedAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
+  }
+
   export type UserCreateWithoutOtpVerificationsInput = {
     id?: string
     fullName?: string | null
@@ -70332,6 +78563,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
@@ -70360,6 +78592,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -70376,6 +78609,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -70404,6 +78638,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -70436,6 +78671,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
@@ -70464,6 +78700,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -70480,6 +78717,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -70508,6 +78746,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -70524,6 +78763,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
@@ -70552,6 +78792,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -70568,6 +78809,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -70596,6 +78838,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -70628,6 +78871,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
@@ -70656,6 +78900,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -70672,6 +78917,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -70700,6 +78946,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -70716,6 +78963,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -70744,6 +78992,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -70760,6 +79009,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -70788,6 +79038,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -70820,6 +79071,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -70848,6 +79100,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -70864,6 +79117,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -70892,6 +79146,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -70908,6 +79163,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
@@ -70936,6 +79192,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -70952,6 +79209,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -70980,6 +79238,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -71012,6 +79271,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
@@ -71040,6 +79300,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -71056,6 +79317,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -71084,6 +79346,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -71197,6 +79460,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -71225,6 +79489,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -71241,6 +79506,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -71269,6 +79535,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -71344,6 +79611,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -71372,6 +79640,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -71388,6 +79657,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -71416,6 +79686,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTemplatesInput = {
@@ -71432,6 +79703,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -71460,6 +79732,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -71476,6 +79749,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -71504,6 +79778,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -71536,6 +79811,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -71564,6 +79840,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -71580,6 +79857,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -71608,6 +79886,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCustomCodeSnippetsInput = {
@@ -71639,6 +79918,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomCodeSnippetsInput = {
@@ -71670,6 +79953,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomCodeSnippetsInput = {
@@ -71741,6 +80028,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomCodeSnippetsInput = {
@@ -71772,6 +80063,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomCodeRevisionUpsertWithWhereUniqueWithoutSnippetInput = {
@@ -71855,6 +80150,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -71883,6 +80179,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCodeRevisionsInput = {
@@ -71899,6 +80196,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -71927,6 +80225,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCodeRevisionsInput = {
@@ -72016,6 +80315,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -72044,6 +80344,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCodeRevisionsInput = {
@@ -72060,6 +80361,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -72088,6 +80390,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutFormSubmissionsInput = {
@@ -72119,6 +80422,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutFormSubmissionsInput = {
@@ -72150,6 +80457,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutFormSubmissionsInput = {
@@ -72197,6 +80508,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -72228,6 +80543,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutCustomPostTypesInput = {
@@ -72259,6 +80578,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomPostTypesInput = {
@@ -72290,6 +80613,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomPostTypesInput = {
@@ -72401,6 +80728,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomPostTypesInput = {
@@ -72432,6 +80763,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomFieldUpsertWithWhereUniqueWithoutPostTypeInput = {
@@ -72510,6 +80845,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutThemeLocationRulesInput = {
@@ -72541,6 +80880,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutThemeLocationRulesInput = {
@@ -72588,6 +80931,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutThemeLocationRulesInput = {
@@ -72619,6 +80966,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -72635,6 +80986,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -72663,6 +81015,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -72679,6 +81032,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -72707,6 +81061,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -72739,6 +81094,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -72767,6 +81123,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -72783,6 +81140,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -72811,6 +81169,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutSftpConnectionsInput = {
@@ -72842,6 +81201,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutSftpConnectionsInput = {
@@ -72873,6 +81236,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutSftpConnectionsInput = {
@@ -72920,6 +81287,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutSftpConnectionsInput = {
@@ -72951,6 +81322,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutPluginIntegrationsInput = {
@@ -72982,6 +81357,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutPluginIntegrationsInput = {
@@ -73013,6 +81392,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutPluginIntegrationsInput = {
@@ -73060,6 +81443,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutPluginIntegrationsInput = {
@@ -73091,6 +81478,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomPostTypeCreateWithoutFieldsInput = {
@@ -73200,6 +81591,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -73228,6 +81620,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCustomEntriesInput = {
@@ -73244,6 +81637,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -73272,6 +81666,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCustomEntriesInput = {
@@ -73339,6 +81734,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -73367,6 +81763,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomEntriesInput = {
@@ -73383,6 +81780,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -73411,6 +81809,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDesignNotesInput = {
@@ -73442,6 +81841,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDesignNotesInput = {
@@ -73473,6 +81876,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDesignNotesInput = {
@@ -73494,6 +81901,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -73522,6 +81930,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDesignNotesInput = {
@@ -73538,6 +81947,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -73566,6 +81976,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDesignNotesInput = {
@@ -73613,6 +82024,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDesignNotesInput = {
@@ -73644,6 +82059,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDesignNotesInput = {
@@ -73671,6 +82090,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -73699,6 +82119,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignNotesInput = {
@@ -73715,6 +82136,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -73743,6 +82165,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutDeveloperApiKeysInput = {
@@ -73759,6 +82182,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -73787,6 +82211,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeveloperApiKeysInput = {
@@ -73803,6 +82228,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -73831,6 +82257,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeveloperApiKeysInput = {
@@ -73863,6 +82290,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -73891,6 +82319,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeveloperApiKeysInput = {
@@ -73907,6 +82336,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -73935,6 +82365,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutComponentAccessesInput = {
@@ -73966,6 +82397,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutComponentAccessesInput = {
@@ -73997,6 +82432,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutComponentAccessesInput = {
@@ -74018,6 +82457,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -74046,6 +82486,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutComponentAccessesInput = {
@@ -74062,6 +82503,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -74090,6 +82532,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutComponentAccessesInput = {
@@ -74137,6 +82580,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutComponentAccessesInput = {
@@ -74168,6 +82615,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutComponentAccessesInput = {
@@ -74195,6 +82646,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -74223,6 +82675,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutComponentAccessesInput = {
@@ -74239,6 +82692,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -74267,6 +82721,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCollaboratorsInput = {
@@ -74298,6 +82753,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCollaboratorsInput = {
@@ -74329,6 +82788,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCollaboratorsInput = {
@@ -74350,6 +82813,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -74378,6 +82842,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCollaborationsInput = {
@@ -74394,6 +82859,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -74422,6 +82888,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCollaborationsInput = {
@@ -74469,6 +82936,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCollaboratorsInput = {
@@ -74500,6 +82971,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutCollaborationsInput = {
@@ -74527,6 +83002,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -74555,6 +83031,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollaborationsInput = {
@@ -74571,6 +83048,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -74599,6 +83077,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutRevisionsInput = {
@@ -74630,6 +83109,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutRevisionsInput = {
@@ -74661,6 +83144,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutRevisionsInput = {
@@ -74682,6 +83169,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -74710,6 +83198,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsiteRevisionsInput = {
@@ -74726,6 +83215,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -74754,6 +83244,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsiteRevisionsInput = {
@@ -74801,6 +83292,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutRevisionsInput = {
@@ -74832,6 +83327,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWebsiteRevisionsInput = {
@@ -74859,6 +83358,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -74887,6 +83387,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsiteRevisionsInput = {
@@ -74903,6 +83404,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -74931,6 +83433,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDeploymentsInput = {
@@ -74962,6 +83465,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDeploymentsInput = {
@@ -74993,6 +83500,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDeploymentsInput = {
@@ -75014,6 +83525,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -75042,6 +83554,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeploymentsInput = {
@@ -75058,6 +83571,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -75086,6 +83600,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeploymentsInput = {
@@ -75133,6 +83648,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDeploymentsInput = {
@@ -75164,6 +83683,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDeploymentsInput = {
@@ -75191,6 +83714,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -75219,6 +83743,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeploymentsInput = {
@@ -75235,6 +83760,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -75263,6 +83789,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpConnectionInput = {
@@ -75294,6 +83821,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpConnectionInput = {
@@ -75325,6 +83856,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpConnectionInput = {
@@ -75346,6 +83881,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -75374,6 +83910,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWpConnectionsInput = {
@@ -75390,6 +83927,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -75418,6 +83956,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWpConnectionsInput = {
@@ -75465,6 +84004,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpConnectionInput = {
@@ -75496,6 +84039,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWpConnectionsInput = {
@@ -75523,6 +84070,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -75551,6 +84099,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWpConnectionsInput = {
@@ -75567,6 +84116,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -75595,6 +84145,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpPageMappingsInput = {
@@ -75626,6 +84177,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpPageMappingsInput = {
@@ -75657,6 +84212,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpPageMappingsInput = {
@@ -75704,6 +84263,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpPageMappingsInput = {
@@ -75735,6 +84298,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutGranularPermissionsInput = {
@@ -75766,6 +84333,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutGranularPermissionsInput = {
@@ -75797,6 +84368,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutGranularPermissionsInput = {
@@ -75818,6 +84393,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -75846,6 +84422,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGranularPermissionsInput = {
@@ -75862,6 +84439,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -75890,6 +84468,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGranularPermissionsInput = {
@@ -75937,6 +84516,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -75968,6 +84551,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutGranularPermissionsInput = {
@@ -75995,6 +84582,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -76023,6 +84611,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -76039,6 +84628,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -76067,6 +84657,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutOwnedTeamsInput = {
@@ -76083,6 +84674,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -76111,6 +84703,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedTeamsInput = {
@@ -76127,6 +84720,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -76155,6 +84749,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedTeamsInput = {
@@ -76217,6 +84812,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutTeamInput = {
@@ -76248,6 +84847,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutTeamInput = {
@@ -76319,6 +84922,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -76347,6 +84951,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedTeamsInput = {
@@ -76363,6 +84968,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -76391,6 +84997,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamMemberUpsertWithWhereUniqueWithoutTeamInput = {
@@ -76482,6 +85089,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -76510,6 +85118,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTeamMembershipsInput = {
@@ -76526,6 +85135,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -76554,6 +85164,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTeamMembershipsInput = {
@@ -76619,6 +85230,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -76647,6 +85259,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMembershipsInput = {
@@ -76663,6 +85276,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -76691,6 +85305,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamCreateWithoutInvitationsInput = {
@@ -76734,6 +85349,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -76762,6 +85378,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentTeamInvitationsInput = {
@@ -76778,6 +85395,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -76806,6 +85424,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentTeamInvitationsInput = {
@@ -76871,6 +85490,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -76899,6 +85519,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTeamInvitationsInput = {
@@ -76915,6 +85536,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -76943,6 +85565,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutInvitationsInput = {
@@ -76974,6 +85597,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutInvitationsInput = {
@@ -77005,6 +85632,10 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutInvitationsInput = {
@@ -77026,6 +85657,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -77054,6 +85686,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentWebsiteInvitationsInput = {
@@ -77070,6 +85703,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -77098,6 +85732,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentWebsiteInvitationsInput = {
@@ -77145,6 +85780,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutInvitationsInput = {
@@ -77176,6 +85815,10 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutSentWebsiteInvitationsInput = {
@@ -77203,6 +85846,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -77231,6 +85875,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentWebsiteInvitationsInput = {
@@ -77247,6 +85892,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -77275,6 +85921,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationCreateWithoutWorkspacesInput = {
@@ -77320,6 +85967,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -77348,6 +85996,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -77364,6 +86013,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -77392,6 +86042,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -77454,6 +86105,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWorkspaceInput = {
@@ -77485,6 +86140,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWorkspaceInput = {
@@ -77557,6 +86216,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -77585,6 +86245,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -77601,6 +86262,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -77629,6 +86291,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -77677,6 +86340,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -77705,6 +86369,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedOrganizationsInput = {
@@ -77721,6 +86386,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -77749,6 +86415,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedOrganizationsInput = {
@@ -77845,6 +86512,10 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutOrganizationInput = {
@@ -77876,6 +86547,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutOrganizationInput = {
@@ -77913,6 +86588,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -77941,6 +86617,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedOrganizationsInput = {
@@ -77957,6 +86634,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -77985,6 +86663,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -78078,6 +86757,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -78106,6 +86786,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationMembershipsInput = {
@@ -78122,6 +86803,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -78150,6 +86832,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationMembershipsInput = {
@@ -78217,6 +86900,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -78245,6 +86929,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationMembershipsInput = {
@@ -78261,6 +86946,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -78289,6 +86975,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -78334,6 +87021,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -78362,6 +87050,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
@@ -78378,6 +87067,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -78406,6 +87096,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -78473,6 +87164,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -78501,6 +87193,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
@@ -78517,6 +87210,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -78545,6 +87239,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutApprovalRequestsInput = {
@@ -78576,6 +87271,10 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutApprovalRequestsInput = {
@@ -78607,6 +87306,10 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutApprovalRequestsInput = {
@@ -78628,6 +87331,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -78656,6 +87360,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalRequestsInput = {
@@ -78672,6 +87377,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -78700,6 +87406,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalRequestsInput = {
@@ -78721,6 +87428,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -78749,6 +87457,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedApprovalsInput = {
@@ -78765,6 +87474,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -78793,6 +87503,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedApprovalsInput = {
@@ -78840,6 +87551,10 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -78871,6 +87586,10 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutApprovalRequestsInput = {
@@ -78898,6 +87617,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -78926,6 +87646,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -78942,6 +87663,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -78970,6 +87692,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutReviewedApprovalsInput = {
@@ -78997,6 +87720,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -79025,6 +87749,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedApprovalsInput = {
@@ -79041,6 +87766,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -79069,6 +87795,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMediaAssetsInput = {
@@ -79085,6 +87812,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
@@ -79113,6 +87841,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMediaAssetsInput = {
@@ -79129,6 +87858,7 @@ export namespace Prisma {
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    optimizationCredits?: number
     identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
     otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
@@ -79157,6 +87887,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMediaAssetsInput = {
@@ -79193,6 +87924,10 @@ export namespace Prisma {
     workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutMediaAssetsInput = {
@@ -79224,6 +87959,10 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutMediaAssetsInput = {
@@ -79256,6 +87995,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
@@ -79284,6 +88024,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMediaAssetsInput = {
@@ -79300,6 +88041,7 @@ export namespace Prisma {
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
     identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
     otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -79328,6 +88070,7 @@ export namespace Prisma {
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteUpsertWithoutMediaAssetsInput = {
@@ -79370,6 +88113,10 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutMediaAssetsInput = {
@@ -79401,6 +88148,834 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteCreateWithoutMailerConfigInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    approvalWorkflowEnabled?: boolean
+    user: UserCreateNestedOneWithoutWebsitesInput
+    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
+    team?: TeamCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
+    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteUncheckedCreateWithoutMailerConfigInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    teamId?: string | null
+    workspaceId?: string | null
+    organizationId?: string | null
+    approvalWorkflowEnabled?: boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteCreateOrConnectWithoutMailerConfigInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutMailerConfigInput, WebsiteUncheckedCreateWithoutMailerConfigInput>
+  }
+
+  export type WebsiteUpsertWithoutMailerConfigInput = {
+    update: XOR<WebsiteUpdateWithoutMailerConfigInput, WebsiteUncheckedUpdateWithoutMailerConfigInput>
+    create: XOR<WebsiteCreateWithoutMailerConfigInput, WebsiteUncheckedCreateWithoutMailerConfigInput>
+    where?: WebsiteWhereInput
+  }
+
+  export type WebsiteUpdateToOneWithWhereWithoutMailerConfigInput = {
+    where?: WebsiteWhereInput
+    data: XOR<WebsiteUpdateWithoutMailerConfigInput, WebsiteUncheckedUpdateWithoutMailerConfigInput>
+  }
+
+  export type WebsiteUpdateWithoutMailerConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
+    team?: TeamUpdateOneWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
+    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateWithoutMailerConfigInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteCreateWithoutEmailLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    approvalWorkflowEnabled?: boolean
+    user: UserCreateNestedOneWithoutWebsitesInput
+    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
+    team?: TeamCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
+    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteUncheckedCreateWithoutEmailLogsInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    teamId?: string | null
+    workspaceId?: string | null
+    organizationId?: string | null
+    approvalWorkflowEnabled?: boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteCreateOrConnectWithoutEmailLogsInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutEmailLogsInput, WebsiteUncheckedCreateWithoutEmailLogsInput>
+  }
+
+  export type WebsiteUpsertWithoutEmailLogsInput = {
+    update: XOR<WebsiteUpdateWithoutEmailLogsInput, WebsiteUncheckedUpdateWithoutEmailLogsInput>
+    create: XOR<WebsiteCreateWithoutEmailLogsInput, WebsiteUncheckedCreateWithoutEmailLogsInput>
+    where?: WebsiteWhereInput
+  }
+
+  export type WebsiteUpdateToOneWithWhereWithoutEmailLogsInput = {
+    where?: WebsiteWhereInput
+    data: XOR<WebsiteUpdateWithoutEmailLogsInput, WebsiteUncheckedUpdateWithoutEmailLogsInput>
+  }
+
+  export type WebsiteUpdateWithoutEmailLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
+    team?: TeamUpdateOneWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
+    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateWithoutEmailLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteCreateWithoutPerformanceMetricsInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    approvalWorkflowEnabled?: boolean
+    user: UserCreateNestedOneWithoutWebsitesInput
+    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
+    team?: TeamCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
+    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteUncheckedCreateWithoutPerformanceMetricsInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    teamId?: string | null
+    workspaceId?: string | null
+    organizationId?: string | null
+    approvalWorkflowEnabled?: boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteCreateOrConnectWithoutPerformanceMetricsInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutPerformanceMetricsInput, WebsiteUncheckedCreateWithoutPerformanceMetricsInput>
+  }
+
+  export type WebsiteUpsertWithoutPerformanceMetricsInput = {
+    update: XOR<WebsiteUpdateWithoutPerformanceMetricsInput, WebsiteUncheckedUpdateWithoutPerformanceMetricsInput>
+    create: XOR<WebsiteCreateWithoutPerformanceMetricsInput, WebsiteUncheckedCreateWithoutPerformanceMetricsInput>
+    where?: WebsiteWhereInput
+  }
+
+  export type WebsiteUpdateToOneWithWhereWithoutPerformanceMetricsInput = {
+    where?: WebsiteWhereInput
+    data: XOR<WebsiteUpdateWithoutPerformanceMetricsInput, WebsiteUncheckedUpdateWithoutPerformanceMetricsInput>
+  }
+
+  export type WebsiteUpdateWithoutPerformanceMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
+    team?: TeamUpdateOneWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
+    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateWithoutPerformanceMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteCreateWithoutOptimizedMediaInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    approvalWorkflowEnabled?: boolean
+    user: UserCreateNestedOneWithoutWebsitesInput
+    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
+    team?: TeamCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
+    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteUncheckedCreateWithoutOptimizedMediaInput = {
+    id?: string
+    userId: string
+    name: string
+    slug: string
+    status?: string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    teamId?: string | null
+    workspaceId?: string | null
+    organizationId?: string | null
+    approvalWorkflowEnabled?: boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
+    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
+    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
+    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
+    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
+    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
+    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
+    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
+    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
+    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
+    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
+    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
+    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
+    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
+  }
+
+  export type WebsiteCreateOrConnectWithoutOptimizedMediaInput = {
+    where: WebsiteWhereUniqueInput
+    create: XOR<WebsiteCreateWithoutOptimizedMediaInput, WebsiteUncheckedCreateWithoutOptimizedMediaInput>
+  }
+
+  export type WebsiteUpsertWithoutOptimizedMediaInput = {
+    update: XOR<WebsiteUpdateWithoutOptimizedMediaInput, WebsiteUncheckedUpdateWithoutOptimizedMediaInput>
+    create: XOR<WebsiteCreateWithoutOptimizedMediaInput, WebsiteUncheckedCreateWithoutOptimizedMediaInput>
+    where?: WebsiteWhereInput
+  }
+
+  export type WebsiteUpdateToOneWithWhereWithoutOptimizedMediaInput = {
+    where?: WebsiteWhereInput
+    data: XOR<WebsiteUpdateWithoutOptimizedMediaInput, WebsiteUncheckedUpdateWithoutOptimizedMediaInput>
+  }
+
+  export type WebsiteUpdateWithoutOptimizedMediaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
+    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
+    team?: TeamUpdateOneWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
+    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type WebsiteUncheckedUpdateWithoutOptimizedMediaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    editorData?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
+    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
+    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
+    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
+    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
+    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
+    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
+    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
+    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
+    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+  }
+
+  export type UserCreateWithoutCreditLedgersInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCreditLedgersInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCreditLedgersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCreditLedgersInput, UserUncheckedCreateWithoutCreditLedgersInput>
+  }
+
+  export type UserUpsertWithoutCreditLedgersInput = {
+    update: XOR<UserUpdateWithoutCreditLedgersInput, UserUncheckedUpdateWithoutCreditLedgersInput>
+    create: XOR<UserCreateWithoutCreditLedgersInput, UserUncheckedCreateWithoutCreditLedgersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCreditLedgersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCreditLedgersInput, UserUncheckedUpdateWithoutCreditLedgersInput>
+  }
+
+  export type UserUpdateWithoutCreditLedgersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCreditLedgersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -79702,6 +89277,15 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type OptimizationCreditLedgerCreateManyUserInput = {
+    id?: string
+    websiteId?: string | null
+    creditsUsed: number
+    actionType: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type IdentityUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     provider?: EnumIdentityProviderFieldUpdateOperationsInput | $Enums.IdentityProvider
@@ -79884,6 +89468,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutUserInput = {
@@ -79915,6 +89503,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutUserInput = {
@@ -80649,6 +90241,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OptimizationCreditLedgerUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OptimizationCreditLedgerUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OptimizationCreditLedgerUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    creditsUsed?: IntFieldUpdateOperationsInput | number
+    actionType?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CustomCodeSnippetCreateManyWebsiteInput = {
     id?: string
     name?: string | null
@@ -80833,6 +90452,40 @@ export namespace Prisma {
     height?: number | null
     altText?: string | null
     format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailDeliveryLogCreateManyWebsiteInput = {
+    id?: string
+    recipient: string
+    subject: string
+    status?: string
+    error?: string | null
+    sentAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SitePerformanceMetricCreateManyWebsiteInput = {
+    id?: string
+    responseTimeMs: number
+    ttfbMs: number
+    statusCode?: number
+    score?: number
+    checkedAt?: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaOptimizationAssetCreateManyWebsiteInput = {
+    id?: string
+    originalUrl: string
+    optimizedUrl: string
+    originalBytes: number
+    optimizedBytes: number
+    format?: string
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -81407,6 +91060,108 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EmailDeliveryLogUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    responseTimeMs?: IntFieldUpdateOperationsInput | number
+    ttfbMs?: IntFieldUpdateOperationsInput | number
+    statusCode?: IntFieldUpdateOperationsInput | number
+    score?: IntFieldUpdateOperationsInput | number
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetUncheckedUpdateWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalUrl?: StringFieldUpdateOperationsInput | string
+    optimizedUrl?: StringFieldUpdateOperationsInput | string
+    originalBytes?: IntFieldUpdateOperationsInput | number
+    optimizedBytes?: IntFieldUpdateOperationsInput | number
+    format?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserSubscriptionCreateManyPlanInput = {
     id?: string
     userId: string
@@ -81650,6 +91405,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutTeamInput = {
@@ -81681,6 +91440,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutTeamInput = {
@@ -81808,6 +91571,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWorkspaceInput = {
@@ -81839,6 +91606,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -81974,6 +91745,10 @@ export namespace Prisma {
     workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutOrganizationInput = {
@@ -82005,6 +91780,10 @@ export namespace Prisma {
     invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
+    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
+    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
+    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
+    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutOrganizationInput = {
