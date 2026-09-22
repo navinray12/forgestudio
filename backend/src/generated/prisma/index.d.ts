@@ -8007,7 +8007,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     teamId: string | null
-    workspaceId: string
+    workspaceId: string | null
     organizationId: string | null
     approvalWorkflowEnabled: boolean
     draftRevision: string
@@ -8062,7 +8062,7 @@ export namespace Prisma {
     granularPermissions?: boolean | Website$granularPermissionsArgs<ExtArgs>
     invitations?: boolean | Website$invitationsArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
     draftSaveReceipts?: boolean | Website$draftSaveReceiptsArgs<ExtArgs>
@@ -8086,7 +8086,7 @@ export namespace Prisma {
     draftRevision?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
   }, ExtArgs["result"]["website"]>
 
@@ -8107,7 +8107,7 @@ export namespace Prisma {
     draftRevision?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
   }, ExtArgs["result"]["website"]>
 
@@ -8147,7 +8147,7 @@ export namespace Prisma {
     granularPermissions?: boolean | Website$granularPermissionsArgs<ExtArgs>
     invitations?: boolean | Website$invitationsArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
     approvalRequests?: boolean | Website$approvalRequestsArgs<ExtArgs>
     draftSaveReceipts?: boolean | Website$draftSaveReceiptsArgs<ExtArgs>
@@ -8156,13 +8156,13 @@ export namespace Prisma {
   export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
   }
   export type WebsiteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    workspace?: boolean | Website$workspaceArgs<ExtArgs>
     organization?: boolean | Website$organizationArgs<ExtArgs>
   }
 
@@ -8186,7 +8186,7 @@ export namespace Prisma {
       granularPermissions: Prisma.$GranularPermissionPayload<ExtArgs>[]
       invitations: Prisma.$WebsiteInvitationPayload<ExtArgs>[]
       team: Prisma.$TeamPayload<ExtArgs> | null
-      workspace: Prisma.$WorkspacePayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       draftSaveReceipts: Prisma.$DraftSaveReceiptPayload<ExtArgs>[]
@@ -8202,7 +8202,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       teamId: string | null
-      workspaceId: string
+      workspaceId: string | null
       organizationId: string | null
       approvalWorkflowEnabled: boolean
       draftRevision: string
@@ -8617,7 +8617,7 @@ export namespace Prisma {
     granularPermissions<T extends Website$granularPermissionsArgs<ExtArgs> = {}>(args?: Subset<T, Website$granularPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GranularPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitations<T extends Website$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Website$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsiteInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     team<T extends Website$teamArgs<ExtArgs> = {}>(args?: Subset<T, Website$teamArgs<ExtArgs>>): Prisma__TeamClient<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends Website$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, Website$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     organization<T extends Website$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Website$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     approvalRequests<T extends Website$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Website$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     draftSaveReceipts<T extends Website$draftSaveReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, Website$draftSaveReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9436,6 +9436,25 @@ export namespace Prisma {
      */
     include?: TeamInclude<ExtArgs> | null
     where?: TeamWhereInput
+  }
+
+  /**
+   * Website.workspace
+   */
+  export type Website$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
   }
 
   /**
@@ -59552,7 +59571,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
-    workspaceId?: UuidFilter<"Website"> | string
+    workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
     draftRevision?: UuidFilter<"Website"> | string
@@ -59573,7 +59592,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionListRelationFilter
     invitations?: WebsiteInvitationListRelationFilter
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
     draftSaveReceipts?: DraftSaveReceiptListRelationFilter
@@ -59590,7 +59609,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrderInput | SortOrder
-    workspaceId?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
     draftRevision?: SortOrder
@@ -59631,7 +59650,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
-    workspaceId?: UuidFilter<"Website"> | string
+    workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
     draftRevision?: UuidFilter<"Website"> | string
@@ -59652,7 +59671,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionListRelationFilter
     invitations?: WebsiteInvitationListRelationFilter
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     approvalRequests?: PublishApprovalRequestListRelationFilter
     draftSaveReceipts?: DraftSaveReceiptListRelationFilter
@@ -59669,7 +59688,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrderInput | SortOrder
-    workspaceId?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
     draftRevision?: SortOrder
@@ -59692,7 +59711,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     teamId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
-    workspaceId?: UuidWithAggregatesFilter<"Website"> | string
+    workspaceId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     organizationId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolWithAggregatesFilter<"Website"> | boolean
     draftRevision?: UuidWithAggregatesFilter<"Website"> | string
@@ -63354,7 +63373,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -63371,7 +63390,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -63422,7 +63441,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -63439,7 +63458,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -63473,7 +63492,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -63503,7 +63522,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -67797,9 +67816,9 @@ export namespace Prisma {
     isNot?: TeamWhereInput | null
   }
 
-  export type WorkspaceScalarRelationFilter = {
-    is?: WorkspaceWhereInput
-    isNot?: WorkspaceWhereInput
+  export type WorkspaceNullableScalarRelationFilter = {
+    is?: WorkspaceWhereInput | null
+    isNot?: WorkspaceWhereInput | null
   }
 
   export type OrganizationNullableScalarRelationFilter = {
@@ -69582,6 +69601,11 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type WorkspaceScalarRelationFilter = {
+    is?: WorkspaceWhereInput
+    isNot?: WorkspaceWhereInput
   }
 
   export type WorkspaceMemberWorkspaceIdUserIdCompoundUniqueInput = {
@@ -71698,10 +71722,12 @@ export namespace Prisma {
     update?: XOR<XOR<TeamUpdateToOneWithWhereWithoutWebsitesInput, TeamUpdateWithoutWebsitesInput>, TeamUncheckedUpdateWithoutWebsitesInput>
   }
 
-  export type WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput = {
+  export type WorkspaceUpdateOneWithoutWebsitesNestedInput = {
     create?: XOR<WorkspaceCreateWithoutWebsitesInput, WorkspaceUncheckedCreateWithoutWebsitesInput>
     connectOrCreate?: WorkspaceCreateOrConnectWithoutWebsitesInput
     upsert?: WorkspaceUpsertWithoutWebsitesInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
     connect?: WorkspaceWhereUniqueInput
     update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutWebsitesInput, WorkspaceUpdateWithoutWebsitesInput>, WorkspaceUncheckedUpdateWithoutWebsitesInput>
   }
@@ -74080,7 +74106,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -74096,7 +74122,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -75181,7 +75207,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
-    workspaceId?: UuidFilter<"Website"> | string
+    workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
     draftRevision?: UuidFilter<"Website"> | string
@@ -77356,7 +77382,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
   }
@@ -77372,7 +77398,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -77539,7 +77565,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
   }
@@ -77555,7 +77581,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -79099,7 +79125,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -79116,7 +79142,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -79205,7 +79231,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -79222,7 +79248,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -79603,7 +79629,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -79620,7 +79646,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -79685,7 +79711,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -79702,7 +79728,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -79751,7 +79777,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -79768,7 +79794,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -79897,7 +79923,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -79914,7 +79940,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -80010,7 +80036,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -80027,7 +80053,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -80092,7 +80118,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -80109,7 +80135,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -80366,7 +80392,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -80383,7 +80409,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -80448,7 +80474,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -80465,7 +80491,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -80514,7 +80540,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -80531,7 +80557,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -80596,7 +80622,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -80613,7 +80639,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -80998,7 +81024,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -81015,7 +81041,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -81181,7 +81207,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -81198,7 +81224,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -81562,7 +81588,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -81579,7 +81605,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -81745,7 +81771,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -81762,7 +81788,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -81918,7 +81944,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -81935,7 +81961,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -82101,7 +82127,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -82118,7 +82144,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -82274,7 +82300,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -82291,7 +82317,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -82457,7 +82483,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -82474,7 +82500,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -82630,7 +82656,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -82647,7 +82673,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -82813,7 +82839,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -82830,7 +82856,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -82986,7 +83012,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -83003,7 +83029,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -83207,7 +83233,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -83224,7 +83250,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -83491,7 +83517,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -83508,7 +83534,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -83573,7 +83599,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -83590,7 +83616,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -83639,7 +83665,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -83656,7 +83682,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -83822,7 +83848,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -83839,7 +83865,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -84122,7 +84148,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -84138,7 +84164,7 @@ export namespace Prisma {
     performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -84923,7 +84949,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
@@ -84940,7 +84966,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -85106,7 +85132,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -85123,7 +85149,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -85955,7 +85981,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
@@ -85971,7 +85997,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
@@ -87726,7 +87752,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
     invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
     team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace: WorkspaceCreateNestedOneWithoutWebsitesInput
+    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
     organization?: OrganizationCreateNestedOneWithoutWebsitesInput
     draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
@@ -87742,7 +87768,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -88010,7 +88036,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
@@ -88026,7 +88052,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -88323,7 +88349,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -88788,7 +88814,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -88804,7 +88830,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -88837,7 +88863,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -90682,7 +90708,7 @@ export namespace Prisma {
     performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    workspaceId: string
+    workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
@@ -90751,7 +90777,7 @@ export namespace Prisma {
     wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
@@ -90767,7 +90793,7 @@ export namespace Prisma {
     performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -90800,7 +90826,7 @@ export namespace Prisma {
     performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
@@ -91102,7 +91128,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
-    workspaceId: string
+    workspaceId?: string | null
     approvalWorkflowEnabled?: boolean
     draftRevision?: string
   }
@@ -91200,7 +91226,7 @@ export namespace Prisma {
     granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
     invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
     team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneRequiredWithoutWebsitesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
     draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
@@ -91216,7 +91242,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -91249,7 +91275,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
     draftRevision?: StringFieldUpdateOperationsInput | string
   }

@@ -92,12 +92,12 @@ model Website {
   team                    Team?                    @relation(fields: [teamId], references: [id], onDelete: SetNull)
   // Authoritative tenant scope. Every site belongs to exactly one workspace; a personal
   // workspace is created automatically for users who do not choose one explicitly.
-  workspaceId             String                   @db.Uuid
+  workspaceId             String?                  @db.Uuid
   // NoAction (not Restrict) at the Prisma level: the actual SQL constraint is created
   // DEFERRABLE INITIALLY DEFERRED so it is checked at transaction commit, after a
   // same-transaction cascade (e.g. deleting a workspace's owning user, which cascades
   // to both this site's row and the workspace's row) has finished rather than mid-cascade.
-  workspace               Workspace                @relation(fields: [workspaceId], references: [id], onDelete: NoAction)
+  workspace               Workspace?               @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
   // Deprecated: the account boundary is reached via workspace.organizationId, not a direct link.
   // Retained read-only for historical rows; no longer written by current code.
   organizationId          String?                  @db.Uuid
