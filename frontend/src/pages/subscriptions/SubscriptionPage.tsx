@@ -17,7 +17,21 @@ interface SubscriptionPlan {
 interface UserSubscription {
   id: string;
   status: string;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
   plan: SubscriptionPlan;
+}
+
+interface Invoice {
+  id: string;
+  planId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  invoiceNumber: string;
+  billingPeriodStart: string;
+  billingPeriodEnd: string;
+  createdAt: string;
 }
 
 const DEFAULT_PLANS: SubscriptionPlan[] = [
@@ -113,8 +127,11 @@ const DEFAULT_PLANS: SubscriptionPlan[] = [
 function SubscriptionPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>(DEFAULT_PLANS);
   const [currentSub, setCurrentSub] = useState<UserSubscription | null>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [upgradingSlug, setUpgradingSlug] = useState<string | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [canceling, setCanceling] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -129,7 +146,7 @@ function SubscriptionPage() {
       setLoading(true);
       setError("");
 
-      // Fetch all plans
+      // 1. Fetch all plans
       const plansRes = await fetch(`${apiUrl}/api/v1/subscriptions/plans`, {
         credentials: "include",
       });
@@ -141,7 +158,7 @@ function SubscriptionPage() {
         setPlans(DEFAULT_PLANS);
       }
 
-      // Fetch user's current subscription
+      // 2. Fetch user's current subscription
       const currentRes = await fetch(`${apiUrl}/api/v1/subscriptions/current`, {
         credentials: "include",
       });
@@ -150,12 +167,50 @@ function SubscriptionPage() {
       if (currentData?.data?.subscription) {
         setCurrentSub(currentData.data.subscription);
       }
+
+      // 3. Fetch past invoices (F-444, F-445, F-449)
+      try {
+        const invRes = await fetch(`${apiUrl}/api/v1/subscriptions/invoices`, {
+          credentials: "include",
+        });
+        const invData = await invRes.json();
+        if (invData?.data?.invoices && Array.isArray(invData.data.invoices)) {
+          setInvoices(invData.data.invoices);
+        }
+      } catch {
+        /* silent fallback */
+      }
     } catch (err) {
       console.error("Failed to load subscriptions from backend:", err);
-      // Keep default plans so UI is never empty!
       setPlans(DEFAULT_PLANS);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setCanceling(true);
+      setError("");
+      setSuccessMessage("");
+
+      const res = await fetch(`${apiUrl}/api/v1/subscriptions/cancel`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to cancel subscription.");
+      }
+
+      setSuccessMessage(data.message || "Subscription cancelled successfully.");
+      setCancelModalOpen(false);
+      fetchSubscriptionData();
+    } catch (err: any) {
+      setError(err.message || "Error cancelling subscription.");
+    } finally {
+      setCanceling(false);
     }
   };
 
@@ -241,6 +296,68 @@ function SubscriptionPage() {
         {successMessage && (
           <div className="mx-auto mt-6 max-w-xl rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-center text-sm font-medium text-emerald-400">
             {successMessage}
+          </div>
+        )}
+
+        {/* Current Active Plan Overview Banner */}
+        {currentSub && (
+          <div className="mx-auto mt-8 max-w-4xl rounded-2xl border border-slate-800 bg-slate-800/60 p-6 backdrop-blur-md">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Your Active Subscription
+                  </span>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                      currentSub.status === "CANCELED"
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                        : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                    }`}
+                  >
+                    {currentSub.status}
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-white">
+                  {currentSub.plan?.name || "Free"} Plan
+                </div>
+                <div className="text-xs text-slate-400">
+                  {currentSub.currentPeriodEnd ? (
+                    <>
+                      {currentSub.status === "CANCELED"
+                        ? "Access remaining active until "
+                        : "Next automatic renewal on "}
+                      <strong className="text-slate-200">
+                        {new Date(currentSub.currentPeriodEnd).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </strong>
+                    </>
+                  ) : (
+                    "Active Lifetime Plan"
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {currentSub.status !== "CANCELED" && currentSub.plan?.slug !== "free" && (
+                  <button
+                    onClick={() => setCancelModalOpen(true)}
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition"
+                  >
+                    Cancel Subscription
+                  </button>
+                )}
+                <Link
+                  to="/dashboard?tab=licensing"
+                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
+                >
+                  View Licenses 🔐
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
@@ -358,6 +475,135 @@ function SubscriptionPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Past Invoices & Transaction History (F-444, F-445, F-449) */}
+        <div className="mt-16 rounded-3xl border border-slate-800 bg-slate-900/60 p-8 shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                Billing Invoices & Renewal History
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Official invoices and records for your ForgeStudio subscriptions and upgrades.
+              </p>
+            </div>
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700">
+              {invoices.length} Total Invoices
+            </span>
+          </div>
+
+          {invoices.length === 0 ? (
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-950/40 py-10 text-center text-sm text-slate-400">
+              No previous invoices recorded. Invoices are generated automatically on plan purchase or renewal.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-slate-800">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-800/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-700">
+                  <tr>
+                    <th className="px-5 py-3.5">Invoice #</th>
+                    <th className="px-5 py-3.5">Date</th>
+                    <th className="px-5 py-3.5">Billing Period</th>
+                    <th className="px-5 py-3.5">Amount</th>
+                    <th className="px-5 py-3.5">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 bg-slate-900/40 font-medium">
+                  {invoices.map((inv) => (
+                    <tr key={inv.id} className="hover:bg-slate-800/40 transition">
+                      <td className="px-5 py-3.5 font-mono text-xs font-bold text-cyan-400">
+                        {inv.invoiceNumber}
+                      </td>
+                      <td className="px-5 py-3.5 text-xs text-slate-400">
+                        {new Date(inv.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-5 py-3.5 text-xs text-slate-400">
+                        {new Date(inv.billingPeriodStart).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        -{" "}
+                        {new Date(inv.billingPeriodEnd).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-5 py-3.5 font-bold text-white">
+                        {inv.currency === "INR" ? "₹" : "$"}{inv.amount.toLocaleString()}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            inv.status === "PAID"
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                              : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                          }`}
+                        >
+                          {inv.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Cancel Subscription Modal (F-449) */}
+        {cancelModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl text-slate-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">
+                  Cancel Subscription?
+                </h3>
+                <button
+                  onClick={() => setCancelModalOpen(false)}
+                  className="text-slate-400 hover:text-white font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="mt-3 text-sm text-slate-400 leading-relaxed">
+                Your subscription will be cancelled, but you will retain uninterrupted access to your current plan features and site licenses until the end of your billing period on{" "}
+                <strong className="text-white">
+                  {currentSub?.currentPeriodEnd
+                    ? new Date(currentSub.currentPeriodEnd).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "period end"}
+                </strong>.
+              </p>
+
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOpen(false)}
+                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                >
+                  Keep Subscription
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelSubscription}
+                  disabled={canceling}
+                  className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 shadow-sm disabled:opacity-50"
+                >
+                  {canceling ? "Cancelling..." : "Confirm Cancellation"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>

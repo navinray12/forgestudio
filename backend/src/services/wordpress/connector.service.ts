@@ -9,7 +9,7 @@ import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
 import { canUserAccessResource } from "../permission.service.js";
 import { transformPageToWordPress, TransformedWordPressPage } from "./transformer.service.js";
-import { validateSafeUrl } from "../../utils/ssrf.validator.js";
+import { assertSafeUrl } from "../../utils/ssrf.guard.js";
 
 const db = prisma as any;
 
@@ -55,8 +55,8 @@ export async function connectWordPress(
     throw new AppError("A valid HTTP or HTTPS WordPress site URL is required.", 400, "INVALID_SITE_URL");
   }
 
-  // Validate URL against SSRF attacks
-  validateSafeUrl(cleanUrl, "WordPress site URL");
+  // Validate URL against SSRF attacks (F-439)
+  assertSafeUrl(cleanUrl, "WordPress site URL");
 
   if (!apiKey || apiKey.trim().length < 8) {
     throw new AppError("A valid WordPress Connector API key is required.", 400, "INVALID_API_KEY");
@@ -320,6 +320,7 @@ export async function publishToWordPress(
     // Live HTTPS REST dispatch to WordPress connector plugin if reachable
     try {
       const restEndpoint = `${connection.siteUrl}/wp-json/forgestudio/v1/pages`;
+      assertSafeUrl(restEndpoint, "WordPress REST Endpoint");
       const res = await fetch(restEndpoint, {
         method: "POST",
         headers: {

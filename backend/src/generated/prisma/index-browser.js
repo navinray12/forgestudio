@@ -133,7 +133,8 @@ exports.Prisma.UserScalarFieldEnum = {
   role: 'role',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  optimizationCredits: 'optimizationCredits'
 };
 
 exports.Prisma.WebsiteScalarFieldEnum = {
@@ -612,6 +613,115 @@ exports.Prisma.MediaAssetScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SiteMailerConfigScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  host: 'host',
+  port: 'port',
+  username: 'username',
+  password: 'password',
+  fromName: 'fromName',
+  fromEmail: 'fromEmail',
+  isVerified: 'isVerified',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmailDeliveryLogScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  recipient: 'recipient',
+  subject: 'subject',
+  status: 'status',
+  error: 'error',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SitePerformanceMetricScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  responseTimeMs: 'responseTimeMs',
+  ttfbMs: 'ttfbMs',
+  statusCode: 'statusCode',
+  score: 'score',
+  checkedAt: 'checkedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MediaOptimizationAssetScalarFieldEnum = {
+  id: 'id',
+  websiteId: 'websiteId',
+  originalUrl: 'originalUrl',
+  optimizedUrl: 'optimizedUrl',
+  originalBytes: 'originalBytes',
+  optimizedBytes: 'optimizedBytes',
+  format: 'format',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OptimizationCreditLedgerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  websiteId: 'websiteId',
+  creditsUsed: 'creditsUsed',
+  actionType: 'actionType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LicenseScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  userId: 'userId',
+  planSlug: 'planSlug',
+  maxSites: 'maxSites',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LicenseActivationScalarFieldEnum = {
+  id: 'id',
+  licenseId: 'licenseId',
+  siteUrl: 'siteUrl',
+  siteDomain: 'siteDomain',
+  ipAddress: 'ipAddress',
+  isLocalhost: 'isLocalhost',
+  activatedAt: 'activatedAt',
+  lastPingAt: 'lastPingAt'
+};
+
+exports.Prisma.WhiteLabelConfigScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  agencyName: 'agencyName',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  hideForgeBranding: 'hideForgeBranding',
+  customCss: 'customCss',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillingInvoiceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planId: 'planId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  invoiceNumber: 'invoiceNumber',
+  billingPeriodStart: 'billingPeriodStart',
+  billingPeriodEnd: 'billingPeriodEnd',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -725,7 +835,16 @@ exports.Prisma.ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   PublishApprovalRequest: 'PublishApprovalRequest',
   BackgroundJob: 'BackgroundJob',
-  MediaAsset: 'MediaAsset'
+  MediaAsset: 'MediaAsset',
+  SiteMailerConfig: 'SiteMailerConfig',
+  EmailDeliveryLog: 'EmailDeliveryLog',
+  SitePerformanceMetric: 'SitePerformanceMetric',
+  MediaOptimizationAsset: 'MediaOptimizationAsset',
+  OptimizationCreditLedger: 'OptimizationCreditLedger',
+  License: 'License',
+  LicenseActivation: 'LicenseActivation',
+  WhiteLabelConfig: 'WhiteLabelConfig',
+  BillingInvoice: 'BillingInvoice'
 };
 
 /**

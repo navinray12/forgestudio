@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
+import { syncUserLicenseForPlan } from "./license.service.js";
 
 // Helper alias for prisma client model access
 const db = prisma as any;
@@ -184,6 +185,62 @@ export async function changeUserPlan(userId: string, planSlug: string) {
     );
   }
 
+  const periodStart = new Date();
+  const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+  // Determine site limit based on plan
+  const sitesLimit =
+    plan.websiteLimit ||
+    (plan.slug === "agency"
+      ? 50
+      : plan.slug === "professional"
+      ? 10
+      : plan.slug === "starter"
+      ? 3
+      : 1);
+
+  // 1. Sync / upgrade user's license automatically (F-444, F-445)
+  let linkedLicense: any = null;
+  try {
+    linkedLicense = await syncUserLicenseForPlan(userId, plan.slug, sitesLimit);
+  } catch (licErr) {
+    console.warn("[Subscription] Failed to sync license for plan:", licErr);
+  }
+
+  // 2. Generate Billing Invoice record (F-444, F-445, F-449)
+  const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+  try {
+    if (db?.billingInvoice?.create) {
+      await db.billingInvoice.create({
+        data: {
+          userId,
+          planId: plan.id,
+          amount: Number(plan.price) || 0,
+          currency: plan.currency || "INR",
+          status: "PAID",
+          invoiceNumber,
+          billingPeriodStart: periodStart,
+          billingPeriodEnd: periodEnd,
+        },
+      });
+    } else {
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO billing_invoices (id, "userId", "planId", amount, currency, status, "invoiceNumber", "billingPeriodStart", "billingPeriodEnd", "createdAt")
+         VALUES (gen_random_uuid(), $1::uuid, $2, $3, $4, 'PAID', $5, $6, $7, NOW())`,
+        userId,
+        plan.id,
+        Number(plan.price) || 0,
+        plan.currency || "INR",
+        invoiceNumber,
+        periodStart,
+        periodEnd
+      );
+    }
+  } catch (invErr) {
+    console.warn("[Subscription] Failed to record billing invoice:", invErr);
+  }
+
+  // 3. Upsert UserSubscription
   if (db?.userSubscription?.upsert) {
     const updatedSub = await db.userSubscription.upsert({
       where: {
@@ -192,30 +249,42 @@ export async function changeUserPlan(userId: string, planSlug: string) {
       update: {
         planId: plan.id,
         status: "ACTIVE",
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: periodEnd,
       },
       create: {
         userId,
         planId: plan.id,
         status: "ACTIVE",
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: periodEnd,
       },
       include: {
         plan: true,
       },
     });
 
-    return updatedSub;
+    return {
+      ...updatedSub,
+      license: linkedLicense,
+      invoiceNumber,
+    };
   }
 
   // Raw SQL Upsert for user_subscriptions
   await prisma.$executeRawUnsafe(
-    `INSERT INTO user_subscriptions (id, "userId", "planId", status, "currentPeriodStart", "createdAt", "updatedAt")
-     VALUES (gen_random_uuid(), $1::uuid, $2::uuid, 'ACTIVE', NOW(), NOW(), NOW())
+    `INSERT INTO user_subscriptions (id, "userId", "planId", status, "currentPeriodStart", "currentPeriodEnd", "createdAt", "updatedAt")
+     VALUES (gen_random_uuid(), $1::uuid, $2::uuid, 'ACTIVE', $3, $4, NOW(), NOW())
      ON CONFLICT ("userId") DO UPDATE SET
        "planId" = EXCLUDED."planId",
        status = 'ACTIVE',
+       "currentPeriodStart" = EXCLUDED."currentPeriodStart",
+       "currentPeriodEnd" = EXCLUDED."currentPeriodEnd",
        "updatedAt" = NOW()`,
     userId,
-    plan.id
+    plan.id,
+    periodStart,
+    periodEnd
   );
 
   return {
@@ -223,10 +292,68 @@ export async function changeUserPlan(userId: string, planSlug: string) {
     userId,
     planId: plan.id,
     status: "ACTIVE",
-    currentPeriodStart: new Date(),
-    currentPeriodEnd: null,
+    currentPeriodStart: periodStart,
+    currentPeriodEnd: periodEnd,
     plan,
+    license: linkedLicense,
+    invoiceNumber,
   };
+}
+
+/**
+ * Cancel user's subscription (Feature F-449)
+ * Gracefully marks status as CANCELED while preserving access until currentPeriodEnd
+ */
+export async function cancelSubscription(userId: string) {
+  if (!userId) {
+    throw new AppError("User ID is required", 400, "INVALID_USER_ID");
+  }
+
+  const currentSub = await getUserSubscription(userId);
+
+  if (db?.userSubscription?.update) {
+    await db.userSubscription.update({
+      where: { userId },
+      data: {
+        status: "CANCELED",
+      },
+    });
+  } else {
+    await prisma.$executeRawUnsafe(
+      `UPDATE user_subscriptions SET status = 'CANCELED', "updatedAt" = NOW() WHERE "userId" = $1::uuid`,
+      userId
+    );
+  }
+
+  return {
+    success: true,
+    message: "Subscription cancelled successfully. You will retain access until the end of your current billing period.",
+    subscription: {
+      ...currentSub,
+      status: "CANCELED",
+    },
+  };
+}
+
+/**
+ * Get all billing invoices for a user (Features F-444, F-445, F-449)
+ */
+export async function getUserInvoices(userId: string) {
+  if (!userId) {
+    throw new AppError("User ID is required", 400, "INVALID_USER_ID");
+  }
+
+  if (db?.billingInvoice?.findMany) {
+    return await db.billingInvoice.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  const rows: any[] = await prisma.$queryRaw`
+    SELECT * FROM billing_invoices WHERE "userId" = ${userId}::uuid ORDER BY "createdAt" DESC
+  `;
+  return rows || [];
 }
 
 /**

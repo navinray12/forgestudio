@@ -32,6 +32,12 @@ import {
   designTokenRoutes,
   commerceRoutes,
   enterpriseMultisiteRoutes,
+  licenseRoutes,
+  whitelabelRoutes,
+  usageRoutes,
+  stagingRoutes,
+  serverConfigRoutes,
+  hostingRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -41,6 +47,22 @@ import mediaRoutes from "./routes/media.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
+import mailerRoutes from "./routes/mailer.routes.js";
+import { rateLimit } from "express-rate-limit";
+
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: "RATE_LIMITED",
+      message: "Too many authentication requests, please try again after 15 minutes.",
+    },
+  },
+});
 
 const app = express();
 
@@ -71,6 +93,12 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
   });
 });
 
+// Auth & Session Rate Limiting (F-439)
+app.use("/api/v1/auth/login", authRateLimiter);
+app.use("/api/auth/login", authRateLimiter);
+app.use("/api/v1/auth/signup", authRateLimiter);
+app.use("/api/auth/signup", authRateLimiter);
+
 // Auth & Session
 app.use("/api/v1/auth", loginRoutes);
 app.use("/api/v1/auth", signupRoutes);
@@ -79,9 +107,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/v1/auth", oauthRoutes);
 app.use("/api/v1/auth", meRoutes);
 
-// Subscriptions
+// Subscriptions, Licensing, Whitelabel & Usage (F-440 to F-452)
 app.use("/api/v1/subscriptions", subscriptionRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/v1/licenses", licenseRoutes);
+app.use("/api/licenses", licenseRoutes);
+app.use("/api/v1/agency", whitelabelRoutes);
+app.use("/api/agency", whitelabelRoutes);
+app.use("/api/v1/users/me", usageRoutes);
+app.use("/api/users/me", usageRoutes);
 
 // Public API v1 Standardized Endpoints
 app.use("/api/v1", apiV1Routes);
@@ -89,6 +123,8 @@ app.use("/api/v1", apiV1Routes);
 // Websites & Workspace
 app.use("/api/v1/websites", websiteRoutes);
 app.use("/api/websites", websiteRoutes);
+app.use("/api/v1/websites", mailerRoutes);
+app.use("/api/websites", mailerRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
 
@@ -152,6 +188,18 @@ app.use("/api/websites", commerceRoutes);
 // Phase 19: Custom Domains & Backups
 app.use("/api/v1/websites", enterpriseMultisiteRoutes);
 app.use("/api/websites", enterpriseMultisiteRoutes);
+
+// Staging Sandbox Environments
+app.use("/api/v1/websites", stagingRoutes);
+app.use("/api/websites", stagingRoutes);
+
+// Server Resources & SFTP Configuration
+app.use("/api/v1/websites", serverConfigRoutes);
+app.use("/api/websites", serverConfigRoutes);
+
+// Security, Privacy, Cache, Transfer & Hosting Logs
+app.use("/api/v1/websites", hostingRoutes);
+app.use("/api/websites", hostingRoutes);
 
 // Audit Logs
 app.use("/api/v1/audit-logs", auditLogRoutes);

@@ -8,6 +8,8 @@ import {
   validateDomain,
   createDomainRecord,
   simulateVerificationCheck,
+  verifyDomainDns,
+  getDnsInstructions,
   isValidDomainStatusTransition,
   setOnePrimary,
   getPrimaryDomain,
@@ -56,7 +58,10 @@ export async function listDomains(req: Request, res: Response) {
     const website = await getAuthorizedWebsite(websiteId, userId);
     if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
 
-    const domains = readDomains(website);
+    const domains = readDomains(website).map((d: any) => ({
+      ...d,
+      dnsRecords: getDnsInstructions(d.domain, d.verificationToken),
+    }));
     return res.status(200).json({ success: true, domains, primary: getPrimaryDomain(domains) || null });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
@@ -84,10 +89,13 @@ export async function addDomain(req: Request, res: Response) {
     const record = createDomainRecord(domain, websiteId, method, domains.length === 0);
     await writeDomains(websiteId, website, [...domains, record]);
 
+    const dnsRecords = getDnsInstructions(record.domain, record.verificationToken);
+
     return res.status(201).json({
       success: true,
-      domain: record,
+      domain: { ...record, dnsRecords },
       instructions: buildVerificationInstructions(record),
+      dnsRecords,
     });
   } catch (err: any) {
     return res.status(400).json({ success: false, message: err.message });
@@ -109,7 +117,7 @@ export async function verifyDomain(req: Request, res: Response) {
     if (idx === -1) return res.status(404).json({ success: false, message: "Domain not found" });
 
     const record = domains[idx];
-    const check = simulateVerificationCheck(record);
+    const check = await verifyDomainDns(record);
 
     const now = new Date().toISOString();
     if (check.success) {
@@ -120,10 +128,13 @@ export async function verifyDomain(req: Request, res: Response) {
 
     await writeDomains(websiteId, website, domains);
 
+    const dnsRecords = getDnsInstructions(record.domain, record.verificationToken);
+
     return res.status(200).json({
       success: check.success,
-      domain: domains[idx],
-      message: check.success ? "Domain verified and SSL provisioned" : check.reason,
+      domain: { ...domains[idx], dnsRecords },
+      dnsRecords,
+      message: check.success ? "Domain verified and SSL provisioned successfully" : check.reason,
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });

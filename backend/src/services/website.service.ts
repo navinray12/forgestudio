@@ -3,6 +3,7 @@ import { AppError } from "../utils/app-error.js";
 import { checkWebsiteLimit } from "./subscription.service.js";
 import crypto from "crypto";
 import { canUserAccessResource } from "./permission.service.js";
+import { recordAuditLog } from "./audit.service.js";
 
 const db = prisma as any;
 
@@ -386,16 +387,47 @@ export async function getUserWebsites(userId: string) {
     if (db?.website?.findMany) {
       const websites = await db.website.findMany({
         where: { userId },
+        include: {
+          wpConnection: {
+            select: {
+              id: true,
+              siteUrl: true,
+              wpSiteName: true,
+              status: true,
+              lastVerifiedAt: true,
+              createdAt: true,
+            },
+          },
+          mailerConfig: {
+            select: {
+              id: true,
+              host: true,
+              port: true,
+              username: true,
+              fromName: true,
+              fromEmail: true,
+              isVerified: true,
+            },
+          },
+        },
         orderBy: { createdAt: "desc" },
       });
       if (websites) return websites;
     }
 
     const rawWebsites: any[] = await prisma.$queryRaw`
-      SELECT id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
-      FROM websites
-      WHERE "userId" = ${userId}::uuid
-      ORDER BY "createdAt" DESC
+      SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
+        (SELECT row_to_json(wp) FROM (
+          SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
+          FROM wordpress_connections WHERE "websiteId" = w.id
+        ) wp) as "wpConnection",
+        (SELECT row_to_json(mc) FROM (
+          SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
+          FROM site_mailer_configs WHERE "websiteId" = w.id
+        ) mc) as "mailerConfig"
+      FROM websites w
+      WHERE w."userId" = ${userId}::uuid
+      ORDER BY w."createdAt" DESC
     `;
     return rawWebsites || [];
   } catch (error) {
@@ -403,6 +435,173 @@ export async function getUserWebsites(userId: string) {
     return [];
   }
 }
+
+/**
+ * Aggregated details for Managed Site View (F-427)
+ */
+export async function getManagedWebsiteDetails(websiteId: string, userId: string) {
+  const website = await getWebsiteById(websiteId, userId);
+
+  let wpConnection: any = null;
+  let wpPageMappings: any[] = [];
+  let mailerConfig: any = null;
+  let recentDeployments: any[] = [];
+  let recentLogs: any[] = [];
+
+  try {
+    if (db?.wordPressConnection?.findUnique) {
+      wpConnection = await db.wordPressConnection.findUnique({ where: { websiteId } });
+    }
+  } catch {}
+
+  try {
+    if (db?.wordPressPageMapping?.findMany) {
+      wpPageMappings = await db.wordPressPageMapping.findMany({
+        where: { websiteId },
+        orderBy: { lastSyncedAt: "desc" },
+        take: 20,
+      });
+    }
+  } catch {}
+
+  try {
+    const { getMailerConfig } = await import("./siteMailer.service.js");
+    mailerConfig = await getMailerConfig(websiteId);
+  } catch {}
+
+  try {
+    if (db?.deployment?.findMany) {
+      recentDeployments = await db.deployment.findMany({
+        where: { websiteId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      });
+    }
+  } catch {}
+
+  try {
+    const { getDeliveryLogs } = await import("./siteMailer.service.js");
+    const logRes = await getDeliveryLogs(websiteId, { page: 1, limit: 5 });
+    recentLogs = logRes.logs || [];
+  } catch {}
+
+  const editorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  const cookieConsent = editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent || {
+    enabled: false,
+    message: "We use cookies to improve your experience on our website.",
+    buttonText: "Accept All",
+    policyUrl: "",
+    theme: "dark",
+  };
+
+  let performanceStats: any = null;
+  let optimizationStats: any = null;
+
+  try {
+    const { getPerformanceSummary } = await import("./sitePerformance.service.js");
+    performanceStats = await getPerformanceSummary(websiteId, userId);
+  } catch {}
+
+  try {
+    const { getOptimizationStats } = await import("./imageOptimization.service.js");
+    optimizationStats = await getOptimizationStats(websiteId, userId);
+  } catch {}
+
+  let staging: any = null;
+  try {
+    const { getStagingEnvironment } = await import("./staging.service.js");
+    staging = await getStagingEnvironment(websiteId, userId);
+  } catch {}
+
+  const backups = Array.isArray(editorData.backups)
+    ? editorData.backups.map((b: any) => {
+        const { snapshot: _omit, ...meta } = b;
+        return meta;
+      })
+    : [];
+  const backupPolicy = editorData.backupPolicy || null;
+  const customDomains = Array.isArray(editorData.customDomains) ? editorData.customDomains : [];
+  const hostingConfig = editorData?.hostingConfig || {};
+  const serverConfig = hostingConfig.serverConfig || {
+    phpMemoryLimit: "256M",
+    phpMaxExecutionTime: 60,
+  };
+
+  return {
+    website: {
+      id: website.id,
+      name: website.name,
+      slug: website.slug,
+      status: website.status,
+      createdAt: website.createdAt,
+      updatedAt: website.updatedAt,
+      pagesCount: Array.isArray(editorData.pages) ? editorData.pages.length : 1,
+    },
+    wpConnection: wpConnection
+      ? {
+          id: wpConnection.id,
+          siteUrl: wpConnection.siteUrl,
+          wpSiteName: wpConnection.wpSiteName,
+          status: wpConnection.status,
+          capabilities: wpConnection.capabilities,
+          lastVerifiedAt: wpConnection.lastVerifiedAt,
+        }
+      : null,
+    wpPageMappings,
+    mailerConfig,
+    cookieConsent,
+    recentDeployments,
+    recentLogs,
+    performanceStats,
+    optimizationStats,
+    staging,
+    backups,
+    backupPolicy,
+    customDomains,
+    serverConfig,
+    hostingConfig: {
+      siteLock: hostingConfig.siteLock ? {
+        enabled: !!hostingConfig.siteLock.enabled,
+        hint: hostingConfig.siteLock.hint || "",
+        hasPassword: !!hostingConfig.siteLock.passwordHash,
+      } : { enabled: false, hint: "", hasPassword: false },
+      privacy: hostingConfig.privacy || { noIndex: false, maintenanceMode: false },
+      ipFirewall: hostingConfig.ipFirewall || { mode: "deny", ips: [] },
+      cdn: hostingConfig.cdn || { cloudflareEnabled: false },
+      cache: hostingConfig.cache || { lastPurgedAt: null },
+      lastSecurityAudit: hostingConfig.lastSecurityAudit || null,
+    },
+  };
+}
+
+/**
+ * F-438: Update cookie consent configuration for a website
+ */
+export async function updateCookieConsentConfig(websiteId: string, userId: string, config: any) {
+  const website = await getWebsiteById(websiteId, userId);
+  const editorData = typeof website.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website.editorData || {});
+
+  if (!editorData.siteSettings) {
+    editorData.siteSettings = {};
+  }
+
+  editorData.siteSettings.cookieConsent = {
+    enabled: Boolean(config.enabled),
+    message: String(config.message || "We use cookies to enhance your experience."),
+    buttonText: String(config.buttonText || "Accept All"),
+    policyUrl: String(config.policyUrl || ""),
+    theme: config.theme === "light" ? "light" : "dark",
+  };
+
+  await updateWebsiteEditorData(websiteId, userId, editorData);
+  return editorData.siteSettings.cookieConsent;
+}
+
 
 /**
  * Get a single website by ID with ownership check
@@ -1468,3 +1667,64 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     customCodeSnippets: website.customCodeSnippets,
   };
 }
+
+/**
+ * Transfer Website Ownership to another registered user by email.
+ */
+export async function transferWebsiteOwnership(
+  websiteId: string,
+  currentUserId: string,
+  targetEmail: string
+) {
+  if (!targetEmail || typeof targetEmail !== "string" || !targetEmail.includes("@")) {
+    throw new AppError("Valid recipient email is required", 400, "INVALID_EMAIL");
+  }
+
+  const website = await db.website.findUnique({ where: { id: websiteId } });
+  if (!website) {
+    throw new AppError("Website not found", 404, "NOT_FOUND");
+  }
+
+  if (website.userId !== currentUserId) {
+    throw new AppError("Only the site owner can transfer website ownership", 403, "FORBIDDEN");
+  }
+
+  const normalizedEmail = targetEmail.trim().toLowerCase();
+  const targetUser = await db.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (!targetUser) {
+    throw new AppError(`Target user with email "${targetEmail}" was not found`, 404, "USER_NOT_FOUND");
+  }
+
+  if (targetUser.id === currentUserId) {
+    throw new AppError("Cannot transfer ownership to yourself", 400, "INVALID_TARGET");
+  }
+
+  const updated = await db.website.update({
+    where: { id: websiteId },
+    data: { userId: targetUser.id },
+  });
+
+  await recordAuditLog({
+    userId: currentUserId,
+    action: "WEBSITE_OWNERSHIP_TRANSFERRED",
+    targetResource: `website:${websiteId}`,
+    details: {
+      previousOwnerId: currentUserId,
+      newOwnerId: targetUser.id,
+      newOwnerEmail: targetUser.email,
+      websiteName: website.name,
+    },
+  });
+
+  return {
+    success: true,
+    websiteId: updated.id,
+    newOwnerEmail: targetUser.email,
+    newOwnerName: targetUser.fullName || targetUser.name,
+    transferredAt: new Date().toISOString(),
+  };
+}
+

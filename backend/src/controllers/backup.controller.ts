@@ -11,6 +11,7 @@ import {
   restoreFromBackup,
   pruneExpiredBackups,
   validateBackupPolicy,
+  updateBackupRecord,
   type BackupTrigger,
 } from "../services/backups/websiteBackup.service.js";
 
@@ -107,6 +108,52 @@ export async function getBackup(req: Request, res: Response) {
     return res.status(200).json({ success: true, backup });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+/** GET /api/websites/:websiteId/backups/:backupId/download */
+export async function downloadBackup(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const backupId = String(req.params.backupId || "");
+    const userId = res.locals.user?.id || (req as any).user?.id;
+    const website = await getAuthorizedWebsite(websiteId, userId);
+    if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
+
+    const backups = readBackups(website);
+    const backup = backups.find((b: any) => b.id === backupId);
+    if (!backup) return res.status(404).json({ success: false, message: "Backup not found" });
+
+    const safeSlug = (website.slug || website.name || "website").replace(/[^a-zA-Z0-9_-]/g, "_");
+    const dateStr = new Date(backup.createdAt).toISOString().slice(0, 10);
+    const filename = `backup-${safeSlug}-${dateStr}.json`;
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    return res.status(200).send(JSON.stringify(backup, null, 2));
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+/** PATCH /api/websites/:websiteId/backups/:backupId */
+export async function updateBackup(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const backupId = String(req.params.backupId || "");
+    const userId = res.locals.user?.id || (req as any).user?.id;
+    const website = await getAuthorizedWebsite(websiteId, userId);
+    if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
+
+    const { label, notes } = req.body;
+    const backups = readBackups(website);
+    const { updated, backup } = updateBackupRecord(backups, backupId, { label, notes });
+
+    await patchEditorData(websiteId, website, { backups: updated });
+
+    return res.status(200).json({ success: true, backup: stripSnapshot(backup) });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, message: err.message });
   }
 }
 
