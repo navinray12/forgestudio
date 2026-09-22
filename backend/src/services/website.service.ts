@@ -3,6 +3,7 @@ import { AppError } from "../utils/app-error.js";
 import { checkWebsiteLimit } from "./subscription.service.js";
 import crypto from "crypto";
 import { canUserAccessResource } from "./permission.service.js";
+import { recordAuditLog } from "./audit.service.js";
 
 const db = prisma as any;
 
@@ -509,6 +510,26 @@ export async function getManagedWebsiteDetails(websiteId: string, userId: string
     optimizationStats = await getOptimizationStats(websiteId, userId);
   } catch {}
 
+  let staging: any = null;
+  try {
+    const { getStagingEnvironment } = await import("./staging.service.js");
+    staging = await getStagingEnvironment(websiteId, userId);
+  } catch {}
+
+  const backups = Array.isArray(editorData.backups)
+    ? editorData.backups.map((b: any) => {
+        const { snapshot: _omit, ...meta } = b;
+        return meta;
+      })
+    : [];
+  const backupPolicy = editorData.backupPolicy || null;
+  const customDomains = Array.isArray(editorData.customDomains) ? editorData.customDomains : [];
+  const hostingConfig = editorData?.hostingConfig || {};
+  const serverConfig = hostingConfig.serverConfig || {
+    phpMemoryLimit: "256M",
+    phpMaxExecutionTime: 60,
+  };
+
   return {
     website: {
       id: website.id,
@@ -536,6 +557,23 @@ export async function getManagedWebsiteDetails(websiteId: string, userId: string
     recentLogs,
     performanceStats,
     optimizationStats,
+    staging,
+    backups,
+    backupPolicy,
+    customDomains,
+    serverConfig,
+    hostingConfig: {
+      siteLock: hostingConfig.siteLock ? {
+        enabled: !!hostingConfig.siteLock.enabled,
+        hint: hostingConfig.siteLock.hint || "",
+        hasPassword: !!hostingConfig.siteLock.passwordHash,
+      } : { enabled: false, hint: "", hasPassword: false },
+      privacy: hostingConfig.privacy || { noIndex: false, maintenanceMode: false },
+      ipFirewall: hostingConfig.ipFirewall || { mode: "deny", ips: [] },
+      cdn: hostingConfig.cdn || { cloudflareEnabled: false },
+      cache: hostingConfig.cache || { lastPurgedAt: null },
+      lastSecurityAudit: hostingConfig.lastSecurityAudit || null,
+    },
   };
 }
 
@@ -1629,3 +1667,64 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     customCodeSnippets: website.customCodeSnippets,
   };
 }
+
+/**
+ * Transfer Website Ownership to another registered user by email.
+ */
+export async function transferWebsiteOwnership(
+  websiteId: string,
+  currentUserId: string,
+  targetEmail: string
+) {
+  if (!targetEmail || typeof targetEmail !== "string" || !targetEmail.includes("@")) {
+    throw new AppError("Valid recipient email is required", 400, "INVALID_EMAIL");
+  }
+
+  const website = await db.website.findUnique({ where: { id: websiteId } });
+  if (!website) {
+    throw new AppError("Website not found", 404, "NOT_FOUND");
+  }
+
+  if (website.userId !== currentUserId) {
+    throw new AppError("Only the site owner can transfer website ownership", 403, "FORBIDDEN");
+  }
+
+  const normalizedEmail = targetEmail.trim().toLowerCase();
+  const targetUser = await db.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (!targetUser) {
+    throw new AppError(`Target user with email "${targetEmail}" was not found`, 404, "USER_NOT_FOUND");
+  }
+
+  if (targetUser.id === currentUserId) {
+    throw new AppError("Cannot transfer ownership to yourself", 400, "INVALID_TARGET");
+  }
+
+  const updated = await db.website.update({
+    where: { id: websiteId },
+    data: { userId: targetUser.id },
+  });
+
+  await recordAuditLog({
+    userId: currentUserId,
+    action: "WEBSITE_OWNERSHIP_TRANSFERRED",
+    targetResource: `website:${websiteId}`,
+    details: {
+      previousOwnerId: currentUserId,
+      newOwnerId: targetUser.id,
+      newOwnerEmail: targetUser.email,
+      websiteName: website.name,
+    },
+  });
+
+  return {
+    success: true,
+    websiteId: updated.id,
+    newOwnerEmail: targetUser.email,
+    newOwnerName: targetUser.fullName || targetUser.name,
+    transferredAt: new Date().toISOString(),
+  };
+}
+

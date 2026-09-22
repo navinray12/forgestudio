@@ -29,6 +29,9 @@ import enterpriseMultisiteRoutes from "./enterpriseMultisite.routes.js";
 import licenseRoutes from "./license.routes.js";
 import whitelabelRoutes from "./whitelabel.routes.js";
 import usageRoutes from "./usage.routes.js";
+import stagingRoutes from "./staging.routes.js";
+import serverConfigRoutes from "./serverConfig.routes.js";
+import hostingRoutes from "./hosting.routes.js";
 
 const apiRouter = Router();
 
@@ -50,6 +53,9 @@ apiRouter.use("/websites", websiteRoutes);
 apiRouter.use("/websites", designTokenRoutes);
 apiRouter.use("/websites", commerceRoutes);
 apiRouter.use("/websites", enterpriseMultisiteRoutes);
+apiRouter.use("/websites", stagingRoutes);
+apiRouter.use("/websites", serverConfigRoutes);
+apiRouter.use("/websites", hostingRoutes);
 apiRouter.use("/teams", teamRoutes);
 apiRouter.use("/uploads", uploadRoutes);
 apiRouter.use("/api-keys", apiKeysRoutes);
@@ -100,4 +106,7 @@ export { default as enterpriseMultisiteRoutes } from "./enterpriseMultisite.rout
 export { default as licenseRoutes } from "./license.routes.js";
 export { default as whitelabelRoutes } from "./whitelabel.routes.js";
 export { default as usageRoutes } from "./usage.routes.js";
+export { default as stagingRoutes } from "./staging.routes.js";
+export { default as serverConfigRoutes } from "./serverConfig.routes.js";
+export { default as hostingRoutes } from "./hosting.routes.js";
 

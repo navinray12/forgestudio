@@ -363,7 +363,7 @@ export default function LicensingPanel() {
                     Activated Sites ({lic.activations?.length || 0})
                   </h4>
                   <div className="text-xs text-slate-500">
-                    💡 Feature F-443: Localhost & dev domains (.local, .test) do not consume production slots.
+                    💡 Localhost & dev domains (.local, .test) do not consume production slots.
                   </div>
                 </div>
 
@@ -430,7 +430,7 @@ export default function LicensingPanel() {
                               <button
                                 onClick={() => openTransferModal(lic.key, act.siteDomain)}
                                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition shadow-sm"
-                                title="Transfer to new domain (F-442)"
+                                title="Transfer to new domain"
                               >
                                 🔀 Transfer
                               </button>
@@ -439,7 +439,7 @@ export default function LicensingPanel() {
                                 onClick={() => handleDeactivate(lic.key, act.siteDomain)}
                                 disabled={deactivatingDomain === act.siteDomain}
                                 className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-100 hover:text-red-700 transition disabled:opacity-50"
-                                title="Deactivate and free site slot (F-442)"
+                                title="Deactivate and free site slot"
                               >
                                 {deactivatingDomain === act.siteDomain ? "..." : "✕ Deactivate"}
                               </button>
@@ -462,7 +462,7 @@ export default function LicensingPanel() {
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-900">
-                Transfer Domain Binding (F-442)
+                Transfer Domain Binding
               </h3>
               <button
                 onClick={() => setTransferModalOpen(false)}

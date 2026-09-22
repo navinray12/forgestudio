@@ -35,6 +35,9 @@ import {
   licenseRoutes,
   whitelabelRoutes,
   usageRoutes,
+  stagingRoutes,
+  serverConfigRoutes,
+  hostingRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -185,6 +188,18 @@ app.use("/api/websites", commerceRoutes);
 // Phase 19: Custom Domains & Backups
 app.use("/api/v1/websites", enterpriseMultisiteRoutes);
 app.use("/api/websites", enterpriseMultisiteRoutes);
+
+// Staging Sandbox Environments
+app.use("/api/v1/websites", stagingRoutes);
+app.use("/api/websites", stagingRoutes);
+
+// Server Resources & SFTP Configuration
+app.use("/api/v1/websites", serverConfigRoutes);
+app.use("/api/websites", serverConfigRoutes);
+
+// Security, Privacy, Cache, Transfer & Hosting Logs
+app.use("/api/v1/websites", hostingRoutes);
+app.use("/api/websites", hostingRoutes);
 
 // Audit Logs
 app.use("/api/v1/audit-logs", auditLogRoutes);

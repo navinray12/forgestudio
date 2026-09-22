@@ -109,7 +109,7 @@ export default function UsageTelemetryWidget({ compact = false }: Props) {
           <div className="flex items-center gap-2">
             <span className="text-xl">📊</span>
             <h3 className="text-base font-bold text-slate-900">
-              Resource Usage & Quotas (F-450, F-452)
+              Resource Usage & Quotas
             </h3>
             <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
               {subscription.plan.name} Plan

@@ -105,7 +105,7 @@ export default function WhiteLabelPanel() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">🏷️</span>
               <h2 className="text-xl font-bold text-slate-900">
-                White-Label & Agency Branding (F-446)
+                White-Label & Agency Branding
               </h2>
             </div>
             <p className="mt-1 text-sm text-slate-500">

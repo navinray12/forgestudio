@@ -309,6 +309,26 @@ export async function publishWebsite(
 
   const now = new Date().toISOString();
 
+  // Pre-Publish Safety Backup (Automated pre-publish snapshot)
+  if (environment === "PRODUCTION") {
+    try {
+      const { createBackupRecord, appendBackup } = await import("./backups/websiteBackup.service.js");
+      const prePublishBackup = createBackupRecord(rawEditorData, {
+        trigger: "pre-publish",
+        label: `Pre-Publish Snapshot (v${nextVersion})`,
+        notes: `Automated safety snapshot created before deploying version ${nextVersion}`,
+      });
+      const currentBackups = Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [];
+      rawEditorData.backups = appendBackup(currentBackups, prePublishBackup);
+      await db.website.update({
+        where: { id: websiteId },
+        data: { editorData: rawEditorData },
+      });
+    } catch (backupErr) {
+      console.warn("Pre-publish safety backup warning:", backupErr);
+    }
+  }
+
   try {
     // 5. State Machine: BUILDING
     await updateDeploymentStatus(deployment.id, "BUILDING");

@@ -114,6 +114,29 @@ export function stripSnapshot(backup: WebsiteBackup): Omit<WebsiteBackup, "snaps
   return meta;
 }
 
+/**
+ * Updates an existing backup's metadata (e.g. label and notes).
+ */
+export function updateBackupRecord(
+  backups: WebsiteBackup[],
+  backupId: string,
+  patch: { label?: string; notes?: string }
+): { updated: WebsiteBackup[]; backup: WebsiteBackup } {
+  const index = backups.findIndex((b) => b.id === backupId);
+  if (index === -1) {
+    throw new Error(`Backup "${backupId}" not found`);
+  }
+  const existing = backups[index];
+  const updatedBackup: WebsiteBackup = {
+    ...existing,
+    label: typeof patch.label === "string" && patch.label.trim() ? patch.label.trim() : existing.label,
+    notes: patch.notes !== undefined ? patch.notes : existing.notes,
+  };
+  const updatedList = [...backups];
+  updatedList[index] = updatedBackup;
+  return { updated: updatedList, backup: updatedBackup };
+}
+
 // ---------------------------------------------------------------------------
 // Restore
 // ---------------------------------------------------------------------------

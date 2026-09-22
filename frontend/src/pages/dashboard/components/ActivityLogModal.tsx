@@ -110,7 +110,7 @@ export const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
                 {websiteName ? `Activity Log: ${websiteName}` : "Platform Activity Log"}
               </h2>
               <p className="text-xs text-slate-400">
-                Audit history of publishing, integrations, and management operations (F-428)
+                Audit history of publishing, integrations, and management operations
               </p>
             </div>
           </div>
