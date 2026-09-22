@@ -5962,8 +5962,7 @@ export default function WebsiteEditor() {
                       e.preventDefault();
                       return;
                     }
-                  }
-                }}
+                  }}
                 className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
                 style={{
                   backgroundColor: mergedStyles.backgroundColor || el.styles?.backgroundColor || el.buttonBg || "#2563eb",
