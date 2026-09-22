@@ -43,8 +43,48 @@ export function errorMiddleware(
     });
   }
 
+  if (error && typeof error === 'object' && (error as any).name === 'PrismaClientKnownRequestError') {
+    const prismaErr = error as any;
+    if (prismaErr.code === 'P2025') {
+      return res.status(404).type('application/problem+json').json({
+        type: 'about:blank',
+        title: 'Resource not found',
+        status: 404,
+        detail: 'The requested database record was not found.',
+        instance: req.path,
+        code: 'NOT_FOUND',
+        requestId,
+        retryable: false,
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Resource not found' },
+      });
+    }
+    if (prismaErr.code === 'P2002') {
+      return res.status(409).type('application/problem+json').json({
+        type: 'about:blank',
+        title: 'Resource conflict',
+        status: 409,
+        detail: 'A record with this unique value already exists.',
+        instance: req.path,
+        code: 'CONFLICT',
+        requestId,
+        retryable: false,
+        success: false,
+        error: { code: 'CONFLICT', message: 'Resource already exists' },
+      });
+    }
+  }
+
   // Log correlation and safe classification; database error objects can contain content.
-  console.error('Unhandled request failure', { requestId, name: error instanceof Error ? error.name : 'UnknownError' });
+  console.error('Unhandled request failure', {
+    requestId,
+    name: error instanceof Error ? error.name : 'UnknownError',
+    message: error instanceof Error ? error.message : String(error),
+    code: (error as any)?.code,
+    meta: (error as any)?.meta,
+    path: req.path,
+    method: req.method,
+  });
 
   return res.status(500).type('application/problem+json').json({
     type: 'about:blank', title: 'Something went wrong', status: 500,
