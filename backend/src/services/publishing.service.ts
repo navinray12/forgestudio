@@ -287,7 +287,7 @@ export async function publishWebsite(
         createdBy: userId,
         completedAt: new Date(),
       });
-    } catch (e) {}
+    } catch (e) { }
 
     throw new AppError(
       `Publish validation failed: ${validation.errors.map((e) => e.message).join(", ")}`,
@@ -566,7 +566,7 @@ export async function publishWebsite(
           },
         });
       }
-    } catch (auditErr) {}
+    } catch (auditErr) { }
 
     return {
       success: true,
@@ -593,7 +593,7 @@ export async function publishWebsite(
           error: { code: error?.code || "DEPLOY_FAILED", message: error?.message },
           completedAt: new Date(),
         });
-      } catch (e) {}
+      } catch (e) { }
     }
     throw error;
   }

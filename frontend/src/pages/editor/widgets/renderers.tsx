@@ -151,9 +151,8 @@ export const SlidesWidgetRenderer = ({
         return (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-              isActive ? "opacity-100 z-10 translate-x-0 pointer-events-auto" : transition === "fade" ? "opacity-0 z-0 pointer-events-none" : "opacity-0 z-0 translate-x-8 pointer-events-none"
-            }`}
+            className={`absolute inset-0 transition-all duration-700 ease-in-out ${isActive ? "opacity-100 z-10 translate-x-0 pointer-events-auto" : transition === "fade" ? "opacity-0 z-0 pointer-events-none" : "opacity-0 z-0 translate-x-8 pointer-events-none"
+              }`}
             style={{
               backgroundImage: slide.bgImage ? `url(${slide.bgImage})` : undefined,
               backgroundSize: "cover",
@@ -243,9 +242,8 @@ export const SlidesWidgetRenderer = ({
               type="button"
               onClick={(e) => handleDotClick(idx, e)}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                idx === validIndex ? "w-7 bg-white" : "w-2.5 bg-white/40 hover:bg-white/80"
-              }`}
+              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${idx === validIndex ? "w-7 bg-white" : "w-2.5 bg-white/40 hover:bg-white/80"
+                }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -514,13 +512,12 @@ export const FormWidgetRenderer = ({
                   key={step.id}
                   type="button"
                   onClick={() => setCurrentStepIndex(sIdx)}
-                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    isCurrent
+                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${isCurrent
                       ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md scale-110"
                       : isPast
-                      ? "bg-emerald-500 text-white"
-                      : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                  }`}
+                        ? "bg-emerald-500 text-white"
+                        : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                    }`}
                 >
                   {isPast ? "✓" : sIdx + 1}
                 </button>
@@ -718,9 +715,8 @@ export const FormWidgetRenderer = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                btnFullWidth ? "w-full" : "w-auto"
-              }`}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${btnFullWidth ? "w-full" : "w-auto"
+                }`}
               style={{
                 backgroundColor: btnBg,
                 color: btnColor,
@@ -1159,12 +1155,12 @@ export const NavMenuWidgetRenderer = ({
   const pagesNavItems: NavMenuItem[] =
     pages && pages.length > 0
       ? pages.map((p) => ({
-          id: p.id,
-          label: p.name,
-          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
-          pageId: p.id,
-          isActive: p.isHome || p.id === homePageId,
-        }))
+        id: p.id,
+        label: p.name,
+        url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+        pageId: p.id,
+        isActive: p.isHome || p.id === homePageId,
+      }))
       : defaultNavItems;
 
   const items: NavMenuItem[] =
@@ -1372,13 +1368,12 @@ export const NavMenuWidgetRenderer = ({
       {/* Main Desktop & Tablet Nav List */}
       <ul
         ref={navListRef}
-        className={`flex w-full ${
-          mobileMenuOpen
+        className={`flex w-full ${mobileMenuOpen
             ? "flex-col items-stretch mt-2"
             : isVertical
-            ? "flex-col items-stretch"
-            : `hidden sm:flex flex-row items-center ${justifyClass}`
-        } wrap relative`}
+              ? "flex-col items-stretch"
+              : `hidden sm:flex flex-row items-center ${justifyClass}`
+          } wrap relative`}
         style={{
           gap: `${gap}px`,
           position: "relative",
@@ -1406,9 +1401,8 @@ export const NavMenuWidgetRenderer = ({
             <li
               key={item.id}
               onPointerDown={(e) => handleItemPointerDown(e, item, idx)}
-              className={`group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""} ${
-                !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80 rounded-xl" : ""
-              }`}
+              className={`group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""} ${!isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80 rounded-xl" : ""
+                }`}
               style={{
                 position: isPositioned ? "absolute" : "relative",
                 left: isPositioned ? `${activePos.x}px` : undefined,
@@ -1430,9 +1424,8 @@ export const NavMenuWidgetRenderer = ({
                 target={item.target || "_self"}
                 rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
                 onClick={(e) => handleLinkClick(e, item)}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none ${
-                  isOrphaned ? "border border-amber-300 bg-amber-50 text-amber-800" : ""
-                }`}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none ${isOrphaned ? "border border-amber-300 bg-amber-50 text-amber-800" : ""
+                  }`}
                 style={{
                   backgroundColor: isOrphaned ? undefined : currentBg,
                   color: isOrphaned ? undefined : currentColor,
@@ -1465,13 +1458,12 @@ export const NavMenuWidgetRenderer = ({
               {/* Submenu Dropdown */}
               {hasSubmenu && isOpen && (
                 <div
-                  className={`z-50 min-w-[220px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
-                    isVertical || mobileMenuOpen
+                  className={`z-50 min-w-[220px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${isVertical || mobileMenuOpen
                       ? "static mt-1 ml-4"
                       : alignment === "right" || alignment === "flex-end"
-                      ? "absolute right-0 top-full mt-1.5 animate-fadeIn"
-                      : "absolute left-0 top-full mt-1.5 animate-fadeIn"
-                  }`}
+                        ? "absolute right-0 top-full mt-1.5 animate-fadeIn"
+                        : "absolute left-0 top-full mt-1.5 animate-fadeIn"
+                    }`}
                   style={{ backgroundColor: submenuBg }}
                 >
                   <div className="flex flex-col gap-1">
@@ -1505,9 +1497,8 @@ export const NavMenuWidgetRenderer = ({
                               }
                             }
                           }}
-                          className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${
-                            subItem.isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-slate-100/80"
-                          } ${subRes.isOrphaned ? "bg-amber-50 text-amber-800" : ""}`}
+                          className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${subItem.isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-slate-100/80"
+                            } ${subRes.isOrphaned ? "bg-amber-50 text-amber-800" : ""}`}
                           style={{
                             color: subRes.isOrphaned ? undefined : submenuTextColor,
                             fontFamily: mergedStyles?.fontFamily,
@@ -1698,71 +1689,71 @@ export const PriceTableWidgetRenderer = ({
   const plans = el.pricingPlans && el.pricingPlans.length > 0
     ? el.pricingPlans
     : [
-        {
-          id: "1",
-          name: "Starter",
-          price: "19",
-          currency: "$",
-          period: "/ month",
-          description: "Essential tools for personal projects & freelancers.",
-          isPopular: false,
-          isRecommended: false,
-          showBadge: false,
-          buttonText: "Start Free Trial",
-          buttonUrl: "#",
-          buttonAlignment: "full",
-          features: [
-            { id: "f1", text: "5 Projects included", included: true },
-            { id: "f2", text: "10GB SSD Storage", included: true },
-            { id: "f3", text: "Basic Analytics", included: true },
-            { id: "f4", text: "Custom Domain", included: false },
-            { id: "f5", text: "24/7 Dedicated Support", included: false },
-          ],
-        },
-        {
-          id: "2",
-          name: "Professional",
-          price: "49",
-          currency: "$",
-          period: "/ month",
-          description: "Best for growing teams & expanding SaaS startups.",
-          isPopular: true,
-          isRecommended: true,
-          badgeText: "MOST POPULAR",
-          showBadge: true,
-          buttonText: "Get Pro Now",
-          buttonUrl: "#",
-          buttonAlignment: "full",
-          features: [
-            { id: "f1", text: "Unlimited Projects", included: true },
-            { id: "f2", text: "100GB SSD Storage", included: true },
-            { id: "f3", text: "Advanced Analytics & Reports", included: true },
-            { id: "f4", text: "Custom Domain & SSL", included: true },
-            { id: "f5", text: "Priority Support", included: true },
-          ],
-        },
-        {
-          id: "3",
-          name: "Enterprise",
-          price: "99",
-          currency: "$",
-          period: "/ month",
-          description: "Advanced security, custom SLA, and dedicated scale.",
-          isPopular: false,
-          isRecommended: false,
-          showBadge: false,
-          buttonText: "Contact Sales",
-          buttonUrl: "#",
-          buttonAlignment: "full",
-          features: [
-            { id: "f1", text: "Unlimited Everything", included: true },
-            { id: "f2", text: "1TB High Speed Storage", included: true },
-            { id: "f3", text: "Custom Analytics & Export", included: true },
-            { id: "f4", text: "Multi-Region Cloud Hosting", included: true },
-            { id: "f5", text: "24/7 Dedicated Account Manager", included: true },
-          ],
-        },
-      ];
+      {
+        id: "1",
+        name: "Starter",
+        price: "19",
+        currency: "$",
+        period: "/ month",
+        description: "Essential tools for personal projects & freelancers.",
+        isPopular: false,
+        isRecommended: false,
+        showBadge: false,
+        buttonText: "Start Free Trial",
+        buttonUrl: "#",
+        buttonAlignment: "full",
+        features: [
+          { id: "f1", text: "5 Projects included", included: true },
+          { id: "f2", text: "10GB SSD Storage", included: true },
+          { id: "f3", text: "Basic Analytics", included: true },
+          { id: "f4", text: "Custom Domain", included: false },
+          { id: "f5", text: "24/7 Dedicated Support", included: false },
+        ],
+      },
+      {
+        id: "2",
+        name: "Professional",
+        price: "49",
+        currency: "$",
+        period: "/ month",
+        description: "Best for growing teams & expanding SaaS startups.",
+        isPopular: true,
+        isRecommended: true,
+        badgeText: "MOST POPULAR",
+        showBadge: true,
+        buttonText: "Get Pro Now",
+        buttonUrl: "#",
+        buttonAlignment: "full",
+        features: [
+          { id: "f1", text: "Unlimited Projects", included: true },
+          { id: "f2", text: "100GB SSD Storage", included: true },
+          { id: "f3", text: "Advanced Analytics & Reports", included: true },
+          { id: "f4", text: "Custom Domain & SSL", included: true },
+          { id: "f5", text: "Priority Support", included: true },
+        ],
+      },
+      {
+        id: "3",
+        name: "Enterprise",
+        price: "99",
+        currency: "$",
+        period: "/ month",
+        description: "Advanced security, custom SLA, and dedicated scale.",
+        isPopular: false,
+        isRecommended: false,
+        showBadge: false,
+        buttonText: "Contact Sales",
+        buttonUrl: "#",
+        buttonAlignment: "full",
+        features: [
+          { id: "f1", text: "Unlimited Everything", included: true },
+          { id: "f2", text: "1TB High Speed Storage", included: true },
+          { id: "f3", text: "Custom Analytics & Export", included: true },
+          { id: "f4", text: "Multi-Region Cloud Hosting", included: true },
+          { id: "f5", text: "24/7 Dedicated Account Manager", included: true },
+        ],
+      },
+    ];
 
   const cols = el.pricingColumns || 3;
   const gap = el.pricingGap ?? 24;
@@ -1812,11 +1803,10 @@ export const PriceTableWidgetRenderer = ({
         return (
           <div
             key={plan.id}
-            className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${
-              isHighlight
+            className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${isHighlight
                 ? "shadow-2xl ring-2 scale-[1.02] z-10"
                 : "shadow-md hover:shadow-lg border"
-            }`}
+              }`}
             style={{
               backgroundColor: effectiveCardBg,
               borderColor: effectiveCardBorder,
@@ -1896,11 +1886,10 @@ export const PriceTableWidgetRenderer = ({
                 onClick={(e) => {
                   if (!isPreview) e.preventDefault();
                 }}
-                className={`rounded-xl py-3 px-5 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow active:scale-[0.98] ${
-                  plan.buttonAlignment === "left" || plan.buttonAlignment === "center" || plan.buttonAlignment === "right"
+                className={`rounded-xl py-3 px-5 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow active:scale-[0.98] ${plan.buttonAlignment === "left" || plan.buttonAlignment === "center" || plan.buttonAlignment === "right"
                     ? "w-auto min-w-[140px]"
                     : "w-full"
-                }`}
+                  }`}
                 style={{
                   backgroundColor: isHighlight ? highlightColor : btnBg,
                   color: btnColor,
@@ -1934,39 +1923,39 @@ export const PriceListWidgetRenderer = ({
   const items = el.priceListItems && el.priceListItems.length > 0
     ? el.priceListItems
     : [
-        {
-          id: "1",
-          name: "Signature Espresso Blend",
-          price: "$4.50",
-          description: "Freshly roasted double shot arabica blend with velvety microfoam.",
-          imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150&auto=format&fit=crop&q=80",
-          icon: "☕",
-        },
-        {
-          id: "2",
-          name: "Haircut & Precision Styling",
-          price: "$35.00",
-          description: "Precision scissor cut, wash, scalp massage, and hot towel finish.",
-          imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150&auto=format&fit=crop&q=80",
-          icon: "✂️",
-        },
-        {
-          id: "3",
-          name: "Web Design & UX Sprint",
-          price: "$499.00",
-          description: "Custom responsive website design with SEO optimization & CMS integration.",
-          imageUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=150&auto=format&fit=crop&q=80",
-          icon: "💻",
-        },
-        {
-          id: "4",
-          name: "Organic Facial Treatment",
-          price: "$85.00",
-          description: "Deep cleansing facial treatment with organic botanicals & anti-aging serum.",
-          imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=150&auto=format&fit=crop&q=80",
-          icon: "🌿",
-        },
-      ];
+      {
+        id: "1",
+        name: "Signature Espresso Blend",
+        price: "$4.50",
+        description: "Freshly roasted double shot arabica blend with velvety microfoam.",
+        imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150&auto=format&fit=crop&q=80",
+        icon: "☕",
+      },
+      {
+        id: "2",
+        name: "Haircut & Precision Styling",
+        price: "$35.00",
+        description: "Precision scissor cut, wash, scalp massage, and hot towel finish.",
+        imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150&auto=format&fit=crop&q=80",
+        icon: "✂️",
+      },
+      {
+        id: "3",
+        name: "Web Design & UX Sprint",
+        price: "$499.00",
+        description: "Custom responsive website design with SEO optimization & CMS integration.",
+        imageUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=150&auto=format&fit=crop&q=80",
+        icon: "💻",
+      },
+      {
+        id: "4",
+        name: "Organic Facial Treatment",
+        price: "$85.00",
+        description: "Deep cleansing facial treatment with organic botanicals & anti-aging serum.",
+        imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=150&auto=format&fit=crop&q=80",
+        icon: "🌿",
+      },
+    ];
 
   const gap = el.priceListGap ?? 20;
   const showImages = el.priceListShowImages !== false;
@@ -2088,43 +2077,43 @@ export const GalleryWidgetRenderer = ({
   const images = el.galleryImages && el.galleryImages.length > 0
     ? el.galleryImages
     : [
-        {
-          id: "1",
-          url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
-          caption: "Modern Minimalist Architecture",
-          altText: "Modern Architecture",
-        },
-        {
-          id: "2",
-          url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80",
-          caption: "Scandinavian Living Space",
-          altText: "Interior Living Room",
-        },
-        {
-          id: "3",
-          url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
-          caption: "Bright Collaborative Workspace",
-          altText: "Office Workspace",
-        },
-        {
-          id: "4",
-          url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80",
-          caption: "Glass Highrise Skyscraper",
-          altText: "City Skyscraper",
-        },
-        {
-          id: "5",
-          url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
-          caption: "Serene Alpine Lake Reflection",
-          altText: "Alpine Nature Landscape",
-        },
-        {
-          id: "6",
-          url: "https://images.unsplash.com/photo-1545241047-6083a3684587?w=600&auto=format&fit=crop&q=80",
-          caption: "Botanical Plant Oasis",
-          altText: "Green Botanical Decor",
-        },
-      ];
+      {
+        id: "1",
+        url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
+        caption: "Modern Minimalist Architecture",
+        altText: "Modern Architecture",
+      },
+      {
+        id: "2",
+        url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80",
+        caption: "Scandinavian Living Space",
+        altText: "Interior Living Room",
+      },
+      {
+        id: "3",
+        url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
+        caption: "Bright Collaborative Workspace",
+        altText: "Office Workspace",
+      },
+      {
+        id: "4",
+        url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80",
+        caption: "Glass Highrise Skyscraper",
+        altText: "City Skyscraper",
+      },
+      {
+        id: "5",
+        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
+        caption: "Serene Alpine Lake Reflection",
+        altText: "Alpine Nature Landscape",
+      },
+      {
+        id: "6",
+        url: "https://images.unsplash.com/photo-1545241047-6083a3684587?w=600&auto=format&fit=crop&q=80",
+        caption: "Botanical Plant Oasis",
+        altText: "Green Botanical Decor",
+      },
+    ];
 
   const cols = el.galleryColumns || 3;
   const gap = el.galleryGap ?? 16;
@@ -2780,9 +2769,8 @@ export const MediaCarouselWidgetRenderer = ({
                 return (
                   <div
                     key={item.id}
-                    className={`w-full transition-all duration-500 ${
-                      isSelected ? "relative opacity-100 z-10" : "absolute inset-0 opacity-0 z-0 pointer-events-none"
-                    }`}
+                    className={`w-full transition-all duration-500 ${isSelected ? "relative opacity-100 z-10" : "absolute inset-0 opacity-0 z-0 pointer-events-none"
+                      }`}
                     onClick={(e) => {
                       if (draggedFar) {
                         e.stopPropagation();
@@ -2919,9 +2907,8 @@ export const MediaCarouselWidgetRenderer = ({
                 handlePrev();
               }}
               disabled={!loop && currentIndex === 0}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-                !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+                }`}
               title="Previous Slide"
             >
               <span className="text-base font-bold">‹</span>
@@ -2933,9 +2920,8 @@ export const MediaCarouselWidgetRenderer = ({
                 handleNext();
               }}
               disabled={!loop && currentIndex >= maxIndex}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-                !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+                }`}
               title="Next Slide"
             >
               <span className="text-base font-bold">›</span>
@@ -2954,9 +2940,8 @@ export const MediaCarouselWidgetRenderer = ({
                   e.stopPropagation();
                   setCurrentIndex(idx);
                 }}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentIndex === idx ? "w-6 bg-cyan-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-cyan-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                  }`}
                 title={`Go to slide ${idx + 1}`}
               />
             ))}
@@ -3034,31 +3019,31 @@ export const TestimonialCarouselWidgetRenderer = ({
   const items: TestimonialItem[] = el.testimonialItems && el.testimonialItems.length > 0
     ? el.testimonialItems
     : [
-        {
-          id: "1",
-          quote: "ForgeStudio transformed how we launch client sites. What used to take weeks now takes hours with incredible quality!",
-          name: "Sarah Jenkins",
-          role: "VP of Product, TechScale Inc.",
-          avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-          rating: 5,
-        },
-        {
-          id: "2",
-          quote: "The visual editor and element customization options are second to none. Our conversion rates increased by 42%.",
-          name: "Marcus Vance",
-          role: "Founder & CEO, GrowthFlow",
-          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-          rating: 5,
-        },
-        {
-          id: "3",
-          quote: "Extremely intuitive UI, lightning-fast rendering, and fantastic pre-built components. A absolute game changer!",
-          name: "Elena Rostova",
-          role: "Head of Design, Studio Craft",
-          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-          rating: 5,
-        },
-      ];
+      {
+        id: "1",
+        quote: "ForgeStudio transformed how we launch client sites. What used to take weeks now takes hours with incredible quality!",
+        name: "Sarah Jenkins",
+        role: "VP of Product, TechScale Inc.",
+        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+        rating: 5,
+      },
+      {
+        id: "2",
+        quote: "The visual editor and element customization options are second to none. Our conversion rates increased by 42%.",
+        name: "Marcus Vance",
+        role: "Founder & CEO, GrowthFlow",
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        rating: 5,
+      },
+      {
+        id: "3",
+        quote: "Extremely intuitive UI, lightning-fast rendering, and fantastic pre-built components. A absolute game changer!",
+        name: "Elena Rostova",
+        role: "Head of Design, Studio Craft",
+        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        rating: 5,
+      },
+    ];
 
   const rawSlidesPerView = el.testimonialSlidesPerView || 2;
   const gap = el.testimonialGap ?? 20;
@@ -3259,9 +3244,8 @@ export const TestimonialCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Previous Testimonial"
           >
             <span className="text-base font-bold">‹</span>
@@ -3273,9 +3257,8 @@ export const TestimonialCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Next Testimonial"
           >
             <span className="text-base font-bold">›</span>
@@ -3294,9 +3277,8 @@ export const TestimonialCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx ? "w-6 bg-emerald-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-emerald-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
               title={`Go to testimonial ${idx + 1}`}
             />
           ))}
@@ -3458,9 +3440,8 @@ export const NestedCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Previous Slide"
           >
             <span className="text-base font-bold">‹</span>
@@ -3472,9 +3453,8 @@ export const NestedCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Next Slide"
           >
             <span className="text-base font-bold">›</span>
@@ -3493,9 +3473,8 @@ export const NestedCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx ? "w-6 bg-indigo-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-indigo-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -3517,14 +3496,14 @@ export const LoopCarouselWidgetRenderer = ({
   // Dynamic Content Binding: if dynamic CPT entries are attached to element
   const dynamicCptItems: LoopCarouselItem[] = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0
     ? (el as any).cptEntries.map((entry: any, i: number) => ({
-        id: entry.id || `cpt-${i}`,
-        title: entry.title || entry.name || "Untitled Entry",
-        description: entry.data?.description || entry.data?.excerpt || entry.description || "",
-        imageUrl: entry.data?.image || entry.data?.featuredImage || entry.imageUrl || "",
-        badge: entry.data?.category || entry.badge || "",
-        buttonText: entry.data?.buttonText || "Read More",
-        linkUrl: entry.slug ? `/entry/${entry.slug}` : "#",
-      }))
+      id: entry.id || `cpt-${i}`,
+      title: entry.title || entry.name || "Untitled Entry",
+      description: entry.data?.description || entry.data?.excerpt || entry.description || "",
+      imageUrl: entry.data?.image || entry.data?.featuredImage || entry.imageUrl || "",
+      badge: entry.data?.category || entry.badge || "",
+      buttonText: entry.data?.buttonText || "Read More",
+      linkUrl: entry.slug ? `/entry/${entry.slug}` : "#",
+    }))
     : [];
 
   const items = el.loopCarouselItems && el.loopCarouselItems.length > 0
@@ -3640,9 +3619,8 @@ export const LoopCarouselWidgetRenderer = ({
           {items.map((item, idx) => (
             <div
               key={item.id}
-              className={`absolute inset-0 transition-opacity duration-700 ease-in-out flex flex-col justify-between p-6 shadow-md border border-slate-100 ${
-                currentIndex === idx ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out flex flex-col justify-between p-6 shadow-md border border-slate-100 ${currentIndex === idx ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                }`}
               style={{
                 backgroundColor: cardBg,
                 borderRadius,
@@ -3804,9 +3782,8 @@ export const LoopCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Previous Item"
           >
             <span className="text-base font-bold">‹</span>
@@ -3818,9 +3795,8 @@ export const LoopCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
-              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-            }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
             title="Next Item"
           >
             <span className="text-base font-bold">›</span>
@@ -3839,9 +3815,8 @@ export const LoopCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx ? "w-6 bg-purple-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-purple-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -4029,11 +4004,10 @@ export const TocWidgetRenderer = ({
                     key={heading.id}
                     type="button"
                     onClick={() => handleHeadingClick(heading.id)}
-                    className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150 text-left cursor-pointer ${
-                      isActive
+                    className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150 text-left cursor-pointer ${isActive
                         ? "font-bold shadow-2xs"
                         : "font-normal hover:bg-slate-100/70"
-                    }`}
+                      }`}
                     style={{
                       marginLeft: `${indent}px`,
                       color: isActive ? hoverColor : textColor,
@@ -4052,18 +4026,16 @@ export const TocWidgetRenderer = ({
                     {/* Marker Styles */}
                     {markerStyle === "bullet" && (
                       <span
-                        className={`h-1.5 w-1.5 rounded-full shrink-0 transition-transform ${
-                          isActive ? "scale-125" : "group-hover:scale-110 opacity-60"
-                        }`}
+                        className={`h-1.5 w-1.5 rounded-full shrink-0 transition-transform ${isActive ? "scale-125" : "group-hover:scale-110 opacity-60"
+                          }`}
                         style={{ backgroundColor: isActive ? hoverColor : textColor }}
                       />
                     )}
 
                     {markerStyle === "number" && (
                       <span
-                        className={`font-mono text-[10px] font-bold shrink-0 px-1 py-0.5 rounded ${
-                          isActive ? "bg-blue-600 text-white" : "opacity-60 bg-slate-100"
-                        }`}
+                        className={`font-mono text-[10px] font-bold shrink-0 px-1 py-0.5 rounded ${isActive ? "bg-blue-600 text-white" : "opacity-60 bg-slate-100"
+                          }`}
                       >
                         {index + 1}
                       </span>
@@ -4071,9 +4043,8 @@ export const TocWidgetRenderer = ({
 
                     {markerStyle === "line" && (
                       <span
-                        className={`h-0.5 shrink-0 transition-all ${
-                          isActive ? "w-4" : "w-2.5 opacity-40 group-hover:w-3.5 group-hover:opacity-100"
-                        }`}
+                        className={`h-0.5 shrink-0 transition-all ${isActive ? "w-4" : "w-2.5 opacity-40 group-hover:w-3.5 group-hover:opacity-100"
+                          }`}
                         style={{ backgroundColor: hoverColor }}
                       />
                     )}
@@ -4248,8 +4219,8 @@ export const FacebookPageWidgetRenderer = ({
 }) => {
   const mode = el.facebookMode || (
     el.type === "facebook-button" ? "button" :
-    el.type === "facebook-embed" ? "embed" :
-    el.type === "facebook-comments" ? "comments" : "page"
+      el.type === "facebook-embed" ? "embed" :
+        el.type === "facebook-comments" ? "comments" : "page"
   );
 
   const alignment = el.facebookAlignment || el.fbButtonAlignment || "center";
@@ -4375,8 +4346,8 @@ export const FacebookPageWidgetRenderer = ({
 
   const isValidUrl = Boolean(
     url &&
-      (url.startsWith("http://") || url.startsWith("https://")) &&
-      (url.includes("facebook.com") || url.includes("fb.com"))
+    (url.startsWith("http://") || url.startsWith("https://")) &&
+    (url.includes("facebook.com") || url.includes("fb.com"))
   );
 
   if (!isValidUrl) {
@@ -4695,15 +4666,15 @@ export const ReviewsWidgetRenderer = ({
 
   const gridColsStyle = isGrid
     ? {
-        gridTemplateColumns:
-          columns === 1
-            ? "repeat(1, minmax(0, 1fr))"
-            : columns === 2
+      gridTemplateColumns:
+        columns === 1
+          ? "repeat(1, minmax(0, 1fr))"
+          : columns === 2
             ? "repeat(auto-fit, minmax(280px, 1fr))"
             : columns === 4
-            ? "repeat(auto-fit, minmax(220px, 1fr))"
-            : "repeat(auto-fit, minmax(260px, 1fr))",
-      }
+              ? "repeat(auto-fit, minmax(220px, 1fr))"
+              : "repeat(auto-fit, minmax(260px, 1fr))",
+    }
     : { gridTemplateColumns: "1fr" };
 
   const handleManualAddReview = (e: React.FormEvent) => {
@@ -4853,18 +4824,16 @@ export const ReviewsWidgetRenderer = ({
                 <button
                   type="button"
                   onClick={() => setAvatarInputType("url")}
-                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${
-                    avatarInputType === "url" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
-                  }`}
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${avatarInputType === "url" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
+                    }`}
                 >
                   1. Image URL
                 </button>
                 <button
                   type="button"
                   onClick={() => setAvatarInputType("file")}
-                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${
-                    avatarInputType === "file" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
-                  }`}
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${avatarInputType === "file" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
+                    }`}
                 >
                   2. 📁 Upload File
                 </button>
@@ -4950,9 +4919,8 @@ export const ReviewsWidgetRenderer = ({
               <div className={`flex flex-col ${textAlignClass} w-full`}>
                 {/* Rating Stars */}
                 <div
-                  className={`flex items-center gap-1 mb-3 ${
-                    alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex items-center gap-1 mb-3 ${alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
@@ -4974,13 +4942,12 @@ export const ReviewsWidgetRenderer = ({
 
               {/* Reviewer Details */}
               <div
-                className={`flex items-center gap-3 pt-3 border-t border-slate-100 w-full ${
-                  alignment === "center"
+                className={`flex items-center gap-3 pt-3 border-t border-slate-100 w-full ${alignment === "center"
                     ? "justify-center"
                     : alignment === "right"
-                    ? "justify-end flex-row-reverse"
-                    : "justify-start"
-                }`}
+                      ? "justify-end flex-row-reverse"
+                      : "justify-start"
+                  }`}
               >
                 {showAvatar && (
                   <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
@@ -5196,8 +5163,8 @@ export const PayPalButtonWidgetRenderer = ({
     size === "sm"
       ? "px-4 py-2 text-xs gap-1.5"
       : size === "lg"
-      ? "px-8 py-4 text-base gap-3 font-extrabold"
-      : "px-6 py-3 text-sm gap-2 font-bold";
+        ? "px-8 py-4 text-base gap-3 font-extrabold"
+        : "px-6 py-3 text-sm gap-2 font-bold";
 
   const roundedClass = shape === "rect" ? "rounded-lg" : "rounded-full";
 
@@ -5252,7 +5219,7 @@ export const PayPalButtonWidgetRenderer = ({
       if (popupWindow && !popupWindow.closed) {
         try {
           popupWindow.close();
-        } catch (_) {}
+        } catch (_) { }
       }
 
       if (captureRes.ok && captureData.success) {
@@ -5429,8 +5396,8 @@ export const StripeButtonWidgetRenderer = ({
     size === "sm"
       ? "px-3.5 py-1.5 text-xs gap-1.5"
       : size === "lg"
-      ? "px-7 py-3.5 text-base gap-3 font-bold"
-      : "px-5 py-2.5 text-sm gap-2 font-semibold";
+        ? "px-7 py-3.5 text-base gap-3 font-bold"
+        : "px-5 py-2.5 text-sm gap-2 font-semibold";
 
   const formattedUrl = rawCheckoutUrl
     ? /^https?:\/\//i.test(rawCheckoutUrl)
@@ -5490,28 +5457,28 @@ export const ImageCarouselWidgetRenderer = ({
   const items: ImageCarouselItem[] = el.imageCarouselItems?.length
     ? el.imageCarouselItems
     : [
-        {
-          id: "1",
-          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
-          alt: "Abstract Visual Art",
-          caption: "Abstract Geometry",
-          title: "Modern Visuals",
-        },
-        {
-          id: "2",
-          url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
-          alt: "Digital Workspace",
-          caption: "Clean Digital Workspace",
-          title: "Workspace",
-        },
-        {
-          id: "3",
-          url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-          alt: "Responsive Motion",
-          caption: "Dynamic Motion",
-          title: "Interactive Motion",
-        },
-      ];
+      {
+        id: "1",
+        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+        alt: "Abstract Visual Art",
+        caption: "Abstract Geometry",
+        title: "Modern Visuals",
+      },
+      {
+        id: "2",
+        url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
+        alt: "Digital Workspace",
+        caption: "Clean Digital Workspace",
+        title: "Workspace",
+      },
+      {
+        id: "3",
+        url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+        alt: "Responsive Motion",
+        caption: "Dynamic Motion",
+        title: "Interactive Motion",
+      },
+    ];
 
   const rawSlidesPerView = el.imageCarouselSlidesPerView ?? 3;
   const gap = el.imageCarouselGap ?? 16;
@@ -5679,9 +5646,8 @@ export const ImageCarouselWidgetRenderer = ({
               return (
                 <div
                   key={item.id}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                    isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                    }`}
                 >
                   <a
                     href={item.linkUrl || "#"}
@@ -5723,9 +5689,8 @@ export const ImageCarouselWidgetRenderer = ({
               className={`flex ${isMouseDown ? "transition-none" : "transition-transform duration-500 ease-out"}`}
               style={{
                 gap: `${gap}px`,
-                transform: `translateX(calc(-${currentIndex * (100 / effectiveSlidesPerView)}% - ${
-                  currentIndex * (gap / effectiveSlidesPerView)
-                }px + ${dragOffset}px))`,
+                transform: `translateX(calc(-${currentIndex * (100 / effectiveSlidesPerView)}% - ${currentIndex * (gap / effectiveSlidesPerView)
+                  }px + ${dragOffset}px))`,
               }}
             >
               {items.map((item, idx) => (
@@ -5773,9 +5738,8 @@ export const ImageCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${
-              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
-            }`}
+            className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
+              }`}
             title="Previous Image"
           >
             <span className="text-lg font-bold leading-none">‹</span>
@@ -5791,9 +5755,8 @@ export const ImageCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${
-              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
-            }`}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
+              }`}
             title="Next Image"
           >
             <span className="text-lg font-bold leading-none">›</span>
@@ -5812,9 +5775,8 @@ export const ImageCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx ? "w-6 bg-blue-600 shadow-xs" : "w-2 bg-slate-300 hover:bg-slate-400"
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-blue-600 shadow-xs" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
               title={`Jump to slide ${idx + 1}`}
             />
           ))}
@@ -6058,10 +6020,10 @@ export const MegaMenuWidgetRenderer = ({
     alignment === "left" || alignment === "flex-start"
       ? "justify-start"
       : alignment === "right" || alignment === "flex-end"
-      ? "justify-end"
-      : alignment === "between" || alignment === "space-between"
-      ? "justify-between"
-      : "justify-center";
+        ? "justify-end"
+        : alignment === "between" || alignment === "space-between"
+          ? "justify-between"
+          : "justify-center";
 
   const resolveMegaCategory = (cat: MegaMenuItem) => {
     let displayTitle = cat.title;
@@ -6283,9 +6245,8 @@ export const MegaMenuWidgetRenderer = ({
                 <li
                   key={item.id}
                   onPointerDown={(e) => handleMegaItemPointerDown(e, item, idx)}
-                  className={`py-2 px-3 rounded-lg hover:bg-slate-100/70 transition select-none ${
-                    !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80" : "cursor-pointer"
-                  }`}
+                  className={`py-2 px-3 rounded-lg hover:bg-slate-100/70 transition select-none ${!isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80" : "cursor-pointer"
+                    }`}
                   style={{
                     position: isPositioned ? "absolute" : "relative",
                     left: isPositioned ? `${activePos.x}px` : undefined,
@@ -6320,21 +6281,19 @@ export const MegaMenuWidgetRenderer = ({
                   {/* Mega Dropdown Panel */}
                   {isOpen && hasColumns && (
                     <div
-                      className={`absolute top-full ${
-                        alignment === "right" || alignment === "flex-end"
+                      className={`absolute top-full ${alignment === "right" || alignment === "flex-end"
                           ? "right-0 left-auto translate-x-0"
                           : alignment === "left" || alignment === "flex-start"
-                          ? "left-0 right-auto translate-x-0"
-                          : "left-1/2 -translate-x-1/2"
-                      } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${
-                        item.columns!.length === 1
+                            ? "left-0 right-auto translate-x-0"
+                            : "left-1/2 -translate-x-1/2"
+                        } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${item.columns!.length === 1
                           ? "w-[300px] grid grid-cols-1"
                           : item.columns!.length === 2
-                          ? "w-[540px] grid grid-cols-2"
-                          : item.columns!.length === 3
-                          ? "w-[720px] grid grid-cols-3"
-                          : "w-[880px] grid grid-cols-4"
-                      }`}
+                            ? "w-[540px] grid grid-cols-2"
+                            : item.columns!.length === 3
+                              ? "w-[720px] grid grid-cols-3"
+                              : "w-[880px] grid grid-cols-4"
+                        }`}
                       style={{ backgroundColor: "#ffffff" }}
                     >
                       {item.columns!.map((col, cIdx) => (
@@ -6530,9 +6489,8 @@ export const OffCanvasWidgetRenderer = ({
 
           {/* Off Canvas Sliding Panel */}
           <div
-            className={`fixed top-0 bottom-0 z-50 flex flex-col shadow-2xl transition-transform duration-300 ${
-              position === "right" ? "right-0" : "left-0"
-            }`}
+            className={`fixed top-0 bottom-0 z-50 flex flex-col shadow-2xl transition-transform duration-300 ${position === "right" ? "right-0" : "left-0"
+              }`}
             style={{ width: panelWidth, backgroundColor: panelBg }}
           >
             {/* Panel Header */}
@@ -6875,9 +6833,8 @@ export const AudioPlaylistWidgetRenderer = ({
                 setIsPlaying(true);
                 setHasError(false);
               }}
-              className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition ${
-                isActive ? "bg-white/15 border border-white/20 font-bold" : "hover:bg-white/5 opacity-80"
-              }`}
+              className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition ${isActive ? "bg-white/15 border border-white/20 font-bold" : "hover:bg-white/5 opacity-80"
+                }`}
             >
               <div className="flex items-center gap-2.5 truncate">
                 <span className="text-xs font-mono opacity-60">{idx + 1}</span>
@@ -7125,8 +7082,8 @@ export const IconLibraryWidgetRenderer = ({
     alignment === "left"
       ? "justify-start"
       : alignment === "right"
-      ? "justify-end"
-      : "justify-center";
+        ? "justify-end"
+        : "justify-center";
 
   return (
     <div
@@ -7452,7 +7409,7 @@ export const getSocialShareUrl = (
 ): string => {
   const safeTarget = targetUrl && isSafeShareUrl(targetUrl) ? targetUrl.trim() : "https://example.com";
   const url = encodeURIComponent(safeTarget);
-  
+
   const textVal = shareText ? shareText.trim() : "";
   const title = encodeURIComponent(textVal);
 
@@ -7718,12 +7675,12 @@ export const ShareButtonsWidgetRenderer = ({
                 net.network === "twitter"
                   ? "Tweet"
                   : net.network === "copy"
-                  ? "Copy Link"
-                  : net.network === "instagram"
-                  ? "Instagram"
-                  : net.network === "custom"
-                  ? "Visit Link"
-                  : net.network.charAt(0).toUpperCase() + net.network.slice(1);
+                    ? "Copy Link"
+                    : net.network === "instagram"
+                      ? "Instagram"
+                      : net.network === "custom"
+                        ? "Visit Link"
+                        : net.network.charAt(0).toUpperCase() + net.network.slice(1);
               const displayLabel = isCopied ? "Copied!" : net.label || defaultNetLabel;
 
               const actionResult = resolveShareAction(el, net, pages, activePageId);
@@ -8152,7 +8109,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
     try {
       const saved = localStorage.getItem("forgestudio_favorite_widgets");
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     return ["heading", "text", "button", "image"];
   });
 
@@ -8165,7 +8122,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
           .filter(([_id, c]: any) => c.isFavorite)
           .map(([id, c]: any) => ({ id, name: c.name }));
       }
-    } catch {}
+    } catch { }
     return [];
   });
 
@@ -8183,7 +8140,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
               .map(([id, c]: any) => ({ id, name: c.name }))
           );
         }
-      } catch {}
+      } catch { }
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);

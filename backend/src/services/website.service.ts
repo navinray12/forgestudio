@@ -142,7 +142,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (wsErr) {}
+    } catch (wsErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -155,7 +155,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (tmErr) {}
+    } catch (tmErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -171,7 +171,7 @@ export async function initWebsiteTable() {
           END IF;
         END $$;
       `);
-    } catch (colErr) {}
+    } catch (colErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -185,7 +185,7 @@ export async function initWebsiteTable() {
           CONSTRAINT "team_members_teamId_userId_key" UNIQUE ("teamId", "userId")
         );
       `);
-    } catch (tmmErr) {}
+    } catch (tmmErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -202,7 +202,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (tmiErr) {}
+    } catch (tmiErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -219,7 +219,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (wsiErr) {}
+    } catch (wsiErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -238,7 +238,7 @@ export async function initWebsiteTable() {
       await prisma.$executeRawUnsafe(`
         CREATE INDEX IF NOT EXISTS developer_api_keys_userId_idx ON developer_api_keys("userId");
       `);
-    } catch (dakErr) {}
+    } catch (dakErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -263,7 +263,7 @@ export async function initWebsiteTable() {
       await prisma.$executeRawUnsafe(`
         CREATE INDEX IF NOT EXISTS background_jobs_type_idx ON background_jobs("type");
       `);
-    } catch (bjErr) {}
+    } catch (bjErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -279,7 +279,7 @@ export async function initWebsiteTable() {
           CONSTRAINT "granular_permissions_websiteId_userId_resourceId_capability_key" UNIQUE ("websiteId", "userId", "resourceId", "capability")
         );
       `);
-    } catch (gpErr) {}
+    } catch (gpErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -293,7 +293,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (orgErr) {}
+    } catch (orgErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -313,7 +313,7 @@ export async function initWebsiteTable() {
           END IF;
         END $$;
       `);
-    } catch (colErr2) {}
+    } catch (colErr2) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -327,7 +327,7 @@ export async function initWebsiteTable() {
           CONSTRAINT "organization_members_organizationId_userId_key" UNIQUE ("organizationId", "userId")
         );
       `);
-    } catch (omErr) {}
+    } catch (omErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -341,7 +341,7 @@ export async function initWebsiteTable() {
           CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
         );
       `);
-    } catch (wmErr) {}
+    } catch (wmErr) { }
 
     try {
       await prisma.$executeRawUnsafe(`
@@ -359,7 +359,7 @@ export async function initWebsiteTable() {
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (parErr) {}
+    } catch (parErr) { }
   } catch (error) {
     console.error("Website table initialization log:", error);
   }
@@ -945,7 +945,7 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
         details: { targetUserId, newRole, previousRole: existing.permission },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { success: true };
 }
@@ -997,7 +997,7 @@ export async function inviteWebsiteMember(websiteId: string, inviterId: string, 
         details: { email, role, inviteId: invite.id },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { inviteId: invite.id, token };
 }
@@ -1045,7 +1045,7 @@ export async function acceptWebsiteInvitation(token: string, userId: string) {
         details: { inviteId: invite.id, role: invite.role },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { success: true, websiteId: invite.websiteId };
 }
@@ -1075,7 +1075,7 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
         details: { targetUserId },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { success: true };
 }
@@ -1103,7 +1103,7 @@ export async function revokeWebsiteInvitation(inviteId: string, requesterUserId:
         details: { inviteId, email: invite.email, role: invite.role },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { success: true, invite: { id: updated.id, status: updated.status } };
 }
@@ -1140,7 +1140,7 @@ export async function resendWebsiteInvitation(inviteId: string, requesterUserId:
         details: { inviteId, email: invite.email, role: invite.role },
       },
     });
-  } catch (e) {}
+  } catch (e) { }
 
   return { success: true, inviteId: invite.id, token };
 }

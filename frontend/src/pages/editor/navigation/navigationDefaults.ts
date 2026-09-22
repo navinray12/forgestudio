@@ -470,11 +470,11 @@ export function createDefaultHeaderElements(
   const navItems: NavMenuItem[] =
     pages.length > 0
       ? pages.map((p) => ({
-          id: `nav_page_${p.id}`,
-          label: p.name,
-          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
-          pageId: p.id,
-        }))
+        id: `nav_page_${p.id}`,
+        label: p.name,
+        url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+        pageId: p.id,
+      }))
       : DEFAULT_NAV_MENU_ITEMS;
 
   return [
