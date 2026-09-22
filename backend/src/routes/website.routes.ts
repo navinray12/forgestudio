@@ -49,6 +49,11 @@ import {
   disconnectWordPressHandler,
   syncWordPressPagesHandler,
   handleWordPressWebhook,
+  getAcfFieldsHandler,
+  getToolsetFieldsHandler,
+  getPodsFieldsHandler,
+  syncGutenbergBlocksHandler,
+  getMultisiteSitesHandler,
 } from "../controllers/wordpress.controller.js";
 import {
   schedulePublishHandler,
@@ -73,6 +78,13 @@ import {
   generateWpAdminSsoHandler,
   optimizeRemoteDatabaseHandler,
 } from "../controllers/wpAdmin.controller.js";
+import {
+  analyzeSeoHandler,
+  auditImagesHandler,
+  auditAccessibilityHandler,
+  generateStructuredDataHandler,
+  saveWebsiteSeoHandler,
+} from "../controllers/seo.controller.js";
 
 const router = Router();
 
@@ -127,6 +139,12 @@ router.get("/:id/wordpress/status", authorizeCapability("VIEW"), getWordPressSta
 router.post("/:id/wordpress/verify", authorizeCapability("MANAGE_INTEGRATIONS"), verifyWordPressHandler);
 router.post("/:id/wordpress/disconnect", authorizeCapability("MANAGE_INTEGRATIONS"), disconnectWordPressHandler);
 router.post("/:id/wordpress/sync-pages", authorizeCapability("MANAGE_INTEGRATIONS"), syncWordPressPagesHandler);
+router.get("/:id/wordpress/acf-fields", authorizeCapability("VIEW"), getAcfFieldsHandler);
+router.get("/:id/wordpress/toolset-fields", authorizeCapability("VIEW"), getToolsetFieldsHandler);
+router.get("/:id/wordpress/pods-fields", authorizeCapability("VIEW"), getPodsFieldsHandler);
+router.post("/:id/wordpress/gutenberg-sync", authorizeCapability("MANAGE_INTEGRATIONS"), syncGutenbergBlocksHandler);
+router.get("/:id/wordpress/multisite-sites", authorizeCapability("VIEW"), getMultisiteSitesHandler);
+
 
 // Production Publishing & Deployment API
 router.post("/:id/validate-publish", authorizeCapability("PUBLISH"), validatePublishHandler);
@@ -139,6 +157,13 @@ router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLL
 router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
 router.post("/:id/cancel-scheduled-publish", authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);
+
+// Quality & SEO Analysis API
+router.post("/:id/seo/analyze", authorizeCapability("VIEW"), analyzeSeoHandler);
+router.post("/:id/seo/audit-images", authorizeCapability("VIEW"), auditImagesHandler);
+router.post("/:id/seo/audit-a11y", authorizeCapability("VIEW"), auditAccessibilityHandler);
+router.post("/:id/seo/structured-data", authorizeCapability("VIEW"), generateStructuredDataHandler);
+router.put("/:id/seo", authorizeCapability("EDIT_SEO"), saveWebsiteSeoHandler);
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);
@@ -153,6 +178,8 @@ router.post("/accept", acceptWebsiteInvitationHandler);
 router.post("/:id/invite", authorizeCapability("MANAGE_TEAM"), inviteWebsiteMemberHandler);
 router.delete("/:id/members/:collaboratorUserId", authorizeCapability("MANAGE_TEAM"), removeWebsiteMemberHandler);
 
+router.post("/invitations/:inviteId/revoke", revokeWebsiteInvitationHandler);
+router.post("/invitations/:inviteId/resend", resendWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/revoke", authorizeCapability("MANAGE_TEAM"), revokeWebsiteInvitationHandler);
 router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEAM"), resendWebsiteInvitationHandler);
 

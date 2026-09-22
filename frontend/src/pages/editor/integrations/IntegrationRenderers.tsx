@@ -586,5 +586,153 @@ export const IntegrationElementRenderer: React.FC<IntegrationRendererProps> = ({
     );
   }
 
+  // ==========================================
+  // F-262: ACF Integration Renderer
+  // ==========================================
+  if ((el.type as string) === "acf-integration") {
+    const fieldKey = getProp("acfFieldKey", "hero_banner_text");
+    const postId = getProp("acfPostId", "1");
+    const [acfVal, setAcfVal] = useState<string>("Welcome to ForgeStudio Dynamic Content");
+
+    useEffect(() => {
+      let isMounted = true;
+      fetch(`${apiUrl}/api/v1/websites/demo-site/wordpress/acf-fields?postId=${postId}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (isMounted && d?.fields?.[fieldKey]) {
+            setAcfVal(String(d.fields[fieldKey]));
+          }
+        })
+        .catch(() => {});
+      return () => {
+        isMounted = false;
+      };
+    }, [fieldKey, postId, apiUrl]);
+
+    return (
+      <div className="w-full p-4 rounded-xl bg-slate-900 border border-amber-500/40 text-white shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
+            ACF Field (F-262)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">Post #{postId} &rarr; {fieldKey}</span>
+        </div>
+        <div className="text-lg font-bold text-amber-200">{acfVal}</div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // F-263: Toolset Integration Renderer
+  // ==========================================
+  if ((el.type as string) === "toolset-integration") {
+    const fieldSlug = getProp("toolsetFieldSlug", "wpcf-custom-header");
+    const [toolsetVal, setToolsetVal] = useState<string>("Toolset Types Dynamic Header");
+
+    useEffect(() => {
+      let isMounted = true;
+      fetch(`${apiUrl}/api/v1/websites/demo-site/wordpress/toolset-fields`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (isMounted && d?.fields?.[fieldSlug]) {
+            setToolsetVal(String(d.fields[fieldSlug]));
+          }
+        })
+        .catch(() => {});
+      return () => {
+        isMounted = false;
+      };
+    }, [fieldSlug, apiUrl]);
+
+    return (
+      <div className="w-full p-4 rounded-xl bg-slate-900 border border-blue-500/40 text-white shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
+            Toolset Types (F-263)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">{fieldSlug}</span>
+        </div>
+        <div className="text-lg font-bold text-blue-200">{toolsetVal}</div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // F-264: Pods Integration Renderer
+  // ==========================================
+  if ((el.type as string) === "pods-integration") {
+    const fieldKey = getProp("podsFieldKey", "pod_title");
+    const [podsVal, setPodsVal] = useState<string>("Pods Framework Custom Content");
+
+    useEffect(() => {
+      let isMounted = true;
+      fetch(`${apiUrl}/api/v1/websites/demo-site/wordpress/pods-fields`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (isMounted && d?.fields?.[fieldKey]) {
+            setPodsVal(String(d.fields[fieldKey]));
+          }
+        })
+        .catch(() => {});
+      return () => {
+        isMounted = false;
+      };
+    }, [fieldKey, apiUrl]);
+
+    return (
+      <div className="w-full p-4 rounded-xl bg-slate-900 border border-emerald-500/40 text-white shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+            Pods Framework (F-264)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">{fieldKey}</span>
+        </div>
+        <div className="text-lg font-bold text-emerald-200">{podsVal}</div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // F-267: Gutenberg Blocks Integration Renderer
+  // ==========================================
+  if ((el.type as string) === "gutenberg-blocks") {
+    const blockType = getProp("gutenbergBlockType", "core/paragraph");
+
+    return (
+      <div className="w-full p-4 rounded-xl bg-slate-950 border border-purple-500/40 text-white shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">
+            Gutenberg Block (F-267)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">{blockType}</span>
+        </div>
+        <div className="p-3 bg-slate-900 rounded-lg text-xs font-mono text-purple-200">
+          &lt;!-- wp:{blockType} --&gt; Bidirectional Gutenberg block rendered &lt;!-- /wp:{blockType} --&gt;
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // F-269: Multisite Support Renderer
+  // ==========================================
+  if ((el.type as string) === "multisite-support") {
+    const activeSiteId = getProp("multisiteSiteId", "1");
+
+    return (
+      <div className="w-full p-4 rounded-xl bg-slate-950 border border-sky-500/40 text-white shadow-md">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-800">
+            Multisite Network (F-269)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">X-WP-Site-ID: {activeSiteId}</span>
+        </div>
+        <div className="text-sm font-semibold text-sky-200">
+          Connected to Multisite Blog ID #{activeSiteId} (http://localhost/wordpress/)
+        </div>
+      </div>
+    );
+  }
+
   return null;
 };

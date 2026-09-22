@@ -49,11 +49,12 @@ export function transformPageToWordPress(
   const meta: Record<string, any> = {
     _forgestudio_page_id: page.id,
     _forgestudio_synced_at: new Date().toISOString(),
-    _yoast_wpseo_title: pageSettings.seoTitle || page.name || siteSettings.siteName,
+    _yoast_wpseo_title: pageSettings.seoTitle || pageSettings.title || page.name || siteSettings.siteName,
     _yoast_wpseo_metadesc: pageSettings.seoDescription || pageSettings.description || "",
     _forgestudio_canonical_url: pageSettings.canonicalUrl || "",
-    _forgestudio_og_image: pageSettings.ogImage || "",
-    _forgestudio_schema: pageSettings.schemaMarkup || null,
+    _forgestudio_og_image: pageSettings.ogImage || siteSettings.ogImage || siteSettings.logo || "",
+    _forgestudio_twitter_card: pageSettings.twitterCard || siteSettings.twitterCard || "summary_large_image",
+    _forgestudio_schema: pageSettings.structuredData ? JSON.stringify(pageSettings.structuredData) : (pageSettings.schemaMarkup || null),
   };
 
   const slug = (page.slug || page.name || "page")

@@ -5,6 +5,11 @@ import {
   verifyWordPressConnection,
   disconnectWordPress,
   publishToWordPress,
+  getAcfFields,
+  getToolsetFields,
+  getPodsFields,
+  syncGutenbergBlocks,
+  getMultisiteSites,
 } from "../services/wordpress/connector.service.js";
 import { processWordPressWebhook } from "../services/wordpress/webhook.service.js";
 import { getWebsiteById } from "../services/website.service.js";
@@ -116,3 +121,75 @@ export async function downloadWordPressPluginHandler(_req: Request, res: Respons
   }
 }
 
+export async function getAcfFieldsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+    const postId = req.query.postId ? Number(req.query.postId) : undefined;
+    const siteId = (req.headers["x-wp-site-id"] || req.query.siteId) as string;
+
+    const result = await getAcfFields(websiteId, userId, postId, siteId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getToolsetFieldsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+    const postId = req.query.postId ? Number(req.query.postId) : undefined;
+    const siteId = (req.headers["x-wp-site-id"] || req.query.siteId) as string;
+
+    const result = await getToolsetFields(websiteId, userId, postId, siteId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getPodsFieldsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+    const postId = req.query.postId ? Number(req.query.postId) : undefined;
+    const siteId = (req.headers["x-wp-site-id"] || req.query.siteId) as string;
+
+    const result = await getPodsFields(websiteId, userId, postId, siteId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function syncGutenbergBlocksHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+    const siteId = (req.headers["x-wp-site-id"] || req.query.siteId) as string;
+
+    const website = await getWebsiteById(websiteId, userId);
+    const pageData = typeof website.editorData === "string"
+      ? JSON.parse(website.editorData)
+      : (website.editorData || {});
+
+    const result = await syncGutenbergBlocks(websiteId, userId, pageData, siteId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMultisiteSitesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+    const activeSiteId = (req.headers["x-wp-site-id"] || req.query.siteId) as string;
+
+    const result = await getMultisiteSites(websiteId, userId, activeSiteId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}

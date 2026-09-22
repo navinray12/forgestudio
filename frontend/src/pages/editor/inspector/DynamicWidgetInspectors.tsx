@@ -174,6 +174,127 @@ export function UniversalItemManager<T extends { id: string }>(props: {
   const { title, items, onUpdate, createDefaultItem, getItemHeaderLabel, renderItemFields } = props;
   const currentItems = items || [];
 
+  const draggedIdxRef = React.useRef<number | null>(null);
+  const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = React.useState<number | null>(null);
+
+  // Pointer Mouse Drag Handler (Guarantees smooth drag reordering in all webviews/iframes)
+  const handlePointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
+    startEvent.stopPropagation();
+    startEvent.preventDefault();
+
+    let currentHoverIdx = startIdx;
+    setDraggedIdx(startIdx);
+    setDragOverIdx(startIdx);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const elUnder = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+      if (!elUnder) return;
+
+      const itemCard = elUnder.closest("[data-item-index]");
+      if (itemCard) {
+        const targetIdxAttr = itemCard.getAttribute("data-item-index");
+        if (targetIdxAttr !== null) {
+          const targetIdx = parseInt(targetIdxAttr, 10);
+          if (!isNaN(targetIdx) && targetIdx !== currentHoverIdx) {
+            currentHoverIdx = targetIdx;
+            setDragOverIdx(targetIdx);
+          }
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+
+      if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < currentItems.length) {
+        const copy = [...currentItems];
+        const [movedItem] = copy.splice(startIdx, 1);
+        copy.splice(currentHoverIdx, 0, movedItem);
+        onUpdate(copy);
+      }
+
+      setDraggedIdx(null);
+      setDragOverIdx(null);
+    };
+
+    document.body.style.cursor = "grabbing";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.stopPropagation();
+    draggedIdxRef.current = index;
+    try {
+      e.dataTransfer.setData("text/plain", index.toString());
+      e.dataTransfer.effectAllowed = "move";
+    } catch (err) {}
+
+    setTimeout(() => {
+      setDraggedIdx(index);
+    }, 0);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      e.dataTransfer.dropEffect = "move";
+    } catch (err) {}
+    if (dragOverIdx !== index) {
+      setDragOverIdx(index);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragOverIdx !== index) {
+      setDragOverIdx(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIdx: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    let sourceIdx = draggedIdxRef.current;
+    if (sourceIdx === null) {
+      try {
+        const str = e.dataTransfer.getData("text/plain");
+        if (str) sourceIdx = parseInt(str, 10);
+      } catch (err) {}
+    }
+
+    if (
+      sourceIdx !== null &&
+      !isNaN(sourceIdx) &&
+      sourceIdx !== targetIdx &&
+      sourceIdx >= 0 &&
+      sourceIdx < currentItems.length
+    ) {
+      const copy = [...currentItems];
+      const [movedItem] = copy.splice(sourceIdx, 1);
+      copy.splice(targetIdx, 0, movedItem);
+      onUpdate(copy);
+    }
+
+    draggedIdxRef.current = null;
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    draggedIdxRef.current = null;
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
+
   return (
     <div className="space-y-3 pt-3 border-t border-slate-100">
       <div className="flex items-center justify-between">
@@ -237,12 +358,50 @@ export function UniversalItemManager<T extends { id: string }>(props: {
             };
 
             return (
-              <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5 transition hover:border-slate-300">
+              <div
+                key={item.id}
+                data-item-index={idx}
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDragEnter={(e) => handleDragEnter(e, idx)}
+                onDragLeave={(e) => {
+                  e.stopPropagation();
+                  if (dragOverIdx === idx) setDragOverIdx(null);
+                }}
+                onDrop={(e) => handleDrop(e, idx)}
+                onDragEnd={handleDragEnd}
+                className={`rounded-xl border bg-white p-3 shadow-xs space-y-2.5 transition-all duration-150 ${
+                  draggedIdx === idx
+                    ? "opacity-30 border-dashed border-blue-400 bg-blue-50/20 scale-[0.98]"
+                    : dragOverIdx === idx
+                    ? "border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/50 shadow-md transform translate-y-0.5"
+                    : "border-slate-200 hover:border-slate-300"
+                }`}
+              >
                 <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                  <span className="text-[11px] font-bold text-slate-800 truncate max-w-[150px]">
-                    #{idx + 1} {getItemHeaderLabel(item, idx)}
-                  </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 truncate max-w-[170px]">
+                    <span
+                      draggable={true}
+                      onMouseDown={(e) => handlePointerStart(idx, e)}
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-0.5 rounded hover:bg-slate-100 transition shrink-0 flex items-center select-none"
+                      title="Click & Drag mouse to reorder item"
+                    >
+                      <svg className="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 16 16">
+                        <circle cx="5" cy="3" r="1.3"/>
+                        <circle cx="11" cy="3" r="1.3"/>
+                        <circle cx="5" cy="8" r="1.3"/>
+                        <circle cx="11" cy="8" r="1.3"/>
+                        <circle cx="5" cy="13" r="1.3"/>
+                        <circle cx="11" cy="13" r="1.3"/>
+                      </svg>
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-800 truncate">
+                      #{idx + 1} {getItemHeaderLabel(item, idx)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1" onMouseDown={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={handleMoveUp}
@@ -280,7 +439,9 @@ export function UniversalItemManager<T extends { id: string }>(props: {
                   </div>
                 </div>
 
-                {renderItemFields(item, idx, updateItem)}
+                <div onMouseDown={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
+                  {renderItemFields(item, idx, updateItem)}
+                </div>
               </div>
             );
           })}
@@ -3544,6 +3705,110 @@ export function PriceTableWidgetInspector({
 
   const [expandedPlanId, setExpandedPlanId] = React.useState<string | null>(plans[0]?.id || null);
 
+  const draggedPlanIdxRef = React.useRef<number | null>(null);
+  const [draggedPlanIdx, setDraggedPlanIdx] = React.useState<number | null>(null);
+  const [dragOverPlanIdx, setDragOverPlanIdx] = React.useState<number | null>(null);
+
+  const draggedFeatKeyRef = React.useRef<string | null>(null);
+  const [draggedFeatKey, setDraggedFeatKey] = React.useState<string | null>(null);
+  const [dragOverFeatKey, setDragOverFeatKey] = React.useState<string | null>(null);
+
+  const handlePlanPointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
+    startEvent.stopPropagation();
+    startEvent.preventDefault();
+
+    let currentHoverIdx = startIdx;
+    setDraggedPlanIdx(startIdx);
+    setDragOverPlanIdx(startIdx);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const elUnder = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+      if (!elUnder) return;
+
+      const planCard = elUnder.closest("[data-plan-index]");
+      if (planCard) {
+        const targetIdxAttr = planCard.getAttribute("data-plan-index");
+        if (targetIdxAttr !== null) {
+          const targetIdx = parseInt(targetIdxAttr, 10);
+          if (!isNaN(targetIdx) && targetIdx !== currentHoverIdx) {
+            currentHoverIdx = targetIdx;
+            setDragOverPlanIdx(targetIdx);
+          }
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+
+      if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < plans.length) {
+        const copy = [...plans];
+        const [movedPlan] = copy.splice(startIdx, 1);
+        copy.splice(currentHoverIdx, 0, movedPlan);
+        savePlans(copy);
+      }
+
+      setDraggedPlanIdx(null);
+      setDragOverPlanIdx(null);
+    };
+
+    document.body.style.cursor = "grabbing";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleFeatPointerStart = (planIndex: number, startFeatIdx: number, startEvent: React.MouseEvent) => {
+    startEvent.stopPropagation();
+    startEvent.preventDefault();
+
+    let currentHoverFeatIdx = startFeatIdx;
+    const startKey = `${planIndex}_${startFeatIdx}`;
+    setDraggedFeatKey(startKey);
+    setDragOverFeatKey(startKey);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const elUnder = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+      if (!elUnder) return;
+
+      const featCard = elUnder.closest("[data-feat-index]");
+      if (featCard) {
+        const targetPlanIdxAttr = featCard.getAttribute("data-plan-index");
+        const targetFeatIdxAttr = featCard.getAttribute("data-feat-index");
+        if (targetPlanIdxAttr !== null && targetFeatIdxAttr !== null) {
+          const tPlanIdx = parseInt(targetPlanIdxAttr, 10);
+          const tFeatIdx = parseInt(targetFeatIdxAttr, 10);
+          if (tPlanIdx === planIndex && !isNaN(tFeatIdx) && tFeatIdx !== currentHoverFeatIdx) {
+            currentHoverFeatIdx = tFeatIdx;
+            setDragOverFeatKey(`${planIndex}_${tFeatIdx}`);
+          }
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+
+      const targetFeatures = plans[planIndex]?.features || [];
+      if (currentHoverFeatIdx !== startFeatIdx && currentHoverFeatIdx >= 0 && currentHoverFeatIdx < targetFeatures.length) {
+        const copyFeats = [...targetFeatures];
+        const [movedFeat] = copyFeats.splice(startFeatIdx, 1);
+        copyFeats.splice(currentHoverFeatIdx, 0, movedFeat);
+        handleUpdatePlan(planIndex, { features: copyFeats });
+      }
+
+      setDraggedFeatKey(null);
+      setDragOverFeatKey(null);
+    };
+
+    document.body.style.cursor = "grabbing";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
   const savePlans = (newPlans: PricingPlan[]) => {
     updateProp("pricingPlans", newPlans);
     updateProp("pricePlans", newPlans);
@@ -3797,8 +4062,77 @@ export function PriceTableWidgetInspector({
             return (
               <div
                 key={plan.id}
+                data-plan-index={planIdx}
+                draggable={true}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  draggedPlanIdxRef.current = planIdx;
+                  try {
+                    e.dataTransfer.setData("text/plain", JSON.stringify({ type: "plan", planIdx }));
+                    e.dataTransfer.effectAllowed = "move";
+                  } catch (err) {}
+                  setTimeout(() => setDraggedPlanIdx(planIdx), 0);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  try {
+                    e.dataTransfer.dropEffect = "move";
+                  } catch (err) {}
+                  if (dragOverPlanIdx !== planIdx) setDragOverPlanIdx(planIdx);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (dragOverPlanIdx !== planIdx) setDragOverPlanIdx(planIdx);
+                }}
+                onDragLeave={(e) => {
+                  e.stopPropagation();
+                  if (dragOverPlanIdx === planIdx) setDragOverPlanIdx(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  let sourcePlanIdx = draggedPlanIdxRef.current;
+                  if (sourcePlanIdx === null) {
+                    try {
+                      const raw = e.dataTransfer.getData("text/plain");
+                      const parsed = JSON.parse(raw);
+                      if (parsed && parsed.type === "plan") sourcePlanIdx = parsed.planIdx;
+                    } catch (err) {}
+                  }
+
+                  if (
+                    sourcePlanIdx !== null &&
+                    sourcePlanIdx !== planIdx &&
+                    sourcePlanIdx >= 0 &&
+                    sourcePlanIdx < plans.length
+                  ) {
+                    const updated = [...plans];
+                    const [movedPlan] = updated.splice(sourcePlanIdx, 1);
+                    updated.splice(planIdx, 0, movedPlan);
+                    savePlans(updated);
+                  }
+                  draggedPlanIdxRef.current = null;
+                  setDraggedPlanIdx(null);
+                  setDragOverPlanIdx(null);
+                }}
+                onDragEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  draggedPlanIdxRef.current = null;
+                  setDraggedPlanIdx(null);
+                  setDragOverPlanIdx(null);
+                }}
                 className={`rounded-xl border transition-all duration-200 bg-white ${
-                  isHighlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
+                  draggedPlanIdx === planIdx
+                    ? "opacity-30 border-dashed border-blue-400 bg-blue-50/20 scale-[0.98]"
+                    : dragOverPlanIdx === planIdx
+                    ? "border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/40 shadow-md"
+                    : isHighlight
+                    ? "border-amber-300 ring-1 ring-amber-200"
+                    : "border-slate-200"
                 }`}
               >
                 {/* Accordion Header */}
@@ -3807,6 +4141,31 @@ export function PriceTableWidgetInspector({
                   onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)}
                 >
                   <div className="flex items-center gap-2 truncate">
+                    <span
+                      draggable={true}
+                      onMouseDown={(e) => handlePlanPointerStart(planIdx, e)}
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        draggedPlanIdxRef.current = planIdx;
+                        try {
+                          e.dataTransfer.setData("text/plain", JSON.stringify({ type: "plan", planIdx }));
+                          e.dataTransfer.effectAllowed = "move";
+                        } catch (err) {}
+                        setTimeout(() => setDraggedPlanIdx(planIdx), 0);
+                      }}
+                      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-0.5 rounded hover:bg-slate-100 transition shrink-0 flex items-center select-none"
+                      title="Click & Drag mouse to reorder plan"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <svg className="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 16 16">
+                        <circle cx="5" cy="3" r="1.3"/>
+                        <circle cx="11" cy="3" r="1.3"/>
+                        <circle cx="5" cy="8" r="1.3"/>
+                        <circle cx="11" cy="8" r="1.3"/>
+                        <circle cx="5" cy="13" r="1.3"/>
+                        <circle cx="11" cy="13" r="1.3"/>
+                      </svg>
+                    </span>
                     <span className="text-xs font-bold text-slate-800 truncate">
                       {plan.name || "Untitled Plan"}
                     </span>
@@ -3820,7 +4179,7 @@ export function PriceTableWidgetInspector({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()} onDragStart={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       title="Move Up"
@@ -3860,7 +4219,7 @@ export function PriceTableWidgetInspector({
 
                 {/* Accordion Content */}
                 {isExpanded && (
-                  <div className="p-3 border-t border-slate-100 space-y-3">
+                  <div className="p-3 border-t border-slate-100 space-y-3" onDragStart={(e) => e.stopPropagation()}>
                     {/* Name & Highlight */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
@@ -4005,78 +4364,183 @@ export function PriceTableWidgetInspector({
                       </div>
 
                       <div className="space-y-1.5">
-                        {(plan.features || []).map((feat, featIdx) => (
-                          <div key={feat.id} className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
-                            {/* Toggle included */}
-                            <button
-                              type="button"
-                              title={feat.included ? "Mark as Excluded" : "Mark as Included"}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                copyFeats[featIdx] = { ...copyFeats[featIdx], included: !copyFeats[featIdx].included };
-                                handleUpdatePlan(planIdx, { features: copyFeats });
+                        {(plan.features || []).map((feat, featIdx) => {
+                          const featKey = `${planIdx}_${featIdx}`;
+                          return (
+                            <div
+                              key={feat.id}
+                              data-plan-index={planIdx}
+                              data-feat-index={featIdx}
+                              draggable={true}
+                              onDragStart={(e) => {
+                                e.stopPropagation();
+                                draggedFeatKeyRef.current = featKey;
+                                try {
+                                  e.dataTransfer.setData("text/plain", JSON.stringify({ type: "feature", planIdx, featIdx }));
+                                  e.dataTransfer.effectAllowed = "move";
+                                } catch (err) {}
+                                setTimeout(() => setDraggedFeatKey(featKey), 0);
                               }}
-                              className={`h-5 w-5 rounded text-[10px] font-extrabold shrink-0 flex items-center justify-center cursor-pointer transition ${
-                                feat.included ? "bg-emerald-100 text-emerald-700 border border-emerald-300" : "bg-slate-200 text-slate-500 border border-slate-300"
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                try {
+                                  e.dataTransfer.dropEffect = "move";
+                                } catch (err) {}
+                                if (dragOverFeatKey !== featKey) setDragOverFeatKey(featKey);
+                              }}
+                              onDragEnter={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (dragOverFeatKey !== featKey) setDragOverFeatKey(featKey);
+                              }}
+                              onDragLeave={(e) => {
+                                e.stopPropagation();
+                                if (dragOverFeatKey === featKey) setDragOverFeatKey(null);
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                let refKey = draggedFeatKeyRef.current;
+                                if (!refKey) {
+                                  try {
+                                    const raw = e.dataTransfer.getData("text/plain");
+                                    const parsed = JSON.parse(raw);
+                                    if (parsed && parsed.type === "feature") refKey = `${parsed.planIdx}_${parsed.featIdx}`;
+                                  } catch (err) {}
+                                }
+
+                                if (refKey) {
+                                  const [sPlanIdxStr, sFeatIdxStr] = refKey.split("_");
+                                  const sPlanIdx = parseInt(sPlanIdxStr, 10);
+                                  const sFeatIdx = parseInt(sFeatIdxStr, 10);
+                                  if (sPlanIdx === planIdx && sFeatIdx !== featIdx) {
+                                    const copyFeats = [...(plan.features || [])];
+                                    const [movedFeat] = copyFeats.splice(sFeatIdx, 1);
+                                    copyFeats.splice(featIdx, 0, movedFeat);
+                                    handleUpdatePlan(planIdx, { features: copyFeats });
+                                  }
+                                }
+                                draggedFeatKeyRef.current = null;
+                                setDraggedFeatKey(null);
+                                setDragOverFeatKey(null);
+                              }}
+                              onDragEnd={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                draggedFeatKeyRef.current = null;
+                                setDraggedFeatKey(null);
+                                setDragOverFeatKey(null);
+                              }}
+                              className={`flex items-center gap-1.5 p-1.5 rounded-lg border transition-all duration-150 ${
+                                draggedFeatKey === featKey
+                                  ? "opacity-30 border-dashed border-blue-400 bg-blue-50/30 font-normal"
+                                  : dragOverFeatKey === featKey
+                                  ? "border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/60 shadow-xs"
+                                  : "bg-slate-50 border-slate-200 hover:border-slate-300"
                               }`}
                             >
-                              {feat.included ? "✓" : "✕"}
-                            </button>
+                              {/* Drag handle */}
+                              <span
+                                draggable={true}
+                                onMouseDown={(e) => handleFeatPointerStart(planIdx, featIdx, e)}
+                                onDragStart={(e) => {
+                                  e.stopPropagation();
+                                  draggedFeatKeyRef.current = featKey;
+                                  try {
+                                    e.dataTransfer.setData("text/plain", JSON.stringify({ type: "feature", planIdx, featIdx }));
+                                    e.dataTransfer.effectAllowed = "move";
+                                  } catch (err) {}
+                                  setTimeout(() => setDraggedFeatKey(featKey), 0);
+                                }}
+                                className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-0.5 rounded hover:bg-slate-200/60 transition shrink-0 flex items-center select-none"
+                                title="Click & Drag mouse to reorder feature"
+                              >
+                                <svg className="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 16 16">
+                                  <circle cx="5" cy="3" r="1.3"/>
+                                  <circle cx="11" cy="3" r="1.3"/>
+                                  <circle cx="5" cy="8" r="1.3"/>
+                                  <circle cx="11" cy="8" r="1.3"/>
+                                  <circle cx="5" cy="13" r="1.3"/>
+                                  <circle cx="11" cy="13" r="1.3"/>
+                                </svg>
+                              </span>
 
-                            {/* Feature Text */}
-                            <input
-                              type="text"
-                              value={feat.text}
-                              onChange={(e) => {
-                                const copyFeats = [...(plan.features || [])];
-                                copyFeats[featIdx] = { ...copyFeats[featIdx], text: e.target.value };
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="w-full text-xs text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 outline-none focus:border-blue-500"
-                            />
+                              {/* Toggle included */}
+                              <button
+                                type="button"
+                                title={feat.included ? "Mark as Excluded" : "Mark as Included"}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onDragStart={(e) => e.stopPropagation()}
+                                onClick={() => {
+                                  const copyFeats = [...(plan.features || [])];
+                                  copyFeats[featIdx] = { ...copyFeats[featIdx], included: !copyFeats[featIdx].included };
+                                  handleUpdatePlan(planIdx, { features: copyFeats });
+                                }}
+                                className={`h-5 w-5 rounded text-[10px] font-extrabold shrink-0 flex items-center justify-center cursor-pointer transition ${
+                                  feat.included ? "bg-emerald-100 text-emerald-700 border border-emerald-300" : "bg-slate-200 text-slate-500 border border-slate-300"
+                                }`}
+                              >
+                                {feat.included ? "✓" : "✕"}
+                              </button>
 
-                            {/* Move Up/Down */}
-                            <button
-                              type="button"
-                              disabled={featIdx === 0}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                const [m] = copyFeats.splice(featIdx, 1);
-                                copyFeats.splice(featIdx - 1, 0, m);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
-                            >
-                              ▲
-                            </button>
+                              {/* Feature Text */}
+                              <input
+                                type="text"
+                                value={feat.text}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onDragStart={(e) => e.stopPropagation()}
+                                onChange={(e) => {
+                                  const copyFeats = [...(plan.features || [])];
+                                  copyFeats[featIdx] = { ...copyFeats[featIdx], text: e.target.value };
+                                  handleUpdatePlan(planIdx, { features: copyFeats });
+                                }}
+                                className="w-full text-xs text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 outline-none focus:border-blue-500"
+                              />
 
-                            <button
-                              type="button"
-                              disabled={featIdx === (plan.features || []).length - 1}
-                              onClick={() => {
-                                const copyFeats = [...(plan.features || [])];
-                                const [m] = copyFeats.splice(featIdx, 1);
-                                copyFeats.splice(featIdx + 1, 0, m);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
-                            >
-                              ▼
-                            </button>
-
-                            {/* Delete Feature */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const copyFeats = (plan.features || []).filter((_, i) => i !== featIdx);
-                                handleUpdatePlan(planIdx, { features: copyFeats });
-                              }}
-                              className="h-5 w-5 shrink-0 rounded border border-red-200 bg-red-50 text-[10px] text-red-600 hover:bg-red-100 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
+                              {/* Move Up/Down */}
+                              <div className="flex items-center gap-0.5 shrink-0" onDragStart={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  disabled={featIdx === 0}
+                                  onClick={() => {
+                                    const copyFeats = [...(plan.features || [])];
+                                    const [m] = copyFeats.splice(featIdx, 1);
+                                    copyFeats.splice(featIdx - 1, 0, m);
+                                    handleUpdatePlan(planIdx, { features: copyFeats });
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
+                                >
+                                  ▲
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={featIdx === (plan.features || []).length - 1}
+                                  onClick={() => {
+                                    const copyFeats = [...(plan.features || [])];
+                                    const [m] = copyFeats.splice(featIdx, 1);
+                                    copyFeats.splice(featIdx + 1, 0, m);
+                                    handleUpdatePlan(planIdx, { features: copyFeats });
+                                  }}
+                                  className="h-5 w-5 rounded border border-slate-200 bg-white text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-20 cursor-pointer"
+                                >
+                                  ▼
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const copyFeats = (plan.features || []).filter((_, i) => i !== featIdx);
+                                    handleUpdatePlan(planIdx, { features: copyFeats });
+                                  }}
+                                  className="h-5 w-5 rounded border border-red-200 bg-red-50 text-[10px] text-red-600 hover:bg-red-100 cursor-pointer"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -5390,6 +5854,55 @@ export function NestedCarouselWidgetInspector({
   setSelectedId?: (id: string) => void;
 }) {
   const children = el.children || [];
+  const draggedSlideIdxRef = React.useRef<number | null>(null);
+  const [draggedSlideIdx, setDraggedSlideIdx] = React.useState<number | null>(null);
+  const [dragOverSlideIdx, setDragOverSlideIdx] = React.useState<number | null>(null);
+
+  const handleSlidePointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
+    startEvent.stopPropagation();
+    startEvent.preventDefault();
+
+    let currentHoverIdx = startIdx;
+    setDraggedSlideIdx(startIdx);
+    setDragOverSlideIdx(startIdx);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const elUnder = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+      if (!elUnder) return;
+
+      const slideCard = elUnder.closest("[data-slide-index]");
+      if (slideCard) {
+        const targetIdxAttr = slideCard.getAttribute("data-slide-index");
+        if (targetIdxAttr !== null) {
+          const targetIdx = parseInt(targetIdxAttr, 10);
+          if (!isNaN(targetIdx) && targetIdx !== currentHoverIdx) {
+            currentHoverIdx = targetIdx;
+            setDragOverSlideIdx(targetIdx);
+          }
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+
+      if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < children.length) {
+        const copy = [...children];
+        const [moved] = copy.splice(startIdx, 1);
+        copy.splice(currentHoverIdx, 0, moved);
+        updateProp("children", copy);
+      }
+
+      setDraggedSlideIdx(null);
+      setDragOverSlideIdx(null);
+    };
+
+    document.body.style.cursor = "grabbing";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
 
   return (
     <div className="space-y-4">
@@ -5568,10 +6081,98 @@ export function NestedCarouselWidgetInspector({
           {children.map((slide, sIdx) => (
             <div
               key={slide.id}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2 text-xs"
+              data-slide-index={sIdx}
+              draggable={true}
+              onDragStart={(e) => {
+                e.stopPropagation();
+                draggedSlideIdxRef.current = sIdx;
+                try {
+                  e.dataTransfer.setData("text/plain", sIdx.toString());
+                  e.dataTransfer.effectAllowed = "move";
+                } catch (err) {}
+                setTimeout(() => setDraggedSlideIdx(sIdx), 0);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                  e.dataTransfer.dropEffect = "move";
+                } catch (err) {}
+                if (dragOverSlideIdx !== sIdx) setDragOverSlideIdx(sIdx);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (dragOverSlideIdx !== sIdx) setDragOverSlideIdx(sIdx);
+              }}
+              onDragLeave={(e) => {
+                e.stopPropagation();
+                if (dragOverSlideIdx === sIdx) setDragOverSlideIdx(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                let sourceIdx = draggedSlideIdxRef.current;
+                if (sourceIdx === null) {
+                  try {
+                    const str = e.dataTransfer.getData("text/plain");
+                    if (str) sourceIdx = parseInt(str, 10);
+                  } catch (err) {}
+                }
+
+                if (sourceIdx !== null && !isNaN(sourceIdx) && sourceIdx !== sIdx && sourceIdx >= 0 && sourceIdx < children.length) {
+                  const copy = [...children];
+                  const [moved] = copy.splice(sourceIdx, 1);
+                  copy.splice(sIdx, 0, moved);
+                  updateProp("children", copy);
+                }
+                draggedSlideIdxRef.current = null;
+                setDraggedSlideIdx(null);
+                setDragOverSlideIdx(null);
+              }}
+              onDragEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                draggedSlideIdxRef.current = null;
+                setDraggedSlideIdx(null);
+                setDragOverSlideIdx(null);
+              }}
+              className={`flex items-center justify-between rounded-lg border bg-white p-2 text-xs transition-all duration-150 ${
+                draggedSlideIdx === sIdx
+                  ? "opacity-30 border-dashed border-indigo-400 bg-indigo-50/20 scale-[0.98]"
+                  : dragOverSlideIdx === sIdx
+                  ? "border-indigo-500 ring-2 ring-indigo-500/30 bg-indigo-50/50 shadow-xs"
+                  : "border-slate-200 hover:border-slate-300"
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 font-bold text-indigo-700 text-[10px]">
+              <div className="flex items-center gap-2 truncate">
+                <span
+                  draggable={true}
+                  onMouseDown={(e) => handleSlidePointerStart(sIdx, e)}
+                  onDragStart={(e) => {
+                    e.stopPropagation();
+                    draggedSlideIdxRef.current = sIdx;
+                    try {
+                      e.dataTransfer.setData("text/plain", sIdx.toString());
+                      e.dataTransfer.effectAllowed = "move";
+                    } catch (err) {}
+                    setTimeout(() => setDraggedSlideIdx(sIdx), 0);
+                  }}
+                  className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-indigo-600 p-0.5 rounded hover:bg-slate-100 transition shrink-0 flex items-center select-none"
+                  title="Click & Drag mouse to reorder slide"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <svg className="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 16 16">
+                    <circle cx="5" cy="3" r="1.3"/>
+                    <circle cx="11" cy="3" r="1.3"/>
+                    <circle cx="5" cy="8" r="1.3"/>
+                    <circle cx="11" cy="8" r="1.3"/>
+                    <circle cx="5" cy="13" r="1.3"/>
+                    <circle cx="11" cy="13" r="1.3"/>
+                  </svg>
+                </span>
+                <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 font-bold text-indigo-700 text-[10px] shrink-0">
                   #{sIdx + 1}
                 </span>
                 <button
@@ -5585,7 +6186,7 @@ export function NestedCarouselWidgetInspector({
                 <span className="text-[10px] text-slate-400">({(slide.children || []).length} items)</span>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" onDragStart={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   onClick={() => setSelectedId && setSelectedId(slide.id)}
@@ -7069,6 +7670,922 @@ export function PayPalWidgetInspector({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// --------------------------------------------------
+// Additional Scope A, Scope B & Scope C Inspectors
+// --------------------------------------------------
+
+// Link in Bio Inspector (F-147)
+export function LinkInBioWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  const links = el.bioLinks || [
+    { id: "bio_1", label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
+    { id: "bio_2", label: "Subscribe to Newsletter", url: "https://example.com/newsletter", icon: "📩" }
+  ];
+
+  return (
+    <div className="space-y-4 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-pink-600 flex items-center gap-1.5">
+        <span>🔗</span> Link in Bio Settings
+      </h3>
+
+      <ImagePickerControl
+        label="Avatar Profile Image"
+        value={el.bioAvatarUrl || ""}
+        onChange={(url) => updateProp("bioAvatarUrl", url)}
+      />
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Profile Name</label>
+          <input
+            type="text"
+            value={el.bioName || ""}
+            onChange={(e) => updateProp("bioName", e.target.value)}
+            placeholder="@username"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Bio Tagline</label>
+          <input
+            type="text"
+            value={el.bioTagline || ""}
+            onChange={(e) => updateProp("bioTagline", e.target.value)}
+            placeholder="Digital Creator & Designer"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium"
+          />
+        </div>
+      </div>
+
+      <UniversalItemManager
+        title="Bio Links"
+        items={links}
+        onUpdate={(newLinks) => updateProp("bioLinks", newLinks)}
+        createDefaultItem={() => ({
+          id: "bio_" + Date.now(),
+          label: "New Link",
+          url: "https://example.com",
+          icon: "🔗",
+          badge: ""
+        })}
+        getItemHeaderLabel={(item) => item.label || "Untitled Link"}
+        renderItemFields={(item, idx, updateItem) => (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[9px] font-bold text-slate-500 uppercase">Label</label>
+                <input
+                  type="text"
+                  value={item.label}
+                  onChange={(e) => updateItem({ label: e.target.value })}
+                  className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold text-slate-500 uppercase">Icon (Emoji/Text)</label>
+                <input
+                  type="text"
+                  value={item.icon || ""}
+                  onChange={(e) => updateItem({ icon: e.target.value })}
+                  placeholder="🌐"
+                  className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[9px] font-bold text-slate-500 uppercase">Target URL</label>
+              <input
+                type="text"
+                value={item.url}
+                onChange={(e) => updateItem({ url: e.target.value })}
+                placeholder="https://..."
+                className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-[9px] font-bold text-slate-500 uppercase">Badge Text (Optional)</label>
+              <input
+                type="text"
+                value={item.badge || ""}
+                onChange={(e) => updateItem({ badge: e.target.value })}
+                placeholder="Hot / New / Sale"
+                className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+              />
+            </div>
+          </div>
+        )}
+      />
+    </div>
+  );
+}
+
+// Image Box Inspector (F-148)
+export function ImageBoxWidgetInspector({
+  el,
+  updateProp,
+  updateStyle
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateStyle: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+        <span>🖼️</span> Image Box Settings
+      </h3>
+
+      <ImagePickerControl
+        label="Image Source"
+        value={el.src || ""}
+        onChange={(url) => updateProp("src", url)}
+      />
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Image Position</label>
+          <select
+            value={el.imageBoxPosition || "top"}
+            onChange={(e) => updateProp("imageBoxPosition", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="top">Top</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Hover Scale Effect</label>
+          <select
+            value={el.imageBoxHoverEffect || "zoom"}
+            onChange={(e) => updateProp("imageBoxHoverEffect", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="zoom">Zoom Scale</option>
+            <option value="lift">Lift Card</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Title</label>
+        <input
+          type="text"
+          value={el.title || ""}
+          onChange={(e) => updateProp("title", e.target.value)}
+          placeholder="Feature Title..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+        <textarea
+          rows={3}
+          value={el.content || ""}
+          onChange={(e) => updateProp("content", e.target.value)}
+          placeholder="Feature description text..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Link URL</label>
+        <input
+          type="text"
+          value={el.href || ""}
+          onChange={(e) => updateProp("href", e.target.value)}
+          placeholder="https://..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Icon Box Inspector (F-151)
+export function IconBoxWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5">
+        <span>⭐</span> Icon Box Settings
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Icon (Emoji/SVG Name)</label>
+          <input
+            type="text"
+            value={el.iconName || el.icon || "⚡"}
+            onChange={(e) => {
+              updateProp("iconName", e.target.value);
+              updateProp("icon", e.target.value);
+            }}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Icon Position</label>
+          <select
+            value={el.iconBoxPosition || "top"}
+            onChange={(e) => updateProp("iconBoxPosition", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="top">Top</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Title</label>
+        <input
+          type="text"
+          value={el.title || ""}
+          onChange={(e) => updateProp("title", e.target.value)}
+          placeholder="Icon Box Heading..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+        <textarea
+          rows={3}
+          value={el.content || ""}
+          onChange={(e) => updateProp("content", e.target.value)}
+          placeholder="Descriptive details..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Icon List Inspector (F-155)
+export function IconListWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  const items: { id: string; text: string; icon: string; color: string; url?: string }[] = el.iconListItems || [
+    { id: "item_1", text: "High priority SLA support", icon: "✓", color: "#10b981", url: "" },
+    { id: "item_2", text: "Unlimited custom domains", icon: "✓", color: "#10b981", url: "" },
+    { id: "item_3", text: "Advanced analytics dashboard", icon: "✓", color: "#10b981", url: "" }
+  ];
+
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
+        <span>📋</span> Icon List Settings
+      </h3>
+
+      <UniversalItemManager<{ id: string; text: string; icon: string; color: string; url?: string }>
+        title="List Items"
+        items={items}
+        onUpdate={(newItems) => updateProp("iconListItems", newItems)}
+        createDefaultItem={() => ({
+          id: "item_" + Date.now(),
+          text: "New Feature Item",
+          icon: "✓",
+          color: "#10b981",
+          url: ""
+        })}
+        getItemHeaderLabel={(item) => item.text || "Untitled Item"}
+        renderItemFields={(item, idx, updateItem) => (
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-1.5">
+              <div className="col-span-2">
+                <label className="block text-[9px] font-bold text-slate-500 uppercase">Item Text</label>
+                <input
+                  type="text"
+                  value={item.text}
+                  onChange={(e) => updateItem({ text: e.target.value })}
+                  className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold text-slate-500 uppercase">Icon</label>
+                <input
+                  type="text"
+                  value={item.icon || "✓"}
+                  onChange={(e) => updateItem({ icon: e.target.value })}
+                  className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[9px] font-bold text-slate-500 uppercase">Optional Link</label>
+              <input
+                type="text"
+                value={item.url || ""}
+                onChange={(e) => updateItem({ url: e.target.value })}
+                placeholder="https://..."
+                className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+              />
+            </div>
+          </div>
+        )}
+      />
+    </div>
+  );
+}
+
+// Counter Inspector (F-156)
+export function CounterWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+        <span>🔢</span> Counter Settings
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Starting Value</label>
+          <input
+            type="number"
+            value={el.counterStart ?? 0}
+            onChange={(e) => updateProp("counterStart", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Ending Value</label>
+          <input
+            type="number"
+            value={el.counterEnd ?? 100}
+            onChange={(e) => updateProp("counterEnd", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Prefix String</label>
+          <input
+            type="text"
+            value={el.counterPrefix || ""}
+            onChange={(e) => updateProp("counterPrefix", e.target.value)}
+            placeholder="$ or #"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Suffix String</label>
+          <input
+            type="text"
+            value={el.counterSuffix || ""}
+            onChange={(e) => updateProp("counterSuffix", e.target.value)}
+            placeholder="+ or %"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Animation Duration (ms)</label>
+          <input
+            type="number"
+            step={100}
+            value={el.counterDuration ?? 2000}
+            onChange={(e) => updateProp("counterDuration", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Title Label</label>
+          <input
+            type="text"
+            value={el.counterTitle || ""}
+            onChange={(e) => updateProp("counterTitle", e.target.value)}
+            placeholder="Happy Customers"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Progress Bar Inspector (F-157)
+export function ProgressBarWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-teal-600 flex items-center gap-1.5">
+        <span>📊</span> Progress Bar Settings
+      </h3>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Label</label>
+        <input
+          type="text"
+          value={el.progressLabel || "Web Development Mastery"}
+          onChange={(e) => updateProp("progressLabel", e.target.value)}
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Percentage (0-100%)</label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={el.progressValue ?? 85}
+            onChange={(e) => updateProp("progressValue", Math.min(100, Math.max(0, Number(e.target.value))))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Bar Height (px)</label>
+          <input
+            type="number"
+            min={4}
+            max={50}
+            value={el.progressHeight ?? 12}
+            onChange={(e) => updateProp("progressHeight", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Rating Inspector (F-160)
+export function RatingWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+        <span>⭐</span> Rating Settings
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Rating Score</label>
+          <input
+            type="number"
+            step={0.1}
+            min={0}
+            max={el.ratingMax || 5}
+            value={el.ratingValue ?? 4.8}
+            onChange={(e) => updateProp("ratingValue", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Scale Max</label>
+          <select
+            value={el.ratingMax || 5}
+            onChange={(e) => updateProp("ratingMax", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value={5}>5 Stars</option>
+            <option value={10}>10 Stars</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Star Icon Color</label>
+          <input
+            type="color"
+            value={el.ratingColor || "#f59e0b"}
+            onChange={(e) => updateProp("ratingColor", e.target.value)}
+            className="h-8 w-full rounded cursor-pointer border border-slate-300 p-0.5"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Show Numerical Score</label>
+          <select
+            value={el.ratingShowText ? "true" : "false"}
+            onChange={(e) => updateProp("ratingShowText", e.target.value === "true")}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Alert Inspector (F-161)
+export function AlertWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1.5">
+        <span>🔔</span> Alert Settings
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Alert Variant</label>
+          <select
+            value={el.alertType || "info"}
+            onChange={(e) => updateProp("alertType", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800"
+          >
+            <option value="info">ℹ️ Info (Blue)</option>
+            <option value="success">✅ Success (Green)</option>
+            <option value="warning">⚠️ Warning (Yellow)</option>
+            <option value="danger">🚨 Danger (Red)</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Dismissible Close</label>
+          <select
+            value={el.alertDismissible ? "true" : "false"}
+            onChange={(e) => updateProp("alertDismissible", e.target.value === "true")}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Alert Title</label>
+        <input
+          type="text"
+          value={el.alertTitle || "Notice"}
+          onChange={(e) => updateProp("alertTitle", e.target.value)}
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Alert Message</label>
+        <textarea
+          rows={2}
+          value={el.content || ""}
+          onChange={(e) => updateProp("content", e.target.value)}
+          placeholder="Detailed alert message..."
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Google Maps Inspector (F-167)
+export function GoogleMapsWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-red-600 flex items-center gap-1.5">
+        <span>📍</span> Google Maps Settings
+      </h3>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Address or Location</label>
+        <input
+          type="text"
+          value={el.mapAddress || "San Francisco, CA"}
+          onChange={(e) => updateProp("mapAddress", e.target.value)}
+          placeholder="1600 Amphitheatre Pkwy, Mountain View, CA"
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Zoom Level (1-20)</label>
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={el.mapZoom ?? 14}
+            onChange={(e) => updateProp("mapZoom", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Height (px)</label>
+          <input
+            type="number"
+            step={10}
+            value={el.mapHeight ?? 350}
+            onChange={(e) => updateProp("mapHeight", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Divider Inspector (F-169)
+export function DividerWidgetInspector({
+  el,
+  updateProp,
+  updateStyle
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateStyle: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+        <span>➖</span> Divider Settings
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Style</label>
+          <select
+            value={el.dividerStyle || "solid"}
+            onChange={(e) => updateProp("dividerStyle", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value="solid">Solid Line</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+            <option value="double">Double Line</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Thickness (px)</label>
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={el.dividerWeight ?? 2}
+            onChange={(e) => updateProp("dividerWeight", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Color</label>
+          <input
+            type="color"
+            value={el.dividerColor || "#cbd5e1"}
+            onChange={(e) => updateProp("dividerColor", e.target.value)}
+            className="h-8 w-full rounded cursor-pointer border border-slate-300 p-0.5"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Width (%)</label>
+          <input
+            type="text"
+            value={el.dividerWidth || "100%"}
+            onChange={(e) => updateProp("dividerWidth", e.target.value)}
+            placeholder="100% or 500px"
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Spacer Inspector (F-170)
+export function SpacerWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <span>↕️</span> Spacer Settings
+      </h3>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Height (px)</label>
+        <input
+          type="number"
+          min={5}
+          max={400}
+          value={el.spacerHeight ?? 40}
+          onChange={(e) => updateProp("spacerHeight", Number(e.target.value))}
+          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Custom SVG Inspector (F-221)
+export function CustomSVGWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1.5">
+        <span>🎨</span> Custom SVG Settings
+      </h3>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Raw SVG Code</label>
+        <textarea
+          rows={6}
+          value={el.svgCode || ""}
+          onChange={(e) => updateProp("svgCode", e.target.value)}
+          placeholder="<svg viewBox='0 0 24 24'>...</svg>"
+          className="w-full rounded-lg border border-slate-300 bg-slate-900 font-mono text-[11px] text-emerald-400 p-2.5 outline-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+// Query Builder & Dynamic Content Inspector (F-247 to F-258)
+export function QueryBuilderWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-600 flex items-center gap-1.5">
+        <span>⚙️</span> Query & Dynamic Content Engine
+      </h3>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Post Type Source</label>
+          <select
+            value={el.queryPostType || "post"}
+            onChange={(e) => updateProp("queryPostType", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
+          >
+            <option value="post">Blog Posts</option>
+            <option value="page">Pages</option>
+            <option value="portfolio">Portfolio Items</option>
+            <option value="product">Products</option>
+            <option value="custom">Custom Post Type</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Limit Count</label>
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={el.queryLimit ?? 6}
+            onChange={(e) => updateProp("queryLimit", Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-mono"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Order By</label>
+          <select
+            value={el.queryOrderBy || "date"}
+            onChange={(e) => updateProp("queryOrderBy", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
+          >
+            <option value="date">Publish Date</option>
+            <option value="title">Title (A-Z)</option>
+            <option value="rand">Random</option>
+            <option value="modified">Last Modified</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Order Direction</label>
+          <select
+            value={el.queryOrder || "DESC"}
+            onChange={(e) => updateProp("queryOrder", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
+          >
+            <option value="DESC">Descending (Newest first)</option>
+            <option value="ASC">Ascending (Oldest first)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Display Conditions Inspector (F-259 to F-261)
+export function DisplayConditionsWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  const rules = el.displayConditions || [
+    { id: "rule_1", type: "INCLUDE", condition: "ENTIRE_SITE" }
+  ];
+
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1.5">
+        <span>👁️</span> Display Conditions & Location Rules
+      </h3>
+
+      <UniversalItemManager
+        title="Conditions List"
+        items={rules}
+        onUpdate={(newRules) => updateProp("displayConditions", newRules)}
+        createDefaultItem={() => ({
+          id: "rule_" + Date.now(),
+          type: "INCLUDE",
+          condition: "ENTIRE_SITE"
+        })}
+        getItemHeaderLabel={(item) => `${item.type}: ${item.condition}`}
+        renderItemFields={(item, idx, updateItem) => (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[9px] font-bold text-slate-500 uppercase">Action</label>
+              <select
+                value={item.type}
+                onChange={(e) => updateItem({ type: e.target.value as any })}
+                className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-bold"
+              >
+                <option value="INCLUDE">Include (Show)</option>
+                <option value="EXCLUDE">Exclude (Hide)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[9px] font-bold text-slate-500 uppercase">Location Rule</label>
+              <select
+                value={item.condition}
+                onChange={(e) => updateItem({ condition: e.target.value as any })}
+                className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-medium"
+              >
+                <option value="ENTIRE_SITE">Entire Website</option>
+                <option value="FRONT_PAGE">Homepage Only</option>
+                <option value="SINGULAR_POST">Single Posts</option>
+                <option value="ARCHIVE">Archive Pages</option>
+                <option value="ERROR_404">404 Error Page</option>
+              </select>
+            </div>
+          </div>
+        )}
+      />
     </div>
   );
 }

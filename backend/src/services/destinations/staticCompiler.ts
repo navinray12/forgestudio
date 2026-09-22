@@ -5,6 +5,7 @@ import {
   validateVariables,
   validateClasses,
 } from "../tokens/designToken.service.js";
+import { escapeJsonLd, generateStructuredData } from "../seo/seoAnalyzer.service.js";
 
 function escapeHtml(str: string): string {
   if (!str) return "";
@@ -506,11 +507,28 @@ function generatePageHtml(
   const metaDesc = pSettings.description || page.metaDescription || siteSettings.metaDescription || "";
   const favicon = siteSettings.favicon || "/favicon.ico";
 
-  // OpenGraph & Social Metadata
+  // OpenGraph & Social Metadata with Site-wide Fallback Inheritance
   const ogTitle = pSettings.ogTitle || rawTitle || pageTitle;
   const ogDesc = pSettings.ogDescription || metaDesc;
-  const ogImg = pSettings.ogImage || "";
+  const ogImg = pSettings.ogImage || siteSettings.ogImage || siteSettings.logo || "";
   const canonicalUrl = pSettings.canonicalUrl || "";
+
+  // Twitter Card Metadata
+  const twitterCard = pSettings.twitterCard || siteSettings.twitterCard || (ogImg ? "summary_large_image" : "summary");
+  const twitterTitle = pSettings.twitterTitle || ogTitle;
+  const twitterDesc = pSettings.twitterDescription || ogDesc;
+  const twitterImg = pSettings.twitterImage || ogImg;
+
+  // Structured Data (Schema.org JSON-LD)
+  let structuredDataScript = "";
+  const structuredDataConfig = pSettings.structuredData || siteSettings.structuredData;
+  const schemaType = pSettings.schemaType || siteSettings.schemaType;
+  if (structuredDataConfig) {
+    structuredDataScript = `<script type="application/ld+json">\n${escapeJsonLd(structuredDataConfig)}\n</script>`;
+  } else if (schemaType) {
+    const generated = generateStructuredData(schemaType, page, websiteData);
+    structuredDataScript = `<script type="application/ld+json">\n${escapeJsonLd(generated)}\n</script>`;
+  }
 
   // Robots Directives
   const robotsDirectives: string[] = [];
@@ -557,8 +575,13 @@ function generatePageHtml(
   <meta property="og:title" content="${escapeHtml(ogTitle)}">
   ${ogDesc ? `<meta property="og:description" content="${escapeHtml(ogDesc)}">` : ""}
   ${ogImg ? `<meta property="og:image" content="${escapeHtml(ogImg)}">` : ""}
+  <meta name="twitter:card" content="${escapeHtml(twitterCard)}">
+  <meta name="twitter:title" content="${escapeHtml(twitterTitle)}">
+  ${twitterDesc ? `<meta name="twitter:description" content="${escapeHtml(twitterDesc)}">` : ""}
+  ${twitterImg ? `<meta name="twitter:image" content="${escapeHtml(twitterImg)}">` : ""}
   <link rel="icon" href="${escapeHtml(favicon)}">
   <link rel="stylesheet" href="styles.css">
+  ${structuredDataScript ? `${structuredDataScript}` : ""}
   ${sanitizeCustomHead(siteSettings.customHead)}
   ${sanitizeCustomHead(pSettings.customHead)}
 </head>

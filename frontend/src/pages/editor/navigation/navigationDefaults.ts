@@ -463,3 +463,91 @@ export function isNavigationElement(type: string): boolean {
   ].includes(type);
 }
 
+export function createDefaultHeaderElements(
+  websiteName: string = "ForgeStudio",
+  pages: { id: string; name: string; slug?: string; isHome?: boolean }[] = []
+): EditorElement[] {
+  const navItems: NavMenuItem[] =
+    pages.length > 0
+      ? pages.map((p) => ({
+          id: `nav_page_${p.id}`,
+          label: p.name,
+          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+          pageId: p.id,
+        }))
+      : DEFAULT_NAV_MENU_ITEMS;
+
+  return [
+    {
+      id: "header-nav-container",
+      type: "container",
+      content: "",
+      layout: {
+        layoutType: "flex",
+        direction: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 16,
+      },
+      styles: {
+        width: "100%",
+        backgroundColor: "#ffffff",
+        paddingTop: "14px",
+        paddingBottom: "14px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        borderRadius: "14px",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        border: "1px solid #e2e8f0",
+        marginBottom: "16px",
+      },
+      children: [
+        {
+          id: "header-brand-heading",
+          type: "heading",
+          content: websiteName || "ForgeStudio",
+          headingLevel: "h3",
+          styles: {
+            fontSize: "1.25rem",
+            fontWeight: "800",
+            color: "#0f172a",
+          },
+        },
+        {
+          id: "header-nav-menu-widget",
+          type: "nav-menu",
+          content: JSON.stringify(navItems),
+          navMenuItems: navItems as any,
+          styles: {
+            navLayout: "horizontal",
+            navAlign: "center",
+            navItemSpacing: "16px",
+            navItemColor: "#334155",
+            navItemHoverColor: "#2563eb",
+            navItemActiveColor: "#2563eb",
+          },
+        },
+        {
+          id: "header-cta-button",
+          type: "button",
+          content: "Get Started",
+          href: "#",
+          styles: {
+            backgroundColor: "#0f172a",
+            color: "#ffffff",
+            paddingTop: "8px",
+            paddingBottom: "8px",
+            paddingLeft: "18px",
+            paddingRight: "18px",
+            borderRadius: "10px",
+            fontWeight: "600",
+            fontSize: "0.875rem",
+          },
+        },
+      ],
+    },
+  ];
+}
+
+
