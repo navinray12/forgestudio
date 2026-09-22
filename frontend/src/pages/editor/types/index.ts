@@ -1174,6 +1174,8 @@ export interface EditorElement {
   hoverStyles?: Partial<ElementStyles>;
   layout?: ContainerLayout;
   children?: EditorElement[];
+  elements?: EditorElement[];
+  props?: Record<string, any>;
   componentId?: string;
   isComponent?: boolean;
   componentName?: string;

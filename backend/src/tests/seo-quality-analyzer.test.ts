@@ -333,7 +333,7 @@ async function runSeoQualityAnalyzerTests() {
     assert(homeHtml.includes('"@type": "WebSite"'), "Test 6D: Home page injects WebSite structured data");
 
     // Single Insertion check
-    const scriptCount = (homeHtml.match(/<script type="application\/ld\+json">/g) || []).length;
+    const scriptCount = (String(homeHtml).match(/<script type="application\/ld\+json">/g) || []).length;
     assert(scriptCount === 1, `Test 6E: Exactly 1 JSON-LD script tag injected into home.html (Found: ${scriptCount})`);
 
     // Multi-page independence & override check
