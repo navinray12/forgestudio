@@ -32,6 +32,7 @@ export interface NavMenuItem {
   destinationType?: string;
   productId?: string;
   submenu?: any[];
+  position?: { x: number; y: number };
   children?: Array<{
     id: string;
     label: string;

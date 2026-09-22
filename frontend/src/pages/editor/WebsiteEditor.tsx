@@ -5,6 +5,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
@@ -26,7 +27,7 @@ import {
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
   AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass,
   Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu,
-  ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon, Wrench
+  ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon
 } from "lucide-react";
 
 // ==========================================
@@ -74,7 +75,21 @@ import {
   PaymentWidgetInspector,
   WooCommerceWidgetInspector,
   AudioPlaylistInspector,
-  PayPalWidgetInspector
+  PayPalWidgetInspector,
+  LinkInBioWidgetInspector,
+  ImageBoxWidgetInspector,
+  IconBoxWidgetInspector,
+  IconListWidgetInspector,
+  CounterWidgetInspector,
+  ProgressBarWidgetInspector,
+  RatingWidgetInspector,
+  AlertWidgetInspector,
+  GoogleMapsWidgetInspector,
+  DividerWidgetInspector,
+  SpacerWidgetInspector,
+  CustomSVGWidgetInspector,
+  QueryBuilderWidgetInspector,
+  DisplayConditionsWidgetInspector
 } from "./inspector/DynamicWidgetInspectors";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
@@ -246,6 +261,8 @@ import {
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
+import { DefaultWebsiteNavbar } from "./components/DefaultWebsiteNavbar";
+import { createDefaultHeaderElements } from "./navigation/navigationDefaults";
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -711,10 +728,8 @@ export default function WebsiteEditor() {
 
   const [isScopeDropdownOpen, setIsScopeDropdownOpen] = useState<boolean>(false);
   const scopeDropdownRef = useRef<HTMLDivElement>(null);
-  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState<boolean>(false);
-  const toolsDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close scope & tools dropdowns on outside click
+  // Close scope dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -723,20 +738,14 @@ export default function WebsiteEditor() {
       ) {
         setIsScopeDropdownOpen(false);
       }
-      if (
-        toolsDropdownRef.current &&
-        !toolsDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsToolsDropdownOpen(false);
-      }
     };
-    if (isScopeDropdownOpen || isToolsDropdownOpen) {
+    if (isScopeDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isScopeDropdownOpen, isToolsDropdownOpen]);
+  }, [isScopeDropdownOpen]);
   const [isMarginLinked, setIsMarginLinked] = useState<boolean>(true);
   const [isPaddingLinked, setIsPaddingLinked] = useState<boolean>(true);
   const [isBorderRadiusLinked, setIsBorderRadiusLinked] = useState<boolean>(true);
@@ -809,6 +818,37 @@ export default function WebsiteEditor() {
     setSaveMessage("Restored revision successfully!");
     setTimeout(() => setSaveMessage(""), 3500);
   };
+
+  const handleUpdateElementPropById = useCallback((elementId: string, propKey: string, propValue: any) => {
+    const updateInTree = (items: EditorElement[]): EditorElement[] => {
+      return items.map((el) => {
+        if (el.id === elementId) {
+          return {
+            ...el,
+            props: {
+              ...(el.props || {}),
+              [propKey]: propValue,
+            },
+          };
+        }
+        let updated = { ...el };
+        if (Array.isArray(el.children)) {
+          updated.children = updateInTree(el.children);
+        }
+        if (Array.isArray(el.elements)) {
+          updated.elements = updateInTree(el.elements);
+        }
+        return updated;
+      });
+    };
+
+    setElements((prev) => updateInTree(prev));
+  }, []);
+
+  const handleSelectElementFromAudit = useCallback((elementId: string) => {
+    setSelectedId(elementId);
+    setSelectedIds([elementId]);
+  }, []);
 
   const toggleWidgetAvailability = (type: ElementType) => {
     setDisabledWidgets((prev) => {
@@ -900,6 +940,7 @@ export default function WebsiteEditor() {
   const [isPageSelectorOpen, setIsPageSelectorOpen] = useState<boolean>(false);
   const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+  const [isSeoModalOpen, setIsSeoModalOpen] = useState<boolean>(false);
   const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
   const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
   const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
@@ -1178,7 +1219,17 @@ export default function WebsiteEditor() {
       setHistory([targetEls]);
       setHistoryIndex(0);
     } else if (mode === "header") {
-      const targetEls = siteParts.header?.elements || [];
+      let targetEls = siteParts.header?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultHeaderElements(
+          website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+          pages
+        );
+        setSiteParts((prev) => ({
+          ...prev,
+          header: { ...prev.header, elements: targetEls },
+        }));
+      }
       setElements(targetEls);
       setHistory([targetEls]);
       setHistoryIndex(0);
@@ -2283,6 +2334,21 @@ export default function WebsiteEditor() {
     }
   };
 
+  const handleCanvasAutoScroll = (e: React.DragEvent) => {
+    const mainContainer = e.currentTarget.closest("main") || document.querySelector("main");
+    if (!mainContainer) return;
+
+    const rect = mainContainer.getBoundingClientRect();
+    const edgeThreshold = 60;
+    const scrollSpeed = 15;
+
+    if (e.clientY - rect.top < edgeThreshold) {
+      mainContainer.scrollTop -= scrollSpeed;
+    } else if (rect.bottom - e.clientY < edgeThreshold) {
+      mainContainer.scrollTop += scrollSpeed;
+    }
+  };
+
   const handleDragOverElement = (
     e: React.DragEvent,
     elId: string,
@@ -2292,17 +2358,31 @@ export default function WebsiteEditor() {
     e.stopPropagation();
     e.dataTransfer.dropEffect = "move";
 
+    if (draggingId === elId || (draggingId && isDescendant(elements, draggingId, elId))) {
+      setDropTargetId(null);
+      setDropPosition(null);
+      return;
+    }
+
     const rect = e.currentTarget.getBoundingClientRect();
     const offsetY = e.clientY - rect.top;
     const height = rect.height;
 
     let pos: "before" | "after" | "inside" = "after";
-    if (isContainer && offsetY > height * 0.25 && offsetY < height * 0.75) {
-      pos = "inside";
-    } else if (offsetY < height * 0.5) {
-      pos = "before";
+    if (isContainer) {
+      if (offsetY < Math.min(height * 0.25, 30)) {
+        pos = "before";
+      } else if (offsetY > height - Math.min(height * 0.25, 30)) {
+        pos = "after";
+      } else {
+        pos = "inside";
+      }
     } else {
-      pos = "after";
+      if (offsetY < height * 0.5) {
+        pos = "before";
+      } else {
+        pos = "after";
+      }
     }
 
     setDropTargetId(elId);
@@ -4484,7 +4564,27 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
             e.dataTransfer.effectAllowed = "move";
+            if (!isPreview) handleSelectElement(el.id, e);
             setDraggingId(el.id);
+          }}
+          onDragOver={(e) => {
+            handleCanvasAutoScroll(e);
+            handleDragOverElement(e, el.id, true);
+          }}
+          onDragEnter={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (dropTargetId === el.id) {
+              setDropTargetId(null);
+              setDropPosition(null);
+            }
+          }}
+          onDrop={(e) => {
+            handleDropElement(e, el.id, dropPosition);
           }}
           onDragEnd={(e) => {
             e.stopPropagation();
@@ -4497,7 +4597,8 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${isPreview ? "" : "cursor-pointer hover:outline hover:outline-1 hover:outline-blue-400/60"
+          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+            } ${isPreview ? "" : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
             } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -4543,6 +4644,21 @@ export default function WebsiteEditor() {
             ...compilePositioningStyles(mergedStyles),
           }}
         >
+          {/* Drop Indicators for Container */}
+          {isDropTarget && dropPosition === "before" && (
+            <div className="absolute -top-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+          )}
+          {isDropTarget && dropPosition === "after" && (
+            <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+          )}
+          {isDropTarget && dropPosition === "inside" && (
+            <div className="absolute inset-0 border-2 border-blue-500 border-dashed bg-blue-500/10 z-40 pointer-events-none rounded-lg flex items-center justify-center">
+              <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow pointer-events-none tracking-wide uppercase">
+                Drop Inside Container
+              </span>
+            </div>
+          )}
+
           {/* F-217: Background Video Layer */}
           {(el.containerBgType === "video" || el.containerVideoUrl) && (
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -4724,7 +4840,27 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           e.dataTransfer.setData("application/json", JSON.stringify({ type: "move", id: el.id }));
           e.dataTransfer.effectAllowed = "move";
+          if (!isPreview) handleSelectElement(el.id, e);
           setDraggingId(el.id);
+        }}
+        onDragOver={(e) => {
+          handleCanvasAutoScroll(e);
+          handleDragOverElement(e, el.id, false);
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (dropTargetId === el.id) {
+            setDropTargetId(null);
+            setDropPosition(null);
+          }
+        }}
+        onDrop={(e) => {
+          handleDropElement(e, el.id, dropPosition);
         }}
         onDragEnd={(e) => {
           e.stopPropagation();
@@ -4753,7 +4889,7 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-50 scale-95" : ""
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
           } ${isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
@@ -4787,6 +4923,14 @@ export default function WebsiteEditor() {
           ...(el.type === "button" && el.containerBg ? { backgroundColor: el.containerBg } : {}),
         }}
       >
+        {/* Drop Indicators for Leaf Element */}
+        {isDropTarget && dropPosition === "before" && (
+          <div className="absolute -top-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+        )}
+        {isDropTarget && dropPosition === "after" && (
+          <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
+        )}
+
         {isHovered && !isSelected && !isPreview && (
           <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
             {el.type}
@@ -5592,8 +5736,8 @@ export default function WebsiteEditor() {
                 }}
                 className="inline-block rounded-lg px-5 py-2 text-sm font-semibold shadow transition-all duration-200"
                 style={{
-                  backgroundColor: el.buttonBg || "#2563eb",
-                  color: el.buttonColor || "#ffffff",
+                  backgroundColor: mergedStyles.backgroundColor || el.styles?.backgroundColor || el.buttonBg || "#2563eb",
+                  color: mergedStyles.color || el.styles?.color || el.buttonColor || "#ffffff",
                   fontSize: mergedStyles.fontSize,
                   fontFamily: mergedStyles.fontFamily,
                   fontWeight: mergedStyles.fontWeight,
@@ -5832,6 +5976,9 @@ export default function WebsiteEditor() {
             mergedStyles={mergedStyles}
             pages={pages}
             homePageId={homePageId}
+            onUpdateElement={(updater) => {
+              setElements((prev) => updateTreeElement(prev, el.id, updater));
+            }}
             onNavigatePage={(targetIdOrSlug) => {
               const clean = targetIdOrSlug.replace(/^\//, "");
               const targetPage = pages.find(
@@ -6027,6 +6174,9 @@ export default function WebsiteEditor() {
             isPreview={isPreview}
             mergedStyles={mergedStyles}
             pages={pages}
+            onUpdateElement={(updater) => {
+              setElements((prev) => updateTreeElement(prev, el.id, updater));
+            }}
             onNavigatePage={(targetIdOrSlug) => {
               const clean = targetIdOrSlug.replace(/^\//, "");
               const targetPage = pages.find(
@@ -6076,6 +6226,234 @@ export default function WebsiteEditor() {
           <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
+        {el.type === "link-in-bio" && (() => {
+          const links = el.bioLinks || [
+            { id: "b1", label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
+            { id: "b2", label: "Subscribe to Newsletter", url: "#", icon: "📩" }
+          ];
+          return (
+            <div className="w-full max-w-sm mx-auto p-6 rounded-2xl bg-white shadow-xl border border-slate-100 text-center space-y-4">
+              {el.bioAvatarUrl ? (
+                <img src={resolveImageUrl(el.bioAvatarUrl, apiUrl)} alt="Bio Avatar" className="w-20 h-20 rounded-full mx-auto object-cover ring-4 ring-pink-100 shadow-md" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center text-2xl font-bold mx-auto shadow-md ring-4 ring-pink-100">
+                  {(el.bioName || "@user").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <h3 className="font-bold text-base text-slate-900">{el.bioName || "@username"}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">{el.bioTagline || "Digital Creator & Designer"}</p>
+              </div>
+              <div className="space-y-2.5 pt-2">
+                {links.map((link: any) => (
+                  <a
+                    key={link.id}
+                    href={link.url || "#"}
+                    onClick={(e) => { if (!isPreview) e.preventDefault(); }}
+                    className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 hover:bg-pink-50 border border-slate-200/80 hover:border-pink-200 text-xs font-semibold text-slate-700 hover:text-pink-600 transition shadow-xs group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{link.icon || "🔗"}</span>
+                      <span>{link.label}</span>
+                    </span>
+                    {link.badge && (
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-pink-100 text-pink-700">
+                        {link.badge}
+                      </span>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "image-box" && (() => {
+          const pos = el.imageBoxPosition || "top";
+          const isRow = pos === "left" || pos === "right";
+          const isReverse = pos === "right";
+          return (
+            <div className={`w-full flex ${isRow ? "flex-row" : "flex-col"} ${isReverse ? "flex-row-reverse" : ""} items-center gap-4 p-4 rounded-xl border border-slate-100 bg-white shadow-xs group hover:shadow-md transition`}>
+              {el.src ? (
+                <img src={resolveImageUrl(el.src, apiUrl)} alt={el.title || "Image Box"} className={`${isRow ? "w-1/3" : "w-full"} h-44 object-cover rounded-lg group-hover:scale-102 transition duration-300`} />
+              ) : (
+                <div className={`${isRow ? "w-1/3" : "w-full"} h-36 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-medium`}>
+                  🖼️ Image Box
+                </div>
+              )}
+              <div className="flex-1 text-left space-y-1">
+                <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition">{el.title || "Image Box Feature"}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">{el.content || "Detailed description of the feature or highlight box element."}</p>
+                {el.href && (
+                  <a href={el.href} onClick={(e) => { if (!isPreview) e.preventDefault(); }} className="inline-block pt-1 text-xs font-bold text-blue-600 hover:underline">
+                    Learn More →
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "icon-box" && (() => {
+          const pos = el.iconBoxPosition || "top";
+          const isRow = pos === "left" || pos === "right";
+          const isReverse = pos === "right";
+          return (
+            <div className={`w-full flex ${isRow ? "flex-row" : "flex-col"} ${isReverse ? "flex-row-reverse" : ""} items-start gap-3.5 p-5 rounded-xl border border-slate-100 bg-white shadow-xs group hover:shadow-md transition`}>
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition">
+                {el.iconName || el.icon || "⚡"}
+              </div>
+              <div className="space-y-1 text-left">
+                <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition">{el.title || "Icon Box Heading"}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">{el.content || "Brief explanatory text about this service, capability, or key benefit."}</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {el.type === "icon-list" && (() => {
+          const items = el.iconListItems || [
+            { id: "1", text: "High priority SLA support", icon: "✓", color: "#10b981" },
+            { id: "2", text: "Unlimited custom domains", icon: "✓", color: "#10b981" },
+            { id: "3", text: "Advanced analytics dashboard", icon: "✓", color: "#10b981" }
+          ];
+          return (
+            <div className="w-full space-y-2 text-left">
+              {items.map((item: any) => (
+                <div key={item.id} className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {item.icon || "✓"}
+                  </span>
+                  {item.url ? (
+                    <a href={item.url} onClick={(e) => { if (!isPreview) e.preventDefault(); }} className="hover:text-emerald-600 hover:underline">
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span>{item.text}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {el.type === "counter" && (
+          <div className="w-full p-5 rounded-xl bg-white border border-slate-100 text-center shadow-xs">
+            <div className="text-3xl font-extrabold text-blue-600 tracking-tight font-mono">
+              <span>{el.counterPrefix || ""}</span>
+              <span>{el.counterEnd ?? 100}</span>
+              <span>{el.counterSuffix || "+"}</span>
+            </div>
+            <p className="text-xs font-semibold text-slate-600 mt-1 uppercase tracking-wider">{el.counterTitle || "Happy Customers"}</p>
+          </div>
+        )}
+
+        {el.type === "progress-bar" && (
+          <div className="w-full space-y-1.5 text-left">
+            <div className="flex justify-between text-xs font-bold text-slate-700">
+              <span>{el.progressLabel || "Skill Level"}</span>
+              <span className="font-mono text-teal-600">{el.progressValue ?? 85}%</span>
+            </div>
+            <div className="w-full bg-slate-100 rounded-full overflow-hidden" style={{ height: `${el.progressHeight || 12}px` }}>
+              <div
+                className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-1000"
+                style={{ width: `${el.progressValue ?? 85}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {el.type === "rating" && (() => {
+          const max = el.ratingMax || 5;
+          const score = el.ratingValue ?? 4.8;
+          const stars = Array.from({ length: max }, (_, i) => i + 1);
+          return (
+            <div className="w-full flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                {stars.map((s) => (
+                  <span key={s} style={{ color: s <= Math.round(score) ? (el.ratingColor || "#f59e0b") : "#cbd5e1" }} className="text-lg">
+                    ★
+                  </span>
+                ))}
+              </div>
+              {el.ratingShowText !== false && (
+                <span className="text-xs font-bold text-slate-700 font-mono">
+                  {score} / {max}
+                </span>
+              )}
+            </div>
+          );
+        })()}
+
+        {el.type === "alert" && (() => {
+          const type = el.alertType || "info";
+          const bgMap: Record<string, string> = {
+            info: "bg-blue-50 border-blue-200 text-blue-900",
+            success: "bg-emerald-50 border-emerald-200 text-emerald-900",
+            warning: "bg-amber-50 border-amber-200 text-amber-900",
+            danger: "bg-rose-50 border-rose-200 text-rose-900"
+          };
+          const iconMap: Record<string, string> = {
+            info: "ℹ️",
+            success: "✅",
+            warning: "⚠️",
+            danger: "🚨"
+          };
+          return (
+            <div className={`w-full p-4 rounded-xl border flex items-start justify-between gap-3 text-left ${bgMap[type] || bgMap.info}`}>
+              <div className="flex items-start gap-2.5">
+                <span className="text-base leading-none">{iconMap[type]}</span>
+                <div className="space-y-0.5">
+                  <h5 className="font-bold text-xs">{el.alertTitle || "Notice"}</h5>
+                  <p className="text-xs opacity-90">{el.content || "This is an important alert banner message."}</p>
+                </div>
+              </div>
+              {el.alertDismissible && (
+                <button type="button" className="text-xs opacity-60 hover:opacity-100 font-bold">✕</button>
+              )}
+            </div>
+          );
+        })()}
+
+        {el.type === "google-maps" && (
+          <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-slate-100 relative" style={{ height: `${el.mapHeight || 350}px` }}>
+            <iframe
+              title="Google Map Location"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(el.mapAddress || "San Francisco, CA")}&t=&z=${el.mapZoom || 14}&ie=UTF8&iwloc=&output=embed`}
+            />
+          </div>
+        )}
+
+        {el.type === "divider" && (
+          <div className="w-full flex justify-center my-3">
+            <hr
+              style={{
+                borderTopStyle: (el.dividerStyle as any) || "solid",
+                borderTopWidth: `${el.dividerWeight || 2}px`,
+                borderTopColor: el.dividerColor || "#cbd5e1",
+                width: el.dividerWidth || "100%",
+                borderBottom: "none",
+                borderLeft: "none",
+                borderRight: "none"
+              }}
+            />
+          </div>
+        )}
+
+        {el.type === "spacer" && (
+          <div
+            className="w-full flex items-center justify-center border border-dashed border-slate-300/60 bg-slate-50/40 rounded my-1 text-[10px] text-slate-400 font-mono select-none"
+            style={{ height: `${el.spacerHeight || 40}px` }}
+          >
+            {!isPreview && `Spacer (${el.spacerHeight || 40}px)`}
+          </div>
+        )}
+
         {el.type === "html" && (
           <div dangerouslySetInnerHTML={{ __html: el.content || "<p class='p-4 border border-dashed rounded text-xs text-slate-400 text-center font-mono'>Custom HTML Block</p>" }} className="w-full h-full" />
         )}
@@ -6108,9 +6486,14 @@ export default function WebsiteEditor() {
       {/* Top Header Bar */}
       {/* ========================================== */}
       {!isFullScreenCanvas && (
-        <header className="w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 bg-[#0b1329] text-white overflow-x-clip">
-          {/* 1. Left Region: Brand / Back / Breadcrumb & Scope Switcher */}
-          <div className="flex items-center gap-2 shrink-0">
+        <header
+          className={`relative w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-clip ${userPreferences.themeMode === "light"
+            ? "bg-white border-b border-slate-200 text-slate-800"
+            : "bg-[#0b1329] text-white"
+            }`}
+        >
+          {/* 1. Left Region: Brand / Back / Breadcrumb & Utility Tools */}
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
             {/* Quit Editor Button */}
             <button
               type="button"
@@ -6200,72 +6583,49 @@ export default function WebsiteEditor() {
               )}
             </div>
 
-            {/* Subtle Divider */}
-            <div className="h-5 w-px bg-slate-700 shrink-0" />
+            {/* Vertical Divider */}
+            <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
 
-            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
-            <div className="relative" ref={scopeDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
-                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
-                title="Switch Canvas Scope (Page / Header / Footer)"
-                aria-label="Switch Canvas Scope"
-                aria-expanded={isScopeDropdownOpen}
-                aria-haspopup="listbox"
-              >
-                <span className="text-xs">
-                  {canvasMode === "page" && "📄"}
-                  {canvasMode === "header" && "🌐"}
-                  {canvasMode === "footer" && "🌐"}
-                </span>
-                <span className="capitalize font-semibold">{canvasMode}</span>
-                <ChevronDown
-                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
-                    }`}
-                />
-              </button>
+            {/* Developer Mode Button */}
+            <button
+              type="button"
+              onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
+              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 ${devModalMode === "export-code"
+                ? "bg-blue-600 text-white border-blue-500 shadow-blue-500/20"
+                : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
+                }`}
+              title="Developer Mode"
+              aria-label="Developer Mode"
+            >
+              <Code2 className="w-4 h-4" />
+            </button>
 
-              {isScopeDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
-                  {(
-                    [
-                      { mode: "page", label: "Page", icon: "📄" },
-                      { mode: "header", label: "Header", icon: "🌐" },
-                      { mode: "footer", label: "Footer", icon: "🌐" },
-                    ] as const
-                  ).map(({ mode, label, icon }) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => {
-                        handleSwitchCanvasMode(mode);
-                        setIsScopeDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
-                        ? "bg-blue-600/20 text-blue-300 font-bold"
-                        : "text-slate-300 hover:text-white"
-                        }`}
-                      role="option"
-                      aria-selected={canvasMode === mode}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{icon}</span>
-                        <span>{label}</span>
-                      </div>
-                      {canvasMode === mode && (
-                        <span className="text-blue-400 text-xs">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Shortcuts Button */}
+            <button
+              type="button"
+              onClick={() => setIsShortcutsHelpOpen(true)}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Keyboard Shortcuts"
+              aria-label="Keyboard Shortcuts"
+            >
+              <Keyboard className="w-4 h-4" />
+            </button>
+
+            {/* Search Control */}
+            <button
+              type="button"
+              onClick={() => setIsFinderOpen(true)}
+              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Search (Ctrl+K)"
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* 2. Center Region: Isolated Device Viewport Switcher */}
-          <div className="flex items-center justify-center flex-1">
-            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80">
+          {/* 2. Center Region: True Dead Center Device Viewport Switcher */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
               <button
                 type="button"
                 onClick={() => setActiveDevice("desktop")}
@@ -6305,92 +6665,73 @@ export default function WebsiteEditor() {
             </div>
           </div>
 
-          {/* 3. Right Region: Tools Dropdown, History, Kit, Actions */}
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          {/* 3. Right Region: Scope Switcher, History, Kit, Fullscreen, Preview, Save, Publish */}
+          <div className="flex items-center justify-end gap-2 md:gap-2.5 shrink-0">
             {/* Status Messages */}
             {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden 2xl:inline">✓ {saveMessage}</span>}
             {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden 2xl:inline">{errorMessage}</span>}
 
-            {/* Unified Tools & Utilities Dropdown (Search, Shortcuts, Dev Mode) */}
-            <div className="relative" ref={toolsDropdownRef}>
+            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
+            <div className="relative" ref={scopeDropdownRef}>
               <button
                 type="button"
-                onClick={() => setIsToolsDropdownOpen((prev) => !prev)}
-                className={`h-8 px-2.5 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 ${isToolsDropdownOpen || devModalMode === "export-code"
-                  ? "bg-blue-600/30 text-blue-200 border-blue-500/60 shadow-sm"
-                  : "text-slate-300 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white border-slate-700"
-                  }`}
-                title="Tools & Utilities"
-                aria-label="Tools and Utilities"
-                aria-expanded={isToolsDropdownOpen}
-                aria-haspopup="true"
+                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
+                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
+                title="Switch Canvas Scope (Page / Header / Footer)"
+                aria-label="Switch Canvas Scope"
+                aria-expanded={isScopeDropdownOpen}
+                aria-haspopup="listbox"
               >
-                <Wrench className="w-3.5 h-3.5 text-slate-300" />
-                <span className="hidden xl:inline text-xs font-medium">Tools</span>
+                <span className="text-xs">
+                  {canvasMode === "page" && "📄"}
+                  {canvasMode === "header" && "🌐"}
+                  {canvasMode === "footer" && "🌐"}
+                </span>
+                <span className="capitalize font-semibold">{canvasMode}</span>
                 <ChevronDown
-                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isToolsDropdownOpen ? "rotate-180" : ""
+                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
                     }`}
                 />
               </button>
 
-              {isToolsDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1.5 w-56 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
-                  <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
-                    Tools & Utilities
-                  </div>
-                  {/* Search */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsToolsDropdownOpen(false);
-                      setIsFinderOpen(true);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Search className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Search</span>
-                    </div>
-                    <kbd className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">Ctrl+K</kbd>
-                  </button>
-
-                  {/* Shortcuts */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsToolsDropdownOpen(false);
-                      setIsShortcutsHelpOpen(true);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Keyboard className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Shortcuts</span>
-                    </div>
-                    <kbd className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-mono">?</kbd>
-                  </button>
-
-                  {/* Developer Mode */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsToolsDropdownOpen(false);
-                      setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"));
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs flex items-center justify-between text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Code2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Developer Mode</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono">&lt;/&gt;</span>
-                  </button>
+              {isScopeDropdownOpen && (
+                <div className="absolute top-full right-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                  {(
+                    [
+                      { mode: "page", label: "Page", icon: "📄" },
+                      { mode: "header", label: "Header", icon: "🌐" },
+                      { mode: "footer", label: "Footer", icon: "🌐" },
+                    ] as const
+                  ).map(({ mode, label, icon }) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => {
+                        handleSwitchCanvasMode(mode);
+                        setIsScopeDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
+                        ? "bg-blue-600/20 text-blue-300 font-bold"
+                        : "text-slate-300 hover:text-white"
+                        }`}
+                      role="option"
+                      aria-selected={canvasMode === mode}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{icon}</span>
+                        <span>{label}</span>
+                      </div>
+                      {canvasMode === mode && (
+                        <span className="text-blue-400 text-xs">✓</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700 shrink-0" />
+            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
 
             {/* History Controls Group (Undo / Redo / History) */}
             <div className="flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-slate-700/80 shrink-0">
@@ -6422,7 +6763,7 @@ export default function WebsiteEditor() {
               </button>
             </div>
 
-            {/* Selected Element Controls (Only active when element selected on ultra-wide screens) */}
+            {/* Selected Element Controls (Only active when element selected) */}
             {selectedId && (
               <div className="hidden 2xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/30 shrink-0">
                 <button
@@ -6476,50 +6817,7 @@ export default function WebsiteEditor() {
               </div>
             )}
 
-            {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700 shrink-0" />
-
-            {/* Notes, Tokens, Classes Secondary Tools */}
-            {/* Collaborative Design Notes & Feedback */}
-            <button
-              type="button"
-              onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer shrink-0 ${isDesignNotesOpen
-                ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
-                : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
-                }`}
-              title="Toggle Collaborative Design Notes & Element Comments"
-            >
-              <span>💬</span>
-              <span>Notes</span>
-            </button>
-
-            {/* F-339: Variables Manager (Tokens) */}
-            <button
-              type="button"
-              onClick={() => setIsVariablesModalOpen(true)}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer shrink-0"
-              title="Design Variables & CSS Tokens (F-339)"
-            >
-              <span>🎨</span>
-              <span>Tokens</span>
-            </button>
-
-            {/* F-340: Global Class Manager */}
-            <button
-              type="button"
-              onClick={() => setIsClassModalOpen(true)}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer shrink-0"
-              title="Global Utility Classes (F-340)"
-            >
-              <span>🏷️</span>
-              <span>Classes</span>
-            </button>
-
-            {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700 shrink-0" />
-
-            {/* Kit & Fullscreen Utility Tools */}
+            {/* Kit & Tools Actions */}
             <button
               type="button"
               onClick={handleExportWebsiteKit}
@@ -6540,8 +6838,65 @@ export default function WebsiteEditor() {
               <span className="text-sm leading-none">⛶</span>
             </button>
 
+            {/* Collaborative Design Notes & Feedback */}
+            <button
+              type="button"
+              onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${isDesignNotesOpen
+                ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
+                : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
+                }`}
+              title="Toggle Collaborative Design Notes & Element Comments"
+            >
+              <span>💬</span>
+              <span>Notes</span>
+            </button>
+
+            {/* F-339: Variables Manager (Tokens) */}
+            <button
+              type="button"
+              onClick={() => setIsVariablesModalOpen(true)}
+              className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
+              title="Design Variables & CSS Tokens (F-339)"
+            >
+              <span>🎨</span>
+              <span>Tokens</span>
+            </button>
+
+            {/* F-340: Global Class Manager */}
+            <button
+              type="button"
+              onClick={() => setIsClassModalOpen(true)}
+              className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
+              title="Global Utility Classes (F-340)"
+            >
+              <span>🏷️</span>
+              <span>Classes</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? "Saving..." : "💾 Save"}
+            </button>
+
             {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700 shrink-0" />
+            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+
+            {/* SEO & Quality Audit Button */}
+            <button
+              type="button"
+              onClick={() => setIsSeoModalOpen(true)}
+              className="h-8 px-2.5 rounded-lg border border-indigo-500/40 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-white transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-indigo-400"
+              title="SEO & Quality Audit"
+              aria-label="SEO & Quality Audit"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="hidden sm:inline">SEO & Quality</span>
+            </button>
 
             {/* Primary Action Buttons: Preview, Save, Publish */}
             {/* Preview Button */}
@@ -7976,6 +8331,7 @@ export default function WebsiteEditor() {
           onClick={() => handleSelectElement(null)}
           onDragOver={(e) => {
             e.preventDefault();
+            handleCanvasAutoScroll(e);
             e.dataTransfer.dropEffect = "move";
           }}
           onDrop={(e) => handleDropElement(e, null, "after")}
@@ -8002,7 +8358,8 @@ export default function WebsiteEditor() {
             onDragOver={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              e.dataTransfer.dropEffect = "copy";
+              handleCanvasAutoScroll(e);
+              e.dataTransfer.dropEffect = "move";
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
@@ -8156,15 +8513,28 @@ export default function WebsiteEditor() {
                     <div className="space-y-6 py-2">
                       {/* Global Header in Preview (Comment 5, 21) */}
                       {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) &&
-                        siteParts.header?.elements &&
-                        siteParts.header.elements.length > 0 &&
                         matchesThemeCondition(siteParts.header?.conditions, {
                           pageId: currentPreviewPage?.id,
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
-                          <div className="site-global-header border-b border-slate-100 pb-4">
-                            {siteParts.header.elements.map((el) => renderElementTree(el))}
+                          <div className="site-global-header border-b border-slate-100 pb-4 mb-4">
+                            {siteParts.header?.elements && siteParts.header.elements.length > 0 ? (
+                              siteParts.header.elements.map((el) => renderElementTree(el))
+                            ) : (
+                              <DefaultWebsiteNavbar
+                                websiteName={website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}
+                                pages={pages}
+                                activePageId={currentPreviewPage?.id || activePageId}
+                                isPreview={true}
+                                activeDevice={activeDevice}
+                                onNavigatePage={(targetPage) => handlePreviewPageNavigate(targetPage)}
+                                onEditHeader={() => {
+                                  setIsPreview(false);
+                                  handleSwitchCanvasMode("header");
+                                }}
+                              />
+                            )}
                           </div>
                         )}
 
@@ -8188,15 +8558,19 @@ export default function WebsiteEditor() {
 
                       {/* Global Footer in Preview (Comment 5, 21) */}
                       {(siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) &&
-                        siteParts.footer?.elements &&
-                        siteParts.footer.elements.length > 0 &&
                         matchesThemeCondition(siteParts.footer?.conditions, {
                           pageId: currentPreviewPage?.id,
                           isHome: currentPreviewPage?.isHome,
                           slug: currentPreviewPage?.slug,
                         }) && (
                           <div className="site-global-footer border-t border-slate-100 pt-6 mt-10">
-                            {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                            {siteParts.footer?.elements && siteParts.footer.elements.length > 0 ? (
+                              siteParts.footer.elements.map((el) => renderElementTree(el))
+                            ) : (
+                              <div className="py-6 text-center text-xs text-slate-500">
+                                © {new Date().getFullYear()} {website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}. All rights reserved.
+                              </div>
+                            )}
                           </div>
                         )}
                     </div>
@@ -8258,7 +8632,41 @@ export default function WebsiteEditor() {
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
-                    {/* Shared Global Header Preview Banner in Page Mode (Hidden per user request) */}
+                    {/* Shared Global Header & Navigation in Page Mode Canvas */}
+                    {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) && (
+                      <div className="mb-6 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
+                        <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
+                          <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>🌐</span>
+                            <span>Website Header & Navigation (Shared Across Pages)</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchCanvasMode("header")}
+                            className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                            title="Customize Header & Navigation"
+                          >
+                            <span>✏️</span>
+                            <span>Edit Header</span>
+                          </button>
+                        </div>
+                        {siteParts.header?.elements && siteParts.header.elements.length > 0 ? (
+                          <div className="space-y-3">
+                            {siteParts.header.elements.map((el) => renderElementTree(el))}
+                          </div>
+                        ) : (
+                          <DefaultWebsiteNavbar
+                            websiteName={website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}
+                            pages={pages}
+                            activePageId={activePageId}
+                            isPreview={false}
+                            activeDevice={activeDevice}
+                            onNavigatePage={(page) => handleSwitchEditingPage(page.id)}
+                            onEditHeader={() => handleSwitchCanvasMode("header")}
+                          />
+                        )}
+                      </div>
+                    )}
 
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -8296,7 +8704,35 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
-                {/* Shared Global Footer Preview Banner in Page Mode (Hidden per user request) */}
+                {/* Shared Global Footer in Page Mode Canvas */}
+                {canvasMode === "page" && (siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) && (
+                  <div className="mt-8 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
+                    <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
+                      <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <span>🌐</span>
+                        <span>Website Footer (Shared Across Pages)</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleSwitchCanvasMode("footer")}
+                        className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 px-2.5 py-1 rounded-md border border-purple-300 transition shadow-2xs flex items-center gap-1 cursor-pointer"
+                        title="Customize Footer"
+                      >
+                        <span>✏️</span>
+                        <span>Edit Footer</span>
+                      </button>
+                    </div>
+                    {siteParts.footer?.elements && siteParts.footer.elements.length > 0 ? (
+                      <div className="space-y-3">
+                        {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                      </div>
+                    ) : (
+                      <div className="py-3 text-center text-xs text-slate-400 italic">
+                        Global footer is empty. Click "Edit Footer" to add footer links, copyright, or social widgets.
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -9558,6 +9994,120 @@ export default function WebsiteEditor() {
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
                     siteProducts={siteProducts}
+                  />
+                )}
+
+                {/* Link in Bio Inspector */}
+                {selectedElementAny.type === "link-in-bio" && (
+                  <LinkInBioWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Image Box Inspector */}
+                {selectedElementAny.type === "image-box" && (
+                  <ImageBoxWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Icon Box Inspector */}
+                {selectedElementAny.type === "icon-box" && (
+                  <IconBoxWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Icon List Inspector */}
+                {selectedElementAny.type === "icon-list" && (
+                  <IconListWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Counter Inspector */}
+                {selectedElementAny.type === "counter" && (
+                  <CounterWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Progress Bar Inspector */}
+                {selectedElementAny.type === "progress-bar" && (
+                  <ProgressBarWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Rating Inspector */}
+                {selectedElementAny.type === "rating" && (
+                  <RatingWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Alert Inspector */}
+                {selectedElementAny.type === "alert" && (
+                  <AlertWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Google Maps Inspector */}
+                {selectedElementAny.type === "google-maps" && (
+                  <GoogleMapsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Divider Inspector */}
+                {selectedElementAny.type === "divider" && (
+                  <DividerWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                    updateStyle={updateSelectedStyle}
+                  />
+                )}
+
+                {/* Spacer Inspector */}
+                {selectedElementAny.type === "spacer" && (
+                  <SpacerWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Custom SVG Inspector */}
+                {selectedElementAny.type === "custom-svg" && (
+                  <CustomSVGWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Query Builder Inspector */}
+                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                  <QueryBuilderWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Display Conditions Inspector */}
+                {selectedElementAny.type === "template" && (
+                  <DisplayConditionsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
                   />
                 )}
 
@@ -16931,6 +17481,15 @@ export default function WebsiteEditor() {
                     </span>
                   </div>
 
+                  <button
+                    type="button"
+                    onClick={() => setIsSeoModalOpen(true)}
+                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Open Full SEO & Quality Audit</span>
+                  </button>
+
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 mb-1">
                       Canonical URL
@@ -18202,6 +18761,23 @@ export default function WebsiteEditor() {
         }}
       />
 
+      {/* SEO & Quality Analyzer Modal */}
+      <SeoAnalyzerModal
+        isOpen={isSeoModalOpen}
+        onClose={() => setIsSeoModalOpen(false)}
+        websiteId={websiteId || ""}
+        activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
+        allPages={pages}
+        websiteData={{
+          name: website?.name,
+          siteSettings: globalSettings || {},
+          pages,
+        }}
+        onSelectElement={handleSelectElementFromAudit}
+        onUpdateElementProp={handleUpdateElementPropById}
+        onUpdatePageSettings={setPageSettings}
+      />
+
       {/* Collaborative Design Notes & Feedback Overlay */}
       <DesignNotesOverlay
         isOpen={isDesignNotesOpen}
@@ -18276,4 +18852,3 @@ export default function WebsiteEditor() {
     </div>
   );
 }
-

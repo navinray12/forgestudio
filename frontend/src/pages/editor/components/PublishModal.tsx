@@ -140,7 +140,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setIsSyncingSftp(false);
     }
   };
-
   const loadDeployments = async () => {
     if (!websiteId) return;
     try {

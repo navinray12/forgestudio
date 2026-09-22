@@ -11,8 +11,8 @@ import { Strategy as GitHubStrategy } from "passport-github2";
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientID: process.env.GOOGLE_CLIENT_ID || "disabled_google_client_id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "disabled_google_client_secret",
       callbackURL:
         "http://localhost:5000/api/v1/auth/google/callback",
     },
@@ -39,8 +39,8 @@ passport.use(
 passport.use(
   new GitHubStrategy(
     {
-      clientID: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientID: process.env.GITHUB_CLIENT_ID || "disabled_github_client_id",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "disabled_github_client_secret",
       callbackURL:
         "http://localhost:5000/api/v1/auth/github/callback",
     },

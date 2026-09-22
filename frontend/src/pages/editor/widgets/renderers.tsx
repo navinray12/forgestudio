@@ -1123,6 +1123,7 @@ export const NavMenuWidgetRenderer = ({
   homePageId,
   siteProducts = [],
   onNavigatePage,
+  onUpdateElement,
   websiteId,
   isPublicSite,
 }: {
@@ -1133,6 +1134,7 @@ export const NavMenuWidgetRenderer = ({
   homePageId?: string;
   siteProducts?: SiteProduct[];
   onNavigatePage?: (pageIdOrSlug: string) => void;
+  onUpdateElement?: (updater: (prev: EditorElement) => EditorElement) => void;
   websiteId?: string;
   isPublicSite?: boolean;
 }) => {
@@ -1154,7 +1156,19 @@ export const NavMenuWidgetRenderer = ({
     { id: "5", label: "Contact", url: "/contact" },
   ];
 
-  const items: NavMenuItem[] = el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : defaultNavItems;
+  const pagesNavItems: NavMenuItem[] =
+    pages && pages.length > 0
+      ? pages.map((p) => ({
+          id: p.id,
+          label: p.name,
+          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+          pageId: p.id,
+          isActive: p.isHome || p.id === homePageId,
+        }))
+      : defaultNavItems;
+
+  const items: NavMenuItem[] =
+    el.navMenuItems && el.navMenuItems.length > 0 ? el.navMenuItems : pagesNavItems;
 
   const isVertical = el.navLayout === "vertical";
   const alignment = el.navAlignment || mergedStyles?.textAlign || mergedStyles?.justifyContent || "left";
@@ -1178,6 +1192,8 @@ export const NavMenuWidgetRenderer = ({
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items.find((i) => i.isActive)?.id || items[0]?.id || null
   );
+  const [itemDragState, setItemDragState] = useState<{ id: string; x: number; y: number } | null>(null);
+  const navListRef = useRef<HTMLUListElement | null>(null);
 
   let justifyClass = "justify-start";
   if (alignment === "center") justifyClass = "justify-center";
@@ -1216,6 +1232,92 @@ export const NavMenuWidgetRenderer = ({
     }
 
     return { displayLabel, displayUrl: resolvedUrl, isOrphaned, targetPage };
+  };
+
+  const handleItemPointerDown = (
+    e: React.PointerEvent<HTMLLIElement>,
+    item: NavMenuItem,
+    idx: number
+  ) => {
+    if (isPreview) return;
+    if (e.button !== 0) return;
+
+    // Prevent level 1 canvas widget dragging from catching this event
+    e.stopPropagation();
+
+    const li = e.currentTarget;
+    const ul = navListRef.current || (li.parentElement as HTMLElement);
+    if (!ul) return;
+
+    const ulRect = ul.getBoundingClientRect();
+    const liRect = li.getBoundingClientRect();
+
+    const currentX = item.position?.x ?? Math.round(liRect.left - ulRect.left);
+    const currentY = item.position?.y ?? Math.round(liRect.top - ulRect.top);
+
+    const startPointerX = e.clientX;
+    const startPointerY = e.clientY;
+    let isDragging = false;
+
+    const onPointerMove = (moveEv: PointerEvent) => {
+      const dx = moveEv.clientX - startPointerX;
+      const dy = moveEv.clientY - startPointerY;
+
+      if (!isDragging && Math.hypot(dx, dy) > 4) {
+        isDragging = true;
+      }
+
+      if (isDragging) {
+        let nextX = currentX + dx;
+        let nextY = currentY + dy;
+
+        const maxX = Math.max(0, ulRect.width - liRect.width);
+        const maxY = Math.max(0, Math.max(ulRect.height, 120) - liRect.height);
+
+        nextX = Math.max(0, Math.min(maxX, nextX));
+        nextY = Math.max(0, Math.min(maxY, nextY));
+
+        setItemDragState({ id: item.id, x: Math.round(nextX), y: Math.round(nextY) });
+      }
+    };
+
+    const onPointerUp = (upEv: PointerEvent) => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+
+      if (isDragging) {
+        const dx = upEv.clientX - startPointerX;
+        const dy = upEv.clientY - startPointerY;
+
+        let finalX = currentX + dx;
+        let finalY = currentY + dy;
+
+        const maxX = Math.max(0, ulRect.width - liRect.width);
+        const maxY = Math.max(0, Math.max(ulRect.height, 120) - liRect.height);
+
+        finalX = Math.round(Math.max(0, Math.min(maxX, finalX)));
+        finalY = Math.round(Math.max(0, Math.min(maxY, finalY)));
+
+        setItemDragState(null);
+
+        const copy = items.map((it, i) =>
+          i === idx ? { ...it, position: { x: finalX, y: finalY } } : it
+        );
+
+        if (onUpdateElement) {
+          onUpdateElement((prev) => ({
+            ...prev,
+            navMenuItems: copy,
+            content: JSON.stringify(copy),
+          }));
+        }
+      } else {
+        setItemDragState(null);
+      }
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
   };
 
   const handleLinkClick = (e: React.MouseEvent, item: NavMenuItem) => {
@@ -1269,16 +1371,21 @@ export const NavMenuWidgetRenderer = ({
 
       {/* Main Desktop & Tablet Nav List */}
       <ul
+        ref={navListRef}
         className={`flex w-full ${
           mobileMenuOpen
             ? "flex-col items-stretch mt-2"
             : isVertical
             ? "flex-col items-stretch"
             : `hidden sm:flex flex-row items-center ${justifyClass}`
-        } wrap`}
-        style={{ gap: `${gap}px` }}
+        } wrap relative`}
+        style={{
+          gap: `${gap}px`,
+          position: "relative",
+          minHeight: items.some((i) => i.position) || itemDragState ? "80px" : "44px",
+        }}
       >
-        {items.map((item) => {
+        {items.map((item, idx) => {
           const { displayLabel, displayUrl, isOrphaned } = resolveItem(item);
           const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
           const triggerMode = item.trigger || globalTrigger;
@@ -1289,10 +1396,26 @@ export const NavMenuWidgetRenderer = ({
           const currentBg = isItemActive ? itemActiveBg : isItemHovered ? itemHoverBg : itemBg;
           const currentColor = isItemActive ? itemActiveColor : isItemHovered ? itemHoverColor : itemColor;
 
+          const activePos = itemDragState?.id === item.id
+            ? { x: itemDragState.x, y: itemDragState.y }
+            : item.position;
+
+          const isPositioned = !!activePos;
+
           return (
             <li
               key={item.id}
-              className={`relative group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""}`}
+              onPointerDown={(e) => handleItemPointerDown(e, item, idx)}
+              className={`group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""} ${
+                !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80 rounded-xl" : ""
+              }`}
+              style={{
+                position: isPositioned ? "absolute" : "relative",
+                left: isPositioned ? `${activePos.x}px` : undefined,
+                top: isPositioned ? `${activePos.y}px` : undefined,
+                zIndex: itemDragState?.id === item.id ? 40 : isOpen ? 30 : 10,
+                transition: itemDragState?.id === item.id ? "none" : "all 0.15s ease-out",
+              }}
               onMouseEnter={() => {
                 setHoveredItemId(item.id);
                 if (hasSubmenu && triggerMode === "hover") setOpenSubmenuId(item.id);
@@ -5867,6 +5990,7 @@ export const MegaMenuWidgetRenderer = ({
   pages,
   siteProducts,
   onNavigatePage,
+  onUpdateElement,
 }: {
   el: EditorElement;
   isPreview?: boolean;
@@ -5874,6 +5998,7 @@ export const MegaMenuWidgetRenderer = ({
   pages?: PageConfig[];
   siteProducts?: SiteProduct[];
   onNavigatePage?: (pageIdOrSlug: string) => void;
+  onUpdateElement?: (updater: (prev: EditorElement) => EditorElement) => void;
 }) => {
   const defaultItems: MegaMenuItem[] = [
     {
@@ -5926,6 +6051,8 @@ export const MegaMenuWidgetRenderer = ({
 
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [megaItemDragState, setMegaItemDragState] = useState<{ id: string; x: number; y: number } | null>(null);
+  const megaNavListRef = useRef<HTMLUListElement | null>(null);
 
   const alignClass =
     alignment === "left" || alignment === "flex-start"
@@ -5955,6 +6082,92 @@ export const MegaMenuWidgetRenderer = ({
     }
 
     return { displayTitle, displayHref: resolvedUrl, targetPage };
+  };
+
+  const handleMegaItemPointerDown = (
+    e: React.PointerEvent<HTMLLIElement>,
+    item: MegaMenuItem,
+    idx: number
+  ) => {
+    if (isPreview) return;
+    if (e.button !== 0) return;
+
+    // Prevent level 1 canvas widget dragging
+    e.stopPropagation();
+
+    const li = e.currentTarget;
+    const ul = megaNavListRef.current || (li.parentElement as HTMLElement);
+    if (!ul) return;
+
+    const ulRect = ul.getBoundingClientRect();
+    const liRect = li.getBoundingClientRect();
+
+    const currentX = item.position?.x ?? Math.round(liRect.left - ulRect.left);
+    const currentY = item.position?.y ?? Math.round(liRect.top - ulRect.top);
+
+    const startPointerX = e.clientX;
+    const startPointerY = e.clientY;
+    let isDragging = false;
+
+    const onPointerMove = (moveEv: PointerEvent) => {
+      const dx = moveEv.clientX - startPointerX;
+      const dy = moveEv.clientY - startPointerY;
+
+      if (!isDragging && Math.hypot(dx, dy) > 4) {
+        isDragging = true;
+      }
+
+      if (isDragging) {
+        let nextX = currentX + dx;
+        let nextY = currentY + dy;
+
+        const maxX = Math.max(0, ulRect.width - liRect.width);
+        const maxY = Math.max(0, Math.max(ulRect.height, 100) - liRect.height);
+
+        nextX = Math.max(0, Math.min(maxX, nextX));
+        nextY = Math.max(0, Math.min(maxY, nextY));
+
+        setMegaItemDragState({ id: item.id, x: Math.round(nextX), y: Math.round(nextY) });
+      }
+    };
+
+    const onPointerUp = (upEv: PointerEvent) => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+
+      if (isDragging) {
+        const dx = upEv.clientX - startPointerX;
+        const dy = upEv.clientY - startPointerY;
+
+        let finalX = currentX + dx;
+        let finalY = currentY + dy;
+
+        const maxX = Math.max(0, ulRect.width - liRect.width);
+        const maxY = Math.max(0, Math.max(ulRect.height, 100) - liRect.height);
+
+        finalX = Math.round(Math.max(0, Math.min(maxX, finalX)));
+        finalY = Math.round(Math.max(0, Math.min(maxY, finalY)));
+
+        setMegaItemDragState(null);
+
+        const copy = items.map((it, i) =>
+          i === idx ? { ...it, position: { x: finalX, y: finalY } } : it
+        );
+
+        if (onUpdateElement) {
+          onUpdateElement((prev) => ({
+            ...prev,
+            megaMenuItems: copy,
+            content: JSON.stringify(copy),
+          }));
+        }
+      } else {
+        setMegaItemDragState(null);
+      }
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
   };
 
   const resolveMegaLink = (link: MegaMenuColumnLink) => {
@@ -6046,17 +6259,40 @@ export const MegaMenuWidgetRenderer = ({
           </button>
 
           {/* Desktop Navigation Categories */}
-          <ul className={`hidden sm:flex items-center ${alignClass} w-full gap-1 sm:gap-4 text-xs font-semibold`}>
-            {items.map((item) => {
+          <ul
+            ref={megaNavListRef}
+            className={`hidden sm:flex items-center ${alignClass} w-full gap-1 sm:gap-4 text-xs font-semibold relative`}
+            style={{
+              position: "relative",
+              minHeight: items.some((i) => i.position) || megaItemDragState ? "60px" : "40px",
+            }}
+          >
+            {items.map((item, idx) => {
               const { displayTitle, displayHref } = resolveMegaCategory(item);
               const hasColumns = item.columns && item.columns.length > 0;
               const triggerMode = item.trigger || globalTrigger;
               const isOpen = activeMenuId === item.id;
 
+              const activePos = megaItemDragState?.id === item.id
+                ? { x: megaItemDragState.x, y: megaItemDragState.y }
+                : item.position;
+
+              const isPositioned = !!activePos;
+
               return (
                 <li
                   key={item.id}
-                  className="relative py-2 px-3 rounded-lg hover:bg-slate-100/70 transition cursor-pointer select-none"
+                  onPointerDown={(e) => handleMegaItemPointerDown(e, item, idx)}
+                  className={`py-2 px-3 rounded-lg hover:bg-slate-100/70 transition select-none ${
+                    !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80" : "cursor-pointer"
+                  }`}
+                  style={{
+                    position: isPositioned ? "absolute" : "relative",
+                    left: isPositioned ? `${activePos.x}px` : undefined,
+                    top: isPositioned ? `${activePos.y}px` : undefined,
+                    zIndex: megaItemDragState?.id === item.id ? 40 : isOpen ? 30 : 10,
+                    transition: megaItemDragState?.id === item.id ? "none" : "all 0.15s ease-out",
+                  }}
                   onMouseEnter={() => {
                     if (hasColumns && triggerMode === "hover") setActiveMenuId(item.id);
                   }}

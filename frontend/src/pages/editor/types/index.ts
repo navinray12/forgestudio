@@ -25,7 +25,9 @@ export type ElementType =
   | "site-search" | "search-form" | "taxonomy-filter"
   | "facebook-integration" | "facebook-feed" | "facebook-like-button"
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
-  | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration";
+  | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
+  | "link-in-bio" | "image-box" | "icon-box" | "icon-list" | "query-builder" | "display-conditions"
+  | "acf-integration" | "toolset-integration" | "pods-integration" | "gutenberg-blocks" | "multisite-support";
 
 export interface SiteProduct {
   id: string;
@@ -75,6 +77,7 @@ export interface NavMenuItem {
   iconPosition?: "left" | "right";
   dropdownEnabled?: boolean;
   trigger?: "click" | "hover";
+  position?: { x: number; y: number };
   visibility?: {
     desktop?: boolean;
     tablet?: boolean;
@@ -301,6 +304,7 @@ export interface MegaMenuItem {
   icon?: string;
   trigger?: "click" | "hover";
   columns?: MegaMenuColumn[];
+  position?: { x: number; y: number };
 }
 
 export interface TestimonialItem {
@@ -1170,6 +1174,8 @@ export interface EditorElement {
   hoverStyles?: Partial<ElementStyles>;
   layout?: ContainerLayout;
   children?: EditorElement[];
+  elements?: EditorElement[];
+  props?: Record<string, any>;
   componentId?: string;
   isComponent?: boolean;
   componentName?: string;
@@ -1198,6 +1204,46 @@ export interface EditorElement {
   customCss?: string;
   customSelectors?: Record<string, any>;
   customAttributes?: Record<string, string> | any[];
+  // Scope A, B, C Fields
+  bioLinks?: any[];
+  bioAvatarUrl?: string;
+  bioName?: string;
+  bioTagline?: string;
+  imageBoxPosition?: string;
+  imageBoxHoverEffect?: string;
+  title?: string;
+  iconBoxPosition?: string;
+  iconListItems?: any[];
+  counterStart?: number;
+  counterEnd?: number;
+  counterPrefix?: string;
+  counterSuffix?: string;
+  counterDuration?: number;
+  counterTitle?: string;
+  progressLabel?: string;
+  progressValue?: number;
+  progressHeight?: number;
+  ratingMax?: number;
+  ratingValue?: number;
+  ratingColor?: string;
+  ratingShowText?: boolean;
+  alertType?: string;
+  alertDismissible?: boolean;
+  alertTitle?: string;
+  mapAddress?: string;
+  mapZoom?: number;
+  mapHeight?: number;
+  dividerStyle?: string;
+  dividerWeight?: number;
+  dividerColor?: string;
+  dividerWidth?: string;
+  spacerHeight?: number;
+  svgCode?: string;
+  queryPostType?: string;
+  queryLimit?: number;
+  queryOrderBy?: string;
+  queryOrder?: string;
+  displayConditions?: any[];
 }
 
 export interface SitePartsConfig {
