@@ -43,12 +43,61 @@ export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _st
     return { src };
 }
 
-export function getGlobalCustomCss(_pages: any, _popups: any, _breakpoints: any, _globalSettings: any, _id: any) {
-    return "";
+export function getGlobalCustomCss(pages: any, _popups: any, _breakpoints: any, globalSettings: any, _id: any) {
+    let css = "";
+    const gStyles = globalSettings?.globalStyles || globalSettings || {};
+    const vars = globalSettings?.variables || gStyles.variables || {};
+    const classes = globalSettings?.globalClasses || gStyles.globalClasses || {};
+    
+    // 1. CSS Root Variables (F-066, F-067, F-071)
+    css += ":root {\n";
+    if (gStyles.primaryColor || gStyles.colors?.primary) css += `  --primary-color: ${gStyles.colors?.primary || gStyles.primaryColor};\n`;
+    if (gStyles.secondaryColor || gStyles.colors?.secondary) css += `  --secondary-color: ${gStyles.colors?.secondary || gStyles.secondaryColor};\n`;
+    if (gStyles.accentColor || gStyles.colors?.accent) css += `  --accent-color: ${gStyles.colors?.accent || gStyles.accentColor};\n`;
+    if (gStyles.backgroundColor || gStyles.colors?.background) css += `  --bg-color: ${gStyles.colors?.background || gStyles.backgroundColor};\n`;
+    if (gStyles.textColor || gStyles.colors?.text) css += `  --text-color: ${gStyles.colors?.text || gStyles.textColor};\n`;
+    if (gStyles.headingFont || gStyles.typography?.headingFontFamily) css += `  --heading-font: ${gStyles.typography?.headingFontFamily || gStyles.headingFont};\n`;
+    if (gStyles.bodyFont || gStyles.typography?.fontFamily) css += `  --body-font: ${gStyles.typography?.fontFamily || gStyles.bodyFont};\n`;
+    if (gStyles.borderRadius || gStyles.buttonStyles?.borderRadius) css += `  --border-radius: ${gStyles.buttonStyles?.borderRadius || gStyles.borderRadius};\n`;
+    if (gStyles.containerMaxWidth || gStyles.containerStyles?.maxWidth) css += `  --container-max-width: ${gStyles.containerStyles?.maxWidth || gStyles.containerMaxWidth};\n`;
+
+    if (vars && typeof vars === "object") {
+        Object.entries(vars).forEach(([k, v]: [string, any]) => {
+            const varName = k.startsWith("--") ? k : `--${k}`;
+            const val = typeof v === "object" ? v.value : v;
+            if (val) css += `  ${varName}: ${val};\n`;
+        });
+    }
+    css += "}\n\n";
+
+    // 2. Global Classes (F-068)
+    if (classes && typeof classes === "object") {
+        Object.entries(classes).forEach(([className, styleObj]: [string, any]) => {
+            if (styleObj && typeof styleObj === "object") {
+                const rules = Object.entries(styleObj)
+                    .map(([prop, val]) => {
+                        const kebab = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+                        return `${kebab}: ${val};`;
+                    })
+                    .join(" ");
+                if (rules) css += `.${className} { ${rules} }\n`;
+            }
+        });
+    }
+
+    // 3. Custom Page CSS
+    if (Array.isArray(pages)) {
+        pages.forEach((p: any) => {
+            if (p?.customCss) css += `\n/* Page: ${p.name || p.id} */\n${p.customCss}\n`;
+        });
+    }
+
+    return css;
 }
 
 const CodeInjectionRuntime = React.lazy(() => import("../editor/components/CodeInjectionRuntime"));
 const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
+import { CookieConsentBanner } from "../../components/CookieConsentBanner";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
 
@@ -649,6 +698,7 @@ export default function PublishedSite() {
     const [customCodeSnippets, setCustomCodeSnippets] = useState<any[]>([]);
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+    const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
@@ -730,6 +780,9 @@ export default function PublishedSite() {
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
+                if (site?.editorData?.siteSettings?.cookieConsent || site?.editorData?.cookieConsent) {
+                    setCookieConsentConfig(site.editorData.siteSettings?.cookieConsent || site.editorData.cookieConsent);
+                }
 
             } catch (_err: any) {
                 setErrorMessage("This website is unavailable.");
@@ -1059,6 +1112,9 @@ export default function PublishedSite() {
                     websiteId={websiteId}
                 />
             ))}
+
+            {/* F-438: Cookie Consent Runtime Banner */}
+            <CookieConsentBanner config={cookieConsentConfig} />
         </div>
     );
 }

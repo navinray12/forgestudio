@@ -608,12 +608,24 @@ export function resolveElementStyles(
   el: EditorElement,
   bpId: string,
   activeBps: Breakpoint[],
-  _globalSettings?: any
+  globalSettings?: any
 ): React.CSSProperties {
   const styles: React.CSSProperties = {};
   const getVal = (prop: keyof ElementStyles): string | undefined => getStyleVal(el, prop, bpId, activeBps);
+  const gs = globalSettings?.globalStyles || globalSettings || {};
 
-  const color = getVal("color");
+  // 1. Global Classes (F-068) - Apply reusable global class styles if defined
+  if (Array.isArray(el.classes) && globalSettings?.globalClasses) {
+    for (const className of el.classes) {
+      const globalClassObj = globalSettings.globalClasses.find((gc: any) => gc.name === className || gc.id === className);
+      if (globalClassObj && globalClassObj.styles) {
+        Object.assign(styles, globalClassObj.styles);
+      }
+    }
+  }
+
+  // 2. Cascading Typography & Color Defaults (F-066, F-070, F-071)
+  const color = getVal("color") || (el.type === "heading" ? gs.colors?.heading || gs.colors?.text : gs.colors?.text);
   if (color) styles.color = color;
 
   const fontSize = getVal("fontSize");
@@ -628,7 +640,11 @@ export function resolveElementStyles(
   const lineHeight = getVal("lineHeight");
   if (lineHeight) styles.lineHeight = lineHeight;
 
-  const fontFamily = getVal("fontFamily");
+  const fontFamily = getVal("fontFamily") || (
+    el.type === "heading"
+      ? (gs.typography?.headingFontFamily || gs.headingFont)
+      : (gs.typography?.fontFamily || gs.bodyFont)
+  );
   if (fontFamily && fontFamily !== "inherit") styles.fontFamily = fontFamily;
 
   const letterSpacing = getVal("letterSpacing");
@@ -655,7 +671,10 @@ export function resolveElementStyles(
   const marginLeft = getVal("marginLeft");
   if (marginLeft) styles.marginLeft = marginLeft;
 
-  const borderRadius = getVal("borderRadius");
+  // Global Button / Container Fallbacks (F-094, F-096, F-097)
+  const borderRadius = getVal("borderRadius") || (
+    el.type === "button" ? (gs.buttonStyles?.borderRadius || gs.borderRadius) : undefined
+  );
   if (borderRadius) styles.borderRadius = borderRadius;
 
   const width = getVal("width");
@@ -667,7 +686,9 @@ export function resolveElementStyles(
   const minWidth = getVal("minWidth");
   if (minWidth) styles.minWidth = minWidth;
 
-  const maxWidth = getVal("maxWidth");
+  const maxWidth = getVal("maxWidth") || (
+    el.type === "container" ? (gs.containerStyles?.maxWidth || gs.containerMaxWidth) : undefined
+  );
   if (maxWidth) styles.maxWidth = maxWidth;
 
   const minHeight = getVal("minHeight");
@@ -723,7 +744,9 @@ export function resolveElementStyles(
 
   const bgType = getVal("backgroundType") || "solid";
   if (bgType === "solid") {
-    const bgColor = getVal("backgroundColor");
+    const bgColor = getVal("backgroundColor") || (
+      el.type === "button" ? (gs.buttonStyles?.backgroundColor || gs.colors?.primary || gs.primaryColor) : undefined
+    );
     if (bgColor) styles.backgroundColor = bgColor;
   } else if (bgType === "gradient") {
     const gradient = getVal("backgroundGradient");
@@ -781,6 +804,17 @@ export function resolveElementStyles(
   const strokeColor = getVal("textStrokeColor");
   if (strokeWidth && strokeWidth !== "0") {
     (styles as any).WebkitTextStroke = `${strokeWidth}px ${strokeColor || "currentColor"}`;
+  }
+
+  // F-088 Text Masking
+  const textMaskType = getVal("textMaskType");
+  if (textMaskType && textMaskType !== "none") {
+    const textMaskGrad = getVal("textMaskGradient") || getVal("textMaskImage");
+    if (textMaskGrad) {
+      styles.backgroundImage = textMaskGrad.startsWith("http") || textMaskGrad.startsWith("/") ? `url(${textMaskGrad})` : textMaskGrad;
+      (styles as any).WebkitBackgroundClip = "text";
+      (styles as any).WebkitTextFillColor = "transparent";
+    }
   }
 
   const textShadow = getVal("textShadow");

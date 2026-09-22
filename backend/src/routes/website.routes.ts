@@ -17,7 +17,16 @@ import {
   getGranularPermissionsHandler,
   setGranularPermissionHandler,
   getPublicWebsiteHandler,
+  getManagedWebsiteDetailsHandler,
+  getCookieConsentHandler,
+  updateCookieConsentHandler,
 } from "../controllers/website.controller.js";
+import {
+  getMailerConfigHandler,
+  saveMailerConfigHandler,
+  testMailerConnectionHandler,
+  getDeliveryLogsHandler,
+} from "../controllers/mailer.controller.js";
 import {
   getWebsiteRevisionsHandler,
   getRevisionByIdHandler,
@@ -52,6 +61,24 @@ import {
   promoteDeploymentHandler,
 } from "../controllers/operations.controller.js";
 import {
+  bulkVerifyHandler,
+  bulkSyncHandler,
+  bulkDeleteHandler,
+} from "../controllers/bulkOperations.controller.js";
+import {
+  runPerformanceAuditHandler,
+  getPerformanceMetricsHandler,
+} from "../controllers/performance.controller.js";
+import {
+  optimizeImageHandler,
+  getOptimizationStatsHandler,
+} from "../controllers/imageOptimization.controller.js";
+import {
+  getRemoteAdminOverviewHandler,
+  generateWpAdminSsoHandler,
+  optimizeRemoteDatabaseHandler,
+} from "../controllers/wpAdmin.controller.js";
+import {
   analyzeSeoHandler,
   auditImagesHandler,
   auditAccessibilityHandler,
@@ -70,11 +97,41 @@ router.post("/:id/wordpress/webhook", handleWordPressWebhook);
 // Protect all other website endpoints with authentication
 router.use(requireAuth);
 
+// Bulk Operations API (F-430) - Must precede /:id
+router.post("/bulk/verify", bulkVerifyHandler);
+router.post("/bulk/sync", bulkSyncHandler);
+router.post("/bulk/delete", bulkDeleteHandler);
+
 router.get("/", getWebsitesHandler);
 router.post("/", createWebsiteHandler);
 router.get("/:id", authorizeCapability("VIEW"), getWebsiteByIdHandler);
+router.get("/:id/managed-details", authorizeCapability("VIEW"), getManagedWebsiteDetailsHandler);
 router.put("/:id", authorizeCapability("EDIT"), updateWebsiteHandler);
 router.delete("/:id", authorizeCapability("DELETE"), deleteWebsiteHandler);
+
+// Cookie Consent (F-438)
+router.get("/:id/cookie-consent", authorizeCapability("VIEW"), getCookieConsentHandler);
+router.put("/:id/cookie-consent", authorizeCapability("EDIT"), updateCookieConsentHandler);
+
+// Site Mailer Suite (F-435, F-436, F-437)
+router.get("/:id/mailer/config", authorizeCapability("VIEW"), getMailerConfigHandler);
+router.put("/:id/mailer/config", authorizeCapability("EDIT"), saveMailerConfigHandler);
+router.post("/:id/mailer/test", authorizeCapability("EDIT"), testMailerConnectionHandler);
+router.get("/:id/mailer/logs", authorizeCapability("VIEW"), getDeliveryLogsHandler);
+
+// Performance Monitoring API (F-431)
+router.post("/:id/performance/audit", authorizeCapability("VIEW"), runPerformanceAuditHandler);
+router.get("/:id/performance/metrics", authorizeCapability("VIEW"), getPerformanceMetricsHandler);
+
+// Image Optimization & Credits Engine API (F-433, F-434)
+router.post("/:id/images/optimize-image", authorizeCapability("EDIT"), optimizeImageHandler);
+router.get("/:id/images/stats", authorizeCapability("VIEW"), getOptimizationStatsHandler);
+
+// Remote WordPress Administration & DB Optimization API (F-429, F-432)
+router.get("/:id/wordpress/admin/overview", authorizeCapability("VIEW"), getRemoteAdminOverviewHandler);
+router.post("/:id/wordpress/admin/sso", authorizeCapability("MANAGE_INTEGRATIONS"), generateWpAdminSsoHandler);
+router.post("/:id/wordpress/database/optimize", authorizeCapability("MANAGE_INTEGRATIONS"), optimizeRemoteDatabaseHandler);
+
 
 // WordPress Connector API
 router.post("/:id/wordpress/connect", authorizeCapability("MANAGE_INTEGRATIONS"), connectWordPressHandler);

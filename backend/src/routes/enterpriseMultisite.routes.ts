@@ -15,6 +15,8 @@ import {
   listBackups,
   createBackup,
   getBackup,
+  downloadBackup,
+  updateBackup,
   restoreBackup,
   deleteBackup,
   getBackupPolicy,
@@ -40,6 +42,8 @@ router.post("/:websiteId/backups", requireAuth, createBackup);
 router.get("/:websiteId/backups/policy", requireAuth, getBackupPolicy);
 router.put("/:websiteId/backups/policy", requireAuth, updateBackupPolicy);
 router.get("/:websiteId/backups/:backupId", requireAuth, getBackup);
+router.get("/:websiteId/backups/:backupId/download", requireAuth, downloadBackup);
+router.patch("/:websiteId/backups/:backupId", requireAuth, updateBackup);
 router.post("/:websiteId/backups/:backupId/restore", requireAuth, restoreBackup);
 router.delete("/:websiteId/backups/:backupId", requireAuth, deleteBackup);
 

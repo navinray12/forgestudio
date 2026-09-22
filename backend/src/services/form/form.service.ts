@@ -2,7 +2,8 @@ import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
 import { enqueueJob } from "../jobs/jobRunner.js";
-import { isSafeUrl } from "../../utils/ssrf.validator.js";
+import { assertSafeUrl, isSafeUrl } from "../../utils/ssrf.guard.js";
+import { sendSiteEmail } from "../siteMailer.service.js";
 import nodemailer from "nodemailer";
 
 // In-memory rate limiting map: ip -> timestamps[]
@@ -290,52 +291,46 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     }
   }
 
-  // 6. Action: Email Notification Dispatcher
+  // 6. Action: Email Notification Dispatcher (F-435 / F-436)
   if (activeActions.includes("email") && actions?.emailConfig?.toEmail) {
     const toEmail = actions.emailConfig.toEmail.trim();
     const subject = actions.emailConfig.subject || "New Lead Received";
     const fromName = actions.emailConfig.fromName || "ForgeStudio Forms";
 
-    const transporter = getMailTransporter();
-    if (transporter) {
-      // Build HTML summary of form fields
-      const rowsHtml = Object.entries(sanitizedFields)
-        .map(
-          ([k, v]) =>
-            `<tr><td style="padding:6px;font-weight:bold;border:1px solid #ddd">${k}</td><td style="padding:6px;border:1px solid #ddd">${String(
-              v
-            )}</td></tr>`
-        )
-        .join("");
+    // Build HTML summary of form fields
+    const rowsHtml = Object.entries(sanitizedFields)
+      .map(
+        ([k, v]) =>
+          `<tr><td style="padding:6px;font-weight:bold;border:1px solid #ddd">${k}</td><td style="padding:6px;border:1px solid #ddd">${String(
+            v
+          )}</td></tr>`
+      )
+      .join("");
 
-      const htmlBody = `
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eee;border-radius:8px;">
-          <h2 style="color:#333;margin-top:0;">New Lead from ${formName || "Website Form"}</h2>
-          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-            ${rowsHtml}
-          </table>
-          <p style="font-size:12px;color:#777;">Website ID: ${websiteId} | Form ID: ${formId} | Submitted: ${sanitizedMetadata.submittedAt}</p>
-        </div>
-      `;
+    const htmlBody = `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #eee;border-radius:8px;">
+        <h2 style="color:#333;margin-top:0;">New Lead from ${formName || "Website Form"}</h2>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          ${rowsHtml}
+        </table>
+        <p style="font-size:12px;color:#777;">Website ID: ${websiteId} | Form ID: ${formId} | Submitted: ${sanitizedMetadata.submittedAt}</p>
+      </div>
+    `;
 
-      transporter
-        .sendMail({
-          from: `"${fromName}" <${process.env.SMTP_FROM || "no-reply@forgestudio.io"}>`,
-          to: toEmail,
-          subject,
-          html: htmlBody,
-        })
-        .catch((mailErr: any) => {
-          console.error("[Form Email Dispatch] Failed to send email via SMTP:", mailErr);
-        });
+    try {
+      // Dispatches via per-site SMTP (or platform fallback) and records in email_delivery_logs
+      sendSiteEmail(websiteId, {
+        to: toEmail,
+        subject,
+        html: htmlBody,
+        fromName,
+      }).catch((mailErr: any) => {
+        console.error("[Form Email Dispatch] Delivery error:", mailErr);
+      });
       executionResults.email = true;
-    } else {
-      // Fallback: log structured lead payload when SMTP host is unconfigured
-      console.log(
-        `[Form Email Dispatch] (SMTP unconfigured) Lead notification for: ${toEmail} | Subject: ${subject}`,
-        sanitizedFields
-      );
-      executionResults.email = true;
+    } catch (sendErr) {
+      console.error("[Form Email Dispatch] Failed to invoke sendSiteEmail:", sendErr);
+      executionResults.email = false;
     }
   }
 

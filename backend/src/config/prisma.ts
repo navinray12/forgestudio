@@ -59,6 +59,17 @@ async function ensureDbSchema() {
   } catch (e: any) {
     console.log("Migration check channel column:", e?.message || e);
   }
+  try {
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'optimizationCredits') THEN
+          ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER NOT NULL DEFAULT 250;
+        END IF;
+      END $$;
+    `);
+  } catch (e: any) {
+    console.log("Migration check optimizationCredits column:", e?.message || e);
+  }
 }
 
 ensureDbSchema().catch((err) => {
