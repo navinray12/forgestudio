@@ -1,4 +1,6 @@
-import SftpClient from "ssh2-sftp-client";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const SftpClient = require("ssh2-sftp-client");
 import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 import { compileCanonicalToStaticBundle } from "./staticCompiler.js";

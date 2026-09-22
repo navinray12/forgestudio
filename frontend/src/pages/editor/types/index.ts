@@ -27,6 +27,7 @@ export type ElementType =
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
   | "link-in-bio" | "image-box" | "icon-box" | "icon-list" | "query-builder" | "display-conditions"
+  | "nested-tabs" | "nested-accordion"
   | "acf-integration" | "toolset-integration" | "pods-integration" | "gutenberg-blocks" | "multisite-support";
 
 export interface SiteProduct {
@@ -952,6 +953,14 @@ export interface EditorElement {
   reviewShowVerified?: boolean;
   reviewAllowSubmission?: boolean;
   reviewSubmissionButtonText?: string;
+
+  // Nested Tabs & Accordion (F-166, F-167)
+  tabsOrientation?: "horizontal" | "vertical";
+  tabsActiveIndex?: number;
+  tabsItems?: { id: string; title: string; icon?: string; content?: string }[];
+  accordionAllowMultiple?: boolean;
+  accordionActiveIds?: string[];
+  accordionItems?: { id: string; title: string; icon?: string; content?: string }[];
   fbButtonUrl?: string;
   fbButtonLabel?: string;
   fbButtonAction?: "like" | "share" | "follow" | "custom";

@@ -558,11 +558,16 @@ model WordPressConnection {
   userId         String    @db.Uuid
   websiteId      String    @unique @db.Uuid
   siteUrl        String    @db.VarChar(500)
-  status         String    @default("CONNECTED") @db.VarChar(50) // CONNECTED, DISCONNECTED, ERROR
+  status         String    @default("PENDING") @db.VarChar(50) // PENDING, CONNECTING, CONNECTED, FAILED, DISCONNECTED, REVOKED
   wpSiteName     String?   @db.VarChar(255)
   apiKeyHash     String    @db.VarChar(255)
   capabilities   Json?     @default("[]")
   metadata       Json?     @default("{}")
+  pluginVersion  String?   @default("1.0.0") @db.VarChar(50)
+  apiVersion     String?   @default("v1") @db.VarChar(50)
+  failureReason  String?   @db.VarChar(500)
+  revokedAt      DateTime? @db.Timestamptz(6)
+  lastSyncedAt   DateTime? @db.Timestamptz(6)
   lastVerifiedAt DateTime? @db.Timestamptz(6)
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
