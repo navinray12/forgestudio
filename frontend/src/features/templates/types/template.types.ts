@@ -4,6 +4,10 @@ import type { PageSettingsData } from "../../revision-history/types/revisionHist
 export type TemplateType = "PAGE" | "SECTION" | "POPUP" | "WEBSITE" | "GLOBAL_WIDGET";
 
 export type TemplateCategory =
+  | "Home"
+  | "About"
+  | "Contact"
+  | "Career"
   | "Landing Page"
   | "Business"
   | "Portfolio"
@@ -13,6 +17,10 @@ export type TemplateCategory =
   | "Other";
 
 export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
+  "Home",
+  "About",
+  "Contact",
+  "Career",
   "Landing Page",
   "Business",
   "Portfolio",

@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import {
   getUserWebsites,
   getWebsiteById,
+  getManagedWebsiteDetails,
+  updateCookieConsentConfig,
   createWebsite,
   updateWebsiteEditorData,
   deleteWebsite,
@@ -52,6 +54,75 @@ export async function getWebsiteByIdHandler(
     next(error);
   }
 }
+
+/**
+ * GET /api/websites/:id/managed-details
+ * Aggregated endpoint for Managed Site View (F-426 / F-427)
+ */
+export async function getManagedWebsiteDetailsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+
+    const details = await getManagedWebsiteDetails(websiteId, user.id);
+    return res.status(200).json({
+      success: true,
+      data: details,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/websites/:id/cookie-consent
+ * F-438: Fetch cookie consent config
+ */
+export async function getCookieConsentHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const details = await getManagedWebsiteDetails(websiteId, user.id);
+    return res.status(200).json({
+      success: true,
+      cookieConsent: details.cookieConsent,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * PUT /api/websites/:id/cookie-consent
+ * F-438: Update cookie consent config
+ */
+export async function updateCookieConsentHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const result = await updateCookieConsentConfig(websiteId, user.id, req.body || {});
+    return res.status(200).json({
+      success: true,
+      cookieConsent: result,
+      message: "Cookie consent settings updated.",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 /**
  * POST /api/websites

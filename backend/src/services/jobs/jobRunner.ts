@@ -166,6 +166,59 @@ export async function cancelJob(
   throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
 }
 
+export async function retryJob(jobId: string) {
+  if (!jobId) {
+    throw new AppError("jobId is required", 400, "INVALID_JOB_ID");
+  }
+  const now = new Date();
+  try {
+    const job = await (prisma as any).backgroundJob.update({
+      where: { id: jobId },
+      data: {
+        status: "QUEUED",
+        attempts: 0,
+        lastError: null,
+        runAt: now,
+        completedAt: null,
+        updatedAt: now,
+      },
+    });
+    return job;
+  } catch {
+    const memJob = memoryQueue.find((j) => j.id === jobId);
+    if (memJob) {
+      memJob.status = "QUEUED";
+      memJob.attempts = 0;
+      memJob.lastError = null;
+      memJob.runAt = now;
+      memJob.completedAt = null;
+      memJob.updatedAt = now;
+      return memJob;
+    }
+    throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+}
+
+export async function purgeCompletedJobs(): Promise<{ purgedCount: number }> {
+  try {
+    const count = await (prisma as any).backgroundJob.deleteMany({
+      where: {
+        status: { in: ["COMPLETED", "CANCELLED"] },
+      },
+    });
+    return { purgedCount: count.count || 0 };
+  } catch {
+    let purged = 0;
+    for (let i = memoryQueue.length - 1; i >= 0; i--) {
+      if (memoryQueue[i].status === "COMPLETED" || memoryQueue[i].status === "CANCELLED") {
+        memoryQueue.splice(i, 1);
+        purged++;
+      }
+    }
+    return { purgedCount: purged };
+  }
+}
+
 export async function processNextJob(
   filter?: { id?: string; type?: string }
 ): Promise<{ processed: boolean; job?: any; result?: any; error?: any }> {

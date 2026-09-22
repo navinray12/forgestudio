@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -8,24 +9,24 @@ import {
 import {
   AuthProvider,
   useAuth,
+  type UserRole,
 } from "./context/AuthContext";
 
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
-
 import UserDashboard from "./pages/dashboard/UserDashboard";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
-import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
-import WebsiteEditor from "./pages/editor/WebsiteEditor";
-import CustomPostTypesList from "./pages/dashboard/CustomPostTypesList";
-import CustomPostTypeBuilder from "./pages/dashboard/CustomPostTypeBuilder";
-import CustomEntriesList from "./pages/dashboard/CustomEntriesList";
-import CustomEntryEditor from "./pages/dashboard/CustomEntryEditor";
-import SharedTemplatePreviewPage from "./pages/templates/SharedTemplatePreviewPage";
-import PublishedSite from "./pages/published/PublishedSite";
 
-type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
+// Route-based code splitting for optimal initial bundle size and load performance
+const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/dashboard/SuperAdminDashboard"));
+const SubscriptionPage = lazy(() => import("./pages/subscriptions/SubscriptionPage"));
+const WebsiteEditor = lazy(() => import("./pages/editor/WebsiteEditor"));
+const CustomPostTypesList = lazy(() => import("./pages/dashboard/CustomPostTypesList"));
+const CustomPostTypeBuilder = lazy(() => import("./pages/dashboard/CustomPostTypeBuilder"));
+const CustomEntriesList = lazy(() => import("./pages/dashboard/CustomEntriesList"));
+const CustomEntryEditor = lazy(() => import("./pages/dashboard/CustomEntryEditor"));
+const SharedTemplatePreviewPage = lazy(() => import("./pages/templates/SharedTemplatePreviewPage"));
+const PublishedSite = lazy(() => import("./pages/published/PublishedSite"));
 
 interface RoleRouteProps {
   allowedRoles: UserRole[];
@@ -197,11 +198,21 @@ function HomeRedirect() {
   }
 }
 
+const RouteLoading = () => (
+  <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+      <span className="text-xs font-mono uppercase tracking-widest text-slate-500">Loading ForgeStudio...</span>
+    </div>
+  </div>
+);
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <Suspense fallback={<RouteLoading />}>
+          <Routes>
 
           {/* ================= AUTH ================= */}
 
@@ -355,6 +366,7 @@ function App() {
           />
 
         </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -26,6 +26,29 @@ export const DEFAULT_CAPABILITIES: Record<string, string[]> = {
     "MANAGE_MEMBERS",
     "MANAGE_PERMISSIONS",
     "MANAGE_PROJECT",
+    "CUSTOM_CODE",
+    "EDIT_SEO",
+    "VIEW_ANALYTICS",
+  ],
+  PROJECT_OWNER: [
+    "VIEW",
+    "EDIT",
+    "CREATE",
+    "DELETE",
+    "PUBLISH",
+    "ROLLBACK",
+    "MANAGE_TEAM",
+    "MANAGE_SETTINGS",
+    "MANAGE_INTEGRATIONS",
+    "COMMENT",
+    "EDIT_CONTENT",
+    "EDIT_DESIGN",
+    "MANAGE_MEMBERS",
+    "MANAGE_PERMISSIONS",
+    "MANAGE_PROJECT",
+    "CUSTOM_CODE",
+    "EDIT_SEO",
+    "VIEW_ANALYTICS",
   ],
   ADMIN: [
     "VIEW",
@@ -42,6 +65,28 @@ export const DEFAULT_CAPABILITIES: Record<string, string[]> = {
     "MANAGE_MEMBERS",
     "MANAGE_PERMISSIONS",
     "MANAGE_PROJECT",
+    "CUSTOM_CODE",
+    "EDIT_SEO",
+    "VIEW_ANALYTICS",
+  ],
+  PROJECT_ADMIN: [
+    "VIEW",
+    "EDIT",
+    "CREATE",
+    "PUBLISH",
+    "ROLLBACK",
+    "MANAGE_TEAM",
+    "MANAGE_SETTINGS",
+    "MANAGE_INTEGRATIONS",
+    "COMMENT",
+    "EDIT_CONTENT",
+    "EDIT_DESIGN",
+    "MANAGE_MEMBERS",
+    "MANAGE_PERMISSIONS",
+    "MANAGE_PROJECT",
+    "CUSTOM_CODE",
+    "EDIT_SEO",
+    "VIEW_ANALYTICS",
   ],
   DESIGNER: [
     "VIEW",
@@ -52,15 +97,39 @@ export const DEFAULT_CAPABILITIES: Record<string, string[]> = {
     "EDIT_CONTENT",
     "EDIT_DESIGN",
   ],
+  DEVELOPER: [
+    "VIEW",
+    "EDIT",
+    "CREATE",
+    "COMMENT",
+    "EDIT_DESIGN",
+    "EDIT_CONTENT",
+    "CUSTOM_CODE",
+    "MANAGE_INTEGRATIONS",
+    "SFTP_ACCESS",
+    "VIEW_LOGS",
+  ],
   CONTENT_EDITOR: [
     "VIEW",
     "EDIT",
     "COMMENT",
     "EDIT_CONTENT",
   ],
+  SEO_MANAGER: [
+    "VIEW",
+    "EDIT",
+    "COMMENT",
+    "EDIT_CONTENT",
+    "EDIT_SEO",
+    "VIEW_ANALYTICS",
+    "RUN_AUDIT",
+  ],
   REVIEWER: [
     "VIEW",
     "COMMENT",
+  ],
+  VIEWER: [
+    "VIEW",
   ],
 };
 
@@ -87,7 +156,7 @@ export async function canUserAccessResource(
   }
   const role = website.userPermission || "REVIEWER";
 
-  if (role === "OWNER") return true;
+  if (role === "OWNER" || role === "PROJECT_OWNER") return true;
 
   // 2. Check Granular Permission Overrides
   try {

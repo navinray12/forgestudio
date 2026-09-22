@@ -169,6 +169,19 @@ export async function handleWordPressWebhook(req: Request, res: Response, next: 
   }
 }
 
+export async function downloadWordPressPluginHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const { generateWordPressPluginZip } = await import("../services/wordpress/connector.service.js");
+    const zipBuffer = await generateWordPressPluginZip();
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", 'attachment; filename="forgestudio-connector.zip"');
+    return res.status(200).send(zipBuffer);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function getAcfFieldsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const websiteId = String(req.params.id);
@@ -561,6 +574,3 @@ export async function rollbackWordPressPageHandler(req: Request, res: Response, 
     next(error);
   }
 }
-
-
-

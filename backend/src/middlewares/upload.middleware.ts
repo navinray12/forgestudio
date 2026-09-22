@@ -124,10 +124,36 @@ export async function handleImageUpload(
 
     // Public URL relative path
     const publicUrl = `/uploads/images/${uniqueFilename}`;
+    const mimeType = fileExt === "svg" ? "image/svg+xml" : `image/${fileExt}`;
+
+    const { extractImageDimensions, createMediaAsset } = await import("../services/media.service.js");
+    const dimensions = extractImageDimensions(fileBuffer, mimeType);
+
+    let asset: any = null;
+    const userId = res.locals.user?.id || (req as any).user?.id || null;
+    if (userId) {
+      try {
+        asset = await createMediaAsset({
+          userId,
+          filename: uniqueFilename,
+          originalName,
+          mimeType,
+          sizeBytes: fileBuffer.length,
+          url: publicUrl,
+          width: dimensions.width,
+          height: dimensions.height,
+        });
+      } catch (assetErr) {
+        console.warn("Could not create MediaAsset record:", assetErr);
+      }
+    }
 
     return res.status(200).json({
       success: true,
       url: publicUrl,
+      asset: asset || undefined,
+      width: dimensions.width,
+      height: dimensions.height,
     });
   } catch (error) {
     console.error("Image upload error:", error);

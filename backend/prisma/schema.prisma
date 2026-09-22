@@ -49,6 +49,12 @@ model User {
   workspaceMemberships    WorkspaceMember[]
   approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
   reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
+  mediaAssets             MediaAsset[]
+  optimizationCredits     Int                      @default(250)
+  creditLedgers           OptimizationCreditLedger[]
+  licenses                License[]
+  whiteLabelConfig        WhiteLabelConfig?
+  invoices                BillingInvoice[]
 
   @@index([status])
   @@index([role])
@@ -88,6 +94,11 @@ model Website {
   organization        Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   approvalWorkflowEnabled Boolean          @default(false)
   approvalRequests    PublishApprovalRequest[]
+  mediaAssets         MediaAsset[]
+  mailerConfig        SiteMailerConfig?
+  emailLogs           EmailDeliveryLog[]
+  performanceMetrics  SitePerformanceMetric[]
+  optimizedMedia      MediaOptimizationAsset[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@index([organizationId])
@@ -213,6 +224,11 @@ enum UserRole {
   USER
   ADMIN
   SUPER_ADMIN
+  PLATFORM_ADMIN
+  SUPPORT_ADMIN
+  DEVELOPER
+  AI_CONTENT_ADMIN
+  TEAM_MEMBER
 }
 
 enum UserStatus {
@@ -800,6 +816,189 @@ model BackgroundJob {
   @@index([type])
   @@map("background_jobs")
 }
+
+model MediaAsset {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String    @db.Uuid
+  websiteId    String?   @db.Uuid
+  filename     String    @db.VarChar(255)
+  originalName String    @db.VarChar(255)
+  mimeType     String    @db.VarChar(100)
+  sizeBytes    Int
+  url          String    @db.VarChar(1000)
+  width        Int?
+  height       Int?
+  altText      String?   @db.VarChar(500)
+  format       String    @default("ORIGINAL") @db.VarChar(50)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website      Website?  @relation(fields: [websiteId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([websiteId])
+  @@map("media_assets")
+}
+
+model SiteMailerConfig {
+  id          String   @id @default(uuid()) @db.Uuid
+  websiteId   String   @unique @db.Uuid
+  host        String   @db.VarChar(255)
+  port        Int      @default(587)
+  username    String   @db.VarChar(255)
+  password    String   @db.VarChar(500)
+  fromName    String   @db.VarChar(255)
+  fromEmail   String   @db.VarChar(255)
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("site_mailer_configs")
+}
+
+model EmailDeliveryLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  websiteId  String   @db.Uuid
+  recipient  String   @db.VarChar(255)
+  subject    String   @db.VarChar(500)
+  status     String   @default("SENT") @db.VarChar(50)
+  error      String?  @db.VarChar(2000)
+  sentAt     DateTime @default(now()) @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website    Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, sentAt])
+  @@map("email_delivery_logs")
+}
+
+model SitePerformanceMetric {
+  id             String   @id @default(uuid()) @db.Uuid
+  websiteId      String   @db.Uuid
+  responseTimeMs Int
+  ttfbMs         Int
+  statusCode     Int      @default(200)
+  score          Int      @default(95)
+  checkedAt      DateTime @default(now()) @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website        Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, checkedAt])
+  @@map("site_performance_metrics")
+}
+
+model MediaOptimizationAsset {
+  id             String   @id @default(uuid()) @db.Uuid
+  websiteId      String   @db.Uuid
+  originalUrl    String   @db.VarChar(1000)
+  optimizedUrl   String   @db.VarChar(1000)
+  originalBytes  Int
+  optimizedBytes Int
+  format         String   @default("webp") @db.VarChar(50)
+  status         String   @default("OPTIMIZED") @db.VarChar(50)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  website        Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId, createdAt])
+  @@map("media_optimization_assets")
+}
+
+model OptimizationCreditLedger {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  websiteId   String?  @db.Uuid
+  creditsUsed Int
+  actionType  String   @db.VarChar(100)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("optimization_credit_ledgers")
+}
+
+model License {
+  id          String              @id @default(uuid()) @db.Uuid
+  key         String              @unique @db.VarChar(100)
+  userId      String              @db.Uuid
+  planSlug    String              @db.VarChar(50)
+  maxSites    Int                 @default(1)
+  status      String              @default("ACTIVE") @db.VarChar(50)
+  expiresAt   DateTime?           @db.Timestamptz(6)
+  createdAt   DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activations LicenseActivation[]
+
+  @@index([userId])
+  @@index([key])
+  @@map("licenses")
+}
+
+model LicenseActivation {
+  id          String   @id @default(uuid()) @db.Uuid
+  licenseId   String   @db.Uuid
+  siteUrl     String   @db.VarChar(500)
+  siteDomain  String   @db.VarChar(255)
+  ipAddress   String?  @db.VarChar(100)
+  isLocalhost Boolean  @default(false)
+  activatedAt DateTime @default(now()) @db.Timestamptz(6)
+  lastPingAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  license     License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@unique([licenseId, siteDomain])
+  @@index([licenseId])
+  @@index([siteDomain])
+  @@map("license_activations")
+}
+
+model WhiteLabelConfig {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @db.Uuid
+  agencyName         String?  @db.VarChar(255)
+  logoUrl            String?  @db.VarChar(1000)
+  faviconUrl         String?  @db.VarChar(1000)
+  hideForgeBranding  Boolean  @default(false)
+  customCss          String?  @db.Text
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("white_label_configs")
+}
+
+model BillingInvoice {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @db.Uuid
+  planId             String   @db.VarChar(100)
+  amount             Float
+  currency           String   @default("INR") @db.VarChar(10)
+  status             String   @default("PAID") @db.VarChar(50)
+  invoiceNumber      String   @unique @db.VarChar(100)
+  billingPeriodStart DateTime @db.Timestamptz(6)
+  billingPeriodEnd   DateTime @db.Timestamptz(6)
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([invoiceNumber])
+  @@map("billing_invoices")
+}
+
+
 
 
 

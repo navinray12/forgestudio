@@ -14,6 +14,12 @@ export interface TransformedWordPressPage {
   meta: Record<string, any>;
   forms: Array<{ formId: string; fields: any[] }>;
   mediaReferences: Array<{ url: string; alt?: string; id?: string }>;
+  contentHtml?: string;
+  customCss?: string;
+  gutenbergBlocks?: any[];
+  yoastMeta?: Record<string, any>;
+  rankMathMeta?: Record<string, any>;
+  elementorData?: any;
 }
 
 export function transformPageToWordPress(
@@ -43,11 +49,12 @@ export function transformPageToWordPress(
   const meta: Record<string, any> = {
     _forgestudio_page_id: page.id,
     _forgestudio_synced_at: new Date().toISOString(),
-    _yoast_wpseo_title: pageSettings.seoTitle || page.name || siteSettings.siteName,
+    _yoast_wpseo_title: pageSettings.seoTitle || pageSettings.title || page.name || siteSettings.siteName,
     _yoast_wpseo_metadesc: pageSettings.seoDescription || pageSettings.description || "",
     _forgestudio_canonical_url: pageSettings.canonicalUrl || "",
-    _forgestudio_og_image: pageSettings.ogImage || "",
-    _forgestudio_schema: pageSettings.schemaMarkup || null,
+    _forgestudio_og_image: pageSettings.ogImage || siteSettings.ogImage || siteSettings.logo || "",
+    _forgestudio_twitter_card: pageSettings.twitterCard || siteSettings.twitterCard || "summary_large_image",
+    _forgestudio_schema: pageSettings.structuredData ? JSON.stringify(pageSettings.structuredData) : (pageSettings.schemaMarkup || null),
   };
 
   const slug = (page.slug || page.name || "page")
@@ -143,6 +150,46 @@ function transformElementToGutenberg(
     case "wordpress-shortcode": {
       const shortcode = el.shortcode || el.content || "";
       return `<!-- wp:shortcode -->\n${shortcode}\n<!-- /wp:shortcode -->`;
+    }
+
+    case "container":
+    case "section":
+    case "div":
+    case "div-block": {
+      const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
+      const childrenBlocks = children
+        .map((child: any) => transformElementToGutenberg(child, mediaRefs, forms))
+        .filter(Boolean)
+        .join("\n\n");
+      const isMasonry = el.layout?.layoutType === "masonry";
+      const isGrid = el.layout?.layoutType === "grid";
+      const layoutStyles: Record<string, any> = {
+        ...styles,
+        display: isMasonry ? "block" : (isGrid ? "grid" : "flex"),
+        ...(isMasonry
+          ? {
+              columnCount: el.layout?.masonryColumns || 3,
+              columnGap: `${el.layout?.gap ?? 16}px`,
+            }
+          : isGrid
+          ? {
+              gridTemplateColumns: el.layout?.gridTemplateColumns || "repeat(2, minmax(0, 1fr))",
+              gridAutoFlow: el.layout?.gridAutoFlow || undefined,
+              gap: `${el.layout?.gap ?? 10}px`,
+            }
+          : {
+              flexDirection: el.layout?.direction || "column",
+              justifyContent: el.layout?.justifyContent || "flex-start",
+              alignItems: el.layout?.alignItems || "stretch",
+              gap: `${el.layout?.gap ?? 10}px`,
+            }),
+      };
+      if (el.layout?.scrollSnapType && el.layout?.scrollSnapType !== "none") {
+        layoutStyles.scrollSnapType = el.layout.scrollSnapType;
+      }
+      if (el.layout?.overflowX) layoutStyles.overflowX = el.layout.overflowX;
+      if (el.layout?.overflowY) layoutStyles.overflowY = el.layout.overflowY;
+      return `<!-- wp:group {"attrs":${JSON.stringify(attrs)}} -->\n<div class="fs-container" style="${formatInlineStyles(layoutStyles)}">\n${childrenBlocks}\n</div>\n<!-- /wp:group -->`;
     }
 
     default: {
