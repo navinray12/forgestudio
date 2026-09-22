@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Atomic Editor Content. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { AtomicSectionConfig } from "../types/atomicEditor.types";
 import { VariablesPanel } from "./VariablesPanel";
@@ -18,6 +22,18 @@ interface AtomicEditorContentProps {
   onInsertComponent?: (componentId: string) => void;
 }
 
+/**
+ * Render the atomic editor content interface and connect its event handlers.
+ * @param options Named inputs: sectionConfig, searchQuery, onSearchChange, isLoading, error, onInsertGlobalElement, onInsertComponent.
+
+ * @param options.sectionConfig Section Config passed by the caller.
+ * @param options.searchQuery Search Query passed by the caller.
+ * @param options.onSearchChange Callback for search change events.
+ * @param options.isLoading Is Loading passed by the caller.
+ * @param options.error Error value to inspect, report or pass to the next error boundary.
+ * @param options.onInsertGlobalElement Callback for insert global element events.
+ * @param options.onInsertComponent Callback for insert component events.
+ */
 export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
   sectionConfig,
   searchQuery,

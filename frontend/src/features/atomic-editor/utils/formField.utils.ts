@@ -1,7 +1,13 @@
+/**
+ * @file Atomic editor feature: form Field utils. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { FormFieldConfig, FormFieldType } from "../types/atomicForm.types";
 
 /**
  * Sanitizes a label into a valid camelCase field name key
+
+ * @param label Label supplied to this operation (type: string).
  */
 export function sanitizeFieldName(label: string): string {
   const cleaned = label
@@ -16,6 +22,9 @@ export function sanitizeFieldName(label: string): string {
 
 /**
  * Creates a default form field with sensible initial settings
+
+ * @param label Label supplied to this operation (type: string).
+ * @param type Type supplied to this operation (type: FormFieldType). Defaults to "text".
  */
 export function createDefaultField(label: string, type: FormFieldType = "text"): FormFieldConfig {
   const name = sanitizeFieldName(label);

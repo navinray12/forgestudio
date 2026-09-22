@@ -1,3 +1,9 @@
+/**
+ * @file App: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import { lazy, Suspense } from 'react';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import {
   BrowserRouter,
   Navigate,
@@ -10,20 +16,20 @@ import {
   useAuth,
 } from "./context/AuthContext";
 
-import LoginPage from "./pages/auth/LoginPage";
-import SignupPage from "./pages/auth/SignupPage";
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const SignupPage = lazy(() => import('./pages/auth/SignupPage'));
 
-import UserDashboard from "./pages/dashboard/UserDashboard";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
-import SubscriptionPage from "./pages/subscriptions/SubscriptionPage";
-import WebsiteEditor from "./pages/editor/WebsiteEditor";
-import CustomPostTypesList from "./pages/dashboard/CustomPostTypesList";
-import CustomPostTypeBuilder from "./pages/dashboard/CustomPostTypeBuilder";
-import CustomEntriesList from "./pages/dashboard/CustomEntriesList";
-import CustomEntryEditor from "./pages/dashboard/CustomEntryEditor";
-import SharedTemplatePreviewPage from "./pages/templates/SharedTemplatePreviewPage";
-import PublishedSite from "./pages/published/PublishedSite";
+const UserDashboard = lazy(() => import('./pages/dashboard/UserDashboard'));
+const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboard'));
+const SuperAdminDashboard = lazy(() => import('./pages/dashboard/SuperAdminDashboard'));
+const SubscriptionPage = lazy(() => import('./pages/subscriptions/SubscriptionPage'));
+const WebsiteEditor = lazy(() => import('./pages/editor/WebsiteEditor'));
+const CustomPostTypesList = lazy(() => import('./pages/dashboard/CustomPostTypesList'));
+const CustomPostTypeBuilder = lazy(() => import('./pages/dashboard/CustomPostTypeBuilder'));
+const CustomEntriesList = lazy(() => import('./pages/dashboard/CustomEntriesList'));
+const CustomEntryEditor = lazy(() => import('./pages/dashboard/CustomEntryEditor'));
+const SharedTemplatePreviewPage = lazy(() => import('./pages/templates/SharedTemplatePreviewPage'));
+const PublishedSite = lazy(() => import('./pages/published/PublishedSite'));
 
 type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
 
@@ -32,6 +38,13 @@ interface RoleRouteProps {
   children: React.ReactNode;
 }
 
+/**
+ * Render the role route interface and connect its event handlers.
+ * @param options Named inputs: allowedRoles, children.
+
+ * @param options.allowedRoles Allowed Roles passed by the caller.
+ * @param options.children Nested React content or document elements supplied by the parent.
+ */
 function RoleRoute({
   allowedRoles,
   children,
@@ -77,6 +90,9 @@ function RoleRoute({
   return <>{children}</>;
 }
 
+/**
+ * Render the login route interface and connect its event handlers.
+ */
 function LoginRoute() {
   const { user, loading } = useAuth();
 
@@ -122,6 +138,9 @@ function LoginRoute() {
   return <LoginPage />;
 }
 
+/**
+ * Render the signup route interface and connect its event handlers.
+ */
 function SignupRoute() {
   const { user, loading } = useAuth();
 
@@ -167,6 +186,9 @@ function SignupRoute() {
   return <SignupPage />;
 }
 
+/**
+ * Render the home redirect interface and connect its event handlers.
+ */
 function HomeRedirect() {
   const { user, loading } = useAuth();
 
@@ -197,10 +219,15 @@ function HomeRedirect() {
   }
 }
 
+/**
+ * Render the app interface and connect its event handlers.
+ */
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <RouteErrorBoundary>
+        <Suspense fallback={<div role="status" className="p-6 text-slate-500">Loading workspace?</div>}>
         <Routes>
 
           {/* ================= AUTH ================= */}
@@ -244,7 +271,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <RoleRoute allowedRoles={["USER"]}>
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
                 <UserDashboard />
               </RoleRoute>
             }
@@ -330,7 +357,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <RoleRoute allowedRoles={["ADMIN"]}>
+              <RoleRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
                 <AdminDashboard />
               </RoleRoute>
             }
@@ -355,6 +382,8 @@ function App() {
           />
 
         </Routes>
+        </Suspense>
+        </RouteErrorBoundary>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,10 +1,15 @@
-import { prisma } from "../config/prisma.js";
+/**
+ * @file Milestone D sdk test: regression or diagnostic checks for the behavior named by this file.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import "./require-disposable-database.js";
+import { prisma } from "../platform/database/prisma.js";
 import app from "../app.js";
 import {
   createApiKey,
   verifyApiKey,
   revokeApiKey,
-} from "../services/apiKey.service.js";
+} from "../modules/api-keys/api-key.service.js";
 import {
   ForgeStudioClient,
   ForgeStudioApiError,
@@ -22,6 +27,12 @@ const db = prisma as any;
 let passed = 0;
 let failed = 0;
 
+/**
+ * Assert.
+ * @param condition Condition supplied to this operation (type: boolean).
+ * @param testName Test Name supplied to this operation (type: string).
+ * @param details Details supplied to this operation (type: any). Optional; callers may omit it.
+ */
 function assert(condition: boolean, testName: string, details?: any) {
   if (condition) {
     console.log(`[PASS] ${testName}`);
@@ -32,6 +43,9 @@ function assert(condition: boolean, testName: string, details?: any) {
   }
 }
 
+/**
+ * Run Milestone D Tests.
+ */
 async function runMilestoneDTests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO MILESTONE D VERIFICATION SUITE");
@@ -470,15 +484,29 @@ async function runMilestoneDTests() {
     const mockWindow = {
       messages: [] as any[],
       listeners: [] as ((ev: any) => void)[],
+      /**
+       * Post Message.
+       * @param msg Msg supplied to this operation (type: any).
+       */
       postMessage(msg: any) {
         this.messages.push(msg);
         for (const l of this.listeners) {
           l({ data: msg });
         }
       },
+      /**
+       * Add Event Listener.
+       * @param _type Type supplied to this operation (type: string).
+       * @param listener Listener supplied to this operation (type: any).
+       */
       addEventListener(_type: string, listener: any) {
         this.listeners.push(listener);
       },
+      /**
+       * Remove Event Listener.
+       * @param _type Type supplied to this operation (type: string).
+       * @param listener Listener supplied to this operation (type: any).
+       */
       removeEventListener(_type: string, listener: any) {
         this.listeners = this.listeners.filter((l) => l !== listener);
       },

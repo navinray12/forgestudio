@@ -1,9 +1,20 @@
+/**
+ * @file Published Site: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { resolveElementStyles, getInnerStyles } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
+/**
+ * Render the background slideshow interface and connect its event handlers.
+ * @param options Named inputs: urls, interval.
+
+ * @param options.urls Urls passed by the caller.
+ * @param options.interval Interval passed by the caller.
+ */
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
     const [index, setIndex] = useState(0);
     useEffect(() => {
@@ -38,10 +49,24 @@ export interface PageConfig {
     isHome?: boolean;
 }
 
+/**
+ * F352 get Media Optimization Props.
+ * @param src Src supplied to this operation (type: string).
+ * @param _apiUrl Api Url supplied to this operation (type: string).
+ * @param _styles Styles supplied to this operation (type: any).
+ */
 export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _styles: any) {
     return { src };
 }
 
+/**
+ * Get Global Custom Css.
+ * @param _pages Pages supplied to this operation (type: any).
+ * @param _popups Popups supplied to this operation (type: any).
+ * @param _breakpoints Breakpoints supplied to this operation (type: any).
+ * @param _globalSettings Global Settings supplied to this operation (type: any).
+ * @param _id Id supplied to this operation (type: any).
+ */
 export function getGlobalCustomCss(_pages: any, _popups: any, _breakpoints: any, _globalSettings: any, _id: any) {
     return "";
 }
@@ -132,6 +157,12 @@ const DEFAULT_BREAKPOINTS: Breakpoint[] = [
     { id: "mobile", name: "Mobile", width: 360, active: true },
 ];
 
+/**
+ * Render Svg Icon.
+ * @param _name Name supplied to this operation (type: string).
+ * @param size Size supplied to this operation (type: string).
+ * @param color Color supplied to this operation (type: string).
+ */
 const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
@@ -251,9 +282,12 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         const isDownload = el.download;
         const imgElement = el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />;
 
+        const isUnsafeImageHref = /^(javascript|vbscript|data):/i.test(imageHref);
+        const resolvedImageHref = isUnsafeImageHref ? "#" : (imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref);
+
         const wrappedImg = imageHref ? (
             <a
-                href={imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref}
+                href={resolvedImageHref}
                 target={target}
                 rel={rel}
                 download={isDownload ? true : undefined}
@@ -654,9 +688,13 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         prev.elementClassMap.get(prev.el.id) === next.elementClassMap.get(next.el.id);
 });
 
+/**
+ * Render the published site interface and connect its event handlers.
+ */
 export default function PublishedSite() {
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+
 
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
@@ -676,6 +714,9 @@ export default function PublishedSite() {
     useEffect(() => {
         if (!websiteId) return;
 
+        /**
+         * Fetch Website.
+         */
         const fetchWebsite = async () => {
             try {
                 setLoading(true);
@@ -723,6 +764,10 @@ export default function PublishedSite() {
         fetchWebsite();
     }, [websiteId, apiUrl, pageSlug]);
 
+    /**
+     * Handle Switch Page.
+     * @param page Page supplied to this operation (type: PageConfig).
+     */
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
@@ -763,6 +808,9 @@ export default function PublishedSite() {
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
 
     useEffect(() => {
+        /**
+         * Handle Resize.
+         */
         const handleResize = () => {
             const width = window.innerWidth;
             const sorted = [...breakpoints].filter(b => b.active).sort((a, b) => b.width - a.width);
@@ -782,6 +830,10 @@ export default function PublishedSite() {
         const styleHashToClass = new Map<string, string>();
         const customCssBuffer: string[] = [];
 
+        /**
+         * Hash Str.
+         * @param str Str supplied to this operation (type: string).
+         */
         const hashStr = (str: string) => {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -791,6 +843,10 @@ export default function PublishedSite() {
             return Math.abs(hash).toString(36);
         };
 
+        /**
+         * Process Element.
+         * @param el El supplied to this operation (type: EditorElement).
+         */
         const processElement = (el: EditorElement) => {
             const resolved = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
             const innerProps = getInnerStyles(resolved);
@@ -807,6 +863,10 @@ export default function PublishedSite() {
                 if (!styleHashToClass.has(stylePayload)) {
                     let cssRulesOuter = "";
                     let cssRulesInner = "";
+                    /**
+                     * To Css.
+                     * @param obj Obj supplied to this operation (type: any).
+                     */
                     const toCss = (obj: any) => Object.entries(obj)
                         .filter(([_, v]) => v !== undefined && v !== "")
                         .map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}: ${v};`)

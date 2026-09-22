@@ -1,3 +1,7 @@
+/**
+ * @file Global widget feature: use Global Widgets. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { GlobalWidget, CreateGlobalWidgetPayload, UpdateGlobalWidgetPayload } from "../types/globalWidget.types";
 import {
@@ -11,6 +15,12 @@ interface UseGlobalWidgetsParams {
   apiUrl: string;
 }
 
+/**
+ * Coordinate global widgets state and lifecycle for the calling component.
+ * @param options Named inputs: apiUrl.
+
+ * @param options.apiUrl Api Url passed by the caller.
+ */
 export function useGlobalWidgets({ apiUrl }: UseGlobalWidgetsParams) {
   const [globalWidgets, setGlobalWidgets] = useState<GlobalWidget[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

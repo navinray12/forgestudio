@@ -1,3 +1,7 @@
+/**
+ * @file F351 editor: frontend/ agent module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs');
 
 const f = fs.readFileSync('src/pages/editor/WebsiteEditor.tsx', 'utf8');

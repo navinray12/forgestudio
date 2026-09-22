@@ -1,7 +1,14 @@
+/**
+ * @file Atomic editor feature: use Atomic Form. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { FormContainerConfig, CreateFormPayload } from "../types/atomicForm.types";
 import { AtomicFormService } from "../services/atomicFormService";
 
+/**
+ * Coordinate atomic form state and lifecycle for the calling component.
+ */
 export function useAtomicForm() {
   const [forms, setForms] = useState<FormContainerConfig[]>([]);
   const [activeForm, setActiveForm] = useState<FormContainerConfig | null>(null);
@@ -37,6 +44,10 @@ export function useAtomicForm() {
     );
   }, [forms, searchQuery]);
 
+  /**
+   * Create Form.
+   * @param payload Payload supplied to this operation (type: CreateFormPayload).
+   */
   const createForm = async (payload: CreateFormPayload) => {
     try {
       const created = AtomicFormService.createForm(payload);
@@ -49,6 +60,10 @@ export function useAtomicForm() {
     }
   };
 
+  /**
+   * Update Active Form.
+   * @param payload Payload supplied to this operation (type: Partial<FormContainerConfig>).
+   */
   const updateActiveForm = async (payload: Partial<FormContainerConfig>) => {
     if (!activeForm) return;
     try {
@@ -60,6 +75,10 @@ export function useAtomicForm() {
     }
   };
 
+  /**
+   * Delete Form.
+   * @param id Id supplied to this operation (type: string).
+   */
   const deleteForm = async (id: string) => {
     try {
       AtomicFormService.deleteForm(id);

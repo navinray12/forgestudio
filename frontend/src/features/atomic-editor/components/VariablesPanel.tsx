@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Variables Panel. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useRef } from "react";
 import type { VariableType, CreateVariablePayload } from "../types/variables.types";
 import type { ExportedVariableItem, VariableConflictItem } from "../types/variableExportImport.types";
@@ -16,6 +20,9 @@ const TYPE_PILLS: Array<{ id: VariableType | "All"; label: string }> = [
   { id: "number", label: "Size 🔢" },
 ];
 
+/**
+ * Render the variables panel interface and connect its event handlers.
+ */
 export const VariablesPanel: React.FC = () => {
   const {
     variables,
@@ -46,6 +53,10 @@ export const VariablesPanel: React.FC = () => {
   const [importNewItems, setImportNewItems] = useState<ExportedVariableItem[]>([]);
   const [importConflicts, setImportConflicts] = useState<VariableConflictItem[]>([]);
 
+  /**
+   * Handle Copy Ref.
+   * @param key Key supplied to this operation (type: string).
+   */
   const handleCopyRef = async (key: string) => {
     const success = await copyVariableReference(key);
     if (success) {
@@ -54,6 +65,9 @@ export const VariablesPanel: React.FC = () => {
     }
   };
 
+  /**
+   * Handle Export.
+   */
   const handleExport = () => {
     if (variables.length === 0) {
       setImportError("No variables available to export.");
@@ -63,6 +77,10 @@ export const VariablesPanel: React.FC = () => {
     exportVariablesToJson(variables);
   };
 
+  /**
+   * Handle File Select.
+   * @param e E supplied to this operation (type: React.ChangeEvent<HTMLInputElement>).
+   */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImportError(null);
     const file = e.target.files?.[0];
@@ -95,6 +113,11 @@ export const VariablesPanel: React.FC = () => {
     }
   };
 
+  /**
+   * Handle Confirm Import.
+   * @param itemsToCreate Items To Create supplied to this operation (type: CreateVariablePayload[]).
+   * @param itemsToReplace Items To Replace supplied to this operation (type: { id: string; payload: CreateVariablePayload }[]).
+   */
   const handleConfirmImport = async (
     itemsToCreate: CreateVariablePayload[],
     itemsToReplace: { id: string; payload: CreateVariablePayload }[]
@@ -107,6 +130,10 @@ export const VariablesPanel: React.FC = () => {
     }
   };
 
+  /**
+   * Handle Form Submit.
+   * @param payload Payload supplied to this operation (type: { name: string; type: VariableType; value: string; description?: string; }).
+   */
   const handleFormSubmit = async (payload: {
     name: string;
     type: VariableType;

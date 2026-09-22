@@ -1,4 +1,8 @@
-const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1`;
+/**
+ * @file Auth service: services module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+const API_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:5000"}/api/v1`;
 
 export interface AuthUser {
   id: string;
@@ -20,6 +24,9 @@ interface MeResponse {
   message?: string;
 }
 
+/**
+ * Get Current User.
+ */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
@@ -44,10 +51,16 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   }
 }
 
+/**
+ * Login With Google.
+ */
 export function loginWithGoogle() {
   window.location.href = `${API_URL}/auth/google`;
 }
 
+/**
+ * Login With Git Hub.
+ */
 export function loginWithGitHub() {
   window.location.href = `${API_URL}/auth/github`;
 }

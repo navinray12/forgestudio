@@ -7046,33 +7046,41 @@ export const resolveButtonHref = (el: EditorElement, pages?: PageConfig[]): stri
 
   // 1. Explicit Custom URL mode with non-empty URL
   if (isCustomUrl && rawUrl && rawUrl.trim() !== "") {
-    return rawUrl.trim();
+    const trimmed = rawUrl.trim();
+    if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) {
+      return "#";
+    }
+    return trimmed;
   }
 
-  // 2. Bound to internal page by pageId
-  if (el.pageId && pages && pages.length > 0) {
-    const page = pages.find((p) => p.id === el.pageId);
+  // 2. Bound to internal page by pageId or page: prefix
+  const boundPageId = el.pageId || (rawUrl && rawUrl.startsWith("page:") ? rawUrl.replace("page:", "").trim() : undefined);
+  if (boundPageId && pages && pages.length > 0) {
+    const page = pages.find((p) => p.id === boundPageId);
     if (page) {
-      return page.slug === "home" || page.isHome ? "/" : (page.slug.startsWith("/") ? page.slug : `/${page.slug}`);
+      return page.slug === "home" || page.isHome || page.slug === "/" ? "/" : (page.slug.startsWith("/") ? page.slug : `/${page.slug}`);
     }
   }
 
   // 3. Fallback raw URL if available
   if (rawUrl && rawUrl.trim() !== "") {
     const trimmed = rawUrl.trim();
+    if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) {
+      return "#";
+    }
     if (pages && pages.length > 0) {
       const pageBySlug = pages.find((p) => p.slug === trimmed || (trimmed.startsWith("/") && p.slug === trimmed));
       if (pageBySlug) {
-        return pageBySlug.slug === "home" || pageBySlug.isHome ? "/" : (pageBySlug.slug.startsWith("/") ? pageBySlug.slug : `/${pageBySlug.slug}`);
+        return pageBySlug.slug === "home" || pageBySlug.isHome || pageBySlug.slug === "/" ? "/" : (pageBySlug.slug.startsWith("/") ? pageBySlug.slug : `/${pageBySlug.slug}`);
       }
     }
     return trimmed;
   }
 
   // 4. Default Home page route fallback
-  const homePage = pages?.find((p) => p.isHome || p.id === "home") || pages?.[0];
+  const homePage = pages?.find((p) => p.isHome || p.id === "home" || p.slug === "/") || pages?.[0];
   if (homePage) {
-    return homePage.slug === "home" || homePage.isHome ? "/" : (homePage.slug.startsWith("/") ? homePage.slug : `/${homePage.slug}`);
+    return homePage.slug === "home" || homePage.isHome || homePage.slug === "/" ? "/" : (homePage.slug.startsWith("/") ? homePage.slug : `/${homePage.slug}`);
   }
 
   return "/";

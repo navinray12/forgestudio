@@ -1,8 +1,14 @@
+/**
+ * @file Website kits feature: website Kit Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { WebsiteKit } from "../types/websiteKit.types";
 import { WEBSITE_KITS } from "../data/websiteKitsData";
 
 /**
  * Retrieves all available Website Kits
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
  */
 export async function getWebsiteKits(apiUrl: string): Promise<WebsiteKit[]> {
   try {
@@ -37,6 +43,9 @@ export async function getWebsiteKits(apiUrl: string): Promise<WebsiteKit[]> {
 
 /**
  * Applies a Website Kit to the active website/editor
+
+ * @param apiUrl Api Url supplied to this operation (type: string).
+ * @param kit Kit supplied to this operation (type: WebsiteKit).
  */
 export async function applyWebsiteKit(
   apiUrl: string,

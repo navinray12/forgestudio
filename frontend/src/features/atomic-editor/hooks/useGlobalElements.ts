@@ -1,7 +1,14 @@
+/**
+ * @file Atomic editor feature: use Global Elements. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { GlobalElementDefinition, CreateGlobalElementPayload } from "../types/globalElements.types";
 import { GlobalElementService } from "../services/globalElementService";
 
+/**
+ * Coordinate global elements state and lifecycle for the calling component.
+ */
 export function useGlobalElements() {
   const [globalElements, setGlobalElements] = useState<GlobalElementDefinition[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -40,6 +47,10 @@ export function useGlobalElements() {
     );
   }, [globalElements, searchQuery]);
 
+  /**
+   * Create Global Element.
+   * @param payload Payload supplied to this operation (type: CreateGlobalElementPayload).
+   */
   const createGlobalElement = async (payload: CreateGlobalElementPayload) => {
     setError(null);
     try {
@@ -52,6 +63,11 @@ export function useGlobalElements() {
     }
   };
 
+  /**
+   * Update Global Element.
+   * @param id Id supplied to this operation (type: string).
+   * @param payload Payload supplied to this operation (type: Partial<CreateGlobalElementPayload>).
+   */
   const updateGlobalElement = async (id: string, payload: Partial<CreateGlobalElementPayload>) => {
     setError(null);
     try {
@@ -64,6 +80,10 @@ export function useGlobalElements() {
     }
   };
 
+  /**
+   * Delete Global Element.
+   * @param id Id supplied to this operation (type: string).
+   */
   const deleteGlobalElement = async (id: string) => {
     setError(null);
     try {

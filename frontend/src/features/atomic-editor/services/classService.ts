@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: class Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { AtomicClass } from "../types/classes.types";
 
 const STORAGE_KEY = "forgestudio_atomic_classes";
@@ -82,6 +86,9 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
   },
 ];
 
+/**
+ * Fetch Classes.
+ */
 export async function fetchClasses(): Promise<AtomicClass[]> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -97,6 +104,10 @@ export async function fetchClasses(): Promise<AtomicClass[]> {
   return DEFAULT_CLASSES;
 }
 
+/**
+ * Save Classes.
+ * @param classes Classes supplied to this operation (type: AtomicClass[]).
+ */
 export async function saveClasses(classes: AtomicClass[]): Promise<void> {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(classes));

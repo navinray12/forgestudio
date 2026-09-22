@@ -8,47 +8,52 @@ datasource db {
 }
 
 model User {
-  id                      String                   @id @default(uuid()) @db.Uuid
-  fullName                String?
-  email                   String?                  @unique
-  phone                   String?                  @unique
-  passwordHash            String?
-  verificationMethod      VerificationMethod?
-  emailVerified           Boolean                  @default(false)
-  phoneVerified           Boolean                  @default(false)
-  status                  UserStatus               @default(ACTIVE)
-  role                    UserRole                 @default(USER)
-  lastLoginAt             DateTime?
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  identities              Identity[]
-  otpVerifications        OtpVerification[]
-  passwordResetTokens     PasswordResetToken[]
-  sessions                Session[]
-  templates               templates[]
-  subscription            UserSubscription?
-  websites                Website[]
-  codeRevisions           CustomCodeRevision[]
-  auditLogs               AuditLog[]
-  developerApiKeys        DeveloperApiKey[]
-  designNotes             DesignNote[]
-  collaborations          WebsiteCollaborator[]
-  componentAccesses       ComponentAccess[]
-  customEntries           CustomEntry[]
-  websiteRevisions        WebsiteRevision[]
-  deployments             Deployment[]
-  wpConnections           WordPressConnection[]
-  ownedTeams              Team[]                   @relation("TeamOwner")
-  teamMemberships         TeamMember[]
-  sentTeamInvitations     TeamInvitation[]         @relation("TeamInvitedBy")
-  sentWebsiteInvitations  WebsiteInvitation[]      @relation("WebsiteInvitedBy")
-  granularPermissions     GranularPermission[]
-  ownedWorkspaces         Workspace[]
-  ownedOrganizations      Organization[]           @relation("OrgOwner")
-  organizationMemberships OrganizationMember[]
-  workspaceMemberships    WorkspaceMember[]
-  approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
-  reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
+  id                           String                   @id @default(uuid()) @db.Uuid
+  fullName                     String?
+  email                        String?                  @unique
+  phone                        String?                  @unique
+  passwordHash                 String?
+  verificationMethod           VerificationMethod?
+  emailVerified                Boolean                  @default(false)
+  phoneVerified                Boolean                  @default(false)
+  status                       UserStatus               @default(ACTIVE)
+  role                         UserRole                 @default(USER)
+  lastLoginAt                  DateTime?
+  createdAt                    DateTime                 @default(now())
+  updatedAt                    DateTime                 @updatedAt
+  identities                   Identity[]
+  otpVerifications             OtpVerification[]
+  passwordResetTokens          PasswordResetToken[]
+  sessions                     Session[]
+  templates                    templates[]
+  subscription                 UserSubscription?
+  websites                     Website[]
+  codeRevisions                CustomCodeRevision[]
+  auditLogs                    AuditLog[]
+  developerApiKeys             DeveloperApiKey[]
+  designNotes                  DesignNote[]
+  collaborations               WebsiteCollaborator[]
+  componentAccesses            ComponentAccess[]
+  customEntries                CustomEntry[]
+  websiteRevisions             WebsiteRevision[]
+  deployments                  Deployment[]
+  wpConnections                WordPressConnection[]
+  ownedTeams                   Team[]                   @relation("TeamOwner")
+  teamMemberships              TeamMember[]
+  sentTeamInvitations          TeamInvitation[]         @relation("TeamInvitedBy")
+  sentWebsiteInvitations       WebsiteInvitation[]      @relation("WebsiteInvitedBy")
+  granularPermissions          GranularPermission[]
+  ownedWorkspaces              Workspace[]
+  ownedOrganizations           Organization[]           @relation("OrgOwner")
+  organizationMemberships      OrganizationMember[]
+  workspaceMemberships         WorkspaceMember[]
+  sentWorkspaceInvitations     WorkspaceInvitation[]    @relation("WorkspaceInvitedBy")
+  acceptedWorkspaceInvitations WorkspaceInvitation[]    @relation("WorkspaceInvitationAccepted")
+  supportGrantsReceived        SupportGrant[]           @relation("SupportGrantGrantee")
+  supportGrantsApproved        SupportGrant[]           @relation("SupportGrantApprover")
+  approvalRequests             PublishApprovalRequest[] @relation("ApprovalRequester")
+  reviewedApprovals            PublishApprovalRequest[] @relation("ApprovalReviewer")
+  draftSaveReceipts            DraftSaveReceipt[]
 
   @@index([status])
   @@index([role])
@@ -81,18 +86,50 @@ model Website {
   wpPageMappings          WordPressPageMapping[]
   granularPermissions     GranularPermission[]
   invitations             WebsiteInvitation[]
+  // Deprecated: superseded by workspaceId (FS-040 consolidated account -> workspace -> site authority).
+  // Retained read-only for historical rows; no longer written by current code.
   teamId                  String?                  @db.Uuid
   team                    Team?                    @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  workspaceId             String?                  @db.Uuid
-  workspace               Workspace?               @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  // Authoritative tenant scope. Every site belongs to exactly one workspace; a personal
+  // workspace is created automatically for users who do not choose one explicitly.
+  workspaceId             String                   @db.Uuid
+  // NoAction (not Restrict) at the Prisma level: the actual SQL constraint is created
+  // DEFERRABLE INITIALLY DEFERRED so it is checked at transaction commit, after a
+  // same-transaction cascade (e.g. deleting a workspace's owning user, which cascades
+  // to both this site's row and the workspace's row) has finished rather than mid-cascade.
+  workspace               Workspace                @relation(fields: [workspaceId], references: [id], onDelete: NoAction)
+  // Deprecated: the account boundary is reached via workspace.organizationId, not a direct link.
+  // Retained read-only for historical rows; no longer written by current code.
   organizationId          String?                  @db.Uuid
   organization            Organization?            @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   approvalWorkflowEnabled Boolean                  @default(false)
   approvalRequests        PublishApprovalRequest[]
+  draftRevision           String                   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  draftSaveReceipts       DraftSaveReceipt[]
 
   @@index([userId], map: "idx_websites_user_id")
   @@index([organizationId])
   @@map("websites")
+}
+
+model DraftSaveReceipt {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  websiteId        String   @db.Uuid
+  actorId          String   @db.Uuid
+  mutationId       String   @db.VarChar(128)
+  requestHash      String   @db.VarChar(64)
+  acceptedRevision String   @db.Uuid
+  documentHash     String   @db.VarChar(64)
+  document         Json
+  acceptedAt       DateTime @default(now()) @db.Timestamptz(6)
+  expiresAt        DateTime @default(dbgenerated("(CURRENT_TIMESTAMP + '7 days'::interval)")) @db.Timestamptz(6)
+  website          Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  actor            User     @relation(fields: [actorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([websiteId, actorId, mutationId], map: "draft_save_receipts_scope_key")
+  @@index([expiresAt], map: "draft_save_receipts_expiry_idx")
+  @@index([websiteId, acceptedAt, id], map: "draft_save_receipts_history_idx")
+  @@map("draft_save_receipts")
 }
 
 model OtpVerification {
@@ -533,7 +570,7 @@ model WebsiteKit {
 }
 
 model WebsiteRevision {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId    String   @db.Uuid
   version      Int
   revisionType String   @default("MANUAL") @db.VarChar(50) // MANUAL, PUBLISH, CHECKPOINT, RESTORE
@@ -552,7 +589,7 @@ model WebsiteRevision {
 }
 
 model Deployment {
-  id               String    @id @default(uuid()) @db.Uuid
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId        String    @db.Uuid
   version          Int
   status           String    @default("QUEUED") @db.VarChar(50) // QUEUED, VALIDATING, BUILDING, PROCESSING, DEPLOYING, VERIFYING, PUBLISHED, RECONCILIATION_REQUIRED, VALIDATION_FAILED, BUILD_FAILED, DEPLOY_FAILED, VERIFICATION_FAILED
@@ -578,7 +615,7 @@ model Deployment {
 }
 
 model WordPressConnection {
-  id             String    @id @default(uuid()) @db.Uuid
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId         String    @db.Uuid
   websiteId      String    @unique @db.Uuid
   siteUrl        String    @db.VarChar(500)
@@ -591,15 +628,39 @@ model WordPressConnection {
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website         Website                   @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webhookReceipts WordPressWebhookReceipt[]
 
+  @@unique([id, websiteId])
   @@index([userId])
   @@map("wordpress_connections")
 }
 
+// Durable inbound events. Receipt acknowledgement precedes asynchronous effects.
+model WordPressWebhookReceipt {
+  id            String              @id @default(uuid()) @db.Uuid
+  connectionId  String              @db.Uuid
+  websiteId     String              @db.Uuid
+  eventId       String              @db.VarChar(128)
+  event         String              @db.VarChar(40)
+  payload       Json
+  payloadHash   String              @db.VarChar(64)
+  status        String              @default("PENDING") @db.VarChar(20)
+  attempts      Int                 @default(0)
+  nextAttemptAt DateTime            @default(now())
+  lastError     String?
+  createdAt     DateTime            @default(now())
+  processedAt   DateTime?
+  connection    WordPressConnection @relation(fields: [connectionId, websiteId], references: [id, websiteId], onDelete: Cascade)
+
+  @@unique([connectionId, eventId])
+  @@index([status, nextAttemptAt])
+  @@map("wordpress_webhook_receipts")
+}
+
 model WordPressPageMapping {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId    String   @db.Uuid
   forgePageId  String   @db.VarChar(100)
   wpPostId     Int
@@ -617,7 +678,7 @@ model WordPressPageMapping {
 }
 
 model GranularPermission {
-  id         String   @id @default(uuid()) @db.Uuid
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId  String   @db.Uuid
   userId     String   @db.Uuid
   resourceId String   @default("*") @db.VarChar(100)
@@ -636,7 +697,7 @@ model GranularPermission {
 }
 
 model Team {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String   @db.VarChar(255)
   description String?  @db.VarChar(500)
   ownerId     String   @db.Uuid
@@ -653,7 +714,7 @@ model Team {
 }
 
 model TeamMember {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   teamId    String   @db.Uuid
   userId    String   @db.Uuid
   role      String   @default("DESIGNER") @db.VarChar(50) // OWNER, ADMIN, DESIGNER, CONTENT_EDITOR, REVIEWER
@@ -669,7 +730,7 @@ model TeamMember {
 }
 
 model TeamInvitation {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   teamId    String   @db.Uuid
   email     String   @db.VarChar(255)
   role      String   @default("DESIGNER") @db.VarChar(50)
@@ -689,7 +750,7 @@ model TeamInvitation {
 }
 
 model WebsiteInvitation {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId String   @db.Uuid
   email     String   @db.VarChar(255)
   role      String   @default("DESIGNER") @db.VarChar(50)
@@ -709,19 +770,25 @@ model WebsiteInvitation {
 }
 
 model Workspace {
-  id             String   @id @default(uuid()) @db.Uuid
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String?  @db.Uuid
   name           String   @db.VarChar(255)
   slug           String   @unique @db.VarChar(255)
   ownerId        String   @db.Uuid
+  // A workspace created implicitly for a single user (e.g. on first website creation)
+  // rather than explicitly by a collaboration decision. Personal workspaces still
+  // enforce the same membership/authorization path as any other workspace.
+  isPersonal     Boolean  @default(false)
   settings       Json?    @default("{}")
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  organization Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  owner        User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members      WorkspaceMember[]
-  websites     Website[]
+  organization  Organization?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  owner         User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members       WorkspaceMember[]
+  invitations   WorkspaceInvitation[]
+  supportGrants SupportGrant[]
+  websites      Website[]
 
   @@index([ownerId])
   @@index([organizationId])
@@ -729,7 +796,7 @@ model Workspace {
 }
 
 model Organization {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String   @db.VarChar(255)
   slug      String   @unique @db.VarChar(255)
   ownerId   String   @db.Uuid
@@ -747,7 +814,7 @@ model Organization {
 }
 
 model OrganizationMember {
-  id             String   @id @default(uuid()) @db.Uuid
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String   @db.Uuid
   userId         String   @db.Uuid
   role           String   @default("MEMBER") @db.VarChar(50) // OWNER, ADMIN, MEMBER
@@ -763,23 +830,76 @@ model OrganizationMember {
 }
 
 model WorkspaceMember {
-  id          String   @id @default(uuid()) @db.Uuid
-  workspaceId String   @db.Uuid
-  userId      String   @db.Uuid
-  role        String   @default("MEMBER") @db.VarChar(50) // OWNER, ADMIN, MEMBER
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId   String   @db.Uuid
+  userId        String   @db.Uuid
+  role          String   @default("MEMBER") @db.VarChar(50) // OWNER, ADMIN, MEMBER
+  // ACTIVE grants access; REVOKED preserves history without granting it. Revocation
+  // is a status change, never a delete, so audit/history and in-flight checks observe it.
+  status        String   @default("ACTIVE") @db.VarChar(20) // ACTIVE, REVOKED
+  // Bumped on every role/status change. Lets a long-lived permission decision detect
+  // that the membership it was based on has since changed (policy-generation guard).
+  policyVersion Int      @default(1)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, userId])
   @@index([userId])
+  @@index([workspaceId, status])
   @@map("workspace_members")
 }
 
+// Single-use, bound-recipient workspace invitation (blueprint SS12.5): the recipient
+// email, role and expiry are fixed at issue time; accepting is a guarded one-time
+// status transition so a reused or raced token cannot grant membership twice.
+model WorkspaceInvitation {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @db.Uuid
+  email       String   @db.VarChar(255)
+  role        String   @default("MEMBER") @db.VarChar(50) // ADMIN, MEMBER
+  tokenHash   String   @unique @db.VarChar(255)
+  status      String   @default("PENDING") @db.VarChar(20) // PENDING, ACCEPTED, REVOKED, EXPIRED
+  expiresAt   DateTime @db.Timestamptz(6)
+  invitedBy   String   @db.Uuid
+  acceptedBy  String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  inviter   User      @relation("WorkspaceInvitedBy", fields: [invitedBy], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  accepter  User?     @relation("WorkspaceInvitationAccepted", fields: [acceptedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([workspaceId])
+  @@index([email])
+  @@map("workspace_invitations")
+}
+
+// Time-limited, workspace-scoped elevation for platform support/staff access
+// (blueprint SS12.3). Access is granted only while a grant exists that is neither
+// expired nor revoked; there is no ambient "support" role that bypasses this.
+model SupportGrant {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @db.Uuid
+  granteeId   String    @db.Uuid
+  reason      String    @db.VarChar(500)
+  approvedBy  String?   @db.Uuid
+  expiresAt   DateTime  @db.Timestamptz(6)
+  revokedAt   DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  grantee   User      @relation("SupportGrantGrantee", fields: [granteeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  approver  User?     @relation("SupportGrantApprover", fields: [approvedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([workspaceId, granteeId, expiresAt])
+  @@map("support_grants")
+}
+
 model PublishApprovalRequest {
-  id            String    @id @default(uuid()) @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   websiteId     String    @db.Uuid
   requesterId   String    @db.Uuid
   reviewerId    String?   @db.Uuid

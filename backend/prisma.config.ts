@@ -1,3 +1,7 @@
+/**
+ * @file Prisma config: backend module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 

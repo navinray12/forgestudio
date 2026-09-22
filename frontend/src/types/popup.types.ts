@@ -1,3 +1,7 @@
+/**
+ * @file Popup types: types module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { EditorElement } from "../pages/editor/types";
 
 export type PopupLayoutMode = "modal" | "slide-in" | "hello-bar" | "full-screen";
@@ -49,10 +53,18 @@ export interface PopupConfig {
   isActive?: boolean;
 }
 
+/**
+ * Generate Popup Id.
+ */
 export function generatePopupId(): string {
   return "pop_" + Math.random().toString(36).substring(2, 9);
 }
 
+/**
+ * Create Default Popup.
+ * @param name Name supplied to this operation. Defaults to "New Promotion Popup".
+ * @param layoutMode Layout Mode supplied to this operation (type: PopupLayoutMode). Defaults to "modal".
+ */
 export function createDefaultPopup(
   name = "New Promotion Popup",
   layoutMode: PopupLayoutMode = "modal"

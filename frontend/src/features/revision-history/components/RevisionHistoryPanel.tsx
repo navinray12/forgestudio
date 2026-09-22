@@ -1,3 +1,7 @@
+/**
+ * @file Revision history feature: Revision History Panel. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useState } from "react";
 import { useRevisionHistory } from "../hooks/useRevisionHistory";
 import type { RevisionItem, PageSettingsData } from "../types/revisionHistory.types";
@@ -24,6 +28,8 @@ interface RevisionHistoryPanelProps {
 
 /**
  * Formats timestamps into human readable relative date headers and formatted time strings.
+
+ * @param timestamp Timestamp supplied to this operation (type: number).
  */
 function formatRevisionTime(timestamp: number): { dateGroup: string; formattedTime: string } {
   const date = new Date(timestamp);
@@ -60,6 +66,17 @@ function formatRevisionTime(timestamp: number): { dateGroup: string; formattedTi
   return { dateGroup, formattedTime };
 }
 
+/**
+ * Render the revision history panel interface and connect its event handlers.
+ * @param options Named inputs: isOpen, onClose, websiteId, apiUrl, onRestore, currentWorkingState.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.websiteId Identifier of the website whose data is being read or changed.
+ * @param options.apiUrl Api Url passed by the caller. Defaults to "".
+ * @param options.onRestore Callback for restore events.
+ * @param options.currentWorkingState Current Working State passed by the caller.
+ */
 export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
   isOpen,
   onClose,
@@ -86,6 +103,10 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
   const [checkpointDesc, setCheckpointDesc] = useState("");
   const [isSubmittingCheckpoint, setIsSubmittingCheckpoint] = useState(false);
 
+  /**
+   * Handle Create Checkpoint.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleCreateCheckpoint = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkpointDesc.trim()) return;
@@ -101,6 +122,10 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
 
   // Keyboard accessibility: ESC key handler
   useEffect(() => {
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (confirmRestoreState.isOpen) {

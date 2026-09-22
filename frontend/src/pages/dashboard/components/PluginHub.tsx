@@ -1,7 +1,14 @@
+/**
+ * @file Plugin Hub: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+/**
+ * Render the plugin hub interface and connect its event handlers.
+ */
 export default function PluginHub() {
     const [plugins, setPlugins] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -10,6 +17,9 @@ export default function PluginHub() {
         fetchPlugins();
     }, []);
 
+    /**
+     * Fetch Plugins.
+     */
     const fetchPlugins = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/v1/plugins`, {
@@ -26,6 +36,10 @@ export default function PluginHub() {
         }
     };
 
+    /**
+     * Activate Plugin.
+     * @param id Id supplied to this operation (type: string).
+     */
     const activatePlugin = async (id: string) => {
         try {
             const res = await fetch(`${apiUrl}/api/v1/plugins/${id}/activate`, {

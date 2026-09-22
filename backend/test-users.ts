@@ -1,5 +1,12 @@
-import { prisma } from './src/config/prisma.js';
+/**
+ * @file Test users: backend module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
+import { prisma } from './src/platform/database/prisma.js';
 
+/**
+ * Main.
+ */
 async function main() {
     const users = await prisma.user.findMany();
     console.log("Found users in DB:", users.length);

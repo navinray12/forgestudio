@@ -1,9 +1,15 @@
+/**
+ * @file Assemble Express middleware, application routes, readiness and error handling.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import passport from "./config/passport.js";
+import { jsonBodyParser } from "./platform/http/webhook-body.middleware.js";
+import { checkDatabaseReadiness } from "./platform/database/database-readiness.js";
+import passport from "./platform/authentication/passport.js";
 
 import {
   loginRoutes,
@@ -14,6 +20,7 @@ import {
   subscriptionRoutes,
   websiteRoutes,
   teamRoutes,
+  workspaceRoutes,
   uploadRoutes,
   apiKeysRoutes,
   developerRoutes,
@@ -30,13 +37,12 @@ import {
   pluginIntegrationRoutes,
   multisiteRoutes,
   websiteKitRoutes,
-} from "./routes/index.js";
+} from "./compatibility/routes.js";
 
-import { setupSwagger } from "./config/swagger.js";
-import apiV1Routes from "./routes/api-v1.routes.js";
-import operationsRoutes from "./routes/operations.routes.js";
-import auditLogRoutes from "./routes/auditLog.routes.js";
-import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { setupSwagger } from "./platform/authentication/swagger.js";
+import apiV1Routes from "./modules/public-api/api-v1.routes.js";
+import websiteDraftRoutes from "./modules/pages/website-draft.routes.js";
+import { errorMiddleware } from "./platform/http/error.middleware.js";
 
 const app = express();
 
@@ -56,7 +62,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "2mb" }));
+// The body parser preserves signed webhook bytes and applies request-size limits.
+app.use(jsonBodyParser);
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -66,8 +73,17 @@ setupSwagger(app);
 app.get("/api/v1/health", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: "API is healthy",
+    message: "API process is running",
   });
+});
+
+app.get("/api/v1/ready", async (_req: Request, res: Response) => {
+  try {
+    await checkDatabaseReadiness();
+    res.status(200).json({ ready: true });
+  } catch {
+    res.status(503).json({ ready: false, code: "DATABASE_NOT_READY" });
+  }
 });
 
 // Auth & Session
@@ -86,10 +102,13 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/v1", apiV1Routes);
 
 // Websites & Workspace
+app.use('/api/v1/websites', websiteDraftRoutes);
 app.use("/api/v1/websites", websiteRoutes);
 app.use("/api/websites", websiteRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/workspaces", workspaceRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
@@ -115,8 +134,6 @@ app.use("/api/component-access", componentAccessRoutes);
 
 
 
-app.use("/api/v1/templates", templateRoutes);
-app.use("/api/templates", templateRoutes);
 app.use("/api/v1/website-kits", websiteKitRoutes);
 app.use("/api/website-kits", websiteKitRoutes);
 
@@ -137,17 +154,6 @@ app.use("/api/v1/multisite", multisiteRoutes);
 app.use("/api/multisite", multisiteRoutes);
 app.use("/api/v1/integrations", integrationRoutes);
 app.use("/api/integrations", integrationRoutes);
-
-// Audit Logs
-app.use("/api/v1/audit-logs", auditLogRoutes);
-app.use("/api/audit-logs", auditLogRoutes);
-
-// Operations, Automation & Monitoring
-app.use("/api/v1/operations", operationsRoutes);
-app.use("/api/operations", operationsRoutes);
-app.get("/api/health", (_req, res) => {
-  res.redirect("/api/operations/health");
-});
 
 app.use(errorMiddleware);
 

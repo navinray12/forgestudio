@@ -1,0 +1,40 @@
+name: Verify application contracts
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install the pinned package manager
+        run: npm install --global npm@11.16.0
+      - name: Install from the workspace lockfile
+        run: npm ci
+      - name: Generate, validate, test and build
+        run: npm run check
+      - name: Verify the same document schema and hashes in TypeScript and PHP
+        run: npm run test:contracts:php
+      - name: Verify migrations and failure recovery in disposable PostgreSQL
+        run: npm run test:integration
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+      - name: Install the pinned test browser
+        run: npx playwright install chromium --only-shell --with-deps
+      - name: Verify editor save journeys
+        run: npm run test:journeys
+      - name: Verify built application containers and data recovery
+        run: npm run test:containers
+      - name: Report existing frontend lint debt
+        continue-on-error: true
+        run: npm run lint --workspace frontend

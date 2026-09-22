@@ -1,0 +1,100 @@
+[
+  {
+    "source": "frontend/src/pages/editor/WebsiteEditor.tsx",
+    "destination": "frontend/src/pages/editor/canvas/create-canvas-renderer.tsx",
+    "renderer": "renderElementTree",
+    "context": [
+      "selectedIds",
+      "selectedId",
+      "isPreview",
+      "activeElementState",
+      "activeDevice",
+      "hoveredId",
+      "elements",
+      "dropTargetId",
+      "setDraggingId",
+      "setDropTargetId",
+      "setDropPosition",
+      "handleSelectElement",
+      "setContextMenu",
+      "compileBackgroundAndBorderStyles",
+      "compilePositioningStyles",
+      "setSelectedId",
+      "handleReorderElement",
+      "handleCopyElement",
+      "handleCopyStyle",
+      "copiedStyles",
+      "handlePasteStyle",
+      "handleDuplicateElement",
+      "handleSaveAsComponent",
+      "handleDeleteElement",
+      "setHoveredId",
+      "draggingId",
+      "dropPosition",
+      "updateElementContent",
+      "setElements",
+      "getYouTubeId",
+      "getVimeoId",
+      "apiUrl",
+      "pages",
+      "handlePreviewPageNavigate",
+      "setActivePopupId",
+      "activePreviewPageId",
+      "activePageId",
+      "homePageId",
+      "components",
+      "handleUnpackTemplate",
+      "handleSelectTemplate"
+    ]
+  },
+  {
+    "source": "frontend/src/pages/editor/WebsiteEditor.tsx",
+    "destination": "frontend/src/pages/editor/layers/create-layer-tree-renderer.tsx",
+    "renderer": "renderNavigatorTreeItem",
+    "context": [
+      "selectedIds",
+      "selectedId",
+      "collapsedContainers",
+      "activeDevice",
+      "handleSelectElement",
+      "setHoveredId",
+      "hoveredId",
+      "toggleContainerCollapse",
+      "handleCopyElement",
+      "handleDuplicateElement",
+      "handleReorderElement",
+      "handleDeleteElement"
+    ]
+  },
+  {
+    "source": "frontend/src/pages/editor/WebsiteEditor.tsx",
+    "destination": "frontend/src/pages/editor/inspector/controls/create-positioning-controls.tsx",
+    "renderer": "renderPositioningControls",
+    "context": [
+      "selectedElement",
+      "activeDevice",
+      "activeElementState",
+      "updateSelectedStyle",
+      "resetSelectedStyle",
+      "ScrubbableNumberInput"
+    ]
+  },
+  {
+    "source": "frontend/src/pages/editor/WebsiteEditor.tsx",
+    "destination": "frontend/src/pages/editor/inspector/controls/create-background-controls.tsx",
+    "renderer": "renderBackgroundAndBorderControls",
+    "context": [
+      "selectedElement",
+      "activeDevice",
+      "activeElementState",
+      "isBorderRadiusLinked",
+      "updateSelectedStyle",
+      "resetSelectedStyle",
+      "handleSampleColor",
+      "bgFileInputRef",
+      "handleBgImageFileSelect",
+      "isUploading",
+      "setIsBorderRadiusLinked"
+    ]
+  }
+]
