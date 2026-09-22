@@ -8792,7 +8792,6 @@ export default function WebsiteEditor() {
                     </div>
                   )}
 
-                  {/* Dynamically Render All Additional Registered Widgets (F-212 to F-222 & future widgets) */}
                   {ALL_WIDGET_REGISTRY.filter((w) => ![
                     "container", "heading", "text", "image", "button", "posts", "share-buttons", "portfolio", "slides", "form",
                     "login", "nav-menu", "animated-headline", "price-table", "price-list", "gallery", "flip-box", "call-to-action",
@@ -8803,36 +8802,35 @@ export default function WebsiteEditor() {
                     if (!isWidgetLibraryVisible(widget.type, widget.name)) return null;
                     const isFav = favoriteWidgets.includes(widget.type);
                     return (
-
                       <div
+                        key={widget.type}
                         draggable={true}
                         onDragStart={(e) => {
-                          e.dataTransfer.setData("application/json", JSON.stringify({ type: "new", widgetType: "paypal-button" }));
+                          e.dataTransfer.setData("application/json", JSON.stringify({ type: "new", widgetType: widget.type }));
                           e.dataTransfer.effectAllowed = "copy";
                         }}
-                        onClick={() => handleAddElement("paypal-button")}
+                        onClick={() => handleAddElement(widget.type)}
                         className="relative flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-amber-400 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 group cursor-grab transition"
                       >
                         <button
                           type="button"
-                          onClick={(e) => toggleFavoriteWidget("paypal-button", e)}
-                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("paypal-button") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          onClick={(e) => toggleFavoriteWidget(widget.type, e)}
+                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
                             }`}
-                          title={favoriteWidgets.includes("paypal-button") ? "Remove favorite" : "Mark as favorite"}
+                          title={isFav ? "Remove favorite" : "Mark as favorite"}
                         >
-                          {favoriteWidgets.includes("paypal-button") ? "★" : "☆"}
+                          {isFav ? "★" : "☆"}
                         </button>
-                        <PayPalButtonBoxIcon />
                         <span className="mt-2 text-xs font-semibold text-slate-700 group-hover:text-amber-600">
-                          PayPal
+                          {widget.name}
                         </span>
                       </div>
-                    )
-                  }
+                    );
+                  })}
 
-                  {/* Stripe Button Widget (F-201) */ }
+                  {/* Stripe Button Widget (F-201) */}
                   {
-                      isWidgetLibraryVisible("stripe-button", "Stripe Button") && (
+                    isWidgetLibraryVisible("stripe-button", "Stripe Button") && (
                       <div
                         draggable={true}
                         onDragStart={(e) => {
