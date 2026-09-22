@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Space+Mono&display=swap');
+
+/* ==========================================================================
+   FORGESTUDIO ACCESSIBILITY & INTERNATIONALIZATION SYSTEM STYLES (F-361 to F-381)
+   ========================================================================== */
+
+/* F-368 Enhanced Keyboard Focus Rings */
+body.a11y-enhanced-focus *:focus,
+body.a11y-enhanced-focus *:focus-visible {
+  outline: 4px solid #f59e0b !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* F-375 High Contrast Modes */
+body.a11y-contrast-high {
+  filter: contrast(175%) !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.a11y-contrast-dark {
+  filter: invert(90%) hue-rotate(180deg) !important;
+  background-color: #121212 !important;
+}
+
+body.a11y-contrast-light {
+  filter: contrast(120%) brightness(105%) !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.a11y-contrast-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+body.a11y-contrast-invert {
+  filter: invert(100%) !important;
+}
+
+/* F-370 OpenDyslexic / Dyslexia-Friendly Fonts & Spacing */
+
+body.a11y-font-opendyslexic {
+  font-family: 'Lexend', 'Comic Sans MS', sans-serif !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.8 !important;
+}
+
+body.a11y-font-sans {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  line-height: 1.6 !important;
+}
+
+body.a11y-font-mono {
+  font-family: 'Space Mono', monospace !important;
+  line-height: 1.7 !important;
+}
+
+/* F-369 Pause Animations & Transitions */
+body.a11y-pause-animations *,
+body.a11y-pause-animations *::before,
+body.a11y-pause-animations *::after {
+  animation-play-state: paused !important;
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+  scroll-behavior: auto !important;
+}
+
+/* F-377 Hide Images Mode */
+body.a11y-hide-images img,
+body.a11y-hide-images svg:not([data-a11y-icon]),
+body.a11y-hide-images [style*="background-image"] {
+  opacity: 0.05 !important;
+  filter: grayscale(100%) blur(2px) !important;
+}
+
+/* F-380 RTL Support Styles */
+html[dir="rtl"],
+body.a11y-rtl-mode {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+html[dir="rtl"] .flex,
+body.a11y-rtl-mode .flex {
+  /* Retain flex order layout under RTL */
+}
+
+/* SR Only Screen Reader Class */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}

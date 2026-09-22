@@ -1,0 +1,5157 @@
+{
+  "description": "Authored source only; dependencies, generated clients and build outputs are excluded. Export names are navigation aids, not a capability certification.",
+  "files": [
+    {
+      "file": "backend/.agent/patch-app.cjs",
+      "purpose": "Patch app: backend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/.agent/schema_update.cjs",
+      "purpose": "Schema update: backend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/create-user.ts",
+      "purpose": "Create user: backend module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/fix.js",
+      "purpose": "Fix: backend module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/prisma.config.ts",
+      "purpose": "Prisma config: backend module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/prisma/seed.ts",
+      "purpose": "Seed: backend/prisma module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/app.ts",
+      "purpose": "App: backend/src module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/controllers.ts",
+      "purpose": "Compatibility exports for controllers. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/middleware.ts",
+      "purpose": "Compatibility exports for middleware. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/repositories.ts",
+      "purpose": "Compatibility exports for repositories. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/routes.ts",
+      "purpose": "Compatibility exports for routes. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/services.ts",
+      "purpose": "Compatibility exports for services. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/compatibility/validators.ts",
+      "purpose": "Compatibility exports for validators. New backend code should import the owning module directly.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/api-keys/api-key.service.ts",
+      "purpose": "Api keys: business operations and coordination with persistence or external services. File responsibility: api key service.",
+      "exports": [
+        "hashApiKey",
+        "createApiKey",
+        "verifyApiKey",
+        "listApiKeys",
+        "revokeApiKey"
+      ]
+    },
+    {
+      "file": "backend/src/modules/api-keys/api-keys.controller.ts",
+      "purpose": "Api keys: HTTP handlers that translate requests into module operations and responses. File responsibility: api keys controller.",
+      "exports": [
+        "listApiKeysHandler",
+        "createApiKeyHandler",
+        "revokeApiKeyHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/api-keys/api-keys.routes.ts",
+      "purpose": "Api keys: HTTP route registration and middleware order. File responsibility: api keys routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/audit/audit.service.ts",
+      "purpose": "Audit: business operations and coordination with persistence or external services. File responsibility: audit service.",
+      "exports": [
+        "AuditLogFilters",
+        "queryAuditLogs"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/api-key-authentication.middleware.ts",
+      "purpose": "Authentication: request processing before the final handler. File responsibility: api key authentication middleware.",
+      "exports": [
+        "hashApiKey",
+        "requireApiScope"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.controller.ts",
+      "purpose": "Authentication: HTTP handlers that translate requests into module operations and responses. File responsibility: auth controller.",
+      "exports": [
+        "logout"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.repository.ts",
+      "purpose": "Authentication: database reads and writes. File responsibility: auth repository.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.routes.ts",
+      "purpose": "Authentication: HTTP route registration and middleware order. File responsibility: auth routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: auth service.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.types.ts",
+      "purpose": "Authentication: shared TypeScript contracts. File responsibility: auth types.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/auth.validator.ts",
+      "purpose": "Authentication: request input validation. File responsibility: auth validator.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/login.controller.ts",
+      "purpose": "Authentication: HTTP handlers that translate requests into module operations and responses. File responsibility: login controller.",
+      "exports": [
+        "loginController",
+        "sendLoginOtpController",
+        "verifyLoginOtpController",
+        "resendLoginOtpController"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/login.repository.ts",
+      "purpose": "Authentication: database reads and writes. File responsibility: login repository.",
+      "exports": [
+        "findUserByIdentifier"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/login.routes.ts",
+      "purpose": "Authentication: HTTP route registration and middleware order. File responsibility: login routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/login.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: login service.",
+      "exports": [
+        "loginUser"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/login.types.ts",
+      "purpose": "Authentication: shared TypeScript contracts. File responsibility: login types.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/login.validator.ts",
+      "purpose": "Authentication: request input validation. File responsibility: login validator.",
+      "exports": [
+        "loginSchema",
+        "LoginInput"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/me.routes.ts",
+      "purpose": "Authentication: HTTP route registration and middleware order. File responsibility: me routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/oauth.controller.ts",
+      "purpose": "Authentication: HTTP handlers that translate requests into module operations and responses. File responsibility: oauth controller.",
+      "exports": [
+        "googleOAuthCallback",
+        "githubOAuthCallback",
+        "createOAuthPasswordController"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/oauth.routes.ts",
+      "purpose": "Authentication: HTTP route registration and middleware order. File responsibility: oauth routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/oauth.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: oauth service.",
+      "exports": [
+        "OAuthProvider",
+        "OAuthProfile",
+        "loginWithOAuth"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/otp.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: otp service.",
+      "exports": [
+        "sendOtpWhatsApp",
+        "generateAndSendOtp",
+        "verifyOtp"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/password.ts",
+      "purpose": "Authentication: module implementation. File responsibility: password.",
+      "exports": [
+        "hashPassword",
+        "verifyPassword"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/public-api-authentication.middleware.ts",
+      "purpose": "Authentication: request processing before the final handler. File responsibility: public api authentication middleware.",
+      "exports": [
+        "authenticateApiV1",
+        "requireApiV1Scope"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/session-authentication.middleware.ts",
+      "purpose": "Authentication: request processing before the final handler. File responsibility: session authentication middleware.",
+      "exports": [
+        "requireAuth"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/session.repository.ts",
+      "purpose": "Authentication: database reads and writes. File responsibility: session repository.",
+      "exports": [
+        "createSession"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/session.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: session service.",
+      "exports": [
+        "createUserSession",
+        "createSupportSession",
+        "revokeSupportSessions"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/session.ts",
+      "purpose": "Authentication: module implementation. File responsibility: session.",
+      "exports": [
+        "generateSessionToken",
+        "hashSessionToken"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/signup.controller.ts",
+      "purpose": "Authentication: HTTP handlers that translate requests into module operations and responses. File responsibility: signup controller.",
+      "exports": [
+        "signupController",
+        "verifySignupOtpController",
+        "resendSignupOtpController"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/signup.repository.ts",
+      "purpose": "Authentication: database reads and writes. File responsibility: signup repository.",
+      "exports": [
+        "findUserByEmailOrPhone",
+        "createNewUser"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/signup.routes.ts",
+      "purpose": "Authentication: HTTP route registration and middleware order. File responsibility: signup routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/authentication/signup.service.ts",
+      "purpose": "Authentication: business operations and coordination with persistence or external services. File responsibility: signup service.",
+      "exports": [
+        "signupUser"
+      ]
+    },
+    {
+      "file": "backend/src/modules/authentication/signup.validator.ts",
+      "purpose": "Authentication: request input validation. File responsibility: signup validator.",
+      "exports": [
+        "signupSchema",
+        "SignupInput"
+      ]
+    },
+    {
+      "file": "backend/src/modules/component-access/component-access.controller.ts",
+      "purpose": "Component access: HTTP handlers that translate requests into module operations and responses. File responsibility: component access controller.",
+      "exports": [
+        "getAllComponentAccesses",
+        "getComponentAccess",
+        "grantComponentAccess",
+        "revokeComponentAccess",
+        "clearComponentRestrictions"
+      ]
+    },
+    {
+      "file": "backend/src/modules/component-access/component-access.routes.ts",
+      "purpose": "Component access: HTTP route registration and middleware order. File responsibility: component access routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/content-collections/custom-post-type.controller.ts",
+      "purpose": "Content collections: HTTP handlers that translate requests into module operations and responses. File responsibility: custom post type controller.",
+      "exports": [
+        "getCustomPostTypesHandler",
+        "createCustomPostTypeHandler",
+        "deleteCustomPostTypeHandler",
+        "getCustomFieldsHandler",
+        "saveCustomFieldsHandler",
+        "getCustomEntriesHandler",
+        "createCustomEntryHandler",
+        "updateCustomEntryHandler",
+        "deleteCustomEntryHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/content-collections/custom-post-type.routes.ts",
+      "purpose": "Content collections: HTTP route registration and middleware order. File responsibility: custom post type routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/custom-code/custom-code.controller.ts",
+      "purpose": "Custom code: HTTP handlers that translate requests into module operations and responses. File responsibility: custom code controller.",
+      "exports": [
+        "getCustomCodeSnippets",
+        "createCustomCodeSnippet",
+        "updateCustomCodeSnippet",
+        "deleteCustomCodeSnippet"
+      ]
+    },
+    {
+      "file": "backend/src/modules/custom-code/custom-code.routes.ts",
+      "purpose": "Custom code: HTTP route registration and middleware order. File responsibility: custom code routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/design-notes/design-notes.controller.ts",
+      "purpose": "Design notes: HTTP handlers that translate requests into module operations and responses. File responsibility: design notes controller.",
+      "exports": [
+        "createNote",
+        "getNotes",
+        "getNoteById",
+        "updateNote",
+        "deleteNote",
+        "resolveNote",
+        "reopenNote"
+      ]
+    },
+    {
+      "file": "backend/src/modules/design-notes/design-notes.routes.ts",
+      "purpose": "Design notes: HTTP route registration and middleware order. File responsibility: design notes routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/developer-tools/developer.controller.ts",
+      "purpose": "Developer tools: HTTP handlers that translate requests into module operations and responses. File responsibility: developer controller.",
+      "exports": [
+        "getDeveloperWebsitesHandler",
+        "getDeveloperWebsiteByIdHandler",
+        "updateDeveloperWebsiteHandler",
+        "publishDeveloperWebsiteHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/developer-tools/developer.routes.ts",
+      "purpose": "Developer tools: HTTP route registration and middleware order. File responsibility: developer routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/forms/form.controller.ts",
+      "purpose": "Forms: HTTP handlers that translate requests into module operations and responses. File responsibility: form controller.",
+      "exports": [
+        "submitFormHandler",
+        "getWebsiteSubmissionsHandler",
+        "deleteSubmissionHandler",
+        "exportSubmissionsHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/forms/form.routes.ts",
+      "purpose": "Forms: HTTP route registration and middleware order. File responsibility: form routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/forms/form.service.ts",
+      "purpose": "Forms: business operations and coordination with persistence or external services. File responsibility: form service.",
+      "exports": [
+        "sanitizeInput",
+        "checkRateLimit",
+        "FormSubmitPayload",
+        "processFormSubmission",
+        "getWebsiteSubmissions",
+        "deleteWebsiteSubmission"
+      ]
+    },
+    {
+      "file": "backend/src/modules/integrations/integration.controller.ts",
+      "purpose": "Integrations: HTTP handlers that translate requests into module operations and responses. File responsibility: integration controller.",
+      "exports": [
+        "IntegrationController"
+      ]
+    },
+    {
+      "file": "backend/src/modules/integrations/integration.routes.ts",
+      "purpose": "Integrations: HTTP route registration and middleware order. File responsibility: integration routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/integrations/integration.service.ts",
+      "purpose": "Integrations: business operations and coordination with persistence or external services. File responsibility: integration service.",
+      "exports": [
+        "IntegrationService"
+      ]
+    },
+    {
+      "file": "backend/src/modules/media/upload.middleware.ts",
+      "purpose": "Media: request processing before the final handler. File responsibility: upload middleware.",
+      "exports": [
+        "handleImageUpload"
+      ]
+    },
+    {
+      "file": "backend/src/modules/media/upload.routes.ts",
+      "purpose": "Media: HTTP route registration and middleware order. File responsibility: upload routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/multisite/multisite.controller.ts",
+      "purpose": "Multisite: HTTP handlers that translate requests into module operations and responses. File responsibility: multisite controller.",
+      "exports": [
+        "createNetwork",
+        "listNetworks",
+        "deleteNetwork"
+      ]
+    },
+    {
+      "file": "backend/src/modules/multisite/multisite.routes.ts",
+      "purpose": "Multisite: HTTP route registration and middleware order. File responsibility: multisite routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/multisite/multisite.service.ts",
+      "purpose": "Multisite: business operations and coordination with persistence or external services. File responsibility: multisite service.",
+      "exports": [
+        "createNetwork",
+        "listNetworks",
+        "deleteNetwork"
+      ]
+    },
+    {
+      "file": "backend/src/modules/notifications/email.service.ts",
+      "purpose": "Notifications: business operations and coordination with persistence or external services. File responsibility: email service.",
+      "exports": [
+        "sendOtpEmail"
+      ]
+    },
+    {
+      "file": "backend/src/modules/organizations/organization.service.ts",
+      "purpose": "Organizations: business operations and coordination with persistence or external services. File responsibility: organization service.",
+      "exports": [
+        "createOrganization",
+        "getOrganization",
+        "getUserOrganizations",
+        "addOrganizationMember",
+        "removeOrganizationMember",
+        "updateOrganizationSettings"
+      ]
+    },
+    {
+      "file": "backend/src/modules/pages/save-website-draft.ts",
+      "purpose": "Pages: module implementation. File responsibility: save website draft.",
+      "exports": [
+        "websiteDraftSaveSchema",
+        "WebsiteDraftSave",
+        "canonicalLegacyJson",
+        "saveWebsiteDraft"
+      ]
+    },
+    {
+      "file": "backend/src/modules/pages/validate-legacy-document.ts",
+      "purpose": "Pages: module implementation. File responsibility: validate legacy document.",
+      "exports": [
+        "validateLegacyDocument"
+      ]
+    },
+    {
+      "file": "backend/src/modules/pages/website-draft.routes.ts",
+      "purpose": "Pages: HTTP route registration and middleware order. File responsibility: website draft routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/permissions/permission.service.ts",
+      "purpose": "Permissions: business operations and coordination with persistence or external services. File responsibility: permission service.",
+      "exports": [
+        "DEFAULT_CAPABILITIES",
+        "canUserAccessResource",
+        "authorizeResourceAccess",
+        "authorizeCapability",
+        "getGranularPermissions",
+        "setGranularPermission"
+      ]
+    },
+    {
+      "file": "backend/src/modules/php-integrations/composer.controller.ts",
+      "purpose": "Php integrations: HTTP handlers that translate requests into module operations and responses. File responsibility: composer controller.",
+      "exports": [
+        "getComposerStatus",
+        "validateComposer",
+        "installDependencies"
+      ]
+    },
+    {
+      "file": "backend/src/modules/php-integrations/composer.routes.ts",
+      "purpose": "Php integrations: HTTP route registration and middleware order. File responsibility: composer routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/php-integrations/composer.service.ts",
+      "purpose": "Php integrations: business operations and coordination with persistence or external services. File responsibility: composer service.",
+      "exports": [
+        "ComposerStatus",
+        "checkComposerEnvironment",
+        "validateComposerConfig",
+        "runComposerInstall"
+      ]
+    },
+    {
+      "file": "backend/src/modules/plugin-compatibility/plugin-compat.controller.ts",
+      "purpose": "Plugin compatibility: HTTP handlers that translate requests into module operations and responses. File responsibility: plugin compat controller.",
+      "exports": [
+        "getPlugins",
+        "activatePlugin"
+      ]
+    },
+    {
+      "file": "backend/src/modules/plugin-compatibility/plugin-compat.routes.ts",
+      "purpose": "Plugin compatibility: HTTP route registration and middleware order. File responsibility: plugin compat routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/plugin-integrations/plugin-integration.controller.ts",
+      "purpose": "Plugin integrations: HTTP handlers that translate requests into module operations and responses. File responsibility: plugin integration controller.",
+      "exports": [
+        "saveIntegration",
+        "listIntegrations",
+        "syncPluginData"
+      ]
+    },
+    {
+      "file": "backend/src/modules/plugin-integrations/plugin-integration.routes.ts",
+      "purpose": "Plugin integrations: HTTP route registration and middleware order. File responsibility: plugin integration routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/plugin-integrations/plugin-integration.service.ts",
+      "purpose": "Plugin integrations: business operations and coordination with persistence or external services. File responsibility: plugin integration service.",
+      "exports": [
+        "upsertPluginIntegration",
+        "getPluginIntegrations",
+        "getPluginIntegrationBySlug",
+        "syncExternalPluginFields"
+      ]
+    },
+    {
+      "file": "backend/src/modules/public-api/api-v1.controller.ts",
+      "purpose": "Public api: HTTP handlers that translate requests into module operations and responses. File responsibility: api v1 controller.",
+      "exports": [
+        "sendSuccess",
+        "sendError",
+        "listWebsitesHandler",
+        "createWebsiteHandler",
+        "getWebsiteByIdHandler",
+        "updateWebsiteHandler",
+        "getPagesHandler",
+        "updatePagesHandler",
+        "publishWebsiteV1Handler",
+        "getDeploymentsV1Handler",
+        "rollbackDeploymentV1Handler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/public-api/api-v1.routes.ts",
+      "purpose": "Public api: HTTP route registration and middleware order. File responsibility: api v1 routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/publishing/approval.service.ts",
+      "purpose": "Publishing: business operations and coordination with persistence or external services. File responsibility: approval service.",
+      "exports": [
+        "setApprovalWorkflowEnabled",
+        "submitForPublishApproval",
+        "reviewPublishApproval",
+        "getWebsiteApprovalRequests",
+        "cancelPublishApproval"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/deployment-state.repository.ts",
+      "purpose": "Publishing: database reads and writes. File responsibility: deployment state repository.",
+      "exports": [
+        "DeploymentDetails",
+        "transitionDeployment",
+        "recordDeploymentFailure"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/destination-availability.ts",
+      "purpose": "Publishing: module implementation. File responsibility: destination availability.",
+      "exports": [
+        "requireAvailableDestination",
+        "rejectUnavailableDestination"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/internal.publisher.ts",
+      "purpose": "Publishing: module implementation. File responsibility: internal publisher.",
+      "exports": [
+        "InternalPublisher"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/registry.ts",
+      "purpose": "Publishing: module implementation. File responsibility: registry.",
+      "exports": [
+        "destinationRegistry"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/sftp.publisher.ts",
+      "purpose": "Publishing: module implementation. File responsibility: sftp publisher.",
+      "exports": [
+        "SftpPublisher"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/static-compiler.ts",
+      "purpose": "Publishing: module implementation. File responsibility: static compiler.",
+      "exports": [
+        "compileCanonicalToStaticBundle"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/static-export.publisher.ts",
+      "purpose": "Publishing: module implementation. File responsibility: static export publisher.",
+      "exports": [
+        "StaticExportPublisher"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/types.ts",
+      "purpose": "Publishing: module implementation. File responsibility: types.",
+      "exports": [
+        "DestinationType",
+        "GeneratedFile",
+        "StaticBundle",
+        "PublishDestinationResult",
+        "VerifyDestinationResult",
+        "RollbackDestinationResult",
+        "DestinationPublisher"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/destinations/wordpress.publisher.ts",
+      "purpose": "Publishing: module implementation. File responsibility: wordpress publisher.",
+      "exports": [
+        "WordPressPublisher"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/published-snapshot.repository.ts",
+      "purpose": "Publishing: database reads and writes. File responsibility: published snapshot repository.",
+      "exports": [
+        "activatePublishedSnapshot",
+        "saveDraftPreservingPublishedSnapshot"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/publishing.controller.ts",
+      "purpose": "Publishing: HTTP handlers that translate requests into module operations and responses. File responsibility: publishing controller.",
+      "exports": [
+        "validatePublishHandler",
+        "publishWebsiteHandler",
+        "getDeploymentsHandler",
+        "getDeploymentByIdHandler",
+        "rollbackDeploymentHandler",
+        "downloadStaticExportHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/publishing/publishing.service.ts",
+      "purpose": "Publishing: business operations and coordination with persistence or external services. File responsibility: publishing service.",
+      "exports": [
+        "ValidationIssue",
+        "ValidationResult",
+        "PublishOptions",
+        "PublishResult",
+        "validateWebsiteForPublish",
+        "publishWebsite",
+        "getWebsiteDeployments",
+        "getDeploymentById",
+        "rollbackDeployment"
+      ]
+    },
+    {
+      "file": "backend/src/modules/revisions/revision.controller.ts",
+      "purpose": "Revisions: HTTP handlers that translate requests into module operations and responses. File responsibility: revision controller.",
+      "exports": [
+        "getWebsiteRevisionsHandler",
+        "getRevisionByIdHandler",
+        "createRevisionHandler",
+        "restoreRevisionHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/revisions/revision.service.ts",
+      "purpose": "Revisions: business operations and coordination with persistence or external services. File responsibility: revision service.",
+      "exports": [
+        "CreateRevisionInput",
+        "getWebsiteRevisions",
+        "getRevisionById",
+        "createRevision",
+        "restoreRevision"
+      ]
+    },
+    {
+      "file": "backend/src/modules/sftp-connections/sftp.controller.ts",
+      "purpose": "Sftp connections: HTTP handlers that translate requests into module operations and responses. File responsibility: sftp controller.",
+      "exports": [
+        "saveSftpConfig",
+        "getSftpConfig",
+        "syncSftpFiles"
+      ]
+    },
+    {
+      "file": "backend/src/modules/sftp-connections/sftp.routes.ts",
+      "purpose": "Sftp connections: HTTP route registration and middleware order. File responsibility: sftp routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/sftp-connections/sftp.service.ts",
+      "purpose": "Sftp connections: business operations and coordination with persistence or external services. File responsibility: sftp service.",
+      "exports": [
+        "createOrUpdateSftpConfig",
+        "getSftpConfig",
+        "verifySftpConfig",
+        "syncFilesOverSftp"
+      ]
+    },
+    {
+      "file": "backend/src/modules/subscriptions/subscription.controller.ts",
+      "purpose": "Subscriptions: HTTP handlers that translate requests into module operations and responses. File responsibility: subscription controller.",
+      "exports": [
+        "getPlans",
+        "getCurrentSubscription",
+        "selectPlan"
+      ]
+    },
+    {
+      "file": "backend/src/modules/subscriptions/subscription.middleware.ts",
+      "purpose": "Subscriptions: request processing before the final handler. File responsibility: subscription middleware.",
+      "exports": [
+        "enforceWebsiteLimit"
+      ]
+    },
+    {
+      "file": "backend/src/modules/subscriptions/subscription.routes.ts",
+      "purpose": "Subscriptions: HTTP route registration and middleware order. File responsibility: subscription routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/subscriptions/subscription.service.ts",
+      "purpose": "Subscriptions: business operations and coordination with persistence or external services. File responsibility: subscription service.",
+      "exports": [
+        "getAllActivePlans",
+        "getUserSubscription",
+        "assignDefaultFreePlan",
+        "changeUserPlan",
+        "checkWebsiteLimit"
+      ]
+    },
+    {
+      "file": "backend/src/modules/teams/team.controller.ts",
+      "purpose": "Teams: HTTP handlers that translate requests into module operations and responses. File responsibility: team controller.",
+      "exports": [
+        "createTeamHandler",
+        "getUserTeamsHandler",
+        "getTeamDetailsHandler",
+        "updateTeamHandler",
+        "deleteTeamHandler",
+        "inviteMemberHandler",
+        "acceptInvitationHandler",
+        "removeMemberHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/teams/team.routes.ts",
+      "purpose": "Teams: HTTP route registration and middleware order. File responsibility: team routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/teams/team.service.ts",
+      "purpose": "Teams: business operations and coordination with persistence or external services. File responsibility: team service.",
+      "exports": [
+        "createTeam",
+        "getUserTeams",
+        "getTeamDetails",
+        "deleteTeam",
+        "updateTeam",
+        "inviteMember",
+        "acceptInvitation",
+        "removeTeamMember"
+      ]
+    },
+    {
+      "file": "backend/src/modules/templates/template.controller.ts",
+      "purpose": "Templates: HTTP handlers that translate requests into module operations and responses. File responsibility: template controller.",
+      "exports": [
+        "createTemplateHandler",
+        "getUserTemplatesHandler",
+        "getPublicTemplateHandler",
+        "toggleShareHandler",
+        "updateTemplateHandler",
+        "deleteTemplateHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/templates/template.routes.ts",
+      "purpose": "Templates: HTTP route registration and middleware order. File responsibility: template routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/templates/template.service.ts",
+      "purpose": "Templates: business operations and coordination with persistence or external services. File responsibility: template service.",
+      "exports": [
+        "ALLOWED_CATEGORIES",
+        "sanitizeCategory",
+        "CreateTemplateParams",
+        "createTemplate",
+        "getUserTemplates",
+        "UpdateTemplateParams",
+        "updateTemplate",
+        "toggleTemplateShareStatus",
+        "getPublicTemplateByToken",
+        "deleteTemplate"
+      ]
+    },
+    {
+      "file": "backend/src/modules/websites/website.controller.ts",
+      "purpose": "Websites: HTTP handlers that translate requests into module operations and responses. File responsibility: website controller.",
+      "exports": [
+        "getWebsitesHandler",
+        "getWebsiteByIdHandler",
+        "createWebsiteHandler",
+        "updateWebsiteHandler",
+        "deleteWebsiteHandler",
+        "getWebsiteRolesHandler",
+        "updateWebsiteRoleHandler",
+        "inviteWebsiteMemberHandler",
+        "acceptWebsiteInvitationHandler",
+        "removeWebsiteMemberHandler",
+        "getGranularPermissionsHandler",
+        "setGranularPermissionHandler",
+        "getPublicWebsiteHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/websites/website.routes.ts",
+      "purpose": "Websites: HTTP route registration and middleware order. File responsibility: website routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/websites/website.service.ts",
+      "purpose": "Websites: business operations and coordination with persistence or external services. File responsibility: website service.",
+      "exports": [
+        "getUserWebsites",
+        "getWebsiteById",
+        "createWebsite",
+        "updateWebsite",
+        "updateWebsiteEditorData",
+        "deleteWebsite",
+        "getWebsiteRoles",
+        "updateWebsiteRole",
+        "inviteWebsiteMember",
+        "acceptWebsiteInvitation",
+        "removeWebsiteMember",
+        "PublicWebsiteDTO",
+        "getPublicWebsiteById"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/connector.service.ts",
+      "purpose": "Wordpress connections: business operations and coordination with persistence or external services. File responsibility: connector service.",
+      "exports": [
+        "WordPressConnectionDTO",
+        "WordPressSyncResult",
+        "connectWordPress",
+        "getWordPressStatus",
+        "verifyWordPressConnection",
+        "disconnectWordPress",
+        "publishToWordPress",
+        "getWebsitePageMappings"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/process-webhook-receipts.ts",
+      "purpose": "Wordpress connections: module implementation. File responsibility: process webhook receipts.",
+      "exports": [
+        "processNextWebhookReceipt"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/transformer.service.ts",
+      "purpose": "Wordpress connections: business operations and coordination with persistence or external services. File responsibility: transformer service.",
+      "exports": [
+        "TransformedWordPressPage",
+        "transformPageToWordPress"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/webhook-envelope.ts",
+      "purpose": "Wordpress connections: module implementation. File responsibility: webhook envelope.",
+      "exports": [
+        "WebhookPayload",
+        "parseWebhookEnvelope",
+        "verifyWebhookSignature",
+        "getWebhookSecret"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/webhook.service.ts",
+      "purpose": "Wordpress connections: business operations and coordination with persistence or external services. File responsibility: webhook service.",
+      "exports": [
+        "processWordPressWebhook"
+      ]
+    },
+    {
+      "file": "backend/src/modules/wordpress-connections/wordpress.controller.ts",
+      "purpose": "Wordpress connections: HTTP handlers that translate requests into module operations and responses. File responsibility: wordpress controller.",
+      "exports": [
+        "connectWordPressHandler",
+        "getWordPressStatusHandler",
+        "verifyWordPressHandler",
+        "disconnectWordPressHandler",
+        "syncWordPressPagesHandler",
+        "handleWordPressWebhook"
+      ]
+    },
+    {
+      "file": "backend/src/modules/workspaces/workspace-membership.service.ts",
+      "purpose": "Workspaces: business operations and coordination with persistence or external services. File responsibility: workspace membership service.",
+      "exports": [
+        "WorkspaceRole",
+        "getActiveWorkspaceRole",
+        "requireActiveWorkspaceRole",
+        "getOrCreatePersonalWorkspace",
+        "inviteToWorkspace",
+        "acceptWorkspaceInvitation",
+        "revokeWorkspaceMember",
+        "createSupportGrant",
+        "revokeSupportGrant",
+        "hasActiveSupportGrant"
+      ]
+    },
+    {
+      "file": "backend/src/modules/workspaces/workspace.controller.ts",
+      "purpose": "Workspaces: HTTP handlers that translate requests into module operations and responses. File responsibility: workspace controller.",
+      "exports": [
+        "createWorkspaceHandler",
+        "getUserWorkspacesHandler",
+        "getWorkspaceHandler",
+        "addMemberHandler",
+        "removeMemberHandler",
+        "inviteMemberHandler",
+        "acceptInvitationHandler",
+        "createSupportGrantHandler",
+        "revokeSupportGrantHandler"
+      ]
+    },
+    {
+      "file": "backend/src/modules/workspaces/workspace.routes.ts",
+      "purpose": "Workspaces: HTTP route registration and middleware order. File responsibility: workspace routes.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/modules/workspaces/workspace.service.ts",
+      "purpose": "Workspaces: business operations and coordination with persistence or external services. File responsibility: workspace service.",
+      "exports": [
+        "createWorkspace",
+        "getWorkspace",
+        "getUserWorkspaces",
+        "addWorkspaceMember",
+        "removeWorkspaceMember",
+        "assignWebsiteToWorkspace"
+      ]
+    },
+    {
+      "file": "backend/src/platform/authentication/auth.ts",
+      "purpose": "Auth: platform/authentication module support.",
+      "exports": [
+        "AUTH_COOKIE_NAME",
+        "AUTH_COOKIE_OPTIONS"
+      ]
+    },
+    {
+      "file": "backend/src/platform/authentication/passport.ts",
+      "purpose": "Passport: platform/authentication module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/platform/configuration/index.ts",
+      "purpose": "Index: platform/configuration module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/platform/database/database-readiness.ts",
+      "purpose": "Database infrastructure: database readiness. Shared by API and worker processes; schema changes belong in Prisma migrations.",
+      "exports": [
+        "checkDatabaseReadiness"
+      ]
+    },
+    {
+      "file": "backend/src/platform/database/database.ts",
+      "purpose": "Database infrastructure: database. Shared by API and worker processes; schema changes belong in Prisma migrations.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/platform/database/prisma.ts",
+      "purpose": "Database infrastructure: prisma. Shared by API and worker processes; schema changes belong in Prisma migrations.",
+      "exports": [
+        "prisma"
+      ]
+    },
+    {
+      "file": "backend/src/platform/http/app-error.ts",
+      "purpose": "HTTP infrastructure: app error. Shared request, response and error handling for the API.",
+      "exports": [
+        "AppError"
+      ]
+    },
+    {
+      "file": "backend/src/platform/http/error.middleware.ts",
+      "purpose": "HTTP infrastructure: error middleware. Shared request, response and error handling for the API.",
+      "exports": [
+        "errorMiddleware"
+      ]
+    },
+    {
+      "file": "backend/src/platform/http/index.ts",
+      "purpose": "HTTP infrastructure: index. Shared request, response and error handling for the API.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/platform/http/validate-json-envelope.ts",
+      "purpose": "HTTP infrastructure: validate json envelope. Shared request, response and error handling for the API.",
+      "exports": [
+        "validateJsonEnvelope"
+      ]
+    },
+    {
+      "file": "backend/src/platform/http/webhook-body.middleware.ts",
+      "purpose": "HTTP infrastructure: webhook body middleware. Shared request, response and error handling for the API.",
+      "exports": [
+        "jsonBodyParser"
+      ]
+    },
+    {
+      "file": "backend/src/plugins/PluginManager.ts",
+      "purpose": "Plugin Manager: plugins module support.",
+      "exports": [
+        "BackendPluginManifest",
+        "BackendPluginContext",
+        "BackendPluginManagerCore",
+        "BackendPluginManager"
+      ]
+    },
+    {
+      "file": "backend/src/plugins/init.ts",
+      "purpose": "Init: plugins module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/sdk/client.ts",
+      "purpose": "Client: backend SDK integration support.",
+      "exports": [
+        "ForgeStudioClientOptions",
+        "ForgeStudioApiError",
+        "WebsiteListItem",
+        "WebsitePage",
+        "PublishOptions",
+        "DeploymentRecord",
+        "ForgeStudioClient"
+      ]
+    },
+    {
+      "file": "backend/src/sdk/embeddedEvents.ts",
+      "purpose": "Embedded Events: backend SDK integration support.",
+      "exports": [
+        "ForgeMessageType",
+        "ForgeMessage",
+        "MountPayload",
+        "MountAckPayload",
+        "SavePayload",
+        "PublishRequestPayload",
+        "StateChangedPayload",
+        "ErrorPayload",
+        "createForgeMessage",
+        "isForgeMessage",
+        "postForgeMessage",
+        "subscribeToForgeMessages"
+      ]
+    },
+    {
+      "file": "backend/src/sdk/index.ts",
+      "purpose": "Index: backend SDK integration support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/server.ts",
+      "purpose": "Server: backend/src module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/milestoneA-permissions.test.ts",
+      "purpose": "Milestone A permissions test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/milestoneB-destinations.test.ts",
+      "purpose": "Milestone B destinations test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/milestoneC-collaboration.test.ts",
+      "purpose": "Milestone C collaboration test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/milestoneD-sdk.test.ts",
+      "purpose": "Milestone D sdk test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/phase3-revisions.test.ts",
+      "purpose": "Phase3 revisions test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/phase4-publishing.test.ts",
+      "purpose": "Phase4 publishing test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/phase5-wordpress.test.ts",
+      "purpose": "Phase5 wordpress test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/tests/require-disposable-database.ts",
+      "purpose": "Require disposable database: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/types/declarations.d.ts",
+      "purpose": "Declarations d: types module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/workers/background-worker.ts",
+      "purpose": "Background worker: separately started background work; API requests do not start this process.",
+      "exports": []
+    },
+    {
+      "file": "backend/src/workers/prune-expired-draft-receipts.ts",
+      "purpose": "Prune expired draft receipts: separately started background work; API requests do not start this process.",
+      "exports": [
+        "pruneExpiredDraftReceipts"
+      ]
+    },
+    {
+      "file": "backend/test-users.ts",
+      "purpose": "Test users: backend module support.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/integration/draft-saves.test.ts",
+      "purpose": "Draft saves test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/integration/foundation.test.ts",
+      "purpose": "Foundation test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/integration/setup.ts",
+      "purpose": "Setup: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/integration/workspace-authority.test.ts",
+      "purpose": "Workspace authority test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/authorization.test.ts",
+      "purpose": "Authorization test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/draft-body-parser.test.ts",
+      "purpose": "Draft body parser test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/integration-data-paths.test.ts",
+      "purpose": "Integration data paths test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/json-envelope.test.ts",
+      "purpose": "Json envelope test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/static-export.test.ts",
+      "purpose": "Static export test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/test-database-safety.test.ts",
+      "purpose": "Test database safety test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "backend/tests/unit/webhook-envelope.test.ts",
+      "purpose": "Webhook envelope test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-1.cjs",
+      "purpose": "F351 1: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-admin.cjs",
+      "purpose": "F351 admin: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-admins-header.cjs",
+      "purpose": "F351 admins header: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-admins-header2.cjs",
+      "purpose": "F351 admins header2: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-admins-safe.cjs",
+      "purpose": "F351 admins safe: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-dom.cjs",
+      "purpose": "F351 dom: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-editor.cjs",
+      "purpose": "F351 editor: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-hr.cjs",
+      "purpose": "F351 hr: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f351-superadmin.cjs",
+      "purpose": "F351 superadmin: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f352-popups.cjs",
+      "purpose": "F352 popups: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f352-we.cjs",
+      "purpose": "F352 we: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f354-editor.cjs",
+      "purpose": "F354 editor: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f354-layout.cjs",
+      "purpose": "F354 layout: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f354-lazy.cjs",
+      "purpose": "F354 lazy: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f354-vars.cjs",
+      "purpose": "F354 vars: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f355-dash.cjs",
+      "purpose": "F355 dash: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f355-dash2.cjs",
+      "purpose": "F355 dash2: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f355-dash3.cjs",
+      "purpose": "F355 dash3: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/f355-dash4.cjs",
+      "purpose": "F355 dash4: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/final-app.cjs",
+      "purpose": "Final app: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/final-app3.cjs",
+      "purpose": "Final app3: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/final-app4.cjs",
+      "purpose": "Final app4: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/final-dash-ui.cjs",
+      "purpose": "Final dash ui: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/final-final.cjs",
+      "purpose": "Final final: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/fix-app.cjs",
+      "purpose": "Fix app: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/imports-patch.cjs",
+      "purpose": "Imports patch: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/patch-dash.cjs",
+      "purpose": "Patch dash: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/patch-editor-fix.cjs",
+      "purpose": "Patch editor fix: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/patch-editor.cjs",
+      "purpose": "Patch editor: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/.agent/third-patch.cjs",
+      "purpose": "Third patch: frontend/ agent module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/eslint.config.js",
+      "purpose": "Eslint config: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/fix.js",
+      "purpose": "Fix: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/replace_script.cjs",
+      "purpose": "Replace script: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/replace_script_global.cjs",
+      "purpose": "Replace script global: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/App.tsx",
+      "purpose": "App: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/components/CustomCodeModal.tsx",
+      "purpose": "Custom Code Modal: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/components/FontPickerControl.tsx",
+      "purpose": "Font Picker Control: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FontPickerControl"
+      ]
+    },
+    {
+      "file": "frontend/src/components/FontPickerModal.tsx",
+      "purpose": "Font Picker Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FontPickerModal"
+      ]
+    },
+    {
+      "file": "frontend/src/components/HtmlNode.tsx",
+      "purpose": "Html Node: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "HtmlNode"
+      ]
+    },
+    {
+      "file": "frontend/src/components/LazySection.tsx",
+      "purpose": "Lazy Section: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "LazySection"
+      ]
+    },
+    {
+      "file": "frontend/src/components/RouteErrorBoundary.tsx",
+      "purpose": "Route Error Boundary: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "RouteErrorBoundary"
+      ]
+    },
+    {
+      "file": "frontend/src/components/phone-input/CountrySelector.tsx",
+      "purpose": "Country Selector: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CountrySelector"
+      ]
+    },
+    {
+      "file": "frontend/src/components/phone-input/PhoneInput.tsx",
+      "purpose": "Phone Input: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PhoneInput"
+      ]
+    },
+    {
+      "file": "frontend/src/components/phone-input/index.ts",
+      "purpose": "Index: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/components/phone-input/phoneCountries.ts",
+      "purpose": "Phone Countries: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CountryData",
+        "COUNTRY_DATA",
+        "DEFAULT_COUNTRY"
+      ]
+    },
+    {
+      "file": "frontend/src/components/phone-input/phoneInput.types.ts",
+      "purpose": "Phone Input types: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PhoneInputValue",
+        "PhoneInputProps",
+        "CountrySelectorProps"
+      ]
+    },
+    {
+      "file": "frontend/src/components/phone-input/phoneInput.utils.ts",
+      "purpose": "Phone Input utils: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "findCountryByIso",
+        "parsePhoneNumber",
+        "validateNationalNumber",
+        "searchCountries",
+        "buildFullPhoneNumber"
+      ]
+    },
+    {
+      "file": "frontend/src/context/AuthContext.tsx",
+      "purpose": "Auth Context: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "UserRole",
+        "AuthUser",
+        "AuthProvider",
+        "useAuth"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicEditor.tsx",
+      "purpose": "Atomic editor feature: Atomic Editor. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicEditor"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicEditorContent.tsx",
+      "purpose": "Atomic editor feature: Atomic Editor Content. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicEditorContent"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicEditorNavigation.tsx",
+      "purpose": "Atomic editor feature: Atomic Editor Navigation. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicEditorNavigation"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicFormPanel.tsx",
+      "purpose": "Atomic editor feature: Atomic Form Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicFormPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicGridPanel.tsx",
+      "purpose": "Atomic editor feature: Atomic Grid Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicGridPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/AtomicLoopPanel.tsx",
+      "purpose": "Atomic editor feature: Atomic Loop Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicLoopPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ClassFormModal.tsx",
+      "purpose": "Atomic editor feature: Class Form Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ClassFormModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ClassesPanel.tsx",
+      "purpose": "Atomic editor feature: Classes Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ClassesPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ComponentPropertyLockModal.tsx",
+      "purpose": "Atomic editor feature: Component Property Lock Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ComponentPropertyLockModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ControlledComponentEditor.tsx",
+      "purpose": "Atomic editor feature: Controlled Component Editor. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ControlledComponentEditor"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/DeleteClassConfirmModal.tsx",
+      "purpose": "Atomic editor feature: Delete Class Confirm Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DeleteClassConfirmModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/DeleteComponentConfirmModal.tsx",
+      "purpose": "Atomic editor feature: Delete Component Confirm Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DeleteComponentConfirmModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/DeleteGlobalElementConfirmModal.tsx",
+      "purpose": "Atomic editor feature: Delete Global Element Confirm Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DeleteGlobalElementConfirmModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/DeleteVariableConfirmModal.tsx",
+      "purpose": "Atomic editor feature: Delete Variable Confirm Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DeleteVariableConfirmModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/FormFieldList.tsx",
+      "purpose": "Atomic editor feature: Form Field List. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FormFieldList"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/FormFieldSettings.tsx",
+      "purpose": "Atomic editor feature: Form Field Settings. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FormFieldSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/FormPreview.tsx",
+      "purpose": "Atomic editor feature: Form Preview. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FormPreview"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/FormSubmissionSettings.tsx",
+      "purpose": "Atomic editor feature: Form Submission Settings. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FormSubmissionSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/GlobalElementFormModal.tsx",
+      "purpose": "Atomic editor feature: Global Element Form Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalElementFormModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/GlobalElementsPanel.tsx",
+      "purpose": "Atomic editor feature: Global Elements Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalElementsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/GridItemSettings.tsx",
+      "purpose": "Atomic editor feature: Grid Item Settings. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GridItemSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/GridSettings.tsx",
+      "purpose": "Atomic editor feature: Grid Settings. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GridSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/GridVisualizer.tsx",
+      "purpose": "Atomic editor feature: Grid Visualizer. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GridVisualizer"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ImportClassesModal.tsx",
+      "purpose": "Atomic editor feature: Import Classes Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ImportClassesModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ImportVariablesModal.tsx",
+      "purpose": "Atomic editor feature: Import Variables Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ImportVariablesModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/LoopDataSourceSelector.tsx",
+      "purpose": "Atomic editor feature: Loop Data Source Selector. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "LoopDataSourceSelector"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/LoopItemSettings.tsx",
+      "purpose": "Atomic editor feature: Loop Item Settings. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "LoopItemSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/LoopPreview.tsx",
+      "purpose": "Atomic editor feature: Loop Preview. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "LoopPreview"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ReusableComponentFormModal.tsx",
+      "purpose": "Atomic editor feature: Reusable Component Form Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ReusableComponentFormModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/ReusableComponentsPanel.tsx",
+      "purpose": "Atomic editor feature: Reusable Components Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ReusableComponentsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/VariableFormModal.tsx",
+      "purpose": "Atomic editor feature: Variable Form Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "VariableFormModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/VariableReferenceControl.tsx",
+      "purpose": "Atomic editor feature: Variable Reference Control. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "VariableReferenceControl"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/components/VariablesPanel.tsx",
+      "purpose": "Atomic editor feature: Variables Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "VariablesPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useAtomicEditor.ts",
+      "purpose": "Atomic editor feature: use Atomic Editor. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useAtomicEditor"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useAtomicForm.ts",
+      "purpose": "Atomic editor feature: use Atomic Form. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useAtomicForm"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useAtomicGrid.ts",
+      "purpose": "Atomic editor feature: use Atomic Grid. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useAtomicGrid"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useAtomicLoop.ts",
+      "purpose": "Atomic editor feature: use Atomic Loop. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useAtomicLoop"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useClasses.ts",
+      "purpose": "Atomic editor feature: use Classes. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useClasses"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useControlledComponent.ts",
+      "purpose": "Atomic editor feature: use Controlled Component. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useControlledComponent"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useGlobalElements.ts",
+      "purpose": "Atomic editor feature: use Global Elements. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useGlobalElements"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useReusableComponents.ts",
+      "purpose": "Atomic editor feature: use Reusable Components. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useReusableComponents"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/hooks/useVariables.ts",
+      "purpose": "Atomic editor feature: use Variables. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useVariables"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/index.ts",
+      "purpose": "Atomic editor feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/atomicEditorService.ts",
+      "purpose": "Atomic editor feature: atomic Editor Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ATOMIC_SECTIONS",
+        "getAtomicSections",
+        "getSectionConfig"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/atomicFormService.ts",
+      "purpose": "Atomic editor feature: atomic Form Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicFormService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/atomicGridService.ts",
+      "purpose": "Atomic editor feature: atomic Grid Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicGridService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/atomicLoopService.ts",
+      "purpose": "Atomic editor feature: atomic Loop Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicLoopService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/classService.ts",
+      "purpose": "Atomic editor feature: class Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DEFAULT_CLASSES",
+        "fetchClasses",
+        "saveClasses"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/controlledComponentService.ts",
+      "purpose": "Atomic editor feature: controlled Component Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ControlledComponentService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/globalElementService.ts",
+      "purpose": "Atomic editor feature: global Element Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalElementService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/reusableComponentService.ts",
+      "purpose": "Atomic editor feature: reusable Component Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ReusableComponentService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/services/variableService.ts",
+      "purpose": "Atomic editor feature: variable Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DEFAULT_VARIABLES",
+        "fetchVariables",
+        "saveVariables"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/atomicEditor.types.ts",
+      "purpose": "Atomic editor feature: atomic Editor types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AtomicEditorSection",
+        "AtomicSectionConfig"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/atomicForm.types.ts",
+      "purpose": "Atomic editor feature: atomic Form types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FormFieldType",
+        "SelectOption",
+        "FormValidationRules",
+        "FormFieldConfig",
+        "FormSubmissionConfig",
+        "FormSubmitButtonConfig",
+        "FormContainerConfig",
+        "CreateFormPayload",
+        "FormValidationResult"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/atomicGrid.types.ts",
+      "purpose": "Atomic editor feature: atomic Grid types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GridBreakpoint",
+        "ResponsiveGridSettings",
+        "GridItemPlacement",
+        "GridContainerConfig",
+        "CreateGridPayload"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/atomicLoop.types.ts",
+      "purpose": "Atomic editor feature: atomic Loop types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "LoopDataSourceType",
+        "LoopDataItem",
+        "DynamicFieldBinding",
+        "LoopTemplateConfig",
+        "LoopContainerConfig",
+        "CreateLoopPayload",
+        "LoopRenderContext"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/classExportImport.types.ts",
+      "purpose": "Atomic editor feature: class Export Import types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ExportedClassItem",
+        "ExportedClassesPayload",
+        "ClassConflictResolutionMode",
+        "ClassConflictItem"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/classes.types.ts",
+      "purpose": "Atomic editor feature: classes types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ClassScope",
+        "AtomicClass",
+        "CreateClassPayload",
+        "UpdateClassPayload"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/controlledComponent.types.ts",
+      "purpose": "Atomic editor feature: controlled Component types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "EditablePropertyConfig",
+        "ComponentLockSettings",
+        "InstancePropertyOverride",
+        "ResolvedComponentProperty"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/globalElements.types.ts",
+      "purpose": "Atomic editor feature: global Elements types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalElementType",
+        "GlobalElementDefinition",
+        "CreateGlobalElementPayload",
+        "GlobalElementUsageInfo"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/reusableComponents.types.ts",
+      "purpose": "Atomic editor feature: reusable Components types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ComponentElementNode",
+        "ReusableComponentDefinition",
+        "CreateReusableComponentPayload",
+        "ReusableComponentUsageInfo"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/variableClassSync.types.ts",
+      "purpose": "Atomic editor feature: variable Class Sync types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "StyleSourceType",
+        "PropertyVariableBinding",
+        "ResolvedPropertyResult",
+        "ResolvedClassStyle",
+        "VariableClassUsageInfo"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/variableExportImport.types.ts",
+      "purpose": "Atomic editor feature: variable Export Import types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ExportedVariableItem",
+        "ExportedVariablesPayload",
+        "ConflictResolutionMode",
+        "VariableConflictItem"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/types/variables.types.ts",
+      "purpose": "Atomic editor feature: variables types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "VariableType",
+        "AtomicVariable",
+        "CreateVariablePayload",
+        "UpdateVariablePayload"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/class.utils.ts",
+      "purpose": "Atomic editor feature: class utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "formatClassName",
+        "validateClassName"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/classExportImport.utils.ts",
+      "purpose": "Atomic editor feature: class Export Import utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "exportClassesToJson",
+        "parseAndValidateClassesJson",
+        "detectClassConflicts"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/componentOverride.utils.ts",
+      "purpose": "Atomic editor feature: component Override utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DEFAULT_PROPERTY_CONFIGS",
+        "resolveInstanceProperties"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/formField.utils.ts",
+      "purpose": "Atomic editor feature: form Field utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "sanitizeFieldName",
+        "createDefaultField"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/formValidation.utils.ts",
+      "purpose": "Atomic editor feature: form Validation utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "validateFormValues",
+        "detectDuplicateFieldNames"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/gridLayout.utils.ts",
+      "purpose": "Atomic editor feature: grid Layout utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "generateGridStyles",
+        "generateGridItemStyles"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/gridValidation.utils.ts",
+      "purpose": "Atomic editor feature: grid Validation utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GridValidationResult",
+        "validateGridConfig",
+        "validateGridItemPlacement"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/loopData.utils.ts",
+      "purpose": "Atomic editor feature: loop Data utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "SAMPLE_PRODUCTS",
+        "SAMPLE_BLOG_POSTS",
+        "resolveLoopItems",
+        "evaluateDynamicField"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/loopValidation.utils.ts",
+      "purpose": "Atomic editor feature: loop Validation utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "validateStaticDataJson",
+        "validateLoopConfig"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/variable.utils.ts",
+      "purpose": "Atomic editor feature: variable utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "formatVariableKey",
+        "validateVariableValue",
+        "copyVariableReference"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/variableClassResolver.ts",
+      "purpose": "Atomic editor feature: variable Class Resolver. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "isVariableReference",
+        "extractVariableKey",
+        "resolveVariableValue",
+        "resolveClassStyles",
+        "findClassesUsingVariable"
+      ]
+    },
+    {
+      "file": "frontend/src/features/atomic-editor/utils/variableExportImport.utils.ts",
+      "purpose": "Atomic editor feature: variable Export Import utils. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "exportVariablesToJson",
+        "parseAndValidateVariablesJson",
+        "detectVariableConflicts"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/components/AutosaveStatus.tsx",
+      "purpose": "Autosave feature: Autosave Status. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AutosaveStatusIndicator"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/components/DraftRecoveryTools.tsx",
+      "purpose": "Autosave feature: Draft Recovery Tools. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DraftRecoveryTools"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/hooks/useAutosave.ts",
+      "purpose": "Autosave feature: use Autosave. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useAutosave"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/index.ts",
+      "purpose": "Autosave feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/autosave/persistence/cloud-draft-adapter.ts",
+      "purpose": "Autosave feature: cloud draft adapter. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "createCloudDraftAdapter"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/persistence/local-recovery-store.ts",
+      "purpose": "Autosave feature: local recovery store. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "writeRecovery",
+        "listRecovery",
+        "clearAccountRecovery"
+      ]
+    },
+    {
+      "file": "frontend/src/features/autosave/types/autosave.types.ts",
+      "purpose": "Autosave feature: autosave types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "AutosaveState"
+      ]
+    },
+    {
+      "file": "frontend/src/features/fonts/FontLoader.ts",
+      "purpose": "Fonts feature: Font Loader. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "loadFontFamily",
+        "loadFontBatch"
+      ]
+    },
+    {
+      "file": "frontend/src/features/fonts/FontManager.ts",
+      "purpose": "Fonts feature: Font Manager. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "getCleanFontName",
+        "collectFontsFromElements",
+        "buildGoogleFontsUrl",
+        "syncDocumentFonts"
+      ]
+    },
+    {
+      "file": "frontend/src/features/fonts/FontRegistry.ts",
+      "purpose": "Fonts feature: Font Registry. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "SYSTEM_FONTS",
+        "GOOGLE_FONTS_CATALOG",
+        "FontRegistry"
+      ]
+    },
+    {
+      "file": "frontend/src/features/fonts/FontService.ts",
+      "purpose": "Fonts feature: Font Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FontService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/fonts/index.ts",
+      "purpose": "Fonts feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/fonts/types.ts",
+      "purpose": "Fonts feature: types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "FontCategory",
+        "FontSource",
+        "FontVariant",
+        "FontMetadata",
+        "GlobalFontConfig",
+        "FontSearchFilter"
+      ]
+    },
+    {
+      "file": "frontend/src/features/global-widget/components/GlobalWidgetLibrary.tsx",
+      "purpose": "Global widget feature: Global Widget Library. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalWidgetLibrary"
+      ]
+    },
+    {
+      "file": "frontend/src/features/global-widget/components/SaveGlobalWidgetDialog.tsx",
+      "purpose": "Global widget feature: Save Global Widget Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "SaveGlobalWidgetDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/global-widget/hooks/useGlobalWidgets.ts",
+      "purpose": "Global widget feature: use Global Widgets. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useGlobalWidgets"
+      ]
+    },
+    {
+      "file": "frontend/src/features/global-widget/index.ts",
+      "purpose": "Global widget feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/global-widget/services/globalWidgetService.ts",
+      "purpose": "Global widget feature: global Widget Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "saveGlobalWidget",
+        "getGlobalWidgets",
+        "updateGlobalWidgetService",
+        "deleteGlobalWidgetService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/global-widget/types/globalWidget.types.ts",
+      "purpose": "Global widget feature: global Widget types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "GlobalWidget",
+        "CreateGlobalWidgetPayload",
+        "UpdateGlobalWidgetPayload"
+      ]
+    },
+    {
+      "file": "frontend/src/features/publishing/services/publishingService.ts",
+      "purpose": "Publishing feature: publishing Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "PublishApiResponse",
+        "ValidationApiResponse",
+        "publishingService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/revision-history/components/RevisionHistoryPanel.tsx",
+      "purpose": "Revision history feature: Revision History Panel. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "RevisionHistoryPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/features/revision-history/hooks/useRevisionHistory.ts",
+      "purpose": "Revision history feature: use Revision History. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useRevisionHistory"
+      ]
+    },
+    {
+      "file": "frontend/src/features/revision-history/index.ts",
+      "purpose": "Revision history feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/revision-history/services/revisionHistoryService.ts",
+      "purpose": "Revision history feature: revision History Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "MAX_REVISIONS",
+        "revisionHistoryService"
+      ]
+    },
+    {
+      "file": "frontend/src/features/revision-history/types/revisionHistory.types.ts",
+      "purpose": "Revision history feature: revision History types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "PageSettingsData",
+        "RevisionItem",
+        "RestoreConfirmationState",
+        "RevisionFilter"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/DeleteTemplateConfirmDialog.tsx",
+      "purpose": "Templates feature: Delete Template Confirm Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "DeleteTemplateConfirmDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/ImportTemplateDialog.tsx",
+      "purpose": "Templates feature: Import Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ImportTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/ImportWebsiteKitDialog.tsx",
+      "purpose": "Templates feature: Import Website Kit Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ImportWebsiteKitDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/RenameTemplateDialog.tsx",
+      "purpose": "Templates feature: Rename Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "RenameTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/ReplaceTemplateDialog.tsx",
+      "purpose": "Templates feature: Replace Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ReplaceTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/SaveTemplateDialog.tsx",
+      "purpose": "Templates feature: Save Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "SaveTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/ShareTemplateDialog.tsx",
+      "purpose": "Templates feature: Share Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ShareTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/TemplateCard.tsx",
+      "purpose": "Templates feature: Template Card. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TemplateCard"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/TemplateLibrary.tsx",
+      "purpose": "Templates feature: Template Library. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TemplateLibrary"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/TemplatePreviewModal.tsx",
+      "purpose": "Templates feature: Template Preview Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TemplatePreviewModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/components/TransferTemplateDialog.tsx",
+      "purpose": "Templates feature: Transfer Template Dialog. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TransferTemplateDialog"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/data/proTemplatesData.ts",
+      "purpose": "Templates feature: pro Templates Data. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "PRO_TEMPLATES"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/hooks/useSaveTemplate.ts",
+      "purpose": "Templates feature: use Save Template. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TemplateToUpdateInfo",
+        "useSaveTemplate"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/hooks/useTemplateLibrary.ts",
+      "purpose": "Templates feature: use Template Library. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useTemplateLibrary"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/index.ts",
+      "purpose": "Templates feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/templates/services/templateService.ts",
+      "purpose": "Templates feature: template Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "saveAsTemplate",
+        "importTemplate",
+        "duplicateTemplate",
+        "getUserTemplates",
+        "getPublicTemplate",
+        "UpdateTemplatePayload",
+        "updateTemplate",
+        "toggleTemplateSharing",
+        "toggleFavorite",
+        "deleteTemplate"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/types/template.types.ts",
+      "purpose": "Templates feature: template types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "TemplateType",
+        "TemplateCategory",
+        "TEMPLATE_CATEGORIES",
+        "TemplateDataPayload",
+        "CreateTemplatePayload",
+        "Template"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/utils/templateExport.ts",
+      "purpose": "Templates feature: template Export. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "generateSafeFilename",
+        "exportTemplateAsJson"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/utils/templateValidation.ts",
+      "purpose": "Templates feature: template Validation. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ValidationResult",
+        "sanitizeAndRegenerateElementIds",
+        "validateAndSanitizeTemplateFile"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/utils/websiteKitExport.ts",
+      "purpose": "Templates feature: website Kit Export. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WebsiteKitExportParams",
+        "WebsiteKitPayload",
+        "exportWebsiteKitAsJson"
+      ]
+    },
+    {
+      "file": "frontend/src/features/templates/utils/websiteKitValidation.ts",
+      "purpose": "Templates feature: website Kit Validation. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WebsiteKitValidationResult",
+        "validateAndSanitizeWebsiteKitFile"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/components/ApplyWebsiteKitConfirmModal.tsx",
+      "purpose": "Website kits feature: Apply Website Kit Confirm Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "ApplyWebsiteKitConfirmModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/components/WebsiteKitLibrary.tsx",
+      "purpose": "Website kits feature: Website Kit Library. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WebsiteKitLibrary"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/components/WebsiteKitPreviewModal.tsx",
+      "purpose": "Website kits feature: Website Kit Preview Modal. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WebsiteKitPreviewModal"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/data/websiteKitsData.ts",
+      "purpose": "Website kits feature: website Kits Data. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WEBSITE_KITS"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/hooks/useWebsiteKits.ts",
+      "purpose": "Website kits feature: use Website Kits. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "useWebsiteKits"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/index.ts",
+      "purpose": "Website kits feature: index. Keep feature UI, hooks, services and types in this module.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/features/website-kits/services/websiteKitService.ts",
+      "purpose": "Website kits feature: website Kit Service. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "getWebsiteKits",
+        "applyWebsiteKit"
+      ]
+    },
+    {
+      "file": "frontend/src/features/website-kits/types/websiteKit.types.ts",
+      "purpose": "Website kits feature: website Kit types. Keep feature UI, hooks, services and types in this module.",
+      "exports": [
+        "WebsiteKitCategory",
+        "WebsiteKitPage",
+        "WebsiteKitGlobalStyles",
+        "WebsiteKit"
+      ]
+    },
+    {
+      "file": "frontend/src/hooks/useLazyLoad.ts",
+      "purpose": "Use Lazy Load: React state and side-effect coordination for its callers.",
+      "exports": [
+        "useLazyLoad"
+      ]
+    },
+    {
+      "file": "frontend/src/main.tsx",
+      "purpose": "Main: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/auth/LoginPage.tsx",
+      "purpose": "Login Page: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/auth/SignupPage.tsx",
+      "purpose": "Signup Page: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/dashboard/AdminDashboard.tsx",
+      "purpose": "Admin Dashboard: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/dashboard/CustomEntriesList.tsx",
+      "purpose": "Custom Entries List: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomEntriesList"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/CustomEntryEditor.tsx",
+      "purpose": "Custom Entry Editor: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomEntryEditor"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/CustomPostTypeBuilder.tsx",
+      "purpose": "Custom Post Type Builder: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomPostTypeBuilder"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/CustomPostTypesList.tsx",
+      "purpose": "Custom Post Types List: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomPostTypesList"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/SuperAdminDashboard.tsx",
+      "purpose": "Super Admin Dashboard: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/dashboard/UserDashboard.tsx",
+      "purpose": "User Dashboard: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/AdvancedCodePanel.tsx",
+      "purpose": "Advanced Code Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "AdvancedCodePanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/ComposerPanel.tsx",
+      "purpose": "Composer Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "ComposerPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/CustomCodePanel.tsx",
+      "purpose": "Custom Code Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomCodePanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/CustomPostTypesPanel.tsx",
+      "purpose": "Custom Post Types Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CustomPostTypesPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/DeveloperApiSettings.tsx",
+      "purpose": "Developer Api Settings: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "DeveloperApiSettings"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/DeveloperFeaturesOverview.tsx",
+      "purpose": "Developer Features Overview: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "DeveloperFeaturesOverview"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/PerformancePanel.tsx",
+      "purpose": "Performance Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PerformancePanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/PluginHub.tsx",
+      "purpose": "Plugin Hub: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PluginHub"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/RoleManagerModal.tsx",
+      "purpose": "Role Manager Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "RoleManagerModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/TeamDashboardView.tsx",
+      "purpose": "Team Dashboard View: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "TeamDashboardView"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/dashboard/components/TeamSwitcher.tsx",
+      "purpose": "Team Switcher: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "TeamSwitcher"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/WebsiteEditor.tsx",
+      "purpose": "Website Editor: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "WebsiteEditor"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/canvas/create-canvas-renderer.tsx",
+      "purpose": "Create canvas renderer: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "CanvasRendererContext",
+        "createCanvasRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/CodeInjectionRuntime.tsx",
+      "purpose": "Code Injection Runtime: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "shouldApplyCustomCode",
+        "CodeInjectionRuntime"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/ComponentAccessModal.tsx",
+      "purpose": "Component Access Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "ComponentAccessModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/DeveloperModal.tsx",
+      "purpose": "Developer Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "DeveloperModalMode",
+        "DeveloperModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/IconPickerModal.tsx",
+      "purpose": "Icon Picker Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "IconPickerModalProps",
+        "IconPickerModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/IframeModal.tsx",
+      "purpose": "Iframe Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "IframeModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/NotesPanel.tsx",
+      "purpose": "Notes Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "NotesPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PageManagerModal.tsx",
+      "purpose": "Page Manager Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PageManagerModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PerformanceSettingsPanel.tsx",
+      "purpose": "Performance Settings Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PerformanceSettings",
+        "PerformanceSettingsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PopupManagerModal.tsx",
+      "purpose": "Popup Manager Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PopupManagerModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PopupRuntimePreview.tsx",
+      "purpose": "Popup Runtime Preview: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PopupRuntimePreview"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PopupSettingsPanel.tsx",
+      "purpose": "Popup Settings Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PopupSettingsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/PublishModal.tsx",
+      "purpose": "Publish Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PublishModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/forms/FormInspectorPanel.tsx",
+      "purpose": "Form Inspector Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FormInspectorPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/forms/FormSubmissionsModal.tsx",
+      "purpose": "Form Submissions Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FormSubmissionsModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/forms/FormTemplatesModal.tsx",
+      "purpose": "Form Templates Modal: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FormTemplatesModal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/components/forms/FormWidgetRenderer.tsx",
+      "purpose": "Form Widget Renderer: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "FormWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/create-default-element.ts",
+      "purpose": "Create default element: pages/editor/defaults module support.",
+      "exports": [
+        "createDefaultElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/index.ts",
+      "purpose": "Index: pages/editor/defaults module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/preset-section-templates.ts",
+      "purpose": "Preset section templates: pages/editor/defaults module support.",
+      "exports": [
+        "PRESET_SECTION_TEMPLATES"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-alert-defaults.ts",
+      "purpose": "Initial document values for alert widgets.",
+      "exports": [
+        "createAlertDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-animated-headline-defaults.ts",
+      "purpose": "Initial document values for animated headline widgets.",
+      "exports": [
+        "createAnimatedHeadlineDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-audio-playlist-defaults.ts",
+      "purpose": "Initial document values for audio playlist widgets.",
+      "exports": [
+        "createAudioPlaylistDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-basic-gallery-defaults.ts",
+      "purpose": "Initial document values for basic gallery widgets.",
+      "exports": [
+        "createBasicGalleryDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-basic-media-carousel-defaults.ts",
+      "purpose": "Initial document values for basic media carousel widgets.",
+      "exports": [
+        "createBasicMediaCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-blockquote-defaults.ts",
+      "purpose": "Initial document values for blockquote widgets.",
+      "exports": [
+        "createBlockquoteDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-button-defaults.ts",
+      "purpose": "Initial document values for button widgets.",
+      "exports": [
+        "createButtonDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-call-to-action-defaults.ts",
+      "purpose": "Initial document values for call to action widgets.",
+      "exports": [
+        "createCallToActionDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-code-highlight-defaults.ts",
+      "purpose": "Initial document values for code highlight widgets.",
+      "exports": [
+        "createCodeHighlightDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-container-defaults.ts",
+      "purpose": "Initial document values for container widgets.",
+      "exports": [
+        "createContainerDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-countdown-defaults.ts",
+      "purpose": "Initial document values for countdown widgets.",
+      "exports": [
+        "createCountdownDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-counter-defaults.ts",
+      "purpose": "Initial document values for counter widgets.",
+      "exports": [
+        "createCounterDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-custom-svg-defaults.ts",
+      "purpose": "Initial document values for custom svg widgets.",
+      "exports": [
+        "createCustomSvgDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-dynamic-lightbox-defaults.ts",
+      "purpose": "Initial document values for dynamic lightbox widgets.",
+      "exports": [
+        "createDynamicLightboxDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-facebook-button-defaults.ts",
+      "purpose": "Initial document values for facebook button widgets.",
+      "exports": [
+        "createFacebookButtonDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-facebook-comments-defaults.ts",
+      "purpose": "Initial document values for facebook comments widgets.",
+      "exports": [
+        "createFacebookCommentsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-facebook-embed-defaults.ts",
+      "purpose": "Initial document values for facebook embed widgets.",
+      "exports": [
+        "createFacebookEmbedDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-facebook-page-defaults.ts",
+      "purpose": "Initial document values for facebook page widgets.",
+      "exports": [
+        "createFacebookPageDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-flip-box-defaults.ts",
+      "purpose": "Initial document values for flip box widgets.",
+      "exports": [
+        "createFlipBoxDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-form-defaults.ts",
+      "purpose": "Initial document values for form widgets.",
+      "exports": [
+        "createFormDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-gallery-defaults.ts",
+      "purpose": "Initial document values for gallery widgets.",
+      "exports": [
+        "createGalleryDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-google-maps-defaults.ts",
+      "purpose": "Initial document values for google maps widgets.",
+      "exports": [
+        "createGoogleMapsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-heading-defaults.ts",
+      "purpose": "Initial document values for heading widgets.",
+      "exports": [
+        "createHeadingDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-html-defaults.ts",
+      "purpose": "Initial document values for html widgets.",
+      "exports": [
+        "createHtmlDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-icon-library-defaults.ts",
+      "purpose": "Initial document values for icon library widgets.",
+      "exports": [
+        "createIconLibraryDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-image-carousel-defaults.ts",
+      "purpose": "Initial document values for image carousel widgets.",
+      "exports": [
+        "createImageCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-image-defaults.ts",
+      "purpose": "Initial document values for image widgets.",
+      "exports": [
+        "createImageDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-login-defaults.ts",
+      "purpose": "Initial document values for login widgets.",
+      "exports": [
+        "createLoginDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-loop-carousel-defaults.ts",
+      "purpose": "Initial document values for loop carousel widgets.",
+      "exports": [
+        "createLoopCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-lottie-defaults.ts",
+      "purpose": "Initial document values for lottie widgets.",
+      "exports": [
+        "createLottieDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-media-carousel-defaults.ts",
+      "purpose": "Initial document values for media carousel widgets.",
+      "exports": [
+        "createMediaCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-mega-menu-defaults.ts",
+      "purpose": "Initial document values for mega menu widgets.",
+      "exports": [
+        "createMegaMenuDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-nav-menu-defaults.ts",
+      "purpose": "Initial document values for nav menu widgets.",
+      "exports": [
+        "createNavMenuDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-nested-carousel-defaults.ts",
+      "purpose": "Initial document values for nested carousel widgets.",
+      "exports": [
+        "createNestedCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-off-canvas-defaults.ts",
+      "purpose": "Initial document values for off canvas widgets.",
+      "exports": [
+        "createOffCanvasDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-paypal-button-defaults.ts",
+      "purpose": "Initial document values for paypal button widgets.",
+      "exports": [
+        "createPaypalButtonDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-portfolio-defaults.ts",
+      "purpose": "Initial document values for portfolio widgets.",
+      "exports": [
+        "createPortfolioDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-posts-defaults.ts",
+      "purpose": "Initial document values for posts widgets.",
+      "exports": [
+        "createPostsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-price-list-defaults.ts",
+      "purpose": "Initial document values for price list widgets.",
+      "exports": [
+        "createPriceListDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-price-table-defaults.ts",
+      "purpose": "Initial document values for price table widgets.",
+      "exports": [
+        "createPriceTableDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-progress-bar-defaults.ts",
+      "purpose": "Initial document values for progress bar widgets.",
+      "exports": [
+        "createProgressBarDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-rating-defaults.ts",
+      "purpose": "Initial document values for rating widgets.",
+      "exports": [
+        "createRatingDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-reviews-defaults.ts",
+      "purpose": "Initial document values for reviews widgets.",
+      "exports": [
+        "createReviewsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-share-buttons-defaults.ts",
+      "purpose": "Initial document values for share buttons widgets.",
+      "exports": [
+        "createShareButtonsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-shortcode-defaults.ts",
+      "purpose": "Initial document values for shortcode widgets.",
+      "exports": [
+        "createShortcodeDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-slides-defaults.ts",
+      "purpose": "Initial document values for slides widgets.",
+      "exports": [
+        "createSlidesDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-social-icons-defaults.ts",
+      "purpose": "Initial document values for social icons widgets.",
+      "exports": [
+        "createSocialIconsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-stripe-button-defaults.ts",
+      "purpose": "Initial document values for stripe button widgets.",
+      "exports": [
+        "createStripeButtonDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-table-of-contents-defaults.ts",
+      "purpose": "Initial document values for table of contents widgets.",
+      "exports": [
+        "createTableOfContentsDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-template-defaults.ts",
+      "purpose": "Initial document values for template widgets.",
+      "exports": [
+        "createTemplateDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-testimonial-carousel-defaults.ts",
+      "purpose": "Initial document values for testimonial carousel widgets.",
+      "exports": [
+        "createTestimonialCarouselDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-text-defaults.ts",
+      "purpose": "Initial document values for text widgets.",
+      "exports": [
+        "createTextDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-video-defaults.ts",
+      "purpose": "Initial document values for video widgets.",
+      "exports": [
+        "createVideoDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-video-playlist-defaults.ts",
+      "purpose": "Initial document values for video playlist widgets.",
+      "exports": [
+        "createVideoPlaylistDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-wc-add-to-cart-defaults.ts",
+      "purpose": "Initial document values for wc add to cart widgets.",
+      "exports": [
+        "createWcAddToCartDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-wc-product-images-defaults.ts",
+      "purpose": "Initial document values for wc product images widgets.",
+      "exports": [
+        "createWcProductImagesDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-wc-product-price-defaults.ts",
+      "purpose": "Initial document values for wc product price widgets.",
+      "exports": [
+        "createWcProductPriceDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-wc-product-rating-defaults.ts",
+      "purpose": "Initial document values for wc product rating widgets.",
+      "exports": [
+        "createWcProductRatingDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/defaults/widgets/create-wc-product-title-defaults.ts",
+      "purpose": "Initial document values for wc product title widgets.",
+      "exports": [
+        "createWcProductTitleDefaults"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/DynamicWidgetInspectors.tsx",
+      "purpose": "Dynamic Widget Inspectors: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/controls/create-background-controls.tsx",
+      "purpose": "Create background controls: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "BackgroundControlsContext",
+        "createBackgroundControls"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/controls/create-positioning-controls.tsx",
+      "purpose": "Create positioning controls: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PositioningControlsContext",
+        "createPositioningControls"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/index.ts",
+      "purpose": "Index: pages/editor/inspector module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/media/handle-image-file-upload.tsx",
+      "purpose": "Handle image file upload: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "handleImageFileUpload"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/media/preset-sample-images.tsx",
+      "purpose": "Preset sample images: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PRESET_SAMPLE_IMAGES"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/media/trigger-image-picker.tsx",
+      "purpose": "Trigger image picker: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "triggerImagePicker"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/spacing.tsx",
+      "purpose": "Spacing: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "SpacingControl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/AnimatedTextWidgetInspector.tsx",
+      "purpose": "Animated Text Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "AnimatedTextWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/AudioPlaylistInspector.tsx",
+      "purpose": "Audio Playlist Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "AudioPlaylistInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/BackgroundImageInspector.tsx",
+      "purpose": "Background Image Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "BackgroundImageInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/BlockquoteWidgetInspector.tsx",
+      "purpose": "Blockquote Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "BlockquoteWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/ButtonWidgetInspector.tsx",
+      "purpose": "Button Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "ButtonWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/CTAWidgetInspector.tsx",
+      "purpose": "CTA Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "CTAWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/CodeHighlightWidgetInspector.tsx",
+      "purpose": "Code Highlight Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "CodeHighlightWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/CountdownWidgetInspector.tsx",
+      "purpose": "Countdown Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "CountdownWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/FacebookWidgetInspector.tsx",
+      "purpose": "Facebook Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "FacebookWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/FlipBoxWidgetInspector.tsx",
+      "purpose": "Flip Box Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "FlipBoxWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/FormWidgetInspector.tsx",
+      "purpose": "Form Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "FormWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/GalleryWidgetInspector.tsx",
+      "purpose": "Gallery Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "GalleryWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/IconLibraryWidgetInspector.tsx",
+      "purpose": "Icon Library Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "IconLibraryWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/ImagePickerControl.tsx",
+      "purpose": "Image Picker Control: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "ImagePickerControl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/ImageWidgetInspector.tsx",
+      "purpose": "Image Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "ImageWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/LoginWidgetInspector.tsx",
+      "purpose": "Login Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "LoginWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/LoopCarouselWidgetInspector.tsx",
+      "purpose": "Loop Carousel Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "LoopCarouselWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/LottieWidgetInspector.tsx",
+      "purpose": "Lottie Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "LottieWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/MediaCarouselWidgetInspector.tsx",
+      "purpose": "Media Carousel Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "MediaCarouselWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/NavMenuWidgetInspector.tsx",
+      "purpose": "Nav Menu Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "NavMenuWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/NestedCarouselWidgetInspector.tsx",
+      "purpose": "Nested Carousel Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "NestedCarouselWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/PayPalWidgetInspector.tsx",
+      "purpose": "Pay Pal Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "PayPalWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/PaymentWidgetInspector.tsx",
+      "purpose": "Payment Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "PaymentWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/PortfolioWidgetInspector.tsx",
+      "purpose": "Portfolio Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "PortfolioWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/PriceListWidgetInspector.tsx",
+      "purpose": "Price List Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "PriceListWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/PriceTableWidgetInspector.tsx",
+      "purpose": "Price Table Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "PriceTableWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/ReviewsWidgetInspector.tsx",
+      "purpose": "Reviews Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "ReviewsWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/ShareButtonsInspector.tsx",
+      "purpose": "Share Buttons Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "ShareButtonsInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/SlidesWidgetInspector.tsx",
+      "purpose": "Slides Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "SlidesWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/TOCWidgetInspector.tsx",
+      "purpose": "TOC Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "TOCWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/TestimonialCarouselWidgetInspector.tsx",
+      "purpose": "Testimonial Carousel Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "TestimonialCarouselWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/UniversalIconControls.tsx",
+      "purpose": "Universal Icon Controls: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "UniversalIconControls"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/UniversalItemManager.tsx",
+      "purpose": "Universal Item Manager: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "UniversalItemManager"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/VideoPlaylistInspector.tsx",
+      "purpose": "Video Playlist Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "VideoPlaylistInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/VideoWidgetInspector.tsx",
+      "purpose": "Video Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "VideoWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/inspector/widgets/WooCommerceWidgetInspector.tsx",
+      "purpose": "Woo Commerce Widget Inspector: editor controls for inspecting and changing widget settings.",
+      "exports": [
+        "WooCommerceWidgetInspector"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/integrations/IntegrationRenderers.tsx",
+      "purpose": "Integration Renderers: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "IntegrationElementRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/integrations/IntegrationSettings.tsx",
+      "purpose": "Integration Settings: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "IntegrationSettingsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/integrations/index.ts",
+      "purpose": "Index: pages/editor/integrations module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/integrations/integrationDefaults.ts",
+      "purpose": "Integration Defaults: pages/editor/integrations module support.",
+      "exports": [
+        "getIntegrationDefaultElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/integrations/integrationTypes.ts",
+      "purpose": "Integration Types: pages/editor/integrations module support.",
+      "exports": [
+        "IntegrationElementType",
+        "IntegrationStyles",
+        "isIntegrationElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/layers/create-layer-tree-renderer.tsx",
+      "purpose": "Create layer tree renderer: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "LayerTreeRendererContext",
+        "createLayerTreeRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/navigation/NavigationRenderers.tsx",
+      "purpose": "Navigation Renderers: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "NavMenuRenderer",
+        "WpMenuRenderer",
+        "MenuWidgetRenderer",
+        "MegaMenuRenderer",
+        "BreadcrumbsRenderer",
+        "MenuAnchorRenderer",
+        "PostNavigationRenderer",
+        "OffCanvasNavRenderer",
+        "SiteSearchRenderer",
+        "SearchFormRenderer",
+        "TaxonomyFilterRenderer",
+        "NavigationElementRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/navigation/NavigationSettings.tsx",
+      "purpose": "Navigation Settings: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "NavigationSettingsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/navigation/index.ts",
+      "purpose": "Index: pages/editor/navigation module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/navigation/navigationDefaults.ts",
+      "purpose": "Navigation Defaults: pages/editor/navigation module support.",
+      "exports": [
+        "DEFAULT_NAV_MENU_ITEMS",
+        "DEFAULT_WP_MENU_ITEMS",
+        "DEFAULT_MEGA_MENU_COLUMNS",
+        "DEFAULT_BREADCRUMBS",
+        "DEFAULT_TAXONOMY_ITEMS",
+        "DEFAULT_SEARCH_RESULTS",
+        "getNavigationDefaultElement",
+        "isNavigationElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/navigation/navigationTypes.ts",
+      "purpose": "Navigation Types: pages/editor/navigation module support.",
+      "exports": [
+        "NavigationElementType",
+        "NavMenuItem",
+        "MegaMenuColumn",
+        "BreadcrumbItem",
+        "TaxonomyItem",
+        "SearchSampleResult",
+        "NavigationStyles"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/types/document-types.ts",
+      "purpose": "Document types: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": [
+        "PageConfig",
+        "EditorElement",
+        "SitePartsConfig",
+        "CanonicalWebsiteData",
+        "WebsiteData"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/types/index.ts",
+      "purpose": "Index: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/types/publishing-types.ts",
+      "purpose": "Publishing types: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": [
+        "DeploymentStatus",
+        "PublishingState",
+        "DeploymentRecord",
+        "DeploymentConfig"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/types/style-types.ts",
+      "purpose": "Style types: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": [
+        "DeviceMode",
+        "Breakpoint",
+        "ContainerLayout",
+        "ElementStyles",
+        "ElementState",
+        "GlobalStylesConfig"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/types/widget-registry.ts",
+      "purpose": "Widget registry: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": [
+        "ElementType",
+        "WidgetRegistryItem",
+        "ALL_WIDGET_REGISTRY",
+        "DEFAULT_VISIBLE_WIDGETS"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/types/widget-settings-types.ts",
+      "purpose": "Widget settings types: editor document contracts. Persisted property names are compatibility-sensitive.",
+      "exports": [
+        "SiteProduct",
+        "NavSubmenuItem",
+        "NavMenuItem",
+        "PricePlanFeature",
+        "PricingPlan",
+        "PriceListItem",
+        "GalleryImageItem",
+        "AnimatedHeadlineStyle",
+        "PlaylistItem",
+        "ImageCarouselItem",
+        "MediaCarouselItem",
+        "MegaMenuColumnLink",
+        "MegaMenuColumn",
+        "MegaMenuItem",
+        "TestimonialItem",
+        "ReviewItem",
+        "LoopCarouselItem",
+        "FormFieldType",
+        "FormStepItem",
+        "FormFieldItem",
+        "SlideItem",
+        "PortfolioItem",
+        "ShareNetworkType",
+        "ShareActionType",
+        "ShareNetworkItem",
+        "PostItem"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/__tests__/test_ast_parse.mjs",
+      "purpose": "Test ast parse: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/__tests__/test_bidirectional_sync.mjs",
+      "purpose": "Test bidirectional sync: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/__tests__/test_external_react_render.mjs",
+      "purpose": "Test external react render: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/codeExporter.ts",
+      "purpose": "Code Exporter: pages/editor/utils module support.",
+      "exports": [
+        "toPascalCase",
+        "formatStylesToCSS",
+        "formatStylesToJSX",
+        "ExportContext",
+        "exportElementNodeToJSX",
+        "generateJSXCode",
+        "generateTSXCode",
+        "generateJSCode",
+        "generateTSCode",
+        "exportCode",
+        "exportEntireWebsite"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/codeImporter.ts",
+      "purpose": "Code Importer: pages/editor/utils module support.",
+      "exports": [
+        "ImportResult",
+        "validateCodeSyntax",
+        "importCodeToElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/index.ts",
+      "purpose": "Index: pages/editor/utils module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/delete-tree-element.ts",
+      "purpose": "Delete tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "deleteTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/duplicate-tree-element.ts",
+      "purpose": "Duplicate tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "duplicateTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/find-tree-element.ts",
+      "purpose": "Find tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "findTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/generate-elements-hover-css.ts",
+      "purpose": "Generate elements hover css: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "generateElementsHoverCSS"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/generate-id.ts",
+      "purpose": "Generate id: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "generateId"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-breakpoint-fallback-chain.ts",
+      "purpose": "Get breakpoint fallback chain: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getBreakpointFallbackChain"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-control-style-value.ts",
+      "purpose": "Get control style value: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getControlStyleValue"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-developer-css.ts",
+      "purpose": "Get developer css: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getDeveloperCss"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-effective-hover-style.ts",
+      "purpose": "Get effective hover style: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getEffectiveHoverStyle"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-effective-layout.ts",
+      "purpose": "Get effective layout: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getEffectiveLayout"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-effective-style.ts",
+      "purpose": "Get effective style: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getEffectiveStyle"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-element-breadcrumb-path.ts",
+      "purpose": "Get element breadcrumb path: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getElementBreadcrumbPath"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-inner-styles.ts",
+      "purpose": "Get inner styles: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getInnerStyles"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-layout-val.ts",
+      "purpose": "Get layout val: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getLayoutVal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-merged-layout.ts",
+      "purpose": "Get merged layout: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getMergedLayout"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-merged-styles.ts",
+      "purpose": "Get merged styles: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getMergedStyles"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/get-style-val.ts",
+      "purpose": "Get style val: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "getStyleVal"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/has-hover-style-override.ts",
+      "purpose": "Has hover style override: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "hasHoverStyleOverride"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/has-style-override.ts",
+      "purpose": "Has style override: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "hasStyleOverride"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/insert-tree-element-at-position.ts",
+      "purpose": "Insert tree element at position: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "insertTreeElementAtPosition"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/insert-tree-element.ts",
+      "purpose": "Insert tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "insertTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/is-control-style-configured.ts",
+      "purpose": "Is control style configured: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "isControlStyleConfigured"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/is-descendant.ts",
+      "purpose": "Is descendant: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "isDescendant"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/move-tree-element.ts",
+      "purpose": "Move tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "moveTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/parse-spacing-unit.ts",
+      "purpose": "Parse spacing unit: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "parseSpacingUnit"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/reorder-tree-element.ts",
+      "purpose": "Reorder tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "reorderTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/resolve-element-styles.ts",
+      "purpose": "Resolve element styles: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "resolveElementStyles"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/resolve-image-url.ts",
+      "purpose": "Resolve image url: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "resolveImageUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/operations/update-tree-element.ts",
+      "purpose": "Update tree element: one editor document or layout operation, extracted from the utility entrypoint.",
+      "exports": [
+        "updateTreeElement"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/utils/pageManagerService.ts",
+      "purpose": "Page Manager Service: pages/editor/utils module support.",
+      "exports": [
+        "generateSlug",
+        "validateSlug",
+        "resolveInternalLink",
+        "cloneElementTreeWithNewIds",
+        "duplicatePage",
+        "checkPageReferences",
+        "safeDeletePage",
+        "createStarterPages"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons.tsx",
+      "purpose": "Icons: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/AnimatedCounter.tsx",
+      "purpose": "Animated Counter: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "AnimatedCounter"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/AnimatedHeadlineBoxIcon.tsx",
+      "purpose": "Animated Headline Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "AnimatedHeadlineBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/BlockquoteBoxIcon.tsx",
+      "purpose": "Blockquote Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "BlockquoteBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ButtonBoxIcon.tsx",
+      "purpose": "Button Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ButtonBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/CodeHighlightBoxIcon.tsx",
+      "purpose": "Code Highlight Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "CodeHighlightBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ContainerBoxIcon.tsx",
+      "purpose": "Container Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ContainerBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/CountdownBoxIcon.tsx",
+      "purpose": "Countdown Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "CountdownBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/CtaBoxIcon.tsx",
+      "purpose": "Cta Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "CtaBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/EmptyPictureIcon.tsx",
+      "purpose": "Empty Picture Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "EmptyPictureIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FacebookButtonBoxIcon.tsx",
+      "purpose": "Facebook Button Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FacebookButtonBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FacebookButtonWidgetRenderer.tsx",
+      "purpose": "Facebook Button Widget Renderer: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FacebookButtonWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FacebookCommentsBoxIcon.tsx",
+      "purpose": "Facebook Comments Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FacebookCommentsBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FacebookEmbedBoxIcon.tsx",
+      "purpose": "Facebook Embed Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FacebookEmbedBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FacebookPageBoxIcon.tsx",
+      "purpose": "Facebook Page Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FacebookPageBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FlipBoxIcon.tsx",
+      "purpose": "Flip Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FlipBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/FormBoxIcon.tsx",
+      "purpose": "Form Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "FormBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/GalleryBoxIcon.tsx",
+      "purpose": "Gallery Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "GalleryBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/HeadingBoxIcon.tsx",
+      "purpose": "Heading Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "HeadingBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/IconRenderer.tsx",
+      "purpose": "Icon Renderer: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "IconRendererProps",
+        "IconRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ImageBoxIcon.tsx",
+      "purpose": "Image Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ImageBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ImageCarouselBoxIcon.tsx",
+      "purpose": "Image Carousel Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ImageCarouselBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/LoginBoxIcon.tsx",
+      "purpose": "Login Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "LoginBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/LoopCarouselBoxIcon.tsx",
+      "purpose": "Loop Carousel Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "LoopCarouselBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/LottieBoxIcon.tsx",
+      "purpose": "Lottie Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "LottieBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/MediaCarouselBoxIcon.tsx",
+      "purpose": "Media Carousel Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "MediaCarouselBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/MegaMenuBoxIcon.tsx",
+      "purpose": "Mega Menu Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "MegaMenuBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/NavMenuBoxIcon.tsx",
+      "purpose": "Nav Menu Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "NavMenuBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/NestedCarouselBoxIcon.tsx",
+      "purpose": "Nested Carousel Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "NestedCarouselBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/OffCanvasBoxIcon.tsx",
+      "purpose": "Off Canvas Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "OffCanvasBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/PayPalButtonBoxIcon.tsx",
+      "purpose": "Pay Pal Button Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "PayPalButtonBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/PortfolioBoxIcon.tsx",
+      "purpose": "Portfolio Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "PortfolioBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/PostsBoxIcon.tsx",
+      "purpose": "Posts Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "PostsBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/PriceListBoxIcon.tsx",
+      "purpose": "Price List Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "PriceListBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/PriceTableBoxIcon.tsx",
+      "purpose": "Price Table Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "PriceTableBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ReviewsBoxIcon.tsx",
+      "purpose": "Reviews Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ReviewsBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/ShareButtonsBoxIcon.tsx",
+      "purpose": "Share Buttons Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "ShareButtonsBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/SlidesBoxIcon.tsx",
+      "purpose": "Slides Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "SlidesBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/StripeButtonBoxIcon.tsx",
+      "purpose": "Stripe Button Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "StripeButtonBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/TemplateBoxIcon.tsx",
+      "purpose": "Template Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "TemplateBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/TestimonialBoxIcon.tsx",
+      "purpose": "Testimonial Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "TestimonialBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/TextBoxIcon.tsx",
+      "purpose": "Text Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "TextBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/TocBoxIcon.tsx",
+      "purpose": "Toc Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "TocBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/UploadCloudIcon.tsx",
+      "purpose": "Upload Cloud Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "UploadCloudIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/VideoPlaylistBoxIcon.tsx",
+      "purpose": "Video Playlist Box Icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "VideoPlaylistBoxIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/get-facebook-target-url.tsx",
+      "purpose": "Get facebook target url: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "getFacebookTargetUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/icon-registry.ts",
+      "purpose": "Icon registry: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "IconDefinition",
+        "ICON_CATEGORIES",
+        "ICON_REGISTRY",
+        "searchIcons"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/icons/render-svg-icon.tsx",
+      "purpose": "Render svg icon: icon artwork, lookup or rendering used by the editor.",
+      "exports": [
+        "renderSvgIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/index.ts",
+      "purpose": "Index: pages/editor/widgets module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers.tsx",
+      "purpose": "Renderers: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/AnimatedHeadlineWidgetRenderer.tsx",
+      "purpose": "Animated Headline Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "AnimatedHeadlineWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/AudioPlaylistWidgetRenderer.tsx",
+      "purpose": "Audio Playlist Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "AudioPlaylistWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/BasicGalleryWidgetRenderer.tsx",
+      "purpose": "Basic Gallery Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "BasicGalleryWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/BasicMediaCarouselWidgetRenderer.tsx",
+      "purpose": "Basic Media Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "BasicMediaCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/BlockquoteWidgetRenderer.tsx",
+      "purpose": "Blockquote Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "BlockquoteWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/CodeHighlightWidgetRenderer.tsx",
+      "purpose": "Code Highlight Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "CodeHighlightWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/CountdownWidgetRenderer.tsx",
+      "purpose": "Countdown Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "CountdownWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/CtaWidgetRenderer.tsx",
+      "purpose": "Cta Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "CtaWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/CustomSvgWidgetRenderer.tsx",
+      "purpose": "Custom Svg Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "CustomSvgWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/DynamicLightboxWidgetRenderer.tsx",
+      "purpose": "Dynamic Lightbox Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "DynamicLightboxWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FacebookCommentsWidgetRenderer.tsx",
+      "purpose": "Facebook Comments Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FacebookCommentsWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FacebookEmbedWidgetRenderer.tsx",
+      "purpose": "Facebook Embed Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FacebookEmbedWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FacebookPageWidgetRenderer.tsx",
+      "purpose": "Facebook Page Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FacebookPageWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FavoriteWidgetsWidgetRenderer.tsx",
+      "purpose": "Favorite Widgets Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FavoriteWidgetsWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FlipBoxWidgetRenderer.tsx",
+      "purpose": "Flip Box Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FlipBoxWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/FormWidgetRenderer.tsx",
+      "purpose": "Form Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "FormWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/GalleryWidgetRenderer.tsx",
+      "purpose": "Gallery Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "GalleryWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/IconLibraryWidgetRenderer.tsx",
+      "purpose": "Icon Library Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "IconLibraryWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/ImageCarouselWidgetRenderer.tsx",
+      "purpose": "Image Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "ImageCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/ImportAssetWidgetRenderer.tsx",
+      "purpose": "Import Asset Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "ImportAssetWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/LoginWidgetRenderer.tsx",
+      "purpose": "Login Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "LoginWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/LoopCarouselWidgetRenderer.tsx",
+      "purpose": "Loop Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "LoopCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/LottieWidgetRenderer.tsx",
+      "purpose": "Lottie Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "LottieWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/MediaCarouselWidgetRenderer.tsx",
+      "purpose": "Media Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "MediaCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/MegaMenuWidgetRenderer.tsx",
+      "purpose": "Mega Menu Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "MegaMenuWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/NavMenuWidgetRenderer.tsx",
+      "purpose": "Nav Menu Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "NavMenuWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/NestedCarouselWidgetRenderer.tsx",
+      "purpose": "Nested Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "NestedCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/OffCanvasWidgetRenderer.tsx",
+      "purpose": "Off Canvas Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "OffCanvasWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/PayPalButtonWidgetRenderer.tsx",
+      "purpose": "Pay Pal Button Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "PayPalButtonWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/PriceListWidgetRenderer.tsx",
+      "purpose": "Price List Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "PriceListWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/PriceTableWidgetRenderer.tsx",
+      "purpose": "Price Table Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "PriceTableWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/ReusableComponentWidgetRenderer.tsx",
+      "purpose": "Reusable Component Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "ReusableComponentWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/ReviewsWidgetRenderer.tsx",
+      "purpose": "Reviews Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "ReviewsWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/SearchBarWidgetRenderer.tsx",
+      "purpose": "Search Bar Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "SearchBarWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/ShareButtonsWidgetRenderer.tsx",
+      "purpose": "Share Buttons Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "ShareButtonsWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/SlidesWidgetRenderer.tsx",
+      "purpose": "Slides Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "SlidesWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/StripeButtonWidgetRenderer.tsx",
+      "purpose": "Stripe Button Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "StripeButtonWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/TemplateWidgetRenderer.tsx",
+      "purpose": "Template Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "TemplateWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/TestimonialCarouselWidgetRenderer.tsx",
+      "purpose": "Testimonial Carousel Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "TestimonialCarouselWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/TocWidgetRenderer.tsx",
+      "purpose": "Toc Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "TocWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/WcAddToCartWidgetRenderer.tsx",
+      "purpose": "Wc Add To Cart Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "WcAddToCartWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/WcProductImagesWidgetRenderer.tsx",
+      "purpose": "Wc Product Images Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "WcProductImagesWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/WcProductPriceWidgetRenderer.tsx",
+      "purpose": "Wc Product Price Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "WcProductPriceWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/WcProductRatingWidgetRenderer.tsx",
+      "purpose": "Wc Product Rating Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "WcProductRatingWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/renderers/WcProductTitleWidgetRenderer.tsx",
+      "purpose": "Wc Product Title Widget Renderer: React presentation of a widget's stored content and settings.",
+      "exports": [
+        "WcProductTitleWidgetRenderer"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/get-current-resolved-page-url.tsx",
+      "purpose": "Get current resolved page url: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "getCurrentResolvedPageUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/get-embed-video-url.tsx",
+      "purpose": "Get embed video url: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "getEmbedVideoUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/get-linked-page-status.tsx",
+      "purpose": "Get linked page status: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "getLinkedPageStatus"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/get-social-share-url.tsx",
+      "purpose": "Get social share url: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "getSocialShareUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/is-safe-share-url.tsx",
+      "purpose": "Is safe share url: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "isSafeShareUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/linked-page-status.tsx",
+      "purpose": "Linked page status: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "LinkedPageStatus"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/network-brand-colors.tsx",
+      "purpose": "Network brand colors: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "NETWORK_BRAND_COLORS"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/render-social-network-icon.tsx",
+      "purpose": "Render social network icon: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "renderSocialNetworkIcon"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/resolve-button-href.tsx",
+      "purpose": "Resolve button href: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "resolveButtonHref"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/resolve-share-action.tsx",
+      "purpose": "Resolve share action: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "resolveShareAction"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/resolve-share-destination-url.tsx",
+      "purpose": "Resolve share destination url: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "resolveShareDestinationUrl"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/editor/widgets/rendering-helpers/share-action-result.tsx",
+      "purpose": "Share action result: supporting values or transformations shared by widget renderers.",
+      "exports": [
+        "ShareActionResult"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/published/PublishedSite.tsx",
+      "purpose": "Published Site: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PageConfig",
+        "f352_getMediaOptimizationProps",
+        "getGlobalCustomCss",
+        "PublishedSite"
+      ]
+    },
+    {
+      "file": "frontend/src/pages/subscriptions/SubscriptionPage.tsx",
+      "purpose": "Subscription Page: React UI composition and event handling for this screen or component.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/pages/templates/SharedTemplatePreviewPage.tsx",
+      "purpose": "Shared Template Preview Page: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "SharedTemplatePreviewPage"
+      ]
+    },
+    {
+      "file": "frontend/src/plugins/PluginManager.ts",
+      "purpose": "Plugin Manager: plugins module support.",
+      "exports": [
+        "PluginManifest",
+        "PluginCapability",
+        "PluginState",
+        "PluginError",
+        "PluginExtensionContext",
+        "PluginManagerCore",
+        "PluginManager"
+      ]
+    },
+    {
+      "file": "frontend/src/plugins/components/PluginSettingsPanel.tsx",
+      "purpose": "Plugin Settings Panel: React UI composition and event handling for this screen or component.",
+      "exports": [
+        "PluginSettingsPanel"
+      ]
+    },
+    {
+      "file": "frontend/src/plugins/init.ts",
+      "purpose": "Init: plugins module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/src/services/auth.service.ts",
+      "purpose": "Auth service: services module support.",
+      "exports": [
+        "AuthUser",
+        "getCurrentUser",
+        "loginWithGoogle",
+        "loginWithGitHub"
+      ]
+    },
+    {
+      "file": "frontend/src/services/customCode.service.ts",
+      "purpose": "Custom Code service: services module support.",
+      "exports": [
+        "CustomCodeSnippet",
+        "getCustomCodeSnippets",
+        "createCustomCodeSnippet",
+        "updateCustomCodeSnippet",
+        "deleteCustomCodeSnippet"
+      ]
+    },
+    {
+      "file": "frontend/src/types/form.types.ts",
+      "purpose": "Form types: types module support.",
+      "exports": [
+        "FormFieldType",
+        "FieldColumnWidth",
+        "FormFieldOption",
+        "FormFieldConfig",
+        "FormStepConfig",
+        "PostSubmitActionType",
+        "EmailActionConfig",
+        "RedirectActionConfig",
+        "PopupActionConfig",
+        "WebhookActionConfig",
+        "FormPostSubmitConfig",
+        "FormSpamProtectionConfig",
+        "FormWidgetConfig",
+        "FormSubmissionRecord",
+        "generateFieldId",
+        "generateFormId",
+        "createDefaultFormConfig",
+        "FORM_TEMPLATES"
+      ]
+    },
+    {
+      "file": "frontend/src/types/popup.types.ts",
+      "purpose": "Popup types: types module support.",
+      "exports": [
+        "PopupLayoutMode",
+        "PopupTriggerType",
+        "SlideInPosition",
+        "HelloBarPosition",
+        "PopupTriggerConfig",
+        "PopupConditionsConfig",
+        "PopupTargetingConfig",
+        "PopupConfig",
+        "generatePopupId",
+        "createDefaultPopup",
+        "POPUP_TEMPLATES"
+      ]
+    },
+    {
+      "file": "frontend/src/utils/FontManager.ts",
+      "purpose": "Font Manager: utils module support.",
+      "exports": [
+        "FontUsageInfo",
+        "generateGoogleFontsUrl",
+        "useDynamicFonts"
+      ]
+    },
+    {
+      "file": "frontend/src/utils/customCodeOrdering.ts",
+      "purpose": "Custom Code Ordering: utils module support.",
+      "exports": [
+        "CustomCodeSnippetData",
+        "CustomCodeSnippet",
+        "OrderedSnippetData",
+        "getApplicableCustomCode",
+        "getOrderedCustomCode"
+      ]
+    },
+    {
+      "file": "frontend/test.js",
+      "purpose": "Test: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "frontend/tests/cloud-draft-contract.test.ts",
+      "purpose": "Cloud draft contract test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/tests/widget-defaults.test.ts",
+      "purpose": "Widget defaults test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "frontend/vite.config.ts",
+      "purpose": "Vite config: frontend module support.",
+      "exports": []
+    },
+    {
+      "file": "infrastructure/containers/check-api-health.mjs",
+      "purpose": "Check api health: infrastructure/containers module support.",
+      "exports": []
+    },
+    {
+      "file": "infrastructure/containers/start-node-process.mjs",
+      "purpose": "Start node process: infrastructure/containers module support.",
+      "exports": []
+    },
+    {
+      "file": "packages/document-contract/fixtures/contract-vectors.mjs",
+      "purpose": "Contract vectors: packages/document contract/fixtures module support.",
+      "exports": [
+        "emptyStyles",
+        "node",
+        "page",
+        "documentVectors",
+        "canonicalVectors"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/document-errors.ts",
+      "purpose": "Document errors: packages/document contract/src module support.",
+      "exports": [
+        "DocumentIssue",
+        "DocumentContractError",
+        "DOCUMENT_LIMITS"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/index.ts",
+      "purpose": "Index: packages/document contract/src module support.",
+      "exports": []
+    },
+    {
+      "file": "packages/document-contract/src/json/canonical-document.ts",
+      "purpose": "Canonical document: packages/document contract/src/json module support.",
+      "exports": [
+        "canonicalDocumentJson",
+        "documentFingerprint"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/json/read-bounded-json.ts",
+      "purpose": "Read bounded json: packages/document contract/src/json module support.",
+      "exports": [
+        "readBoundedJson"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/legacy/preserve-legacy-page.ts",
+      "purpose": "Preserve legacy page: packages/document contract/src/legacy module support.",
+      "exports": [
+        "LegacyPagePreservation",
+        "preserveLegacyPage",
+        "recoverLegacyPage"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/legacy/validate-legacy-website.ts",
+      "purpose": "Validate legacy website: packages/document contract/src/legacy module support.",
+      "exports": [
+        "assertLegacyWebsiteDocument"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/page-document.types.ts",
+      "purpose": "Page document types: packages/document contract/src module support.",
+      "exports": [
+        "CoreWidgetType",
+        "LengthValue",
+        "StyleValue",
+        "NodeStyles",
+        "PortableNode",
+        "PageDocument",
+        "DocumentValidation"
+      ]
+    },
+    {
+      "file": "packages/document-contract/src/validate-page-document.ts",
+      "purpose": "Validate page document: packages/document contract/src module support.",
+      "exports": [
+        "isSafeDocumentLink",
+        "validatePageDocument"
+      ]
+    },
+    {
+      "file": "packages/document-contract/tests/document-contract.test.ts",
+      "purpose": "Document contract test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "packages/editor-persistence/src/save-coordinator.ts",
+      "purpose": "Host-independent draft save coordination, including retries, conflict handling and durable recovery contracts.",
+      "exports": [
+        "SaveStatus",
+        "SaveCommand",
+        "SaveReceipt",
+        "SaveState",
+        "SaveFailure",
+        "RecoveryRecord",
+        "SaveHost",
+        "SaveCoordinator"
+      ]
+    },
+    {
+      "file": "packages/editor-persistence/tests/save-coordinator.test.ts",
+      "purpose": "Save coordinator test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "playwright.config.ts",
+      "purpose": "Playwright config:  module support.",
+      "exports": []
+    },
+    {
+      "file": "scripts/build-implementation-register.mjs",
+      "purpose": "Build implementation register: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/build-page-document-schema.mjs",
+      "purpose": "Build page document schema: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/check-browser-bundles.mjs",
+      "purpose": "Check browser bundles: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/check-source-boundaries.mjs",
+      "purpose": "Check source boundaries: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/containers/compose-command.mjs",
+      "purpose": "Compose command: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": [
+        "repositoryRoot",
+        "dockerCommand",
+        "composeCommand"
+      ]
+    },
+    {
+      "file": "scripts/containers/development-secrets.mjs",
+      "purpose": "Development secrets: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": [
+        "initializeDevelopmentSecrets"
+      ]
+    },
+    {
+      "file": "scripts/containers/scan-image-secrets.mjs",
+      "purpose": "Scan image secrets: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": [
+        "scanImageSecrets"
+      ]
+    },
+    {
+      "file": "scripts/containers/verify-built-editor.mjs",
+      "purpose": "Verify built editor: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": [
+        "verifyBuiltEditor"
+      ]
+    },
+    {
+      "file": "scripts/copy-prisma-runtime.mjs",
+      "purpose": "Copy prisma runtime: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/development-containers.mjs",
+      "purpose": "Development containers: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/document-source-modules.mjs",
+      "purpose": "Document source modules: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/extract-editor-modules.mjs",
+      "purpose": "Extract editor modules: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/extract-editor-rendering.mjs",
+      "purpose": "Extract editor rendering: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/extract-widget-defaults.mjs",
+      "purpose": "Extract widget defaults: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/generate-prisma.mjs",
+      "purpose": "Generate prisma: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/install-document-contract-php.mjs",
+      "purpose": "Install document contract php: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/organize-source-modules.mjs",
+      "purpose": "Organize source modules: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/run-database-tests.mjs",
+      "purpose": "Run database tests: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/test-application-containers.mjs",
+      "purpose": "Test application containers: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/test-database-safety.mjs",
+      "purpose": "Test database safety: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": [
+        "assertDisposableDatabase"
+      ]
+    },
+    {
+      "file": "scripts/tests/development-secrets.test.mjs",
+      "purpose": "Development secrets test: regression or diagnostic checks for the behavior named by this file.",
+      "exports": []
+    },
+    {
+      "file": "scripts/verify-document-contract-php.mjs",
+      "purpose": "Verify document contract php: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "scripts/write-container-build-manifest.mjs",
+      "purpose": "Write container build manifest: repository maintenance or verification command. See its command-line options and root package scripts before running.",
+      "exports": []
+    },
+    {
+      "file": "tests/journeys/editor-save.spec.ts",
+      "purpose": "Editor save spec: tests/journeys module support.",
+      "exports": []
+    },
+    {
+      "file": "vitest.config.ts",
+      "purpose": "Vitest config:  module support.",
+      "exports": []
+    },
+    {
+      "file": "vitest.integration.config.ts",
+      "purpose": "Vitest integration config:  module support.",
+      "exports": []
+    }
+  ]
+}

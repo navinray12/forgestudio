@@ -1,3 +1,7 @@
+/**
+ * @file Developer Api Settings: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -7,7 +11,6 @@ const AVAILABLE_SCOPES = [
   { id: "websites:write", label: "Websites: Write", description: "Create and update websites, page trees, and contents" },
   { id: "publish:write", label: "Publish: Write", description: "Trigger production deployments and non-destructive rollbacks" },
 ];
-
 export default function DeveloperApiSettings() {
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

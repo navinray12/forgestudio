@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: global Elements types. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { ElementStyles } from "../../../pages/editor/WebsiteEditor";
 
 export type GlobalElementType = "button" | "heading" | "paragraph" | "container" | "card" | "badge";

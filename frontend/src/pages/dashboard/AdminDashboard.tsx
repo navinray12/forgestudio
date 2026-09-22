@@ -8,11 +8,9 @@ import {
   LogOut,
   RefreshCw,
   Search,
-  CheckCircle2,
   AlertCircle,
   ExternalLink,
   Layers,
-  HardDrive,
   Cpu,
 } from "lucide-react";
 
@@ -53,7 +51,7 @@ interface AdminWebsite {
   _count?: { deployments: number; revisions: number };
 }
 
-function AdminDashboard() {
+export function AdminDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -89,16 +87,223 @@ function AdminDashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   useEffect(() => {
     fetchAdminData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login", { replace: true });
-  };
+interface UserRecord {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  role: "USER" | "ADMIN" | "SUPER_ADMIN";
+  status: "ACTIVE" | "SUSPENDED" | "DELETED";
+  emailVerified: boolean;
+  websiteCount: number;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
 
+interface PlanOverview {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  currency: string;
+  websiteLimit: number;
+  storageLimitMb: number;
+  activeSubscribers: number;
+}
+
+export function AdminDashboard() {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [loading, setLoading] = useState(false);
+
+  // Mock initial administrative telemetry / data
+  const [stats, setStats] = useState({
+    totalUsers: 142,
+    activeWebsites: 318,
+    monthlyRevenue: "₹1,24,500",
+    systemStatus: "Healthy (99.98% Uptime)",
+  });
+
+  const [usersList, setUsersList] = useState<UserRecord[]>([
+    {
+      id: "u-1",
+      fullName: "Alex Rivera",
+      email: "alex.rivera@agency.io",
+      role: "USER",
+      status: "ACTIVE",
+      emailVerified: true,
+      websiteCount: 8,
+      lastLoginAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      createdAt: "2026-01-10T10:00:00Z",
+    },
+    {
+      id: "u-2",
+      fullName: "Priya Sharma",
+      email: "priya@designs.co",
+      role: "USER",
+      status: "ACTIVE",
+      emailVerified: true,
+      websiteCount: 14,
+      lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      createdAt: "2026-02-01T12:30:00Z",
+    },
+    {
+      id: "u-3",
+      fullName: "Marcus Vance",
+      email: "marcus@enterprise.net",
+      role: "ADMIN",
+      status: "ACTIVE",
+      emailVerified: true,
+      websiteCount: 4,
+      lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      createdAt: "2025-11-20T08:00:00Z",
+    },
+    {
+      id: "u-4",
+      fullName: "Elena Rostova",
+      email: "elena.r@suspicious.test",
+      role: "USER",
+      status: "SUSPENDED",
+      emailVerified: false,
+      websiteCount: 1,
+      lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+      createdAt: "2026-03-01T09:15:00Z",
+    },
+  ]);
+
+  const [plans, setPlans] = useState<PlanOverview[]>([
+    {
+      id: "p-free",
+      name: "Starter / Free",
+      slug: "free",
+      price: 0,
+      currency: "INR",
+      websiteLimit: 1,
+      storageLimitMb: 100,
+      activeSubscribers: 84,
+    },
+    {
+      id: "p-pro",
+      name: "Designer Pro",
+      slug: "pro",
+      price: 1499,
+      currency: "INR",
+      websiteLimit: 10,
+      storageLimitMb: 5000,
+      activeSubscribers: 42,
+    },
+    {
+      id: "p-agency",
+      name: "Agency Scale",
+      slug: "agency",
+      price: 4999,
+      currency: "INR",
+      websiteLimit: 50,
+      storageLimitMb: 25000,
+      activeSubscribers: 16,
+    },
+  ]);
+
+  const [auditEvents] = useState([
+    {
+      id: "aud-1",
+      action: "USER_LOGIN_SUCCESS",
+      resource: "Session",
+      actor: "alex.rivera@agency.io",
+      ip: "103.21.244.18",
+      timestamp: "10 mins ago",
+    },
+    {
+      id: "aud-2",
+      action: "WEBSITE_PUBLISH",
+      resource: "Website (portfolio-v2)",
+      actor: "priya@designs.co",
+      ip: "49.207.180.9",
+      timestamp: "1 hour ago",
+    },
+    {
+      id: "aud-3",
+      action: "WORKSPACE_INVITE_SENT",
+      resource: "Workspace (Studio Alpha)",
+      actor: "marcus@enterprise.net",
+      ip: "157.240.198.35",
+      timestamp: "3 hours ago",
+    },
+    {
+      id: "aud-4",
+      action: "ACCOUNT_SUSPENDED",
+      resource: "User (elena.r@suspicious.test)",
+      actor: "System Security Guard",
+      ip: "127.0.0.1",
+      timestamp: "1 day ago",
+    },
+  ]);
+
+  const navGroups: NavGroup[] = [
+    {
+      label: "Administration",
+      items: [
+        {
+          id: "overview",
+          label: "Platform Overview",
+          icon: <Activity className="w-4 h-4" />,
+          onClick: () => setActiveTab("overview"),
+        },
+        {
+          id: "users",
+          label: "User Management",
+          icon: <Users className="w-4 h-4" />,
+          badge: `${usersList.length}`,
+          onClick: () => setActiveTab("users"),
+        },
+        {
+          id: "subscriptions",
+          label: "Subscription Plans",
+          icon: <CreditCard className="w-4 h-4" />,
+          onClick: () => setActiveTab("subscriptions"),
+        },
+      ],
+    },
+    {
+      label: "Governance & Security",
+      items: [
+        {
+          id: "audit",
+          label: "Audit Logs",
+          icon: <ShieldCheck className="w-4 h-4" />,
+          onClick: () => setActiveTab("audit"),
+        },
+        {
+          id: "plugins",
+          label: "Plugin Registry",
+          icon: <Layers className="w-4 h-4" />,
+          onClick: () => setActiveTab("plugins"),
+        },
+      ],
+    },
+  ];
+
+  const handleToggleUserStatus = (userId: string) => {
+    setUsersList((prev) =>
+      prev.map((u) => {
+        if (u.id === userId) {
+          const nextStatus = u.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+          return { ...u, status: nextStatus };
+        }
+        return u;
+      })
+    );
   const filteredWebsites = websites.filter(
     (w) =>
       w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

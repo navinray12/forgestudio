@@ -72,7 +72,7 @@ interface BackgroundJobRecord {
 
 type SuperAdminTab = "overview" | "users" | "audit-logs" | "jobs";
 
-function SuperAdminDashboard() {
+export function SuperAdminDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -118,6 +118,11 @@ function SuperAdminDashboard() {
     fetchPlatformData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   const handleToggleUserStatus = async (targetUser: ManagedUser) => {
     const nextStatus = targetUser.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
@@ -199,9 +204,180 @@ function SuperAdminDashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login", { replace: true });
+interface OrganizationRecord {
+  id: string;
+  name: string;
+  slug: string;
+  ownerEmail: string;
+  workspaceCount: number;
+  totalSites: number;
+  createdAt: string;
+}
+
+interface WorkspaceRecord {
+  id: string;
+  name: string;
+  slug: string;
+  orgName: string;
+  isPersonal: boolean;
+  memberCount: number;
+  siteCount: number;
+  createdAt: string;
+}
+
+interface SupportGrantRecord {
+  id: string;
+  workspaceName: string;
+  requestedBy: string;
+  grantee: string;
+  reason: string;
+  status: "ACTIVE" | "EXPIRED" | "REVOKED";
+  expiresAt: string;
+}
+
+export function SuperAdminDashboard() {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<SuperAdminTab>("organizations");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [orgs, setOrgs] = useState<OrganizationRecord[]>([
+    {
+      id: "org-1",
+      name: "PixelCraft Agency Group",
+      slug: "pixelcraft",
+      ownerEmail: "alex.rivera@agency.io",
+      workspaceCount: 3,
+      totalSites: 28,
+      createdAt: "2025-10-15T00:00:00Z",
+    },
+    {
+      id: "org-2",
+      name: "Nordic Commerce Labs",
+      slug: "nordic-labs",
+      ownerEmail: "marcus@enterprise.net",
+      workspaceCount: 5,
+      totalSites: 45,
+      createdAt: "2025-12-01T00:00:00Z",
+    },
+    {
+      id: "org-3",
+      name: "Solopreneur Hub",
+      slug: "solopreneur",
+      ownerEmail: "priya@designs.co",
+      workspaceCount: 1,
+      totalSites: 12,
+      createdAt: "2026-01-20T00:00:00Z",
+    },
+  ]);
+
+  const [workspaces, setWorkspaces] = useState<WorkspaceRecord[]>([
+    {
+      id: "ws-1",
+      name: "Production Client Sites",
+      slug: "pixelcraft-prod",
+      orgName: "PixelCraft Agency Group",
+      isPersonal: false,
+      memberCount: 8,
+      siteCount: 19,
+      createdAt: "2025-10-16T00:00:00Z",
+    },
+    {
+      id: "ws-2",
+      name: "Staging Sandbox",
+      slug: "pixelcraft-staging",
+      orgName: "PixelCraft Agency Group",
+      isPersonal: false,
+      memberCount: 5,
+      siteCount: 9,
+      createdAt: "2025-11-04T00:00:00Z",
+    },
+    {
+      id: "ws-3",
+      name: "Nordic Flagship Store Sites",
+      slug: "nordic-flagship",
+      orgName: "Nordic Commerce Labs",
+      isPersonal: false,
+      memberCount: 12,
+      siteCount: 31,
+      createdAt: "2025-12-05T00:00:00Z",
+    },
+    {
+      id: "ws-4",
+      name: "Priya Personal Workspace",
+      slug: "priya-personal",
+      orgName: "Solopreneur Hub",
+      isPersonal: true,
+      memberCount: 1,
+      siteCount: 12,
+      createdAt: "2026-01-20T00:00:00Z",
+    },
+  ]);
+
+  const [grants, setGrants] = useState<SupportGrantRecord[]>([
+    {
+      id: "sg-1",
+      workspaceName: "Production Client Sites",
+      requestedBy: "alex.rivera@agency.io",
+      grantee: "Tier 3 Platform Engineer",
+      reason: "Troubleshoot WordPress SFTP reconciliation timeout",
+      status: "ACTIVE",
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 18).toISOString(),
+    },
+    {
+      id: "sg-2",
+      workspaceName: "Nordic Flagship Store Sites",
+      requestedBy: "marcus@enterprise.net",
+      grantee: "Security Auditor",
+      reason: "Custom Code revision verification",
+      status: "EXPIRED",
+      expiresAt: "2026-03-10T18:00:00Z",
+    },
+  ]);
+
+  const navGroups: NavGroup[] = [
+    {
+      label: "Tenant Governance",
+      items: [
+        {
+          id: "organizations",
+          label: "Organizations",
+          icon: <Building2 className="w-4 h-4" />,
+          badge: `${orgs.length}`,
+          onClick: () => setActiveTab("organizations"),
+        },
+        {
+          id: "workspaces",
+          label: "Workspaces Directory",
+          icon: <Layers className="w-4 h-4" />,
+          badge: `${workspaces.length}`,
+          onClick: () => setActiveTab("workspaces"),
+        },
+      ],
+    },
+    {
+      label: "Security & Operations",
+      items: [
+        {
+          id: "support-grants",
+          label: "Support Grants",
+          icon: <KeyRound className="w-4 h-4" />,
+          badge: `${grants.filter((g) => g.status === "ACTIVE").length}`,
+          onClick: () => setActiveTab("support-grants"),
+        },
+        {
+          id: "infrastructure",
+          label: "Infrastructure Health",
+          icon: <Cpu className="w-4 h-4" />,
+          onClick: () => setActiveTab("infrastructure"),
+        },
+      ],
+    },
+  ];
+
+  const handleRevokeGrant = (grantId: string) => {
+    setGrants((prev) =>
+      prev.map((g) => (g.id === grantId ? { ...g, status: "REVOKED" } : g))
+    );
   };
 
   const filteredUsers = usersList.filter(
@@ -576,9 +752,6 @@ function SuperAdminDashboard() {
                   )}
                 </tbody>
               </table>
-            </div>
-          </section>
-        )}
       </main>
     </div>
   );

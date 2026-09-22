@@ -1,1 +1,5 @@
+/**
+ * @file Test: frontend module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs'); const file = 'src/pages/editor/WebsiteEditor.tsx'; let c = fs.readFileSync(file, 'utf8'); c = c.split('export type ElementType')[0] + 'export interface CustomCodeSnippetData { name: string; priority: number; location: \'head\'|\'body-start\'|\'body-end\'; codeType: \'css\'|\'html\'|\'javascript\'; conditions?: any; scope?: string; }\nexport interface CustomCodeSnippet { id: string; status: string; draft?: CustomCodeSnippetData; published?: CustomCodeSnippetData; }\n\n' + 'export type ElementType' + c.split('export type ElementType')[1].split('export interface CustomCode')[0]; fs.writeFileSync(file, c);

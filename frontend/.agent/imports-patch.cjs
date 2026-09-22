@@ -1,3 +1,7 @@
+/**
+ * @file Imports patch: frontend/ agent module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs');
 let f = fs.readFileSync('src/App.tsx', 'utf8');
 

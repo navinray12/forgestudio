@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Grid Visualizer. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { GridContainerConfig, GridBreakpoint, GridItemPlacement } from "../types/atomicGrid.types";
 import { generateGridStyles, generateGridItemStyles } from "../utils/gridLayout.utils";
@@ -9,6 +13,15 @@ interface GridVisualizerProps {
   onSelectItem?: (item: GridItemPlacement) => void;
 }
 
+/**
+ * Render the grid visualizer interface and connect its event handlers.
+ * @param options Named inputs: grid, breakpoint, selectedItemId, onSelectItem.
+
+ * @param options.grid Grid passed by the caller.
+ * @param options.breakpoint Breakpoint passed by the caller.
+ * @param options.selectedItemId Selected Item Id passed by the caller.
+ * @param options.onSelectItem Callback for select item events.
+ */
 export const GridVisualizer: React.FC<GridVisualizerProps> = ({
   grid,
   breakpoint,

@@ -63,7 +63,7 @@ export const NavMenuRenderer: React.FC<NavigationRendererProps> = ({ element, ac
       setActiveDropdown(activeDropdown === itemId ? null : itemId);
       return;
     }
-    if (!isPreview) {
+    if (!isPreview || !resolvedHref || resolvedHref === "#" || resolvedHref.startsWith("#")) {
       e.preventDefault();
     } else if (resolvedHref.startsWith("/")) {
       e.preventDefault();

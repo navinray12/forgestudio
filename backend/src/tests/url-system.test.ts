@@ -1,5 +1,5 @@
-import { compileCanonicalToStaticBundle } from "../services/destinations/staticCompiler.js";
-import { transformPageToWordPress } from "../services/wordpress/transformer.service.js";
+import { compileCanonicalToStaticBundle } from "../modules/publishing/destinations/static-compiler.js";
+import { transformPageToWordPress } from "../modules/wordpress-connections/transformer.service.js";
 
 function assert(condition: boolean, message: string) {
   if (!condition) {
@@ -58,7 +58,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle1 = compileCanonicalToStaticBundle("site-1", 1, websiteWithLegacyButton);
-  const index1 = bundle1.files.find((f) => f.path === "index.html");
+  const index1 = bundle1.files.find((f: any) => f.path === "index.html");
   assert(
     index1 !== undefined && index1.content.includes('href="about.html"'),
     "Test 1: Static compiler resolves button with page:id to about.html"
@@ -81,7 +81,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle2 = compileCanonicalToStaticBundle("site-2", 1, websiteWithCustomUrlButton);
-  const index2 = bundle2.files.find((f) => f.path === "index.html");
+  const index2 = bundle2.files.find((f: any) => f.path === "index.html");
   assert(
     index2 !== undefined && index2.content.includes('href="about.html"'),
     "Test 2: Static compiler resolves button with Custom URL /about to about.html"
@@ -122,7 +122,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle3 = compileCanonicalToStaticBundle("site-3", 1, websiteWithNavMenu);
-  const index3 = bundle3.files.find((f) => f.path === "index.html");
+  const index3 = bundle3.files.find((f: any) => f.path === "index.html");
   const content3 = index3?.content || "";
   assert(
     content3.includes('<nav class="nav-menu"') &&
@@ -153,7 +153,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle4 = compileCanonicalToStaticBundle("site-4", 1, websiteWithImageLink);
-  const index4 = bundle4.files.find((f) => f.path === "index.html")?.content || "";
+  const index4 = bundle4.files.find((f: any) => f.path === "index.html")?.content || "";
   assert(
     index4.includes('<a href="about.html"><img src="/photo.jpg" alt="Photo"') &&
     !index4.includes('<a href=""><img src="/banner.jpg"'),
@@ -176,7 +176,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle5 = compileCanonicalToStaticBundle("site-5", 1, websiteWithUnsafeLinks);
-  const index5 = bundle5.files.find((f) => f.path === "index.html")?.content || "";
+  const index5 = bundle5.files.find((f: any) => f.path === "index.html")?.content || "";
   assert(
     !index5.includes("javascript:") &&
     !index5.includes("data:text/html") &&
@@ -218,7 +218,7 @@ async function runUrlSystemSuite() {
     ],
   };
   const bundle7 = compileCanonicalToStaticBundle("site-7", 1, websiteWithParams);
-  const index7 = bundle7.files.find((f) => f.path === "index.html")?.content || "";
+  const index7 = bundle7.files.find((f: any) => f.path === "index.html")?.content || "";
   assert(
     index7.includes('href="about.html#team"') &&
     index7.includes('href="contact.html?ref=banner"'),

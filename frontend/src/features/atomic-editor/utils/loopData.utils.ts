@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: loop Data utils. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { LoopContainerConfig, LoopDataItem } from "../types/atomicLoop.types";
 
 export const SAMPLE_PRODUCTS: LoopDataItem[] = [
@@ -50,6 +54,8 @@ export const SAMPLE_BLOG_POSTS: LoopDataItem[] = [
 
 /**
  * Resolves current dataset based on Loop Data Source settings
+
+ * @param loop Loop supplied to this operation (type: LoopContainerConfig).
  */
 export function resolveLoopItems(loop: LoopContainerConfig): LoopDataItem[] {
   let items: LoopDataItem[] = [];
@@ -76,6 +82,11 @@ export function resolveLoopItems(loop: LoopContainerConfig): LoopDataItem[] {
 
 /**
  * Evaluates dynamic property value for a rendered loop item
+
+ * @param item Item supplied to this operation (type: LoopDataItem).
+ * @param propertyKey Property Key supplied to this operation (type: string).
+ * @param prefix Prefix supplied to this operation. Defaults to "".
+ * @param suffix Suffix supplied to this operation. Defaults to "".
  */
 export function evaluateDynamicField(
   item: LoopDataItem,

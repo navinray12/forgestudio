@@ -7,21 +7,31 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --root .. --project backend",
+    "test:url": "tsx src/tests/url-system.test.ts",
     "start": "node dist/server.js",
+    "dev:worker": "tsx watch src/workers/background-worker.ts",
+    "start:worker": "node dist/workers/background-worker.js",
+    "test:master": "tsx tests/master.test.ts",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "db:seed": "tsx prisma/seed.ts",
+    "seed:templates": "tsx src/scripts/seed-templates/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@forgestudio/document-contract": "0.1.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.10.0",
     "@types/sharp": "^0.31.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "acorn": "^8.18.0",
-    "archiver": "^8.0.0",
-    "argon2": "^0.45.1",
+    "argon2": "0.44.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -36,10 +46,11 @@
     "pg": "^8.23.0",
     "sharp": "^0.35.4",
     "ssh2-sftp-client": "^12.1.1",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/archiver": "^8.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -51,9 +62,8 @@
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/pg": "^8.23.1",
-    "@types/ssh2-sftp-client": "^9.0.6",
     "prisma": "^7.10.0",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "6.0.2"
   }
 }
