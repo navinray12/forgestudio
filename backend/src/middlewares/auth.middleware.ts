@@ -31,14 +31,35 @@ export async function requireAuth(
 
     const tokenHash = hashToken(token);
 
-    const session = await prisma.session.findUnique({
-      where: {
-        tokenHash,
-      },
-      include: {
-        user: true,
-      },
-    });
+    let session: any = null;
+    try {
+      session = await prisma.session.findUnique({
+        where: {
+          tokenHash,
+        },
+        include: {
+          user: true,
+        },
+      });
+    } catch (dbErr: any) {
+      if (dbErr?.code === "P2022" || String(dbErr?.message || "").includes("optimizationCredits")) {
+        try {
+          await prisma.$executeRawUnsafe(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "optimizationCredits" INTEGER NOT NULL DEFAULT 250;`);
+          session = await prisma.session.findUnique({
+            where: {
+              tokenHash,
+            },
+            include: {
+              user: true,
+            },
+          });
+        } catch (retryErr) {
+          throw dbErr;
+        }
+      } else {
+        throw dbErr;
+      }
+    }
 
     if (!session) {
       return res.status(401).json({

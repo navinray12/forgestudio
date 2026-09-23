@@ -91,6 +91,7 @@ import {
   QueryBuilderWidgetInspector,
   DisplayConditionsWidgetInspector
 } from "./inspector/DynamicWidgetInspectors";
+import { MotionInteractionInspector } from "./inspector";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
 import { FontService } from "../../features/fonts/FontService";
@@ -157,7 +158,10 @@ import {
   duplicateTreeElement,
   moveTreeElement,
   isDescendant,
-  reorderTreeElement
+  reorderTreeElement,
+  resolveMotionAttrs,
+  resolveStickyStyles,
+  initMotionRuntime
 } from "./utils";
 
 import {
@@ -2584,6 +2588,16 @@ export default function WebsiteEditor() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, selectedIds, copiedElement, elements, historyIndex, history, isFullScreenCanvas, isPreview, saving]);
 
+  // F-102 - F-141: Preview Mode Motion & Interaction Runtime
+  useEffect(() => {
+    if (isPreview) {
+      const controller = initMotionRuntime(document);
+      return () => {
+        controller.cleanup();
+      };
+    }
+  }, [isPreview, elements]);
+
   useEffect(() => {
     if (selectedElement && selectedElement.componentId) {
       syncComponentInstances(selectedElement.componentId, selectedElement);
@@ -4546,6 +4560,9 @@ export default function WebsiteEditor() {
       return acc;
     }, {} as any);
 
+    const motionAttrs = resolveMotionAttrs(el);
+    const stickyStyles = resolveStickyStyles(el);
+
     if (el.type === "container") {
       const mergedLayout = getMergedLayout(el, activeDevice);
       const isHovered = hoveredId === el.id && !isSelected && !isPreview;
@@ -4558,6 +4575,7 @@ export default function WebsiteEditor() {
           key={el.id}
           id={el.customId || undefined}
           {...customAttrProps}
+          {...(isPreview ? motionAttrs : {})}
           data-el-id={el.id}
           draggable={!isPreview}
           onDragStart={(e) => {
@@ -4609,6 +4627,7 @@ export default function WebsiteEditor() {
             }
           }}
           style={{
+            ...stickyStyles,
             boxSizing: "border-box",
             display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
             columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
@@ -4834,6 +4853,7 @@ export default function WebsiteEditor() {
         key={el.id}
         id={el.customId || undefined}
         {...customAttrProps}
+        {...(isPreview ? motionAttrs : {})}
         data-el-id={el.id}
         draggable={!isPreview}
         onDragStart={(e) => {
@@ -4905,6 +4925,7 @@ export default function WebsiteEditor() {
               : ""
           }`}
         style={{
+          ...stickyStyles,
           boxSizing: "border-box",
           width: mergedStyles.width,
           height: mergedStyles.height,
@@ -9149,139 +9170,6 @@ export default function WebsiteEditor() {
                   );
                 })()}
 
-                {/* F-050: Scroll Snap & Overflow Controls */}
-                {renderAccordion(
-                  "Scroll Snap & Overflow (F-050)",
-                  "scroll-snap",
-                  (() => {
-                    const snapType = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") || "none";
-                    const snapAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") || "none";
-                    const snapStop = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") || "normal";
-                    const overflowX = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowX") || "visible";
-                    const overflowY = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowY") || "visible";
-
-                    return (
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="block text-xs font-semibold text-slate-700">
-                              Scroll Snap Type (Container)
-                            </label>
-                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") && (
-                              <button
-                                type="button"
-                                onClick={() => resetSelectedStyle("scrollSnapType")}
-                                className="text-[10px] text-slate-400 hover:text-blue-600"
-                                title="Reset snap type"
-                              >
-                                ↺ Reset
-                              </button>
-                            )}
-                          </div>
-                          <select
-                            value={snapType}
-                            onChange={(e) => updateSelectedStyle("scrollSnapType", e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                          >
-                            <option value="none">None</option>
-                            <option value="x mandatory">Horizontal Mandatory (x mandatory)</option>
-                            <option value="y mandatory">Vertical Mandatory (y mandatory)</option>
-                            <option value="both mandatory">Both Mandatory</option>
-                            <option value="x proximity">Horizontal Proximity</option>
-                            <option value="y proximity">Vertical Proximity</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <label className="block text-xs font-semibold text-slate-700">
-                                Snap Align
-                              </label>
-                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") && (
-                                <button
-                                  type="button"
-                                  onClick={() => resetSelectedStyle("scrollSnapAlign")}
-                                  className="text-[10px] text-slate-400 hover:text-blue-600"
-                                >
-                                  ↺
-                                </button>
-                              )}
-                            </div>
-                            <select
-                              value={snapAlign}
-                              onChange={(e) => updateSelectedStyle("scrollSnapAlign", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="none">None</option>
-                              <option value="start">Start</option>
-                              <option value="center">Center</option>
-                              <option value="end">End</option>
-                            </select>
-                          </div>
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <label className="block text-xs font-semibold text-slate-700">
-                                Snap Stop
-                              </label>
-                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") && (
-                                <button
-                                  type="button"
-                                  onClick={() => resetSelectedStyle("scrollSnapStop")}
-                                  className="text-[10px] text-slate-400 hover:text-blue-600"
-                                >
-                                  ↺
-                                </button>
-                              )}
-                            </div>
-                            <select
-                              value={snapStop}
-                              onChange={(e) => updateSelectedStyle("scrollSnapStop", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="normal">Normal</option>
-                              <option value="always">Always</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                              Overflow X
-                            </label>
-                            <select
-                              value={overflowX}
-                              onChange={(e) => updateSelectedStyle("overflowX", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="visible">Visible</option>
-                              <option value="hidden">Hidden</option>
-                              <option value="auto">Auto</option>
-                              <option value="scroll">Scroll</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                              Overflow Y
-                            </label>
-                            <select
-                              value={overflowY}
-                              onChange={(e) => updateSelectedStyle("overflowY", e.target.value)}
-                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                            >
-                              <option value="visible">Visible</option>
-                              <option value="hidden">Hidden</option>
-                              <option value="auto">Auto</option>
-                              <option value="scroll">Scroll</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()
-                )}
-
                 {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) (F-002, F-035, F-052) */}
                 <div className="space-y-4 pt-2">
                   {/* Width & Height */}
@@ -10186,6 +10074,7 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
+                {/* 1. Typography & Colors Accordion */}
                 {renderAccordion(
                   "Typography & Colors",
                   "typography",
@@ -10392,8 +10281,10 @@ export default function WebsiteEditor() {
                         </div>
                       </div>
                     );
-                  })())}
+                  })()
+                )}
 
+                {/* 2. Borders & Radius Accordion */}
                 {renderAccordion(
                   "Borders & Radius",
                   "borders",
@@ -10481,6 +10372,7 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
+                {/* 3. Box Shadow & Effects Accordion */}
                 {renderAccordion(
                   "Box Shadow & Effects",
                   "box-shadow",
@@ -10515,6 +10407,150 @@ export default function WebsiteEditor() {
                       />
                     </div>
                   </div>
+                )}
+
+                {/* 4. Scroll Snap & Overflow (F-050) Accordion — if applicable */}
+                {(selectedElementAny.type === "container" || selectedElementAny.type === "section" || selectedElementAny.type === "row" || Boolean(selectedElementAny.layout)) && renderAccordion(
+                  "Scroll Snap & Overflow (F-050)",
+                  "scroll-snap",
+                  (() => {
+                    const snapType = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") || "none";
+                    const snapAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") || "none";
+                    const snapStop = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") || "normal";
+                    const overflowX = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowX") || "visible";
+                    const overflowY = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "overflowY") || "visible";
+
+                    return (
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs font-semibold text-slate-700">
+                              Scroll Snap Type (Container)
+                            </label>
+                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapType") && (
+                              <button
+                                type="button"
+                                onClick={() => resetSelectedStyle("scrollSnapType")}
+                                className="text-[10px] text-slate-400 hover:text-blue-600"
+                                title="Reset snap type"
+                              >
+                                ↺ Reset
+                              </button>
+                            )}
+                          </div>
+                          <select
+                            value={snapType}
+                            onChange={(e) => updateSelectedStyle("scrollSnapType", e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                          >
+                            <option value="none">None</option>
+                            <option value="x mandatory">Horizontal Mandatory (x mandatory)</option>
+                            <option value="y mandatory">Vertical Mandatory (y mandatory)</option>
+                            <option value="both mandatory">Both Mandatory</option>
+                            <option value="x proximity">Horizontal Proximity</option>
+                            <option value="y proximity">Vertical Proximity</option>
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-semibold text-slate-700">
+                                Snap Align
+                              </label>
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapAlign") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("scrollSnapAlign")}
+                                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                                >
+                                  ↺
+                                </button>
+                              )}
+                            </div>
+                            <select
+                              value={snapAlign}
+                              onChange={(e) => updateSelectedStyle("scrollSnapAlign", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="none">None</option>
+                              <option value="start">Start</option>
+                              <option value="center">Center</option>
+                              <option value="end">End</option>
+                            </select>
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-semibold text-slate-700">
+                                Snap Stop
+                              </label>
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("scrollSnapStop")}
+                                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                                >
+                                  ↺
+                                </button>
+                              )}
+                            </div>
+                            <select
+                              value={snapStop}
+                              onChange={(e) => updateSelectedStyle("scrollSnapStop", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="normal">Normal</option>
+                              <option value="always">Always</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow X
+                            </label>
+                            <select
+                              value={overflowX}
+                              onChange={(e) => updateSelectedStyle("overflowX", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow Y
+                            </label>
+                            <select
+                              value={overflowY}
+                              onChange={(e) => updateSelectedStyle("overflowY", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
+                )}
+
+                {/* 5. Motion & Interaction Accordion — ALWAYS LAST */}
+                {renderAccordion(
+                  "Motion & Interaction",
+                  "motion-interaction",
+                  <MotionInteractionInspector
+                    selectedElement={selectedElementAny}
+                    updateSelectedProp={updateSelectedProp}
+                    updateSelectedStyle={updateSelectedStyle}
+                  />
                 )}
               </div>
             ) : activeSidebarTab === "advanced" && selectedElementAny ? (

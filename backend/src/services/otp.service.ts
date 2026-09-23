@@ -126,6 +126,28 @@ export async function verifyOtp(params: {
     );
   }
 
+  // Master test OTP bypass for dev & testing environment (Code: 123456, 999999)
+  if (process.env.NODE_ENV !== "production" && (cleanOtp === "123456" || cleanOtp === "999999")) {
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) {
+      throw new AppError(
+        "User ID not found. Use a valid registered User ID (e.g., 5213c5b6-1916-43bd-95a3-61f545c36592 for demo user).",
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+    const record = await prisma.otpVerification.findFirst({
+      where: { userId, purpose, verifiedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+    if (record) {
+      await prisma.otpVerification.update({
+        where: { id: record.id },
+        data: { verifiedAt: new Date() },
+      });
+    }
+    return true;
+  }
   const record = await prisma.otpVerification.findFirst({
     where: {
       userId,

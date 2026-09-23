@@ -33,3 +33,75 @@ body,
 body {
   min-width: 320px;
 }
+
+/* ==========================================================================
+   ForgeStudio Motion Engine (F-102 – F-120)
+   ========================================================================== */
+
+/* ── Keyframe definitions ─────────────────────────────────────────────────── */
+@keyframes fs-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fs-fade-in-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes fs-fade-in-down {
+  from { opacity: 0; transform: translateY(-40px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+@keyframes fs-zoom-in {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes fs-slide-up {
+  from { opacity: 0; transform: translateY(80px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes fs-slide-down {
+  from { opacity: 0; transform: translateY(-80px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+@keyframes fs-bounce-in {
+  0%   { opacity: 0; transform: scale(0.3);  }
+  50%  {             transform: scale(1.05); }
+  70%  {             transform: scale(0.9);  }
+  100% { opacity: 1; transform: scale(1);    }
+}
+
+/* ── Pre-animation hidden state ───────────────────────────────────────────── */
+/* Elements with a non-none entrance animation start invisible until
+   the IntersectionObserver fires and adds .fs-entrance-active. */
+[data-entrance]:not([data-entrance="none"]) {
+  opacity: 0;
+}
+
+/* ── Entrance activation classes (added by JS runtime) ───────────────────── */
+/* The runtime adds .fs-entrance-active once the element enters the viewport. */
+@media (prefers-reduced-motion: no-preference) {
+  .fs-entrance-active[data-entrance="fade-in"]      { animation: fs-fade-in      var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="fade-in-up"]   { animation: fs-fade-in-up   var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="fade-in-down"] { animation: fs-fade-in-down var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="zoom-in"]      { animation: fs-zoom-in      var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="slide-up"]     { animation: fs-slide-up     var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="slide-down"]   { animation: fs-slide-down   var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+  .fs-entrance-active[data-entrance="bounce-in"]    { animation: fs-bounce-in    var(--fs-entrance-dur, 700ms) var(--fs-entrance-delay, 0ms) both ease-out; }
+}
+
+/* ── Reduced-motion: show immediately with no animation ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  [data-entrance] {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ── Hover transition helper (applied by buildHoverCSS injection) ─────────── */
+/* The runtime injects per-element :hover rules into #fs-motion-hover <style>.
+   This class ensures smooth transitions in all cases. */
+.fs-hover-transition {
+  transition-property: transform, opacity, filter;
+  transition-timing-function: ease;
+}

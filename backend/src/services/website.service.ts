@@ -312,6 +312,9 @@ export async function initWebsiteTable() {
           IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'approvalWorkflowEnabled') THEN
             ALTER TABLE websites ADD COLUMN "approvalWorkflowEnabled" BOOLEAN NOT NULL DEFAULT false;
           END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'optimizationCredits') THEN
+            ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER NOT NULL DEFAULT 250;
+          END IF;
         END $$;
       `);
     } catch (colErr2) {}
