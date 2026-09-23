@@ -1,7 +1,3 @@
-/**
- * @file Website kits feature: Website Kit Library. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { WebsiteKit, WebsiteKitCategory } from "../types/websiteKit.types";
 import { useWebsiteKits } from "../hooks/useWebsiteKits";
@@ -15,13 +11,6 @@ interface WebsiteKitLibraryProps {
 
 const CATEGORIES: WebsiteKitCategory[] = ["All", "Business", "Portfolio", "SaaS", "Agency"];
 
-/**
- * Render the website kit library interface and connect its event handlers.
- * @param options Named inputs: apiUrl, onKitApplied.
-
- * @param options.apiUrl Api Url passed by the caller.
- * @param options.onKitApplied Callback for kit applied events.
- */
 export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
   apiUrl,
   onKitApplied,
@@ -45,10 +34,6 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
 
   const [appliedToast, setAppliedToast] = useState<string | null>(null);
 
-  /**
-   * Handle Confirm Apply Kit.
-   * @param kit Kit supplied to this operation (type: WebsiteKit).
-   */
   const handleConfirmApplyKit = async (kit: WebsiteKit) => {
     try {
       const res = await applyKit(kit);

@@ -1,7 +1,3 @@
-/**
- * @file Website kits feature: Apply Website Kit Confirm Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { WebsiteKit } from "../types/websiteKit.types";
 
@@ -13,16 +9,6 @@ interface ApplyWebsiteKitConfirmModalProps {
   onConfirmApply: (kit: WebsiteKit) => void;
 }
 
-/**
- * Render the apply website kit confirm modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, kit, isApplying, onClose, onConfirmApply.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.kit Kit passed by the caller.
- * @param options.isApplying Is Applying passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmApply Callback for confirm apply events.
- */
 export const ApplyWebsiteKitConfirmModal: React.FC<ApplyWebsiteKitConfirmModalProps> = ({
   isOpen,
   kit,

@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: use Save Template. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useCallback } from "react";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 import type { PageSettingsData } from "../../revision-history/types/revisionHistory.types";
@@ -20,12 +16,6 @@ export interface TemplateToUpdateInfo {
   category?: TemplateCategory | string;
 }
 
-/**
- * Coordinate save template state and lifecycle for the calling component.
- * @param options Named inputs: apiUrl.
-
- * @param options.apiUrl Api Url passed by the caller.
- */
 export function useSaveTemplate({ apiUrl }: UseSaveTemplateParams) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [targetTemplateId, setTargetTemplateId] = useState<string | null>(null);

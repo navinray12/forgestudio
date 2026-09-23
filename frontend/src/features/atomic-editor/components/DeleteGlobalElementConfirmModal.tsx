@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Delete Global Element Confirm Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { GlobalElementDefinition } from "../types/globalElements.types";
 
@@ -13,16 +9,6 @@ interface DeleteGlobalElementConfirmModalProps {
   onConfirmDelete: (id: string) => Promise<void>;
 }
 
-/**
- * Render the delete global element confirm modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, element, usageCount, onClose, onConfirmDelete.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.element Element passed by the caller.
- * @param options.usageCount Usage Count passed by the caller. Defaults to 0.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmDelete Callback for confirm delete events.
- */
 export const DeleteGlobalElementConfirmModal: React.FC<DeleteGlobalElementConfirmModalProps> = ({
   isOpen,
   element,

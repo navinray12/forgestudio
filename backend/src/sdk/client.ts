@@ -1,7 +1,3 @@
-/**
- * @file Client: backend SDK integration support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export interface ForgeStudioClientOptions {
   baseUrl?: string;
   apiKey?: string;
@@ -14,13 +10,6 @@ export class ForgeStudioApiError extends Error {
   public status: number;
   public details?: any;
 
-  /**
-   * Constructor.
-   * @param message Message supplied to this operation (type: string).
-   * @param code Code supplied to this operation (type: string). Defaults to "UNKNOWN_ERROR".
-   * @param status Status supplied to this operation (type: number). Defaults to 500.
-   * @param details Details supplied to this operation (type: any). Optional; callers may omit it.
-   */
   constructor(message: string, code: string = "UNKNOWN_ERROR", status: number = 500, details?: any) {
     super(message);
     this.name = "ForgeStudioApiError";
@@ -73,10 +62,6 @@ export class ForgeStudioClient {
   private sessionToken?: string;
   private fetchFn: typeof fetch;
 
-  /**
-   * Constructor.
-   * @param options Options supplied to this operation (type: ForgeStudioClientOptions). Defaults to {}.
-   */
   constructor(options: ForgeStudioClientOptions = {}) {
     this.baseUrl = (options.baseUrl || "http://localhost:5000/api/v1").replace(/\/+$/, "");
     this.apiKey = options.apiKey;
@@ -84,11 +69,6 @@ export class ForgeStudioClient {
     this.fetchFn = options.fetch || globalThis.fetch;
   }
 
-  /**
-   * Request.
-   * @param path Path supplied to this operation (type: string).
-   * @param options Options supplied to this operation (type: { method?: string; body?: any; query?: Record<string, any>; headers?: Record<string, string>; }). Defaults to {}.
-   */
   private async request<T = any>(
     path: string,
     options: {
@@ -156,10 +136,6 @@ export class ForgeStudioClient {
   }
 
   // 1. List websites
-  /**
-   * List Websites.
-   * @param query Query supplied to this operation (type: { page?: number; limit?: number; status?: string; search?: string; }). Optional; callers may omit it.
-   */
   async listWebsites(query?: {
     page?: number;
     limit?: number;
@@ -170,10 +146,6 @@ export class ForgeStudioClient {
   }
 
   // 2. Create website
-  /**
-   * Create Website.
-   * @param data Data supplied to this operation (type: { name: string; slug?: string; editorData?: any; templateId?: string; }).
-   */
   async createWebsite(data: {
     name: string;
     slug?: string;
@@ -187,20 +159,11 @@ export class ForgeStudioClient {
   }
 
   // 3. Get website by ID
-  /**
-   * Get Website.
-   * @param id Id supplied to this operation (type: string).
-   */
   async getWebsite(id: string): Promise<any> {
     return this.request(`/websites/${id}`);
   }
 
   // 4. Update website
-  /**
-   * Update Website.
-   * @param id Id supplied to this operation (type: string).
-   * @param data Data supplied to this operation (type: { name?: string; slug?: string; editorData?: any; status?: string; }).
-   */
   async updateWebsite(
     id: string,
     data: {
@@ -217,20 +180,11 @@ export class ForgeStudioClient {
   }
 
   // 5. Get pages
-  /**
-   * Get Pages.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   */
   async getPages(websiteId: string): Promise<WebsitePage[]> {
     return this.request<WebsitePage[]>(`/websites/${websiteId}/pages`);
   }
 
   // 6. Update pages
-  /**
-   * Update Pages.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param pages Pages supplied to this operation (type: WebsitePage[]).
-   */
   async updatePages(websiteId: string, pages: WebsitePage[]): Promise<{ pages: WebsitePage[] }> {
     return this.request<{ pages: WebsitePage[] }>(`/websites/${websiteId}/pages`, {
       method: "PUT",
@@ -239,11 +193,6 @@ export class ForgeStudioClient {
   }
 
   // 7. Validate publish (calls internal endpoint via API v1 website route)
-  /**
-   * Validate Publish.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param candidateData Candidate Data supplied to this operation (type: any). Optional; callers may omit it.
-   */
   async validatePublish(websiteId: string, candidateData?: any): Promise<{ valid: boolean; errors: any[]; warnings: any[] }> {
     return this.request(`/websites/${websiteId}/validate-publish`, {
       method: "POST",
@@ -252,11 +201,6 @@ export class ForgeStudioClient {
   }
 
   // 8. Publish website
-  /**
-   * Publish.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param options Options supplied to this operation (type: PublishOptions). Optional; callers may omit it.
-   */
   async publish(websiteId: string, options?: PublishOptions): Promise<any> {
     return this.request(`/websites/${websiteId}/publish`, {
       method: "POST",
@@ -265,30 +209,16 @@ export class ForgeStudioClient {
   }
 
   // 9. List deployments
-  /**
-   * List Deployments.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   */
   async listDeployments(websiteId: string): Promise<DeploymentRecord[]> {
     return this.request<DeploymentRecord[]>(`/websites/${websiteId}/deployments`);
   }
 
   // 10. Get single deployment
-  /**
-   * Get Deployment.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param deploymentId Deployment Id supplied to this operation (type: string).
-   */
   async getDeployment(websiteId: string, deploymentId: string): Promise<DeploymentRecord> {
     return this.request<DeploymentRecord>(`/websites/${websiteId}/deployments/${deploymentId}`);
   }
 
   // 11. Rollback deployment
-  /**
-   * Rollback.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param deploymentId Deployment Id supplied to this operation (type: string).
-   */
   async rollback(websiteId: string, deploymentId: string): Promise<any> {
     return this.request(`/websites/${websiteId}/deployments/${deploymentId}/rollback`, {
       method: "POST",
@@ -296,11 +226,6 @@ export class ForgeStudioClient {
   }
 
   // 12. Create revision
-  /**
-   * Create Revision.
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param data Data supplied to this operation (type: { data: any; description?: string; revisionType?: string }).
-   */
   async createRevision(
     websiteId: string,
     data: { data: any; description?: string; revisionType?: string }

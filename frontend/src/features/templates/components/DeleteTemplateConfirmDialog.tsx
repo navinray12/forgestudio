@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Delete Template Confirm Dialog. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { Template } from "../types/template.types";
 
@@ -12,15 +8,6 @@ interface DeleteTemplateConfirmDialogProps {
   onConfirmDelete: (templateId: string) => Promise<void>;
 }
 
-/**
- * Render the delete template confirm dialog interface and connect its event handlers.
- * @param options Named inputs: isOpen, template, onClose, onConfirmDelete.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.template Template passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmDelete Callback for confirm delete events.
- */
 export const DeleteTemplateConfirmDialog: React.FC<DeleteTemplateConfirmDialogProps> = ({
   isOpen,
   template,
@@ -37,10 +24,6 @@ export const DeleteTemplateConfirmDialog: React.FC<DeleteTemplateConfirmDialogPr
   }, [isOpen]);
 
   useEffect(() => {
-    /**
-     * Handle Key Down.
-     * @param e E supplied to this operation (type: KeyboardEvent).
-     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && !isDeleting) {
         onClose();
@@ -52,9 +35,6 @@ export const DeleteTemplateConfirmDialog: React.FC<DeleteTemplateConfirmDialogPr
 
   if (!isOpen || !template) return null;
 
-  /**
-   * Handle Delete.
-   */
   const handleDelete = async () => {
     setError(null);
     setIsDeleting(true);

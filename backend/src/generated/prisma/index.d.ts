@@ -24,11 +24,6 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type Website = $Result.DefaultSelection<Prisma.$WebsitePayload>
 /**
- * Model DraftSaveReceipt
- * 
- */
-export type DraftSaveReceipt = $Result.DefaultSelection<Prisma.$DraftSaveReceiptPayload>
-/**
  * Model OtpVerification
  * 
  */
@@ -144,11 +139,6 @@ export type ComponentAccess = $Result.DefaultSelection<Prisma.$ComponentAccessPa
  */
 export type WebsiteCollaborator = $Result.DefaultSelection<Prisma.$WebsiteCollaboratorPayload>
 /**
- * Model WebsiteKit
- * 
- */
-export type WebsiteKit = $Result.DefaultSelection<Prisma.$WebsiteKitPayload>
-/**
  * Model WebsiteRevision
  * 
  */
@@ -163,11 +153,6 @@ export type Deployment = $Result.DefaultSelection<Prisma.$DeploymentPayload>
  * 
  */
 export type WordPressConnection = $Result.DefaultSelection<Prisma.$WordPressConnectionPayload>
-/**
- * Model WordPressWebhookReceipt
- * 
- */
-export type WordPressWebhookReceipt = $Result.DefaultSelection<Prisma.$WordPressWebhookReceiptPayload>
 /**
  * Model WordPressPageMapping
  * 
@@ -218,16 +203,6 @@ export type OrganizationMember = $Result.DefaultSelection<Prisma.$OrganizationMe
  * 
  */
 export type WorkspaceMember = $Result.DefaultSelection<Prisma.$WorkspaceMemberPayload>
-/**
- * Model WorkspaceInvitation
- * 
- */
-export type WorkspaceInvitation = $Result.DefaultSelection<Prisma.$WorkspaceInvitationPayload>
-/**
- * Model SupportGrant
- * 
- */
-export type SupportGrant = $Result.DefaultSelection<Prisma.$SupportGrantPayload>
 /**
  * Model PublishApprovalRequest
  * 
@@ -521,16 +496,6 @@ export class PrismaClient<
   get website(): Prisma.WebsiteDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.draftSaveReceipt`: Exposes CRUD operations for the **DraftSaveReceipt** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more DraftSaveReceipts
-    * const draftSaveReceipts = await prisma.draftSaveReceipt.findMany()
-    * ```
-    */
-  get draftSaveReceipt(): Prisma.DraftSaveReceiptDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.otpVerification`: Exposes CRUD operations for the **OtpVerification** model.
     * Example usage:
     * ```ts
@@ -761,16 +726,6 @@ export class PrismaClient<
   get websiteCollaborator(): Prisma.WebsiteCollaboratorDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.websiteKit`: Exposes CRUD operations for the **WebsiteKit** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more WebsiteKits
-    * const websiteKits = await prisma.websiteKit.findMany()
-    * ```
-    */
-  get websiteKit(): Prisma.WebsiteKitDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.websiteRevision`: Exposes CRUD operations for the **WebsiteRevision** model.
     * Example usage:
     * ```ts
@@ -799,16 +754,6 @@ export class PrismaClient<
     * ```
     */
   get wordPressConnection(): Prisma.WordPressConnectionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.wordPressWebhookReceipt`: Exposes CRUD operations for the **WordPressWebhookReceipt** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more WordPressWebhookReceipts
-    * const wordPressWebhookReceipts = await prisma.wordPressWebhookReceipt.findMany()
-    * ```
-    */
-  get wordPressWebhookReceipt(): Prisma.WordPressWebhookReceiptDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.wordPressPageMapping`: Exposes CRUD operations for the **WordPressPageMapping** model.
@@ -909,26 +854,6 @@ export class PrismaClient<
     * ```
     */
   get workspaceMember(): Prisma.WorkspaceMemberDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.workspaceInvitation`: Exposes CRUD operations for the **WorkspaceInvitation** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more WorkspaceInvitations
-    * const workspaceInvitations = await prisma.workspaceInvitation.findMany()
-    * ```
-    */
-  get workspaceInvitation(): Prisma.WorkspaceInvitationDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.supportGrant`: Exposes CRUD operations for the **SupportGrant** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more SupportGrants
-    * const supportGrants = await prisma.supportGrant.findMany()
-    * ```
-    */
-  get supportGrant(): Prisma.SupportGrantDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.publishApprovalRequest`: Exposes CRUD operations for the **PublishApprovalRequest** model.
@@ -1498,7 +1423,6 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     Website: 'Website',
-    DraftSaveReceipt: 'DraftSaveReceipt',
     OtpVerification: 'OtpVerification',
     Identity: 'Identity',
     Session: 'Session',
@@ -1522,11 +1446,9 @@ export namespace Prisma {
     DeveloperApiKey: 'DeveloperApiKey',
     ComponentAccess: 'ComponentAccess',
     WebsiteCollaborator: 'WebsiteCollaborator',
-    WebsiteKit: 'WebsiteKit',
     WebsiteRevision: 'WebsiteRevision',
     Deployment: 'Deployment',
     WordPressConnection: 'WordPressConnection',
-    WordPressWebhookReceipt: 'WordPressWebhookReceipt',
     WordPressPageMapping: 'WordPressPageMapping',
     GranularPermission: 'GranularPermission',
     Team: 'Team',
@@ -1537,8 +1459,6 @@ export namespace Prisma {
     Organization: 'Organization',
     OrganizationMember: 'OrganizationMember',
     WorkspaceMember: 'WorkspaceMember',
-    WorkspaceInvitation: 'WorkspaceInvitation',
-    SupportGrant: 'SupportGrant',
     PublishApprovalRequest: 'PublishApprovalRequest',
     BackgroundJob: 'BackgroundJob',
     MediaAsset: 'MediaAsset',
@@ -1566,7 +1486,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "draftSaveReceipt" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteKit" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressWebhookReceipt" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "workspaceInvitation" | "supportGrant" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1715,80 +1635,6 @@ export namespace Prisma {
           count: {
             args: Prisma.WebsiteCountArgs<ExtArgs>
             result: $Utils.Optional<WebsiteCountAggregateOutputType> | number
-          }
-        }
-      }
-      DraftSaveReceipt: {
-        payload: Prisma.$DraftSaveReceiptPayload<ExtArgs>
-        fields: Prisma.DraftSaveReceiptFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.DraftSaveReceiptFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.DraftSaveReceiptFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          findFirst: {
-            args: Prisma.DraftSaveReceiptFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.DraftSaveReceiptFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          findMany: {
-            args: Prisma.DraftSaveReceiptFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>[]
-          }
-          create: {
-            args: Prisma.DraftSaveReceiptCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          createMany: {
-            args: Prisma.DraftSaveReceiptCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.DraftSaveReceiptCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>[]
-          }
-          delete: {
-            args: Prisma.DraftSaveReceiptDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          update: {
-            args: Prisma.DraftSaveReceiptUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          deleteMany: {
-            args: Prisma.DraftSaveReceiptDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.DraftSaveReceiptUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.DraftSaveReceiptUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>[]
-          }
-          upsert: {
-            args: Prisma.DraftSaveReceiptUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DraftSaveReceiptPayload>
-          }
-          aggregate: {
-            args: Prisma.DraftSaveReceiptAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateDraftSaveReceipt>
-          }
-          groupBy: {
-            args: Prisma.DraftSaveReceiptGroupByArgs<ExtArgs>
-            result: $Utils.Optional<DraftSaveReceiptGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.DraftSaveReceiptCountArgs<ExtArgs>
-            result: $Utils.Optional<DraftSaveReceiptCountAggregateOutputType> | number
           }
         }
       }
@@ -3494,80 +3340,6 @@ export namespace Prisma {
           }
         }
       }
-      WebsiteKit: {
-        payload: Prisma.$WebsiteKitPayload<ExtArgs>
-        fields: Prisma.WebsiteKitFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.WebsiteKitFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.WebsiteKitFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          findFirst: {
-            args: Prisma.WebsiteKitFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.WebsiteKitFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          findMany: {
-            args: Prisma.WebsiteKitFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>[]
-          }
-          create: {
-            args: Prisma.WebsiteKitCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          createMany: {
-            args: Prisma.WebsiteKitCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.WebsiteKitCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>[]
-          }
-          delete: {
-            args: Prisma.WebsiteKitDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          update: {
-            args: Prisma.WebsiteKitUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          deleteMany: {
-            args: Prisma.WebsiteKitDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.WebsiteKitUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.WebsiteKitUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>[]
-          }
-          upsert: {
-            args: Prisma.WebsiteKitUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WebsiteKitPayload>
-          }
-          aggregate: {
-            args: Prisma.WebsiteKitAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateWebsiteKit>
-          }
-          groupBy: {
-            args: Prisma.WebsiteKitGroupByArgs<ExtArgs>
-            result: $Utils.Optional<WebsiteKitGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.WebsiteKitCountArgs<ExtArgs>
-            result: $Utils.Optional<WebsiteKitCountAggregateOutputType> | number
-          }
-        }
-      }
       WebsiteRevision: {
         payload: Prisma.$WebsiteRevisionPayload<ExtArgs>
         fields: Prisma.WebsiteRevisionFieldRefs
@@ -3787,80 +3559,6 @@ export namespace Prisma {
           count: {
             args: Prisma.WordPressConnectionCountArgs<ExtArgs>
             result: $Utils.Optional<WordPressConnectionCountAggregateOutputType> | number
-          }
-        }
-      }
-      WordPressWebhookReceipt: {
-        payload: Prisma.$WordPressWebhookReceiptPayload<ExtArgs>
-        fields: Prisma.WordPressWebhookReceiptFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.WordPressWebhookReceiptFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.WordPressWebhookReceiptFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          findFirst: {
-            args: Prisma.WordPressWebhookReceiptFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.WordPressWebhookReceiptFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          findMany: {
-            args: Prisma.WordPressWebhookReceiptFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>[]
-          }
-          create: {
-            args: Prisma.WordPressWebhookReceiptCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          createMany: {
-            args: Prisma.WordPressWebhookReceiptCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.WordPressWebhookReceiptCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>[]
-          }
-          delete: {
-            args: Prisma.WordPressWebhookReceiptDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          update: {
-            args: Prisma.WordPressWebhookReceiptUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          deleteMany: {
-            args: Prisma.WordPressWebhookReceiptDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.WordPressWebhookReceiptUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.WordPressWebhookReceiptUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>[]
-          }
-          upsert: {
-            args: Prisma.WordPressWebhookReceiptUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WordPressWebhookReceiptPayload>
-          }
-          aggregate: {
-            args: Prisma.WordPressWebhookReceiptAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateWordPressWebhookReceipt>
-          }
-          groupBy: {
-            args: Prisma.WordPressWebhookReceiptGroupByArgs<ExtArgs>
-            result: $Utils.Optional<WordPressWebhookReceiptGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.WordPressWebhookReceiptCountArgs<ExtArgs>
-            result: $Utils.Optional<WordPressWebhookReceiptCountAggregateOutputType> | number
           }
         }
       }
@@ -4601,154 +4299,6 @@ export namespace Prisma {
           count: {
             args: Prisma.WorkspaceMemberCountArgs<ExtArgs>
             result: $Utils.Optional<WorkspaceMemberCountAggregateOutputType> | number
-          }
-        }
-      }
-      WorkspaceInvitation: {
-        payload: Prisma.$WorkspaceInvitationPayload<ExtArgs>
-        fields: Prisma.WorkspaceInvitationFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.WorkspaceInvitationFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          findFirst: {
-            args: Prisma.WorkspaceInvitationFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          findMany: {
-            args: Prisma.WorkspaceInvitationFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
-          }
-          create: {
-            args: Prisma.WorkspaceInvitationCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          createMany: {
-            args: Prisma.WorkspaceInvitationCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
-          }
-          delete: {
-            args: Prisma.WorkspaceInvitationDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          update: {
-            args: Prisma.WorkspaceInvitationUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          deleteMany: {
-            args: Prisma.WorkspaceInvitationDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.WorkspaceInvitationUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
-          }
-          upsert: {
-            args: Prisma.WorkspaceInvitationUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
-          }
-          aggregate: {
-            args: Prisma.WorkspaceInvitationAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateWorkspaceInvitation>
-          }
-          groupBy: {
-            args: Prisma.WorkspaceInvitationGroupByArgs<ExtArgs>
-            result: $Utils.Optional<WorkspaceInvitationGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.WorkspaceInvitationCountArgs<ExtArgs>
-            result: $Utils.Optional<WorkspaceInvitationCountAggregateOutputType> | number
-          }
-        }
-      }
-      SupportGrant: {
-        payload: Prisma.$SupportGrantPayload<ExtArgs>
-        fields: Prisma.SupportGrantFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.SupportGrantFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.SupportGrantFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          findFirst: {
-            args: Prisma.SupportGrantFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.SupportGrantFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          findMany: {
-            args: Prisma.SupportGrantFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>[]
-          }
-          create: {
-            args: Prisma.SupportGrantCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          createMany: {
-            args: Prisma.SupportGrantCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.SupportGrantCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>[]
-          }
-          delete: {
-            args: Prisma.SupportGrantDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          update: {
-            args: Prisma.SupportGrantUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          deleteMany: {
-            args: Prisma.SupportGrantDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.SupportGrantUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SupportGrantUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>[]
-          }
-          upsert: {
-            args: Prisma.SupportGrantUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SupportGrantPayload>
-          }
-          aggregate: {
-            args: Prisma.SupportGrantAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSupportGrant>
-          }
-          groupBy: {
-            args: Prisma.SupportGrantGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SupportGrantGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.SupportGrantCountArgs<ExtArgs>
-            result: $Utils.Optional<SupportGrantCountAggregateOutputType> | number
           }
         }
       }
@@ -5765,7 +5315,6 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     website?: WebsiteOmit
-    draftSaveReceipt?: DraftSaveReceiptOmit
     otpVerification?: OtpVerificationOmit
     identity?: IdentityOmit
     session?: SessionOmit
@@ -5789,11 +5338,9 @@ export namespace Prisma {
     developerApiKey?: DeveloperApiKeyOmit
     componentAccess?: ComponentAccessOmit
     websiteCollaborator?: WebsiteCollaboratorOmit
-    websiteKit?: WebsiteKitOmit
     websiteRevision?: WebsiteRevisionOmit
     deployment?: DeploymentOmit
     wordPressConnection?: WordPressConnectionOmit
-    wordPressWebhookReceipt?: WordPressWebhookReceiptOmit
     wordPressPageMapping?: WordPressPageMappingOmit
     granularPermission?: GranularPermissionOmit
     team?: TeamOmit
@@ -5804,8 +5351,6 @@ export namespace Prisma {
     organization?: OrganizationOmit
     organizationMember?: OrganizationMemberOmit
     workspaceMember?: WorkspaceMemberOmit
-    workspaceInvitation?: WorkspaceInvitationOmit
-    supportGrant?: SupportGrantOmit
     publishApprovalRequest?: PublishApprovalRequestOmit
     backgroundJob?: BackgroundJobOmit
     mediaAsset?: MediaAssetOmit
@@ -5923,17 +5468,12 @@ export namespace Prisma {
     ownedOrganizations: number
     organizationMemberships: number
     workspaceMemberships: number
-    sentWorkspaceInvitations: number
-    acceptedWorkspaceInvitations: number
-    supportGrantsReceived: number
-    supportGrantsApproved: number
     approvalRequests: number
     reviewedApprovals: number
     mediaAssets: number
     creditLedgers: number
     licenses: number
     invoices: number
-    draftSaveReceipts: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5962,17 +5502,12 @@ export namespace Prisma {
     ownedOrganizations?: boolean | UserCountOutputTypeCountOwnedOrganizationsArgs
     organizationMemberships?: boolean | UserCountOutputTypeCountOrganizationMembershipsArgs
     workspaceMemberships?: boolean | UserCountOutputTypeCountWorkspaceMembershipsArgs
-    sentWorkspaceInvitations?: boolean | UserCountOutputTypeCountSentWorkspaceInvitationsArgs
-    acceptedWorkspaceInvitations?: boolean | UserCountOutputTypeCountAcceptedWorkspaceInvitationsArgs
-    supportGrantsReceived?: boolean | UserCountOutputTypeCountSupportGrantsReceivedArgs
-    supportGrantsApproved?: boolean | UserCountOutputTypeCountSupportGrantsApprovedArgs
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
     creditLedgers?: boolean | UserCountOutputTypeCountCreditLedgersArgs
     licenses?: boolean | UserCountOutputTypeCountLicensesArgs
     invoices?: boolean | UserCountOutputTypeCountInvoicesArgs
-    draftSaveReceipts?: boolean | UserCountOutputTypeCountDraftSaveReceiptsArgs
   }
 
   // Custom InputTypes
@@ -6164,34 +5699,6 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountSentWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceInvitationWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountAcceptedWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceInvitationWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountSupportGrantsReceivedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SupportGrantWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountSupportGrantsApprovedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SupportGrantWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
   export type UserCountOutputTypeCountApprovalRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PublishApprovalRequestWhereInput
   }
@@ -6231,13 +5738,6 @@ export namespace Prisma {
     where?: BillingInvoiceWhereInput
   }
 
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountDraftSaveReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DraftSaveReceiptWhereInput
-  }
-
 
   /**
    * Count Type WebsiteCountOutputType
@@ -6263,7 +5763,6 @@ export namespace Prisma {
     emailLogs: number
     performanceMetrics: number
     optimizedMedia: number
-    draftSaveReceipts: number
   }
 
   export type WebsiteCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6286,7 +5785,6 @@ export namespace Prisma {
     emailLogs?: boolean | WebsiteCountOutputTypeCountEmailLogsArgs
     performanceMetrics?: boolean | WebsiteCountOutputTypeCountPerformanceMetricsArgs
     optimizedMedia?: boolean | WebsiteCountOutputTypeCountOptimizedMediaArgs
-    draftSaveReceipts?: boolean | WebsiteCountOutputTypeCountDraftSaveReceiptsArgs
   }
 
   // Custom InputTypes
@@ -6433,13 +5931,6 @@ export namespace Prisma {
     where?: MediaOptimizationAssetWhereInput
   }
 
-  /**
-   * WebsiteCountOutputType without action
-   */
-  export type WebsiteCountOutputTypeCountDraftSaveReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DraftSaveReceiptWhereInput
-  }
-
 
   /**
    * Count Type SubscriptionPlanCountOutputType
@@ -6544,37 +6035,6 @@ export namespace Prisma {
 
 
   /**
-   * Count Type WordPressConnectionCountOutputType
-   */
-
-  export type WordPressConnectionCountOutputType = {
-    webhookReceipts: number
-  }
-
-  export type WordPressConnectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    webhookReceipts?: boolean | WordPressConnectionCountOutputTypeCountWebhookReceiptsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * WordPressConnectionCountOutputType without action
-   */
-  export type WordPressConnectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressConnectionCountOutputType
-     */
-    select?: WordPressConnectionCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * WordPressConnectionCountOutputType without action
-   */
-  export type WordPressConnectionCountOutputTypeCountWebhookReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WordPressWebhookReceiptWhereInput
-  }
-
-
-  /**
    * Count Type TeamCountOutputType
    */
 
@@ -6629,15 +6089,11 @@ export namespace Prisma {
 
   export type WorkspaceCountOutputType = {
     members: number
-    invitations: number
-    supportGrants: number
     websites: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
-    invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
-    supportGrants?: boolean | WorkspaceCountOutputTypeCountSupportGrantsArgs
     websites?: boolean | WorkspaceCountOutputTypeCountWebsitesArgs
   }
 
@@ -6657,20 +6113,6 @@ export namespace Prisma {
    */
   export type WorkspaceCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WorkspaceMemberWhereInput
-  }
-
-  /**
-   * WorkspaceCountOutputType without action
-   */
-  export type WorkspaceCountOutputTypeCountInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceInvitationWhereInput
-  }
-
-  /**
-   * WorkspaceCountOutputType without action
-   */
-  export type WorkspaceCountOutputTypeCountSupportGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SupportGrantWhereInput
   }
 
   /**
@@ -7061,10 +6503,6 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
-    sentWorkspaceInvitations?: boolean | User$sentWorkspaceInvitationsArgs<ExtArgs>
-    acceptedWorkspaceInvitations?: boolean | User$acceptedWorkspaceInvitationsArgs<ExtArgs>
-    supportGrantsReceived?: boolean | User$supportGrantsReceivedArgs<ExtArgs>
-    supportGrantsApproved?: boolean | User$supportGrantsApprovedArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -7072,7 +6510,6 @@ export namespace Prisma {
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
     invoices?: boolean | User$invoicesArgs<ExtArgs>
-    draftSaveReceipts?: boolean | User$draftSaveReceiptsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7155,10 +6592,6 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
-    sentWorkspaceInvitations?: boolean | User$sentWorkspaceInvitationsArgs<ExtArgs>
-    acceptedWorkspaceInvitations?: boolean | User$acceptedWorkspaceInvitationsArgs<ExtArgs>
-    supportGrantsReceived?: boolean | User$supportGrantsReceivedArgs<ExtArgs>
-    supportGrantsApproved?: boolean | User$supportGrantsApprovedArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -7166,7 +6599,6 @@ export namespace Prisma {
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
     invoices?: boolean | User$invoicesArgs<ExtArgs>
-    draftSaveReceipts?: boolean | User$draftSaveReceiptsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7201,10 +6633,6 @@ export namespace Prisma {
       ownedOrganizations: Prisma.$OrganizationPayload<ExtArgs>[]
       organizationMemberships: Prisma.$OrganizationMemberPayload<ExtArgs>[]
       workspaceMemberships: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
-      sentWorkspaceInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
-      acceptedWorkspaceInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
-      supportGrantsReceived: Prisma.$SupportGrantPayload<ExtArgs>[]
-      supportGrantsApproved: Prisma.$SupportGrantPayload<ExtArgs>[]
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
@@ -7212,7 +6640,6 @@ export namespace Prisma {
       licenses: Prisma.$LicensePayload<ExtArgs>[]
       whiteLabelConfig: Prisma.$WhiteLabelConfigPayload<ExtArgs> | null
       invoices: Prisma.$BillingInvoicePayload<ExtArgs>[]
-      draftSaveReceipts: Prisma.$DraftSaveReceiptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7649,10 +7076,6 @@ export namespace Prisma {
     ownedOrganizations<T extends User$ownedOrganizationsArgs<ExtArgs> = {}>(args?: Subset<T, User$ownedOrganizationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     organizationMemberships<T extends User$organizationMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$organizationMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     workspaceMemberships<T extends User$workspaceMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$workspaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    sentWorkspaceInvitations<T extends User$sentWorkspaceInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$sentWorkspaceInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    acceptedWorkspaceInvitations<T extends User$acceptedWorkspaceInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$acceptedWorkspaceInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    supportGrantsReceived<T extends User$supportGrantsReceivedArgs<ExtArgs> = {}>(args?: Subset<T, User$supportGrantsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    supportGrantsApproved<T extends User$supportGrantsApprovedArgs<ExtArgs> = {}>(args?: Subset<T, User$supportGrantsApprovedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7660,7 +7083,6 @@ export namespace Prisma {
     licenses<T extends User$licensesArgs<ExtArgs> = {}>(args?: Subset<T, User$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     whiteLabelConfig<T extends User$whiteLabelConfigArgs<ExtArgs> = {}>(args?: Subset<T, User$whiteLabelConfigArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     invoices<T extends User$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, User$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    draftSaveReceipts<T extends User$draftSaveReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, User$draftSaveReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8716,102 +8138,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.sentWorkspaceInvitations
-   */
-  export type User$sentWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    where?: WorkspaceInvitationWhereInput
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * User.acceptedWorkspaceInvitations
-   */
-  export type User$acceptedWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    where?: WorkspaceInvitationWhereInput
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * User.supportGrantsReceived
-   */
-  export type User$supportGrantsReceivedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    where?: SupportGrantWhereInput
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    cursor?: SupportGrantWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
-  }
-
-  /**
-   * User.supportGrantsApproved
-   */
-  export type User$supportGrantsApprovedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    where?: SupportGrantWhereInput
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    cursor?: SupportGrantWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
-  }
-
-  /**
    * User.approvalRequests
    */
   export type User$approvalRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8975,30 +8301,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.draftSaveReceipts
-   */
-  export type User$draftSaveReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    where?: DraftSaveReceiptWhereInput
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DraftSaveReceiptScalarFieldEnum | DraftSaveReceiptScalarFieldEnum[]
-  }
-
-  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9039,7 +8341,6 @@ export namespace Prisma {
     workspaceId: string | null
     organizationId: string | null
     approvalWorkflowEnabled: boolean | null
-    draftRevision: string | null
   }
 
   export type WebsiteMaxAggregateOutputType = {
@@ -9054,7 +8355,6 @@ export namespace Prisma {
     workspaceId: string | null
     organizationId: string | null
     approvalWorkflowEnabled: boolean | null
-    draftRevision: string | null
   }
 
   export type WebsiteCountAggregateOutputType = {
@@ -9064,14 +8364,12 @@ export namespace Prisma {
     slug: number
     status: number
     editorData: number
-    performanceSettings: number
     createdAt: number
     updatedAt: number
     teamId: number
     workspaceId: number
     organizationId: number
     approvalWorkflowEnabled: number
-    draftRevision: number
     _all: number
   }
 
@@ -9088,7 +8386,6 @@ export namespace Prisma {
     workspaceId?: true
     organizationId?: true
     approvalWorkflowEnabled?: true
-    draftRevision?: true
   }
 
   export type WebsiteMaxAggregateInputType = {
@@ -9103,7 +8400,6 @@ export namespace Prisma {
     workspaceId?: true
     organizationId?: true
     approvalWorkflowEnabled?: true
-    draftRevision?: true
   }
 
   export type WebsiteCountAggregateInputType = {
@@ -9113,14 +8409,12 @@ export namespace Prisma {
     slug?: true
     status?: true
     editorData?: true
-    performanceSettings?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
     workspaceId?: true
     organizationId?: true
     approvalWorkflowEnabled?: true
-    draftRevision?: true
     _all?: true
   }
 
@@ -9203,14 +8497,12 @@ export namespace Prisma {
     slug: string
     status: string
     editorData: JsonValue
-    performanceSettings: JsonValue | null
     createdAt: Date
     updatedAt: Date
     teamId: string | null
     workspaceId: string | null
     organizationId: string | null
     approvalWorkflowEnabled: boolean
-    draftRevision: string
     _count: WebsiteCountAggregateOutputType | null
     _min: WebsiteMinAggregateOutputType | null
     _max: WebsiteMaxAggregateOutputType | null
@@ -9237,14 +8529,12 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     editorData?: boolean
-    performanceSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     teamId?: boolean
     workspaceId?: boolean
     organizationId?: boolean
     approvalWorkflowEnabled?: boolean
-    draftRevision?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
     formSubmissions?: boolean | Website$formSubmissionsArgs<ExtArgs>
@@ -9270,7 +8560,6 @@ export namespace Prisma {
     emailLogs?: boolean | Website$emailLogsArgs<ExtArgs>
     performanceMetrics?: boolean | Website$performanceMetricsArgs<ExtArgs>
     optimizedMedia?: boolean | Website$optimizedMediaArgs<ExtArgs>
-    draftSaveReceipts?: boolean | Website$draftSaveReceiptsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["website"]>
 
@@ -9281,14 +8570,12 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     editorData?: boolean
-    performanceSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     teamId?: boolean
     workspaceId?: boolean
     organizationId?: boolean
     approvalWorkflowEnabled?: boolean
-    draftRevision?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
     workspace?: boolean | Website$workspaceArgs<ExtArgs>
@@ -9302,14 +8589,12 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     editorData?: boolean
-    performanceSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     teamId?: boolean
     workspaceId?: boolean
     organizationId?: boolean
     approvalWorkflowEnabled?: boolean
-    draftRevision?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     team?: boolean | Website$teamArgs<ExtArgs>
     workspace?: boolean | Website$workspaceArgs<ExtArgs>
@@ -9323,17 +8608,15 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     editorData?: boolean
-    performanceSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     teamId?: boolean
     workspaceId?: boolean
     organizationId?: boolean
     approvalWorkflowEnabled?: boolean
-    draftRevision?: boolean
   }
 
-  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "performanceSettings" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled" | "draftRevision", ExtArgs["result"]["website"]>
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
@@ -9360,7 +8643,6 @@ export namespace Prisma {
     emailLogs?: boolean | Website$emailLogsArgs<ExtArgs>
     performanceMetrics?: boolean | Website$performanceMetricsArgs<ExtArgs>
     optimizedMedia?: boolean | Website$optimizedMediaArgs<ExtArgs>
-    draftSaveReceipts?: boolean | Website$draftSaveReceiptsArgs<ExtArgs>
     _count?: boolean | WebsiteCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WebsiteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9404,7 +8686,6 @@ export namespace Prisma {
       emailLogs: Prisma.$EmailDeliveryLogPayload<ExtArgs>[]
       performanceMetrics: Prisma.$SitePerformanceMetricPayload<ExtArgs>[]
       optimizedMedia: Prisma.$MediaOptimizationAssetPayload<ExtArgs>[]
-      draftSaveReceipts: Prisma.$DraftSaveReceiptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9413,14 +8694,12 @@ export namespace Prisma {
       slug: string
       status: string
       editorData: Prisma.JsonValue
-      performanceSettings: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
       teamId: string | null
       workspaceId: string | null
       organizationId: string | null
       approvalWorkflowEnabled: boolean
-      draftRevision: string
     }, ExtArgs["result"]["website"]>
     composites: {}
   }
@@ -9840,7 +9119,6 @@ export namespace Prisma {
     emailLogs<T extends Website$emailLogsArgs<ExtArgs> = {}>(args?: Subset<T, Website$emailLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailDeliveryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     performanceMetrics<T extends Website$performanceMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Website$performanceMetricsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SitePerformanceMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optimizedMedia<T extends Website$optimizedMediaArgs<ExtArgs> = {}>(args?: Subset<T, Website$optimizedMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaOptimizationAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    draftSaveReceipts<T extends Website$draftSaveReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, Website$draftSaveReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9876,14 +9154,12 @@ export namespace Prisma {
     readonly slug: FieldRef<"Website", 'String'>
     readonly status: FieldRef<"Website", 'String'>
     readonly editorData: FieldRef<"Website", 'Json'>
-    readonly performanceSettings: FieldRef<"Website", 'Json'>
     readonly createdAt: FieldRef<"Website", 'DateTime'>
     readonly updatedAt: FieldRef<"Website", 'DateTime'>
     readonly teamId: FieldRef<"Website", 'String'>
     readonly workspaceId: FieldRef<"Website", 'String'>
     readonly organizationId: FieldRef<"Website", 'String'>
     readonly approvalWorkflowEnabled: FieldRef<"Website", 'Boolean'>
-    readonly draftRevision: FieldRef<"Website", 'String'>
   }
     
 
@@ -10836,30 +10112,6 @@ export namespace Prisma {
   }
 
   /**
-   * Website.draftSaveReceipts
-   */
-  export type Website$draftSaveReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    where?: DraftSaveReceiptWhereInput
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DraftSaveReceiptScalarFieldEnum | DraftSaveReceiptScalarFieldEnum[]
-  }
-
-  /**
    * Website without action
    */
   export type WebsiteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10875,1138 +10127,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WebsiteInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model DraftSaveReceipt
-   */
-
-  export type AggregateDraftSaveReceipt = {
-    _count: DraftSaveReceiptCountAggregateOutputType | null
-    _min: DraftSaveReceiptMinAggregateOutputType | null
-    _max: DraftSaveReceiptMaxAggregateOutputType | null
-  }
-
-  export type DraftSaveReceiptMinAggregateOutputType = {
-    id: string | null
-    websiteId: string | null
-    actorId: string | null
-    mutationId: string | null
-    requestHash: string | null
-    acceptedRevision: string | null
-    documentHash: string | null
-    acceptedAt: Date | null
-    expiresAt: Date | null
-  }
-
-  export type DraftSaveReceiptMaxAggregateOutputType = {
-    id: string | null
-    websiteId: string | null
-    actorId: string | null
-    mutationId: string | null
-    requestHash: string | null
-    acceptedRevision: string | null
-    documentHash: string | null
-    acceptedAt: Date | null
-    expiresAt: Date | null
-  }
-
-  export type DraftSaveReceiptCountAggregateOutputType = {
-    id: number
-    websiteId: number
-    actorId: number
-    mutationId: number
-    requestHash: number
-    acceptedRevision: number
-    documentHash: number
-    document: number
-    acceptedAt: number
-    expiresAt: number
-    _all: number
-  }
-
-
-  export type DraftSaveReceiptMinAggregateInputType = {
-    id?: true
-    websiteId?: true
-    actorId?: true
-    mutationId?: true
-    requestHash?: true
-    acceptedRevision?: true
-    documentHash?: true
-    acceptedAt?: true
-    expiresAt?: true
-  }
-
-  export type DraftSaveReceiptMaxAggregateInputType = {
-    id?: true
-    websiteId?: true
-    actorId?: true
-    mutationId?: true
-    requestHash?: true
-    acceptedRevision?: true
-    documentHash?: true
-    acceptedAt?: true
-    expiresAt?: true
-  }
-
-  export type DraftSaveReceiptCountAggregateInputType = {
-    id?: true
-    websiteId?: true
-    actorId?: true
-    mutationId?: true
-    requestHash?: true
-    acceptedRevision?: true
-    documentHash?: true
-    document?: true
-    acceptedAt?: true
-    expiresAt?: true
-    _all?: true
-  }
-
-  export type DraftSaveReceiptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which DraftSaveReceipt to aggregate.
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DraftSaveReceipts to fetch.
-     */
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DraftSaveReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DraftSaveReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned DraftSaveReceipts
-    **/
-    _count?: true | DraftSaveReceiptCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: DraftSaveReceiptMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: DraftSaveReceiptMaxAggregateInputType
-  }
-
-  export type GetDraftSaveReceiptAggregateType<T extends DraftSaveReceiptAggregateArgs> = {
-        [P in keyof T & keyof AggregateDraftSaveReceipt]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateDraftSaveReceipt[P]>
-      : GetScalarType<T[P], AggregateDraftSaveReceipt[P]>
-  }
-
-
-
-
-  export type DraftSaveReceiptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DraftSaveReceiptWhereInput
-    orderBy?: DraftSaveReceiptOrderByWithAggregationInput | DraftSaveReceiptOrderByWithAggregationInput[]
-    by: DraftSaveReceiptScalarFieldEnum[] | DraftSaveReceiptScalarFieldEnum
-    having?: DraftSaveReceiptScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: DraftSaveReceiptCountAggregateInputType | true
-    _min?: DraftSaveReceiptMinAggregateInputType
-    _max?: DraftSaveReceiptMaxAggregateInputType
-  }
-
-  export type DraftSaveReceiptGroupByOutputType = {
-    id: string
-    websiteId: string
-    actorId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonValue
-    acceptedAt: Date
-    expiresAt: Date
-    _count: DraftSaveReceiptCountAggregateOutputType | null
-    _min: DraftSaveReceiptMinAggregateOutputType | null
-    _max: DraftSaveReceiptMaxAggregateOutputType | null
-  }
-
-  type GetDraftSaveReceiptGroupByPayload<T extends DraftSaveReceiptGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<DraftSaveReceiptGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof DraftSaveReceiptGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], DraftSaveReceiptGroupByOutputType[P]>
-            : GetScalarType<T[P], DraftSaveReceiptGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type DraftSaveReceiptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    websiteId?: boolean
-    actorId?: boolean
-    mutationId?: boolean
-    requestHash?: boolean
-    acceptedRevision?: boolean
-    documentHash?: boolean
-    document?: boolean
-    acceptedAt?: boolean
-    expiresAt?: boolean
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["draftSaveReceipt"]>
-
-  export type DraftSaveReceiptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    websiteId?: boolean
-    actorId?: boolean
-    mutationId?: boolean
-    requestHash?: boolean
-    acceptedRevision?: boolean
-    documentHash?: boolean
-    document?: boolean
-    acceptedAt?: boolean
-    expiresAt?: boolean
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["draftSaveReceipt"]>
-
-  export type DraftSaveReceiptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    websiteId?: boolean
-    actorId?: boolean
-    mutationId?: boolean
-    requestHash?: boolean
-    acceptedRevision?: boolean
-    documentHash?: boolean
-    document?: boolean
-    acceptedAt?: boolean
-    expiresAt?: boolean
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["draftSaveReceipt"]>
-
-  export type DraftSaveReceiptSelectScalar = {
-    id?: boolean
-    websiteId?: boolean
-    actorId?: boolean
-    mutationId?: boolean
-    requestHash?: boolean
-    acceptedRevision?: boolean
-    documentHash?: boolean
-    document?: boolean
-    acceptedAt?: boolean
-    expiresAt?: boolean
-  }
-
-  export type DraftSaveReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "actorId" | "mutationId" | "requestHash" | "acceptedRevision" | "documentHash" | "document" | "acceptedAt" | "expiresAt", ExtArgs["result"]["draftSaveReceipt"]>
-  export type DraftSaveReceiptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type DraftSaveReceiptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type DraftSaveReceiptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    website?: boolean | WebsiteDefaultArgs<ExtArgs>
-    actor?: boolean | UserDefaultArgs<ExtArgs>
-  }
-
-  export type $DraftSaveReceiptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "DraftSaveReceipt"
-    objects: {
-      website: Prisma.$WebsitePayload<ExtArgs>
-      actor: Prisma.$UserPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      websiteId: string
-      actorId: string
-      mutationId: string
-      requestHash: string
-      acceptedRevision: string
-      documentHash: string
-      document: Prisma.JsonValue
-      acceptedAt: Date
-      expiresAt: Date
-    }, ExtArgs["result"]["draftSaveReceipt"]>
-    composites: {}
-  }
-
-  type DraftSaveReceiptGetPayload<S extends boolean | null | undefined | DraftSaveReceiptDefaultArgs> = $Result.GetResult<Prisma.$DraftSaveReceiptPayload, S>
-
-  type DraftSaveReceiptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<DraftSaveReceiptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: DraftSaveReceiptCountAggregateInputType | true
-    }
-
-  export interface DraftSaveReceiptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DraftSaveReceipt'], meta: { name: 'DraftSaveReceipt' } }
-    /**
-     * Find zero or one DraftSaveReceipt that matches the filter.
-     * @param {DraftSaveReceiptFindUniqueArgs} args - Arguments to find a DraftSaveReceipt
-     * @example
-     * // Get one DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends DraftSaveReceiptFindUniqueArgs>(args: SelectSubset<T, DraftSaveReceiptFindUniqueArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one DraftSaveReceipt that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {DraftSaveReceiptFindUniqueOrThrowArgs} args - Arguments to find a DraftSaveReceipt
-     * @example
-     * // Get one DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends DraftSaveReceiptFindUniqueOrThrowArgs>(args: SelectSubset<T, DraftSaveReceiptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first DraftSaveReceipt that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptFindFirstArgs} args - Arguments to find a DraftSaveReceipt
-     * @example
-     * // Get one DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends DraftSaveReceiptFindFirstArgs>(args?: SelectSubset<T, DraftSaveReceiptFindFirstArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first DraftSaveReceipt that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptFindFirstOrThrowArgs} args - Arguments to find a DraftSaveReceipt
-     * @example
-     * // Get one DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends DraftSaveReceiptFindFirstOrThrowArgs>(args?: SelectSubset<T, DraftSaveReceiptFindFirstOrThrowArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more DraftSaveReceipts that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all DraftSaveReceipts
-     * const draftSaveReceipts = await prisma.draftSaveReceipt.findMany()
-     * 
-     * // Get first 10 DraftSaveReceipts
-     * const draftSaveReceipts = await prisma.draftSaveReceipt.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const draftSaveReceiptWithIdOnly = await prisma.draftSaveReceipt.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends DraftSaveReceiptFindManyArgs>(args?: SelectSubset<T, DraftSaveReceiptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a DraftSaveReceipt.
-     * @param {DraftSaveReceiptCreateArgs} args - Arguments to create a DraftSaveReceipt.
-     * @example
-     * // Create one DraftSaveReceipt
-     * const DraftSaveReceipt = await prisma.draftSaveReceipt.create({
-     *   data: {
-     *     // ... data to create a DraftSaveReceipt
-     *   }
-     * })
-     * 
-     */
-    create<T extends DraftSaveReceiptCreateArgs>(args: SelectSubset<T, DraftSaveReceiptCreateArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many DraftSaveReceipts.
-     * @param {DraftSaveReceiptCreateManyArgs} args - Arguments to create many DraftSaveReceipts.
-     * @example
-     * // Create many DraftSaveReceipts
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends DraftSaveReceiptCreateManyArgs>(args?: SelectSubset<T, DraftSaveReceiptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many DraftSaveReceipts and returns the data saved in the database.
-     * @param {DraftSaveReceiptCreateManyAndReturnArgs} args - Arguments to create many DraftSaveReceipts.
-     * @example
-     * // Create many DraftSaveReceipts
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many DraftSaveReceipts and only return the `id`
-     * const draftSaveReceiptWithIdOnly = await prisma.draftSaveReceipt.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends DraftSaveReceiptCreateManyAndReturnArgs>(args?: SelectSubset<T, DraftSaveReceiptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a DraftSaveReceipt.
-     * @param {DraftSaveReceiptDeleteArgs} args - Arguments to delete one DraftSaveReceipt.
-     * @example
-     * // Delete one DraftSaveReceipt
-     * const DraftSaveReceipt = await prisma.draftSaveReceipt.delete({
-     *   where: {
-     *     // ... filter to delete one DraftSaveReceipt
-     *   }
-     * })
-     * 
-     */
-    delete<T extends DraftSaveReceiptDeleteArgs>(args: SelectSubset<T, DraftSaveReceiptDeleteArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one DraftSaveReceipt.
-     * @param {DraftSaveReceiptUpdateArgs} args - Arguments to update one DraftSaveReceipt.
-     * @example
-     * // Update one DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends DraftSaveReceiptUpdateArgs>(args: SelectSubset<T, DraftSaveReceiptUpdateArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more DraftSaveReceipts.
-     * @param {DraftSaveReceiptDeleteManyArgs} args - Arguments to filter DraftSaveReceipts to delete.
-     * @example
-     * // Delete a few DraftSaveReceipts
-     * const { count } = await prisma.draftSaveReceipt.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends DraftSaveReceiptDeleteManyArgs>(args?: SelectSubset<T, DraftSaveReceiptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more DraftSaveReceipts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many DraftSaveReceipts
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends DraftSaveReceiptUpdateManyArgs>(args: SelectSubset<T, DraftSaveReceiptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more DraftSaveReceipts and returns the data updated in the database.
-     * @param {DraftSaveReceiptUpdateManyAndReturnArgs} args - Arguments to update many DraftSaveReceipts.
-     * @example
-     * // Update many DraftSaveReceipts
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more DraftSaveReceipts and only return the `id`
-     * const draftSaveReceiptWithIdOnly = await prisma.draftSaveReceipt.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends DraftSaveReceiptUpdateManyAndReturnArgs>(args: SelectSubset<T, DraftSaveReceiptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one DraftSaveReceipt.
-     * @param {DraftSaveReceiptUpsertArgs} args - Arguments to update or create a DraftSaveReceipt.
-     * @example
-     * // Update or create a DraftSaveReceipt
-     * const draftSaveReceipt = await prisma.draftSaveReceipt.upsert({
-     *   create: {
-     *     // ... data to create a DraftSaveReceipt
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the DraftSaveReceipt we want to update
-     *   }
-     * })
-     */
-    upsert<T extends DraftSaveReceiptUpsertArgs>(args: SelectSubset<T, DraftSaveReceiptUpsertArgs<ExtArgs>>): Prisma__DraftSaveReceiptClient<$Result.GetResult<Prisma.$DraftSaveReceiptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of DraftSaveReceipts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptCountArgs} args - Arguments to filter DraftSaveReceipts to count.
-     * @example
-     * // Count the number of DraftSaveReceipts
-     * const count = await prisma.draftSaveReceipt.count({
-     *   where: {
-     *     // ... the filter for the DraftSaveReceipts we want to count
-     *   }
-     * })
-    **/
-    count<T extends DraftSaveReceiptCountArgs>(
-      args?: Subset<T, DraftSaveReceiptCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], DraftSaveReceiptCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a DraftSaveReceipt.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends DraftSaveReceiptAggregateArgs>(args: Subset<T, DraftSaveReceiptAggregateArgs>): Prisma.PrismaPromise<GetDraftSaveReceiptAggregateType<T>>
-
-    /**
-     * Group by DraftSaveReceipt.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DraftSaveReceiptGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends DraftSaveReceiptGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: DraftSaveReceiptGroupByArgs['orderBy'] }
-        : { orderBy?: DraftSaveReceiptGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, DraftSaveReceiptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDraftSaveReceiptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the DraftSaveReceipt model
-   */
-  readonly fields: DraftSaveReceiptFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for DraftSaveReceipt.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__DraftSaveReceiptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    actor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the DraftSaveReceipt model
-   */
-  interface DraftSaveReceiptFieldRefs {
-    readonly id: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly websiteId: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly actorId: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly mutationId: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly requestHash: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly acceptedRevision: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly documentHash: FieldRef<"DraftSaveReceipt", 'String'>
-    readonly document: FieldRef<"DraftSaveReceipt", 'Json'>
-    readonly acceptedAt: FieldRef<"DraftSaveReceipt", 'DateTime'>
-    readonly expiresAt: FieldRef<"DraftSaveReceipt", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * DraftSaveReceipt findUnique
-   */
-  export type DraftSaveReceiptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which DraftSaveReceipt to fetch.
-     */
-    where: DraftSaveReceiptWhereUniqueInput
-  }
-
-  /**
-   * DraftSaveReceipt findUniqueOrThrow
-   */
-  export type DraftSaveReceiptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which DraftSaveReceipt to fetch.
-     */
-    where: DraftSaveReceiptWhereUniqueInput
-  }
-
-  /**
-   * DraftSaveReceipt findFirst
-   */
-  export type DraftSaveReceiptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which DraftSaveReceipt to fetch.
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DraftSaveReceipts to fetch.
-     */
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for DraftSaveReceipts.
-     */
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DraftSaveReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DraftSaveReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DraftSaveReceipts.
-     */
-    distinct?: DraftSaveReceiptScalarFieldEnum | DraftSaveReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * DraftSaveReceipt findFirstOrThrow
-   */
-  export type DraftSaveReceiptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which DraftSaveReceipt to fetch.
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DraftSaveReceipts to fetch.
-     */
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for DraftSaveReceipts.
-     */
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DraftSaveReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DraftSaveReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DraftSaveReceipts.
-     */
-    distinct?: DraftSaveReceiptScalarFieldEnum | DraftSaveReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * DraftSaveReceipt findMany
-   */
-  export type DraftSaveReceiptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which DraftSaveReceipts to fetch.
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DraftSaveReceipts to fetch.
-     */
-    orderBy?: DraftSaveReceiptOrderByWithRelationInput | DraftSaveReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing DraftSaveReceipts.
-     */
-    cursor?: DraftSaveReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DraftSaveReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DraftSaveReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DraftSaveReceipts.
-     */
-    distinct?: DraftSaveReceiptScalarFieldEnum | DraftSaveReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * DraftSaveReceipt create
-   */
-  export type DraftSaveReceiptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * The data needed to create a DraftSaveReceipt.
-     */
-    data: XOR<DraftSaveReceiptCreateInput, DraftSaveReceiptUncheckedCreateInput>
-  }
-
-  /**
-   * DraftSaveReceipt createMany
-   */
-  export type DraftSaveReceiptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many DraftSaveReceipts.
-     */
-    data: DraftSaveReceiptCreateManyInput | DraftSaveReceiptCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * DraftSaveReceipt createManyAndReturn
-   */
-  export type DraftSaveReceiptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * The data used to create many DraftSaveReceipts.
-     */
-    data: DraftSaveReceiptCreateManyInput | DraftSaveReceiptCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * DraftSaveReceipt update
-   */
-  export type DraftSaveReceiptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * The data needed to update a DraftSaveReceipt.
-     */
-    data: XOR<DraftSaveReceiptUpdateInput, DraftSaveReceiptUncheckedUpdateInput>
-    /**
-     * Choose, which DraftSaveReceipt to update.
-     */
-    where: DraftSaveReceiptWhereUniqueInput
-  }
-
-  /**
-   * DraftSaveReceipt updateMany
-   */
-  export type DraftSaveReceiptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update DraftSaveReceipts.
-     */
-    data: XOR<DraftSaveReceiptUpdateManyMutationInput, DraftSaveReceiptUncheckedUpdateManyInput>
-    /**
-     * Filter which DraftSaveReceipts to update
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * Limit how many DraftSaveReceipts to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * DraftSaveReceipt updateManyAndReturn
-   */
-  export type DraftSaveReceiptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * The data used to update DraftSaveReceipts.
-     */
-    data: XOR<DraftSaveReceiptUpdateManyMutationInput, DraftSaveReceiptUncheckedUpdateManyInput>
-    /**
-     * Filter which DraftSaveReceipts to update
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * Limit how many DraftSaveReceipts to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * DraftSaveReceipt upsert
-   */
-  export type DraftSaveReceiptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * The filter to search for the DraftSaveReceipt to update in case it exists.
-     */
-    where: DraftSaveReceiptWhereUniqueInput
-    /**
-     * In case the DraftSaveReceipt found by the `where` argument doesn't exist, create a new DraftSaveReceipt with this data.
-     */
-    create: XOR<DraftSaveReceiptCreateInput, DraftSaveReceiptUncheckedCreateInput>
-    /**
-     * In case the DraftSaveReceipt was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<DraftSaveReceiptUpdateInput, DraftSaveReceiptUncheckedUpdateInput>
-  }
-
-  /**
-   * DraftSaveReceipt delete
-   */
-  export type DraftSaveReceiptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
-    /**
-     * Filter which DraftSaveReceipt to delete.
-     */
-    where: DraftSaveReceiptWhereUniqueInput
-  }
-
-  /**
-   * DraftSaveReceipt deleteMany
-   */
-  export type DraftSaveReceiptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which DraftSaveReceipts to delete
-     */
-    where?: DraftSaveReceiptWhereInput
-    /**
-     * Limit how many DraftSaveReceipts to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * DraftSaveReceipt without action
-   */
-  export type DraftSaveReceiptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DraftSaveReceipt
-     */
-    select?: DraftSaveReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DraftSaveReceipt
-     */
-    omit?: DraftSaveReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DraftSaveReceiptInclude<ExtArgs> | null
   }
 
 
@@ -22335,7 +20455,6 @@ export namespace Prisma {
     id: string | null
     websiteId: string | null
     formId: string | null
-    formName: string | null
     ipAddress: string | null
     status: string | null
     createdAt: Date | null
@@ -22345,7 +20464,6 @@ export namespace Prisma {
     id: string | null
     websiteId: string | null
     formId: string | null
-    formName: string | null
     ipAddress: string | null
     status: string | null
     createdAt: Date | null
@@ -22355,9 +20473,7 @@ export namespace Prisma {
     id: number
     websiteId: number
     formId: number
-    formName: number
     data: number
-    metadata: number
     ipAddress: number
     status: number
     createdAt: number
@@ -22369,7 +20485,6 @@ export namespace Prisma {
     id?: true
     websiteId?: true
     formId?: true
-    formName?: true
     ipAddress?: true
     status?: true
     createdAt?: true
@@ -22379,7 +20494,6 @@ export namespace Prisma {
     id?: true
     websiteId?: true
     formId?: true
-    formName?: true
     ipAddress?: true
     status?: true
     createdAt?: true
@@ -22389,9 +20503,7 @@ export namespace Prisma {
     id?: true
     websiteId?: true
     formId?: true
-    formName?: true
     data?: true
-    metadata?: true
     ipAddress?: true
     status?: true
     createdAt?: true
@@ -22474,9 +20586,7 @@ export namespace Prisma {
     id: string
     websiteId: string
     formId: string
-    formName: string | null
     data: JsonValue
-    metadata: JsonValue | null
     ipAddress: string | null
     status: string
     createdAt: Date
@@ -22503,9 +20613,7 @@ export namespace Prisma {
     id?: boolean
     websiteId?: boolean
     formId?: boolean
-    formName?: boolean
     data?: boolean
-    metadata?: boolean
     ipAddress?: boolean
     status?: boolean
     createdAt?: boolean
@@ -22516,9 +20624,7 @@ export namespace Prisma {
     id?: boolean
     websiteId?: boolean
     formId?: boolean
-    formName?: boolean
     data?: boolean
-    metadata?: boolean
     ipAddress?: boolean
     status?: boolean
     createdAt?: boolean
@@ -22529,9 +20635,7 @@ export namespace Prisma {
     id?: boolean
     websiteId?: boolean
     formId?: boolean
-    formName?: boolean
     data?: boolean
-    metadata?: boolean
     ipAddress?: boolean
     status?: boolean
     createdAt?: boolean
@@ -22542,15 +20646,13 @@ export namespace Prisma {
     id?: boolean
     websiteId?: boolean
     formId?: boolean
-    formName?: boolean
     data?: boolean
-    metadata?: boolean
     ipAddress?: boolean
     status?: boolean
     createdAt?: boolean
   }
 
-  export type FormSubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "formId" | "formName" | "data" | "metadata" | "ipAddress" | "status" | "createdAt", ExtArgs["result"]["formSubmission"]>
+  export type FormSubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "websiteId" | "formId" | "data" | "ipAddress" | "status" | "createdAt", ExtArgs["result"]["formSubmission"]>
   export type FormSubmissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     website?: boolean | WebsiteDefaultArgs<ExtArgs>
   }
@@ -22570,9 +20672,7 @@ export namespace Prisma {
       id: string
       websiteId: string
       formId: string
-      formName: string | null
       data: Prisma.JsonValue
-      metadata: Prisma.JsonValue | null
       ipAddress: string | null
       status: string
       createdAt: Date
@@ -23003,9 +21103,7 @@ export namespace Prisma {
     readonly id: FieldRef<"FormSubmission", 'String'>
     readonly websiteId: FieldRef<"FormSubmission", 'String'>
     readonly formId: FieldRef<"FormSubmission", 'String'>
-    readonly formName: FieldRef<"FormSubmission", 'String'>
     readonly data: FieldRef<"FormSubmission", 'Json'>
-    readonly metadata: FieldRef<"FormSubmission", 'Json'>
     readonly ipAddress: FieldRef<"FormSubmission", 'String'>
     readonly status: FieldRef<"FormSubmission", 'String'>
     readonly createdAt: FieldRef<"FormSubmission", 'DateTime'>
@@ -37786,1145 +35884,6 @@ export namespace Prisma {
 
 
   /**
-   * Model WebsiteKit
-   */
-
-  export type AggregateWebsiteKit = {
-    _count: WebsiteKitCountAggregateOutputType | null
-    _avg: WebsiteKitAvgAggregateOutputType | null
-    _sum: WebsiteKitSumAggregateOutputType | null
-    _min: WebsiteKitMinAggregateOutputType | null
-    _max: WebsiteKitMaxAggregateOutputType | null
-  }
-
-  export type WebsiteKitAvgAggregateOutputType = {
-    pageCount: number | null
-  }
-
-  export type WebsiteKitSumAggregateOutputType = {
-    pageCount: number | null
-  }
-
-  export type WebsiteKitMinAggregateOutputType = {
-    id: string | null
-    slug: string | null
-    name: string | null
-    category: string | null
-    description: string | null
-    thumbnail: string | null
-    previewUrl: string | null
-    pageCount: number | null
-    isActive: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type WebsiteKitMaxAggregateOutputType = {
-    id: string | null
-    slug: string | null
-    name: string | null
-    category: string | null
-    description: string | null
-    thumbnail: string | null
-    previewUrl: string | null
-    pageCount: number | null
-    isActive: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type WebsiteKitCountAggregateOutputType = {
-    id: number
-    slug: number
-    name: number
-    category: number
-    description: number
-    thumbnail: number
-    previewUrl: number
-    pageCount: number
-    tags: number
-    globalStyles: number
-    pages: number
-    isActive: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type WebsiteKitAvgAggregateInputType = {
-    pageCount?: true
-  }
-
-  export type WebsiteKitSumAggregateInputType = {
-    pageCount?: true
-  }
-
-  export type WebsiteKitMinAggregateInputType = {
-    id?: true
-    slug?: true
-    name?: true
-    category?: true
-    description?: true
-    thumbnail?: true
-    previewUrl?: true
-    pageCount?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type WebsiteKitMaxAggregateInputType = {
-    id?: true
-    slug?: true
-    name?: true
-    category?: true
-    description?: true
-    thumbnail?: true
-    previewUrl?: true
-    pageCount?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type WebsiteKitCountAggregateInputType = {
-    id?: true
-    slug?: true
-    name?: true
-    category?: true
-    description?: true
-    thumbnail?: true
-    previewUrl?: true
-    pageCount?: true
-    tags?: true
-    globalStyles?: true
-    pages?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type WebsiteKitAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WebsiteKit to aggregate.
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WebsiteKits to fetch.
-     */
-    orderBy?: WebsiteKitOrderByWithRelationInput | WebsiteKitOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: WebsiteKitWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WebsiteKits from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WebsiteKits.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned WebsiteKits
-    **/
-    _count?: true | WebsiteKitCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: WebsiteKitAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: WebsiteKitSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: WebsiteKitMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: WebsiteKitMaxAggregateInputType
-  }
-
-  export type GetWebsiteKitAggregateType<T extends WebsiteKitAggregateArgs> = {
-        [P in keyof T & keyof AggregateWebsiteKit]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateWebsiteKit[P]>
-      : GetScalarType<T[P], AggregateWebsiteKit[P]>
-  }
-
-
-
-
-  export type WebsiteKitGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WebsiteKitWhereInput
-    orderBy?: WebsiteKitOrderByWithAggregationInput | WebsiteKitOrderByWithAggregationInput[]
-    by: WebsiteKitScalarFieldEnum[] | WebsiteKitScalarFieldEnum
-    having?: WebsiteKitScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: WebsiteKitCountAggregateInputType | true
-    _avg?: WebsiteKitAvgAggregateInputType
-    _sum?: WebsiteKitSumAggregateInputType
-    _min?: WebsiteKitMinAggregateInputType
-    _max?: WebsiteKitMaxAggregateInputType
-  }
-
-  export type WebsiteKitGroupByOutputType = {
-    id: string
-    slug: string
-    name: string
-    category: string
-    description: string | null
-    thumbnail: string | null
-    previewUrl: string | null
-    pageCount: number
-    tags: JsonValue
-    globalStyles: JsonValue
-    pages: JsonValue
-    isActive: boolean
-    createdAt: Date
-    updatedAt: Date
-    _count: WebsiteKitCountAggregateOutputType | null
-    _avg: WebsiteKitAvgAggregateOutputType | null
-    _sum: WebsiteKitSumAggregateOutputType | null
-    _min: WebsiteKitMinAggregateOutputType | null
-    _max: WebsiteKitMaxAggregateOutputType | null
-  }
-
-  type GetWebsiteKitGroupByPayload<T extends WebsiteKitGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<WebsiteKitGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof WebsiteKitGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], WebsiteKitGroupByOutputType[P]>
-            : GetScalarType<T[P], WebsiteKitGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type WebsiteKitSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    slug?: boolean
-    name?: boolean
-    category?: boolean
-    description?: boolean
-    thumbnail?: boolean
-    previewUrl?: boolean
-    pageCount?: boolean
-    tags?: boolean
-    globalStyles?: boolean
-    pages?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["websiteKit"]>
-
-  export type WebsiteKitSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    slug?: boolean
-    name?: boolean
-    category?: boolean
-    description?: boolean
-    thumbnail?: boolean
-    previewUrl?: boolean
-    pageCount?: boolean
-    tags?: boolean
-    globalStyles?: boolean
-    pages?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["websiteKit"]>
-
-  export type WebsiteKitSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    slug?: boolean
-    name?: boolean
-    category?: boolean
-    description?: boolean
-    thumbnail?: boolean
-    previewUrl?: boolean
-    pageCount?: boolean
-    tags?: boolean
-    globalStyles?: boolean
-    pages?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["websiteKit"]>
-
-  export type WebsiteKitSelectScalar = {
-    id?: boolean
-    slug?: boolean
-    name?: boolean
-    category?: boolean
-    description?: boolean
-    thumbnail?: boolean
-    previewUrl?: boolean
-    pageCount?: boolean
-    tags?: boolean
-    globalStyles?: boolean
-    pages?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type WebsiteKitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "name" | "category" | "description" | "thumbnail" | "previewUrl" | "pageCount" | "tags" | "globalStyles" | "pages" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["websiteKit"]>
-
-  export type $WebsiteKitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "WebsiteKit"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      slug: string
-      name: string
-      category: string
-      description: string | null
-      thumbnail: string | null
-      previewUrl: string | null
-      pageCount: number
-      tags: Prisma.JsonValue
-      globalStyles: Prisma.JsonValue
-      pages: Prisma.JsonValue
-      isActive: boolean
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["websiteKit"]>
-    composites: {}
-  }
-
-  type WebsiteKitGetPayload<S extends boolean | null | undefined | WebsiteKitDefaultArgs> = $Result.GetResult<Prisma.$WebsiteKitPayload, S>
-
-  type WebsiteKitCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<WebsiteKitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: WebsiteKitCountAggregateInputType | true
-    }
-
-  export interface WebsiteKitDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebsiteKit'], meta: { name: 'WebsiteKit' } }
-    /**
-     * Find zero or one WebsiteKit that matches the filter.
-     * @param {WebsiteKitFindUniqueArgs} args - Arguments to find a WebsiteKit
-     * @example
-     * // Get one WebsiteKit
-     * const websiteKit = await prisma.websiteKit.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends WebsiteKitFindUniqueArgs>(args: SelectSubset<T, WebsiteKitFindUniqueArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one WebsiteKit that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {WebsiteKitFindUniqueOrThrowArgs} args - Arguments to find a WebsiteKit
-     * @example
-     * // Get one WebsiteKit
-     * const websiteKit = await prisma.websiteKit.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends WebsiteKitFindUniqueOrThrowArgs>(args: SelectSubset<T, WebsiteKitFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WebsiteKit that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitFindFirstArgs} args - Arguments to find a WebsiteKit
-     * @example
-     * // Get one WebsiteKit
-     * const websiteKit = await prisma.websiteKit.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends WebsiteKitFindFirstArgs>(args?: SelectSubset<T, WebsiteKitFindFirstArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WebsiteKit that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitFindFirstOrThrowArgs} args - Arguments to find a WebsiteKit
-     * @example
-     * // Get one WebsiteKit
-     * const websiteKit = await prisma.websiteKit.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends WebsiteKitFindFirstOrThrowArgs>(args?: SelectSubset<T, WebsiteKitFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more WebsiteKits that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all WebsiteKits
-     * const websiteKits = await prisma.websiteKit.findMany()
-     * 
-     * // Get first 10 WebsiteKits
-     * const websiteKits = await prisma.websiteKit.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const websiteKitWithIdOnly = await prisma.websiteKit.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends WebsiteKitFindManyArgs>(args?: SelectSubset<T, WebsiteKitFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a WebsiteKit.
-     * @param {WebsiteKitCreateArgs} args - Arguments to create a WebsiteKit.
-     * @example
-     * // Create one WebsiteKit
-     * const WebsiteKit = await prisma.websiteKit.create({
-     *   data: {
-     *     // ... data to create a WebsiteKit
-     *   }
-     * })
-     * 
-     */
-    create<T extends WebsiteKitCreateArgs>(args: SelectSubset<T, WebsiteKitCreateArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many WebsiteKits.
-     * @param {WebsiteKitCreateManyArgs} args - Arguments to create many WebsiteKits.
-     * @example
-     * // Create many WebsiteKits
-     * const websiteKit = await prisma.websiteKit.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends WebsiteKitCreateManyArgs>(args?: SelectSubset<T, WebsiteKitCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many WebsiteKits and returns the data saved in the database.
-     * @param {WebsiteKitCreateManyAndReturnArgs} args - Arguments to create many WebsiteKits.
-     * @example
-     * // Create many WebsiteKits
-     * const websiteKit = await prisma.websiteKit.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many WebsiteKits and only return the `id`
-     * const websiteKitWithIdOnly = await prisma.websiteKit.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends WebsiteKitCreateManyAndReturnArgs>(args?: SelectSubset<T, WebsiteKitCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a WebsiteKit.
-     * @param {WebsiteKitDeleteArgs} args - Arguments to delete one WebsiteKit.
-     * @example
-     * // Delete one WebsiteKit
-     * const WebsiteKit = await prisma.websiteKit.delete({
-     *   where: {
-     *     // ... filter to delete one WebsiteKit
-     *   }
-     * })
-     * 
-     */
-    delete<T extends WebsiteKitDeleteArgs>(args: SelectSubset<T, WebsiteKitDeleteArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one WebsiteKit.
-     * @param {WebsiteKitUpdateArgs} args - Arguments to update one WebsiteKit.
-     * @example
-     * // Update one WebsiteKit
-     * const websiteKit = await prisma.websiteKit.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends WebsiteKitUpdateArgs>(args: SelectSubset<T, WebsiteKitUpdateArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more WebsiteKits.
-     * @param {WebsiteKitDeleteManyArgs} args - Arguments to filter WebsiteKits to delete.
-     * @example
-     * // Delete a few WebsiteKits
-     * const { count } = await prisma.websiteKit.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends WebsiteKitDeleteManyArgs>(args?: SelectSubset<T, WebsiteKitDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WebsiteKits.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many WebsiteKits
-     * const websiteKit = await prisma.websiteKit.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends WebsiteKitUpdateManyArgs>(args: SelectSubset<T, WebsiteKitUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WebsiteKits and returns the data updated in the database.
-     * @param {WebsiteKitUpdateManyAndReturnArgs} args - Arguments to update many WebsiteKits.
-     * @example
-     * // Update many WebsiteKits
-     * const websiteKit = await prisma.websiteKit.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more WebsiteKits and only return the `id`
-     * const websiteKitWithIdOnly = await prisma.websiteKit.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends WebsiteKitUpdateManyAndReturnArgs>(args: SelectSubset<T, WebsiteKitUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one WebsiteKit.
-     * @param {WebsiteKitUpsertArgs} args - Arguments to update or create a WebsiteKit.
-     * @example
-     * // Update or create a WebsiteKit
-     * const websiteKit = await prisma.websiteKit.upsert({
-     *   create: {
-     *     // ... data to create a WebsiteKit
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the WebsiteKit we want to update
-     *   }
-     * })
-     */
-    upsert<T extends WebsiteKitUpsertArgs>(args: SelectSubset<T, WebsiteKitUpsertArgs<ExtArgs>>): Prisma__WebsiteKitClient<$Result.GetResult<Prisma.$WebsiteKitPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of WebsiteKits.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitCountArgs} args - Arguments to filter WebsiteKits to count.
-     * @example
-     * // Count the number of WebsiteKits
-     * const count = await prisma.websiteKit.count({
-     *   where: {
-     *     // ... the filter for the WebsiteKits we want to count
-     *   }
-     * })
-    **/
-    count<T extends WebsiteKitCountArgs>(
-      args?: Subset<T, WebsiteKitCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], WebsiteKitCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a WebsiteKit.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends WebsiteKitAggregateArgs>(args: Subset<T, WebsiteKitAggregateArgs>): Prisma.PrismaPromise<GetWebsiteKitAggregateType<T>>
-
-    /**
-     * Group by WebsiteKit.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WebsiteKitGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends WebsiteKitGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: WebsiteKitGroupByArgs['orderBy'] }
-        : { orderBy?: WebsiteKitGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, WebsiteKitGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebsiteKitGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the WebsiteKit model
-   */
-  readonly fields: WebsiteKitFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for WebsiteKit.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__WebsiteKitClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the WebsiteKit model
-   */
-  interface WebsiteKitFieldRefs {
-    readonly id: FieldRef<"WebsiteKit", 'String'>
-    readonly slug: FieldRef<"WebsiteKit", 'String'>
-    readonly name: FieldRef<"WebsiteKit", 'String'>
-    readonly category: FieldRef<"WebsiteKit", 'String'>
-    readonly description: FieldRef<"WebsiteKit", 'String'>
-    readonly thumbnail: FieldRef<"WebsiteKit", 'String'>
-    readonly previewUrl: FieldRef<"WebsiteKit", 'String'>
-    readonly pageCount: FieldRef<"WebsiteKit", 'Int'>
-    readonly tags: FieldRef<"WebsiteKit", 'Json'>
-    readonly globalStyles: FieldRef<"WebsiteKit", 'Json'>
-    readonly pages: FieldRef<"WebsiteKit", 'Json'>
-    readonly isActive: FieldRef<"WebsiteKit", 'Boolean'>
-    readonly createdAt: FieldRef<"WebsiteKit", 'DateTime'>
-    readonly updatedAt: FieldRef<"WebsiteKit", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * WebsiteKit findUnique
-   */
-  export type WebsiteKitFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter, which WebsiteKit to fetch.
-     */
-    where: WebsiteKitWhereUniqueInput
-  }
-
-  /**
-   * WebsiteKit findUniqueOrThrow
-   */
-  export type WebsiteKitFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter, which WebsiteKit to fetch.
-     */
-    where: WebsiteKitWhereUniqueInput
-  }
-
-  /**
-   * WebsiteKit findFirst
-   */
-  export type WebsiteKitFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter, which WebsiteKit to fetch.
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WebsiteKits to fetch.
-     */
-    orderBy?: WebsiteKitOrderByWithRelationInput | WebsiteKitOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WebsiteKits.
-     */
-    cursor?: WebsiteKitWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WebsiteKits from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WebsiteKits.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WebsiteKits.
-     */
-    distinct?: WebsiteKitScalarFieldEnum | WebsiteKitScalarFieldEnum[]
-  }
-
-  /**
-   * WebsiteKit findFirstOrThrow
-   */
-  export type WebsiteKitFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter, which WebsiteKit to fetch.
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WebsiteKits to fetch.
-     */
-    orderBy?: WebsiteKitOrderByWithRelationInput | WebsiteKitOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WebsiteKits.
-     */
-    cursor?: WebsiteKitWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WebsiteKits from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WebsiteKits.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WebsiteKits.
-     */
-    distinct?: WebsiteKitScalarFieldEnum | WebsiteKitScalarFieldEnum[]
-  }
-
-  /**
-   * WebsiteKit findMany
-   */
-  export type WebsiteKitFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter, which WebsiteKits to fetch.
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WebsiteKits to fetch.
-     */
-    orderBy?: WebsiteKitOrderByWithRelationInput | WebsiteKitOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing WebsiteKits.
-     */
-    cursor?: WebsiteKitWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WebsiteKits from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WebsiteKits.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WebsiteKits.
-     */
-    distinct?: WebsiteKitScalarFieldEnum | WebsiteKitScalarFieldEnum[]
-  }
-
-  /**
-   * WebsiteKit create
-   */
-  export type WebsiteKitCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * The data needed to create a WebsiteKit.
-     */
-    data: XOR<WebsiteKitCreateInput, WebsiteKitUncheckedCreateInput>
-  }
-
-  /**
-   * WebsiteKit createMany
-   */
-  export type WebsiteKitCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many WebsiteKits.
-     */
-    data: WebsiteKitCreateManyInput | WebsiteKitCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * WebsiteKit createManyAndReturn
-   */
-  export type WebsiteKitCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * The data used to create many WebsiteKits.
-     */
-    data: WebsiteKitCreateManyInput | WebsiteKitCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * WebsiteKit update
-   */
-  export type WebsiteKitUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * The data needed to update a WebsiteKit.
-     */
-    data: XOR<WebsiteKitUpdateInput, WebsiteKitUncheckedUpdateInput>
-    /**
-     * Choose, which WebsiteKit to update.
-     */
-    where: WebsiteKitWhereUniqueInput
-  }
-
-  /**
-   * WebsiteKit updateMany
-   */
-  export type WebsiteKitUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update WebsiteKits.
-     */
-    data: XOR<WebsiteKitUpdateManyMutationInput, WebsiteKitUncheckedUpdateManyInput>
-    /**
-     * Filter which WebsiteKits to update
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * Limit how many WebsiteKits to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * WebsiteKit updateManyAndReturn
-   */
-  export type WebsiteKitUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * The data used to update WebsiteKits.
-     */
-    data: XOR<WebsiteKitUpdateManyMutationInput, WebsiteKitUncheckedUpdateManyInput>
-    /**
-     * Filter which WebsiteKits to update
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * Limit how many WebsiteKits to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * WebsiteKit upsert
-   */
-  export type WebsiteKitUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * The filter to search for the WebsiteKit to update in case it exists.
-     */
-    where: WebsiteKitWhereUniqueInput
-    /**
-     * In case the WebsiteKit found by the `where` argument doesn't exist, create a new WebsiteKit with this data.
-     */
-    create: XOR<WebsiteKitCreateInput, WebsiteKitUncheckedCreateInput>
-    /**
-     * In case the WebsiteKit was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<WebsiteKitUpdateInput, WebsiteKitUncheckedUpdateInput>
-  }
-
-  /**
-   * WebsiteKit delete
-   */
-  export type WebsiteKitDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-    /**
-     * Filter which WebsiteKit to delete.
-     */
-    where: WebsiteKitWhereUniqueInput
-  }
-
-  /**
-   * WebsiteKit deleteMany
-   */
-  export type WebsiteKitDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WebsiteKits to delete
-     */
-    where?: WebsiteKitWhereInput
-    /**
-     * Limit how many WebsiteKits to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * WebsiteKit without action
-   */
-  export type WebsiteKitDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WebsiteKit
-     */
-    select?: WebsiteKitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WebsiteKit
-     */
-    omit?: WebsiteKitOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model WebsiteRevision
    */
 
@@ -41543,8 +38502,6 @@ export namespace Prisma {
     updatedAt?: boolean
     website?: boolean | WebsiteDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    webhookReceipts?: boolean | WordPressConnection$webhookReceiptsArgs<ExtArgs>
-    _count?: boolean | WordPressConnectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["wordPressConnection"]>
 
   export type WordPressConnectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -41600,8 +38557,6 @@ export namespace Prisma {
   export type WordPressConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     website?: boolean | WebsiteDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    webhookReceipts?: boolean | WordPressConnection$webhookReceiptsArgs<ExtArgs>
-    _count?: boolean | WordPressConnectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WordPressConnectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     website?: boolean | WebsiteDefaultArgs<ExtArgs>
@@ -41617,7 +38572,6 @@ export namespace Prisma {
     objects: {
       website: Prisma.$WebsitePayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
-      webhookReceipts: Prisma.$WordPressWebhookReceiptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -42028,7 +38982,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     website<T extends WebsiteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WebsiteDefaultArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    webhookReceipts<T extends WordPressConnection$webhookReceiptsArgs<ExtArgs> = {}>(args?: Subset<T, WordPressConnection$webhookReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -42471,30 +39424,6 @@ export namespace Prisma {
   }
 
   /**
-   * WordPressConnection.webhookReceipts
-   */
-  export type WordPressConnection$webhookReceiptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    where?: WordPressWebhookReceiptWhereInput
-    orderBy?: WordPressWebhookReceiptOrderByWithRelationInput | WordPressWebhookReceiptOrderByWithRelationInput[]
-    cursor?: WordPressWebhookReceiptWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WordPressWebhookReceiptScalarFieldEnum | WordPressWebhookReceiptScalarFieldEnum[]
-  }
-
-  /**
    * WordPressConnection without action
    */
   export type WordPressConnectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -42510,1203 +39439,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WordPressConnectionInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model WordPressWebhookReceipt
-   */
-
-  export type AggregateWordPressWebhookReceipt = {
-    _count: WordPressWebhookReceiptCountAggregateOutputType | null
-    _avg: WordPressWebhookReceiptAvgAggregateOutputType | null
-    _sum: WordPressWebhookReceiptSumAggregateOutputType | null
-    _min: WordPressWebhookReceiptMinAggregateOutputType | null
-    _max: WordPressWebhookReceiptMaxAggregateOutputType | null
-  }
-
-  export type WordPressWebhookReceiptAvgAggregateOutputType = {
-    attempts: number | null
-  }
-
-  export type WordPressWebhookReceiptSumAggregateOutputType = {
-    attempts: number | null
-  }
-
-  export type WordPressWebhookReceiptMinAggregateOutputType = {
-    id: string | null
-    connectionId: string | null
-    websiteId: string | null
-    eventId: string | null
-    event: string | null
-    payloadHash: string | null
-    status: string | null
-    attempts: number | null
-    nextAttemptAt: Date | null
-    lastError: string | null
-    createdAt: Date | null
-    processedAt: Date | null
-  }
-
-  export type WordPressWebhookReceiptMaxAggregateOutputType = {
-    id: string | null
-    connectionId: string | null
-    websiteId: string | null
-    eventId: string | null
-    event: string | null
-    payloadHash: string | null
-    status: string | null
-    attempts: number | null
-    nextAttemptAt: Date | null
-    lastError: string | null
-    createdAt: Date | null
-    processedAt: Date | null
-  }
-
-  export type WordPressWebhookReceiptCountAggregateOutputType = {
-    id: number
-    connectionId: number
-    websiteId: number
-    eventId: number
-    event: number
-    payload: number
-    payloadHash: number
-    status: number
-    attempts: number
-    nextAttemptAt: number
-    lastError: number
-    createdAt: number
-    processedAt: number
-    _all: number
-  }
-
-
-  export type WordPressWebhookReceiptAvgAggregateInputType = {
-    attempts?: true
-  }
-
-  export type WordPressWebhookReceiptSumAggregateInputType = {
-    attempts?: true
-  }
-
-  export type WordPressWebhookReceiptMinAggregateInputType = {
-    id?: true
-    connectionId?: true
-    websiteId?: true
-    eventId?: true
-    event?: true
-    payloadHash?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    createdAt?: true
-    processedAt?: true
-  }
-
-  export type WordPressWebhookReceiptMaxAggregateInputType = {
-    id?: true
-    connectionId?: true
-    websiteId?: true
-    eventId?: true
-    event?: true
-    payloadHash?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    createdAt?: true
-    processedAt?: true
-  }
-
-  export type WordPressWebhookReceiptCountAggregateInputType = {
-    id?: true
-    connectionId?: true
-    websiteId?: true
-    eventId?: true
-    event?: true
-    payload?: true
-    payloadHash?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    createdAt?: true
-    processedAt?: true
-    _all?: true
-  }
-
-  export type WordPressWebhookReceiptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WordPressWebhookReceipt to aggregate.
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WordPressWebhookReceipts to fetch.
-     */
-    orderBy?: WordPressWebhookReceiptOrderByWithRelationInput | WordPressWebhookReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: WordPressWebhookReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WordPressWebhookReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WordPressWebhookReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned WordPressWebhookReceipts
-    **/
-    _count?: true | WordPressWebhookReceiptCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: WordPressWebhookReceiptAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: WordPressWebhookReceiptSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: WordPressWebhookReceiptMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: WordPressWebhookReceiptMaxAggregateInputType
-  }
-
-  export type GetWordPressWebhookReceiptAggregateType<T extends WordPressWebhookReceiptAggregateArgs> = {
-        [P in keyof T & keyof AggregateWordPressWebhookReceipt]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateWordPressWebhookReceipt[P]>
-      : GetScalarType<T[P], AggregateWordPressWebhookReceipt[P]>
-  }
-
-
-
-
-  export type WordPressWebhookReceiptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WordPressWebhookReceiptWhereInput
-    orderBy?: WordPressWebhookReceiptOrderByWithAggregationInput | WordPressWebhookReceiptOrderByWithAggregationInput[]
-    by: WordPressWebhookReceiptScalarFieldEnum[] | WordPressWebhookReceiptScalarFieldEnum
-    having?: WordPressWebhookReceiptScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: WordPressWebhookReceiptCountAggregateInputType | true
-    _avg?: WordPressWebhookReceiptAvgAggregateInputType
-    _sum?: WordPressWebhookReceiptSumAggregateInputType
-    _min?: WordPressWebhookReceiptMinAggregateInputType
-    _max?: WordPressWebhookReceiptMaxAggregateInputType
-  }
-
-  export type WordPressWebhookReceiptGroupByOutputType = {
-    id: string
-    connectionId: string
-    websiteId: string
-    eventId: string
-    event: string
-    payload: JsonValue
-    payloadHash: string
-    status: string
-    attempts: number
-    nextAttemptAt: Date
-    lastError: string | null
-    createdAt: Date
-    processedAt: Date | null
-    _count: WordPressWebhookReceiptCountAggregateOutputType | null
-    _avg: WordPressWebhookReceiptAvgAggregateOutputType | null
-    _sum: WordPressWebhookReceiptSumAggregateOutputType | null
-    _min: WordPressWebhookReceiptMinAggregateOutputType | null
-    _max: WordPressWebhookReceiptMaxAggregateOutputType | null
-  }
-
-  type GetWordPressWebhookReceiptGroupByPayload<T extends WordPressWebhookReceiptGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<WordPressWebhookReceiptGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof WordPressWebhookReceiptGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], WordPressWebhookReceiptGroupByOutputType[P]>
-            : GetScalarType<T[P], WordPressWebhookReceiptGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type WordPressWebhookReceiptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    connectionId?: boolean
-    websiteId?: boolean
-    eventId?: boolean
-    event?: boolean
-    payload?: boolean
-    payloadHash?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    createdAt?: boolean
-    processedAt?: boolean
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["wordPressWebhookReceipt"]>
-
-  export type WordPressWebhookReceiptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    connectionId?: boolean
-    websiteId?: boolean
-    eventId?: boolean
-    event?: boolean
-    payload?: boolean
-    payloadHash?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    createdAt?: boolean
-    processedAt?: boolean
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["wordPressWebhookReceipt"]>
-
-  export type WordPressWebhookReceiptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    connectionId?: boolean
-    websiteId?: boolean
-    eventId?: boolean
-    event?: boolean
-    payload?: boolean
-    payloadHash?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    createdAt?: boolean
-    processedAt?: boolean
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["wordPressWebhookReceipt"]>
-
-  export type WordPressWebhookReceiptSelectScalar = {
-    id?: boolean
-    connectionId?: boolean
-    websiteId?: boolean
-    eventId?: boolean
-    event?: boolean
-    payload?: boolean
-    payloadHash?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    createdAt?: boolean
-    processedAt?: boolean
-  }
-
-  export type WordPressWebhookReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "connectionId" | "websiteId" | "eventId" | "event" | "payload" | "payloadHash" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "createdAt" | "processedAt", ExtArgs["result"]["wordPressWebhookReceipt"]>
-  export type WordPressWebhookReceiptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }
-  export type WordPressWebhookReceiptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }
-  export type WordPressWebhookReceiptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    connection?: boolean | WordPressConnectionDefaultArgs<ExtArgs>
-  }
-
-  export type $WordPressWebhookReceiptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "WordPressWebhookReceipt"
-    objects: {
-      connection: Prisma.$WordPressConnectionPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      connectionId: string
-      websiteId: string
-      eventId: string
-      event: string
-      payload: Prisma.JsonValue
-      payloadHash: string
-      status: string
-      attempts: number
-      nextAttemptAt: Date
-      lastError: string | null
-      createdAt: Date
-      processedAt: Date | null
-    }, ExtArgs["result"]["wordPressWebhookReceipt"]>
-    composites: {}
-  }
-
-  type WordPressWebhookReceiptGetPayload<S extends boolean | null | undefined | WordPressWebhookReceiptDefaultArgs> = $Result.GetResult<Prisma.$WordPressWebhookReceiptPayload, S>
-
-  type WordPressWebhookReceiptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<WordPressWebhookReceiptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: WordPressWebhookReceiptCountAggregateInputType | true
-    }
-
-  export interface WordPressWebhookReceiptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WordPressWebhookReceipt'], meta: { name: 'WordPressWebhookReceipt' } }
-    /**
-     * Find zero or one WordPressWebhookReceipt that matches the filter.
-     * @param {WordPressWebhookReceiptFindUniqueArgs} args - Arguments to find a WordPressWebhookReceipt
-     * @example
-     * // Get one WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends WordPressWebhookReceiptFindUniqueArgs>(args: SelectSubset<T, WordPressWebhookReceiptFindUniqueArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one WordPressWebhookReceipt that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {WordPressWebhookReceiptFindUniqueOrThrowArgs} args - Arguments to find a WordPressWebhookReceipt
-     * @example
-     * // Get one WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends WordPressWebhookReceiptFindUniqueOrThrowArgs>(args: SelectSubset<T, WordPressWebhookReceiptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WordPressWebhookReceipt that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptFindFirstArgs} args - Arguments to find a WordPressWebhookReceipt
-     * @example
-     * // Get one WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends WordPressWebhookReceiptFindFirstArgs>(args?: SelectSubset<T, WordPressWebhookReceiptFindFirstArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WordPressWebhookReceipt that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptFindFirstOrThrowArgs} args - Arguments to find a WordPressWebhookReceipt
-     * @example
-     * // Get one WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends WordPressWebhookReceiptFindFirstOrThrowArgs>(args?: SelectSubset<T, WordPressWebhookReceiptFindFirstOrThrowArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more WordPressWebhookReceipts that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all WordPressWebhookReceipts
-     * const wordPressWebhookReceipts = await prisma.wordPressWebhookReceipt.findMany()
-     * 
-     * // Get first 10 WordPressWebhookReceipts
-     * const wordPressWebhookReceipts = await prisma.wordPressWebhookReceipt.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const wordPressWebhookReceiptWithIdOnly = await prisma.wordPressWebhookReceipt.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends WordPressWebhookReceiptFindManyArgs>(args?: SelectSubset<T, WordPressWebhookReceiptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a WordPressWebhookReceipt.
-     * @param {WordPressWebhookReceiptCreateArgs} args - Arguments to create a WordPressWebhookReceipt.
-     * @example
-     * // Create one WordPressWebhookReceipt
-     * const WordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.create({
-     *   data: {
-     *     // ... data to create a WordPressWebhookReceipt
-     *   }
-     * })
-     * 
-     */
-    create<T extends WordPressWebhookReceiptCreateArgs>(args: SelectSubset<T, WordPressWebhookReceiptCreateArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many WordPressWebhookReceipts.
-     * @param {WordPressWebhookReceiptCreateManyArgs} args - Arguments to create many WordPressWebhookReceipts.
-     * @example
-     * // Create many WordPressWebhookReceipts
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends WordPressWebhookReceiptCreateManyArgs>(args?: SelectSubset<T, WordPressWebhookReceiptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many WordPressWebhookReceipts and returns the data saved in the database.
-     * @param {WordPressWebhookReceiptCreateManyAndReturnArgs} args - Arguments to create many WordPressWebhookReceipts.
-     * @example
-     * // Create many WordPressWebhookReceipts
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many WordPressWebhookReceipts and only return the `id`
-     * const wordPressWebhookReceiptWithIdOnly = await prisma.wordPressWebhookReceipt.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends WordPressWebhookReceiptCreateManyAndReturnArgs>(args?: SelectSubset<T, WordPressWebhookReceiptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a WordPressWebhookReceipt.
-     * @param {WordPressWebhookReceiptDeleteArgs} args - Arguments to delete one WordPressWebhookReceipt.
-     * @example
-     * // Delete one WordPressWebhookReceipt
-     * const WordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.delete({
-     *   where: {
-     *     // ... filter to delete one WordPressWebhookReceipt
-     *   }
-     * })
-     * 
-     */
-    delete<T extends WordPressWebhookReceiptDeleteArgs>(args: SelectSubset<T, WordPressWebhookReceiptDeleteArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one WordPressWebhookReceipt.
-     * @param {WordPressWebhookReceiptUpdateArgs} args - Arguments to update one WordPressWebhookReceipt.
-     * @example
-     * // Update one WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends WordPressWebhookReceiptUpdateArgs>(args: SelectSubset<T, WordPressWebhookReceiptUpdateArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more WordPressWebhookReceipts.
-     * @param {WordPressWebhookReceiptDeleteManyArgs} args - Arguments to filter WordPressWebhookReceipts to delete.
-     * @example
-     * // Delete a few WordPressWebhookReceipts
-     * const { count } = await prisma.wordPressWebhookReceipt.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends WordPressWebhookReceiptDeleteManyArgs>(args?: SelectSubset<T, WordPressWebhookReceiptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WordPressWebhookReceipts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many WordPressWebhookReceipts
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends WordPressWebhookReceiptUpdateManyArgs>(args: SelectSubset<T, WordPressWebhookReceiptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WordPressWebhookReceipts and returns the data updated in the database.
-     * @param {WordPressWebhookReceiptUpdateManyAndReturnArgs} args - Arguments to update many WordPressWebhookReceipts.
-     * @example
-     * // Update many WordPressWebhookReceipts
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more WordPressWebhookReceipts and only return the `id`
-     * const wordPressWebhookReceiptWithIdOnly = await prisma.wordPressWebhookReceipt.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends WordPressWebhookReceiptUpdateManyAndReturnArgs>(args: SelectSubset<T, WordPressWebhookReceiptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one WordPressWebhookReceipt.
-     * @param {WordPressWebhookReceiptUpsertArgs} args - Arguments to update or create a WordPressWebhookReceipt.
-     * @example
-     * // Update or create a WordPressWebhookReceipt
-     * const wordPressWebhookReceipt = await prisma.wordPressWebhookReceipt.upsert({
-     *   create: {
-     *     // ... data to create a WordPressWebhookReceipt
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the WordPressWebhookReceipt we want to update
-     *   }
-     * })
-     */
-    upsert<T extends WordPressWebhookReceiptUpsertArgs>(args: SelectSubset<T, WordPressWebhookReceiptUpsertArgs<ExtArgs>>): Prisma__WordPressWebhookReceiptClient<$Result.GetResult<Prisma.$WordPressWebhookReceiptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of WordPressWebhookReceipts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptCountArgs} args - Arguments to filter WordPressWebhookReceipts to count.
-     * @example
-     * // Count the number of WordPressWebhookReceipts
-     * const count = await prisma.wordPressWebhookReceipt.count({
-     *   where: {
-     *     // ... the filter for the WordPressWebhookReceipts we want to count
-     *   }
-     * })
-    **/
-    count<T extends WordPressWebhookReceiptCountArgs>(
-      args?: Subset<T, WordPressWebhookReceiptCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], WordPressWebhookReceiptCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a WordPressWebhookReceipt.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends WordPressWebhookReceiptAggregateArgs>(args: Subset<T, WordPressWebhookReceiptAggregateArgs>): Prisma.PrismaPromise<GetWordPressWebhookReceiptAggregateType<T>>
-
-    /**
-     * Group by WordPressWebhookReceipt.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WordPressWebhookReceiptGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends WordPressWebhookReceiptGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: WordPressWebhookReceiptGroupByArgs['orderBy'] }
-        : { orderBy?: WordPressWebhookReceiptGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, WordPressWebhookReceiptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWordPressWebhookReceiptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the WordPressWebhookReceipt model
-   */
-  readonly fields: WordPressWebhookReceiptFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for WordPressWebhookReceipt.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__WordPressWebhookReceiptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    connection<T extends WordPressConnectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WordPressConnectionDefaultArgs<ExtArgs>>): Prisma__WordPressConnectionClient<$Result.GetResult<Prisma.$WordPressConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the WordPressWebhookReceipt model
-   */
-  interface WordPressWebhookReceiptFieldRefs {
-    readonly id: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly connectionId: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly websiteId: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly eventId: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly event: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly payload: FieldRef<"WordPressWebhookReceipt", 'Json'>
-    readonly payloadHash: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly status: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly attempts: FieldRef<"WordPressWebhookReceipt", 'Int'>
-    readonly nextAttemptAt: FieldRef<"WordPressWebhookReceipt", 'DateTime'>
-    readonly lastError: FieldRef<"WordPressWebhookReceipt", 'String'>
-    readonly createdAt: FieldRef<"WordPressWebhookReceipt", 'DateTime'>
-    readonly processedAt: FieldRef<"WordPressWebhookReceipt", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * WordPressWebhookReceipt findUnique
-   */
-  export type WordPressWebhookReceiptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which WordPressWebhookReceipt to fetch.
-     */
-    where: WordPressWebhookReceiptWhereUniqueInput
-  }
-
-  /**
-   * WordPressWebhookReceipt findUniqueOrThrow
-   */
-  export type WordPressWebhookReceiptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which WordPressWebhookReceipt to fetch.
-     */
-    where: WordPressWebhookReceiptWhereUniqueInput
-  }
-
-  /**
-   * WordPressWebhookReceipt findFirst
-   */
-  export type WordPressWebhookReceiptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which WordPressWebhookReceipt to fetch.
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WordPressWebhookReceipts to fetch.
-     */
-    orderBy?: WordPressWebhookReceiptOrderByWithRelationInput | WordPressWebhookReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WordPressWebhookReceipts.
-     */
-    cursor?: WordPressWebhookReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WordPressWebhookReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WordPressWebhookReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WordPressWebhookReceipts.
-     */
-    distinct?: WordPressWebhookReceiptScalarFieldEnum | WordPressWebhookReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * WordPressWebhookReceipt findFirstOrThrow
-   */
-  export type WordPressWebhookReceiptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which WordPressWebhookReceipt to fetch.
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WordPressWebhookReceipts to fetch.
-     */
-    orderBy?: WordPressWebhookReceiptOrderByWithRelationInput | WordPressWebhookReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WordPressWebhookReceipts.
-     */
-    cursor?: WordPressWebhookReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WordPressWebhookReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WordPressWebhookReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WordPressWebhookReceipts.
-     */
-    distinct?: WordPressWebhookReceiptScalarFieldEnum | WordPressWebhookReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * WordPressWebhookReceipt findMany
-   */
-  export type WordPressWebhookReceiptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter, which WordPressWebhookReceipts to fetch.
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WordPressWebhookReceipts to fetch.
-     */
-    orderBy?: WordPressWebhookReceiptOrderByWithRelationInput | WordPressWebhookReceiptOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing WordPressWebhookReceipts.
-     */
-    cursor?: WordPressWebhookReceiptWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WordPressWebhookReceipts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WordPressWebhookReceipts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WordPressWebhookReceipts.
-     */
-    distinct?: WordPressWebhookReceiptScalarFieldEnum | WordPressWebhookReceiptScalarFieldEnum[]
-  }
-
-  /**
-   * WordPressWebhookReceipt create
-   */
-  export type WordPressWebhookReceiptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * The data needed to create a WordPressWebhookReceipt.
-     */
-    data: XOR<WordPressWebhookReceiptCreateInput, WordPressWebhookReceiptUncheckedCreateInput>
-  }
-
-  /**
-   * WordPressWebhookReceipt createMany
-   */
-  export type WordPressWebhookReceiptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many WordPressWebhookReceipts.
-     */
-    data: WordPressWebhookReceiptCreateManyInput | WordPressWebhookReceiptCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * WordPressWebhookReceipt createManyAndReturn
-   */
-  export type WordPressWebhookReceiptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * The data used to create many WordPressWebhookReceipts.
-     */
-    data: WordPressWebhookReceiptCreateManyInput | WordPressWebhookReceiptCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * WordPressWebhookReceipt update
-   */
-  export type WordPressWebhookReceiptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * The data needed to update a WordPressWebhookReceipt.
-     */
-    data: XOR<WordPressWebhookReceiptUpdateInput, WordPressWebhookReceiptUncheckedUpdateInput>
-    /**
-     * Choose, which WordPressWebhookReceipt to update.
-     */
-    where: WordPressWebhookReceiptWhereUniqueInput
-  }
-
-  /**
-   * WordPressWebhookReceipt updateMany
-   */
-  export type WordPressWebhookReceiptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update WordPressWebhookReceipts.
-     */
-    data: XOR<WordPressWebhookReceiptUpdateManyMutationInput, WordPressWebhookReceiptUncheckedUpdateManyInput>
-    /**
-     * Filter which WordPressWebhookReceipts to update
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * Limit how many WordPressWebhookReceipts to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * WordPressWebhookReceipt updateManyAndReturn
-   */
-  export type WordPressWebhookReceiptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * The data used to update WordPressWebhookReceipts.
-     */
-    data: XOR<WordPressWebhookReceiptUpdateManyMutationInput, WordPressWebhookReceiptUncheckedUpdateManyInput>
-    /**
-     * Filter which WordPressWebhookReceipts to update
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * Limit how many WordPressWebhookReceipts to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * WordPressWebhookReceipt upsert
-   */
-  export type WordPressWebhookReceiptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * The filter to search for the WordPressWebhookReceipt to update in case it exists.
-     */
-    where: WordPressWebhookReceiptWhereUniqueInput
-    /**
-     * In case the WordPressWebhookReceipt found by the `where` argument doesn't exist, create a new WordPressWebhookReceipt with this data.
-     */
-    create: XOR<WordPressWebhookReceiptCreateInput, WordPressWebhookReceiptUncheckedCreateInput>
-    /**
-     * In case the WordPressWebhookReceipt was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<WordPressWebhookReceiptUpdateInput, WordPressWebhookReceiptUncheckedUpdateInput>
-  }
-
-  /**
-   * WordPressWebhookReceipt delete
-   */
-  export type WordPressWebhookReceiptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
-    /**
-     * Filter which WordPressWebhookReceipt to delete.
-     */
-    where: WordPressWebhookReceiptWhereUniqueInput
-  }
-
-  /**
-   * WordPressWebhookReceipt deleteMany
-   */
-  export type WordPressWebhookReceiptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WordPressWebhookReceipts to delete
-     */
-    where?: WordPressWebhookReceiptWhereInput
-    /**
-     * Limit how many WordPressWebhookReceipts to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * WordPressWebhookReceipt without action
-   */
-  export type WordPressWebhookReceiptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WordPressWebhookReceipt
-     */
-    select?: WordPressWebhookReceiptSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WordPressWebhookReceipt
-     */
-    omit?: WordPressWebhookReceiptOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WordPressWebhookReceiptInclude<ExtArgs> | null
   }
 
 
@@ -50503,7 +46235,6 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     ownerId: string | null
-    isPersonal: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -50514,7 +46245,6 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     ownerId: string | null
-    isPersonal: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -50525,7 +46255,6 @@ export namespace Prisma {
     name: number
     slug: number
     ownerId: number
-    isPersonal: number
     settings: number
     createdAt: number
     updatedAt: number
@@ -50539,7 +46268,6 @@ export namespace Prisma {
     name?: true
     slug?: true
     ownerId?: true
-    isPersonal?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -50550,7 +46278,6 @@ export namespace Prisma {
     name?: true
     slug?: true
     ownerId?: true
-    isPersonal?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -50561,7 +46288,6 @@ export namespace Prisma {
     name?: true
     slug?: true
     ownerId?: true
-    isPersonal?: true
     settings?: true
     createdAt?: true
     updatedAt?: true
@@ -50646,7 +46372,6 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal: boolean
     settings: JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -50675,15 +46400,12 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     ownerId?: boolean
-    isPersonal?: boolean
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
-    invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
-    supportGrants?: boolean | Workspace$supportGrantsArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
@@ -50694,7 +46416,6 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     ownerId?: boolean
-    isPersonal?: boolean
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -50708,7 +46429,6 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     ownerId?: boolean
-    isPersonal?: boolean
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -50722,19 +46442,16 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     ownerId?: boolean
-    isPersonal?: boolean
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "name" | "slug" | "ownerId" | "isPersonal" | "settings" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
+  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "name" | "slug" | "ownerId" | "settings" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
   export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
-    invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
-    supportGrants?: boolean | Workspace$supportGrantsArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -50753,8 +46470,6 @@ export namespace Prisma {
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       owner: Prisma.$UserPayload<ExtArgs>
       members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
-      invitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
-      supportGrants: Prisma.$SupportGrantPayload<ExtArgs>[]
       websites: Prisma.$WebsitePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -50763,7 +46478,6 @@ export namespace Prisma {
       name: string
       slug: string
       ownerId: string
-      isPersonal: boolean
       settings: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
@@ -51164,8 +46878,6 @@ export namespace Prisma {
     organization<T extends Workspace$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     members<T extends Workspace$membersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    invitations<T extends Workspace$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    supportGrants<T extends Workspace$supportGrantsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$supportGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     websites<T extends Workspace$websitesArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -51201,7 +46913,6 @@ export namespace Prisma {
     readonly name: FieldRef<"Workspace", 'String'>
     readonly slug: FieldRef<"Workspace", 'String'>
     readonly ownerId: FieldRef<"Workspace", 'String'>
-    readonly isPersonal: FieldRef<"Workspace", 'Boolean'>
     readonly settings: FieldRef<"Workspace", 'Json'>
     readonly createdAt: FieldRef<"Workspace", 'DateTime'>
     readonly updatedAt: FieldRef<"Workspace", 'DateTime'>
@@ -51646,54 +47357,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WorkspaceMemberScalarFieldEnum | WorkspaceMemberScalarFieldEnum[]
-  }
-
-  /**
-   * Workspace.invitations
-   */
-  export type Workspace$invitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    where?: WorkspaceInvitationWhereInput
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * Workspace.supportGrants
-   */
-  export type Workspace$supportGrantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    where?: SupportGrantWhereInput
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    cursor?: SupportGrantWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
   }
 
   /**
@@ -54000,18 +49663,8 @@ export namespace Prisma {
 
   export type AggregateWorkspaceMember = {
     _count: WorkspaceMemberCountAggregateOutputType | null
-    _avg: WorkspaceMemberAvgAggregateOutputType | null
-    _sum: WorkspaceMemberSumAggregateOutputType | null
     _min: WorkspaceMemberMinAggregateOutputType | null
     _max: WorkspaceMemberMaxAggregateOutputType | null
-  }
-
-  export type WorkspaceMemberAvgAggregateOutputType = {
-    policyVersion: number | null
-  }
-
-  export type WorkspaceMemberSumAggregateOutputType = {
-    policyVersion: number | null
   }
 
   export type WorkspaceMemberMinAggregateOutputType = {
@@ -54019,8 +49672,6 @@ export namespace Prisma {
     workspaceId: string | null
     userId: string | null
     role: string | null
-    status: string | null
-    policyVersion: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -54030,8 +49681,6 @@ export namespace Prisma {
     workspaceId: string | null
     userId: string | null
     role: string | null
-    status: string | null
-    policyVersion: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -54041,29 +49690,17 @@ export namespace Prisma {
     workspaceId: number
     userId: number
     role: number
-    status: number
-    policyVersion: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type WorkspaceMemberAvgAggregateInputType = {
-    policyVersion?: true
-  }
-
-  export type WorkspaceMemberSumAggregateInputType = {
-    policyVersion?: true
-  }
-
   export type WorkspaceMemberMinAggregateInputType = {
     id?: true
     workspaceId?: true
     userId?: true
     role?: true
-    status?: true
-    policyVersion?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -54073,8 +49710,6 @@ export namespace Prisma {
     workspaceId?: true
     userId?: true
     role?: true
-    status?: true
-    policyVersion?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -54084,8 +49719,6 @@ export namespace Prisma {
     workspaceId?: true
     userId?: true
     role?: true
-    status?: true
-    policyVersion?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -54129,18 +49762,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: WorkspaceMemberAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: WorkspaceMemberSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: WorkspaceMemberMinAggregateInputType
@@ -54171,8 +49792,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WorkspaceMemberCountAggregateInputType | true
-    _avg?: WorkspaceMemberAvgAggregateInputType
-    _sum?: WorkspaceMemberSumAggregateInputType
     _min?: WorkspaceMemberMinAggregateInputType
     _max?: WorkspaceMemberMaxAggregateInputType
   }
@@ -54182,13 +49801,9 @@ export namespace Prisma {
     workspaceId: string
     userId: string
     role: string
-    status: string
-    policyVersion: number
     createdAt: Date
     updatedAt: Date
     _count: WorkspaceMemberCountAggregateOutputType | null
-    _avg: WorkspaceMemberAvgAggregateOutputType | null
-    _sum: WorkspaceMemberSumAggregateOutputType | null
     _min: WorkspaceMemberMinAggregateOutputType | null
     _max: WorkspaceMemberMaxAggregateOutputType | null
   }
@@ -54212,8 +49827,6 @@ export namespace Prisma {
     workspaceId?: boolean
     userId?: boolean
     role?: boolean
-    status?: boolean
-    policyVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
@@ -54225,8 +49838,6 @@ export namespace Prisma {
     workspaceId?: boolean
     userId?: boolean
     role?: boolean
-    status?: boolean
-    policyVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
@@ -54238,8 +49849,6 @@ export namespace Prisma {
     workspaceId?: boolean
     userId?: boolean
     role?: boolean
-    status?: boolean
-    policyVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
@@ -54251,13 +49860,11 @@ export namespace Prisma {
     workspaceId?: boolean
     userId?: boolean
     role?: boolean
-    status?: boolean
-    policyVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkspaceMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "userId" | "role" | "status" | "policyVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["workspaceMember"]>
+  export type WorkspaceMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "userId" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["workspaceMember"]>
   export type WorkspaceMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -54282,8 +49889,6 @@ export namespace Prisma {
       workspaceId: string
       userId: string
       role: string
-      status: string
-      policyVersion: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["workspaceMember"]>
@@ -54715,8 +50320,6 @@ export namespace Prisma {
     readonly workspaceId: FieldRef<"WorkspaceMember", 'String'>
     readonly userId: FieldRef<"WorkspaceMember", 'String'>
     readonly role: FieldRef<"WorkspaceMember", 'String'>
-    readonly status: FieldRef<"WorkspaceMember", 'String'>
-    readonly policyVersion: FieldRef<"WorkspaceMember", 'Int'>
     readonly createdAt: FieldRef<"WorkspaceMember", 'DateTime'>
     readonly updatedAt: FieldRef<"WorkspaceMember", 'DateTime'>
   }
@@ -55135,2319 +50738,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WorkspaceMemberInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model WorkspaceInvitation
-   */
-
-  export type AggregateWorkspaceInvitation = {
-    _count: WorkspaceInvitationCountAggregateOutputType | null
-    _min: WorkspaceInvitationMinAggregateOutputType | null
-    _max: WorkspaceInvitationMaxAggregateOutputType | null
-  }
-
-  export type WorkspaceInvitationMinAggregateOutputType = {
-    id: string | null
-    workspaceId: string | null
-    email: string | null
-    role: string | null
-    tokenHash: string | null
-    status: string | null
-    expiresAt: Date | null
-    invitedBy: string | null
-    acceptedBy: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type WorkspaceInvitationMaxAggregateOutputType = {
-    id: string | null
-    workspaceId: string | null
-    email: string | null
-    role: string | null
-    tokenHash: string | null
-    status: string | null
-    expiresAt: Date | null
-    invitedBy: string | null
-    acceptedBy: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type WorkspaceInvitationCountAggregateOutputType = {
-    id: number
-    workspaceId: number
-    email: number
-    role: number
-    tokenHash: number
-    status: number
-    expiresAt: number
-    invitedBy: number
-    acceptedBy: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type WorkspaceInvitationMinAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    email?: true
-    role?: true
-    tokenHash?: true
-    status?: true
-    expiresAt?: true
-    invitedBy?: true
-    acceptedBy?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type WorkspaceInvitationMaxAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    email?: true
-    role?: true
-    tokenHash?: true
-    status?: true
-    expiresAt?: true
-    invitedBy?: true
-    acceptedBy?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type WorkspaceInvitationCountAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    email?: true
-    role?: true
-    tokenHash?: true
-    status?: true
-    expiresAt?: true
-    invitedBy?: true
-    acceptedBy?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type WorkspaceInvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WorkspaceInvitation to aggregate.
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WorkspaceInvitations to fetch.
-     */
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WorkspaceInvitations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WorkspaceInvitations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned WorkspaceInvitations
-    **/
-    _count?: true | WorkspaceInvitationCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: WorkspaceInvitationMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: WorkspaceInvitationMaxAggregateInputType
-  }
-
-  export type GetWorkspaceInvitationAggregateType<T extends WorkspaceInvitationAggregateArgs> = {
-        [P in keyof T & keyof AggregateWorkspaceInvitation]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateWorkspaceInvitation[P]>
-      : GetScalarType<T[P], AggregateWorkspaceInvitation[P]>
-  }
-
-
-
-
-  export type WorkspaceInvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceInvitationWhereInput
-    orderBy?: WorkspaceInvitationOrderByWithAggregationInput | WorkspaceInvitationOrderByWithAggregationInput[]
-    by: WorkspaceInvitationScalarFieldEnum[] | WorkspaceInvitationScalarFieldEnum
-    having?: WorkspaceInvitationScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: WorkspaceInvitationCountAggregateInputType | true
-    _min?: WorkspaceInvitationMinAggregateInputType
-    _max?: WorkspaceInvitationMaxAggregateInputType
-  }
-
-  export type WorkspaceInvitationGroupByOutputType = {
-    id: string
-    workspaceId: string
-    email: string
-    role: string
-    tokenHash: string
-    status: string
-    expiresAt: Date
-    invitedBy: string
-    acceptedBy: string | null
-    createdAt: Date
-    updatedAt: Date
-    _count: WorkspaceInvitationCountAggregateOutputType | null
-    _min: WorkspaceInvitationMinAggregateOutputType | null
-    _max: WorkspaceInvitationMaxAggregateOutputType | null
-  }
-
-  type GetWorkspaceInvitationGroupByPayload<T extends WorkspaceInvitationGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<WorkspaceInvitationGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof WorkspaceInvitationGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], WorkspaceInvitationGroupByOutputType[P]>
-            : GetScalarType<T[P], WorkspaceInvitationGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type WorkspaceInvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    email?: boolean
-    role?: boolean
-    tokenHash?: boolean
-    status?: boolean
-    expiresAt?: boolean
-    invitedBy?: boolean
-    acceptedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }, ExtArgs["result"]["workspaceInvitation"]>
-
-  export type WorkspaceInvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    email?: boolean
-    role?: boolean
-    tokenHash?: boolean
-    status?: boolean
-    expiresAt?: boolean
-    invitedBy?: boolean
-    acceptedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }, ExtArgs["result"]["workspaceInvitation"]>
-
-  export type WorkspaceInvitationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    email?: boolean
-    role?: boolean
-    tokenHash?: boolean
-    status?: boolean
-    expiresAt?: boolean
-    invitedBy?: boolean
-    acceptedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }, ExtArgs["result"]["workspaceInvitation"]>
-
-  export type WorkspaceInvitationSelectScalar = {
-    id?: boolean
-    workspaceId?: boolean
-    email?: boolean
-    role?: boolean
-    tokenHash?: boolean
-    status?: boolean
-    expiresAt?: boolean
-    invitedBy?: boolean
-    acceptedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type WorkspaceInvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "email" | "role" | "tokenHash" | "status" | "expiresAt" | "invitedBy" | "acceptedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["workspaceInvitation"]>
-  export type WorkspaceInvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }
-  export type WorkspaceInvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }
-  export type WorkspaceInvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    inviter?: boolean | UserDefaultArgs<ExtArgs>
-    accepter?: boolean | WorkspaceInvitation$accepterArgs<ExtArgs>
-  }
-
-  export type $WorkspaceInvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "WorkspaceInvitation"
-    objects: {
-      workspace: Prisma.$WorkspacePayload<ExtArgs>
-      inviter: Prisma.$UserPayload<ExtArgs>
-      accepter: Prisma.$UserPayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      workspaceId: string
-      email: string
-      role: string
-      tokenHash: string
-      status: string
-      expiresAt: Date
-      invitedBy: string
-      acceptedBy: string | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["workspaceInvitation"]>
-    composites: {}
-  }
-
-  type WorkspaceInvitationGetPayload<S extends boolean | null | undefined | WorkspaceInvitationDefaultArgs> = $Result.GetResult<Prisma.$WorkspaceInvitationPayload, S>
-
-  type WorkspaceInvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<WorkspaceInvitationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: WorkspaceInvitationCountAggregateInputType | true
-    }
-
-  export interface WorkspaceInvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkspaceInvitation'], meta: { name: 'WorkspaceInvitation' } }
-    /**
-     * Find zero or one WorkspaceInvitation that matches the filter.
-     * @param {WorkspaceInvitationFindUniqueArgs} args - Arguments to find a WorkspaceInvitation
-     * @example
-     * // Get one WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends WorkspaceInvitationFindUniqueArgs>(args: SelectSubset<T, WorkspaceInvitationFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one WorkspaceInvitation that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {WorkspaceInvitationFindUniqueOrThrowArgs} args - Arguments to find a WorkspaceInvitation
-     * @example
-     * // Get one WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends WorkspaceInvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WorkspaceInvitation that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationFindFirstArgs} args - Arguments to find a WorkspaceInvitation
-     * @example
-     * // Get one WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends WorkspaceInvitationFindFirstArgs>(args?: SelectSubset<T, WorkspaceInvitationFindFirstArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first WorkspaceInvitation that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationFindFirstOrThrowArgs} args - Arguments to find a WorkspaceInvitation
-     * @example
-     * // Get one WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends WorkspaceInvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more WorkspaceInvitations that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all WorkspaceInvitations
-     * const workspaceInvitations = await prisma.workspaceInvitation.findMany()
-     * 
-     * // Get first 10 WorkspaceInvitations
-     * const workspaceInvitations = await prisma.workspaceInvitation.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends WorkspaceInvitationFindManyArgs>(args?: SelectSubset<T, WorkspaceInvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a WorkspaceInvitation.
-     * @param {WorkspaceInvitationCreateArgs} args - Arguments to create a WorkspaceInvitation.
-     * @example
-     * // Create one WorkspaceInvitation
-     * const WorkspaceInvitation = await prisma.workspaceInvitation.create({
-     *   data: {
-     *     // ... data to create a WorkspaceInvitation
-     *   }
-     * })
-     * 
-     */
-    create<T extends WorkspaceInvitationCreateArgs>(args: SelectSubset<T, WorkspaceInvitationCreateArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many WorkspaceInvitations.
-     * @param {WorkspaceInvitationCreateManyArgs} args - Arguments to create many WorkspaceInvitations.
-     * @example
-     * // Create many WorkspaceInvitations
-     * const workspaceInvitation = await prisma.workspaceInvitation.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends WorkspaceInvitationCreateManyArgs>(args?: SelectSubset<T, WorkspaceInvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many WorkspaceInvitations and returns the data saved in the database.
-     * @param {WorkspaceInvitationCreateManyAndReturnArgs} args - Arguments to create many WorkspaceInvitations.
-     * @example
-     * // Create many WorkspaceInvitations
-     * const workspaceInvitation = await prisma.workspaceInvitation.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many WorkspaceInvitations and only return the `id`
-     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends WorkspaceInvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a WorkspaceInvitation.
-     * @param {WorkspaceInvitationDeleteArgs} args - Arguments to delete one WorkspaceInvitation.
-     * @example
-     * // Delete one WorkspaceInvitation
-     * const WorkspaceInvitation = await prisma.workspaceInvitation.delete({
-     *   where: {
-     *     // ... filter to delete one WorkspaceInvitation
-     *   }
-     * })
-     * 
-     */
-    delete<T extends WorkspaceInvitationDeleteArgs>(args: SelectSubset<T, WorkspaceInvitationDeleteArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one WorkspaceInvitation.
-     * @param {WorkspaceInvitationUpdateArgs} args - Arguments to update one WorkspaceInvitation.
-     * @example
-     * // Update one WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends WorkspaceInvitationUpdateArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more WorkspaceInvitations.
-     * @param {WorkspaceInvitationDeleteManyArgs} args - Arguments to filter WorkspaceInvitations to delete.
-     * @example
-     * // Delete a few WorkspaceInvitations
-     * const { count } = await prisma.workspaceInvitation.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends WorkspaceInvitationDeleteManyArgs>(args?: SelectSubset<T, WorkspaceInvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WorkspaceInvitations.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many WorkspaceInvitations
-     * const workspaceInvitation = await prisma.workspaceInvitation.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends WorkspaceInvitationUpdateManyArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more WorkspaceInvitations and returns the data updated in the database.
-     * @param {WorkspaceInvitationUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceInvitations.
-     * @example
-     * // Update many WorkspaceInvitations
-     * const workspaceInvitation = await prisma.workspaceInvitation.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more WorkspaceInvitations and only return the `id`
-     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends WorkspaceInvitationUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one WorkspaceInvitation.
-     * @param {WorkspaceInvitationUpsertArgs} args - Arguments to update or create a WorkspaceInvitation.
-     * @example
-     * // Update or create a WorkspaceInvitation
-     * const workspaceInvitation = await prisma.workspaceInvitation.upsert({
-     *   create: {
-     *     // ... data to create a WorkspaceInvitation
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the WorkspaceInvitation we want to update
-     *   }
-     * })
-     */
-    upsert<T extends WorkspaceInvitationUpsertArgs>(args: SelectSubset<T, WorkspaceInvitationUpsertArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of WorkspaceInvitations.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationCountArgs} args - Arguments to filter WorkspaceInvitations to count.
-     * @example
-     * // Count the number of WorkspaceInvitations
-     * const count = await prisma.workspaceInvitation.count({
-     *   where: {
-     *     // ... the filter for the WorkspaceInvitations we want to count
-     *   }
-     * })
-    **/
-    count<T extends WorkspaceInvitationCountArgs>(
-      args?: Subset<T, WorkspaceInvitationCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], WorkspaceInvitationCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a WorkspaceInvitation.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends WorkspaceInvitationAggregateArgs>(args: Subset<T, WorkspaceInvitationAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceInvitationAggregateType<T>>
-
-    /**
-     * Group by WorkspaceInvitation.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceInvitationGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends WorkspaceInvitationGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: WorkspaceInvitationGroupByArgs['orderBy'] }
-        : { orderBy?: WorkspaceInvitationGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, WorkspaceInvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the WorkspaceInvitation model
-   */
-  readonly fields: WorkspaceInvitationFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for WorkspaceInvitation.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__WorkspaceInvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    inviter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    accepter<T extends WorkspaceInvitation$accepterArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceInvitation$accepterArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the WorkspaceInvitation model
-   */
-  interface WorkspaceInvitationFieldRefs {
-    readonly id: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly workspaceId: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly email: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly role: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly tokenHash: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly status: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly expiresAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
-    readonly invitedBy: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly acceptedBy: FieldRef<"WorkspaceInvitation", 'String'>
-    readonly createdAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
-    readonly updatedAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * WorkspaceInvitation findUnique
-   */
-  export type WorkspaceInvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter, which WorkspaceInvitation to fetch.
-     */
-    where: WorkspaceInvitationWhereUniqueInput
-  }
-
-  /**
-   * WorkspaceInvitation findUniqueOrThrow
-   */
-  export type WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter, which WorkspaceInvitation to fetch.
-     */
-    where: WorkspaceInvitationWhereUniqueInput
-  }
-
-  /**
-   * WorkspaceInvitation findFirst
-   */
-  export type WorkspaceInvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter, which WorkspaceInvitation to fetch.
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WorkspaceInvitations to fetch.
-     */
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WorkspaceInvitations.
-     */
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WorkspaceInvitations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WorkspaceInvitations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WorkspaceInvitations.
-     */
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * WorkspaceInvitation findFirstOrThrow
-   */
-  export type WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter, which WorkspaceInvitation to fetch.
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WorkspaceInvitations to fetch.
-     */
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for WorkspaceInvitations.
-     */
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WorkspaceInvitations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WorkspaceInvitations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WorkspaceInvitations.
-     */
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * WorkspaceInvitation findMany
-   */
-  export type WorkspaceInvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter, which WorkspaceInvitations to fetch.
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of WorkspaceInvitations to fetch.
-     */
-    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing WorkspaceInvitations.
-     */
-    cursor?: WorkspaceInvitationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` WorkspaceInvitations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` WorkspaceInvitations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of WorkspaceInvitations.
-     */
-    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
-  }
-
-  /**
-   * WorkspaceInvitation create
-   */
-  export type WorkspaceInvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * The data needed to create a WorkspaceInvitation.
-     */
-    data: XOR<WorkspaceInvitationCreateInput, WorkspaceInvitationUncheckedCreateInput>
-  }
-
-  /**
-   * WorkspaceInvitation createMany
-   */
-  export type WorkspaceInvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many WorkspaceInvitations.
-     */
-    data: WorkspaceInvitationCreateManyInput | WorkspaceInvitationCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * WorkspaceInvitation createManyAndReturn
-   */
-  export type WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * The data used to create many WorkspaceInvitations.
-     */
-    data: WorkspaceInvitationCreateManyInput | WorkspaceInvitationCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * WorkspaceInvitation update
-   */
-  export type WorkspaceInvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * The data needed to update a WorkspaceInvitation.
-     */
-    data: XOR<WorkspaceInvitationUpdateInput, WorkspaceInvitationUncheckedUpdateInput>
-    /**
-     * Choose, which WorkspaceInvitation to update.
-     */
-    where: WorkspaceInvitationWhereUniqueInput
-  }
-
-  /**
-   * WorkspaceInvitation updateMany
-   */
-  export type WorkspaceInvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update WorkspaceInvitations.
-     */
-    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyInput>
-    /**
-     * Filter which WorkspaceInvitations to update
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * Limit how many WorkspaceInvitations to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * WorkspaceInvitation updateManyAndReturn
-   */
-  export type WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * The data used to update WorkspaceInvitations.
-     */
-    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyInput>
-    /**
-     * Filter which WorkspaceInvitations to update
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * Limit how many WorkspaceInvitations to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * WorkspaceInvitation upsert
-   */
-  export type WorkspaceInvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * The filter to search for the WorkspaceInvitation to update in case it exists.
-     */
-    where: WorkspaceInvitationWhereUniqueInput
-    /**
-     * In case the WorkspaceInvitation found by the `where` argument doesn't exist, create a new WorkspaceInvitation with this data.
-     */
-    create: XOR<WorkspaceInvitationCreateInput, WorkspaceInvitationUncheckedCreateInput>
-    /**
-     * In case the WorkspaceInvitation was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<WorkspaceInvitationUpdateInput, WorkspaceInvitationUncheckedUpdateInput>
-  }
-
-  /**
-   * WorkspaceInvitation delete
-   */
-  export type WorkspaceInvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-    /**
-     * Filter which WorkspaceInvitation to delete.
-     */
-    where: WorkspaceInvitationWhereUniqueInput
-  }
-
-  /**
-   * WorkspaceInvitation deleteMany
-   */
-  export type WorkspaceInvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which WorkspaceInvitations to delete
-     */
-    where?: WorkspaceInvitationWhereInput
-    /**
-     * Limit how many WorkspaceInvitations to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * WorkspaceInvitation.accepter
-   */
-  export type WorkspaceInvitation$accepterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * WorkspaceInvitation without action
-   */
-  export type WorkspaceInvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WorkspaceInvitation
-     */
-    select?: WorkspaceInvitationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WorkspaceInvitation
-     */
-    omit?: WorkspaceInvitationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WorkspaceInvitationInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model SupportGrant
-   */
-
-  export type AggregateSupportGrant = {
-    _count: SupportGrantCountAggregateOutputType | null
-    _min: SupportGrantMinAggregateOutputType | null
-    _max: SupportGrantMaxAggregateOutputType | null
-  }
-
-  export type SupportGrantMinAggregateOutputType = {
-    id: string | null
-    workspaceId: string | null
-    granteeId: string | null
-    reason: string | null
-    approvedBy: string | null
-    expiresAt: Date | null
-    revokedAt: Date | null
-    createdAt: Date | null
-  }
-
-  export type SupportGrantMaxAggregateOutputType = {
-    id: string | null
-    workspaceId: string | null
-    granteeId: string | null
-    reason: string | null
-    approvedBy: string | null
-    expiresAt: Date | null
-    revokedAt: Date | null
-    createdAt: Date | null
-  }
-
-  export type SupportGrantCountAggregateOutputType = {
-    id: number
-    workspaceId: number
-    granteeId: number
-    reason: number
-    approvedBy: number
-    expiresAt: number
-    revokedAt: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type SupportGrantMinAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    granteeId?: true
-    reason?: true
-    approvedBy?: true
-    expiresAt?: true
-    revokedAt?: true
-    createdAt?: true
-  }
-
-  export type SupportGrantMaxAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    granteeId?: true
-    reason?: true
-    approvedBy?: true
-    expiresAt?: true
-    revokedAt?: true
-    createdAt?: true
-  }
-
-  export type SupportGrantCountAggregateInputType = {
-    id?: true
-    workspaceId?: true
-    granteeId?: true
-    reason?: true
-    approvedBy?: true
-    expiresAt?: true
-    revokedAt?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type SupportGrantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SupportGrant to aggregate.
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SupportGrants to fetch.
-     */
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: SupportGrantWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SupportGrants from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SupportGrants.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned SupportGrants
-    **/
-    _count?: true | SupportGrantCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: SupportGrantMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: SupportGrantMaxAggregateInputType
-  }
-
-  export type GetSupportGrantAggregateType<T extends SupportGrantAggregateArgs> = {
-        [P in keyof T & keyof AggregateSupportGrant]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateSupportGrant[P]>
-      : GetScalarType<T[P], AggregateSupportGrant[P]>
-  }
-
-
-
-
-  export type SupportGrantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SupportGrantWhereInput
-    orderBy?: SupportGrantOrderByWithAggregationInput | SupportGrantOrderByWithAggregationInput[]
-    by: SupportGrantScalarFieldEnum[] | SupportGrantScalarFieldEnum
-    having?: SupportGrantScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: SupportGrantCountAggregateInputType | true
-    _min?: SupportGrantMinAggregateInputType
-    _max?: SupportGrantMaxAggregateInputType
-  }
-
-  export type SupportGrantGroupByOutputType = {
-    id: string
-    workspaceId: string
-    granteeId: string
-    reason: string
-    approvedBy: string | null
-    expiresAt: Date
-    revokedAt: Date | null
-    createdAt: Date
-    _count: SupportGrantCountAggregateOutputType | null
-    _min: SupportGrantMinAggregateOutputType | null
-    _max: SupportGrantMaxAggregateOutputType | null
-  }
-
-  type GetSupportGrantGroupByPayload<T extends SupportGrantGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<SupportGrantGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof SupportGrantGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], SupportGrantGroupByOutputType[P]>
-            : GetScalarType<T[P], SupportGrantGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type SupportGrantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    granteeId?: boolean
-    reason?: boolean
-    approvedBy?: boolean
-    expiresAt?: boolean
-    revokedAt?: boolean
-    createdAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }, ExtArgs["result"]["supportGrant"]>
-
-  export type SupportGrantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    granteeId?: boolean
-    reason?: boolean
-    approvedBy?: boolean
-    expiresAt?: boolean
-    revokedAt?: boolean
-    createdAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }, ExtArgs["result"]["supportGrant"]>
-
-  export type SupportGrantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    workspaceId?: boolean
-    granteeId?: boolean
-    reason?: boolean
-    approvedBy?: boolean
-    expiresAt?: boolean
-    revokedAt?: boolean
-    createdAt?: boolean
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }, ExtArgs["result"]["supportGrant"]>
-
-  export type SupportGrantSelectScalar = {
-    id?: boolean
-    workspaceId?: boolean
-    granteeId?: boolean
-    reason?: boolean
-    approvedBy?: boolean
-    expiresAt?: boolean
-    revokedAt?: boolean
-    createdAt?: boolean
-  }
-
-  export type SupportGrantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "granteeId" | "reason" | "approvedBy" | "expiresAt" | "revokedAt" | "createdAt", ExtArgs["result"]["supportGrant"]>
-  export type SupportGrantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }
-  export type SupportGrantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }
-  export type SupportGrantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
-    grantee?: boolean | UserDefaultArgs<ExtArgs>
-    approver?: boolean | SupportGrant$approverArgs<ExtArgs>
-  }
-
-  export type $SupportGrantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "SupportGrant"
-    objects: {
-      workspace: Prisma.$WorkspacePayload<ExtArgs>
-      grantee: Prisma.$UserPayload<ExtArgs>
-      approver: Prisma.$UserPayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      workspaceId: string
-      granteeId: string
-      reason: string
-      approvedBy: string | null
-      expiresAt: Date
-      revokedAt: Date | null
-      createdAt: Date
-    }, ExtArgs["result"]["supportGrant"]>
-    composites: {}
-  }
-
-  type SupportGrantGetPayload<S extends boolean | null | undefined | SupportGrantDefaultArgs> = $Result.GetResult<Prisma.$SupportGrantPayload, S>
-
-  type SupportGrantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SupportGrantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: SupportGrantCountAggregateInputType | true
-    }
-
-  export interface SupportGrantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportGrant'], meta: { name: 'SupportGrant' } }
-    /**
-     * Find zero or one SupportGrant that matches the filter.
-     * @param {SupportGrantFindUniqueArgs} args - Arguments to find a SupportGrant
-     * @example
-     * // Get one SupportGrant
-     * const supportGrant = await prisma.supportGrant.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends SupportGrantFindUniqueArgs>(args: SelectSubset<T, SupportGrantFindUniqueArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one SupportGrant that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {SupportGrantFindUniqueOrThrowArgs} args - Arguments to find a SupportGrant
-     * @example
-     * // Get one SupportGrant
-     * const supportGrant = await prisma.supportGrant.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends SupportGrantFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportGrantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SupportGrant that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantFindFirstArgs} args - Arguments to find a SupportGrant
-     * @example
-     * // Get one SupportGrant
-     * const supportGrant = await prisma.supportGrant.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends SupportGrantFindFirstArgs>(args?: SelectSubset<T, SupportGrantFindFirstArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SupportGrant that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantFindFirstOrThrowArgs} args - Arguments to find a SupportGrant
-     * @example
-     * // Get one SupportGrant
-     * const supportGrant = await prisma.supportGrant.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends SupportGrantFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportGrantFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more SupportGrants that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all SupportGrants
-     * const supportGrants = await prisma.supportGrant.findMany()
-     * 
-     * // Get first 10 SupportGrants
-     * const supportGrants = await prisma.supportGrant.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const supportGrantWithIdOnly = await prisma.supportGrant.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends SupportGrantFindManyArgs>(args?: SelectSubset<T, SupportGrantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a SupportGrant.
-     * @param {SupportGrantCreateArgs} args - Arguments to create a SupportGrant.
-     * @example
-     * // Create one SupportGrant
-     * const SupportGrant = await prisma.supportGrant.create({
-     *   data: {
-     *     // ... data to create a SupportGrant
-     *   }
-     * })
-     * 
-     */
-    create<T extends SupportGrantCreateArgs>(args: SelectSubset<T, SupportGrantCreateArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many SupportGrants.
-     * @param {SupportGrantCreateManyArgs} args - Arguments to create many SupportGrants.
-     * @example
-     * // Create many SupportGrants
-     * const supportGrant = await prisma.supportGrant.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends SupportGrantCreateManyArgs>(args?: SelectSubset<T, SupportGrantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many SupportGrants and returns the data saved in the database.
-     * @param {SupportGrantCreateManyAndReturnArgs} args - Arguments to create many SupportGrants.
-     * @example
-     * // Create many SupportGrants
-     * const supportGrant = await prisma.supportGrant.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many SupportGrants and only return the `id`
-     * const supportGrantWithIdOnly = await prisma.supportGrant.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends SupportGrantCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportGrantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a SupportGrant.
-     * @param {SupportGrantDeleteArgs} args - Arguments to delete one SupportGrant.
-     * @example
-     * // Delete one SupportGrant
-     * const SupportGrant = await prisma.supportGrant.delete({
-     *   where: {
-     *     // ... filter to delete one SupportGrant
-     *   }
-     * })
-     * 
-     */
-    delete<T extends SupportGrantDeleteArgs>(args: SelectSubset<T, SupportGrantDeleteArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one SupportGrant.
-     * @param {SupportGrantUpdateArgs} args - Arguments to update one SupportGrant.
-     * @example
-     * // Update one SupportGrant
-     * const supportGrant = await prisma.supportGrant.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends SupportGrantUpdateArgs>(args: SelectSubset<T, SupportGrantUpdateArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more SupportGrants.
-     * @param {SupportGrantDeleteManyArgs} args - Arguments to filter SupportGrants to delete.
-     * @example
-     * // Delete a few SupportGrants
-     * const { count } = await prisma.supportGrant.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends SupportGrantDeleteManyArgs>(args?: SelectSubset<T, SupportGrantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SupportGrants.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many SupportGrants
-     * const supportGrant = await prisma.supportGrant.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends SupportGrantUpdateManyArgs>(args: SelectSubset<T, SupportGrantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SupportGrants and returns the data updated in the database.
-     * @param {SupportGrantUpdateManyAndReturnArgs} args - Arguments to update many SupportGrants.
-     * @example
-     * // Update many SupportGrants
-     * const supportGrant = await prisma.supportGrant.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more SupportGrants and only return the `id`
-     * const supportGrantWithIdOnly = await prisma.supportGrant.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends SupportGrantUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportGrantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one SupportGrant.
-     * @param {SupportGrantUpsertArgs} args - Arguments to update or create a SupportGrant.
-     * @example
-     * // Update or create a SupportGrant
-     * const supportGrant = await prisma.supportGrant.upsert({
-     *   create: {
-     *     // ... data to create a SupportGrant
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the SupportGrant we want to update
-     *   }
-     * })
-     */
-    upsert<T extends SupportGrantUpsertArgs>(args: SelectSubset<T, SupportGrantUpsertArgs<ExtArgs>>): Prisma__SupportGrantClient<$Result.GetResult<Prisma.$SupportGrantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of SupportGrants.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantCountArgs} args - Arguments to filter SupportGrants to count.
-     * @example
-     * // Count the number of SupportGrants
-     * const count = await prisma.supportGrant.count({
-     *   where: {
-     *     // ... the filter for the SupportGrants we want to count
-     *   }
-     * })
-    **/
-    count<T extends SupportGrantCountArgs>(
-      args?: Subset<T, SupportGrantCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], SupportGrantCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a SupportGrant.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends SupportGrantAggregateArgs>(args: Subset<T, SupportGrantAggregateArgs>): Prisma.PrismaPromise<GetSupportGrantAggregateType<T>>
-
-    /**
-     * Group by SupportGrant.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SupportGrantGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends SupportGrantGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SupportGrantGroupByArgs['orderBy'] }
-        : { orderBy?: SupportGrantGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, SupportGrantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportGrantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the SupportGrant model
-   */
-  readonly fields: SupportGrantFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for SupportGrant.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__SupportGrantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    grantee<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    approver<T extends SupportGrant$approverArgs<ExtArgs> = {}>(args?: Subset<T, SupportGrant$approverArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the SupportGrant model
-   */
-  interface SupportGrantFieldRefs {
-    readonly id: FieldRef<"SupportGrant", 'String'>
-    readonly workspaceId: FieldRef<"SupportGrant", 'String'>
-    readonly granteeId: FieldRef<"SupportGrant", 'String'>
-    readonly reason: FieldRef<"SupportGrant", 'String'>
-    readonly approvedBy: FieldRef<"SupportGrant", 'String'>
-    readonly expiresAt: FieldRef<"SupportGrant", 'DateTime'>
-    readonly revokedAt: FieldRef<"SupportGrant", 'DateTime'>
-    readonly createdAt: FieldRef<"SupportGrant", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * SupportGrant findUnique
-   */
-  export type SupportGrantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter, which SupportGrant to fetch.
-     */
-    where: SupportGrantWhereUniqueInput
-  }
-
-  /**
-   * SupportGrant findUniqueOrThrow
-   */
-  export type SupportGrantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter, which SupportGrant to fetch.
-     */
-    where: SupportGrantWhereUniqueInput
-  }
-
-  /**
-   * SupportGrant findFirst
-   */
-  export type SupportGrantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter, which SupportGrant to fetch.
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SupportGrants to fetch.
-     */
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SupportGrants.
-     */
-    cursor?: SupportGrantWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SupportGrants from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SupportGrants.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SupportGrants.
-     */
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
-  }
-
-  /**
-   * SupportGrant findFirstOrThrow
-   */
-  export type SupportGrantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter, which SupportGrant to fetch.
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SupportGrants to fetch.
-     */
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SupportGrants.
-     */
-    cursor?: SupportGrantWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SupportGrants from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SupportGrants.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SupportGrants.
-     */
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
-  }
-
-  /**
-   * SupportGrant findMany
-   */
-  export type SupportGrantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter, which SupportGrants to fetch.
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SupportGrants to fetch.
-     */
-    orderBy?: SupportGrantOrderByWithRelationInput | SupportGrantOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing SupportGrants.
-     */
-    cursor?: SupportGrantWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SupportGrants from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SupportGrants.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SupportGrants.
-     */
-    distinct?: SupportGrantScalarFieldEnum | SupportGrantScalarFieldEnum[]
-  }
-
-  /**
-   * SupportGrant create
-   */
-  export type SupportGrantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * The data needed to create a SupportGrant.
-     */
-    data: XOR<SupportGrantCreateInput, SupportGrantUncheckedCreateInput>
-  }
-
-  /**
-   * SupportGrant createMany
-   */
-  export type SupportGrantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many SupportGrants.
-     */
-    data: SupportGrantCreateManyInput | SupportGrantCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * SupportGrant createManyAndReturn
-   */
-  export type SupportGrantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * The data used to create many SupportGrants.
-     */
-    data: SupportGrantCreateManyInput | SupportGrantCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SupportGrant update
-   */
-  export type SupportGrantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * The data needed to update a SupportGrant.
-     */
-    data: XOR<SupportGrantUpdateInput, SupportGrantUncheckedUpdateInput>
-    /**
-     * Choose, which SupportGrant to update.
-     */
-    where: SupportGrantWhereUniqueInput
-  }
-
-  /**
-   * SupportGrant updateMany
-   */
-  export type SupportGrantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update SupportGrants.
-     */
-    data: XOR<SupportGrantUpdateManyMutationInput, SupportGrantUncheckedUpdateManyInput>
-    /**
-     * Filter which SupportGrants to update
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * Limit how many SupportGrants to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * SupportGrant updateManyAndReturn
-   */
-  export type SupportGrantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * The data used to update SupportGrants.
-     */
-    data: XOR<SupportGrantUpdateManyMutationInput, SupportGrantUncheckedUpdateManyInput>
-    /**
-     * Filter which SupportGrants to update
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * Limit how many SupportGrants to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SupportGrant upsert
-   */
-  export type SupportGrantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * The filter to search for the SupportGrant to update in case it exists.
-     */
-    where: SupportGrantWhereUniqueInput
-    /**
-     * In case the SupportGrant found by the `where` argument doesn't exist, create a new SupportGrant with this data.
-     */
-    create: XOR<SupportGrantCreateInput, SupportGrantUncheckedCreateInput>
-    /**
-     * In case the SupportGrant was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<SupportGrantUpdateInput, SupportGrantUncheckedUpdateInput>
-  }
-
-  /**
-   * SupportGrant delete
-   */
-  export type SupportGrantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
-    /**
-     * Filter which SupportGrant to delete.
-     */
-    where: SupportGrantWhereUniqueInput
-  }
-
-  /**
-   * SupportGrant deleteMany
-   */
-  export type SupportGrantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SupportGrants to delete
-     */
-    where?: SupportGrantWhereInput
-    /**
-     * Limit how many SupportGrants to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * SupportGrant.approver
-   */
-  export type SupportGrant$approverArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * SupportGrant without action
-   */
-  export type SupportGrantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SupportGrant
-     */
-    select?: SupportGrantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SupportGrant
-     */
-    omit?: SupportGrantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SupportGrantInclude<ExtArgs> | null
   }
 
 
@@ -71370,33 +64660,15 @@ export namespace Prisma {
     slug: 'slug',
     status: 'status',
     editorData: 'editorData',
-    performanceSettings: 'performanceSettings',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     teamId: 'teamId',
     workspaceId: 'workspaceId',
     organizationId: 'organizationId',
-    approvalWorkflowEnabled: 'approvalWorkflowEnabled',
-    draftRevision: 'draftRevision'
+    approvalWorkflowEnabled: 'approvalWorkflowEnabled'
   };
 
   export type WebsiteScalarFieldEnum = (typeof WebsiteScalarFieldEnum)[keyof typeof WebsiteScalarFieldEnum]
-
-
-  export const DraftSaveReceiptScalarFieldEnum: {
-    id: 'id',
-    websiteId: 'websiteId',
-    actorId: 'actorId',
-    mutationId: 'mutationId',
-    requestHash: 'requestHash',
-    acceptedRevision: 'acceptedRevision',
-    documentHash: 'documentHash',
-    document: 'document',
-    acceptedAt: 'acceptedAt',
-    expiresAt: 'expiresAt'
-  };
-
-  export type DraftSaveReceiptScalarFieldEnum = (typeof DraftSaveReceiptScalarFieldEnum)[keyof typeof DraftSaveReceiptScalarFieldEnum]
 
 
   export const OtpVerificationScalarFieldEnum: {
@@ -71544,9 +64816,7 @@ export namespace Prisma {
     id: 'id',
     websiteId: 'websiteId',
     formId: 'formId',
-    formName: 'formName',
     data: 'data',
-    metadata: 'metadata',
     ipAddress: 'ipAddress',
     status: 'status',
     createdAt: 'createdAt'
@@ -71735,26 +65005,6 @@ export namespace Prisma {
   export type WebsiteCollaboratorScalarFieldEnum = (typeof WebsiteCollaboratorScalarFieldEnum)[keyof typeof WebsiteCollaboratorScalarFieldEnum]
 
 
-  export const WebsiteKitScalarFieldEnum: {
-    id: 'id',
-    slug: 'slug',
-    name: 'name',
-    category: 'category',
-    description: 'description',
-    thumbnail: 'thumbnail',
-    previewUrl: 'previewUrl',
-    pageCount: 'pageCount',
-    tags: 'tags',
-    globalStyles: 'globalStyles',
-    pages: 'pages',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type WebsiteKitScalarFieldEnum = (typeof WebsiteKitScalarFieldEnum)[keyof typeof WebsiteKitScalarFieldEnum]
-
-
   export const WebsiteRevisionScalarFieldEnum: {
     id: 'id',
     websiteId: 'websiteId',
@@ -71806,25 +65056,6 @@ export namespace Prisma {
   };
 
   export type WordPressConnectionScalarFieldEnum = (typeof WordPressConnectionScalarFieldEnum)[keyof typeof WordPressConnectionScalarFieldEnum]
-
-
-  export const WordPressWebhookReceiptScalarFieldEnum: {
-    id: 'id',
-    connectionId: 'connectionId',
-    websiteId: 'websiteId',
-    eventId: 'eventId',
-    event: 'event',
-    payload: 'payload',
-    payloadHash: 'payloadHash',
-    status: 'status',
-    attempts: 'attempts',
-    nextAttemptAt: 'nextAttemptAt',
-    lastError: 'lastError',
-    createdAt: 'createdAt',
-    processedAt: 'processedAt'
-  };
-
-  export type WordPressWebhookReceiptScalarFieldEnum = (typeof WordPressWebhookReceiptScalarFieldEnum)[keyof typeof WordPressWebhookReceiptScalarFieldEnum]
 
 
   export const WordPressPageMappingScalarFieldEnum: {
@@ -71918,7 +65149,6 @@ export namespace Prisma {
     name: 'name',
     slug: 'slug',
     ownerId: 'ownerId',
-    isPersonal: 'isPersonal',
     settings: 'settings',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -71957,44 +65187,11 @@ export namespace Prisma {
     workspaceId: 'workspaceId',
     userId: 'userId',
     role: 'role',
-    status: 'status',
-    policyVersion: 'policyVersion',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type WorkspaceMemberScalarFieldEnum = (typeof WorkspaceMemberScalarFieldEnum)[keyof typeof WorkspaceMemberScalarFieldEnum]
-
-
-  export const WorkspaceInvitationScalarFieldEnum: {
-    id: 'id',
-    workspaceId: 'workspaceId',
-    email: 'email',
-    role: 'role',
-    tokenHash: 'tokenHash',
-    status: 'status',
-    expiresAt: 'expiresAt',
-    invitedBy: 'invitedBy',
-    acceptedBy: 'acceptedBy',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type WorkspaceInvitationScalarFieldEnum = (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
-
-
-  export const SupportGrantScalarFieldEnum: {
-    id: 'id',
-    workspaceId: 'workspaceId',
-    granteeId: 'granteeId',
-    reason: 'reason',
-    approvedBy: 'approvedBy',
-    expiresAt: 'expiresAt',
-    revokedAt: 'revokedAt',
-    createdAt: 'createdAt'
-  };
-
-  export type SupportGrantScalarFieldEnum = (typeof SupportGrantScalarFieldEnum)[keyof typeof SupportGrantScalarFieldEnum]
 
 
   export const PublishApprovalRequestScalarFieldEnum: {
@@ -72449,10 +65646,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
-    sentWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
-    acceptedWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
-    supportGrantsReceived?: SupportGrantListRelationFilter
-    supportGrantsApproved?: SupportGrantListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -72460,7 +65653,6 @@ export namespace Prisma {
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
     invoices?: BillingInvoiceListRelationFilter
-    draftSaveReceipts?: DraftSaveReceiptListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -72504,10 +65696,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationOrderByRelationAggregateInput
     organizationMemberships?: OrganizationMemberOrderByRelationAggregateInput
     workspaceMemberships?: WorkspaceMemberOrderByRelationAggregateInput
-    sentWorkspaceInvitations?: WorkspaceInvitationOrderByRelationAggregateInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationOrderByRelationAggregateInput
-    supportGrantsReceived?: SupportGrantOrderByRelationAggregateInput
-    supportGrantsApproved?: SupportGrantOrderByRelationAggregateInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
@@ -72515,7 +65703,6 @@ export namespace Prisma {
     licenses?: LicenseOrderByRelationAggregateInput
     whiteLabelConfig?: WhiteLabelConfigOrderByWithRelationInput
     invoices?: BillingInvoiceOrderByRelationAggregateInput
-    draftSaveReceipts?: DraftSaveReceiptOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -72562,10 +65749,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
-    sentWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
-    acceptedWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
-    supportGrantsReceived?: SupportGrantListRelationFilter
-    supportGrantsApproved?: SupportGrantListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -72573,7 +65756,6 @@ export namespace Prisma {
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
     invoices?: BillingInvoiceListRelationFilter
-    draftSaveReceipts?: DraftSaveReceiptListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -72628,14 +65810,12 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     editorData?: JsonFilter<"Website">
-    performanceSettings?: JsonNullableFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
     workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
-    draftRevision?: UuidFilter<"Website"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     customCodeSnippets?: CustomCodeSnippetListRelationFilter
     formSubmissions?: FormSubmissionListRelationFilter
@@ -72661,7 +65841,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogListRelationFilter
     performanceMetrics?: SitePerformanceMetricListRelationFilter
     optimizedMedia?: MediaOptimizationAssetListRelationFilter
-    draftSaveReceipts?: DraftSaveReceiptListRelationFilter
   }
 
   export type WebsiteOrderByWithRelationInput = {
@@ -72671,14 +65850,12 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     editorData?: SortOrder
-    performanceSettings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrderInput | SortOrder
     workspaceId?: SortOrderInput | SortOrder
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
-    draftRevision?: SortOrder
     user?: UserOrderByWithRelationInput
     customCodeSnippets?: CustomCodeSnippetOrderByRelationAggregateInput
     formSubmissions?: FormSubmissionOrderByRelationAggregateInput
@@ -72704,7 +65881,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogOrderByRelationAggregateInput
     performanceMetrics?: SitePerformanceMetricOrderByRelationAggregateInput
     optimizedMedia?: MediaOptimizationAssetOrderByRelationAggregateInput
-    draftSaveReceipts?: DraftSaveReceiptOrderByRelationAggregateInput
   }
 
   export type WebsiteWhereUniqueInput = Prisma.AtLeast<{
@@ -72717,14 +65893,12 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     editorData?: JsonFilter<"Website">
-    performanceSettings?: JsonNullableFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
     workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
-    draftRevision?: UuidFilter<"Website"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     customCodeSnippets?: CustomCodeSnippetListRelationFilter
     formSubmissions?: FormSubmissionListRelationFilter
@@ -72750,7 +65924,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogListRelationFilter
     performanceMetrics?: SitePerformanceMetricListRelationFilter
     optimizedMedia?: MediaOptimizationAssetListRelationFilter
-    draftSaveReceipts?: DraftSaveReceiptListRelationFilter
   }, "id">
 
   export type WebsiteOrderByWithAggregationInput = {
@@ -72760,14 +65933,12 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     editorData?: SortOrder
-    performanceSettings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrderInput | SortOrder
     workspaceId?: SortOrderInput | SortOrder
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
-    draftRevision?: SortOrder
     _count?: WebsiteCountOrderByAggregateInput
     _max?: WebsiteMaxOrderByAggregateInput
     _min?: WebsiteMinOrderByAggregateInput
@@ -72783,98 +65954,12 @@ export namespace Prisma {
     slug?: StringWithAggregatesFilter<"Website"> | string
     status?: StringWithAggregatesFilter<"Website"> | string
     editorData?: JsonWithAggregatesFilter<"Website">
-    performanceSettings?: JsonNullableWithAggregatesFilter<"Website">
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     teamId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     workspaceId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     organizationId?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolWithAggregatesFilter<"Website"> | boolean
-    draftRevision?: UuidWithAggregatesFilter<"Website"> | string
-  }
-
-  export type DraftSaveReceiptWhereInput = {
-    AND?: DraftSaveReceiptWhereInput | DraftSaveReceiptWhereInput[]
-    OR?: DraftSaveReceiptWhereInput[]
-    NOT?: DraftSaveReceiptWhereInput | DraftSaveReceiptWhereInput[]
-    id?: UuidFilter<"DraftSaveReceipt"> | string
-    websiteId?: UuidFilter<"DraftSaveReceipt"> | string
-    actorId?: UuidFilter<"DraftSaveReceipt"> | string
-    mutationId?: StringFilter<"DraftSaveReceipt"> | string
-    requestHash?: StringFilter<"DraftSaveReceipt"> | string
-    acceptedRevision?: UuidFilter<"DraftSaveReceipt"> | string
-    documentHash?: StringFilter<"DraftSaveReceipt"> | string
-    document?: JsonFilter<"DraftSaveReceipt">
-    acceptedAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-    expiresAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
-    actor?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }
-
-  export type DraftSaveReceiptOrderByWithRelationInput = {
-    id?: SortOrder
-    websiteId?: SortOrder
-    actorId?: SortOrder
-    mutationId?: SortOrder
-    requestHash?: SortOrder
-    acceptedRevision?: SortOrder
-    documentHash?: SortOrder
-    document?: SortOrder
-    acceptedAt?: SortOrder
-    expiresAt?: SortOrder
-    website?: WebsiteOrderByWithRelationInput
-    actor?: UserOrderByWithRelationInput
-  }
-
-  export type DraftSaveReceiptWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    websiteId_actorId_mutationId?: DraftSaveReceiptWebsiteIdActorIdMutationIdCompoundUniqueInput
-    AND?: DraftSaveReceiptWhereInput | DraftSaveReceiptWhereInput[]
-    OR?: DraftSaveReceiptWhereInput[]
-    NOT?: DraftSaveReceiptWhereInput | DraftSaveReceiptWhereInput[]
-    websiteId?: UuidFilter<"DraftSaveReceipt"> | string
-    actorId?: UuidFilter<"DraftSaveReceipt"> | string
-    mutationId?: StringFilter<"DraftSaveReceipt"> | string
-    requestHash?: StringFilter<"DraftSaveReceipt"> | string
-    acceptedRevision?: UuidFilter<"DraftSaveReceipt"> | string
-    documentHash?: StringFilter<"DraftSaveReceipt"> | string
-    document?: JsonFilter<"DraftSaveReceipt">
-    acceptedAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-    expiresAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-    website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
-    actor?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "websiteId_actorId_mutationId">
-
-  export type DraftSaveReceiptOrderByWithAggregationInput = {
-    id?: SortOrder
-    websiteId?: SortOrder
-    actorId?: SortOrder
-    mutationId?: SortOrder
-    requestHash?: SortOrder
-    acceptedRevision?: SortOrder
-    documentHash?: SortOrder
-    document?: SortOrder
-    acceptedAt?: SortOrder
-    expiresAt?: SortOrder
-    _count?: DraftSaveReceiptCountOrderByAggregateInput
-    _max?: DraftSaveReceiptMaxOrderByAggregateInput
-    _min?: DraftSaveReceiptMinOrderByAggregateInput
-  }
-
-  export type DraftSaveReceiptScalarWhereWithAggregatesInput = {
-    AND?: DraftSaveReceiptScalarWhereWithAggregatesInput | DraftSaveReceiptScalarWhereWithAggregatesInput[]
-    OR?: DraftSaveReceiptScalarWhereWithAggregatesInput[]
-    NOT?: DraftSaveReceiptScalarWhereWithAggregatesInput | DraftSaveReceiptScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"DraftSaveReceipt"> | string
-    websiteId?: UuidWithAggregatesFilter<"DraftSaveReceipt"> | string
-    actorId?: UuidWithAggregatesFilter<"DraftSaveReceipt"> | string
-    mutationId?: StringWithAggregatesFilter<"DraftSaveReceipt"> | string
-    requestHash?: StringWithAggregatesFilter<"DraftSaveReceipt"> | string
-    acceptedRevision?: UuidWithAggregatesFilter<"DraftSaveReceipt"> | string
-    documentHash?: StringWithAggregatesFilter<"DraftSaveReceipt"> | string
-    document?: JsonWithAggregatesFilter<"DraftSaveReceipt">
-    acceptedAt?: DateTimeWithAggregatesFilter<"DraftSaveReceipt"> | Date | string
-    expiresAt?: DateTimeWithAggregatesFilter<"DraftSaveReceipt"> | Date | string
   }
 
   export type OtpVerificationWhereInput = {
@@ -73605,9 +66690,7 @@ export namespace Prisma {
     id?: UuidFilter<"FormSubmission"> | string
     websiteId?: UuidFilter<"FormSubmission"> | string
     formId?: StringFilter<"FormSubmission"> | string
-    formName?: StringNullableFilter<"FormSubmission"> | string | null
     data?: JsonFilter<"FormSubmission">
-    metadata?: JsonNullableFilter<"FormSubmission">
     ipAddress?: StringNullableFilter<"FormSubmission"> | string | null
     status?: StringFilter<"FormSubmission"> | string
     createdAt?: DateTimeFilter<"FormSubmission"> | Date | string
@@ -73618,9 +66701,7 @@ export namespace Prisma {
     id?: SortOrder
     websiteId?: SortOrder
     formId?: SortOrder
-    formName?: SortOrderInput | SortOrder
     data?: SortOrder
-    metadata?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -73634,9 +66715,7 @@ export namespace Prisma {
     NOT?: FormSubmissionWhereInput | FormSubmissionWhereInput[]
     websiteId?: UuidFilter<"FormSubmission"> | string
     formId?: StringFilter<"FormSubmission"> | string
-    formName?: StringNullableFilter<"FormSubmission"> | string | null
     data?: JsonFilter<"FormSubmission">
-    metadata?: JsonNullableFilter<"FormSubmission">
     ipAddress?: StringNullableFilter<"FormSubmission"> | string | null
     status?: StringFilter<"FormSubmission"> | string
     createdAt?: DateTimeFilter<"FormSubmission"> | Date | string
@@ -73647,9 +66726,7 @@ export namespace Prisma {
     id?: SortOrder
     websiteId?: SortOrder
     formId?: SortOrder
-    formName?: SortOrderInput | SortOrder
     data?: SortOrder
-    metadata?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -73665,9 +66742,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"FormSubmission"> | string
     websiteId?: UuidWithAggregatesFilter<"FormSubmission"> | string
     formId?: StringWithAggregatesFilter<"FormSubmission"> | string
-    formName?: StringNullableWithAggregatesFilter<"FormSubmission"> | string | null
     data?: JsonWithAggregatesFilter<"FormSubmission">
-    metadata?: JsonNullableWithAggregatesFilter<"FormSubmission">
     ipAddress?: StringNullableWithAggregatesFilter<"FormSubmission"> | string | null
     status?: StringWithAggregatesFilter<"FormSubmission"> | string
     createdAt?: DateTimeWithAggregatesFilter<"FormSubmission"> | Date | string
@@ -74593,105 +67668,6 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"WebsiteCollaborator"> | Date | string
   }
 
-  export type WebsiteKitWhereInput = {
-    AND?: WebsiteKitWhereInput | WebsiteKitWhereInput[]
-    OR?: WebsiteKitWhereInput[]
-    NOT?: WebsiteKitWhereInput | WebsiteKitWhereInput[]
-    id?: UuidFilter<"WebsiteKit"> | string
-    slug?: StringFilter<"WebsiteKit"> | string
-    name?: StringFilter<"WebsiteKit"> | string
-    category?: StringFilter<"WebsiteKit"> | string
-    description?: StringNullableFilter<"WebsiteKit"> | string | null
-    thumbnail?: StringNullableFilter<"WebsiteKit"> | string | null
-    previewUrl?: StringNullableFilter<"WebsiteKit"> | string | null
-    pageCount?: IntFilter<"WebsiteKit"> | number
-    tags?: JsonFilter<"WebsiteKit">
-    globalStyles?: JsonFilter<"WebsiteKit">
-    pages?: JsonFilter<"WebsiteKit">
-    isActive?: BoolFilter<"WebsiteKit"> | boolean
-    createdAt?: DateTimeFilter<"WebsiteKit"> | Date | string
-    updatedAt?: DateTimeFilter<"WebsiteKit"> | Date | string
-  }
-
-  export type WebsiteKitOrderByWithRelationInput = {
-    id?: SortOrder
-    slug?: SortOrder
-    name?: SortOrder
-    category?: SortOrder
-    description?: SortOrderInput | SortOrder
-    thumbnail?: SortOrderInput | SortOrder
-    previewUrl?: SortOrderInput | SortOrder
-    pageCount?: SortOrder
-    tags?: SortOrder
-    globalStyles?: SortOrder
-    pages?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WebsiteKitWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    slug?: string
-    AND?: WebsiteKitWhereInput | WebsiteKitWhereInput[]
-    OR?: WebsiteKitWhereInput[]
-    NOT?: WebsiteKitWhereInput | WebsiteKitWhereInput[]
-    name?: StringFilter<"WebsiteKit"> | string
-    category?: StringFilter<"WebsiteKit"> | string
-    description?: StringNullableFilter<"WebsiteKit"> | string | null
-    thumbnail?: StringNullableFilter<"WebsiteKit"> | string | null
-    previewUrl?: StringNullableFilter<"WebsiteKit"> | string | null
-    pageCount?: IntFilter<"WebsiteKit"> | number
-    tags?: JsonFilter<"WebsiteKit">
-    globalStyles?: JsonFilter<"WebsiteKit">
-    pages?: JsonFilter<"WebsiteKit">
-    isActive?: BoolFilter<"WebsiteKit"> | boolean
-    createdAt?: DateTimeFilter<"WebsiteKit"> | Date | string
-    updatedAt?: DateTimeFilter<"WebsiteKit"> | Date | string
-  }, "id" | "slug">
-
-  export type WebsiteKitOrderByWithAggregationInput = {
-    id?: SortOrder
-    slug?: SortOrder
-    name?: SortOrder
-    category?: SortOrder
-    description?: SortOrderInput | SortOrder
-    thumbnail?: SortOrderInput | SortOrder
-    previewUrl?: SortOrderInput | SortOrder
-    pageCount?: SortOrder
-    tags?: SortOrder
-    globalStyles?: SortOrder
-    pages?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: WebsiteKitCountOrderByAggregateInput
-    _avg?: WebsiteKitAvgOrderByAggregateInput
-    _max?: WebsiteKitMaxOrderByAggregateInput
-    _min?: WebsiteKitMinOrderByAggregateInput
-    _sum?: WebsiteKitSumOrderByAggregateInput
-  }
-
-  export type WebsiteKitScalarWhereWithAggregatesInput = {
-    AND?: WebsiteKitScalarWhereWithAggregatesInput | WebsiteKitScalarWhereWithAggregatesInput[]
-    OR?: WebsiteKitScalarWhereWithAggregatesInput[]
-    NOT?: WebsiteKitScalarWhereWithAggregatesInput | WebsiteKitScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"WebsiteKit"> | string
-    slug?: StringWithAggregatesFilter<"WebsiteKit"> | string
-    name?: StringWithAggregatesFilter<"WebsiteKit"> | string
-    category?: StringWithAggregatesFilter<"WebsiteKit"> | string
-    description?: StringNullableWithAggregatesFilter<"WebsiteKit"> | string | null
-    thumbnail?: StringNullableWithAggregatesFilter<"WebsiteKit"> | string | null
-    previewUrl?: StringNullableWithAggregatesFilter<"WebsiteKit"> | string | null
-    pageCount?: IntWithAggregatesFilter<"WebsiteKit"> | number
-    tags?: JsonWithAggregatesFilter<"WebsiteKit">
-    globalStyles?: JsonWithAggregatesFilter<"WebsiteKit">
-    pages?: JsonWithAggregatesFilter<"WebsiteKit">
-    isActive?: BoolWithAggregatesFilter<"WebsiteKit"> | boolean
-    createdAt?: DateTimeWithAggregatesFilter<"WebsiteKit"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"WebsiteKit"> | Date | string
-  }
-
   export type WebsiteRevisionWhereInput = {
     AND?: WebsiteRevisionWhereInput | WebsiteRevisionWhereInput[]
     OR?: WebsiteRevisionWhereInput[]
@@ -74896,7 +67872,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"WordPressConnection"> | Date | string
     website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    webhookReceipts?: WordPressWebhookReceiptListRelationFilter
   }
 
   export type WordPressConnectionOrderByWithRelationInput = {
@@ -74914,13 +67889,11 @@ export namespace Prisma {
     updatedAt?: SortOrder
     website?: WebsiteOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    webhookReceipts?: WordPressWebhookReceiptOrderByRelationAggregateInput
   }
 
   export type WordPressConnectionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     websiteId?: string
-    id_websiteId?: WordPressConnectionIdWebsiteIdCompoundUniqueInput
     AND?: WordPressConnectionWhereInput | WordPressConnectionWhereInput[]
     OR?: WordPressConnectionWhereInput[]
     NOT?: WordPressConnectionWhereInput | WordPressConnectionWhereInput[]
@@ -74936,8 +67909,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"WordPressConnection"> | Date | string
     website?: XOR<WebsiteScalarRelationFilter, WebsiteWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    webhookReceipts?: WordPressWebhookReceiptListRelationFilter
-  }, "id" | "websiteId" | "id_websiteId">
+  }, "id" | "websiteId">
 
   export type WordPressConnectionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -74973,104 +67945,6 @@ export namespace Prisma {
     lastVerifiedAt?: DateTimeNullableWithAggregatesFilter<"WordPressConnection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"WordPressConnection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WordPressConnection"> | Date | string
-  }
-
-  export type WordPressWebhookReceiptWhereInput = {
-    AND?: WordPressWebhookReceiptWhereInput | WordPressWebhookReceiptWhereInput[]
-    OR?: WordPressWebhookReceiptWhereInput[]
-    NOT?: WordPressWebhookReceiptWhereInput | WordPressWebhookReceiptWhereInput[]
-    id?: UuidFilter<"WordPressWebhookReceipt"> | string
-    connectionId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    websiteId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    eventId?: StringFilter<"WordPressWebhookReceipt"> | string
-    event?: StringFilter<"WordPressWebhookReceipt"> | string
-    payload?: JsonFilter<"WordPressWebhookReceipt">
-    payloadHash?: StringFilter<"WordPressWebhookReceipt"> | string
-    status?: StringFilter<"WordPressWebhookReceipt"> | string
-    attempts?: IntFilter<"WordPressWebhookReceipt"> | number
-    nextAttemptAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    lastError?: StringNullableFilter<"WordPressWebhookReceipt"> | string | null
-    createdAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    processedAt?: DateTimeNullableFilter<"WordPressWebhookReceipt"> | Date | string | null
-    connection?: XOR<WordPressConnectionScalarRelationFilter, WordPressConnectionWhereInput>
-  }
-
-  export type WordPressWebhookReceiptOrderByWithRelationInput = {
-    id?: SortOrder
-    connectionId?: SortOrder
-    websiteId?: SortOrder
-    eventId?: SortOrder
-    event?: SortOrder
-    payload?: SortOrder
-    payloadHash?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    processedAt?: SortOrderInput | SortOrder
-    connection?: WordPressConnectionOrderByWithRelationInput
-  }
-
-  export type WordPressWebhookReceiptWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    connectionId_eventId?: WordPressWebhookReceiptConnectionIdEventIdCompoundUniqueInput
-    AND?: WordPressWebhookReceiptWhereInput | WordPressWebhookReceiptWhereInput[]
-    OR?: WordPressWebhookReceiptWhereInput[]
-    NOT?: WordPressWebhookReceiptWhereInput | WordPressWebhookReceiptWhereInput[]
-    connectionId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    websiteId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    eventId?: StringFilter<"WordPressWebhookReceipt"> | string
-    event?: StringFilter<"WordPressWebhookReceipt"> | string
-    payload?: JsonFilter<"WordPressWebhookReceipt">
-    payloadHash?: StringFilter<"WordPressWebhookReceipt"> | string
-    status?: StringFilter<"WordPressWebhookReceipt"> | string
-    attempts?: IntFilter<"WordPressWebhookReceipt"> | number
-    nextAttemptAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    lastError?: StringNullableFilter<"WordPressWebhookReceipt"> | string | null
-    createdAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    processedAt?: DateTimeNullableFilter<"WordPressWebhookReceipt"> | Date | string | null
-    connection?: XOR<WordPressConnectionScalarRelationFilter, WordPressConnectionWhereInput>
-  }, "id" | "connectionId_eventId">
-
-  export type WordPressWebhookReceiptOrderByWithAggregationInput = {
-    id?: SortOrder
-    connectionId?: SortOrder
-    websiteId?: SortOrder
-    eventId?: SortOrder
-    event?: SortOrder
-    payload?: SortOrder
-    payloadHash?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    processedAt?: SortOrderInput | SortOrder
-    _count?: WordPressWebhookReceiptCountOrderByAggregateInput
-    _avg?: WordPressWebhookReceiptAvgOrderByAggregateInput
-    _max?: WordPressWebhookReceiptMaxOrderByAggregateInput
-    _min?: WordPressWebhookReceiptMinOrderByAggregateInput
-    _sum?: WordPressWebhookReceiptSumOrderByAggregateInput
-  }
-
-  export type WordPressWebhookReceiptScalarWhereWithAggregatesInput = {
-    AND?: WordPressWebhookReceiptScalarWhereWithAggregatesInput | WordPressWebhookReceiptScalarWhereWithAggregatesInput[]
-    OR?: WordPressWebhookReceiptScalarWhereWithAggregatesInput[]
-    NOT?: WordPressWebhookReceiptScalarWhereWithAggregatesInput | WordPressWebhookReceiptScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    connectionId?: UuidWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    websiteId?: UuidWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    eventId?: StringWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    event?: StringWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    payload?: JsonWithAggregatesFilter<"WordPressWebhookReceipt">
-    payloadHash?: StringWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    status?: StringWithAggregatesFilter<"WordPressWebhookReceipt"> | string
-    attempts?: IntWithAggregatesFilter<"WordPressWebhookReceipt"> | number
-    nextAttemptAt?: DateTimeWithAggregatesFilter<"WordPressWebhookReceipt"> | Date | string
-    lastError?: StringNullableWithAggregatesFilter<"WordPressWebhookReceipt"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"WordPressWebhookReceipt"> | Date | string
-    processedAt?: DateTimeNullableWithAggregatesFilter<"WordPressWebhookReceipt"> | Date | string | null
   }
 
   export type WordPressPageMappingWhereInput = {
@@ -75533,15 +68407,12 @@ export namespace Prisma {
     name?: StringFilter<"Workspace"> | string
     slug?: StringFilter<"Workspace"> | string
     ownerId?: UuidFilter<"Workspace"> | string
-    isPersonal?: BoolFilter<"Workspace"> | boolean
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
-    invitations?: WorkspaceInvitationListRelationFilter
-    supportGrants?: SupportGrantListRelationFilter
     websites?: WebsiteListRelationFilter
   }
 
@@ -75551,15 +68422,12 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     ownerId?: SortOrder
-    isPersonal?: SortOrder
     settings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     owner?: UserOrderByWithRelationInput
     members?: WorkspaceMemberOrderByRelationAggregateInput
-    invitations?: WorkspaceInvitationOrderByRelationAggregateInput
-    supportGrants?: SupportGrantOrderByRelationAggregateInput
     websites?: WebsiteOrderByRelationAggregateInput
   }
 
@@ -75572,15 +68440,12 @@ export namespace Prisma {
     organizationId?: UuidNullableFilter<"Workspace"> | string | null
     name?: StringFilter<"Workspace"> | string
     ownerId?: UuidFilter<"Workspace"> | string
-    isPersonal?: BoolFilter<"Workspace"> | boolean
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
-    invitations?: WorkspaceInvitationListRelationFilter
-    supportGrants?: SupportGrantListRelationFilter
     websites?: WebsiteListRelationFilter
   }, "id" | "slug">
 
@@ -75590,7 +68455,6 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     ownerId?: SortOrder
-    isPersonal?: SortOrder
     settings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -75608,7 +68472,6 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Workspace"> | string
     slug?: StringWithAggregatesFilter<"Workspace"> | string
     ownerId?: UuidWithAggregatesFilter<"Workspace"> | string
-    isPersonal?: BoolWithAggregatesFilter<"Workspace"> | boolean
     settings?: JsonNullableWithAggregatesFilter<"Workspace">
     createdAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
@@ -75760,8 +68623,6 @@ export namespace Prisma {
     workspaceId?: UuidFilter<"WorkspaceMember"> | string
     userId?: UuidFilter<"WorkspaceMember"> | string
     role?: StringFilter<"WorkspaceMember"> | string
-    status?: StringFilter<"WorkspaceMember"> | string
-    policyVersion?: IntFilter<"WorkspaceMember"> | number
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
@@ -75773,8 +68634,6 @@ export namespace Prisma {
     workspaceId?: SortOrder
     userId?: SortOrder
     role?: SortOrder
-    status?: SortOrder
-    policyVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     workspace?: WorkspaceOrderByWithRelationInput
@@ -75790,8 +68649,6 @@ export namespace Prisma {
     workspaceId?: UuidFilter<"WorkspaceMember"> | string
     userId?: UuidFilter<"WorkspaceMember"> | string
     role?: StringFilter<"WorkspaceMember"> | string
-    status?: StringFilter<"WorkspaceMember"> | string
-    policyVersion?: IntFilter<"WorkspaceMember"> | number
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
@@ -75803,15 +68660,11 @@ export namespace Prisma {
     workspaceId?: SortOrder
     userId?: SortOrder
     role?: SortOrder
-    status?: SortOrder
-    policyVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: WorkspaceMemberCountOrderByAggregateInput
-    _avg?: WorkspaceMemberAvgOrderByAggregateInput
     _max?: WorkspaceMemberMaxOrderByAggregateInput
     _min?: WorkspaceMemberMinOrderByAggregateInput
-    _sum?: WorkspaceMemberSumOrderByAggregateInput
   }
 
   export type WorkspaceMemberScalarWhereWithAggregatesInput = {
@@ -75822,177 +68675,8 @@ export namespace Prisma {
     workspaceId?: UuidWithAggregatesFilter<"WorkspaceMember"> | string
     userId?: UuidWithAggregatesFilter<"WorkspaceMember"> | string
     role?: StringWithAggregatesFilter<"WorkspaceMember"> | string
-    status?: StringWithAggregatesFilter<"WorkspaceMember"> | string
-    policyVersion?: IntWithAggregatesFilter<"WorkspaceMember"> | number
     createdAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
-  }
-
-  export type WorkspaceInvitationWhereInput = {
-    AND?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
-    OR?: WorkspaceInvitationWhereInput[]
-    NOT?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
-    id?: UuidFilter<"WorkspaceInvitation"> | string
-    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
-    email?: StringFilter<"WorkspaceInvitation"> | string
-    role?: StringFilter<"WorkspaceInvitation"> | string
-    tokenHash?: StringFilter<"WorkspaceInvitation"> | string
-    status?: StringFilter<"WorkspaceInvitation"> | string
-    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
-    acceptedBy?: UuidNullableFilter<"WorkspaceInvitation"> | string | null
-    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
-    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
-    accepter?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }
-
-  export type WorkspaceInvitationOrderByWithRelationInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    email?: SortOrder
-    role?: SortOrder
-    tokenHash?: SortOrder
-    status?: SortOrder
-    expiresAt?: SortOrder
-    invitedBy?: SortOrder
-    acceptedBy?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    workspace?: WorkspaceOrderByWithRelationInput
-    inviter?: UserOrderByWithRelationInput
-    accepter?: UserOrderByWithRelationInput
-  }
-
-  export type WorkspaceInvitationWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tokenHash?: string
-    AND?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
-    OR?: WorkspaceInvitationWhereInput[]
-    NOT?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
-    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
-    email?: StringFilter<"WorkspaceInvitation"> | string
-    role?: StringFilter<"WorkspaceInvitation"> | string
-    status?: StringFilter<"WorkspaceInvitation"> | string
-    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
-    acceptedBy?: UuidNullableFilter<"WorkspaceInvitation"> | string | null
-    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
-    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
-    accepter?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id" | "tokenHash">
-
-  export type WorkspaceInvitationOrderByWithAggregationInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    email?: SortOrder
-    role?: SortOrder
-    tokenHash?: SortOrder
-    status?: SortOrder
-    expiresAt?: SortOrder
-    invitedBy?: SortOrder
-    acceptedBy?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: WorkspaceInvitationCountOrderByAggregateInput
-    _max?: WorkspaceInvitationMaxOrderByAggregateInput
-    _min?: WorkspaceInvitationMinOrderByAggregateInput
-  }
-
-  export type WorkspaceInvitationScalarWhereWithAggregatesInput = {
-    AND?: WorkspaceInvitationScalarWhereWithAggregatesInput | WorkspaceInvitationScalarWhereWithAggregatesInput[]
-    OR?: WorkspaceInvitationScalarWhereWithAggregatesInput[]
-    NOT?: WorkspaceInvitationScalarWhereWithAggregatesInput | WorkspaceInvitationScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
-    workspaceId?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
-    email?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
-    role?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
-    tokenHash?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
-    status?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
-    expiresAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
-    invitedBy?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
-    acceptedBy?: UuidNullableWithAggregatesFilter<"WorkspaceInvitation"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
-  }
-
-  export type SupportGrantWhereInput = {
-    AND?: SupportGrantWhereInput | SupportGrantWhereInput[]
-    OR?: SupportGrantWhereInput[]
-    NOT?: SupportGrantWhereInput | SupportGrantWhereInput[]
-    id?: UuidFilter<"SupportGrant"> | string
-    workspaceId?: UuidFilter<"SupportGrant"> | string
-    granteeId?: UuidFilter<"SupportGrant"> | string
-    reason?: StringFilter<"SupportGrant"> | string
-    approvedBy?: UuidNullableFilter<"SupportGrant"> | string | null
-    expiresAt?: DateTimeFilter<"SupportGrant"> | Date | string
-    revokedAt?: DateTimeNullableFilter<"SupportGrant"> | Date | string | null
-    createdAt?: DateTimeFilter<"SupportGrant"> | Date | string
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
-    grantee?: XOR<UserScalarRelationFilter, UserWhereInput>
-    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }
-
-  export type SupportGrantOrderByWithRelationInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    granteeId?: SortOrder
-    reason?: SortOrder
-    approvedBy?: SortOrderInput | SortOrder
-    expiresAt?: SortOrder
-    revokedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    workspace?: WorkspaceOrderByWithRelationInput
-    grantee?: UserOrderByWithRelationInput
-    approver?: UserOrderByWithRelationInput
-  }
-
-  export type SupportGrantWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: SupportGrantWhereInput | SupportGrantWhereInput[]
-    OR?: SupportGrantWhereInput[]
-    NOT?: SupportGrantWhereInput | SupportGrantWhereInput[]
-    workspaceId?: UuidFilter<"SupportGrant"> | string
-    granteeId?: UuidFilter<"SupportGrant"> | string
-    reason?: StringFilter<"SupportGrant"> | string
-    approvedBy?: UuidNullableFilter<"SupportGrant"> | string | null
-    expiresAt?: DateTimeFilter<"SupportGrant"> | Date | string
-    revokedAt?: DateTimeNullableFilter<"SupportGrant"> | Date | string | null
-    createdAt?: DateTimeFilter<"SupportGrant"> | Date | string
-    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
-    grantee?: XOR<UserScalarRelationFilter, UserWhereInput>
-    approver?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id">
-
-  export type SupportGrantOrderByWithAggregationInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    granteeId?: SortOrder
-    reason?: SortOrder
-    approvedBy?: SortOrderInput | SortOrder
-    expiresAt?: SortOrder
-    revokedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: SupportGrantCountOrderByAggregateInput
-    _max?: SupportGrantMaxOrderByAggregateInput
-    _min?: SupportGrantMinOrderByAggregateInput
-  }
-
-  export type SupportGrantScalarWhereWithAggregatesInput = {
-    AND?: SupportGrantScalarWhereWithAggregatesInput | SupportGrantScalarWhereWithAggregatesInput[]
-    OR?: SupportGrantScalarWhereWithAggregatesInput[]
-    NOT?: SupportGrantScalarWhereWithAggregatesInput | SupportGrantScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"SupportGrant"> | string
-    workspaceId?: UuidWithAggregatesFilter<"SupportGrant"> | string
-    granteeId?: UuidWithAggregatesFilter<"SupportGrant"> | string
-    reason?: StringWithAggregatesFilter<"SupportGrant"> | string
-    approvedBy?: UuidNullableWithAggregatesFilter<"SupportGrant"> | string | null
-    expiresAt?: DateTimeWithAggregatesFilter<"SupportGrant"> | Date | string
-    revokedAt?: DateTimeNullableWithAggregatesFilter<"SupportGrant"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"SupportGrant"> | Date | string
   }
 
   export type PublishApprovalRequestWhereInput = {
@@ -77019,10 +69703,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -77030,7 +69710,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -77074,10 +69753,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -77085,7 +69760,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserUpdateInput = {
@@ -77129,10 +69803,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -77140,7 +69810,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -77184,10 +69853,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -77195,7 +69860,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -77255,11 +69919,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -77285,7 +69947,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateInput = {
@@ -77295,14 +69956,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -77324,7 +69983,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUpdateInput = {
@@ -77333,11 +69991,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -77363,7 +70019,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateInput = {
@@ -77373,14 +70028,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -77402,7 +70055,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateManyInput = {
@@ -77412,14 +70064,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
   }
 
   export type WebsiteUpdateManyMutationInput = {
@@ -77428,11 +70078,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
   }
 
   export type WebsiteUncheckedUpdateManyInput = {
@@ -77442,103 +70090,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type DraftSaveReceiptCreateInput = {
-    id?: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-    website: WebsiteCreateNestedOneWithoutDraftSaveReceiptsInput
-    actor: UserCreateNestedOneWithoutDraftSaveReceiptsInput
-  }
-
-  export type DraftSaveReceiptUncheckedCreateInput = {
-    id?: string
-    websiteId: string
-    actorId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-  }
-
-  export type DraftSaveReceiptUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    website?: WebsiteUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput
-    actor?: UserUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    actorId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DraftSaveReceiptCreateManyInput = {
-    id?: string
-    websiteId: string
-    actorId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-  }
-
-  export type DraftSaveReceiptUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    actorId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OtpVerificationCreateInput = {
@@ -78340,9 +70897,7 @@ export namespace Prisma {
   export type FormSubmissionCreateInput = {
     id?: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -78353,9 +70908,7 @@ export namespace Prisma {
     id?: string
     websiteId: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -78364,9 +70917,7 @@ export namespace Prisma {
   export type FormSubmissionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -78377,9 +70928,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     websiteId?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -78389,9 +70938,7 @@ export namespace Prisma {
     id?: string
     websiteId: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -78400,9 +70947,7 @@ export namespace Prisma {
   export type FormSubmissionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -78412,9 +70957,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     websiteId?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -79400,125 +71943,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WebsiteKitCreateInput = {
-    id?: string
-    slug: string
-    name: string
-    category: string
-    description?: string | null
-    thumbnail?: string | null
-    previewUrl?: string | null
-    pageCount?: number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WebsiteKitUncheckedCreateInput = {
-    id?: string
-    slug: string
-    name: string
-    category: string
-    description?: string | null
-    thumbnail?: string | null
-    previewUrl?: string | null
-    pageCount?: number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WebsiteKitUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    thumbnail?: NullableStringFieldUpdateOperationsInput | string | null
-    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    pageCount?: IntFieldUpdateOperationsInput | number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WebsiteKitUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    thumbnail?: NullableStringFieldUpdateOperationsInput | string | null
-    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    pageCount?: IntFieldUpdateOperationsInput | number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WebsiteKitCreateManyInput = {
-    id?: string
-    slug: string
-    name: string
-    category: string
-    description?: string | null
-    thumbnail?: string | null
-    previewUrl?: string | null
-    pageCount?: number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WebsiteKitUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    thumbnail?: NullableStringFieldUpdateOperationsInput | string | null
-    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    pageCount?: IntFieldUpdateOperationsInput | number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WebsiteKitUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    thumbnail?: NullableStringFieldUpdateOperationsInput | string | null
-    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    pageCount?: IntFieldUpdateOperationsInput | number
-    tags?: JsonNullValueInput | InputJsonValue
-    globalStyles?: JsonNullValueInput | InputJsonValue
-    pages?: JsonNullValueInput | InputJsonValue
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type WebsiteRevisionCreateInput = {
     id?: string
     version: number
@@ -79731,7 +72155,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     website: WebsiteCreateNestedOneWithoutWpConnectionInput
     user: UserCreateNestedOneWithoutWpConnectionsInput
-    webhookReceipts?: WordPressWebhookReceiptCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionUncheckedCreateInput = {
@@ -79747,7 +72170,6 @@ export namespace Prisma {
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionUpdateInput = {
@@ -79763,7 +72185,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     website?: WebsiteUpdateOneRequiredWithoutWpConnectionNestedInput
     user?: UserUpdateOneRequiredWithoutWpConnectionsNestedInput
-    webhookReceipts?: WordPressWebhookReceiptUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressConnectionUncheckedUpdateInput = {
@@ -79779,7 +72200,6 @@ export namespace Prisma {
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressConnectionCreateManyInput = {
@@ -79823,114 +72243,6 @@ export namespace Prisma {
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WordPressWebhookReceiptCreateInput = {
-    id?: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-    connection: WordPressConnectionCreateNestedOneWithoutWebhookReceiptsInput
-  }
-
-  export type WordPressWebhookReceiptUncheckedCreateInput = {
-    id?: string
-    connectionId: string
-    websiteId: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    connection?: WordPressConnectionUpdateOneRequiredWithoutWebhookReceiptsNestedInput
-  }
-
-  export type WordPressWebhookReceiptUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    connectionId?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type WordPressWebhookReceiptCreateManyInput = {
-    id?: string
-    connectionId: string
-    websiteId: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    connectionId?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WordPressPageMappingCreateInput = {
@@ -80408,15 +72720,12 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -80426,13 +72735,10 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -80440,15 +72746,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -80458,13 +72761,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -80474,7 +72774,6 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -80484,7 +72783,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -80496,7 +72794,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -80647,8 +72944,6 @@ export namespace Prisma {
   export type WorkspaceMemberCreateInput = {
     id?: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     workspace: WorkspaceCreateNestedOneWithoutMembersInput
@@ -80660,8 +72955,6 @@ export namespace Prisma {
     workspaceId: string
     userId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -80669,8 +72962,6 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspace?: WorkspaceUpdateOneRequiredWithoutMembersNestedInput
@@ -80682,8 +72973,6 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -80693,8 +72982,6 @@ export namespace Prisma {
     workspaceId: string
     userId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -80702,8 +72989,6 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -80713,179 +72998,8 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationCreateInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutInvitationsInput
-    inviter: UserCreateNestedOneWithoutSentWorkspaceInvitationsInput
-    accepter?: UserCreateNestedOneWithoutAcceptedWorkspaceInvitationsInput
-  }
-
-  export type WorkspaceInvitationUncheckedCreateInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput
-    accepter?: UserUpdateOneWithoutAcceptedWorkspaceInvitationsNestedInput
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationCreateManyInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantCreateInput = {
-    id?: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutSupportGrantsInput
-    grantee: UserCreateNestedOneWithoutSupportGrantsReceivedInput
-    approver?: UserCreateNestedOneWithoutSupportGrantsApprovedInput
-  }
-
-  export type SupportGrantUncheckedCreateInput = {
-    id?: string
-    workspaceId: string
-    granteeId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutSupportGrantsNestedInput
-    grantee?: UserUpdateOneRequiredWithoutSupportGrantsReceivedNestedInput
-    approver?: UserUpdateOneWithoutSupportGrantsApprovedNestedInput
-  }
-
-  export type SupportGrantUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantCreateManyInput = {
-    id?: string
-    workspaceId: string
-    granteeId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PublishApprovalRequestCreateInput = {
@@ -82204,18 +74318,6 @@ export namespace Prisma {
     none?: WorkspaceMemberWhereInput
   }
 
-  export type WorkspaceInvitationListRelationFilter = {
-    every?: WorkspaceInvitationWhereInput
-    some?: WorkspaceInvitationWhereInput
-    none?: WorkspaceInvitationWhereInput
-  }
-
-  export type SupportGrantListRelationFilter = {
-    every?: SupportGrantWhereInput
-    some?: SupportGrantWhereInput
-    none?: SupportGrantWhereInput
-  }
-
   export type PublishApprovalRequestListRelationFilter = {
     every?: PublishApprovalRequestWhereInput
     some?: PublishApprovalRequestWhereInput
@@ -82249,12 +74351,6 @@ export namespace Prisma {
     every?: BillingInvoiceWhereInput
     some?: BillingInvoiceWhereInput
     none?: BillingInvoiceWhereInput
-  }
-
-  export type DraftSaveReceiptListRelationFilter = {
-    every?: DraftSaveReceiptWhereInput
-    some?: DraftSaveReceiptWhereInput
-    none?: DraftSaveReceiptWhereInput
   }
 
   export type SortOrderInput = {
@@ -82362,14 +74458,6 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type WorkspaceInvitationOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type SupportGrantOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type PublishApprovalRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -82387,10 +74475,6 @@ export namespace Prisma {
   }
 
   export type BillingInvoiceOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type DraftSaveReceiptOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -82605,29 +74689,6 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type UuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
@@ -82778,14 +74839,12 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     editorData?: SortOrder
-    performanceSettings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
     workspaceId?: SortOrder
     organizationId?: SortOrder
     approvalWorkflowEnabled?: SortOrder
-    draftRevision?: SortOrder
   }
 
   export type WebsiteMaxOrderByAggregateInput = {
@@ -82800,7 +74859,6 @@ export namespace Prisma {
     workspaceId?: SortOrder
     organizationId?: SortOrder
     approvalWorkflowEnabled?: SortOrder
-    draftRevision?: SortOrder
   }
 
   export type WebsiteMinOrderByAggregateInput = {
@@ -82815,7 +74873,6 @@ export namespace Prisma {
     workspaceId?: SortOrder
     organizationId?: SortOrder
     approvalWorkflowEnabled?: SortOrder
-    draftRevision?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -82861,32 +74918,6 @@ export namespace Prisma {
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
   }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
 
   export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
@@ -82901,54 +74932,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type WebsiteScalarRelationFilter = {
-    is?: WebsiteWhereInput
-    isNot?: WebsiteWhereInput
-  }
-
-  export type DraftSaveReceiptWebsiteIdActorIdMutationIdCompoundUniqueInput = {
-    websiteId: string
-    actorId: string
-    mutationId: string
-  }
-
-  export type DraftSaveReceiptCountOrderByAggregateInput = {
-    id?: SortOrder
-    websiteId?: SortOrder
-    actorId?: SortOrder
-    mutationId?: SortOrder
-    requestHash?: SortOrder
-    acceptedRevision?: SortOrder
-    documentHash?: SortOrder
-    document?: SortOrder
-    acceptedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type DraftSaveReceiptMaxOrderByAggregateInput = {
-    id?: SortOrder
-    websiteId?: SortOrder
-    actorId?: SortOrder
-    mutationId?: SortOrder
-    requestHash?: SortOrder
-    acceptedRevision?: SortOrder
-    documentHash?: SortOrder
-    acceptedAt?: SortOrder
-    expiresAt?: SortOrder
-  }
-
-  export type DraftSaveReceiptMinOrderByAggregateInput = {
-    id?: SortOrder
-    websiteId?: SortOrder
-    actorId?: SortOrder
-    mutationId?: SortOrder
-    requestHash?: SortOrder
-    acceptedRevision?: SortOrder
-    documentHash?: SortOrder
-    acceptedAt?: SortOrder
-    expiresAt?: SortOrder
   }
 
   export type EnumOtpPurposeFilter<$PrismaModel = never> = {
@@ -83293,6 +75276,34 @@ export namespace Prisma {
     isShared?: SortOrder
     shareToken?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type WebsiteScalarRelationFilter = {
+    is?: WebsiteWhereInput
+    isNot?: WebsiteWhereInput
+  }
 
   export type CustomCodeSnippetCountOrderByAggregateInput = {
     id?: SortOrder
@@ -83368,6 +75379,32 @@ export namespace Prisma {
   export type CustomCodeSnippetSumOrderByAggregateInput = {
     priority?: SortOrder
   }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type CustomCodeSnippetScalarRelationFilter = {
     is?: CustomCodeSnippetWhereInput
@@ -83402,9 +75439,7 @@ export namespace Prisma {
     id?: SortOrder
     websiteId?: SortOrder
     formId?: SortOrder
-    formName?: SortOrder
     data?: SortOrder
-    metadata?: SortOrder
     ipAddress?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -83414,7 +75449,6 @@ export namespace Prisma {
     id?: SortOrder
     websiteId?: SortOrder
     formId?: SortOrder
-    formName?: SortOrder
     ipAddress?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -83424,7 +75458,6 @@ export namespace Prisma {
     id?: SortOrder
     websiteId?: SortOrder
     formId?: SortOrder
-    formName?: SortOrder
     ipAddress?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -83888,59 +75921,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type WebsiteKitCountOrderByAggregateInput = {
-    id?: SortOrder
-    slug?: SortOrder
-    name?: SortOrder
-    category?: SortOrder
-    description?: SortOrder
-    thumbnail?: SortOrder
-    previewUrl?: SortOrder
-    pageCount?: SortOrder
-    tags?: SortOrder
-    globalStyles?: SortOrder
-    pages?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WebsiteKitAvgOrderByAggregateInput = {
-    pageCount?: SortOrder
-  }
-
-  export type WebsiteKitMaxOrderByAggregateInput = {
-    id?: SortOrder
-    slug?: SortOrder
-    name?: SortOrder
-    category?: SortOrder
-    description?: SortOrder
-    thumbnail?: SortOrder
-    previewUrl?: SortOrder
-    pageCount?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WebsiteKitMinOrderByAggregateInput = {
-    id?: SortOrder
-    slug?: SortOrder
-    name?: SortOrder
-    category?: SortOrder
-    description?: SortOrder
-    thumbnail?: SortOrder
-    previewUrl?: SortOrder
-    pageCount?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WebsiteKitSumOrderByAggregateInput = {
-    pageCount?: SortOrder
-  }
-
   export type WebsiteRevisionWebsiteIdVersionCompoundUniqueInput = {
     websiteId: string
     version: number
@@ -84043,21 +76023,6 @@ export namespace Prisma {
     version?: SortOrder
   }
 
-  export type WordPressWebhookReceiptListRelationFilter = {
-    every?: WordPressWebhookReceiptWhereInput
-    some?: WordPressWebhookReceiptWhereInput
-    none?: WordPressWebhookReceiptWhereInput
-  }
-
-  export type WordPressWebhookReceiptOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type WordPressConnectionIdWebsiteIdCompoundUniqueInput = {
-    id: string
-    websiteId: string
-  }
-
   export type WordPressConnectionCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -84097,70 +76062,6 @@ export namespace Prisma {
     lastVerifiedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type WordPressConnectionScalarRelationFilter = {
-    is?: WordPressConnectionWhereInput
-    isNot?: WordPressConnectionWhereInput
-  }
-
-  export type WordPressWebhookReceiptConnectionIdEventIdCompoundUniqueInput = {
-    connectionId: string
-    eventId: string
-  }
-
-  export type WordPressWebhookReceiptCountOrderByAggregateInput = {
-    id?: SortOrder
-    connectionId?: SortOrder
-    websiteId?: SortOrder
-    eventId?: SortOrder
-    event?: SortOrder
-    payload?: SortOrder
-    payloadHash?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    createdAt?: SortOrder
-    processedAt?: SortOrder
-  }
-
-  export type WordPressWebhookReceiptAvgOrderByAggregateInput = {
-    attempts?: SortOrder
-  }
-
-  export type WordPressWebhookReceiptMaxOrderByAggregateInput = {
-    id?: SortOrder
-    connectionId?: SortOrder
-    websiteId?: SortOrder
-    eventId?: SortOrder
-    event?: SortOrder
-    payloadHash?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    createdAt?: SortOrder
-    processedAt?: SortOrder
-  }
-
-  export type WordPressWebhookReceiptMinOrderByAggregateInput = {
-    id?: SortOrder
-    connectionId?: SortOrder
-    websiteId?: SortOrder
-    eventId?: SortOrder
-    event?: SortOrder
-    payloadHash?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    createdAt?: SortOrder
-    processedAt?: SortOrder
-  }
-
-  export type WordPressWebhookReceiptSumOrderByAggregateInput = {
-    attempts?: SortOrder
   }
 
   export type WordPressPageMappingWebsiteIdForgePageIdCompoundUniqueInput = {
@@ -84400,7 +76301,6 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     ownerId?: SortOrder
-    isPersonal?: SortOrder
     settings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -84412,7 +76312,6 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     ownerId?: SortOrder
-    isPersonal?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -84423,7 +76322,6 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     ownerId?: SortOrder
-    isPersonal?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -84508,14 +76406,8 @@ export namespace Prisma {
     workspaceId?: SortOrder
     userId?: SortOrder
     role?: SortOrder
-    status?: SortOrder
-    policyVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type WorkspaceMemberAvgOrderByAggregateInput = {
-    policyVersion?: SortOrder
   }
 
   export type WorkspaceMemberMaxOrderByAggregateInput = {
@@ -84523,8 +76415,6 @@ export namespace Prisma {
     workspaceId?: SortOrder
     userId?: SortOrder
     role?: SortOrder
-    status?: SortOrder
-    policyVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -84534,89 +76424,8 @@ export namespace Prisma {
     workspaceId?: SortOrder
     userId?: SortOrder
     role?: SortOrder
-    status?: SortOrder
-    policyVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type WorkspaceMemberSumOrderByAggregateInput = {
-    policyVersion?: SortOrder
-  }
-
-  export type WorkspaceInvitationCountOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    email?: SortOrder
-    role?: SortOrder
-    tokenHash?: SortOrder
-    status?: SortOrder
-    expiresAt?: SortOrder
-    invitedBy?: SortOrder
-    acceptedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WorkspaceInvitationMaxOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    email?: SortOrder
-    role?: SortOrder
-    tokenHash?: SortOrder
-    status?: SortOrder
-    expiresAt?: SortOrder
-    invitedBy?: SortOrder
-    acceptedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type WorkspaceInvitationMinOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    email?: SortOrder
-    role?: SortOrder
-    tokenHash?: SortOrder
-    status?: SortOrder
-    expiresAt?: SortOrder
-    invitedBy?: SortOrder
-    acceptedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type SupportGrantCountOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    granteeId?: SortOrder
-    reason?: SortOrder
-    approvedBy?: SortOrder
-    expiresAt?: SortOrder
-    revokedAt?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type SupportGrantMaxOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    granteeId?: SortOrder
-    reason?: SortOrder
-    approvedBy?: SortOrder
-    expiresAt?: SortOrder
-    revokedAt?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type SupportGrantMinOrderByAggregateInput = {
-    id?: SortOrder
-    workspaceId?: SortOrder
-    granteeId?: SortOrder
-    reason?: SortOrder
-    approvedBy?: SortOrder
-    expiresAt?: SortOrder
-    revokedAt?: SortOrder
-    createdAt?: SortOrder
   }
 
   export type PublishApprovalRequestCountOrderByAggregateInput = {
@@ -85426,34 +77235,6 @@ export namespace Prisma {
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
   }
 
-  export type WorkspaceInvitationCreateNestedManyWithoutInviterInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
-    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type WorkspaceInvitationCreateNestedManyWithoutAccepterInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput> | WorkspaceInvitationCreateWithoutAccepterInput[] | WorkspaceInvitationUncheckedCreateWithoutAccepterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutAccepterInput | WorkspaceInvitationCreateOrConnectWithoutAccepterInput[]
-    createMany?: WorkspaceInvitationCreateManyAccepterInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type SupportGrantCreateNestedManyWithoutGranteeInput = {
-    create?: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput> | SupportGrantCreateWithoutGranteeInput[] | SupportGrantUncheckedCreateWithoutGranteeInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutGranteeInput | SupportGrantCreateOrConnectWithoutGranteeInput[]
-    createMany?: SupportGrantCreateManyGranteeInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-  }
-
-  export type SupportGrantCreateNestedManyWithoutApproverInput = {
-    create?: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput> | SupportGrantCreateWithoutApproverInput[] | SupportGrantUncheckedCreateWithoutApproverInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutApproverInput | SupportGrantCreateOrConnectWithoutApproverInput[]
-    createMany?: SupportGrantCreateManyApproverInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-  }
-
   export type PublishApprovalRequestCreateNestedManyWithoutRequesterInput = {
     create?: XOR<PublishApprovalRequestCreateWithoutRequesterInput, PublishApprovalRequestUncheckedCreateWithoutRequesterInput> | PublishApprovalRequestCreateWithoutRequesterInput[] | PublishApprovalRequestUncheckedCreateWithoutRequesterInput[]
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutRequesterInput | PublishApprovalRequestCreateOrConnectWithoutRequesterInput[]
@@ -85500,13 +77281,6 @@ export namespace Prisma {
     connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
     createMany?: BillingInvoiceCreateManyUserInputEnvelope
     connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
-  }
-
-  export type DraftSaveReceiptCreateNestedManyWithoutActorInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput> | DraftSaveReceiptCreateWithoutActorInput[] | DraftSaveReceiptUncheckedCreateWithoutActorInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutActorInput | DraftSaveReceiptCreateOrConnectWithoutActorInput[]
-    createMany?: DraftSaveReceiptCreateManyActorInputEnvelope
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
   }
 
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
@@ -85690,34 +77464,6 @@ export namespace Prisma {
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
   }
 
-  export type WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
-    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput> | WorkspaceInvitationCreateWithoutAccepterInput[] | WorkspaceInvitationUncheckedCreateWithoutAccepterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutAccepterInput | WorkspaceInvitationCreateOrConnectWithoutAccepterInput[]
-    createMany?: WorkspaceInvitationCreateManyAccepterInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type SupportGrantUncheckedCreateNestedManyWithoutGranteeInput = {
-    create?: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput> | SupportGrantCreateWithoutGranteeInput[] | SupportGrantUncheckedCreateWithoutGranteeInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutGranteeInput | SupportGrantCreateOrConnectWithoutGranteeInput[]
-    createMany?: SupportGrantCreateManyGranteeInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-  }
-
-  export type SupportGrantUncheckedCreateNestedManyWithoutApproverInput = {
-    create?: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput> | SupportGrantCreateWithoutApproverInput[] | SupportGrantUncheckedCreateWithoutApproverInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutApproverInput | SupportGrantCreateOrConnectWithoutApproverInput[]
-    createMany?: SupportGrantCreateManyApproverInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-  }
-
   export type PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput = {
     create?: XOR<PublishApprovalRequestCreateWithoutRequesterInput, PublishApprovalRequestUncheckedCreateWithoutRequesterInput> | PublishApprovalRequestCreateWithoutRequesterInput[] | PublishApprovalRequestUncheckedCreateWithoutRequesterInput[]
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutRequesterInput | PublishApprovalRequestCreateOrConnectWithoutRequesterInput[]
@@ -85764,13 +77510,6 @@ export namespace Prisma {
     connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
     createMany?: BillingInvoiceCreateManyUserInputEnvelope
     connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
-  }
-
-  export type DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput> | DraftSaveReceiptCreateWithoutActorInput[] | DraftSaveReceiptUncheckedCreateWithoutActorInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutActorInput | DraftSaveReceiptCreateOrConnectWithoutActorInput[]
-    createMany?: DraftSaveReceiptCreateManyActorInputEnvelope
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -86173,62 +77912,6 @@ export namespace Prisma {
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
   }
 
-  export type WorkspaceInvitationUpdateManyWithoutInviterNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput[]
-    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type WorkspaceInvitationUpdateManyWithoutAccepterNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput> | WorkspaceInvitationCreateWithoutAccepterInput[] | WorkspaceInvitationUncheckedCreateWithoutAccepterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutAccepterInput | WorkspaceInvitationCreateOrConnectWithoutAccepterInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutAccepterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutAccepterInput[]
-    createMany?: WorkspaceInvitationCreateManyAccepterInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutAccepterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutAccepterInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutAccepterInput | WorkspaceInvitationUpdateManyWithWhereWithoutAccepterInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type SupportGrantUpdateManyWithoutGranteeNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput> | SupportGrantCreateWithoutGranteeInput[] | SupportGrantUncheckedCreateWithoutGranteeInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutGranteeInput | SupportGrantCreateOrConnectWithoutGranteeInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutGranteeInput | SupportGrantUpsertWithWhereUniqueWithoutGranteeInput[]
-    createMany?: SupportGrantCreateManyGranteeInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutGranteeInput | SupportGrantUpdateWithWhereUniqueWithoutGranteeInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutGranteeInput | SupportGrantUpdateManyWithWhereWithoutGranteeInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-  }
-
-  export type SupportGrantUpdateManyWithoutApproverNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput> | SupportGrantCreateWithoutApproverInput[] | SupportGrantUncheckedCreateWithoutApproverInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutApproverInput | SupportGrantCreateOrConnectWithoutApproverInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutApproverInput | SupportGrantUpsertWithWhereUniqueWithoutApproverInput[]
-    createMany?: SupportGrantCreateManyApproverInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutApproverInput | SupportGrantUpdateWithWhereUniqueWithoutApproverInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutApproverInput | SupportGrantUpdateManyWithWhereWithoutApproverInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-  }
-
   export type PublishApprovalRequestUpdateManyWithoutRequesterNestedInput = {
     create?: XOR<PublishApprovalRequestCreateWithoutRequesterInput, PublishApprovalRequestUncheckedCreateWithoutRequesterInput> | PublishApprovalRequestCreateWithoutRequesterInput[] | PublishApprovalRequestUncheckedCreateWithoutRequesterInput[]
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutRequesterInput | PublishApprovalRequestCreateOrConnectWithoutRequesterInput[]
@@ -86321,20 +78004,6 @@ export namespace Prisma {
     update?: BillingInvoiceUpdateWithWhereUniqueWithoutUserInput | BillingInvoiceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BillingInvoiceUpdateManyWithWhereWithoutUserInput | BillingInvoiceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
-  }
-
-  export type DraftSaveReceiptUpdateManyWithoutActorNestedInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput> | DraftSaveReceiptCreateWithoutActorInput[] | DraftSaveReceiptUncheckedCreateWithoutActorInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutActorInput | DraftSaveReceiptCreateOrConnectWithoutActorInput[]
-    upsert?: DraftSaveReceiptUpsertWithWhereUniqueWithoutActorInput | DraftSaveReceiptUpsertWithWhereUniqueWithoutActorInput[]
-    createMany?: DraftSaveReceiptCreateManyActorInputEnvelope
-    set?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    disconnect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    delete?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    update?: DraftSaveReceiptUpdateWithWhereUniqueWithoutActorInput | DraftSaveReceiptUpdateWithWhereUniqueWithoutActorInput[]
-    updateMany?: DraftSaveReceiptUpdateManyWithWhereWithoutActorInput | DraftSaveReceiptUpdateManyWithWhereWithoutActorInput[]
-    deleteMany?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
   }
 
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
@@ -86697,62 +78366,6 @@ export namespace Prisma {
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
   }
 
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput[]
-    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput> | WorkspaceInvitationCreateWithoutAccepterInput[] | WorkspaceInvitationUncheckedCreateWithoutAccepterInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutAccepterInput | WorkspaceInvitationCreateOrConnectWithoutAccepterInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutAccepterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutAccepterInput[]
-    createMany?: WorkspaceInvitationCreateManyAccepterInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutAccepterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutAccepterInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutAccepterInput | WorkspaceInvitationUpdateManyWithWhereWithoutAccepterInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput> | SupportGrantCreateWithoutGranteeInput[] | SupportGrantUncheckedCreateWithoutGranteeInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutGranteeInput | SupportGrantCreateOrConnectWithoutGranteeInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutGranteeInput | SupportGrantUpsertWithWhereUniqueWithoutGranteeInput[]
-    createMany?: SupportGrantCreateManyGranteeInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutGranteeInput | SupportGrantUpdateWithWhereUniqueWithoutGranteeInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutGranteeInput | SupportGrantUpdateManyWithWhereWithoutGranteeInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutApproverNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput> | SupportGrantCreateWithoutApproverInput[] | SupportGrantUncheckedCreateWithoutApproverInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutApproverInput | SupportGrantCreateOrConnectWithoutApproverInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutApproverInput | SupportGrantUpsertWithWhereUniqueWithoutApproverInput[]
-    createMany?: SupportGrantCreateManyApproverInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutApproverInput | SupportGrantUpdateWithWhereUniqueWithoutApproverInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutApproverInput | SupportGrantUpdateManyWithWhereWithoutApproverInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-  }
-
   export type PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput = {
     create?: XOR<PublishApprovalRequestCreateWithoutRequesterInput, PublishApprovalRequestUncheckedCreateWithoutRequesterInput> | PublishApprovalRequestCreateWithoutRequesterInput[] | PublishApprovalRequestUncheckedCreateWithoutRequesterInput[]
     connectOrCreate?: PublishApprovalRequestCreateOrConnectWithoutRequesterInput | PublishApprovalRequestCreateOrConnectWithoutRequesterInput[]
@@ -86845,20 +78458,6 @@ export namespace Prisma {
     update?: BillingInvoiceUpdateWithWhereUniqueWithoutUserInput | BillingInvoiceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BillingInvoiceUpdateManyWithWhereWithoutUserInput | BillingInvoiceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput> | DraftSaveReceiptCreateWithoutActorInput[] | DraftSaveReceiptUncheckedCreateWithoutActorInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutActorInput | DraftSaveReceiptCreateOrConnectWithoutActorInput[]
-    upsert?: DraftSaveReceiptUpsertWithWhereUniqueWithoutActorInput | DraftSaveReceiptUpsertWithWhereUniqueWithoutActorInput[]
-    createMany?: DraftSaveReceiptCreateManyActorInputEnvelope
-    set?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    disconnect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    delete?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    update?: DraftSaveReceiptUpdateWithWhereUniqueWithoutActorInput | DraftSaveReceiptUpdateWithWhereUniqueWithoutActorInput[]
-    updateMany?: DraftSaveReceiptUpdateManyWithWhereWithoutActorInput | DraftSaveReceiptUpdateManyWithWhereWithoutActorInput[]
-    deleteMany?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutWebsitesInput = {
@@ -87030,13 +78629,6 @@ export namespace Prisma {
     connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
   }
 
-  export type DraftSaveReceiptCreateNestedManyWithoutWebsiteInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput> | DraftSaveReceiptCreateWithoutWebsiteInput[] | DraftSaveReceiptUncheckedCreateWithoutWebsiteInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutWebsiteInput | DraftSaveReceiptCreateOrConnectWithoutWebsiteInput[]
-    createMany?: DraftSaveReceiptCreateManyWebsiteInputEnvelope
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-  }
-
   export type CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -87180,13 +78772,6 @@ export namespace Prisma {
     connectOrCreate?: MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput | MediaOptimizationAssetCreateOrConnectWithoutWebsiteInput[]
     createMany?: MediaOptimizationAssetCreateManyWebsiteInputEnvelope
     connect?: MediaOptimizationAssetWhereUniqueInput | MediaOptimizationAssetWhereUniqueInput[]
-  }
-
-  export type DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput> | DraftSaveReceiptCreateWithoutWebsiteInput[] | DraftSaveReceiptUncheckedCreateWithoutWebsiteInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutWebsiteInput | DraftSaveReceiptCreateOrConnectWithoutWebsiteInput[]
-    createMany?: DraftSaveReceiptCreateManyWebsiteInputEnvelope
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutWebsitesNestedInput = {
@@ -87513,20 +79098,6 @@ export namespace Prisma {
     deleteMany?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
   }
 
-  export type DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput> | DraftSaveReceiptCreateWithoutWebsiteInput[] | DraftSaveReceiptUncheckedCreateWithoutWebsiteInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutWebsiteInput | DraftSaveReceiptCreateOrConnectWithoutWebsiteInput[]
-    upsert?: DraftSaveReceiptUpsertWithWhereUniqueWithoutWebsiteInput | DraftSaveReceiptUpsertWithWhereUniqueWithoutWebsiteInput[]
-    createMany?: DraftSaveReceiptCreateManyWebsiteInputEnvelope
-    set?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    disconnect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    delete?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    update?: DraftSaveReceiptUpdateWithWhereUniqueWithoutWebsiteInput | DraftSaveReceiptUpdateWithWhereUniqueWithoutWebsiteInput[]
-    updateMany?: DraftSaveReceiptUpdateManyWithWhereWithoutWebsiteInput | DraftSaveReceiptUpdateManyWithWhereWithoutWebsiteInput[]
-    deleteMany?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
-  }
-
   export type CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput = {
     create?: XOR<CustomCodeSnippetCreateWithoutWebsiteInput, CustomCodeSnippetUncheckedCreateWithoutWebsiteInput> | CustomCodeSnippetCreateWithoutWebsiteInput[] | CustomCodeSnippetUncheckedCreateWithoutWebsiteInput[]
     connectOrCreate?: CustomCodeSnippetCreateOrConnectWithoutWebsiteInput | CustomCodeSnippetCreateOrConnectWithoutWebsiteInput[]
@@ -87811,48 +79382,6 @@ export namespace Prisma {
     update?: MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput | MediaOptimizationAssetUpdateWithWhereUniqueWithoutWebsiteInput[]
     updateMany?: MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput | MediaOptimizationAssetUpdateManyWithWhereWithoutWebsiteInput[]
     deleteMany?: MediaOptimizationAssetScalarWhereInput | MediaOptimizationAssetScalarWhereInput[]
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput = {
-    create?: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput> | DraftSaveReceiptCreateWithoutWebsiteInput[] | DraftSaveReceiptUncheckedCreateWithoutWebsiteInput[]
-    connectOrCreate?: DraftSaveReceiptCreateOrConnectWithoutWebsiteInput | DraftSaveReceiptCreateOrConnectWithoutWebsiteInput[]
-    upsert?: DraftSaveReceiptUpsertWithWhereUniqueWithoutWebsiteInput | DraftSaveReceiptUpsertWithWhereUniqueWithoutWebsiteInput[]
-    createMany?: DraftSaveReceiptCreateManyWebsiteInputEnvelope
-    set?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    disconnect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    delete?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    connect?: DraftSaveReceiptWhereUniqueInput | DraftSaveReceiptWhereUniqueInput[]
-    update?: DraftSaveReceiptUpdateWithWhereUniqueWithoutWebsiteInput | DraftSaveReceiptUpdateWithWhereUniqueWithoutWebsiteInput[]
-    updateMany?: DraftSaveReceiptUpdateManyWithWhereWithoutWebsiteInput | DraftSaveReceiptUpdateManyWithWhereWithoutWebsiteInput[]
-    deleteMany?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
-  }
-
-  export type WebsiteCreateNestedOneWithoutDraftSaveReceiptsInput = {
-    create?: XOR<WebsiteCreateWithoutDraftSaveReceiptsInput, WebsiteUncheckedCreateWithoutDraftSaveReceiptsInput>
-    connectOrCreate?: WebsiteCreateOrConnectWithoutDraftSaveReceiptsInput
-    connect?: WebsiteWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutDraftSaveReceiptsInput = {
-    create?: XOR<UserCreateWithoutDraftSaveReceiptsInput, UserUncheckedCreateWithoutDraftSaveReceiptsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDraftSaveReceiptsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type WebsiteUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput = {
-    create?: XOR<WebsiteCreateWithoutDraftSaveReceiptsInput, WebsiteUncheckedCreateWithoutDraftSaveReceiptsInput>
-    connectOrCreate?: WebsiteCreateOrConnectWithoutDraftSaveReceiptsInput
-    upsert?: WebsiteUpsertWithoutDraftSaveReceiptsInput
-    connect?: WebsiteWhereUniqueInput
-    update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutDraftSaveReceiptsInput, WebsiteUpdateWithoutDraftSaveReceiptsInput>, WebsiteUncheckedUpdateWithoutDraftSaveReceiptsInput>
-  }
-
-  export type UserUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput = {
-    create?: XOR<UserCreateWithoutDraftSaveReceiptsInput, UserUncheckedCreateWithoutDraftSaveReceiptsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutDraftSaveReceiptsInput
-    upsert?: UserUpsertWithoutDraftSaveReceiptsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDraftSaveReceiptsInput, UserUpdateWithoutDraftSaveReceiptsInput>, UserUncheckedUpdateWithoutDraftSaveReceiptsInput>
   }
 
   export type UserCreateNestedOneWithoutOtpVerificationsInput = {
@@ -88481,20 +80010,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type WordPressWebhookReceiptCreateNestedManyWithoutConnectionInput = {
-    create?: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput> | WordPressWebhookReceiptCreateWithoutConnectionInput[] | WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput[]
-    connectOrCreate?: WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput | WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput[]
-    createMany?: WordPressWebhookReceiptCreateManyConnectionInputEnvelope
-    connect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-  }
-
-  export type WordPressWebhookReceiptUncheckedCreateNestedManyWithoutConnectionInput = {
-    create?: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput> | WordPressWebhookReceiptCreateWithoutConnectionInput[] | WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput[]
-    connectOrCreate?: WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput | WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput[]
-    createMany?: WordPressWebhookReceiptCreateManyConnectionInputEnvelope
-    connect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-  }
-
   export type WebsiteUpdateOneRequiredWithoutWpConnectionNestedInput = {
     create?: XOR<WebsiteCreateWithoutWpConnectionInput, WebsiteUncheckedCreateWithoutWpConnectionInput>
     connectOrCreate?: WebsiteCreateOrConnectWithoutWpConnectionInput
@@ -88509,48 +80024,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutWpConnectionsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWpConnectionsInput, UserUpdateWithoutWpConnectionsInput>, UserUncheckedUpdateWithoutWpConnectionsInput>
-  }
-
-  export type WordPressWebhookReceiptUpdateManyWithoutConnectionNestedInput = {
-    create?: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput> | WordPressWebhookReceiptCreateWithoutConnectionInput[] | WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput[]
-    connectOrCreate?: WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput | WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput[]
-    upsert?: WordPressWebhookReceiptUpsertWithWhereUniqueWithoutConnectionInput | WordPressWebhookReceiptUpsertWithWhereUniqueWithoutConnectionInput[]
-    createMany?: WordPressWebhookReceiptCreateManyConnectionInputEnvelope
-    set?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    disconnect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    delete?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    connect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    update?: WordPressWebhookReceiptUpdateWithWhereUniqueWithoutConnectionInput | WordPressWebhookReceiptUpdateWithWhereUniqueWithoutConnectionInput[]
-    updateMany?: WordPressWebhookReceiptUpdateManyWithWhereWithoutConnectionInput | WordPressWebhookReceiptUpdateManyWithWhereWithoutConnectionInput[]
-    deleteMany?: WordPressWebhookReceiptScalarWhereInput | WordPressWebhookReceiptScalarWhereInput[]
-  }
-
-  export type WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionNestedInput = {
-    create?: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput> | WordPressWebhookReceiptCreateWithoutConnectionInput[] | WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput[]
-    connectOrCreate?: WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput | WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput[]
-    upsert?: WordPressWebhookReceiptUpsertWithWhereUniqueWithoutConnectionInput | WordPressWebhookReceiptUpsertWithWhereUniqueWithoutConnectionInput[]
-    createMany?: WordPressWebhookReceiptCreateManyConnectionInputEnvelope
-    set?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    disconnect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    delete?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    connect?: WordPressWebhookReceiptWhereUniqueInput | WordPressWebhookReceiptWhereUniqueInput[]
-    update?: WordPressWebhookReceiptUpdateWithWhereUniqueWithoutConnectionInput | WordPressWebhookReceiptUpdateWithWhereUniqueWithoutConnectionInput[]
-    updateMany?: WordPressWebhookReceiptUpdateManyWithWhereWithoutConnectionInput | WordPressWebhookReceiptUpdateManyWithWhereWithoutConnectionInput[]
-    deleteMany?: WordPressWebhookReceiptScalarWhereInput | WordPressWebhookReceiptScalarWhereInput[]
-  }
-
-  export type WordPressConnectionCreateNestedOneWithoutWebhookReceiptsInput = {
-    create?: XOR<WordPressConnectionCreateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedCreateWithoutWebhookReceiptsInput>
-    connectOrCreate?: WordPressConnectionCreateOrConnectWithoutWebhookReceiptsInput
-    connect?: WordPressConnectionWhereUniqueInput
-  }
-
-  export type WordPressConnectionUpdateOneRequiredWithoutWebhookReceiptsNestedInput = {
-    create?: XOR<WordPressConnectionCreateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedCreateWithoutWebhookReceiptsInput>
-    connectOrCreate?: WordPressConnectionCreateOrConnectWithoutWebhookReceiptsInput
-    upsert?: WordPressConnectionUpsertWithoutWebhookReceiptsInput
-    connect?: WordPressConnectionWhereUniqueInput
-    update?: XOR<XOR<WordPressConnectionUpdateToOneWithWhereWithoutWebhookReceiptsInput, WordPressConnectionUpdateWithoutWebhookReceiptsInput>, WordPressConnectionUncheckedUpdateWithoutWebhookReceiptsInput>
   }
 
   export type WebsiteCreateNestedOneWithoutWpPageMappingsInput = {
@@ -88838,20 +80311,6 @@ export namespace Prisma {
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
   }
 
-  export type WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
-    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type SupportGrantCreateNestedManyWithoutWorkspaceInput = {
-    create?: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput> | SupportGrantCreateWithoutWorkspaceInput[] | SupportGrantUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutWorkspaceInput | SupportGrantCreateOrConnectWithoutWorkspaceInput[]
-    createMany?: SupportGrantCreateManyWorkspaceInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-  }
-
   export type WebsiteCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WebsiteCreateWithoutWorkspaceInput, WebsiteUncheckedCreateWithoutWorkspaceInput> | WebsiteCreateWithoutWorkspaceInput[] | WebsiteUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WebsiteCreateOrConnectWithoutWorkspaceInput | WebsiteCreateOrConnectWithoutWorkspaceInput[]
@@ -88864,20 +80323,6 @@ export namespace Prisma {
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
     createMany?: WorkspaceMemberCreateManyWorkspaceInputEnvelope
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
-  }
-
-  export type WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
-    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-  }
-
-  export type SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput = {
-    create?: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput> | SupportGrantCreateWithoutWorkspaceInput[] | SupportGrantUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutWorkspaceInput | SupportGrantCreateOrConnectWithoutWorkspaceInput[]
-    createMany?: SupportGrantCreateManyWorkspaceInputEnvelope
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
   }
 
   export type WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput = {
@@ -88919,34 +80364,6 @@ export namespace Prisma {
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
   }
 
-  export type WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
-    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type SupportGrantUpdateManyWithoutWorkspaceNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput> | SupportGrantCreateWithoutWorkspaceInput[] | SupportGrantUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutWorkspaceInput | SupportGrantCreateOrConnectWithoutWorkspaceInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutWorkspaceInput | SupportGrantUpsertWithWhereUniqueWithoutWorkspaceInput[]
-    createMany?: SupportGrantCreateManyWorkspaceInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutWorkspaceInput | SupportGrantUpdateWithWhereUniqueWithoutWorkspaceInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutWorkspaceInput | SupportGrantUpdateManyWithWhereWithoutWorkspaceInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-  }
-
   export type WebsiteUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WebsiteCreateWithoutWorkspaceInput, WebsiteUncheckedCreateWithoutWorkspaceInput> | WebsiteCreateWithoutWorkspaceInput[] | WebsiteUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WebsiteCreateOrConnectWithoutWorkspaceInput | WebsiteCreateOrConnectWithoutWorkspaceInput[]
@@ -88973,34 +80390,6 @@ export namespace Prisma {
     update?: WorkspaceMemberUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceMemberUpdateWithWhereUniqueWithoutWorkspaceInput[]
     updateMany?: WorkspaceMemberUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceMemberUpdateManyWithWhereWithoutWorkspaceInput[]
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput = {
-    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
-    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
-    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
-    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
-    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
-    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
-    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput = {
-    create?: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput> | SupportGrantCreateWithoutWorkspaceInput[] | SupportGrantUncheckedCreateWithoutWorkspaceInput[]
-    connectOrCreate?: SupportGrantCreateOrConnectWithoutWorkspaceInput | SupportGrantCreateOrConnectWithoutWorkspaceInput[]
-    upsert?: SupportGrantUpsertWithWhereUniqueWithoutWorkspaceInput | SupportGrantUpsertWithWhereUniqueWithoutWorkspaceInput[]
-    createMany?: SupportGrantCreateManyWorkspaceInputEnvelope
-    set?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    disconnect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    delete?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    connect?: SupportGrantWhereUniqueInput | SupportGrantWhereUniqueInput[]
-    update?: SupportGrantUpdateWithWhereUniqueWithoutWorkspaceInput | SupportGrantUpdateWithWhereUniqueWithoutWorkspaceInput[]
-    updateMany?: SupportGrantUpdateManyWithWhereWithoutWorkspaceInput | SupportGrantUpdateManyWithWhereWithoutWorkspaceInput[]
-    deleteMany?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
   }
 
   export type WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput = {
@@ -89211,94 +80600,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutWorkspaceMembershipsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWorkspaceMembershipsInput, UserUpdateWithoutWorkspaceMembershipsInput>, UserUncheckedUpdateWithoutWorkspaceMembershipsInput>
-  }
-
-  export type WorkspaceCreateNestedOneWithoutInvitationsInput = {
-    create?: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutInvitationsInput
-    connect?: WorkspaceWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutSentWorkspaceInvitationsInput = {
-    create?: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceInvitationsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutAcceptedWorkspaceInvitationsInput = {
-    create?: XOR<UserCreateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedCreateWithoutAcceptedWorkspaceInvitationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutAcceptedWorkspaceInvitationsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutInvitationsInput
-    upsert?: WorkspaceUpsertWithoutInvitationsInput
-    connect?: WorkspaceWhereUniqueInput
-    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutInvitationsInput, WorkspaceUpdateWithoutInvitationsInput>, WorkspaceUncheckedUpdateWithoutInvitationsInput>
-  }
-
-  export type UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput = {
-    create?: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceInvitationsInput
-    upsert?: UserUpsertWithoutSentWorkspaceInvitationsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSentWorkspaceInvitationsInput, UserUpdateWithoutSentWorkspaceInvitationsInput>, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
-  }
-
-  export type UserUpdateOneWithoutAcceptedWorkspaceInvitationsNestedInput = {
-    create?: XOR<UserCreateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedCreateWithoutAcceptedWorkspaceInvitationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutAcceptedWorkspaceInvitationsInput
-    upsert?: UserUpsertWithoutAcceptedWorkspaceInvitationsInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAcceptedWorkspaceInvitationsInput, UserUpdateWithoutAcceptedWorkspaceInvitationsInput>, UserUncheckedUpdateWithoutAcceptedWorkspaceInvitationsInput>
-  }
-
-  export type WorkspaceCreateNestedOneWithoutSupportGrantsInput = {
-    create?: XOR<WorkspaceCreateWithoutSupportGrantsInput, WorkspaceUncheckedCreateWithoutSupportGrantsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutSupportGrantsInput
-    connect?: WorkspaceWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutSupportGrantsReceivedInput = {
-    create?: XOR<UserCreateWithoutSupportGrantsReceivedInput, UserUncheckedCreateWithoutSupportGrantsReceivedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSupportGrantsReceivedInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutSupportGrantsApprovedInput = {
-    create?: XOR<UserCreateWithoutSupportGrantsApprovedInput, UserUncheckedCreateWithoutSupportGrantsApprovedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSupportGrantsApprovedInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type WorkspaceUpdateOneRequiredWithoutSupportGrantsNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutSupportGrantsInput, WorkspaceUncheckedCreateWithoutSupportGrantsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutSupportGrantsInput
-    upsert?: WorkspaceUpsertWithoutSupportGrantsInput
-    connect?: WorkspaceWhereUniqueInput
-    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutSupportGrantsInput, WorkspaceUpdateWithoutSupportGrantsInput>, WorkspaceUncheckedUpdateWithoutSupportGrantsInput>
-  }
-
-  export type UserUpdateOneRequiredWithoutSupportGrantsReceivedNestedInput = {
-    create?: XOR<UserCreateWithoutSupportGrantsReceivedInput, UserUncheckedCreateWithoutSupportGrantsReceivedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSupportGrantsReceivedInput
-    upsert?: UserUpsertWithoutSupportGrantsReceivedInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSupportGrantsReceivedInput, UserUpdateWithoutSupportGrantsReceivedInput>, UserUncheckedUpdateWithoutSupportGrantsReceivedInput>
-  }
-
-  export type UserUpdateOneWithoutSupportGrantsApprovedNestedInput = {
-    create?: XOR<UserCreateWithoutSupportGrantsApprovedInput, UserUncheckedCreateWithoutSupportGrantsApprovedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSupportGrantsApprovedInput
-    upsert?: UserUpsertWithoutSupportGrantsApprovedInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSupportGrantsApprovedInput, UserUpdateWithoutSupportGrantsApprovedInput>, UserUncheckedUpdateWithoutSupportGrantsApprovedInput>
   }
 
   export type WebsiteCreateNestedOneWithoutApprovalRequestsInput = {
@@ -89842,29 +81143,6 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
@@ -89929,6 +81207,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumIdentityProviderFilter<$PrismaModel>
     _max?: NestedEnumIdentityProviderFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -90157,11 +81458,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
@@ -90186,7 +81485,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutUserInput = {
@@ -90195,14 +81493,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -90224,7 +81520,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutUserInput = {
@@ -90525,7 +81820,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     website: WebsiteCreateNestedOneWithoutWpConnectionInput
-    webhookReceipts?: WordPressWebhookReceiptCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionUncheckedCreateWithoutUserInput = {
@@ -90540,7 +81834,6 @@ export namespace Prisma {
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionCreateOrConnectWithoutUserInput = {
@@ -90713,14 +82006,11 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -90729,13 +82019,10 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -90812,8 +82099,6 @@ export namespace Prisma {
   export type WorkspaceMemberCreateWithoutUserInput = {
     id?: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     workspace: WorkspaceCreateNestedOneWithoutMembersInput
@@ -90823,8 +82108,6 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -90836,138 +82119,6 @@ export namespace Prisma {
 
   export type WorkspaceMemberCreateManyUserInputEnvelope = {
     data: WorkspaceMemberCreateManyUserInput | WorkspaceMemberCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WorkspaceInvitationCreateWithoutInviterInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutInvitationsInput
-    accepter?: UserCreateNestedOneWithoutAcceptedWorkspaceInvitationsInput
-  }
-
-  export type WorkspaceInvitationUncheckedCreateWithoutInviterInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateOrConnectWithoutInviterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    create: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput>
-  }
-
-  export type WorkspaceInvitationCreateManyInviterInputEnvelope = {
-    data: WorkspaceInvitationCreateManyInviterInput | WorkspaceInvitationCreateManyInviterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WorkspaceInvitationCreateWithoutAccepterInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutInvitationsInput
-    inviter: UserCreateNestedOneWithoutSentWorkspaceInvitationsInput
-  }
-
-  export type WorkspaceInvitationUncheckedCreateWithoutAccepterInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateOrConnectWithoutAccepterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    create: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput>
-  }
-
-  export type WorkspaceInvitationCreateManyAccepterInputEnvelope = {
-    data: WorkspaceInvitationCreateManyAccepterInput | WorkspaceInvitationCreateManyAccepterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SupportGrantCreateWithoutGranteeInput = {
-    id?: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutSupportGrantsInput
-    approver?: UserCreateNestedOneWithoutSupportGrantsApprovedInput
-  }
-
-  export type SupportGrantUncheckedCreateWithoutGranteeInput = {
-    id?: string
-    workspaceId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantCreateOrConnectWithoutGranteeInput = {
-    where: SupportGrantWhereUniqueInput
-    create: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput>
-  }
-
-  export type SupportGrantCreateManyGranteeInputEnvelope = {
-    data: SupportGrantCreateManyGranteeInput | SupportGrantCreateManyGranteeInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SupportGrantCreateWithoutApproverInput = {
-    id?: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-    workspace: WorkspaceCreateNestedOneWithoutSupportGrantsInput
-    grantee: UserCreateNestedOneWithoutSupportGrantsReceivedInput
-  }
-
-  export type SupportGrantUncheckedCreateWithoutApproverInput = {
-    id?: string
-    workspaceId: string
-    granteeId: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantCreateOrConnectWithoutApproverInput = {
-    where: SupportGrantWhereUniqueInput
-    create: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput>
-  }
-
-  export type SupportGrantCreateManyApproverInputEnvelope = {
-    data: SupportGrantCreateManyApproverInput | SupportGrantCreateManyApproverInput[]
     skipDuplicates?: boolean
   }
 
@@ -91208,40 +82359,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type DraftSaveReceiptCreateWithoutActorInput = {
-    id?: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-    website: WebsiteCreateNestedOneWithoutDraftSaveReceiptsInput
-  }
-
-  export type DraftSaveReceiptUncheckedCreateWithoutActorInput = {
-    id?: string
-    websiteId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-  }
-
-  export type DraftSaveReceiptCreateOrConnectWithoutActorInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    create: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput>
-  }
-
-  export type DraftSaveReceiptCreateManyActorInputEnvelope = {
-    data: DraftSaveReceiptCreateManyActorInput | DraftSaveReceiptCreateManyActorInput[]
-    skipDuplicates?: boolean
-  }
-
   export type IdentityUpsertWithWhereUniqueWithoutUserInput = {
     where: IdentityWhereUniqueInput
     update: XOR<IdentityUpdateWithoutUserInput, IdentityUncheckedUpdateWithoutUserInput>
@@ -91450,14 +82567,12 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     editorData?: JsonFilter<"Website">
-    performanceSettings?: JsonNullableFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
     teamId?: UuidNullableFilter<"Website"> | string | null
     workspaceId?: UuidNullableFilter<"Website"> | string | null
     organizationId?: UuidNullableFilter<"Website"> | string | null
     approvalWorkflowEnabled?: BoolFilter<"Website"> | boolean
-    draftRevision?: UuidFilter<"Website"> | string
   }
 
   export type CustomCodeRevisionUpsertWithWhereUniqueWithoutAuthorInput = {
@@ -91942,7 +83057,6 @@ export namespace Prisma {
     name?: StringFilter<"Workspace"> | string
     slug?: StringFilter<"Workspace"> | string
     ownerId?: UuidFilter<"Workspace"> | string
-    isPersonal?: BoolFilter<"Workspace"> | boolean
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
@@ -92029,105 +83143,8 @@ export namespace Prisma {
     workspaceId?: UuidFilter<"WorkspaceMember"> | string
     userId?: UuidFilter<"WorkspaceMember"> | string
     role?: StringFilter<"WorkspaceMember"> | string
-    status?: StringFilter<"WorkspaceMember"> | string
-    policyVersion?: IntFilter<"WorkspaceMember"> | number
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
-  }
-
-  export type WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    update: XOR<WorkspaceInvitationUpdateWithoutInviterInput, WorkspaceInvitationUncheckedUpdateWithoutInviterInput>
-    create: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput>
-  }
-
-  export type WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    data: XOR<WorkspaceInvitationUpdateWithoutInviterInput, WorkspaceInvitationUncheckedUpdateWithoutInviterInput>
-  }
-
-  export type WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput = {
-    where: WorkspaceInvitationScalarWhereInput
-    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyWithoutInviterInput>
-  }
-
-  export type WorkspaceInvitationScalarWhereInput = {
-    AND?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-    OR?: WorkspaceInvitationScalarWhereInput[]
-    NOT?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
-    id?: UuidFilter<"WorkspaceInvitation"> | string
-    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
-    email?: StringFilter<"WorkspaceInvitation"> | string
-    role?: StringFilter<"WorkspaceInvitation"> | string
-    tokenHash?: StringFilter<"WorkspaceInvitation"> | string
-    status?: StringFilter<"WorkspaceInvitation"> | string
-    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
-    acceptedBy?: UuidNullableFilter<"WorkspaceInvitation"> | string | null
-    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
-  }
-
-  export type WorkspaceInvitationUpsertWithWhereUniqueWithoutAccepterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    update: XOR<WorkspaceInvitationUpdateWithoutAccepterInput, WorkspaceInvitationUncheckedUpdateWithoutAccepterInput>
-    create: XOR<WorkspaceInvitationCreateWithoutAccepterInput, WorkspaceInvitationUncheckedCreateWithoutAccepterInput>
-  }
-
-  export type WorkspaceInvitationUpdateWithWhereUniqueWithoutAccepterInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    data: XOR<WorkspaceInvitationUpdateWithoutAccepterInput, WorkspaceInvitationUncheckedUpdateWithoutAccepterInput>
-  }
-
-  export type WorkspaceInvitationUpdateManyWithWhereWithoutAccepterInput = {
-    where: WorkspaceInvitationScalarWhereInput
-    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyWithoutAccepterInput>
-  }
-
-  export type SupportGrantUpsertWithWhereUniqueWithoutGranteeInput = {
-    where: SupportGrantWhereUniqueInput
-    update: XOR<SupportGrantUpdateWithoutGranteeInput, SupportGrantUncheckedUpdateWithoutGranteeInput>
-    create: XOR<SupportGrantCreateWithoutGranteeInput, SupportGrantUncheckedCreateWithoutGranteeInput>
-  }
-
-  export type SupportGrantUpdateWithWhereUniqueWithoutGranteeInput = {
-    where: SupportGrantWhereUniqueInput
-    data: XOR<SupportGrantUpdateWithoutGranteeInput, SupportGrantUncheckedUpdateWithoutGranteeInput>
-  }
-
-  export type SupportGrantUpdateManyWithWhereWithoutGranteeInput = {
-    where: SupportGrantScalarWhereInput
-    data: XOR<SupportGrantUpdateManyMutationInput, SupportGrantUncheckedUpdateManyWithoutGranteeInput>
-  }
-
-  export type SupportGrantScalarWhereInput = {
-    AND?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-    OR?: SupportGrantScalarWhereInput[]
-    NOT?: SupportGrantScalarWhereInput | SupportGrantScalarWhereInput[]
-    id?: UuidFilter<"SupportGrant"> | string
-    workspaceId?: UuidFilter<"SupportGrant"> | string
-    granteeId?: UuidFilter<"SupportGrant"> | string
-    reason?: StringFilter<"SupportGrant"> | string
-    approvedBy?: UuidNullableFilter<"SupportGrant"> | string | null
-    expiresAt?: DateTimeFilter<"SupportGrant"> | Date | string
-    revokedAt?: DateTimeNullableFilter<"SupportGrant"> | Date | string | null
-    createdAt?: DateTimeFilter<"SupportGrant"> | Date | string
-  }
-
-  export type SupportGrantUpsertWithWhereUniqueWithoutApproverInput = {
-    where: SupportGrantWhereUniqueInput
-    update: XOR<SupportGrantUpdateWithoutApproverInput, SupportGrantUncheckedUpdateWithoutApproverInput>
-    create: XOR<SupportGrantCreateWithoutApproverInput, SupportGrantUncheckedCreateWithoutApproverInput>
-  }
-
-  export type SupportGrantUpdateWithWhereUniqueWithoutApproverInput = {
-    where: SupportGrantWhereUniqueInput
-    data: XOR<SupportGrantUpdateWithoutApproverInput, SupportGrantUncheckedUpdateWithoutApproverInput>
-  }
-
-  export type SupportGrantUpdateManyWithWhereWithoutApproverInput = {
-    where: SupportGrantScalarWhereInput
-    data: XOR<SupportGrantUpdateManyMutationInput, SupportGrantUncheckedUpdateManyWithoutApproverInput>
   }
 
   export type PublishApprovalRequestUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -92340,38 +83357,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
   }
 
-  export type DraftSaveReceiptUpsertWithWhereUniqueWithoutActorInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    update: XOR<DraftSaveReceiptUpdateWithoutActorInput, DraftSaveReceiptUncheckedUpdateWithoutActorInput>
-    create: XOR<DraftSaveReceiptCreateWithoutActorInput, DraftSaveReceiptUncheckedCreateWithoutActorInput>
-  }
-
-  export type DraftSaveReceiptUpdateWithWhereUniqueWithoutActorInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    data: XOR<DraftSaveReceiptUpdateWithoutActorInput, DraftSaveReceiptUncheckedUpdateWithoutActorInput>
-  }
-
-  export type DraftSaveReceiptUpdateManyWithWhereWithoutActorInput = {
-    where: DraftSaveReceiptScalarWhereInput
-    data: XOR<DraftSaveReceiptUpdateManyMutationInput, DraftSaveReceiptUncheckedUpdateManyWithoutActorInput>
-  }
-
-  export type DraftSaveReceiptScalarWhereInput = {
-    AND?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
-    OR?: DraftSaveReceiptScalarWhereInput[]
-    NOT?: DraftSaveReceiptScalarWhereInput | DraftSaveReceiptScalarWhereInput[]
-    id?: UuidFilter<"DraftSaveReceipt"> | string
-    websiteId?: UuidFilter<"DraftSaveReceipt"> | string
-    actorId?: UuidFilter<"DraftSaveReceipt"> | string
-    mutationId?: StringFilter<"DraftSaveReceipt"> | string
-    requestHash?: StringFilter<"DraftSaveReceipt"> | string
-    acceptedRevision?: UuidFilter<"DraftSaveReceipt"> | string
-    documentHash?: StringFilter<"DraftSaveReceipt"> | string
-    document?: JsonFilter<"DraftSaveReceipt">
-    acceptedAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-    expiresAt?: DateTimeFilter<"DraftSaveReceipt"> | Date | string
-  }
-
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -92412,10 +83397,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92423,7 +83404,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -92466,10 +83446,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92477,7 +83453,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -92544,9 +83519,7 @@ export namespace Prisma {
   export type FormSubmissionCreateWithoutWebsiteInput = {
     id?: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -92555,9 +83528,7 @@ export namespace Prisma {
   export type FormSubmissionUncheckedCreateWithoutWebsiteInput = {
     id?: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -92869,7 +83840,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWpConnectionsInput
-    webhookReceipts?: WordPressWebhookReceiptCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionUncheckedCreateWithoutWebsiteInput = {
@@ -92884,7 +83854,6 @@ export namespace Prisma {
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedCreateNestedManyWithoutConnectionInput
   }
 
   export type WordPressConnectionCreateOrConnectWithoutWebsiteInput = {
@@ -93019,15 +83988,12 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutWebsitesInput = {
@@ -93036,13 +84002,10 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutWebsitesInput = {
@@ -93286,40 +84249,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type DraftSaveReceiptCreateWithoutWebsiteInput = {
-    id?: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-    actor: UserCreateNestedOneWithoutDraftSaveReceiptsInput
-  }
-
-  export type DraftSaveReceiptUncheckedCreateWithoutWebsiteInput = {
-    id?: string
-    actorId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-  }
-
-  export type DraftSaveReceiptCreateOrConnectWithoutWebsiteInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    create: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput>
-  }
-
-  export type DraftSaveReceiptCreateManyWebsiteInputEnvelope = {
-    data: DraftSaveReceiptCreateManyWebsiteInput | DraftSaveReceiptCreateManyWebsiteInput[]
-    skipDuplicates?: boolean
-  }
-
   export type UserUpsertWithoutWebsitesInput = {
     update: XOR<UserUpdateWithoutWebsitesInput, UserUncheckedUpdateWithoutWebsitesInput>
     create: XOR<UserCreateWithoutWebsitesInput, UserUncheckedCreateWithoutWebsitesInput>
@@ -93371,10 +84300,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93382,7 +84307,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsitesInput = {
@@ -93425,10 +84349,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93436,7 +84356,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type CustomCodeSnippetUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -93504,9 +84423,7 @@ export namespace Prisma {
     id?: UuidFilter<"FormSubmission"> | string
     websiteId?: UuidFilter<"FormSubmission"> | string
     formId?: StringFilter<"FormSubmission"> | string
-    formName?: StringNullableFilter<"FormSubmission"> | string | null
     data?: JsonFilter<"FormSubmission">
-    metadata?: JsonNullableFilter<"FormSubmission">
     ipAddress?: StringNullableFilter<"FormSubmission"> | string | null
     status?: StringFilter<"FormSubmission"> | string
     createdAt?: DateTimeFilter<"FormSubmission"> | Date | string
@@ -93735,7 +84652,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWpConnectionsNestedInput
-    webhookReceipts?: WordPressWebhookReceiptUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressConnectionUncheckedUpdateWithoutWebsiteInput = {
@@ -93750,7 +84666,6 @@ export namespace Prisma {
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressPageMappingUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -93864,15 +84779,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutWebsitesInput = {
@@ -93881,13 +84793,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type OrganizationUpsertWithoutWebsitesInput = {
@@ -94088,422 +84997,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MediaOptimizationAsset"> | Date | string
   }
 
-  export type DraftSaveReceiptUpsertWithWhereUniqueWithoutWebsiteInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    update: XOR<DraftSaveReceiptUpdateWithoutWebsiteInput, DraftSaveReceiptUncheckedUpdateWithoutWebsiteInput>
-    create: XOR<DraftSaveReceiptCreateWithoutWebsiteInput, DraftSaveReceiptUncheckedCreateWithoutWebsiteInput>
-  }
-
-  export type DraftSaveReceiptUpdateWithWhereUniqueWithoutWebsiteInput = {
-    where: DraftSaveReceiptWhereUniqueInput
-    data: XOR<DraftSaveReceiptUpdateWithoutWebsiteInput, DraftSaveReceiptUncheckedUpdateWithoutWebsiteInput>
-  }
-
-  export type DraftSaveReceiptUpdateManyWithWhereWithoutWebsiteInput = {
-    where: DraftSaveReceiptScalarWhereInput
-    data: XOR<DraftSaveReceiptUpdateManyMutationInput, DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteInput>
-  }
-
-  export type WebsiteCreateWithoutDraftSaveReceiptsInput = {
-    id?: string
-    name: string
-    slug: string
-    status?: string
-    editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    approvalWorkflowEnabled?: boolean
-    draftRevision?: string
-    user: UserCreateNestedOneWithoutWebsitesInput
-    customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
-    formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
-    customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
-    themeLocationRules?: ThemeLocationRuleCreateNestedManyWithoutWebsiteInput
-    sftpConnections?: SftpConnectionCreateNestedManyWithoutWebsiteInput
-    pluginIntegrations?: PluginIntegrationCreateNestedManyWithoutWebsiteInput
-    designNotes?: DesignNoteCreateNestedManyWithoutWebsiteInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutWebsiteInput
-    collaborators?: WebsiteCollaboratorCreateNestedManyWithoutWebsiteInput
-    revisions?: WebsiteRevisionCreateNestedManyWithoutWebsiteInput
-    deployments?: DeploymentCreateNestedManyWithoutWebsiteInput
-    wpConnection?: WordPressConnectionCreateNestedOneWithoutWebsiteInput
-    wpPageMappings?: WordPressPageMappingCreateNestedManyWithoutWebsiteInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutWebsiteInput
-    invitations?: WebsiteInvitationCreateNestedManyWithoutWebsiteInput
-    team?: TeamCreateNestedOneWithoutWebsitesInput
-    workspace?: WorkspaceCreateNestedOneWithoutWebsitesInput
-    organization?: OrganizationCreateNestedOneWithoutWebsitesInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutWebsiteInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutWebsiteInput
-    mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
-    emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
-    performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
-    optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-  }
-
-  export type WebsiteUncheckedCreateWithoutDraftSaveReceiptsInput = {
-    id?: string
-    userId: string
-    name: string
-    slug: string
-    status?: string
-    editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    teamId?: string | null
-    workspaceId?: string | null
-    organizationId?: string | null
-    approvalWorkflowEnabled?: boolean
-    draftRevision?: string
-    customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
-    formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
-    customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
-    themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
-    sftpConnections?: SftpConnectionUncheckedCreateNestedManyWithoutWebsiteInput
-    pluginIntegrations?: PluginIntegrationUncheckedCreateNestedManyWithoutWebsiteInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutWebsiteInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutWebsiteInput
-    collaborators?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutWebsiteInput
-    revisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutWebsiteInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutWebsiteInput
-    wpConnection?: WordPressConnectionUncheckedCreateNestedOneWithoutWebsiteInput
-    wpPageMappings?: WordPressPageMappingUncheckedCreateNestedManyWithoutWebsiteInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutWebsiteInput
-    invitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutWebsiteInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutWebsiteInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
-    emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
-    performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
-    optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-  }
-
-  export type WebsiteCreateOrConnectWithoutDraftSaveReceiptsInput = {
-    where: WebsiteWhereUniqueInput
-    create: XOR<WebsiteCreateWithoutDraftSaveReceiptsInput, WebsiteUncheckedCreateWithoutDraftSaveReceiptsInput>
-  }
-
-  export type UserCreateWithoutDraftSaveReceiptsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    templates?: templatesCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-    websites?: WebsiteCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
-    licenses?: LicenseCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutDraftSaveReceiptsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
-    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutDraftSaveReceiptsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutDraftSaveReceiptsInput, UserUncheckedCreateWithoutDraftSaveReceiptsInput>
-  }
-
-  export type WebsiteUpsertWithoutDraftSaveReceiptsInput = {
-    update: XOR<WebsiteUpdateWithoutDraftSaveReceiptsInput, WebsiteUncheckedUpdateWithoutDraftSaveReceiptsInput>
-    create: XOR<WebsiteCreateWithoutDraftSaveReceiptsInput, WebsiteUncheckedCreateWithoutDraftSaveReceiptsInput>
-    where?: WebsiteWhereInput
-  }
-
-  export type WebsiteUpdateToOneWithWhereWithoutDraftSaveReceiptsInput = {
-    where?: WebsiteWhereInput
-    data: XOR<WebsiteUpdateWithoutDraftSaveReceiptsInput, WebsiteUncheckedUpdateWithoutDraftSaveReceiptsInput>
-  }
-
-  export type WebsiteUpdateWithoutDraftSaveReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
-    user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
-    customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
-    formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
-    customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
-    themeLocationRules?: ThemeLocationRuleUpdateManyWithoutWebsiteNestedInput
-    sftpConnections?: SftpConnectionUpdateManyWithoutWebsiteNestedInput
-    pluginIntegrations?: PluginIntegrationUpdateManyWithoutWebsiteNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutWebsiteNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutWebsiteNestedInput
-    collaborators?: WebsiteCollaboratorUpdateManyWithoutWebsiteNestedInput
-    revisions?: WebsiteRevisionUpdateManyWithoutWebsiteNestedInput
-    deployments?: DeploymentUpdateManyWithoutWebsiteNestedInput
-    wpConnection?: WordPressConnectionUpdateOneWithoutWebsiteNestedInput
-    wpPageMappings?: WordPressPageMappingUpdateManyWithoutWebsiteNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutWebsiteNestedInput
-    invitations?: WebsiteInvitationUpdateManyWithoutWebsiteNestedInput
-    team?: TeamUpdateOneWithoutWebsitesNestedInput
-    workspace?: WorkspaceUpdateOneWithoutWebsitesNestedInput
-    organization?: OrganizationUpdateOneWithoutWebsitesNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutWebsiteNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutWebsiteNestedInput
-    mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
-    emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
-    performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
-    optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-  }
-
-  export type WebsiteUncheckedUpdateWithoutDraftSaveReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    teamId?: NullableStringFieldUpdateOperationsInput | string | null
-    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
-    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
-    approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
-    customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
-    formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
-    customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
-    themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
-    sftpConnections?: SftpConnectionUncheckedUpdateManyWithoutWebsiteNestedInput
-    pluginIntegrations?: PluginIntegrationUncheckedUpdateManyWithoutWebsiteNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutWebsiteNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutWebsiteNestedInput
-    collaborators?: WebsiteCollaboratorUncheckedUpdateManyWithoutWebsiteNestedInput
-    revisions?: WebsiteRevisionUncheckedUpdateManyWithoutWebsiteNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutWebsiteNestedInput
-    wpConnection?: WordPressConnectionUncheckedUpdateOneWithoutWebsiteNestedInput
-    wpPageMappings?: WordPressPageMappingUncheckedUpdateManyWithoutWebsiteNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutWebsiteNestedInput
-    invitations?: WebsiteInvitationUncheckedUpdateManyWithoutWebsiteNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutWebsiteNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
-    emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
-    performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
-    optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-  }
-
-  export type UserUpsertWithoutDraftSaveReceiptsInput = {
-    update: XOR<UserUpdateWithoutDraftSaveReceiptsInput, UserUncheckedUpdateWithoutDraftSaveReceiptsInput>
-    create: XOR<UserCreateWithoutDraftSaveReceiptsInput, UserUncheckedCreateWithoutDraftSaveReceiptsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutDraftSaveReceiptsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutDraftSaveReceiptsInput, UserUncheckedUpdateWithoutDraftSaveReceiptsInput>
-  }
-
-  export type UserUpdateWithoutDraftSaveReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    templates?: templatesUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutDraftSaveReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-  }
-
   export type UserCreateWithoutOtpVerificationsInput = {
     id?: string
     fullName?: string | null
@@ -94544,10 +85037,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -94555,7 +85044,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -94598,10 +85086,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -94609,7 +85093,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -94668,10 +85151,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -94679,7 +85158,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -94722,10 +85200,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -94733,7 +85207,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -94776,10 +85249,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -94787,7 +85256,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -94830,10 +85298,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -94841,7 +85305,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -94900,10 +85363,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -94911,7 +85370,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -94954,10 +85412,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -94965,7 +85419,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -95008,10 +85461,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95019,7 +85468,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -95062,10 +85510,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95073,7 +85517,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -95132,10 +85575,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95143,7 +85582,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -95186,10 +85624,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -95197,7 +85631,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -95240,10 +85673,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95251,7 +85680,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -95294,10 +85722,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95305,7 +85729,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -95364,10 +85787,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95375,7 +85794,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -95418,10 +85836,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -95429,7 +85843,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -95569,10 +85982,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95580,7 +85989,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -95623,10 +86031,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95634,7 +86038,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -95736,10 +86139,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95747,7 +86146,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -95790,10 +86188,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -95801,7 +86195,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutTemplatesInput = {
@@ -95844,10 +86237,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95855,7 +86244,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -95898,10 +86286,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95909,7 +86293,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -95968,10 +86351,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95979,7 +86358,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -96022,10 +86400,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96033,7 +86407,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutCustomCodeSnippetsInput = {
@@ -96042,11 +86415,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
@@ -96071,7 +86442,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomCodeSnippetsInput = {
@@ -96081,14 +86451,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
     themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
@@ -96109,7 +86477,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomCodeSnippetsInput = {
@@ -96158,11 +86525,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
@@ -96187,7 +86552,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomCodeSnippetsInput = {
@@ -96197,14 +86561,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
     themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -96225,7 +86587,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomCodeRevisionUpsertWithWhereUniqueWithoutSnippetInput = {
@@ -96335,10 +86696,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96346,7 +86703,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutCodeRevisionsInput = {
@@ -96389,10 +86745,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96400,7 +86752,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutCodeRevisionsInput = {
@@ -96516,10 +86867,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96527,7 +86874,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCodeRevisionsInput = {
@@ -96570,10 +86916,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96581,7 +86923,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutFormSubmissionsInput = {
@@ -96590,11 +86931,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeCreateNestedManyWithoutWebsiteInput
@@ -96619,7 +86958,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutFormSubmissionsInput = {
@@ -96629,14 +86967,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
     themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
@@ -96657,7 +86993,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutFormSubmissionsInput = {
@@ -96682,11 +87017,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
@@ -96711,7 +87044,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -96721,14 +87053,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
     themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -96749,7 +87079,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutCustomPostTypesInput = {
@@ -96758,11 +87087,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -96787,7 +87114,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCustomPostTypesInput = {
@@ -96797,14 +87123,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     themeLocationRules?: ThemeLocationRuleUncheckedCreateNestedManyWithoutWebsiteInput
@@ -96825,7 +87149,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCustomPostTypesInput = {
@@ -96914,11 +87237,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -96943,7 +87264,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCustomPostTypesInput = {
@@ -96953,14 +87273,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     themeLocationRules?: ThemeLocationRuleUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -96981,7 +87299,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomFieldUpsertWithWhereUniqueWithoutPostTypeInput = {
@@ -97037,11 +87354,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -97066,7 +87381,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutThemeLocationRulesInput = {
@@ -97076,14 +87390,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -97104,7 +87416,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutThemeLocationRulesInput = {
@@ -97129,11 +87440,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -97158,7 +87467,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutThemeLocationRulesInput = {
@@ -97168,14 +87476,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -97196,7 +87502,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -97239,10 +87544,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -97250,7 +87551,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -97293,10 +87593,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -97304,7 +87600,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -97363,10 +87658,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -97374,7 +87665,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -97417,10 +87707,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -97428,7 +87714,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutSftpConnectionsInput = {
@@ -97437,11 +87722,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -97466,7 +87749,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutSftpConnectionsInput = {
@@ -97476,14 +87758,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -97504,7 +87784,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutSftpConnectionsInput = {
@@ -97529,11 +87808,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -97558,7 +87835,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutSftpConnectionsInput = {
@@ -97568,14 +87844,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -97596,7 +87870,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutPluginIntegrationsInput = {
@@ -97605,11 +87878,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -97634,7 +87905,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutPluginIntegrationsInput = {
@@ -97644,14 +87914,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -97672,7 +87940,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutPluginIntegrationsInput = {
@@ -97697,11 +87964,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -97726,7 +87991,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutPluginIntegrationsInput = {
@@ -97736,14 +88000,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -97764,7 +88026,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type CustomPostTypeCreateWithoutFieldsInput = {
@@ -97900,10 +88161,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -97911,7 +88168,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutCustomEntriesInput = {
@@ -97954,10 +88210,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -97965,7 +88217,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutCustomEntriesInput = {
@@ -98059,10 +88310,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -98070,7 +88317,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomEntriesInput = {
@@ -98113,10 +88359,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -98124,7 +88366,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutDesignNotesInput = {
@@ -98133,11 +88374,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -98162,7 +88401,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDesignNotesInput = {
@@ -98172,14 +88410,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -98200,7 +88436,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDesignNotesInput = {
@@ -98248,10 +88483,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -98259,7 +88490,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutDesignNotesInput = {
@@ -98302,10 +88532,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -98313,7 +88539,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutDesignNotesInput = {
@@ -98338,11 +88563,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -98367,7 +88590,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDesignNotesInput = {
@@ -98377,14 +88599,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -98405,7 +88625,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDesignNotesInput = {
@@ -98459,10 +88678,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -98470,7 +88685,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignNotesInput = {
@@ -98513,10 +88727,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -98524,7 +88734,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutDeveloperApiKeysInput = {
@@ -98567,10 +88776,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -98578,7 +88783,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutDeveloperApiKeysInput = {
@@ -98621,10 +88825,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -98632,7 +88832,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutDeveloperApiKeysInput = {
@@ -98691,10 +88890,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -98702,7 +88897,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeveloperApiKeysInput = {
@@ -98745,10 +88939,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -98756,7 +88946,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutComponentAccessesInput = {
@@ -98765,11 +88954,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -98794,7 +88981,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutComponentAccessesInput = {
@@ -98804,14 +88990,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -98832,7 +89016,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutComponentAccessesInput = {
@@ -98880,10 +89063,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -98891,7 +89070,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutComponentAccessesInput = {
@@ -98934,10 +89112,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -98945,7 +89119,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutComponentAccessesInput = {
@@ -98970,11 +89143,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -98999,7 +89170,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutComponentAccessesInput = {
@@ -99009,14 +89179,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -99037,7 +89205,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutComponentAccessesInput = {
@@ -99091,10 +89258,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -99102,7 +89265,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutComponentAccessesInput = {
@@ -99145,10 +89307,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -99156,7 +89314,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutCollaboratorsInput = {
@@ -99165,11 +89322,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -99194,7 +89349,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutCollaboratorsInput = {
@@ -99204,14 +89358,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -99232,7 +89384,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutCollaboratorsInput = {
@@ -99280,10 +89431,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -99291,7 +89438,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutCollaborationsInput = {
@@ -99334,10 +89480,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -99345,7 +89487,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutCollaborationsInput = {
@@ -99370,11 +89511,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -99399,7 +89538,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutCollaboratorsInput = {
@@ -99409,14 +89547,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -99437,7 +89573,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutCollaborationsInput = {
@@ -99491,10 +89626,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -99502,7 +89633,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollaborationsInput = {
@@ -99545,10 +89675,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -99556,7 +89682,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutRevisionsInput = {
@@ -99565,11 +89690,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -99594,7 +89717,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutRevisionsInput = {
@@ -99604,14 +89726,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -99632,7 +89752,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutRevisionsInput = {
@@ -99680,10 +89799,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -99691,7 +89806,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutWebsiteRevisionsInput = {
@@ -99734,10 +89848,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -99745,7 +89855,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutWebsiteRevisionsInput = {
@@ -99770,11 +89879,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -99799,7 +89906,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutRevisionsInput = {
@@ -99809,14 +89915,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -99837,7 +89941,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWebsiteRevisionsInput = {
@@ -99891,10 +89994,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -99902,7 +90001,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsiteRevisionsInput = {
@@ -99945,10 +90043,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -99956,7 +90050,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutDeploymentsInput = {
@@ -99965,11 +90058,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -99994,7 +90085,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutDeploymentsInput = {
@@ -100004,14 +90094,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -100032,7 +90120,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutDeploymentsInput = {
@@ -100080,10 +90167,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -100091,7 +90174,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutDeploymentsInput = {
@@ -100134,10 +90216,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -100145,7 +90223,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutDeploymentsInput = {
@@ -100170,11 +90247,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -100199,7 +90274,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutDeploymentsInput = {
@@ -100209,14 +90283,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -100237,7 +90309,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutDeploymentsInput = {
@@ -100291,10 +90362,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -100302,7 +90369,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeploymentsInput = {
@@ -100345,10 +90411,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -100356,7 +90418,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutWpConnectionInput = {
@@ -100365,11 +90426,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -100394,7 +90453,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpConnectionInput = {
@@ -100404,14 +90462,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -100432,7 +90488,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpConnectionInput = {
@@ -100480,10 +90535,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -100491,7 +90542,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutWpConnectionsInput = {
@@ -100534,10 +90584,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -100545,50 +90591,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutWpConnectionsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutWpConnectionsInput, UserUncheckedCreateWithoutWpConnectionsInput>
-  }
-
-  export type WordPressWebhookReceiptCreateWithoutConnectionInput = {
-    id?: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput = {
-    id?: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-  }
-
-  export type WordPressWebhookReceiptCreateOrConnectWithoutConnectionInput = {
-    where: WordPressWebhookReceiptWhereUniqueInput
-    create: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput>
-  }
-
-  export type WordPressWebhookReceiptCreateManyConnectionInputEnvelope = {
-    data: WordPressWebhookReceiptCreateManyConnectionInput | WordPressWebhookReceiptCreateManyConnectionInput[]
-    skipDuplicates?: boolean
   }
 
   export type WebsiteUpsertWithoutWpConnectionInput = {
@@ -100608,11 +90615,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -100637,7 +90642,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpConnectionInput = {
@@ -100647,14 +90651,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -100675,7 +90677,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutWpConnectionsInput = {
@@ -100729,10 +90730,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -100740,7 +90737,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWpConnectionsInput = {
@@ -100783,10 +90779,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -100794,118 +90786,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
-  }
-
-  export type WordPressWebhookReceiptUpsertWithWhereUniqueWithoutConnectionInput = {
-    where: WordPressWebhookReceiptWhereUniqueInput
-    update: XOR<WordPressWebhookReceiptUpdateWithoutConnectionInput, WordPressWebhookReceiptUncheckedUpdateWithoutConnectionInput>
-    create: XOR<WordPressWebhookReceiptCreateWithoutConnectionInput, WordPressWebhookReceiptUncheckedCreateWithoutConnectionInput>
-  }
-
-  export type WordPressWebhookReceiptUpdateWithWhereUniqueWithoutConnectionInput = {
-    where: WordPressWebhookReceiptWhereUniqueInput
-    data: XOR<WordPressWebhookReceiptUpdateWithoutConnectionInput, WordPressWebhookReceiptUncheckedUpdateWithoutConnectionInput>
-  }
-
-  export type WordPressWebhookReceiptUpdateManyWithWhereWithoutConnectionInput = {
-    where: WordPressWebhookReceiptScalarWhereInput
-    data: XOR<WordPressWebhookReceiptUpdateManyMutationInput, WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionInput>
-  }
-
-  export type WordPressWebhookReceiptScalarWhereInput = {
-    AND?: WordPressWebhookReceiptScalarWhereInput | WordPressWebhookReceiptScalarWhereInput[]
-    OR?: WordPressWebhookReceiptScalarWhereInput[]
-    NOT?: WordPressWebhookReceiptScalarWhereInput | WordPressWebhookReceiptScalarWhereInput[]
-    id?: UuidFilter<"WordPressWebhookReceipt"> | string
-    connectionId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    websiteId?: UuidFilter<"WordPressWebhookReceipt"> | string
-    eventId?: StringFilter<"WordPressWebhookReceipt"> | string
-    event?: StringFilter<"WordPressWebhookReceipt"> | string
-    payload?: JsonFilter<"WordPressWebhookReceipt">
-    payloadHash?: StringFilter<"WordPressWebhookReceipt"> | string
-    status?: StringFilter<"WordPressWebhookReceipt"> | string
-    attempts?: IntFilter<"WordPressWebhookReceipt"> | number
-    nextAttemptAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    lastError?: StringNullableFilter<"WordPressWebhookReceipt"> | string | null
-    createdAt?: DateTimeFilter<"WordPressWebhookReceipt"> | Date | string
-    processedAt?: DateTimeNullableFilter<"WordPressWebhookReceipt"> | Date | string | null
-  }
-
-  export type WordPressConnectionCreateWithoutWebhookReceiptsInput = {
-    id?: string
-    siteUrl: string
-    status?: string
-    wpSiteName?: string | null
-    apiKeyHash: string
-    capabilities?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    lastVerifiedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    website: WebsiteCreateNestedOneWithoutWpConnectionInput
-    user: UserCreateNestedOneWithoutWpConnectionsInput
-  }
-
-  export type WordPressConnectionUncheckedCreateWithoutWebhookReceiptsInput = {
-    id?: string
-    userId: string
-    websiteId: string
-    siteUrl: string
-    status?: string
-    wpSiteName?: string | null
-    apiKeyHash: string
-    capabilities?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    lastVerifiedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WordPressConnectionCreateOrConnectWithoutWebhookReceiptsInput = {
-    where: WordPressConnectionWhereUniqueInput
-    create: XOR<WordPressConnectionCreateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedCreateWithoutWebhookReceiptsInput>
-  }
-
-  export type WordPressConnectionUpsertWithoutWebhookReceiptsInput = {
-    update: XOR<WordPressConnectionUpdateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedUpdateWithoutWebhookReceiptsInput>
-    create: XOR<WordPressConnectionCreateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedCreateWithoutWebhookReceiptsInput>
-    where?: WordPressConnectionWhereInput
-  }
-
-  export type WordPressConnectionUpdateToOneWithWhereWithoutWebhookReceiptsInput = {
-    where?: WordPressConnectionWhereInput
-    data: XOR<WordPressConnectionUpdateWithoutWebhookReceiptsInput, WordPressConnectionUncheckedUpdateWithoutWebhookReceiptsInput>
-  }
-
-  export type WordPressConnectionUpdateWithoutWebhookReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    siteUrl?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    wpSiteName?: NullableStringFieldUpdateOperationsInput | string | null
-    apiKeyHash?: StringFieldUpdateOperationsInput | string
-    capabilities?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    website?: WebsiteUpdateOneRequiredWithoutWpConnectionNestedInput
-    user?: UserUpdateOneRequiredWithoutWpConnectionsNestedInput
-  }
-
-  export type WordPressConnectionUncheckedUpdateWithoutWebhookReceiptsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    siteUrl?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    wpSiteName?: NullableStringFieldUpdateOperationsInput | string | null
-    apiKeyHash?: StringFieldUpdateOperationsInput | string
-    capabilities?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebsiteCreateWithoutWpPageMappingsInput = {
@@ -100914,11 +90794,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -100943,7 +90821,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWpPageMappingsInput = {
@@ -100953,14 +90830,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -100981,7 +90856,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWpPageMappingsInput = {
@@ -101006,11 +90880,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -101035,7 +90907,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWpPageMappingsInput = {
@@ -101045,14 +90916,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -101073,7 +90942,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutGranularPermissionsInput = {
@@ -101082,11 +90950,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -101111,7 +90977,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutGranularPermissionsInput = {
@@ -101121,14 +90986,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -101149,7 +91012,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutGranularPermissionsInput = {
@@ -101197,10 +91059,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -101208,7 +91066,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutGranularPermissionsInput = {
@@ -101251,10 +91108,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -101262,7 +91115,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutGranularPermissionsInput = {
@@ -101287,11 +91139,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -101316,7 +91166,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -101326,14 +91175,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -101354,7 +91201,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutGranularPermissionsInput = {
@@ -101408,10 +91254,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -101419,7 +91261,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -101462,10 +91303,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -101473,7 +91310,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutOwnedTeamsInput = {
@@ -101516,10 +91352,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -101527,7 +91359,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutOwnedTeamsInput = {
@@ -101570,10 +91401,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -101581,7 +91408,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutOwnedTeamsInput = {
@@ -101621,11 +91447,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -101650,7 +91474,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutTeamInput = {
@@ -101660,13 +91483,11 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -101688,7 +91509,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutTeamInput = {
@@ -101786,10 +91606,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -101797,7 +91613,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedTeamsInput = {
@@ -101840,10 +91655,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -101851,7 +91662,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type TeamMemberUpsertWithWhereUniqueWithoutTeamInput = {
@@ -101969,10 +91779,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -101980,7 +91786,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutTeamMembershipsInput = {
@@ -102023,10 +91828,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -102034,7 +91835,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutTeamMembershipsInput = {
@@ -102126,10 +91926,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -102137,7 +91933,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMembershipsInput = {
@@ -102180,10 +91975,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -102191,7 +91982,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type TeamCreateWithoutInvitationsInput = {
@@ -102261,10 +92051,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -102272,7 +92058,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutSentTeamInvitationsInput = {
@@ -102315,10 +92100,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -102326,7 +92107,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutSentTeamInvitationsInput = {
@@ -102418,10 +92198,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -102429,7 +92205,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTeamInvitationsInput = {
@@ -102472,10 +92247,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -102483,7 +92254,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutInvitationsInput = {
@@ -102492,11 +92262,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -102521,7 +92289,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutInvitationsInput = {
@@ -102531,14 +92298,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -102559,7 +92324,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutInvitationsInput = {
@@ -102607,10 +92371,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -102618,7 +92378,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutSentWebsiteInvitationsInput = {
@@ -102661,10 +92420,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -102672,7 +92427,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutSentWebsiteInvitationsInput = {
@@ -102697,11 +92451,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -102726,7 +92478,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutInvitationsInput = {
@@ -102736,14 +92487,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -102764,7 +92513,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutSentWebsiteInvitationsInput = {
@@ -102818,10 +92566,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -102829,7 +92573,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentWebsiteInvitationsInput = {
@@ -102872,10 +92615,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -102883,7 +92622,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type OrganizationCreateWithoutWorkspacesInput = {
@@ -102955,10 +92693,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -102966,7 +92700,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -103009,10 +92742,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -103020,7 +92749,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -103031,8 +92759,6 @@ export namespace Prisma {
   export type WorkspaceMemberCreateWithoutWorkspaceInput = {
     id?: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkspaceMembershipsInput
@@ -103042,8 +92768,6 @@ export namespace Prisma {
     id?: string
     userId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -103058,83 +92782,15 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type WorkspaceInvitationCreateWithoutWorkspaceInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    inviter: UserCreateNestedOneWithoutSentWorkspaceInvitationsInput
-    accepter?: UserCreateNestedOneWithoutAcceptedWorkspaceInvitationsInput
-  }
-
-  export type WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    create: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput>
-  }
-
-  export type WorkspaceInvitationCreateManyWorkspaceInputEnvelope = {
-    data: WorkspaceInvitationCreateManyWorkspaceInput | WorkspaceInvitationCreateManyWorkspaceInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SupportGrantCreateWithoutWorkspaceInput = {
-    id?: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-    grantee: UserCreateNestedOneWithoutSupportGrantsReceivedInput
-    approver?: UserCreateNestedOneWithoutSupportGrantsApprovedInput
-  }
-
-  export type SupportGrantUncheckedCreateWithoutWorkspaceInput = {
-    id?: string
-    granteeId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantCreateOrConnectWithoutWorkspaceInput = {
-    where: SupportGrantWhereUniqueInput
-    create: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput>
-  }
-
-  export type SupportGrantCreateManyWorkspaceInputEnvelope = {
-    data: SupportGrantCreateManyWorkspaceInput | SupportGrantCreateManyWorkspaceInput[]
-    skipDuplicates?: boolean
-  }
-
   export type WebsiteCreateWithoutWorkspaceInput = {
     id?: string
     name: string
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -103159,7 +92815,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutWorkspaceInput = {
@@ -103169,13 +92824,11 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -103197,7 +92850,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutWorkspaceInput = {
@@ -103296,10 +92948,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -103307,7 +92955,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -103350,10 +92997,6 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -103361,7 +93004,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -103378,38 +93020,6 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateManyWithWhereWithoutWorkspaceInput = {
     where: WorkspaceMemberScalarWhereInput
     data: XOR<WorkspaceMemberUpdateManyMutationInput, WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceInput>
-  }
-
-  export type WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    update: XOR<WorkspaceInvitationUpdateWithoutWorkspaceInput, WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput>
-    create: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput>
-  }
-
-  export type WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput = {
-    where: WorkspaceInvitationWhereUniqueInput
-    data: XOR<WorkspaceInvitationUpdateWithoutWorkspaceInput, WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput>
-  }
-
-  export type WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput = {
-    where: WorkspaceInvitationScalarWhereInput
-    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput>
-  }
-
-  export type SupportGrantUpsertWithWhereUniqueWithoutWorkspaceInput = {
-    where: SupportGrantWhereUniqueInput
-    update: XOR<SupportGrantUpdateWithoutWorkspaceInput, SupportGrantUncheckedUpdateWithoutWorkspaceInput>
-    create: XOR<SupportGrantCreateWithoutWorkspaceInput, SupportGrantUncheckedCreateWithoutWorkspaceInput>
-  }
-
-  export type SupportGrantUpdateWithWhereUniqueWithoutWorkspaceInput = {
-    where: SupportGrantWhereUniqueInput
-    data: XOR<SupportGrantUpdateWithoutWorkspaceInput, SupportGrantUncheckedUpdateWithoutWorkspaceInput>
-  }
-
-  export type SupportGrantUpdateManyWithWhereWithoutWorkspaceInput = {
-    where: SupportGrantScalarWhereInput
-    data: XOR<SupportGrantUpdateManyMutationInput, SupportGrantUncheckedUpdateManyWithoutWorkspaceInput>
   }
 
   export type WebsiteUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -103468,10 +93078,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -103479,7 +93085,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutOwnedOrganizationsInput = {
@@ -103522,10 +93127,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -103533,7 +93134,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutOwnedOrganizationsInput = {
@@ -103571,14 +93171,11 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -103587,13 +93184,10 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -103613,11 +93207,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -103642,7 +93234,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutOrganizationInput = {
@@ -103652,13 +93243,11 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -103680,7 +93269,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutOrganizationInput = {
@@ -103744,10 +93332,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -103755,7 +93339,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedOrganizationsInput = {
@@ -103798,10 +93381,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -103809,7 +93388,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -103929,10 +93507,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -103940,7 +93514,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationMembershipsInput = {
@@ -103983,10 +93556,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -103994,7 +93563,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationMembershipsInput = {
@@ -104088,10 +93656,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -104099,7 +93663,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationMembershipsInput = {
@@ -104142,10 +93705,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -104153,21 +93712,17 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
     id?: string
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -104177,12 +93732,9 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -104231,10 +93783,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -104242,7 +93790,6 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
@@ -104285,10 +93832,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -104296,7 +93839,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -104319,14 +93861,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -104336,12 +93875,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -104396,10 +93932,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -104407,7 +93939,6 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
@@ -104450,10 +93981,6 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -104461,1087 +93988,6 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
-  }
-
-  export type WorkspaceCreateWithoutInvitationsInput = {
-    id?: string
-    name: string
-    slug: string
-    isPersonal?: boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
-    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
-    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantCreateNestedManyWithoutWorkspaceInput
-    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
-  }
-
-  export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
-    id?: string
-    organizationId?: string | null
-    name: string
-    slug: string
-    ownerId: string
-    isPersonal?: boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    supportGrants?: SupportGrantUncheckedCreateNestedManyWithoutWorkspaceInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
-  }
-
-  export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
-  }
-
-  export type UserCreateWithoutSentWorkspaceInvitationsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    templates?: templatesCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-    websites?: WebsiteCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
-    licenses?: LicenseCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
-  }
-
-  export type UserUncheckedCreateWithoutSentWorkspaceInvitationsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
-    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
-  }
-
-  export type UserCreateOrConnectWithoutSentWorkspaceInvitationsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
-  }
-
-  export type UserCreateWithoutAcceptedWorkspaceInvitationsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    templates?: templatesCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-    websites?: WebsiteCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
-    licenses?: LicenseCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
-  }
-
-  export type UserUncheckedCreateWithoutAcceptedWorkspaceInvitationsInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
-    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
-  }
-
-  export type UserCreateOrConnectWithoutAcceptedWorkspaceInvitationsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedCreateWithoutAcceptedWorkspaceInvitationsInput>
-  }
-
-  export type WorkspaceUpsertWithoutInvitationsInput = {
-    update: XOR<WorkspaceUpdateWithoutInvitationsInput, WorkspaceUncheckedUpdateWithoutInvitationsInput>
-    create: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
-    where?: WorkspaceWhereInput
-  }
-
-  export type WorkspaceUpdateToOneWithWhereWithoutInvitationsInput = {
-    where?: WorkspaceWhereInput
-    data: XOR<WorkspaceUpdateWithoutInvitationsInput, WorkspaceUncheckedUpdateWithoutInvitationsInput>
-  }
-
-  export type WorkspaceUpdateWithoutInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
-    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
-    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
-    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
-  }
-
-  export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
-  }
-
-  export type UserUpsertWithoutSentWorkspaceInvitationsInput = {
-    update: XOR<UserUpdateWithoutSentWorkspaceInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
-    create: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutSentWorkspaceInvitationsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutSentWorkspaceInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
-  }
-
-  export type UserUpdateWithoutSentWorkspaceInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    templates?: templatesUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUpsertWithoutAcceptedWorkspaceInvitationsInput = {
-    update: XOR<UserUpdateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedUpdateWithoutAcceptedWorkspaceInvitationsInput>
-    create: XOR<UserCreateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedCreateWithoutAcceptedWorkspaceInvitationsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAcceptedWorkspaceInvitationsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAcceptedWorkspaceInvitationsInput, UserUncheckedUpdateWithoutAcceptedWorkspaceInvitationsInput>
-  }
-
-  export type UserUpdateWithoutAcceptedWorkspaceInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    templates?: templatesUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAcceptedWorkspaceInvitationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
-  }
-
-  export type WorkspaceCreateWithoutSupportGrantsInput = {
-    id?: string
-    name: string
-    slug: string
-    isPersonal?: boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
-    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
-    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
-    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
-  }
-
-  export type WorkspaceUncheckedCreateWithoutSupportGrantsInput = {
-    id?: string
-    organizationId?: string | null
-    name: string
-    slug: string
-    ownerId: string
-    isPersonal?: boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
-    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
-  }
-
-  export type WorkspaceCreateOrConnectWithoutSupportGrantsInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutSupportGrantsInput, WorkspaceUncheckedCreateWithoutSupportGrantsInput>
-  }
-
-  export type UserCreateWithoutSupportGrantsReceivedInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    templates?: templatesCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-    websites?: WebsiteCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
-    licenses?: LicenseCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
-  }
-
-  export type UserUncheckedCreateWithoutSupportGrantsReceivedInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
-    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
-  }
-
-  export type UserCreateOrConnectWithoutSupportGrantsReceivedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSupportGrantsReceivedInput, UserUncheckedCreateWithoutSupportGrantsReceivedInput>
-  }
-
-  export type UserCreateWithoutSupportGrantsApprovedInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    templates?: templatesCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
-    websites?: WebsiteCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
-    licenses?: LicenseCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
-  }
-
-  export type UserUncheckedCreateWithoutSupportGrantsApprovedInput = {
-    id?: string
-    fullName?: string | null
-    email?: string | null
-    phone?: string | null
-    passwordHash?: string | null
-    verificationMethod?: $Enums.VerificationMethod | null
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    status?: $Enums.UserStatus
-    role?: $Enums.UserRole
-    lastLoginAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    optimizationCredits?: number
-    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
-    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
-    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
-    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
-    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
-    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
-    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
-    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
-    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
-    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
-    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
-    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
-    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
-    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
-    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
-    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
-    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
-    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
-    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
-    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
-    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
-    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
-    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
-  }
-
-  export type UserCreateOrConnectWithoutSupportGrantsApprovedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSupportGrantsApprovedInput, UserUncheckedCreateWithoutSupportGrantsApprovedInput>
-  }
-
-  export type WorkspaceUpsertWithoutSupportGrantsInput = {
-    update: XOR<WorkspaceUpdateWithoutSupportGrantsInput, WorkspaceUncheckedUpdateWithoutSupportGrantsInput>
-    create: XOR<WorkspaceCreateWithoutSupportGrantsInput, WorkspaceUncheckedCreateWithoutSupportGrantsInput>
-    where?: WorkspaceWhereInput
-  }
-
-  export type WorkspaceUpdateToOneWithWhereWithoutSupportGrantsInput = {
-    where?: WorkspaceWhereInput
-    data: XOR<WorkspaceUpdateWithoutSupportGrantsInput, WorkspaceUncheckedUpdateWithoutSupportGrantsInput>
-  }
-
-  export type WorkspaceUpdateWithoutSupportGrantsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
-    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
-    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
-  }
-
-  export type WorkspaceUncheckedUpdateWithoutSupportGrantsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
-    settings?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
-  }
-
-  export type UserUpsertWithoutSupportGrantsReceivedInput = {
-    update: XOR<UserUpdateWithoutSupportGrantsReceivedInput, UserUncheckedUpdateWithoutSupportGrantsReceivedInput>
-    create: XOR<UserCreateWithoutSupportGrantsReceivedInput, UserUncheckedCreateWithoutSupportGrantsReceivedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutSupportGrantsReceivedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutSupportGrantsReceivedInput, UserUncheckedUpdateWithoutSupportGrantsReceivedInput>
-  }
-
-  export type UserUpdateWithoutSupportGrantsReceivedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    templates?: templatesUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutSupportGrantsReceivedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUpsertWithoutSupportGrantsApprovedInput = {
-    update: XOR<UserUpdateWithoutSupportGrantsApprovedInput, UserUncheckedUpdateWithoutSupportGrantsApprovedInput>
-    create: XOR<UserCreateWithoutSupportGrantsApprovedInput, UserUncheckedCreateWithoutSupportGrantsApprovedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutSupportGrantsApprovedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutSupportGrantsApprovedInput, UserUncheckedUpdateWithoutSupportGrantsApprovedInput>
-  }
-
-  export type UserUpdateWithoutSupportGrantsApprovedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    templates?: templatesUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutSupportGrantsApprovedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    fullName?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
-    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
-    emailVerified?: BoolFieldUpdateOperationsInput | boolean
-    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    optimizationCredits?: IntFieldUpdateOperationsInput | number
-    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
-    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
-    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
-    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
-    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
-    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
-    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
-    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
-    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
-    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
-    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
-    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
-    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
-    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
-    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
-    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
-    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
-    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
-    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
-    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
-    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
-    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
-    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
-    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteCreateWithoutApprovalRequestsInput = {
@@ -105550,11 +93996,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -105579,7 +94023,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutApprovalRequestsInput = {
@@ -105589,14 +94032,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -105617,7 +94058,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutApprovalRequestsInput = {
@@ -105666,17 +94106,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutApprovalRequestsInput = {
@@ -105720,17 +94155,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutApprovalRequestsInput = {
@@ -105779,17 +94209,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutReviewedApprovalsInput = {
@@ -105833,17 +94258,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutReviewedApprovalsInput = {
@@ -105868,11 +94288,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -105897,7 +94315,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -105907,14 +94324,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -105935,7 +94350,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserUpsertWithoutApprovalRequestsInput = {
@@ -105990,17 +94404,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -106044,17 +94453,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserUpsertWithoutReviewedApprovalsInput = {
@@ -106109,17 +94513,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedApprovalsInput = {
@@ -106163,17 +94562,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutMediaAssetsInput = {
@@ -106217,17 +94611,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutMediaAssetsInput = {
@@ -106271,17 +94660,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutMediaAssetsInput = {
@@ -106295,11 +94679,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -106324,7 +94706,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutMediaAssetsInput = {
@@ -106334,14 +94715,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -106362,7 +94741,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutMediaAssetsInput = {
@@ -106422,17 +94800,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMediaAssetsInput = {
@@ -106476,17 +94849,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type WebsiteUpsertWithoutMediaAssetsInput = {
@@ -106506,11 +94874,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -106535,7 +94901,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutMediaAssetsInput = {
@@ -106545,14 +94910,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -106573,7 +94936,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutMailerConfigInput = {
@@ -106582,11 +94944,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -106611,7 +94971,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutMailerConfigInput = {
@@ -106621,14 +94980,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -106649,7 +95006,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutMailerConfigInput = {
@@ -106674,11 +95030,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -106703,7 +95057,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutMailerConfigInput = {
@@ -106713,14 +95066,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -106741,7 +95092,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutEmailLogsInput = {
@@ -106750,11 +95100,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -106779,7 +95127,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutEmailLogsInput = {
@@ -106789,14 +95136,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -106817,7 +95162,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutEmailLogsInput = {
@@ -106842,11 +95186,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -106871,7 +95213,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutEmailLogsInput = {
@@ -106881,14 +95222,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -106909,7 +95248,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutPerformanceMetricsInput = {
@@ -106918,11 +95256,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -106947,7 +95283,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutPerformanceMetricsInput = {
@@ -106957,14 +95292,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -106985,7 +95318,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     optimizedMedia?: MediaOptimizationAssetUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutPerformanceMetricsInput = {
@@ -107010,11 +95342,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -107039,7 +95369,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutPerformanceMetricsInput = {
@@ -107049,14 +95378,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -107077,7 +95404,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteCreateWithoutOptimizedMediaInput = {
@@ -107086,11 +95412,9 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     user: UserCreateNestedOneWithoutWebsitesInput
     customCodeSnippets?: CustomCodeSnippetCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionCreateNestedManyWithoutWebsiteInput
@@ -107115,7 +95439,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigCreateNestedOneWithoutWebsiteInput
     emailLogs?: EmailDeliveryLogCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteUncheckedCreateWithoutOptimizedMediaInput = {
@@ -107125,14 +95448,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
     customCodeSnippets?: CustomCodeSnippetUncheckedCreateNestedManyWithoutWebsiteInput
     formSubmissions?: FormSubmissionUncheckedCreateNestedManyWithoutWebsiteInput
     customPostTypes?: CustomPostTypeUncheckedCreateNestedManyWithoutWebsiteInput
@@ -107153,7 +95474,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedCreateNestedOneWithoutWebsiteInput
     emailLogs?: EmailDeliveryLogUncheckedCreateNestedManyWithoutWebsiteInput
     performanceMetrics?: SitePerformanceMetricUncheckedCreateNestedManyWithoutWebsiteInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutWebsiteInput
   }
 
   export type WebsiteCreateOrConnectWithoutOptimizedMediaInput = {
@@ -107178,11 +95498,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -107207,7 +95525,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUpdateOneWithoutWebsiteNestedInput
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutOptimizedMediaInput = {
@@ -107217,14 +95534,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -107245,7 +95560,6 @@ export namespace Prisma {
     mailerConfig?: SiteMailerConfigUncheckedUpdateOneWithoutWebsiteNestedInput
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type UserCreateWithoutCreditLedgersInput = {
@@ -107289,17 +95603,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutCreditLedgersInput = {
@@ -107343,17 +95652,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutCreditLedgersInput = {
@@ -107413,17 +95717,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreditLedgersInput = {
@@ -107467,17 +95766,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutLicensesInput = {
@@ -107521,17 +95815,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutLicensesInput = {
@@ -107575,17 +95864,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutLicensesInput = {
@@ -107675,17 +95959,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLicensesInput = {
@@ -107729,17 +96008,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput = {
@@ -107877,17 +96151,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutWhiteLabelConfigInput = {
@@ -107931,17 +96200,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutWhiteLabelConfigInput = {
@@ -108001,17 +96265,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWhiteLabelConfigInput = {
@@ -108055,17 +96314,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type UserCreateWithoutInvoicesInput = {
@@ -108109,17 +96363,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptCreateNestedManyWithoutActorInput
   }
 
   export type UserUncheckedCreateWithoutInvoicesInput = {
@@ -108163,17 +96412,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutAccepterInput
-    supportGrantsReceived?: SupportGrantUncheckedCreateNestedManyWithoutGranteeInput
-    supportGrantsApproved?: SupportGrantUncheckedCreateNestedManyWithoutApproverInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedCreateNestedManyWithoutActorInput
   }
 
   export type UserCreateOrConnectWithoutInvoicesInput = {
@@ -108233,17 +96477,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutActorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvoicesInput = {
@@ -108287,17 +96526,12 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
-    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
-    acceptedWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutAccepterNestedInput
-    supportGrantsReceived?: SupportGrantUncheckedUpdateManyWithoutGranteeNestedInput
-    supportGrantsApproved?: SupportGrantUncheckedUpdateManyWithoutApproverNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutActorNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -108357,14 +96591,12 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
   }
 
   export type CustomCodeRevisionCreateManyAuthorInput = {
@@ -108529,7 +96761,6 @@ export namespace Prisma {
     organizationId?: string | null
     name: string
     slug: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -108556,56 +96787,8 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateManyInviterInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateManyAccepterInput = {
-    id?: string
-    workspaceId: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type SupportGrantCreateManyGranteeInput = {
-    id?: string
-    workspaceId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SupportGrantCreateManyApproverInput = {
-    id?: string
-    workspaceId: string
-    granteeId: string
-    reason: string
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
   }
 
   export type PublishApprovalRequestCreateManyRequesterInput = {
@@ -108680,18 +96863,6 @@ export namespace Prisma {
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
-  }
-
-  export type DraftSaveReceiptCreateManyActorInput = {
-    id?: string
-    websiteId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
   }
 
   export type IdentityUpdateWithoutUserInput = {
@@ -108853,11 +97024,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUpdateManyWithoutWebsiteNestedInput
@@ -108882,7 +97051,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutUserInput = {
@@ -108891,14 +97059,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -108920,7 +97086,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutUserInput = {
@@ -108929,14 +97094,12 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
   }
 
   export type CustomCodeRevisionUpdateWithoutAuthorInput = {
@@ -109230,7 +97393,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     website?: WebsiteUpdateOneRequiredWithoutWpConnectionNestedInput
-    webhookReceipts?: WordPressWebhookReceiptUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressConnectionUncheckedUpdateWithoutUserInput = {
@@ -109245,7 +97407,6 @@ export namespace Prisma {
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    webhookReceipts?: WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionNestedInput
   }
 
   export type WordPressConnectionUncheckedUpdateManyWithoutUserInput = {
@@ -109422,14 +97583,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -109438,13 +97596,10 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -109453,7 +97608,6 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -109519,8 +97673,6 @@ export namespace Prisma {
   export type WorkspaceMemberUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspace?: WorkspaceUpdateOneRequiredWithoutMembersNestedInput
@@ -109530,8 +97682,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -109540,148 +97690,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUpdateWithoutInviterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-    accepter?: UserUpdateOneWithoutAcceptedWorkspaceInvitationsNestedInput
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateWithoutInviterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutInviterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUpdateWithoutAccepterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
-    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateWithoutAccepterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutAccepterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUpdateWithoutGranteeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutSupportGrantsNestedInput
-    approver?: UserUpdateOneWithoutSupportGrantsApprovedNestedInput
-  }
-
-  export type SupportGrantUncheckedUpdateWithoutGranteeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutGranteeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUpdateWithoutApproverInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    workspace?: WorkspaceUpdateOneRequiredWithoutSupportGrantsNestedInput
-    grantee?: UserUpdateOneRequiredWithoutSupportGrantsReceivedNestedInput
-  }
-
-  export type SupportGrantUncheckedUpdateWithoutApproverInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutApproverInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    workspaceId?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PublishApprovalRequestUpdateWithoutRequesterInput = {
@@ -109908,42 +97918,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DraftSaveReceiptUpdateWithoutActorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    website?: WebsiteUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateWithoutActorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateManyWithoutActorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    websiteId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type CustomCodeSnippetCreateManyWebsiteInput = {
     id?: string
     name?: string | null
@@ -109969,9 +97943,7 @@ export namespace Prisma {
   export type FormSubmissionCreateManyWebsiteInput = {
     id?: string
     formId: string
-    formName?: string | null
     data: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
     status?: string
     createdAt?: Date | string
@@ -110168,18 +98140,6 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type DraftSaveReceiptCreateManyWebsiteInput = {
-    id?: string
-    actorId: string
-    mutationId: string
-    requestHash: string
-    acceptedRevision: string
-    documentHash: string
-    document: JsonNullValueInput | InputJsonValue
-    acceptedAt?: Date | string
-    expiresAt?: Date | string
-  }
-
   export type CustomCodeSnippetUpdateWithoutWebsiteInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
@@ -110251,9 +98211,7 @@ export namespace Prisma {
   export type FormSubmissionUpdateWithoutWebsiteInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110262,9 +98220,7 @@ export namespace Prisma {
   export type FormSubmissionUncheckedUpdateWithoutWebsiteInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110273,9 +98229,7 @@ export namespace Prisma {
   export type FormSubmissionUncheckedUpdateManyWithoutWebsiteInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    formName?: NullableStringFieldUpdateOperationsInput | string | null
     data?: JsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110858,42 +98812,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DraftSaveReceiptUpdateWithoutWebsiteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    actor?: UserUpdateOneRequiredWithoutDraftSaveReceiptsNestedInput
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateWithoutWebsiteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    actorId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    actorId?: StringFieldUpdateOperationsInput | string
-    mutationId?: StringFieldUpdateOperationsInput | string
-    requestHash?: StringFieldUpdateOperationsInput | string
-    acceptedRevision?: StringFieldUpdateOperationsInput | string
-    documentHash?: StringFieldUpdateOperationsInput | string
-    document?: JsonNullValueInput | InputJsonValue
-    acceptedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type UserSubscriptionCreateManyPlanInput = {
     id?: string
     userId: string
@@ -111050,62 +98968,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WordPressWebhookReceiptCreateManyConnectionInput = {
-    id?: string
-    eventId: string
-    event: string
-    payload: JsonNullValueInput | InputJsonValue
-    payloadHash: string
-    status?: string
-    attempts?: number
-    nextAttemptAt?: Date | string
-    lastError?: string | null
-    createdAt?: Date | string
-    processedAt?: Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUpdateWithoutConnectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUncheckedUpdateWithoutConnectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type WordPressWebhookReceiptUncheckedUpdateManyWithoutConnectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    eventId?: StringFieldUpdateOperationsInput | string
-    event?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    payloadHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
   export type TeamMemberCreateManyTeamInput = {
     id?: string
     userId: string
@@ -111121,13 +98983,11 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     workspaceId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
   }
 
   export type TeamInvitationCreateManyTeamInput = {
@@ -111172,11 +99032,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -111201,7 +99059,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutTeamInput = {
@@ -111211,13 +99068,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -111239,7 +99094,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutTeamInput = {
@@ -111249,13 +99103,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
   }
 
   export type TeamInvitationUpdateWithoutTeamInput = {
@@ -111298,33 +99150,8 @@ export namespace Prisma {
     id?: string
     userId: string
     role?: string
-    status?: string
-    policyVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type WorkspaceInvitationCreateManyWorkspaceInput = {
-    id?: string
-    email: string
-    role?: string
-    tokenHash: string
-    status?: string
-    expiresAt: Date | string
-    invitedBy: string
-    acceptedBy?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type SupportGrantCreateManyWorkspaceInput = {
-    id?: string
-    granteeId: string
-    reason: string
-    approvedBy?: string | null
-    expiresAt: Date | string
-    revokedAt?: Date | string | null
-    createdAt?: Date | string
   }
 
   export type WebsiteCreateManyWorkspaceInput = {
@@ -111334,20 +99161,16 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
   }
 
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkspaceMembershipsNestedInput
@@ -111357,8 +99180,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -111367,79 +99188,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    policyVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUpdateWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput
-    accepter?: UserUpdateOneWithoutAcceptedWorkspaceInvitationsNestedInput
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    tokenHash?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invitedBy?: StringFieldUpdateOperationsInput | string
-    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUpdateWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    grantee?: UserUpdateOneRequiredWithoutSupportGrantsReceivedNestedInput
-    approver?: UserUpdateOneWithoutSupportGrantsApprovedNestedInput
-  }
-
-  export type SupportGrantUncheckedUpdateWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SupportGrantUncheckedUpdateManyWithoutWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    granteeId?: StringFieldUpdateOperationsInput | string
-    reason?: StringFieldUpdateOperationsInput | string
-    approvedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebsiteUpdateWithoutWorkspaceInput = {
@@ -111448,11 +99198,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -111477,7 +99225,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutWorkspaceInput = {
@@ -111487,13 +99234,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -111515,7 +99260,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -111525,13 +99269,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrganizationMemberCreateManyOrganizationInput = {
@@ -111547,7 +99289,6 @@ export namespace Prisma {
     name: string
     slug: string
     ownerId: string
-    isPersonal?: boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -111560,13 +99301,11 @@ export namespace Prisma {
     slug: string
     status?: string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     workspaceId?: string | null
     approvalWorkflowEnabled?: boolean
-    draftRevision?: string
   }
 
   export type OrganizationMemberUpdateWithoutOrganizationInput = {
@@ -111597,14 +99336,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -111613,13 +99349,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
-    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-    supportGrants?: SupportGrantUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -111628,7 +99361,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     ownerId?: StringFieldUpdateOperationsInput | string
-    isPersonal?: BoolFieldUpdateOperationsInput | boolean
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -111640,11 +99372,9 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutWebsitesNestedInput
     customCodeSnippets?: CustomCodeSnippetUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUpdateManyWithoutWebsiteNestedInput
@@ -111669,7 +99399,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateWithoutOrganizationInput = {
@@ -111679,13 +99408,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
     customCodeSnippets?: CustomCodeSnippetUncheckedUpdateManyWithoutWebsiteNestedInput
     formSubmissions?: FormSubmissionUncheckedUpdateManyWithoutWebsiteNestedInput
     customPostTypes?: CustomPostTypeUncheckedUpdateManyWithoutWebsiteNestedInput
@@ -111707,7 +99434,6 @@ export namespace Prisma {
     emailLogs?: EmailDeliveryLogUncheckedUpdateManyWithoutWebsiteNestedInput
     performanceMetrics?: SitePerformanceMetricUncheckedUpdateManyWithoutWebsiteNestedInput
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
-    draftSaveReceipts?: DraftSaveReceiptUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
   export type WebsiteUncheckedUpdateManyWithoutOrganizationInput = {
@@ -111717,13 +99443,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     editorData?: JsonNullValueInput | InputJsonValue
-    performanceSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
-    draftRevision?: StringFieldUpdateOperationsInput | string
   }
 
   export type LicenseActivationCreateManyLicenseInput = {

@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Atomic Editor. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import { useAtomicEditor } from "../hooks/useAtomicEditor";
 import { AtomicEditorNavigation } from "./AtomicEditorNavigation";
@@ -13,14 +9,6 @@ interface AtomicEditorProps {
   onInsertComponent?: (componentId: string) => void;
 }
 
-/**
- * Render the atomic editor interface and connect its event handlers.
- * @param options Named inputs: onClose, onInsertGlobalElement, onInsertComponent.
-
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onInsertGlobalElement Callback for insert global element events.
- * @param options.onInsertComponent Callback for insert component events.
- */
 export const AtomicEditor: React.FC<AtomicEditorProps> = ({
   onClose,
   onInsertGlobalElement,

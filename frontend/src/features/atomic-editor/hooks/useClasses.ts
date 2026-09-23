@@ -1,15 +1,8 @@
-/**
- * @file Atomic editor feature: use Classes. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { AtomicClass, CreateClassPayload, UpdateClassPayload } from "../types/classes.types";
 import { fetchClasses, saveClasses } from "../services/classService";
 import { formatClassName, validateClassName } from "../utils/class.utils";
 
-/**
- * Coordinate classes state and lifecycle for the calling component.
- */
 export function useClasses() {
   const [classes, setClasses] = useState<AtomicClass[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

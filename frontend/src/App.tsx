@@ -1,5 +1,4 @@
 import React, { Suspense, lazy } from "react";
-import { RouteErrorBoundary } from "./components/RouteErrorBoundary";
 import {
   BrowserRouter,
   Navigate,
@@ -13,9 +12,11 @@ import {
   type UserRole,
 } from "./context/AuthContext";
 
-const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
-const SignupPage = lazy(() => import("./pages/auth/SignupPage"));
-const UserDashboard = lazy(() => import("./pages/dashboard/UserDashboard"));
+import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
+import UserDashboard from "./pages/dashboard/UserDashboard";
+
+// Route-based code splitting for optimal initial bundle size and load performance
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboard/SuperAdminDashboard"));
 const SubscriptionPage = lazy(() => import("./pages/subscriptions/SubscriptionPage"));
@@ -32,13 +33,6 @@ interface RoleRouteProps {
   children: React.ReactNode;
 }
 
-/**
- * Render the role route interface and connect its event handlers.
- * @param options Named inputs: allowedRoles, children.
-
- * @param options.allowedRoles Allowed Roles passed by the caller.
- * @param options.children Nested React content or document elements supplied by the parent.
- */
 function RoleRoute({
   allowedRoles,
   children,
@@ -84,9 +78,6 @@ function RoleRoute({
   return <>{children}</>;
 }
 
-/**
- * Render the login route interface and connect its event handlers.
- */
 function LoginRoute() {
   const { user, loading } = useAuth();
 
@@ -132,9 +123,6 @@ function LoginRoute() {
   return <LoginPage />;
 }
 
-/**
- * Render the signup route interface and connect its event handlers.
- */
 function SignupRoute() {
   const { user, loading } = useAuth();
 
@@ -180,9 +168,6 @@ function SignupRoute() {
   return <SignupPage />;
 }
 
-/**
- * Render the home redirect interface and connect its event handlers.
- */
 function HomeRedirect() {
   const { user, loading } = useAuth();
 
@@ -226,162 +211,162 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <RouteErrorBoundary>
-          <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              {/* ================= AUTH ================= */}
+        <Suspense fallback={<RouteLoading />}>
+          <Routes>
 
-              <Route
-                path="/login"
-                element={<LoginRoute />}
-              />
-              <Route
-                path="/signup"
-                element={<SignupRoute />}
-              />
+          {/* ================= AUTH ================= */}
 
-              {/* ================= PUBLIC SHARED TEMPLATES ================= */}
+          <Route
+            path="/login"
+            element={<LoginRoute />}
+          />
+          <Route
+            path="/signup"
+            element={<SignupRoute />}
+          />
 
-              <Route
-                path="/template/share/:shareToken"
-                element={<SharedTemplatePreviewPage />}
-              />
+          {/* ================= PUBLIC SHARED TEMPLATES ================= */}
 
-              {/* ================= PUBLIC PUBLISHED SITE ================= */}
+          <Route
+            path="/template/share/:shareToken"
+            element={<SharedTemplatePreviewPage />}
+          />
 
-              <Route
-                path="/site/:websiteId"
-                element={<PublishedSite />}
-              />
-              <Route
-                path="/site/:websiteId/:pageSlug"
-                element={<PublishedSite />}
-              />
+          {/* ================= PUBLIC PUBLISHED SITE ================= */}
 
-              {/* ================= ROOT ================= */}
+          <Route
+            path="/site/:websiteId"
+            element={<PublishedSite />}
+          />
+          <Route
+            path="/site/:websiteId/:pageSlug"
+            element={<PublishedSite />}
+          />
 
-              <Route
-                path="/"
-                element={<HomeRedirect />}
-              />
+          {/* ================= ROOT ================= */}
 
-              {/* ================= USER ================= */}
+          <Route
+            path="/"
+            element={<HomeRedirect />}
+          />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <UserDashboard />
-                  </RoleRoute>
-                }
-              />
+          {/* ================= USER ================= */}
 
-              <Route
-                path="/subscriptions"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <SubscriptionPage />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard"
+            element={
+              <RoleRoute allowedRoles={["USER"]}>
+                <UserDashboard />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/editor/:websiteId"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <WebsiteEditor />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/subscriptions"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <SubscriptionPage />
+              </RoleRoute>
+            }
+          />
 
-              {/* ================= CUSTOM POST TYPES ================= */}
+          <Route
+            path="/editor/:websiteId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <WebsiteEditor />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/dashboard/cpts/:websiteId"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomPostTypesList />
-                  </RoleRoute>
-                }
-              />
+          {/* ================= CUSTOM POST TYPES ================= */}
 
-              <Route
-                path="/dashboard/cpts/:websiteId/builder"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomPostTypeBuilder />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard/cpts/:websiteId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypesList />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/dashboard/cpts/:websiteId/builder/:cptId"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomPostTypeBuilder />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard/cpts/:websiteId/builder"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypeBuilder />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/dashboard/cpts/:websiteId/entries/:cptId"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomEntriesList />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard/cpts/:websiteId/builder/:cptId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomPostTypeBuilder />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/dashboard/cpts/:websiteId/entries/:cptId/editor"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomEntryEditor />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntriesList />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/dashboard/cpts/:websiteId/entries/:cptId/editor/:entryId"
-                element={
-                  <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
-                    <CustomEntryEditor />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId/editor"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntryEditor />
+              </RoleRoute>
+            }
+          />
 
-              {/* ================= ADMIN ================= */}
+          <Route
+            path="/dashboard/cpts/:websiteId/entries/:cptId/editor/:entryId"
+            element={
+              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+                <CustomEntryEditor />
+              </RoleRoute>
+            }
+          />
 
-              <Route
-                path="/admin"
-                element={
-                  <RoleRoute allowedRoles={["ADMIN", "SUPER_ADMIN"]}>
-                    <AdminDashboard />
-                  </RoleRoute>
-                }
-              />
+          {/* ================= ADMIN ================= */}
 
-              {/* ================= SUPER ADMIN ================= */}
 
-              <Route
-                path="/super-admin"
-                element={
-                  <RoleRoute allowedRoles={["SUPER_ADMIN"]}>
-                    <SuperAdminDashboard />
-                  </RoleRoute>
-                }
-              />
+          <Route
+            path="/admin"
+            element={
+              <RoleRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard />
+              </RoleRoute>
+            }
+          />
 
-              {/* ================= FALLBACK ================= */}
+          {/* ================= SUPER ADMIN ================= */}
 
-              <Route
-                path="*"
-                element={<Navigate to="/" replace />}
-              />
+          <Route
+            path="/super-admin"
+            element={
+              <RoleRoute allowedRoles={["SUPER_ADMIN"]}>
+                <SuperAdminDashboard />
+              </RoleRoute>
+            }
+          />
 
-            </Routes>
-          </Suspense>
-        </RouteErrorBoundary>
+          {/* ================= FALLBACK ================= */}
+
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+
+        </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );

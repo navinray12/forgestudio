@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Atomic Grid Panel. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import { useAtomicGrid } from "../hooks/useAtomicGrid";
 import { GridVisualizer } from "./GridVisualizer";
@@ -9,9 +5,6 @@ import { GridSettings } from "./GridSettings";
 import { GridItemSettings } from "./GridItemSettings";
 import type { GridItemPlacement } from "../types/atomicGrid.types";
 
-/**
- * Render the atomic grid panel interface and connect its event handlers.
- */
 export const AtomicGridPanel: React.FC = () => {
   const {
     filteredGrids,
@@ -28,10 +21,6 @@ export const AtomicGridPanel: React.FC = () => {
   const [newGridName, setNewGridName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  /**
-   * Handle Create Submit.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGridName.trim()) return;
@@ -40,10 +29,6 @@ export const AtomicGridPanel: React.FC = () => {
     setIsCreating(false);
   };
 
-  /**
-   * Handle Update Item.
-   * @param updatedItem Updated Item supplied to this operation (type: GridItemPlacement).
-   */
   const handleUpdateItem = (updatedItem: GridItemPlacement) => {
     if (!activeGrid) return;
     const updatedItems = activeGrid.items.map((it) => (it.id === updatedItem.id ? updatedItem : it));

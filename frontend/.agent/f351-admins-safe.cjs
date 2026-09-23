@@ -1,7 +1,3 @@
-/**
- * @file F351 admins safe: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 
 ['src/pages/dashboard/AdminDashboard.tsx', 'src/pages/dashboard/SuperAdminDashboard.tsx'].forEach(path => {

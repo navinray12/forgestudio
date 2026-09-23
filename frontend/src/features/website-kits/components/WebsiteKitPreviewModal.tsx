@@ -1,7 +1,3 @@
-/**
- * @file Website kits feature: Website Kit Preview Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { WebsiteKit } from "../types/websiteKit.types";
 
@@ -12,15 +8,6 @@ interface WebsiteKitPreviewModalProps {
   onSelectUse: (kit: WebsiteKit) => void;
 }
 
-/**
- * Render the website kit preview modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, kit, onClose, onSelectUse.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.kit Kit passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onSelectUse Callback for select use events.
- */
 export const WebsiteKitPreviewModal: React.FC<WebsiteKitPreviewModalProps> = ({
   isOpen,
   kit,

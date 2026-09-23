@@ -1,14 +1,7 @@
-/**
- * @file Signup Page: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { PhoneInput, type PhoneInputValue } from "../../components/phone-input";
 
-/**
- * Render the signup page interface and connect its event handlers.
- */
 function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -33,7 +26,7 @@ function SignupPage() {
   const [resendMessage, setResendMessage] = useState("");
 
   const apiUrl =
-    import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // =========================
   // Resend Countdown Timer
@@ -66,9 +59,6 @@ function SignupPage() {
   // =========================
   // Google OAuth
   // =========================
-  /**
-   * Handle Google Login.
-   */
   const handleGoogleLogin = () => {
     window.location.href = `${apiUrl}/api/v1/auth/google`;
   };
@@ -76,9 +66,6 @@ function SignupPage() {
   // =========================
   // GitHub OAuth
   // =========================
-  /**
-   * Handle Github Login.
-   */
   const handleGithubLogin = () => {
     window.location.href = `${apiUrl}/api/v1/auth/github`;
   };
@@ -86,10 +73,6 @@ function SignupPage() {
   // =========================
   // Signup Submit
   // =========================
-  /**
-   * Handle Submit.
-   * @param event Event being handled; its type determines the available target and payload.
-   */
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -184,10 +167,6 @@ function SignupPage() {
   // =========================
   // OTP Verification Submit
   // =========================
-  /**
-   * Handle Verify Otp.
-   * @param event Event being handled; its type determines the available target and payload.
-   */
   const handleVerifyOtp = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -244,9 +223,6 @@ function SignupPage() {
   // =========================
   // Resend OTP Handler
   // =========================
-  /**
-   * Handle Resend Otp.
-   */
   const handleResendOtp = async () => {
     if (resendCooldown > 0 || resendLoading) return;
 

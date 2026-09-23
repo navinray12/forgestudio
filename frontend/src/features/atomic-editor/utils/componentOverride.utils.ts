@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: component Override utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { ResolvedComponentProperty, EditablePropertyConfig } from "../types/controlledComponent.types";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 
@@ -18,11 +14,7 @@ export const DEFAULT_PROPERTY_CONFIGS: EditablePropertyConfig[] = [
 
 /**
   * Resolves effective property values for an instance given a component definition and instance overrides.
-
- * @param component Component supplied to this operation (type: ReusableComponentDefinition).
- * @param allowedKeys Allowed Keys supplied to this operation (type: string[]).
- * @param overrides Overrides supplied to this operation (type: Record<string, string>). Defaults to {}.
- */
+  */
 export function resolveInstanceProperties(
   component: ReusableComponentDefinition,
   allowedKeys: string[],

@@ -1,7 +1,3 @@
-/**
- * @file Init: plugins module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { PluginManager } from "./PluginManager";
 
 // Example Plugin ensuring the architecture works natively!

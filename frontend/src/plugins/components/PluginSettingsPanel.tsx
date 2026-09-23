@@ -1,14 +1,7 @@
-/**
- * @file Plugin Settings Panel: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect } from "react";
 import { PluginManager } from "../PluginManager";
 import type { PluginState } from "../PluginManager";
 
-/**
- * Render the plugin settings panel interface and connect its event handlers.
- */
 export default function PluginSettingsPanel() {
     const [plugins, setPlugins] = useState<any[]>([]);
 
@@ -17,10 +10,6 @@ export default function PluginSettingsPanel() {
         setPlugins(PluginManager.getPlugins());
     }, []);
 
-    /**
-     * Get Status Color.
-     * @param state State supplied to this operation (type: PluginState).
-     */
     const getStatusColor = (state: PluginState) => {
         switch (state) {
             case "active": return "bg-green-100 text-green-800";

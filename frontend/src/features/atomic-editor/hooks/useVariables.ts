@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: use Variables. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type {
   AtomicVariable,
@@ -12,9 +8,6 @@ import type {
 import { fetchVariables, saveVariables } from "../services/variableService";
 import { formatVariableKey, validateVariableValue } from "../utils/variable.utils";
 
-/**
- * Coordinate variables state and lifecycle for the calling component.
- */
 export function useVariables() {
   const [variables, setVariables] = useState<AtomicVariable[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

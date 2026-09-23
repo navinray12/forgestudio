@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Variable Reference Control. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { AtomicVariable, VariableType } from "../types/variables.types";
 import { isVariableReference, extractVariableKey, resolveVariableValue } from "../utils/variableClassResolver";
@@ -16,18 +12,6 @@ interface VariableReferenceControlProps {
   placeholder?: string;
 }
 
-/**
- * Render the variable reference control interface and connect its event handlers.
- * @param options Named inputs: label, value, onChange, variables, supportedType, directInputType, placeholder.
-
- * @param options.label Label passed by the caller.
- * @param options.value Value passed by the caller. Defaults to "".
- * @param options.onChange Callback invoked when the controlled value changes.
- * @param options.variables Variables passed by the caller.
- * @param options.supportedType Supported Type passed by the caller.
- * @param options.directInputType Direct Input Type passed by the caller. Defaults to "text".
- * @param options.placeholder Placeholder passed by the caller.
- */
 export const VariableReferenceControl: React.FC<VariableReferenceControlProps> = ({
   label,
   value = "",
@@ -52,10 +36,6 @@ export const VariableReferenceControl: React.FC<VariableReferenceControlProps> =
 
   const resolutionResult = resolveVariableValue(value, variables);
 
-  /**
-   * Handle Toggle Source.
-   * @param useVar Use Var supplied to this operation (type: boolean).
-   */
   const handleToggleSource = (useVar: boolean) => {
     if (useVar) {
       if (filteredVariables.length > 0) {
@@ -68,10 +48,6 @@ export const VariableReferenceControl: React.FC<VariableReferenceControlProps> =
     }
   };
 
-  /**
-   * Handle Select Variable.
-   * @param varKey Var Key supplied to this operation (type: string).
-   */
   const handleSelectVariable = (varKey: string) => {
     onChange(`var(--${varKey})`);
   };

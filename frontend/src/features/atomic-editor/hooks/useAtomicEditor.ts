@@ -1,14 +1,7 @@
-/**
- * @file Atomic editor feature: use Atomic Editor. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useCallback, useMemo } from "react";
 import type { AtomicEditorSection, AtomicSectionConfig } from "../types/atomicEditor.types";
 import { ATOMIC_SECTIONS, getSectionConfig } from "../services/atomicEditorService";
 
-/**
- * Coordinate atomic editor state and lifecycle for the calling component.
- */
 export function useAtomicEditor() {
   const [activeSection, setActiveSection] = useState<AtomicEditorSection>("variables");
   const [searchQuery, setSearchQuery] = useState<string>("");

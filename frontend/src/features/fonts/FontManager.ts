@@ -1,13 +1,5 @@
-/**
- * @file Fonts feature: Font Manager. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { FontRegistry } from './FontRegistry';
 
-/**
- * Get Clean Font Name.
- * @param fontFamily Font Family supplied to this operation (type: string).
- */
 export function getCleanFontName(fontFamily: string): string {
   if (!fontFamily) return '';
   return fontFamily.split(',')[0].replace(/["']/g, '').trim();
@@ -15,16 +7,10 @@ export function getCleanFontName(fontFamily: string): string {
 
 /**
  * Traverses an element AST tree to collect all active font families used across all devices and states.
-
- * @param elements Elements supplied to this operation (type: any[]).
  */
 export function collectFontsFromElements(elements: any[]): Set<string> {
   const fonts = new Set<string>();
 
-  /**
-   * Traverse.
-   * @param node Node supplied to this operation (type: any).
-   */
   function traverse(node: any) {
     if (!node || typeof node !== 'object') return;
 
@@ -46,10 +32,6 @@ export function collectFontsFromElements(elements: any[]): Set<string> {
     }
   }
 
-  /**
-   * Check Style Object.
-   * @param styleObj Style Obj supplied to this operation (type: Record<string, any>).
-   */
   function checkStyleObject(styleObj: Record<string, any>) {
     if (styleObj.fontFamily && typeof styleObj.fontFamily === 'string') {
       const cleanName = getCleanFontName(styleObj.fontFamily);
@@ -68,8 +50,6 @@ export function collectFontsFromElements(elements: any[]): Set<string> {
 
 /**
  * Builds an optimized Google Fonts CSS URL for a set of font family names.
-
- * @param fontFamilies Font Families supplied to this operation (type: Set<string> | string[]).
  */
 export function buildGoogleFontsUrl(fontFamilies: Set<string> | string[]): string | null {
   const families = Array.from(fontFamilies).filter(fontName => {
@@ -101,8 +81,6 @@ export function buildGoogleFontsUrl(fontFamilies: Set<string> | string[]): strin
 
 /**
  * Injects or updates a dynamic <link> stylesheet in the DOM document head for active fonts.
-
- * @param elements Elements supplied to this operation (type: any[]).
  */
 export function syncDocumentFonts(elements: any[]): void {
   const usedFonts = collectFontsFromElements(elements);

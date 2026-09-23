@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: website Kit Export. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { generateSafeFilename } from "./templateExport";
 import type { Template } from "../types/template.types";
 
@@ -41,13 +37,6 @@ export interface WebsiteKitPayload {
  * Serializes website project configuration, pages, elements, page settings, and templates
  * into a safe, versioned website kit file format (stripping private credentials, tokens, billing info)
  * and triggers a client-side JSON download.
-
- * @param options Named inputs: website, elements, pageSettings, templates.
-
- * @param options.website Website passed by the caller.
- * @param options.elements Elements passed by the caller.
- * @param options.pageSettings Page Settings passed by the caller.
- * @param options.templates Templates passed by the caller. Defaults to [].
  */
 export function exportWebsiteKitAsJson({
   website,

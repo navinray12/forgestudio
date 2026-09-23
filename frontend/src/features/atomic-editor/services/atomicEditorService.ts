@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: atomic Editor Service. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { AtomicSectionConfig, AtomicEditorSection } from "../types/atomicEditor.types";
 
 export const ATOMIC_SECTIONS: AtomicSectionConfig[] = [
@@ -31,17 +27,10 @@ export const ATOMIC_SECTIONS: AtomicSectionConfig[] = [
   },
 ];
 
-/**
- * Get Atomic Sections.
- */
 export function getAtomicSections(): AtomicSectionConfig[] {
   return ATOMIC_SECTIONS;
 }
 
-/**
- * Get Section Config.
- * @param sectionId Section Id supplied to this operation (type: AtomicEditorSection).
- */
 export function getSectionConfig(sectionId: AtomicEditorSection): AtomicSectionConfig | undefined {
   return ATOMIC_SECTIONS.find((s) => s.id === sectionId);
 }

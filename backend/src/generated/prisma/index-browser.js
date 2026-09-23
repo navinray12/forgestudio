@@ -144,27 +144,12 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   slug: 'slug',
   status: 'status',
   editorData: 'editorData',
-  performanceSettings: 'performanceSettings',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   teamId: 'teamId',
   workspaceId: 'workspaceId',
   organizationId: 'organizationId',
-  approvalWorkflowEnabled: 'approvalWorkflowEnabled',
-  draftRevision: 'draftRevision'
-};
-
-exports.Prisma.DraftSaveReceiptScalarFieldEnum = {
-  id: 'id',
-  websiteId: 'websiteId',
-  actorId: 'actorId',
-  mutationId: 'mutationId',
-  requestHash: 'requestHash',
-  acceptedRevision: 'acceptedRevision',
-  documentHash: 'documentHash',
-  document: 'document',
-  acceptedAt: 'acceptedAt',
-  expiresAt: 'expiresAt'
+  approvalWorkflowEnabled: 'approvalWorkflowEnabled'
 };
 
 exports.Prisma.OtpVerificationScalarFieldEnum = {
@@ -285,9 +270,7 @@ exports.Prisma.FormSubmissionScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
   formId: 'formId',
-  formName: 'formName',
   data: 'data',
-  metadata: 'metadata',
   ipAddress: 'ipAddress',
   status: 'status',
   createdAt: 'createdAt'
@@ -434,23 +417,6 @@ exports.Prisma.WebsiteCollaboratorScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.WebsiteKitScalarFieldEnum = {
-  id: 'id',
-  slug: 'slug',
-  name: 'name',
-  category: 'category',
-  description: 'description',
-  thumbnail: 'thumbnail',
-  previewUrl: 'previewUrl',
-  pageCount: 'pageCount',
-  tags: 'tags',
-  globalStyles: 'globalStyles',
-  pages: 'pages',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.WebsiteRevisionScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -493,22 +459,6 @@ exports.Prisma.WordPressConnectionScalarFieldEnum = {
   lastVerifiedAt: 'lastVerifiedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-};
-
-exports.Prisma.WordPressWebhookReceiptScalarFieldEnum = {
-  id: 'id',
-  connectionId: 'connectionId',
-  websiteId: 'websiteId',
-  eventId: 'eventId',
-  event: 'event',
-  payload: 'payload',
-  payloadHash: 'payloadHash',
-  status: 'status',
-  attempts: 'attempts',
-  nextAttemptAt: 'nextAttemptAt',
-  lastError: 'lastError',
-  createdAt: 'createdAt',
-  processedAt: 'processedAt'
 };
 
 exports.Prisma.WordPressPageMappingScalarFieldEnum = {
@@ -584,7 +534,6 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   ownerId: 'ownerId',
-  isPersonal: 'isPersonal',
   settings: 'settings',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -614,35 +563,8 @@ exports.Prisma.WorkspaceMemberScalarFieldEnum = {
   workspaceId: 'workspaceId',
   userId: 'userId',
   role: 'role',
-  status: 'status',
-  policyVersion: 'policyVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-};
-
-exports.Prisma.WorkspaceInvitationScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  email: 'email',
-  role: 'role',
-  tokenHash: 'tokenHash',
-  status: 'status',
-  expiresAt: 'expiresAt',
-  invitedBy: 'invitedBy',
-  acceptedBy: 'acceptedBy',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SupportGrantScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  granteeId: 'granteeId',
-  reason: 'reason',
-  approvedBy: 'approvedBy',
-  expiresAt: 'expiresAt',
-  revokedAt: 'revokedAt',
-  createdAt: 'createdAt'
 };
 
 exports.Prisma.PublishApprovalRequestScalarFieldEnum = {
@@ -875,7 +797,6 @@ exports.IdentityProvider = exports.$Enums.IdentityProvider = {
 exports.Prisma.ModelName = {
   User: 'User',
   Website: 'Website',
-  DraftSaveReceipt: 'DraftSaveReceipt',
   OtpVerification: 'OtpVerification',
   Identity: 'Identity',
   Session: 'Session',
@@ -899,11 +820,9 @@ exports.Prisma.ModelName = {
   DeveloperApiKey: 'DeveloperApiKey',
   ComponentAccess: 'ComponentAccess',
   WebsiteCollaborator: 'WebsiteCollaborator',
-  WebsiteKit: 'WebsiteKit',
   WebsiteRevision: 'WebsiteRevision',
   Deployment: 'Deployment',
   WordPressConnection: 'WordPressConnection',
-  WordPressWebhookReceipt: 'WordPressWebhookReceipt',
   WordPressPageMapping: 'WordPressPageMapping',
   GranularPermission: 'GranularPermission',
   Team: 'Team',
@@ -914,8 +833,6 @@ exports.Prisma.ModelName = {
   Organization: 'Organization',
   OrganizationMember: 'OrganizationMember',
   WorkspaceMember: 'WorkspaceMember',
-  WorkspaceInvitation: 'WorkspaceInvitation',
-  SupportGrant: 'SupportGrant',
   PublishApprovalRequest: 'PublishApprovalRequest',
   BackgroundJob: 'BackgroundJob',
   MediaAsset: 'MediaAsset',

@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Global Element Form Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { GlobalElementDefinition, GlobalElementType, CreateGlobalElementPayload } from "../types/globalElements.types";
 import type { ElementStyles } from "../../../pages/editor/WebsiteEditor";
@@ -15,15 +11,6 @@ interface GlobalElementFormModalProps {
   onSubmit: (payload: CreateGlobalElementPayload) => Promise<void>;
 }
 
-/**
- * Render the global element form modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, elementToEdit, onClose, onSubmit.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.elementToEdit Element To Edit passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onSubmit Callback for submit events.
- */
 export const GlobalElementFormModal: React.FC<GlobalElementFormModalProps> = ({
   isOpen,
   elementToEdit,
@@ -64,10 +51,6 @@ export const GlobalElementFormModal: React.FC<GlobalElementFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  /**
-   * Handle Submit.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -88,11 +71,6 @@ export const GlobalElementFormModal: React.FC<GlobalElementFormModalProps> = ({
     }
   };
 
-  /**
-   * Update Style Prop.
-   * @param key Key supplied to this operation (type: keyof ElementStyles).
-   * @param value Value supplied to this operation (type: any).
-   */
   const updateStyleProp = (key: keyof ElementStyles, value: any) => {
     setStyles((prev) => ({
       ...prev,

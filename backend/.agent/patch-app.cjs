@@ -1,7 +1,3 @@
-/**
- * @file Patch app: backend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 
 const f = fs.readFileSync('src/app.ts', 'utf8');

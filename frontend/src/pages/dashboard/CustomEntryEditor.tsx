@@ -1,15 +1,8 @@
-/**
- * @file Custom Entry Editor: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-/**
- * Render the custom entry editor interface and connect its event handlers.
- */
 export default function CustomEntryEditor() {
     const { websiteId, cptId, entryId } = useParams();
     const navigate = useNavigate();
@@ -28,9 +21,6 @@ export default function CustomEntryEditor() {
         fetchFields();
     }, [cptId]);
 
-    /**
-     * Fetch Fields.
-     */
     const fetchFields = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/cpt/types/${cptId}/fields`, {
@@ -45,10 +35,6 @@ export default function CustomEntryEditor() {
         }
     };
 
-    /**
-     * Handle Save.
-     * @param e E supplied to this operation (type: any).
-     */
     const handleSave = async (e: any) => {
         e.preventDefault();
         try {

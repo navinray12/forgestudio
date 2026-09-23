@@ -1,7 +1,3 @@
-/**
- * @file F351 admin: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 
 let adminDash = fs.readFileSync('src/pages/dashboard/AdminDashboard.tsx', 'utf8');

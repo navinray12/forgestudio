@@ -1,7 +1,3 @@
-/**
- * @file F351 superadmin: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 
 let saDash = fs.readFileSync('src/pages/dashboard/SuperAdminDashboard.tsx', 'utf8');

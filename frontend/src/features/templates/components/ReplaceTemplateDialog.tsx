@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Replace Template Dialog. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { Template } from "../types/template.types";
 import { TEMPLATE_CATEGORIES } from "../types/template.types";
@@ -15,16 +11,6 @@ interface ReplaceTemplateDialogProps {
   onConfirmReplace: (template: Template) => void;
 }
 
-/**
- * Render the replace template dialog interface and connect its event handlers.
- * @param options Named inputs: isOpen, targetElementName, templates, onClose, onConfirmReplace.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.targetElementName Target Element Name passed by the caller.
- * @param options.templates Templates passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmReplace Callback for confirm replace events.
- */
 export const ReplaceTemplateDialog: React.FC<ReplaceTemplateDialogProps> = ({
   isOpen,
   targetElementName,
@@ -58,18 +44,11 @@ export const ReplaceTemplateDialog: React.FC<ReplaceTemplateDialogProps> = ({
     );
   });
 
-  /**
-   * Handle Select For Replace.
-   * @param template Template supplied to this operation (type: Template).
-   */
   const handleSelectForReplace = (template: Template) => {
     setSelectedTemplate(template);
     setIsConfirming(true);
   };
 
-  /**
-   * Handle Execute Replace.
-   */
   const handleExecuteReplace = () => {
     if (!selectedTemplate) return;
     onConfirmReplace(selectedTemplate);

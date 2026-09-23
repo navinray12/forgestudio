@@ -1,4 +1,4 @@
-import { AppError } from "../platform/http/app-error.js";
+import { AppError } from "./app-error.js";
 import { isSafeUrl, validateSafeUrl } from "./ssrf.validator.js";
 
 /**

@@ -1,7 +1,3 @@
-/**
- * @file Form types: types module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export type FormFieldType =
   | "text"
   | "email"
@@ -109,24 +105,14 @@ export interface FormSubmissionRecord {
   createdAt: string;
 }
 
-/**
- * Generate Field Id.
- */
 export function generateFieldId(): string {
   return "fld_" + Math.random().toString(36).substring(2, 9);
 }
 
-/**
- * Generate Form Id.
- */
 export function generateFormId(): string {
   return "form_" + Math.random().toString(36).substring(2, 9);
 }
 
-/**
- * Create Default Form Config.
- * @param formName Form Name supplied to this operation. Defaults to "Contact Form".
- */
 export function createDefaultFormConfig(formName = "Contact Form"): FormWidgetConfig {
   const formId = generateFormId();
   return {

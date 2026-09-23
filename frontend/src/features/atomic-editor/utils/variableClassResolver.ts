@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: variable Class Resolver. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { ElementStyles } from "../../../pages/editor/WebsiteEditor";
 import type { AtomicVariable } from "../types/variables.types";
 import type { AtomicClass } from "../types/classes.types";
@@ -9,8 +5,6 @@ import type { ResolvedPropertyResult, ResolvedClassStyle, VariableClassUsageInfo
 
 /**
  * Checks if a string value is a variable reference e.g. "var(--primary-color)" or "var(var-123)"
-
- * @param val Val supplied to this operation (type: string).
  */
 export function isVariableReference(val: string): boolean {
   if (!val || typeof val !== "string") return false;
@@ -20,8 +14,6 @@ export function isVariableReference(val: string): boolean {
 
 /**
  * Extracts variable key/id from "var(--primary-color)" => "--primary-color" or "primary-color"
-
- * @param val Val supplied to this operation (type: string).
  */
 export function extractVariableKey(val: string): string {
   if (!isVariableReference(val)) return val;
@@ -31,10 +23,6 @@ export function extractVariableKey(val: string): string {
 
 /**
  * Resolves a variable reference string to its raw CSS value
-
- * @param val Val supplied to this operation (type: string).
- * @param variables Variables supplied to this operation (type: AtomicVariable[]).
- * @param visitedKeys Visited Keys supplied to this operation (type: Set<string>). Defaults to new Set().
  */
 export function resolveVariableValue(
   val: string,
@@ -97,9 +85,6 @@ export function resolveVariableValue(
 
 /**
  * Resolves an entire ElementStyles object by expanding any var(...) references
-
- * @param styles Styles supplied to this operation (type: Partial<ElementStyles>).
- * @param variables Variables supplied to this operation (type: AtomicVariable[]).
  */
 export function resolveClassStyles(
   styles: Partial<ElementStyles>,
@@ -137,9 +122,6 @@ export function resolveClassStyles(
 
 /**
  * Finds all classes referencing a given variable ID or Key
-
- * @param variable Variable supplied to this operation (type: AtomicVariable).
- * @param classes Classes supplied to this operation (type: AtomicClass[]).
  */
 export function findClassesUsingVariable(
   variable: AtomicVariable,

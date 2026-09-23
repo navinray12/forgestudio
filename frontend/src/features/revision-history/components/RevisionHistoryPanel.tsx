@@ -1,7 +1,3 @@
-/**
- * @file Revision history feature: Revision History Panel. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useEffect, useState } from "react";
 import { useRevisionHistory } from "../hooks/useRevisionHistory";
 import type { RevisionItem, PageSettingsData } from "../types/revisionHistory.types";
@@ -28,13 +24,11 @@ interface RevisionHistoryPanelProps {
 
 /**
  * Formats timestamps into human readable relative date headers and formatted time strings.
-
- * @param timestamp Timestamp supplied to this operation (type: number).
  */
 function formatRevisionTime(timestamp: number): { dateGroup: string; formattedTime: string } {
   const date = new Date(timestamp);
   const now = new Date();
-
+  
   const isToday =
     date.getDate() === now.getDate() &&
     date.getMonth() === now.getMonth() &&
@@ -66,17 +60,6 @@ function formatRevisionTime(timestamp: number): { dateGroup: string; formattedTi
   return { dateGroup, formattedTime };
 }
 
-/**
- * Render the revision history panel interface and connect its event handlers.
- * @param options Named inputs: isOpen, onClose, websiteId, apiUrl, onRestore, currentWorkingState.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.websiteId Identifier of the website whose data is being read or changed.
- * @param options.apiUrl Api Url passed by the caller. Defaults to "".
- * @param options.onRestore Callback for restore events.
- * @param options.currentWorkingState Current Working State passed by the caller.
- */
 export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
   isOpen,
   onClose,
@@ -103,10 +86,6 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
   const [checkpointDesc, setCheckpointDesc] = useState("");
   const [isSubmittingCheckpoint, setIsSubmittingCheckpoint] = useState(false);
 
-  /**
-   * Handle Create Checkpoint.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleCreateCheckpoint = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkpointDesc.trim()) return;
@@ -122,10 +101,6 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
 
   // Keyboard accessibility: ESC key handler
   useEffect(() => {
-    /**
-     * Handle Key Down.
-     * @param e E supplied to this operation (type: KeyboardEvent).
-     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (confirmRestoreState.isOpen) {
@@ -165,7 +140,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
 
       {/* Drawer Container */}
       <div className="relative z-10 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
-
+        
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/80">
           <div className="flex items-center gap-2.5">
@@ -179,7 +154,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
                 Revision History
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                View & restore saved page versions
+                View & restore saved page versions (F-320)
               </p>
             </div>
           </div>
@@ -219,20 +194,22 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
             <button
               type="button"
               onClick={() => setActiveFilter("all")}
-              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${activeFilter === "all"
+              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+                activeFilter === "all"
                   ? "bg-blue-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-800"
-                }`}
+              }`}
             >
               All ({revisions.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveFilter("today")}
-              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${activeFilter === "today"
+              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+                activeFilter === "today"
                   ? "bg-blue-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-800"
-                }`}
+              }`}
             >
               Today
             </button>
@@ -301,15 +278,17 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
                       <div
                         key={rev.id}
                         onClick={() => setSelectedRevision(rev)}
-                        className={`group relative flex flex-col gap-2 rounded-xl border p-3.5 transition cursor-pointer ${isSelected
+                        className={`group relative flex flex-col gap-2 rounded-xl border p-3.5 transition cursor-pointer ${
+                          isSelected
                             ? "border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-950/30 shadow-xs"
                             : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-xs dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-slate-700"
-                          }`}
+                        }`}
                       >
                         {/* Timeline Node Icon */}
                         <div
-                          className={`absolute -left-[17px] top-4 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-slate-900 ${isLatest ? "bg-blue-600 ring-4 ring-blue-100 dark:ring-blue-900/40" : "bg-slate-400"
-                            }`}
+                          className={`absolute -left-[17px] top-4 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-slate-900 ${
+                            isLatest ? "bg-blue-600 ring-4 ring-blue-100 dark:ring-blue-900/40" : "bg-slate-400"
+                          }`}
                         />
 
                         {/* Revision Meta Header */}
@@ -321,12 +300,13 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
                               </span>
                             )}
                             {rev.revisionType && (
-                              <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${rev.revisionType === "PUBLISH"
+                              <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                rev.revisionType === "PUBLISH"
                                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
                                   : rev.revisionType === "RESTORE"
-                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
-                                    : "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
-                                }`}>
+                                  ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+                                  : "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
+                              }`}>
                                 {rev.revisionType}
                               </span>
                             )}

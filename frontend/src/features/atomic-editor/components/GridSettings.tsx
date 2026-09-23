@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Grid Settings. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { GridContainerConfig, GridBreakpoint } from "../types/atomicGrid.types";
 
@@ -12,15 +8,6 @@ interface GridSettingsProps {
   onUpdateGrid: (payload: Partial<GridContainerConfig>) => void;
 }
 
-/**
- * Render the grid settings interface and connect its event handlers.
- * @param options Named inputs: grid, breakpoint, onBreakpointChange, onUpdateGrid.
-
- * @param options.grid Grid passed by the caller.
- * @param options.breakpoint Breakpoint passed by the caller.
- * @param options.onBreakpointChange Callback for breakpoint change events.
- * @param options.onUpdateGrid Callback for update grid events.
- */
 export const GridSettings: React.FC<GridSettingsProps> = ({
   grid,
   breakpoint,
@@ -33,11 +20,6 @@ export const GridSettings: React.FC<GridSettingsProps> = ({
     rowGap: grid.rowGap,
   };
 
-  /**
-   * Handle Resp Change.
-   * @param key Key supplied to this operation (type: keyof typeof currentResp).
-   * @param value Value supplied to this operation (type: any).
-   */
   const handleRespChange = (key: keyof typeof currentResp, value: any) => {
     const updatedResp = {
       ...grid.responsive,

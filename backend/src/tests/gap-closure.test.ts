@@ -1,168 +1,52 @@
-import "./require-disposable-database.js";
-import path from "node:path";
-import { prisma } from "../platform/database/prisma.js";
-import { AppError } from "../platform/http/app-error.js";
-import {
-  createWebsite,
-  inviteWebsiteMember,
-  acceptWebsiteInvitation,
-  revokeWebsiteInvitation,
-  resendWebsiteInvitation,
-} from "../modules/websites/website.service.js";
+import { prisma } from "../config/prisma.js";
+import { AppError } from "../utils/app-error.js";
+import { createWebsite } from "../services/website.service.js";
 import {
   createOrUpdateSftpConfig,
   getSftpConfig,
   syncFilesOverSftp,
-} from "../modules/sftp-connections/sftp.service.js";
-import { SftpPublisher } from "../modules/publishing/destinations/sftp.publisher.js";
-import { compileCanonicalToStaticBundle } from "../modules/publishing/destinations/static-compiler.js";
+} from "../services/sftp.service.js";
+import {
+  SftpPublisher,
+  setSftpClientFactory,
+} from "../services/destinations/sftp.publisher.js";
+import {
+  createStaticZipArchive,
+  sanitizeZipEntryPath,
+} from "../services/destinations/staticZip.service.js";
+import { compileCanonicalToStaticBundle } from "../services/destinations/staticCompiler.js";
 import {
   createTeam,
   inviteMember,
   acceptInvitation,
   revokeTeamInvitation,
   resendTeamInvitation,
-} from "../modules/teams/team.service.js";
-import { queryAuditLogs } from "../modules/audit/audit.service.js";
+} from "../services/team.service.js";
+import {
+  inviteWebsiteMember,
+  acceptWebsiteInvitation,
+  revokeWebsiteInvitation,
+  resendWebsiteInvitation,
+} from "../services/website.service.js";
+import { queryAuditLogs } from "../services/audit.service.js";
 import {
   createForgeMessage,
   isForgeMessage,
   postForgeMessage,
   subscribeToForgeMessages,
 } from "../sdk/embeddedEvents.js";
-import { publishWebsite } from "../modules/publishing/publishing.service.js";
-
-const setSftpClientFactory = (_factory: any) => {};
-
-function sanitizeZipEntryPath(filePath: string): string {
-  if (
-    !filePath ||
-    filePath.includes("\\") ||
-    filePath.includes(":") ||
-    path.isAbsolute(filePath) ||
-    filePath.split("/").some((segment) => !segment || segment === ".." || segment === ".")
-  ) {
-    const err: any = new AppError("Invalid export file path.", 422, "INVALID_EXPORT_PATH");
-    err.code = "UNSAFE_ZIP_PATH";
-    throw err;
-  }
-  return filePath;
-}
-
-async function createStaticZipArchive(_staticBundle: any) {
-  return Buffer.from([0x50, 0x4b, 0x03, 0x04, ...new Array(200).fill(0)]);
-}
-
-// In-memory test job runner helper
-type JobHandler = (payload: any) => Promise<any>;
-const jobHandlers = new Map<string, JobHandler>();
-interface MemoryJob {
-  id: string;
-  type: string;
-  payload: any;
-  status: string;
-  attempts: number;
-  maxAttempts: number;
-  lastError?: string;
-  runAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-const memoryJobs = new Map<string, MemoryJob>();
-
-function registerJobHandler(type: string, handler: JobHandler) {
-  jobHandlers.set(type, handler);
-}
-
-async function enqueueJob(type: string, payload: any = {}, options: { maxAttempts?: number } = {}) {
-  const id = `job_${Math.random().toString(36).substring(2, 9)}`;
-  const job: MemoryJob = {
-    id,
-    type,
-    payload,
-    status: "QUEUED",
-    attempts: 0,
-    maxAttempts: options.maxAttempts ?? 3,
-    runAt: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-  memoryJobs.set(id, job);
-  return job;
-}
-
-async function getJobById(id: string) {
-  return memoryJobs.get(id) || null;
-}
-
-async function cancelJob(id: string) {
-  const job = memoryJobs.get(id);
-  if (job) {
-    job.status = "CANCELLED";
-    return true;
-  }
-  return false;
-}
-
-async function processNextJob(options?: { id?: string }) {
-  const job = options?.id ? memoryJobs.get(options.id) : Array.from(memoryJobs.values()).find(j => j.status === "QUEUED");
-  if (!job) return { processed: false, job: null };
-  const handler = jobHandlers.get(job.type);
-  job.attempts++;
-  job.startedAt = new Date();
-  if (!handler) {
-    job.status = "FAILED";
-    job.lastError = `No handler for ${job.type}`;
-    return { processed: true, job, result: null };
-  }
-  try {
-    const result = await handler(job.payload);
-    job.status = "COMPLETED";
-    job.completedAt = new Date();
-    return { processed: true, job, result };
-  } catch (err: any) {
-    job.lastError = err.message || String(err);
-    if (job.attempts >= job.maxAttempts) {
-      job.status = "FAILED";
-    } else {
-      job.status = "QUEUED";
-      job.runAt = new Date(Date.now() + 5000);
-    }
-    return { processed: false, job, error: err };
-  }
-}
-
-function initJobHandlers() {
-  registerJobHandler("SCHEDULED_PUBLISH", async (payload: any) => {
-    return publishWebsite(payload.websiteId, payload.userId, payload.options);
-  });
-}
-
-async function schedulePublish(websiteId: string, userId: string, options: any) {
-  const job = await enqueueJob("SCHEDULED_PUBLISH", { websiteId, userId, options });
-  await (prisma as any).auditLog.create({
-    data: {
-      userId,
-      action: "PUBLISH_SCHEDULED",
-      targetResource: `website:${websiteId}`,
-    },
-  }).catch(() => {});
-  return { success: true, status: "SCHEDULED", scheduledJobId: job.id };
-}
-
-async function cancelScheduledPublish(websiteId: string, scheduledJobId: string, userId: string, _reason?: string) {
-  const site = await (prisma as any).website.findUnique({ where: { id: websiteId } });
-  if (!site || site.userId !== userId) {
-    const err: any = new AppError("Forbidden", 403, "FORBIDDEN");
-    err.statusCode = 403;
-    throw err;
-  }
-  const alreadyCancelled = (await getJobById(scheduledJobId))?.status === "CANCELLED";
-  await cancelJob(scheduledJobId);
-  return { success: true, status: "CANCELLED", alreadyCancelled };
-}
+import {
+  enqueueJob,
+  processNextJob,
+  cancelJob,
+  getJobById,
+  registerJobHandler,
+} from "../services/jobs/jobRunner.js";
+import {
+  schedulePublish,
+  cancelScheduledPublish,
+} from "../services/publishing.service.js";
+import { initJobHandlers } from "../services/jobs/handlers.js";
 
 const db = prisma as any;
 

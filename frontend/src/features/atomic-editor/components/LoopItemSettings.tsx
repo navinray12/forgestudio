@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Loop Item Settings. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { LoopContainerConfig } from "../types/atomicLoop.types";
 
@@ -10,13 +6,6 @@ interface LoopItemSettingsProps {
   onUpdateLoop: (updated: Partial<LoopContainerConfig>) => void;
 }
 
-/**
- * Render the loop item settings interface and connect its event handlers.
- * @param options Named inputs: loop, onUpdateLoop.
-
- * @param options.loop Loop passed by the caller.
- * @param options.onUpdateLoop Callback for update loop events.
- */
 export const LoopItemSettings: React.FC<LoopItemSettingsProps> = ({
   loop,
   onUpdateLoop,
