@@ -1,14 +1,7 @@
-/**
- * @file Login Page: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { PhoneInput, type PhoneInputValue } from "../../components/phone-input";
 
-/**
- * Render the login page interface and connect its event handlers.
- */
 function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
@@ -37,12 +30,8 @@ function LoginPage() {
   const [resendMessage, setResendMessage] = useState("");
 
   const apiUrl =
-    import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  /**
-   * Mask Email.
-   * @param emailStr Email Str supplied to this operation (type: string). Optional; callers may omit it.
-   */
   const maskEmail = (emailStr?: string) => {
     if (!emailStr) return "ha****@gmail.com";
     const parts = emailStr.split("@");
@@ -52,10 +41,6 @@ function LoginPage() {
     return `${local.slice(0, 2)}****@${domain}`;
   };
 
-  /**
-   * Mask Phone.
-   * @param phoneStr Phone Str supplied to this operation (type: string). Optional; callers may omit it.
-   */
   const maskPhone = (phoneStr?: string) => {
     if (!phoneStr) return "+91 ******1234";
     const clean = phoneStr.trim();
@@ -118,9 +103,6 @@ function LoginPage() {
   // =========================
   // Google OAuth
   // =========================
-  /**
-   * Handle Google Login.
-   */
   const handleGoogleLogin = () => {
     window.location.href = `${apiUrl}/api/v1/auth/google`;
   };
@@ -128,9 +110,6 @@ function LoginPage() {
   // =========================
   // GitHub OAuth
   // =========================
-  /**
-   * Handle Github Login.
-   */
   const handleGithubLogin = () => {
     window.location.href = `${apiUrl}/api/v1/auth/github`;
   };
@@ -138,10 +117,6 @@ function LoginPage() {
   // =========================
   // Create Password Submit
   // =========================
-  /**
-   * Handle Create Password.
-   * @param event Event being handled; its type determines the available target and payload.
-   */
   const handleCreatePassword = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -208,10 +183,6 @@ function LoginPage() {
   // =========================
   // Credentials Login Submit
   // =========================
-  /**
-   * Handle Submit.
-   * @param event Event being handled; its type determines the available target and payload.
-   */
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -299,10 +270,6 @@ function LoginPage() {
   // =========================
   // Send OTP for Selected Channel
   // =========================
-  /**
-   * Handle Send Otp For Channel.
-   * @param channelChoice Channel Choice supplied to this operation (type: "EMAIL" | "WHATSAPP").
-   */
   const handleSendOtpForChannel = async (channelChoice: "EMAIL" | "WHATSAPP") => {
     setError("");
     setResendMessage("");
@@ -346,10 +313,6 @@ function LoginPage() {
     }
   };
 
-  /**
-   * Handle Select Channel Submit.
-   * @param e E supplied to this operation (type: FormEvent<HTMLFormElement>).
-   */
   const handleSelectChannelSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSendOtpForChannel(selectedChannel);
@@ -358,10 +321,6 @@ function LoginPage() {
   // =========================
   // OTP Verification Submit
   // =========================
-  /**
-   * Handle Verify Otp.
-   * @param event Event being handled; its type determines the available target and payload.
-   */
   const handleVerifyOtp = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -418,9 +377,6 @@ function LoginPage() {
   // =========================
   // Resend OTP Handler
   // =========================
-  /**
-   * Handle Resend Otp.
-   */
   const handleResendOtp = async () => {
     if (resendCooldown > 0 || resendLoading) return;
 

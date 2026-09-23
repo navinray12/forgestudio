@@ -1,14 +1,6 @@
-/**
- * @file Phone Input utils: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { COUNTRY_DATA, DEFAULT_COUNTRY } from "./phoneCountries";
 import type { CountryData } from "./phoneCountries";
 
-/**
- * Find Country By Iso.
- * @param iso Iso supplied to this operation (type: string). Optional; callers may omit it.
- */
 export function findCountryByIso(iso?: string): CountryData {
   if (!iso) return DEFAULT_COUNTRY;
   const found = COUNTRY_DATA.find(
@@ -17,11 +9,6 @@ export function findCountryByIso(iso?: string): CountryData {
   return found || DEFAULT_COUNTRY;
 }
 
-/**
- * Parse Phone Number.
- * @param rawInput Raw Input supplied to this operation (type: string). Optional; callers may omit it.
- * @param defaultIso Default Iso supplied to this operation (type: string). Defaults to "IN".
- */
 export function parsePhoneNumber(
   rawInput?: string,
   defaultIso: string = "IN"
@@ -59,11 +46,6 @@ export function parsePhoneNumber(
   };
 }
 
-/**
- * Validate National Number.
- * @param nationalNumber National Number supplied to this operation (type: string).
- * @param country Country supplied to this operation (type: CountryData).
- */
 export function validateNationalNumber(
   nationalNumber: string,
   country: CountryData
@@ -100,11 +82,6 @@ export function validateNationalNumber(
   return { isValid: true };
 }
 
-/**
- * Search Countries.
- * @param query Query supplied to this operation (type: string).
- * @param countries Countries supplied to this operation (type: CountryData[]). Defaults to COUNTRY_DATA.
- */
 export function searchCountries(
   query: string,
   countries: CountryData[] = COUNTRY_DATA
@@ -122,11 +99,6 @@ export function searchCountries(
   });
 }
 
-/**
- * Build Full Phone Number.
- * @param dialCode Dial Code supplied to this operation (type: string).
- * @param nationalNumber National Number supplied to this operation (type: string).
- */
 export function buildFullPhoneNumber(
   dialCode: string,
   nationalNumber: string

@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Share Template Dialog. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { Template } from "../types/template.types";
 
@@ -12,15 +8,6 @@ interface ShareTemplateDialogProps {
   onToggleShare: (templateId: string, isShared: boolean) => Promise<Template>;
 }
 
-/**
- * Render the share template dialog interface and connect its event handlers.
- * @param options Named inputs: isOpen, template, onClose, onToggleShare.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.template Template passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onToggleShare Callback for toggle share events.
- */
 export const ShareTemplateDialog: React.FC<ShareTemplateDialogProps> = ({
   isOpen,
   template,
@@ -48,9 +35,6 @@ export const ShareTemplateDialog: React.FC<ShareTemplateDialogProps> = ({
     ? `${window.location.origin}/template/share/${shareToken}`
     : "Generating share link...";
 
-  /**
-   * Handle Toggle Enable.
-   */
   const handleToggleEnable = async () => {
     setIsUpdating(true);
     setErrorMessage(null);
@@ -72,9 +56,6 @@ export const ShareTemplateDialog: React.FC<ShareTemplateDialogProps> = ({
     }
   };
 
-  /**
-   * Handle Copy Link.
-   */
   const handleCopyLink = async () => {
     if (!isShared || !shareToken) return;
     setIsCopying(true);

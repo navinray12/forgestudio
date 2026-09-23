@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Template Preview Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { Template } from "../types/template.types";
 
@@ -14,14 +10,6 @@ interface TemplatePreviewModalProps {
 type DeviceMode = "desktop" | "tablet" | "mobile";
 type ViewMode = "visual" | "outline";
 
-/**
- * Render the template preview modal interface and connect its event handlers.
- * @param options Named inputs: template, onClose, onInsert.
-
- * @param options.template Template passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onInsert Callback for insert events.
- */
 export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   template,
   onClose,
@@ -31,10 +19,6 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>("visual");
 
   useEffect(() => {
-    /**
-     * Handle Key Down.
-     * @param e E supplied to this operation (type: KeyboardEvent).
-     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
@@ -57,9 +41,6 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
       })
     : "";
 
-  /**
-   * Get Viewport Width Class.
-   */
   const getViewportWidthClass = () => {
     switch (deviceMode) {
       case "tablet":
@@ -74,9 +55,6 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
   /**
    * Safe recursive visual element renderer for template components
-
-   * @param item Item supplied to this operation (type: any).
-   * @param key Key supplied to this operation (type: string | number).
    */
   const renderVisualElement = (item: any, key: string | number) => {
     if (!item || typeof item !== "object") return null;
@@ -232,9 +210,6 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
   /**
    * Structure tree outline renderer
-
-   * @param items Items supplied to this operation (type: any[]).
-   * @param level Level supplied to this operation. Defaults to 0.
    */
   const renderElementTreeSummary = (items: any[], level = 0) => {
     if (!items || items.length === 0) return null;

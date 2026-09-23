@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Grid Item Settings. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { GridItemPlacement } from "../types/atomicGrid.types";
 
@@ -11,24 +7,11 @@ interface GridItemSettingsProps {
   onUpdateItem: (updated: GridItemPlacement) => void;
 }
 
-/**
- * Render the grid item settings interface and connect its event handlers.
- * @param options Named inputs: item, maxColumns, onUpdateItem.
-
- * @param options.item Item passed by the caller.
- * @param options.maxColumns Max Columns passed by the caller.
- * @param options.onUpdateItem Callback for update item events.
- */
 export const GridItemSettings: React.FC<GridItemSettingsProps> = ({
   item,
   maxColumns,
   onUpdateItem,
 }) => {
-  /**
-   * Handle Change.
-   * @param key Key supplied to this operation (type: keyof GridItemPlacement).
-   * @param value Value supplied to this operation (type: number).
-   */
   const handleChange = (key: keyof GridItemPlacement, value: number) => {
     onUpdateItem({
       ...item,

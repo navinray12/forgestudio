@@ -1,18 +1,9 @@
-/**
- * @file Atomic editor feature: use Controlled Component. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 import type { ResolvedComponentProperty } from "../types/controlledComponent.types";
 import { ControlledComponentService } from "../services/controlledComponentService";
 import { resolveInstanceProperties } from "../utils/componentOverride.utils";
 
-/**
- * Coordinate controlled component state and lifecycle for the calling component.
- * @param component Component supplied to this operation (type: ReusableComponentDefinition | null).
- * @param instanceId Instance Id supplied to this operation (type: string). Defaults to "instance-demo-1".
- */
 export function useControlledComponent(
   component: ReusableComponentDefinition | null,
   instanceId: string = "instance-demo-1"

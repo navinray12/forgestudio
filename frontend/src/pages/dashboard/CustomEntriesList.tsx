@@ -1,15 +1,8 @@
-/**
- * @file Custom Entries List: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-/**
- * Render the custom entries list interface and connect its event handlers.
- */
 export default function CustomEntriesList() {
     const { websiteId, cptId } = useParams();
     const [entries, setEntries] = useState<any[]>([]);
@@ -19,9 +12,6 @@ export default function CustomEntriesList() {
         fetchEntries();
     }, [cptId]);
 
-    /**
-     * Fetch Entries.
-     */
     const fetchEntries = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/cpt/types/${cptId}/entries`, {

@@ -1,7 +1,3 @@
-/**
- * @file F352 popups: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 let modal = fs.readFileSync('src/pages/editor/components/PopupManagerModal.tsx', 'utf8');
 

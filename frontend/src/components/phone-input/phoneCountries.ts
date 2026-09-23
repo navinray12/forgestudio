@@ -1,7 +1,3 @@
-/**
- * @file Phone Countries: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export interface CountryData {
   iso: string;
   name: string;

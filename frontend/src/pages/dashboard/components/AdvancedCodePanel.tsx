@@ -1,10 +1,6 @@
-/**
- * @file Advanced Code Panel: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // ── Real backend field mapping (from customCode.controller.ts) ──────────
 // Fields: title, language (JS|CSS|HTML), code, placement (HEAD|BODY_START|BODY_END)
@@ -43,11 +39,6 @@ const LANGUAGES: { value: Language; label: string; color: string }[] = [
 ];
 
 // Client-side lint for quick feedback
-/**
- * Lint Code.
- * @param code Code supplied to this operation (type: string).
- * @param lang Lang supplied to this operation (type: Language).
- */
 function lintCode(code: string, lang: Language): string[] {
     const errs: string[] = [];
     if (!code.trim()) return errs;
@@ -74,9 +65,6 @@ function lintCode(code: string, lang: Language): string[] {
 
 type View = "list" | "form";
 
-/**
- * Render the advanced code panel interface and connect its event handlers.
- */
 export default function AdvancedCodePanel() {
     const [websites, setWebsites] = useState<any[]>([]);
     const [siteId, setSiteId] = useState("");
@@ -102,9 +90,6 @@ export default function AdvancedCodePanel() {
     useEffect(() => { loadWebsites(); }, []);
     useEffect(() => { if (siteId) loadSnippets(); }, [siteId]);
 
-    /**
-     * Load Websites.
-     */
     const loadWebsites = async () => {
         try {
             const r = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -113,9 +98,6 @@ export default function AdvancedCodePanel() {
         } catch { setGlobalError("Could not load websites."); }
     };
 
-    /**
-     * Load Snippets.
-     */
     const loadSnippets = async () => {
         setLoading(true); setGlobalError(null);
         try {
@@ -127,19 +109,12 @@ export default function AdvancedCodePanel() {
         finally { setLoading(false); }
     };
 
-    /**
-     * Open Add.
-     */
     const openAdd = () => {
         setTitle(""); setLang("JS"); setCode(""); setPlacement("HEAD");
         setIsDraft(false); setPriority(10); setConditions(""); setScheduledFor("");
         setLintWarnings([]); setFormError(null); setEditTarget(null); setView("form");
     };
 
-    /**
-     * Open Edit.
-     * @param s S supplied to this operation (type: Snippet).
-     */
     const openEdit = (s: Snippet) => {
         setTitle(s.title); setLang(s.language); setCode(s.code);
         setPlacement(s.placement); setIsDraft(s.status === "DRAFT");
@@ -148,16 +123,8 @@ export default function AdvancedCodePanel() {
         setLintWarnings([]); setFormError(null); setEditTarget(s); setView("form");
     };
 
-    /**
-     * Run Linter.
-     */
     const runLinter = () => setLintWarnings(lintCode(code, lang));
 
-    /**
-     * Handle Submit.
-     * @param e E supplied to this operation (type: React.FormEvent).
-     * @param forceStatus Force Status supplied to this operation (type: Status). Optional; callers may omit it.
-     */
     const handleSubmit = async (e: React.FormEvent, forceStatus?: Status) => {
         e.preventDefault(); setFormError(null);
         if (!title.trim() || !code.trim()) { setFormError("Title and code are required."); return; }
@@ -198,10 +165,6 @@ export default function AdvancedCodePanel() {
         finally { setSaving(false); }
     };
 
-    /**
-     * Toggle Active.
-     * @param s S supplied to this operation (type: Snippet).
-     */
     const toggleActive = async (s: Snippet) => {
         await fetch(`${apiUrl}/api/custom-code/${s.id}`, {
             method: "PUT", credentials: "include",
@@ -211,10 +174,6 @@ export default function AdvancedCodePanel() {
         loadSnippets();
     };
 
-    /**
-     * Handle Delete.
-     * @param id Id supplied to this operation (type: string).
-     */
     const handleDelete = async (id: string) => {
         if (!confirm("Permanently delete this snippet?")) return;
         const r = await fetch(`${apiUrl}/api/custom-code/${id}`, { method: "DELETE", credentials: "include" });

@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: template Validation. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { CreateTemplatePayload, TemplateCategory, TemplateType } from "../types/template.types";
 import { TEMPLATE_CATEGORIES } from "../types/template.types";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
@@ -21,8 +17,6 @@ export interface ValidationResult {
 /**
  * Regenerates element IDs recursively to guarantee ID safety and prevent conflicts
  * with existing canvas elements.
-
- * @param elements Elements supplied to this operation (type: any[]).
  */
 export const sanitizeAndRegenerateElementIds = (elements: any[]): EditorElement[] => {
   if (!Array.isArray(elements)) return [];
@@ -41,9 +35,6 @@ export const sanitizeAndRegenerateElementIds = (elements: any[]): EditorElement[
 
 /**
  * Validates untrusted imported JSON template file content and returns a safe payload.
-
- * @param fileContent File Content supplied to this operation (type: string).
- * @param existingTemplateNames Existing Template Names supplied to this operation (type: string[]). Defaults to [].
  */
 export const validateAndSanitizeTemplateFile = (
   fileContent: string,

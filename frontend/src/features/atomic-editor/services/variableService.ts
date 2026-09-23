@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: variable Service. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { AtomicVariable } from "../types/variables.types";
 
 const STORAGE_KEY = "forgestudio_atomic_variables";
@@ -49,9 +45,6 @@ export const DEFAULT_VARIABLES: AtomicVariable[] = [
   },
 ];
 
-/**
- * Fetch Variables.
- */
 export async function fetchVariables(): Promise<AtomicVariable[]> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,10 +60,6 @@ export async function fetchVariables(): Promise<AtomicVariable[]> {
   return DEFAULT_VARIABLES;
 }
 
-/**
- * Save Variables.
- * @param variables Variables supplied to this operation (type: AtomicVariable[]).
- */
 export async function saveVariables(variables: AtomicVariable[]): Promise<void> {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(variables));

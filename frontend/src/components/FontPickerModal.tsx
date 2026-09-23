@@ -1,7 +1,3 @@
-/**
- * @file Font Picker Modal: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, X, Star, Sparkles, Check, RefreshCw } from 'lucide-react';
 import { FontService } from '../features/fonts/FontService';
@@ -28,15 +24,6 @@ const CATEGORY_TABS: { id: FontCategory | 'all' | 'recent' | 'favorites' | 'popu
   { id: 'system', label: 'System Fonts' },
 ];
 
-/**
- * Render the font picker modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, onClose, selectedFont, onSelectFont.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.selectedFont Selected Font passed by the caller.
- * @param options.onSelectFont Callback for select font events.
- */
 export const FontPickerModal: React.FC<FontPickerModalProps> = ({
   isOpen,
   onClose,
@@ -72,21 +59,12 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
 
   if (!isOpen) return null;
 
-  /**
-   * Handle Toggle Favorite.
-   * @param e E supplied to this operation (type: React.MouseEvent).
-   * @param family Family supplied to this operation (type: string).
-   */
   const handleToggleFavorite = (e: React.MouseEvent, family: string) => {
     e.stopPropagation();
     FontService.toggleFavorite(family);
     setFavTrigger((prev) => prev + 1);
   };
 
-  /**
-   * Handle Select.
-   * @param family Family supplied to this operation (type: string).
-   */
   const handleSelect = (family: string) => {
     FontService.loadFont(family);
     onSelectFont(family);

@@ -1,7 +1,3 @@
-/**
- * @file F355 dash: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 const fs = require('fs');
 let file = fs.readFileSync('src/pages/dashboard/UserDashboard.tsx', 'utf8');

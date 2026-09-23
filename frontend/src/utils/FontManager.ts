@@ -1,14 +1,10 @@
-/**
- * @file Font Manager: utils module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useEffect, useMemo } from 'react';
 import type { EditorElement } from '../pages/editor/WebsiteEditor';
 
 /**
  * F-356: Faster Font Loading Architecture
- *
- * Extracts only REQUIRED font families and font weights from the active
+ * 
+ * Extracts only REQUIRED font families and font weights from the active 
  * ForgeStudio document AST. Generates a perfectly scoped Google Fonts URL.
  * Automatically injects preconnects and loads non-critical fonts async minimizing CLS.
  */
@@ -21,20 +17,9 @@ export interface FontUsageInfo {
     isCritical: boolean; // e.g. appears in first element / heading
 }
 
-/**
- * Analyze Font Usage.
- * @param elements Elements supplied to this operation (type: EditorElement[]).
- * @param globalFonts Global Fonts supplied to this operation (type: any).
- */
 function analyzeFontUsage(elements: EditorElement[], globalFonts: any): Map<string, FontUsageInfo> {
     const usage = new Map<string, FontUsageInfo>();
 
-    /**
-     * Safe Add.
-     * @param family Family supplied to this operation (type: string).
-     * @param weight Weight supplied to this operation (type: number).
-     * @param isCritical Is Critical supplied to this operation (type: boolean).
-     */
     const safeAdd = (family: string, weight: number, isCritical: boolean) => {
         if (!family || family === 'inherit' || family.includes('system-ui') || family.toLowerCase() === "sans-serif") return;
 
@@ -57,11 +42,6 @@ function analyzeFontUsage(elements: EditorElement[], globalFonts: any): Map<stri
     if (globalFonts?.body) safeAdd(globalFonts.body, 400, true);
     if (globalFonts?.body) safeAdd(globalFonts.body, 500, true);
 
-    /**
-     * Traverse.
-     * @param el El supplied to this operation (type: EditorElement).
-     * @param isInitiallyCritical Is Initially Critical supplied to this operation (type: boolean).
-     */
     const traverse = (el: EditorElement, isInitiallyCritical: boolean) => {
         let isNodeCritical = isInitiallyCritical;
         if (el.type === 'heading') isNodeCritical = true;
@@ -93,10 +73,6 @@ function analyzeFontUsage(elements: EditorElement[], globalFonts: any): Map<stri
     return usage;
 }
 
-/**
- * Generate Google Fonts Url.
- * @param usage Usage supplied to this operation (type: Map<string, FontUsageInfo>).
- */
 export function generateGoogleFontsUrl(usage: Map<string, FontUsageInfo>): string | null {
     if (usage.size === 0) return null;
 
@@ -116,11 +92,6 @@ export function generateGoogleFontsUrl(usage: Map<string, FontUsageInfo>): strin
     return `https://fonts.googleapis.com/css2?${familyStrings.join('&')}&display=swap`;
 }
 
-/**
- * Coordinate dynamic fonts state and lifecycle for the calling component.
- * @param elements Elements supplied to this operation (type: EditorElement[]).
- * @param globalFonts Global Fonts supplied to this operation (type: any).
- */
 export function useDynamicFonts(elements: EditorElement[], globalFonts: any) {
     const fontUrl = useMemo(() => {
         const usage = analyzeFontUsage(elements, globalFonts);
@@ -131,11 +102,6 @@ export function useDynamicFonts(elements: EditorElement[], globalFonts: any) {
         if (!fontUrl) return;
 
         // F-356: Ensure preconnects exist
-        /**
-         * Inject Preconnect.
-         * @param href Href supplied to this operation (type: string).
-         * @param crossOrigin Cross Origin supplied to this operation (type: boolean). Defaults to false.
-         */
         const injectPreconnect = (href: string, crossOrigin: boolean = false) => {
             if (!document.querySelector(`link[rel="preconnect"][href="${href}"]`)) {
                 const link = document.createElement('link');

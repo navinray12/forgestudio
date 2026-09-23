@@ -1,4 +1,4 @@
-import { AppError } from "../platform/http/app-error.js";
+import { AppError } from "./app-error.js";
 
 // Private IPv4 ranges (RFC 1918 & link-local / loopback / metadata)
 function isPrivateOrLoopbackIp(ip: string): boolean {

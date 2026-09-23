@@ -1,7 +1,3 @@
-/**
- * @file Phone Input types: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { CountryData } from "./phoneCountries";
 
 export interface PhoneInputValue {

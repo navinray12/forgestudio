@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Template Library. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { Template } from "../types/template.types";
 import { TEMPLATE_CATEGORIES } from "../types/template.types";
@@ -26,14 +22,6 @@ interface TemplateLibraryProps {
   onOpenSaveTemplate?: () => void;
 }
 
-/**
- * Render the template library interface and connect its event handlers.
- * @param options Named inputs: apiUrl, onInsertTemplate, onOpenSaveTemplate.
-
- * @param options.apiUrl Api Url passed by the caller.
- * @param options.onInsertTemplate Callback for insert template events.
- * @param options.onOpenSaveTemplate Callback for open save template events.
- */
 export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
   apiUrl,
   onInsertTemplate,
@@ -71,12 +59,6 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
   const [exportSuccessNotice, setExportSuccessNotice] = useState<string | null>(null);
   const [exportErrorNotice, setExportErrorNotice] = useState<string | null>(null);
 
-  /**
-   * Handle Confirm Transfer.
-   * @param template Template supplied to this operation (type: Template).
-   * @param _targetWebsiteId Target Website Id supplied to this operation (type: string).
-   * @param targetWebsiteName Target Website Name supplied to this operation (type: string).
-   */
   const handleConfirmTransfer = async (
     template: Template,
     _targetWebsiteId: string,
@@ -102,10 +84,6 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
     setTimeout(() => setExportSuccessNotice(null), 4000);
   };
 
-  /**
-   * Handle Duplicate Template.
-   * @param template Template supplied to this operation (type: Template).
-   */
   const handleDuplicateTemplate = async (template: Template) => {
     try {
       const duplicated = await duplicateTemplateItem(template);
@@ -117,10 +95,6 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
     }
   };
 
-  /**
-   * Handle Export Template.
-   * @param template Template supplied to this operation (type: Template).
-   */
   const handleExportTemplate = (template: Template) => {
 
     try {
@@ -133,30 +107,14 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
     }
   };
 
-  /**
-   * Handle Save Rename.
-   * @param templateId Template Id supplied to this operation (type: string).
-   * @param name Name supplied to this operation (type: string).
-   * @param description Description supplied to this operation (type: string). Optional; callers may omit it.
-   * @param category Category supplied to this operation (type: string). Optional; callers may omit it.
-   */
   const handleSaveRename = async (templateId: string, name: string, description?: string, category?: string) => {
     await renameTemplateItem(templateId, name, description, category);
   };
 
-  /**
-   * Handle Confirm Delete.
-   * @param templateId Template Id supplied to this operation (type: string).
-   */
   const handleConfirmDelete = async (templateId: string) => {
     await deleteTemplateItem(templateId);
   };
 
-  /**
-   * Handle Toggle Share.
-   * @param templateId Template Id supplied to this operation (type: string).
-   * @param isShared Is Shared supplied to this operation (type: boolean).
-   */
   const handleToggleShare = async (templateId: string, isShared: boolean) => {
     const updated = await toggleShareItem(templateId, isShared);
     setShareModalTemplate(updated);

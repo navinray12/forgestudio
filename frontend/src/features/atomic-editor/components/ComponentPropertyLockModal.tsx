@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Component Property Lock Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 import { DEFAULT_PROPERTY_CONFIGS } from "../utils/componentOverride.utils";
@@ -14,16 +10,6 @@ interface ComponentPropertyLockModalProps {
   onSave: (allowedKeys: string[]) => void;
 }
 
-/**
- * Render the component property lock modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, component, initialAllowedKeys, onClose, onSave.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.component Component passed by the caller.
- * @param options.allowedKeys Allowed Keys passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onSave Callback for save events.
- */
 export const ComponentPropertyLockModal: React.FC<ComponentPropertyLockModalProps> = ({
   isOpen,
   component,
@@ -39,19 +25,12 @@ export const ComponentPropertyLockModal: React.FC<ComponentPropertyLockModalProp
 
   if (!isOpen || !component) return null;
 
-  /**
-   * Toggle Key.
-   * @param key Key supplied to this operation (type: string).
-   */
   const toggleKey = (key: string) => {
     setSelectedKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   };
 
-  /**
-   * Handle Save.
-   */
   const handleSave = () => {
     onSave(selectedKeys);
     onClose();

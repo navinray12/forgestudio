@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Form Field Settings. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { FormFieldConfig, FormFieldType, SelectOption } from "../types/atomicForm.types";
 
@@ -10,22 +6,10 @@ interface FormFieldSettingsProps {
   onUpdateField: (updated: FormFieldConfig) => void;
 }
 
-/**
- * Render the form field settings interface and connect its event handlers.
- * @param options Named inputs: field, onUpdateField.
-
- * @param options.field Field passed by the caller.
- * @param options.onUpdateField Callback for update field events.
- */
 export const FormFieldSettings: React.FC<FormFieldSettingsProps> = ({
   field,
   onUpdateField,
 }) => {
-  /**
-   * Handle Change.
-   * @param key Key supplied to this operation (type: keyof FormFieldConfig).
-   * @param value Value supplied to this operation (type: any).
-   */
   const handleChange = (key: keyof FormFieldConfig, value: any) => {
     onUpdateField({
       ...field,
@@ -33,31 +17,18 @@ export const FormFieldSettings: React.FC<FormFieldSettingsProps> = ({
     });
   };
 
-  /**
-   * Handle Option Change.
-   * @param idx Idx supplied to this operation (type: number).
-   * @param key Key supplied to this operation (type: keyof SelectOption).
-   * @param val Val supplied to this operation (type: string).
-   */
   const handleOptionChange = (idx: number, key: keyof SelectOption, val: string) => {
     const updatedOptions = [...(field.options || [])];
     updatedOptions[idx] = { ...updatedOptions[idx], [key]: val };
     onUpdateField({ ...field, options: updatedOptions });
   };
 
-  /**
-   * Handle Add Option.
-   */
   const handleAddOption = () => {
     const nextIdx = (field.options?.length || 0) + 1;
     const newOpt: SelectOption = { label: `Option ${nextIdx}`, value: `option-${nextIdx}` };
     onUpdateField({ ...field, options: [...(field.options || []), newOpt] });
   };
 
-  /**
-   * Handle Remove Option.
-   * @param idx Idx supplied to this operation (type: number).
-   */
   const handleRemoveOption = (idx: number) => {
     const updatedOptions = field.options?.filter((_, i) => i !== idx);
     onUpdateField({ ...field, options: updatedOptions });

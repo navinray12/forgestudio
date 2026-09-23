@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: atomic Loop types. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export type LoopDataSourceType = "static" | "cms_products" | "cms_blog";
 
 export type LoopDataItem = Record<string, any>;

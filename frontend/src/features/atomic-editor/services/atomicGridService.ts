@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: atomic Grid Service. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { GridContainerConfig, CreateGridPayload } from "../types/atomicGrid.types";
 
 const STORAGE_KEY = "forge_studio_atomic_grids";
@@ -74,8 +70,6 @@ export class AtomicGridService {
 
   /**
    * Persists grid container definitions
-
-   * @param grids Grids supplied to this operation (type: GridContainerConfig[]).
    */
   static saveGrids(grids: GridContainerConfig[]): void {
     try {
@@ -87,8 +81,6 @@ export class AtomicGridService {
 
   /**
    * Creates a new Grid Layout definition
-
-   * @param payload Payload supplied to this operation (type: CreateGridPayload).
    */
   static createGrid(payload: CreateGridPayload): GridContainerConfig {
     const list = this.getGrids();
@@ -126,9 +118,6 @@ export class AtomicGridService {
 
   /**
    * Updates an existing Grid Container
-
-   * @param id Id supplied to this operation (type: string).
-   * @param payload Payload supplied to this operation (type: Partial<GridContainerConfig>).
    */
   static updateGrid(id: string, payload: Partial<GridContainerConfig>): GridContainerConfig {
     const list = this.getGrids();
@@ -148,8 +137,6 @@ export class AtomicGridService {
 
   /**
    * Deletes a Grid Container
-
-   * @param id Id supplied to this operation (type: string).
    */
   static deleteGrid(id: string): void {
     const list = this.getGrids();

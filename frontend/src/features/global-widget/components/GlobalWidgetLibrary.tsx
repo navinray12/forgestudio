@@ -1,7 +1,3 @@
-/**
- * @file Global widget feature: Global Widget Library. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { GlobalWidget } from "../types/globalWidget.types";
 import { useGlobalWidgets } from "../hooks/useGlobalWidgets";
@@ -12,14 +8,6 @@ interface GlobalWidgetLibraryProps {
   onOpenSaveDialog?: () => void;
 }
 
-/**
- * Render the global widget library interface and connect its event handlers.
- * @param options Named inputs: apiUrl, onInsertWidget, onOpenSaveDialog.
-
- * @param options.apiUrl Api Url passed by the caller.
- * @param options.onInsertWidget Callback for insert widget events.
- * @param options.onOpenSaveDialog Callback for open save dialog events.
- */
 export const GlobalWidgetLibrary: React.FC<GlobalWidgetLibraryProps> = ({
   apiUrl,
   onInsertWidget,
@@ -41,9 +29,6 @@ export const GlobalWidgetLibrary: React.FC<GlobalWidgetLibraryProps> = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  /**
-   * Handle Delete Confirm.
-   */
   const handleDeleteConfirm = async () => {
     if (!deleteCandidate) return;
     setIsDeleting(true);

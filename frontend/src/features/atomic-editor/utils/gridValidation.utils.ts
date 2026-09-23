@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: grid Validation utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { GridContainerConfig, GridItemPlacement } from "../types/atomicGrid.types";
 
 export interface GridValidationResult {
@@ -11,8 +7,6 @@ export interface GridValidationResult {
 
 /**
  * Validates grid container settings
-
- * @param config Config supplied to this operation (type: Partial<GridContainerConfig>).
  */
 export function validateGridConfig(config: Partial<GridContainerConfig>): GridValidationResult {
   const errors: string[] = [];
@@ -33,9 +27,6 @@ export function validateGridConfig(config: Partial<GridContainerConfig>): GridVa
 
 /**
  * Validates grid item placement against grid bounds
-
- * @param item Item supplied to this operation (type: Partial<GridItemPlacement>).
- * @param totalColumns Total Columns supplied to this operation (type: number).
  */
 export function validateGridItemPlacement(
   item: Partial<GridItemPlacement>,

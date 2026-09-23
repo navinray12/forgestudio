@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Atomic Editor Navigation. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { AtomicEditorSection, AtomicSectionConfig } from "../types/atomicEditor.types";
 
@@ -11,14 +7,6 @@ interface AtomicEditorNavigationProps {
   onSelectSection: (section: AtomicEditorSection) => void;
 }
 
-/**
- * Render the atomic editor navigation interface and connect its event handlers.
- * @param options Named inputs: sections, activeSection, onSelectSection.
-
- * @param options.sections Sections passed by the caller.
- * @param options.activeSection Active Section passed by the caller.
- * @param options.onSelectSection Callback for select section events.
- */
 export const AtomicEditorNavigation: React.FC<AtomicEditorNavigationProps> = ({
   sections,
   activeSection,

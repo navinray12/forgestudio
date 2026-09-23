@@ -1,11 +1,5 @@
 /**
- * @file Atomic editor feature: class utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-/**
  * Formats a raw class name into a valid CSS className format e.g. "button-primary"
-
- * @param name Name supplied to this operation (type: string).
  */
 export function formatClassName(name: string): string {
   const clean = name
@@ -19,8 +13,6 @@ export function formatClassName(name: string): string {
 
 /**
  * Validates class name format
-
- * @param name Name supplied to this operation (type: string).
  */
 export function validateClassName(name: string): { isValid: boolean; message?: string } {
   if (!name || !name.trim()) {

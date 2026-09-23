@@ -1,17 +1,5 @@
-/**
- * @file Team Dashboard View: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 
-/**
- * Render the team dashboard view interface and connect its event handlers.
- * @param options Named inputs: teamId, apiUrl, onNavigateEditor.
-
- * @param options.teamId Identifier of the team whose membership or resources are involved.
- * @param options.apiUrl Api Url passed by the caller.
- * @param options.onNavigateEditor Callback for navigate editor events.
- */
 export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNavigateEditor: (id: string) => void }> = ({ teamId, apiUrl, onNavigateEditor }) => {
     const [team, setTeam] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -24,9 +12,6 @@ export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNav
         fetchTeam();
     }, [teamId]);
 
-    /**
-     * Fetch Team.
-     */
     const fetchTeam = async () => {
         try {
             setLoading(true);
@@ -41,10 +26,6 @@ export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNav
         }
     };
 
-    /**
-     * Handle Invite.
-     * @param e E supplied to this operation (type: React.FormEvent).
-     */
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();
         setInviting(true);
@@ -68,10 +49,6 @@ export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNav
         }
     };
 
-    /**
-     * Handle Remove.
-     * @param userId User identifier used to scope this operation; authorization is checked by the relevant caller or service.
-     */
     const handleRemove = async (userId: string) => {
         if (!window.confirm("Remove member? This user will lose access to this team.")) return;
         try {

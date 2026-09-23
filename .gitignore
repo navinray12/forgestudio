@@ -1,7 +1,5 @@
 # Dependencies
 node_modules/
-vendor/
-infrastructure/local-secrets/
 
 # Environment variables
 .env
@@ -11,15 +9,6 @@ infrastructure/local-secrets/
 # Build output
 dist/
 build/
-coverage/
-test-results/
-backend/exports/
-backend/uploads/
-*.tsbuildinfo
-backend/src/generated/prisma/
-
-# Legacy rejected patches may contain unapplied work; preserve tracked files.
-*.rej
 
 # Logs
 *.log

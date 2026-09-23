@@ -2812,7 +2812,7 @@ export default defineConfig({
 `;
 
   // 4. src/styles/global.css (Tokens from GlobalStylesConfig)
-  const gStyles = (data.globalStyles || {}) as Record<string, any>;
+  const gStyles = data.globalStyles || {};
   files["src/styles/global.css"] = `:root {
   --forge-primary: ${gStyles.primaryColor || "#3b82f6"};
   --forge-secondary: ${gStyles.secondaryColor || "#10b981"};

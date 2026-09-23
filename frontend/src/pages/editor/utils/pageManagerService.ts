@@ -100,10 +100,6 @@ export function resolveInternalLink(
     return "#";
   }
 
-  if (/^(javascript|vbscript|data):/i.test(cleanLink)) {
-    return "#";
-  }
-
   // Standard external, anchor, or protocol URL
   return cleanLink;
 }

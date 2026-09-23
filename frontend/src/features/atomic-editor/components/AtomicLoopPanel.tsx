@@ -1,16 +1,9 @@
-/**
- * @file Atomic editor feature: Atomic Loop Panel. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import { useAtomicLoop } from "../hooks/useAtomicLoop";
 import { LoopPreview } from "./LoopPreview";
 import { LoopDataSourceSelector } from "./LoopDataSourceSelector";
 import { LoopItemSettings } from "./LoopItemSettings";
 
-/**
- * Render the atomic loop panel interface and connect its event handlers.
- */
 export const AtomicLoopPanel: React.FC = () => {
   const {
     filteredLoops,
@@ -25,10 +18,6 @@ export const AtomicLoopPanel: React.FC = () => {
   const [newLoopName, setNewLoopName] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  /**
-   * Handle Create Submit.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newLoopName.trim()) return;

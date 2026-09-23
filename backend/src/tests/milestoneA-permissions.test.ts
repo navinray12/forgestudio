@@ -1,15 +1,10 @@
-/**
- * @file Milestone A permissions test: regression or diagnostic checks for the behavior named by this file.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-import "./require-disposable-database.js";
-import { prisma } from "../platform/database/prisma.js";
+import { prisma } from "../config/prisma.js";
 import {
   canUserAccessResource,
   authorizeResourceAccess,
   setGranularPermission,
   getGranularPermissions,
-} from "../modules/permissions/permission.service.js";
+} from "../services/permission.service.js";
 import {
   createWebsite,
   getWebsiteById,
@@ -17,19 +12,13 @@ import {
   updateWebsiteRole,
   inviteWebsiteMember,
   removeWebsiteMember,
-} from "../modules/websites/website.service.js";
+} from "../services/website.service.js";
 
 const db = prisma as any;
 
 let passed = 0;
 let failed = 0;
 
-/**
- * Assert.
- * @param condition Condition supplied to this operation (type: boolean).
- * @param testName Test Name supplied to this operation (type: string).
- * @param details Details supplied to this operation (type: any). Optional; callers may omit it.
- */
 function assert(condition: boolean, testName: string, details?: any) {
   if (condition) {
     console.log(`[PASS] ${testName}`);
@@ -40,9 +29,6 @@ function assert(condition: boolean, testName: string, details?: any) {
   }
 }
 
-/**
- * Run Milestone A Tests.
- */
 async function runMilestoneATests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO MILESTONE A VERIFICATION SUITE");

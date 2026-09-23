@@ -1,7 +1,3 @@
-/**
- * @file Schema update: backend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 let schema = fs.readFileSync('prisma/schema.prisma', 'utf8');
 

@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Delete Class Confirm Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { AtomicClass } from "../types/classes.types";
 
@@ -12,15 +8,6 @@ interface DeleteClassConfirmModalProps {
   onConfirmDelete: (id: string) => Promise<void>;
 }
 
-/**
- * Render the delete class confirm modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, atomicClass, onClose, onConfirmDelete.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.atomicClass Atomic Class passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmDelete Callback for confirm delete events.
- */
 export const DeleteClassConfirmModal: React.FC<DeleteClassConfirmModalProps> = ({
   isOpen,
   atomicClass,

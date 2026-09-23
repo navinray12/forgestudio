@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Global Elements Panel. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import { useGlobalElements } from "../hooks/useGlobalElements";
 import { GlobalElementFormModal } from "./GlobalElementFormModal";
@@ -11,12 +7,6 @@ interface GlobalElementsPanelProps {
   onInsertGlobalElement?: (globalElementId: string) => void;
 }
 
-/**
- * Render the global elements panel interface and connect its event handlers.
- * @param options Named inputs: onInsertGlobalElement.
-
- * @param options.onInsertGlobalElement Callback for insert global element events.
- */
 export const GlobalElementsPanel: React.FC<GlobalElementsPanelProps> = ({
   onInsertGlobalElement,
 }) => {
@@ -37,10 +27,6 @@ export const GlobalElementsPanel: React.FC<GlobalElementsPanelProps> = ({
     deleteGlobalElement,
   } = useGlobalElements();
 
-  /**
-   * Handle Form Submit.
-   * @param payload Payload supplied to this operation (type: any).
-   */
   const handleFormSubmit = async (payload: any) => {
     if (editingGlobalElement) {
       await updateGlobalElement(editingGlobalElement.id, payload);

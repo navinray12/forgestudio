@@ -1,14 +1,7 @@
-/**
- * @file Atomic editor feature: form Validation utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { FormFieldConfig, FormValidationResult } from "../types/atomicForm.types";
 
 /**
  * Validates form submission values against field configurations
-
- * @param fields Fields supplied to this operation (type: FormFieldConfig[]).
- * @param values Values supplied to this operation (type: Record<string, any>).
  */
 export function validateFormValues(
   fields: FormFieldConfig[],
@@ -69,8 +62,6 @@ export function validateFormValues(
 
 /**
  * Checks for duplicate field names within a form container
-
- * @param fields Fields supplied to this operation (type: FormFieldConfig[]).
  */
 export function detectDuplicateFieldNames(fields: FormFieldConfig[]): string[] {
   const names = new Set<string>();

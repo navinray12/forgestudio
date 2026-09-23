@@ -1,8 +1,4 @@
-/**
- * @file Custom Code service: services module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-const API_URL = `${import.meta.env.VITE_API_URL ?? "http://localhost:5000"}/api/v1`;
+const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1`;
 
 export interface CustomCodeSnippet {
     id: string;
@@ -22,10 +18,6 @@ export interface CustomCodeSnippet {
     updatedAt: string;
 }
 
-/**
- * Get Custom Code Snippets.
- * @param websiteId Identifier of the website whose data is being read or changed.
- */
 export async function getCustomCodeSnippets(websiteId: string): Promise<CustomCodeSnippet[]> {
     try {
         const response = await fetch(`${API_URL}/custom-code/website/${websiteId}`, {
@@ -42,11 +34,6 @@ export async function getCustomCodeSnippets(websiteId: string): Promise<CustomCo
     }
 }
 
-/**
- * Create Custom Code Snippet.
- * @param websiteId Identifier of the website whose data is being read or changed.
- * @param snippetData Snippet Data supplied to this operation (type: Partial<CustomCodeSnippet>).
- */
 export async function createCustomCodeSnippet(websiteId: string, snippetData: Partial<CustomCodeSnippet>): Promise<any> {
     try {
         const response = await fetch(`${API_URL}/custom-code/website/${websiteId}`, {
@@ -65,11 +52,6 @@ export async function createCustomCodeSnippet(websiteId: string, snippetData: Pa
     }
 }
 
-/**
- * Update Custom Code Snippet.
- * @param snippetId Snippet Id supplied to this operation (type: string).
- * @param snippetData Snippet Data supplied to this operation (type: Partial<CustomCodeSnippet>).
- */
 export async function updateCustomCodeSnippet(snippetId: string, snippetData: Partial<CustomCodeSnippet>): Promise<any> {
     try {
         const response = await fetch(`${API_URL}/custom-code/${snippetId}`, {
@@ -88,10 +70,6 @@ export async function updateCustomCodeSnippet(snippetId: string, snippetData: Pa
     }
 }
 
-/**
- * Delete Custom Code Snippet.
- * @param snippetId Snippet Id supplied to this operation (type: string).
- */
 export async function deleteCustomCodeSnippet(snippetId: string): Promise<boolean> {
     try {
         const response = await fetch(`${API_URL}/custom-code/${snippetId}`, {

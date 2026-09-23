@@ -1,13 +1,7 @@
-/**
- * @file Atomic editor feature: variable utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { VariableType } from "../types/variables.types";
 
 /**
  * Formats a raw variable name into a clean CSS custom property key e.g. "--primary-color"
-
- * @param name Name supplied to this operation (type: string).
  */
 export function formatVariableKey(name: string): string {
   const clean = name
@@ -20,9 +14,6 @@ export function formatVariableKey(name: string): string {
 
 /**
  * Validates a variable value based on its type
-
- * @param type Type supplied to this operation (type: VariableType).
- * @param value Value supplied to this operation (type: string).
  */
 export function validateVariableValue(
   type: VariableType,
@@ -53,8 +44,6 @@ export function validateVariableValue(
 
 /**
  * Copies a CSS variable reference `var(--key)` to user clipboard
-
- * @param key Key supplied to this operation (type: string).
  */
 export async function copyVariableReference(key: string): Promise<boolean> {
   const ref = `var(${key})`;

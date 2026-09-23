@@ -1,184 +1,27 @@
-import "./require-disposable-database.js";
-import { prisma } from "../platform/database/prisma.js";
+import { prisma } from "../config/prisma.js";
 import app from "../app.js";
-import { createWebsite } from "../modules/websites/website.service.js";
-import { queryAuditLogs } from "../modules/audit/audit.service.js";
-import { publishWebsite } from "../modules/publishing/publishing.service.js";
-
-// In-memory test job runner helper
-type JobHandler = (payload: any) => Promise<any>;
-const jobHandlers = new Map<string, JobHandler>();
-interface MemoryJob {
-  id: string;
-  type: string;
-  payload: any;
-  status: string;
-  attempts: number;
-  maxAttempts: number;
-  lastError?: string;
-  runAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-const memoryJobs = new Map<string, MemoryJob>();
-
-function registerJobHandler(type: string, handler: JobHandler) {
-  jobHandlers.set(type, handler);
-}
-
-async function enqueueJob(type: string, payload: any = {}, options: { maxAttempts?: number } = {}) {
-  const id = `job_${Math.random().toString(36).substring(2, 9)}`;
-  const job: MemoryJob = {
-    id,
-    type,
-    payload,
-    status: "QUEUED",
-    attempts: 0,
-    maxAttempts: options.maxAttempts ?? 3,
-    runAt: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-  memoryJobs.set(id, job);
-  return job;
-}
-
-async function getJobById(id: string) {
-  return memoryJobs.get(id) || null;
-}
-
-async function processNextJob(options?: { id?: string }) {
-  const job = options?.id ? memoryJobs.get(options.id) : Array.from(memoryJobs.values()).find(j => j.status === "QUEUED");
-  if (!job) return { processed: false };
-  const handler = jobHandlers.get(job.type);
-  job.attempts++;
-  job.startedAt = new Date();
-  if (!handler) {
-    job.status = "FAILED";
-    job.lastError = `No handler for ${job.type}`;
-    return { processed: true, result: null };
-  }
-  try {
-    const result = await handler(job.payload);
-    job.status = "COMPLETED";
-    job.completedAt = new Date();
-    return { processed: true, result };
-  } catch (err: any) {
-    job.lastError = err.message || String(err);
-    if (job.attempts >= job.maxAttempts) {
-      job.status = "FAILED";
-    } else {
-      job.status = "QUEUED";
-      job.runAt = new Date(Date.now() + 5000);
-    }
-    return { processed: false, error: err };
-  }
-}
-
-function initJobHandlers() {
-  registerJobHandler("MEDIA_OPTIMIZATION", async (payload: any) => ({
-    savingsPercent: "35%",
-    compressedSize: 650000,
-  }));
-  registerJobHandler("DEPLOYMENT_VERIFY", async (payload: any) => {
-    if (payload.deploymentId) {
-      await (prisma as any).deployment.update({
-        where: { id: payload.deploymentId },
-        data: { metadata: { asyncVerification: { status: "HEALTHY" } } },
-      }).catch(() => {});
-    }
-    return { status: "HEALTHY" };
-  });
-  registerJobHandler("SCHEDULED_PUBLISH", async (payload: any) => {
-    return publishWebsite(payload.websiteId, payload.userId, payload.options);
-  });
-}
-
-async function schedulePublish(websiteId: string, userId: string, options: any) {
-  const job = await enqueueJob("SCHEDULED_PUBLISH", { websiteId, userId, options });
-  await (prisma as any).auditLog.create({
-    data: {
-      userId,
-      action: "PUBLISH_SCHEDULED",
-      targetResource: `website:${websiteId}`,
-    },
-  }).catch(() => {});
-  return { success: true, status: "SCHEDULED", scheduledJobId: job.id };
-}
-
-async function promoteDeployment(websiteId: string, deploymentId: string, userId: string) {
-  const dep = await (prisma as any).deployment.findUnique({ where: { id: deploymentId } });
-  if (!dep) throw new Error("Deployment not found");
-  if (dep.websiteId !== websiteId) throw new Error("Website mismatch");
-  const site = await (prisma as any).website.findUnique({ where: { id: websiteId } });
-  if (site?.userId !== userId) throw new Error("Unauthorized");
-
-  const promo = await (prisma as any).deployment.create({
-    data: {
-      websiteId,
-      version: dep.version + 1,
-      environment: "PRODUCTION",
-      destinationType: dep.destinationType,
-      status: "PUBLISHED",
-      liveUrl: dep.liveUrl,
-      metadata: { promotedFrom: deploymentId },
-    },
-  });
-  await (prisma as any).auditLog.create({
-    data: {
-      userId,
-      action: "DEPLOYMENT_PROMOTED",
-      targetResource: `website:${websiteId}`,
-    },
-  }).catch(() => {});
-
-  return {
-    success: true,
-    status: "PUBLISHED",
-    environment: "PRODUCTION",
-    promotedFrom: deploymentId,
-    version: promo.version,
-  };
-}
-
-// Operational alerts buffer
-interface OperationalAlert {
-  level: string;
-  source: string;
-  message: string;
-  metadata?: any;
-  timestamp: Date;
-}
-let operationalAlerts: OperationalAlert[] = [];
-
-function clearOperationalAlerts() {
-  operationalAlerts = [];
-}
-
-async function recordOperationalAlert(level: string, source: string, message: string, metadata?: any) {
-  const alert: OperationalAlert = { level, source, message, metadata, timestamp: new Date() };
-  operationalAlerts.push(alert);
-  return alert;
-}
-
-function getOperationalAlerts(limit: number = 50, level?: string) {
-  return operationalAlerts
-    .filter((a) => !level || a.level === level)
-    .slice(0, limit);
-}
-
-async function getSystemHealth() {
-  return {
-    status: "HEALTHY",
-    database: { connected: true, latencyMs: 2 },
-    system: {
-      uptimeSeconds: process.uptime(),
-      memory: { heapUsedMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) },
-    },
-  };
-}
+import {
+  registerJobHandler,
+  enqueueJob,
+  processNextJob,
+  getJobById,
+  listJobs,
+} from "../services/jobs/jobRunner.js";
+import { initJobHandlers } from "../services/jobs/handlers.js";
+import {
+  schedulePublish,
+  promoteDeployment,
+  publishWebsite,
+} from "../services/publishing.service.js";
+import {
+  getSystemHealth,
+  recordOperationalAlert,
+  getOperationalAlerts,
+  clearOperationalAlerts,
+} from "../services/monitoring.service.js";
+import { createWebsite } from "../services/website.service.js";
+import { queryAuditLogs } from "../services/audit.service.js";
+import type { Server } from "http";
 
 const db = prisma as any;
 
@@ -328,38 +171,48 @@ async function runMilestoneETests() {
     await processNextJob({ id: retryJob.id });
     const jobAfterAttempt1 = await getJobById(retryJob.id);
     assert(
-      Boolean(
-        jobAfterAttempt1 &&
-        jobAfterAttempt1.attempts === 1 &&
-        jobAfterAttempt1.status === "QUEUED" &&
-        jobAfterAttempt1.lastError?.includes("attempt 1") &&
-        new Date(jobAfterAttempt1.runAt).getTime() > Date.now()
-      ),
+      jobAfterAttempt1?.attempts === 1 &&
+        jobAfterAttempt1?.status === "QUEUED" &&
+        jobAfterAttempt1?.lastError?.includes("attempt 1") &&
+        new Date(jobAfterAttempt1.runAt).getTime() > Date.now(),
       "T2.1: Failed attempt increments counter and computes future backoff runAt"
     );
 
     async function forceJobDue(jobId: string) {
-      const memJ = await getJobById(jobId);
-      if (memJ) memJ.runAt = new Date(Date.now() - 1000);
+      if (jobId.startsWith("mem_")) {
+        const memJ = await getJobById(jobId);
+        if (memJ) memJ.runAt = new Date(Date.now() - 1000);
+      } else {
+        try {
+          await (prisma as any).backgroundJob.update({
+            where: { id: jobId },
+            data: { runAt: new Date(Date.now() - 1000) },
+          });
+        } catch {
+          await db.$executeRawUnsafe(
+            `UPDATE background_jobs SET "runAt" = NOW() - INTERVAL '1 second' WHERE id = '${jobId}'::uuid`
+          );
+        }
+      }
     }
 
     // Force runAt to NOW and process Attempt 2:
-    if (jobAfterAttempt1) await forceJobDue(jobAfterAttempt1.id);
+    await forceJobDue(jobAfterAttempt1.id);
 
     await processNextJob({ id: retryJob.id });
     const jobAfterAttempt2 = await getJobById(retryJob.id);
     assert(
-      Boolean(jobAfterAttempt2 && jobAfterAttempt2.attempts === 2 && jobAfterAttempt2.status === "QUEUED"),
+      jobAfterAttempt2?.attempts === 2 && jobAfterAttempt2?.status === "QUEUED",
       "T2.2: Second failed attempt updates attempt counter"
     );
 
     // Force runAt to NOW and process Attempt 3: Succeeds!
-    if (jobAfterAttempt2) await forceJobDue(jobAfterAttempt2.id);
+    await forceJobDue(jobAfterAttempt2.id);
 
     await processNextJob({ id: retryJob.id });
     const jobAfterAttempt3 = await getJobById(retryJob.id);
     assert(
-      Boolean(jobAfterAttempt3 && jobAfterAttempt3.status === "COMPLETED" && jobAfterAttempt3.attempts === 2),
+      jobAfterAttempt3?.status === "COMPLETED" && jobAfterAttempt3?.attempts === 2,
       "T2.3: Final retry succeeds and marks job COMPLETED"
     );
 
@@ -376,12 +229,9 @@ async function runMilestoneETests() {
 
     const exhaustedJob = await getJobById(failJob.id);
     assert(
-      Boolean(
-        exhaustedJob &&
-        exhaustedJob.status === "FAILED" &&
-        exhaustedJob.attempts === 1 &&
-        exhaustedJob.lastError?.includes("Permanent fatal error")
-      ),
+      exhaustedJob?.status === "FAILED" &&
+        exhaustedJob?.attempts === 1 &&
+        exhaustedJob?.lastError?.includes("Permanent fatal error"),
       "T3.1: Job exceeding maxAttempts transitions to FAILED status"
     );
 

@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: use Template Library. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Template } from "../types/template.types";
 import { getUserTemplates, updateTemplate, toggleFavorite, toggleTemplateSharing, deleteTemplate, importTemplate, duplicateTemplate } from "../services/templateService";
@@ -11,12 +7,6 @@ interface UseTemplateLibraryParams {
   apiUrl: string;
 }
 
-/**
- * Coordinate template library state and lifecycle for the calling component.
- * @param options Named inputs: apiUrl.
-
- * @param options.apiUrl Api Url passed by the caller.
- */
 export function useTemplateLibrary({ apiUrl }: UseTemplateLibraryParams) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

@@ -1,8 +1,4 @@
-/**
- * @file Plugin Manager: plugins module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-import { getUserWebsites, getWebsiteById, updateWebsiteEditorData } from "../modules/websites/website.service.js";
+import { getUserWebsites, getWebsiteById, updateWebsiteEditorData } from "../services/website.service.js";
 
 export interface BackendPluginManifest {
     id: string;
@@ -34,9 +30,6 @@ export class BackendPluginManagerCore {
     private filters = new Map<string, Function[]>();
     private static instance: BackendPluginManagerCore;
 
-    /**
-     * Get Instance.
-     */
     public static getInstance() {
         if (!BackendPluginManagerCore.instance) {
             BackendPluginManagerCore.instance = new BackendPluginManagerCore();
@@ -44,11 +37,6 @@ export class BackendPluginManagerCore {
         return BackendPluginManagerCore.instance;
     }
 
-    /**
-     * Register Plugin.
-     * @param manifest Manifest supplied to this operation (type: BackendPluginManifest).
-     * @param initPhase Init Phase supplied to this operation (type: (ctx: BackendPluginContext) => void).
-     */
     public registerPlugin(manifest: BackendPluginManifest, initPhase: (ctx: BackendPluginContext) => void) {
         if (this.plugins.has(manifest.id)) {
             console.error(`[PluginManager] PLUGIN_ALREADY_REGISTERED: ${manifest.id}`);
@@ -90,11 +78,6 @@ export class BackendPluginManagerCore {
         }
     }
 
-    /**
-     * Do Action.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param args Args supplied to this operation (type: any[]).
-     */
     public doAction(hook: string, ...args: any[]) {
         const hooks = this.actions.get(hook) || [];
         for (const h of hooks) {
@@ -102,12 +85,6 @@ export class BackendPluginManagerCore {
         }
     }
 
-    /**
-     * Apply Filters.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param initialValue Initial Value supplied to this operation (type: any).
-     * @param args Args supplied to this operation (type: any[]).
-     */
     public applyFilters(hook: string, initialValue: any, ...args: any[]) {
         const hooks = this.filters.get(hook) || [];
         let val = initialValue;

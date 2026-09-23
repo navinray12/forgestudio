@@ -1,53 +1,42 @@
-/**
- * @file Milestone C collaboration test: regression or diagnostic checks for the behavior named by this file.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-import "./require-disposable-database.js";
-import { prisma } from "../platform/database/prisma.js";
+import { prisma } from "../config/prisma.js";
 import {
   createOrganization,
   getOrganization,
   addOrganizationMember,
   removeOrganizationMember,
   updateOrganizationSettings,
-} from "../modules/organizations/organization.service.js";
+} from "../services/organization.service.js";
 import {
   createWorkspace,
   getWorkspace,
   addWorkspaceMember,
   assignWebsiteToWorkspace,
-} from "../modules/workspaces/workspace.service.js";
+} from "../services/workspace.service.js";
 import {
   createTeam,
   inviteMember,
   acceptInvitation,
   removeTeamMember,
-} from "../modules/teams/team.service.js";
+} from "../services/team.service.js";
 import {
   setApprovalWorkflowEnabled,
   submitForPublishApproval,
   reviewPublishApproval,
   getWebsiteApprovalRequests,
-} from "../modules/publishing/approval.service.js";
-import { queryAuditLogs } from "../modules/audit/audit.service.js";
+} from "../services/approval.service.js";
+import { queryAuditLogs } from "../services/audit.service.js";
 import {
   createWebsite,
   getWebsiteById,
   deleteWebsite,
-} from "../modules/websites/website.service.js";
-import { publishWebsite } from "../modules/publishing/publishing.service.js";
+} from "../services/website.service.js";
+import { publishWebsite } from "../services/publishing.service.js";
 
 const db = prisma as any;
 
 let passed = 0;
 let failed = 0;
 
-/**
- * Assert.
- * @param condition Condition supplied to this operation (type: boolean).
- * @param testName Test Name supplied to this operation (type: string).
- * @param details Details supplied to this operation (type: any). Optional; callers may omit it.
- */
 function assert(condition: boolean, testName: string, details?: any) {
   if (condition) {
     console.log(`[PASS] ${testName}`);
@@ -58,9 +47,6 @@ function assert(condition: boolean, testName: string, details?: any) {
   }
 }
 
-/**
- * Run Milestone C Tests.
- */
 async function runMilestoneCTests() {
   console.log("=================================================");
   console.log("RUNNING FORGESTUDIO MILESTONE C VERIFICATION SUITE");

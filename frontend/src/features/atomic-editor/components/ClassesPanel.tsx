@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Classes Panel. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useRef } from "react";
 import type { CreateClassPayload } from "../types/classes.types";
 import type { ExportedClassItem, ClassConflictItem } from "../types/classExportImport.types";
@@ -11,9 +7,6 @@ import { ClassFormModal } from "./ClassFormModal";
 import { DeleteClassConfirmModal } from "./DeleteClassConfirmModal";
 import { ImportClassesModal } from "./ImportClassesModal";
 
-/**
- * Render the classes panel interface and connect its event handlers.
- */
 export const ClassesPanel: React.FC = () => {
   const {
     classes,
@@ -45,9 +38,6 @@ export const ClassesPanel: React.FC = () => {
   const [importNewItems, setImportNewItems] = useState<ExportedClassItem[]>([]);
   const [importConflicts, setImportConflicts] = useState<ClassConflictItem[]>([]);
 
-  /**
-   * Handle Export.
-   */
   const handleExport = () => {
     if (classes.length === 0) {
       setImportError("No classes available to export.");
@@ -57,10 +47,6 @@ export const ClassesPanel: React.FC = () => {
     exportClassesToJson(classes);
   };
 
-  /**
-   * Handle File Select.
-   * @param e E supplied to this operation (type: React.ChangeEvent<HTMLInputElement>).
-   */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImportError(null);
     const file = e.target.files?.[0];
@@ -93,11 +79,6 @@ export const ClassesPanel: React.FC = () => {
     }
   };
 
-  /**
-   * Handle Confirm Import.
-   * @param itemsToCreate Items To Create supplied to this operation (type: CreateClassPayload[]).
-   * @param itemsToReplace Items To Replace supplied to this operation (type: { id: string; payload: CreateClassPayload }[]).
-   */
   const handleConfirmImport = async (
     itemsToCreate: CreateClassPayload[],
     itemsToReplace: { id: string; payload: CreateClassPayload }[]
@@ -110,10 +91,6 @@ export const ClassesPanel: React.FC = () => {
     }
   };
 
-  /**
-   * Handle Form Submit.
-   * @param payload Payload supplied to this operation (type: { name: string; styles: Record<string, any>; description?: string; isGlobal: boolean; }).
-   */
   const handleFormSubmit = async (payload: {
     name: string;
     styles: Record<string, any>;

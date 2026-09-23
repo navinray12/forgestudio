@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: atomic Grid types. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export type GridBreakpoint = "desktop" | "tablet" | "mobile";
 
 export interface ResponsiveGridSettings {

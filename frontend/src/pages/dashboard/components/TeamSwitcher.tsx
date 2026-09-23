@@ -1,25 +1,10 @@
-/**
- * @file Team Switcher: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 
-/**
- * Render the team switcher interface and connect its event handlers.
- * @param options Named inputs: apiUrl, currentTeamId, onSelectTeam.
-
- * @param options.apiUrl Api Url passed by the caller.
- * @param options.currentTeamId Current Team Id passed by the caller.
- * @param options.onSelectTeam Callback for select team events.
- */
 export const TeamSwitcher: React.FC<{ apiUrl: string, currentTeamId: string | null, onSelectTeam: (id: string | null) => void }> = ({ apiUrl, currentTeamId, onSelectTeam }) => {
     const [teams, setTeams] = useState<any[]>([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newTeamName, setNewTeamName] = useState("");
 
-    /**
-     * Fetch Teams.
-     */
     const fetchTeams = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/teams`, { credentials: "include" });
@@ -34,10 +19,6 @@ export const TeamSwitcher: React.FC<{ apiUrl: string, currentTeamId: string | nu
         fetchTeams();
     }, []);
 
-    /**
-     * Handle Create.
-     * @param e E supplied to this operation (type: React.FormEvent).
-     */
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
