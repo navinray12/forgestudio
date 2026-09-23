@@ -91,6 +91,7 @@ import {
   QueryBuilderWidgetInspector,
   DisplayConditionsWidgetInspector
 } from "./inspector/DynamicWidgetInspectors";
+import { MotionInteractionInspector } from "./inspector";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
 import { FontService } from "../../features/fonts/FontService";
@@ -157,7 +158,10 @@ import {
   duplicateTreeElement,
   moveTreeElement,
   isDescendant,
-  reorderTreeElement
+  reorderTreeElement,
+  resolveMotionAttrs,
+  resolveStickyStyles,
+  initMotionRuntime
 } from "./utils";
 
 import {
@@ -2584,6 +2588,16 @@ export default function WebsiteEditor() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, selectedIds, copiedElement, elements, historyIndex, history, isFullScreenCanvas, isPreview, saving]);
 
+  // F-102 - F-141: Preview Mode Motion & Interaction Runtime
+  useEffect(() => {
+    if (isPreview) {
+      const controller = initMotionRuntime(document);
+      return () => {
+        controller.cleanup();
+      };
+    }
+  }, [isPreview, elements]);
+
   useEffect(() => {
     if (selectedElement && selectedElement.componentId) {
       syncComponentInstances(selectedElement.componentId, selectedElement);
@@ -4546,6 +4560,9 @@ export default function WebsiteEditor() {
       return acc;
     }, {} as any);
 
+    const motionAttrs = resolveMotionAttrs(el);
+    const stickyStyles = resolveStickyStyles(el);
+
     if (el.type === "container") {
       const mergedLayout = getMergedLayout(el, activeDevice);
       const isHovered = hoveredId === el.id && !isSelected && !isPreview;
@@ -4558,6 +4575,7 @@ export default function WebsiteEditor() {
           key={el.id}
           id={el.customId || undefined}
           {...customAttrProps}
+          {...(isPreview ? motionAttrs : {})}
           data-el-id={el.id}
           draggable={!isPreview}
           onDragStart={(e) => {
@@ -4609,6 +4627,7 @@ export default function WebsiteEditor() {
             }
           }}
           style={{
+            ...stickyStyles,
             boxSizing: "border-box",
             display: mergedLayout.layoutType === "masonry" ? "block" : (mergedLayout.layoutType === "grid" ? "grid" : "flex"),
             columnCount: mergedLayout.layoutType === "masonry" ? (mergedLayout.masonryColumns || 3) : undefined,
@@ -4834,6 +4853,7 @@ export default function WebsiteEditor() {
         key={el.id}
         id={el.customId || undefined}
         {...customAttrProps}
+        {...(isPreview ? motionAttrs : {})}
         data-el-id={el.id}
         draggable={!isPreview}
         onDragStart={(e) => {
@@ -4905,6 +4925,7 @@ export default function WebsiteEditor() {
               : ""
           }`}
         style={{
+          ...stickyStyles,
           boxSizing: "border-box",
           width: mergedStyles.width,
           height: mergedStyles.height,
@@ -10515,6 +10536,17 @@ export default function WebsiteEditor() {
                       />
                     </div>
                   </div>
+                )}
+
+                {/* F-123 - F-141: Motion & Interaction Accordion */}
+                {renderAccordion(
+                  "Motion & Interaction",
+                  "motion-interaction",
+                  <MotionInteractionInspector
+                    selectedElement={selectedElementAny}
+                    updateSelectedProp={updateSelectedProp}
+                    updateSelectedStyle={updateSelectedStyle}
+                  />
                 )}
               </div>
             ) : activeSidebarTab === "advanced" && selectedElementAny ? (

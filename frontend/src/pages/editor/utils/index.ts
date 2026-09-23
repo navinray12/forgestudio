@@ -4,7 +4,9 @@ import type {
   ContainerLayout,
   DeviceMode,
   ElementState,
-  Breakpoint
+  Breakpoint,
+  MotionConfig,
+  EntranceAnimationType
 } from "../types";
 
 // ==========================================
@@ -859,4 +861,120 @@ export function getInnerStyles(resolved: React.CSSProperties): React.CSSProperti
   return inner;
 }
 
+// ==========================================
+// MOTION & INTERACTION ATTRIBUTE RESOLUTION (F-102 - F-141)
+// ==========================================
 
+export function resolveMotionAttrs(el: EditorElement): Record<string, string> {
+  const attrs: Record<string, string> = {};
+  const motion = el.motionConfig;
+  const legacyStyles = el.styles;
+
+  // 1. Entrance animation
+  const entrance = motion?.entranceAnimation ?? (legacyStyles?.entranceAnimation as any);
+  if (entrance && entrance !== "none") {
+    attrs["data-entrance"] = entrance;
+    const rawDur = motion?.entranceDurationMs ?? legacyStyles?.entranceDuration;
+    if (rawDur !== undefined && rawDur !== null && rawDur !== "") {
+      const dur = String(rawDur);
+      attrs["data-entrance-dur"] = dur.endsWith("ms") || dur.endsWith("s") ? dur : `${dur}ms`;
+    }
+    const rawDelay = motion?.entranceDelayMs ?? legacyStyles?.entranceDelay;
+    if (rawDelay !== undefined && rawDelay !== null && rawDelay !== "") {
+      const delay = String(rawDelay);
+      attrs["data-entrance-delay"] = delay.endsWith("ms") || delay.endsWith("s") ? delay : `${delay}ms`;
+    }
+    if (motion?.entranceReplay) attrs["data-entrance-replay"] = "true";
+  }
+
+  // 2. Hover motion
+  const hoverScale = motion?.hover?.scale ?? legacyStyles?.hoverScale;
+  const hoverRotate = motion?.hover?.rotate ?? legacyStyles?.hoverRotate;
+  const hoverTranslateY = motion?.hover?.translateY ?? legacyStyles?.hoverTranslateY;
+  const hoverOpacity = motion?.hover?.opacity ?? legacyStyles?.hoverOpacity;
+  const rawHoverDur = motion?.hover?.durationMs ?? legacyStyles?.hoverTransitionDuration;
+
+  if (hoverScale) attrs["data-hover-scale"] = String(hoverScale);
+  if (hoverRotate) attrs["data-hover-rotate"] = String(hoverRotate);
+  if (hoverTranslateY) attrs["data-hover-translate-y"] = String(hoverTranslateY);
+  if (hoverOpacity) attrs["data-hover-opacity"] = String(hoverOpacity);
+  if (rawHoverDur !== undefined && rawHoverDur !== null && rawHoverDur !== "") {
+    const hoverDur = String(rawHoverDur);
+    attrs["data-hover-dur"] = hoverDur.endsWith("ms") || hoverDur.endsWith("s") ? hoverDur : `${hoverDur}ms`;
+  }
+
+  // 3. Mouse Track
+  const mouseTrackEnabled = motion?.mouseTrack?.enabled ?? (legacyStyles?.mouseTrackEnabled === "true");
+  if (mouseTrackEnabled) {
+    attrs["data-mouse-track"] = "true";
+    const speed = motion?.mouseTrack?.speed ?? legacyStyles?.mouseTrackSpeed;
+    if (speed) attrs["data-mouse-track-speed"] = String(speed);
+  }
+
+  // 4. 3D Tilt
+  const tiltEnabled = motion?.tilt?.enabled ?? (legacyStyles?.tilt3DEnabled === "true");
+  if (tiltEnabled) {
+    attrs["data-tilt"] = "true";
+    const maxDeg = motion?.tilt?.maxDeg ?? legacyStyles?.tilt3DMax;
+    if (maxDeg) attrs["data-tilt-max"] = String(maxDeg);
+  }
+
+  // 5. Scroll Motion
+  const scrollEnabled = motion?.scroll?.enabled ?? (legacyStyles?.scrollEffectsEnabled === "true");
+  if (scrollEnabled) {
+    attrs["data-scroll-effects"] = "true";
+    const speedX = motion?.scroll?.speedX ?? legacyStyles?.scrollSpeedX;
+    if (speedX) attrs["data-scroll-speed-x"] = String(speedX);
+    const speedY = motion?.scroll?.speedY ?? legacyStyles?.scrollSpeedY;
+    if (speedY) attrs["data-scroll-speed-y"] = String(speedY);
+    const transparency = motion?.scroll?.transparency ?? legacyStyles?.scrollTransparency;
+    if (transparency && transparency !== "none") attrs["data-scroll-transparency"] = String(transparency);
+    const scrollRotate = motion?.scroll?.rotateDeg ?? legacyStyles?.scrollRotate;
+    if (scrollRotate) attrs["data-scroll-rotate"] = String(scrollRotate);
+    const scrollBlur = motion?.scroll?.blurPx ?? legacyStyles?.scrollBlur;
+    if (scrollBlur) attrs["data-scroll-blur"] = String(scrollBlur);
+    const scrollScale = motion?.scroll?.scaleTarget ?? legacyStyles?.scrollScale;
+    if (scrollScale) attrs["data-scroll-scale"] = String(scrollScale);
+  }
+
+  // 6. Sticky
+  const stickyPos = motion?.stickyPosition ?? legacyStyles?.stickyPosition;
+  if (stickyPos && stickyPos !== "none") {
+    attrs["data-sticky"] = stickyPos;
+    const rawOffset = motion?.stickyOffset ?? legacyStyles?.stickyOffset;
+    if (rawOffset !== undefined && rawOffset !== null && rawOffset !== "") {
+      const offset = String(rawOffset);
+      attrs["data-sticky-offset"] = offset.endsWith("px") || offset.endsWith("rem") || offset.endsWith("%") ? offset : `${offset}px`;
+    }
+  }
+
+  // 7. Interactions
+  if (el.interactions && el.interactions.length > 0) {
+    attrs["data-interactions"] = JSON.stringify(el.interactions);
+  } else if (legacyStyles?.interactionTrigger && legacyStyles.interactionTrigger !== "none" && legacyStyles.interactionAction && legacyStyles.interactionAction !== "none") {
+    const legacyRule = [{
+      id: "legacy_0",
+      trigger: legacyStyles.interactionTrigger,
+      action: legacyStyles.interactionAction,
+      targetSelector: legacyStyles.interactionTargetId,
+      actionValue: legacyStyles.interactionActionValue,
+    }];
+    attrs["data-interactions"] = JSON.stringify(legacyRule);
+  }
+
+  return attrs;
+}
+
+export function resolveStickyStyles(el: EditorElement): React.CSSProperties {
+  const stickyPos = el.motionConfig?.stickyPosition ?? el.styles?.stickyPosition;
+  if (!stickyPos || stickyPos === "none") return {};
+  const offset = el.motionConfig?.stickyOffset ?? el.styles?.stickyOffset ?? "0px";
+  const formattedOffset = typeof offset === "number" ? `${offset}px` : (offset || "0px");
+  return {
+    position: "sticky",
+    [stickyPos]: formattedOffset,
+    zIndex: 40,
+  };
+}
+
+export * from "./motionRuntime";

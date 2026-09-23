@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { resolveElementStyles, getInnerStyles, getMergedLayout } from "../editor/utils";
+import {
+    resolveElementStyles,
+    getInnerStyles,
+    getMergedLayout,
+    resolveMotionAttrs,
+    resolveStickyStyles,
+    initMotionRuntime
+} from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
@@ -212,8 +219,14 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     const optClass = elementClassMap.get(el.id);
     const optInnerClass = optClass ? `${optClass}-inner` : "";
 
+    const motionAttrs = resolveMotionAttrs(el);
+    const stickyStyles = resolveStickyStyles(el);
+
     // Defer Background Image safely via F-355
-    let finalMergedStyles: any = optClass ? {} : { ...resolvedStyles };
+    let finalMergedStyles: any = {
+        ...(optClass ? {} : resolvedStyles),
+        ...stickyStyles
+    };
     let finalInnerStyles: any = optClass ? {} : getInnerStyles(resolvedStyles);
 
     // Keep backgroundImage strictly inline safely
@@ -228,7 +241,9 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     const mergedProps: any = {
         id: (el as any).cssId || undefined,
+        "data-el-id": el.id,
         ...customAttrs,
+        ...motionAttrs,
         className: `fs-el-${el.id} ${(el as any).cssClasses?.join(" ") || ""} ${el.customClass || ""} relative transition duration-150${optClass ? " " + optClass : ""}`,
         style: finalMergedStyles,
         "data-lazy": (!isCritical && hasBgImage) ? (isVisible ? "loaded" : "waiting") : undefined
@@ -921,6 +936,16 @@ export default function PublishedSite() {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, [breakpoints]);
+
+    // F-102 - F-141: Initialize Motion & Interaction runtime
+    useEffect(() => {
+        if (!loading && elements && elements.length > 0) {
+            const controller = initMotionRuntime(document);
+            return () => {
+                controller.cleanup();
+            };
+        }
+    }, [loading, elements, activePageId]);
 
     const { optimizedGlobalCss, elementClassMap } = useMemo(() => {
         const classMap = new Map<string, string>();

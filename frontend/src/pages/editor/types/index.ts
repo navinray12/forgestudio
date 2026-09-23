@@ -631,6 +631,108 @@ export interface ElementStyles {
 
 export type ElementState = "normal" | "hover";
 
+// ──────────────────────────────────────────────────────────────────────────
+// MOTION & INTERACTION TYPES  (F-102 – F-141)
+// ──────────────────────────────────────────────────────────────────────────
+
+export type EntranceAnimationType =
+  | "none" | "fade-in" | "fade-in-up" | "fade-in-down"
+  | "zoom-in" | "slide-up" | "slide-down" | "bounce-in";
+
+export type ScrollTransparencyMode =
+  | "none" | "fade-in" | "fade-out" | "fade-in-out";
+
+export type StickyPositionMode = "none" | "top" | "bottom";
+
+export type InteractionTriggerType =
+  | "none" | "click" | "hover" | "dblclick" | "focus" | "blur";
+
+/** Validated allowlist — no arbitrary JS execution. */
+export type InteractionActionType =
+  | "none" | "toggle-class" | "show" | "hide" | "toggle-visibility"
+  | "scroll-to" | "open-url" | "copy-text";
+
+/**
+ * A single trigger→action rule. An element may hold many of these.
+ * Stored as el.interactions[] so each rule has its own id and is
+ * independently editable/deletable.
+ */
+export interface InteractionRule {
+  /** Unique rule ID within this element */
+  id: string;
+  trigger: InteractionTriggerType;
+  action: InteractionActionType;
+  /** CSS selector ('#my-id', '.my-class') or element customId for the target */
+  targetSelector?: string;
+  /** CSS class to toggle (for toggle-class action) */
+  toggleClass?: string;
+  /** Secondary value: text to copy, URL to open, or selector for scroll-to */
+  actionValue?: string;
+}
+
+export interface HoverMotionConfig {
+  /** CSS scale on hover, e.g. "1.05" */
+  scale?: string;
+  /** CSS rotate on hover in degrees, e.g. "5" */
+  rotate?: string;
+  /** CSS translateY in px, e.g. "-4" */
+  translateY?: string;
+  /** CSS opacity 0–1, e.g. "0.8" */
+  opacity?: string;
+  /** Transition duration in ms, e.g. "300" */
+  durationMs?: string;
+}
+
+export interface ScrollMotionConfig {
+  enabled: boolean;
+  /** Parallax X speed factor –1 to 1, e.g. "0.3" */
+  speedX?: string;
+  /** Parallax Y speed factor –1 to 1, e.g. "-0.2" */
+  speedY?: string;
+  transparency?: ScrollTransparencyMode;
+  /** Max rotate amount in degrees at full viewport scroll, e.g. "15" */
+  rotateDeg?: string;
+  /** Max blur in px at edge of viewport, e.g. "8" */
+  blurPx?: string;
+  /** Target scale at full scroll offset, e.g. "1.2" */
+  scaleTarget?: string;
+}
+
+export interface MouseTrackConfig {
+  enabled: boolean;
+  /** Damping 0.01–1.0; lower = more lag / smoother. Default "0.1" */
+  speed?: string;
+}
+
+export interface TiltConfig {
+  enabled: boolean;
+  /** Maximum tilt angle in degrees, e.g. "15" */
+  maxDeg?: string;
+}
+
+/**
+ * Top-level motion configuration object for an element.
+ * Stored at el.motionConfig (NOT inside el.styles) to keep CSS
+ * styles orthogonal to behavioral configuration.
+ * Read priority: el.motionConfig > legacy el.styles.* motion fields.
+ */
+export interface MotionConfig {
+  entranceAnimation?: EntranceAnimationType;
+  /** Duration in ms. Default "600" */
+  entranceDurationMs?: string;
+  /** Delay before entrance, in ms. Default "0" */
+  entranceDelayMs?: string;
+  /** If true the entrance re-fires each time element re-enters viewport */
+  entranceReplay?: boolean;
+  hover?: HoverMotionConfig;
+  scroll?: ScrollMotionConfig;
+  mouseTrack?: MouseTrackConfig;
+  tilt?: TiltConfig;
+  stickyPosition?: StickyPositionMode;
+  /** Offset for sticky in px or rem, e.g. "16px" */
+  stickyOffset?: string;
+}
+
 export interface EditorElement {
   id: string;
   type: ElementType;
@@ -1244,6 +1346,18 @@ export interface EditorElement {
   queryOrderBy?: string;
   queryOrder?: string;
   displayConditions?: any[];
+  /**
+   * Motion & Interaction configuration (F-102 to F-120).
+   * Stored as a top-level field (not inside styles) so CSS composition
+   * is never polluted by behavioral intent.
+   * Backward compat: if absent, falls back to legacy ElementStyles motion fields.
+   */
+  motionConfig?: MotionConfig;
+  /**
+   * Array of interaction rules (trigger → action).
+   * Multiple rules per element are supported.
+   */
+  interactions?: InteractionRule[];
 }
 
 export interface SitePartsConfig {
