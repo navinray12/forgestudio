@@ -1,11 +1,7 @@
-/**
- * @file Custom Post Types Panel: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // ── Real backend field mapping (from customPostType.controller.ts) ──────
 // CPT fields: name, singular, plural, slug, description, hasArchive
@@ -38,9 +34,6 @@ const FIELD_TYPES = ["text", "textarea", "number", "email", "url", "date", "bool
 
 type View = "list" | "create" | "fields";
 
-/**
- * Render the custom post types panel interface and connect its event handlers.
- */
 export default function CustomPostTypesPanel() {
     const navigate = useNavigate();
     const [websites, setWebsites] = useState<any[]>([]);
@@ -69,9 +62,6 @@ export default function CustomPostTypesPanel() {
     useEffect(() => { loadWebsites(); }, []);
     useEffect(() => { if (siteId) loadCpts(); }, [siteId]);
 
-    /**
-     * Load Websites.
-     */
     const loadWebsites = async () => {
         try {
             const r = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -80,9 +70,6 @@ export default function CustomPostTypesPanel() {
         } catch { setGlobalError("Could not load websites."); }
     };
 
-    /**
-     * Load Cpts.
-     */
     const loadCpts = async () => {
         setLoading(true); setGlobalError(null);
         try {
@@ -95,16 +82,8 @@ export default function CustomPostTypesPanel() {
         finally { setLoading(false); }
     };
 
-    /**
-     * Auto Slug.
-     * @param val Val supplied to this operation (type: string).
-     */
     const autoSlug = (val: string) => val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
-    /**
-     * Handle Create.
-     * @param e E supplied to this operation (type: React.FormEvent).
-     */
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault(); setCreateError(null);
         if (!name.trim() || !slug.trim() || !singular.trim() || !plural.trim()) {
@@ -127,10 +106,6 @@ export default function CustomPostTypesPanel() {
         finally { setCreating(false); }
     };
 
-    /**
-     * Load Fields.
-     * @param cpt Cpt supplied to this operation (type: CPT).
-     */
     const loadFields = async (cpt: CPT) => {
         setActiveCpt(cpt); setFieldsLoading(true); setView("fields");
         try {
@@ -142,29 +117,14 @@ export default function CustomPostTypesPanel() {
         finally { setFieldsLoading(false); }
     };
 
-    /**
-     * Add Field.
-     */
     const addField = () => setFields(prev => [...prev, { name: "", key: "", type: "text", required: false, order: prev.length }]);
 
-    /**
-     * Update Field.
-     * @param i I supplied to this operation (type: number).
-     * @param patch Patch supplied to this operation (type: Partial<CustomField>).
-     */
     const updateField = (i: number, patch: Partial<CustomField>) =>
         setFields(prev => prev.map((f, idx) => idx === i ? { ...f, ...patch } : f));
 
-    /**
-     * Remove Field.
-     * @param i I supplied to this operation (type: number).
-     */
     const removeField = (i: number) =>
         setFields(prev => prev.filter((_, idx) => idx !== i).map((f, idx) => ({ ...f, order: idx })));
 
-    /**
-     * Save Fields.
-     */
     const saveFields = async () => {
         if (!activeCpt) return;
         setSavingFields(true);
@@ -181,10 +141,6 @@ export default function CustomPostTypesPanel() {
         finally { setSavingFields(false); }
     };
 
-    /**
-     * Handle Delete.
-     * @param cpt Cpt supplied to this operation (type: CPT).
-     */
     const handleDelete = async (cpt: CPT) => {
         if (!confirm(`Delete "${cpt.name}" and all its fields/entries? This cannot be undone.`)) return;
         try {

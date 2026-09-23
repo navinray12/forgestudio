@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: variables types. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export type VariableType = "color" | "font" | "spacing" | "number";
 
 export interface AtomicVariable {

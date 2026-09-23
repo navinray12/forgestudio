@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: class Export Import types. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { ElementStyles } from "../../../pages/editor/WebsiteEditor";
 import type { ClassScope } from "./classes.types";
 

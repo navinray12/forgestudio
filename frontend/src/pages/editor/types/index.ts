@@ -19,129 +19,29 @@ export type ElementType =
   | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets"
   | "reusable-components" | "basic-media-carousel" | "basic-gallery"
   | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library"
-  | "wc-product" | "woocommerce-product" | "wc-product-title" | "wc-product-images" | "woocommerce-product-images" | "wc-product-price" | "woocommerce-product-price"
-  | "wc-add-to-cart" | "woocommerce-add-to-cart" | "wc-product-rating" | "woocommerce-product-rating" | "wc-product-stock" | "wc-product-meta" | "woocommerce-product-meta"
-  | "wc-product-content" | "woocommerce-product-content" | "wc-short-description" | "woocommerce-product-short-description" | "wc-product-data-tabs" | "woocommerce-product-data-tabs"
-  | "wc-additional-information" | "woocommerce-additional-information" | "wc-related-products" | "woocommerce-related-products" | "wc-upsells" | "woocommerce-upsells"
-  | "wc-products" | "woocommerce-products" | "wc-custom-add-to-cart" | "woocommerce-custom-add-to-cart" | "wc-product-categories" | "woocommerce-product-categories"
-  | "wc-menu-cart" | "woocommerce-menu-cart" | "wc-cart" | "woocommerce-cart" | "wc-checkout" | "woocommerce-checkout" | "wc-my-account" | "woocommerce-my-account"
-  | "wc-purchase-summary" | "woocommerce-purchase-summary" | "wc-notices" | "woocommerce-notices" | "wc-shop-layouts" | "woocommerce-shop-layouts" | "wc-product-archive" | "woocommerce-product-archive"
-  | "wc-product-page-templates" | "woocommerce-product-page-templates" | "wc-product-archive-templates" | "woocommerce-product-archive-templates" | "wc-shop-filters" | "woocommerce-shop-filters"
-  | "wp-menu" | "menu-widget" | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
+  | "wc-product-title" | "wc-product-price" | "wc-product-images"
+  | "wc-add-to-cart" | "wc-product-rating" | "wp-menu" | "menu-widget"
+  | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
   | "site-search" | "search-form" | "taxonomy-filter"
   | "facebook-integration" | "facebook-feed" | "facebook-like-button"
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
   | "link-in-bio" | "image-box" | "icon-box" | "icon-list" | "query-builder" | "display-conditions"
-  | "acf-integration" | "toolset-integration" | "pods-integration" | "gutenberg-blocks" | "multisite-support"
-  | "language-switcher";
-
-export interface SiteAccessibilitySettings {
-  widgetEnabled: boolean;
-  widgetPosition: "bottom-right" | "bottom-left" | "top-right" | "top-left";
-  widgetOffsetX: number;
-  widgetOffsetY: number;
-  widgetMobilePosition?: "bottom-right" | "bottom-left" | "top-right" | "top-left";
-  widgetLabel: string;
-  widgetIcon: string;
-  buttonBgColor: string;
-  buttonTextColor: string;
-  buttonRadius: string;
-  enabledControls: {
-    textScaling: boolean;
-    contrast: boolean;
-    fontOptions: boolean;
-    readingGuide: boolean;
-    hideImages: boolean;
-    pauseAnimations: boolean;
-    keyboardAssist: boolean;
-    reset: boolean;
-  };
-}
-
-export interface SiteI18nSettings {
-  editorLanguage: string;
-  frontendLanguage: string;
-  defaultLanguage: string;
-  enabledLanguages: Array<{ code: string; name: string; dir: "ltr" | "rtl"; flag?: string }>;
-  rtlAutoDetect: boolean;
-  translationProvider: "native" | "wpml" | "polylang" | "translatepress" | "weglot";
-  fallbackLanguage: string;
-  translations?: Record<string, Record<string, string>>; // language -> key -> value
-}
-
-export interface SiteWooCommerceSettings {
-  currency: string;
-  currencySymbol: string;
-  currencyPosition: "prefix" | "suffix";
-  thousandSeparator: string;
-  decimalSeparator: string;
-  numDecimals: number;
-  calcTaxes: boolean;
-  taxDisplayShop: "incl" | "excl";
-  lowStockThreshold: number;
-  outOfStockVisibility: boolean;
-  cartRedirectAfterAdd: boolean;
-  enableGuestCheckout: boolean;
-}
-
-export interface AccessibilityVisitorPreferences {
-  textSize: number; // percentage, e.g. 100, 110, 120, 130
-  contrastMode: "default" | "high-contrast" | "dark-contrast" | "light-contrast" | "grayscale" | "invert";
-  fontMode: "default" | "opendyslexic" | "sans-serif" | "monospace";
-  readingGuideEnabled: boolean;
-  readingGuideTop: number;
-  readingGuideThickness: number;
-  pauseAnimations: boolean;
-  hideImages: boolean;
-  enhancedFocus: boolean;
-  keyboardAssist: boolean;
-}
-
-export interface AccessibilityScanIssue {
-  id: string;
-  severity: "error" | "warning" | "info";
-  rule: string;
-  title: string;
-  description: string;
-  elementId?: string;
-  elementType?: string;
-  remediation: string;
-}
-
-export interface AccessibilityScanResult {
-  url: string;
-  timestamp: string;
-  errorCount: number;
-  warningCount: number;
-  passedCount: number;
-  issues: AccessibilityScanIssue[];
-}
+  | "acf-integration" | "toolset-integration" | "pods-integration" | "gutenberg-blocks" | "multisite-support";
 
 export interface SiteProduct {
   id: string;
   name: string;
   price: string;
   regularPrice?: string;
-  salePrice?: string;
   image?: string;
-  galleryImages?: string[];
   description?: string;
-  shortDescription?: string;
   rating?: number;
   ratingCount?: number;
   badge?: string;
   category?: string;
-  categories?: string[];
-  tags?: string[];
   inStock?: boolean;
-  stockQuantity?: number;
-  sku?: string;
-  type?: string;
   url?: string;
-  attributes?: Record<string, string>;
-  relatedProductIds?: string[];
-  upsellProductIds?: string[];
 }
 
 export interface NavSubmenuItem {
@@ -246,7 +146,7 @@ export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "f
 export interface WidgetRegistryItem {
   type: ElementType;
   name: string;
-  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social" | "WooCommerce";
+  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social";
   icon: string;
   description: string;
 }
@@ -257,7 +157,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "off-canvas", name: "Off Canvas", category: "Layout", icon: "🚪", description: "Sliding drawer panel container for navigation & tools" },
   { type: "mega-menu", name: "Mega Menu", category: "Layout", icon: "📑", description: "Multi-column rich navigation dropdown header" },
   { type: "nav-menu", name: "Nav Menu", category: "Layout", icon: "🧭", description: "Horizontal or vertical site navigation menu" },
-
+  
   // Basic
   { type: "search-bar", name: "Search Bar", category: "Basic", icon: "🔍", description: "Sidebar active widgets search filter bar" },
   { type: "import-asset", name: "Import Asset / File", category: "Basic", icon: "📁", description: "Direct file upload button for images, vectors & media assets" },
@@ -305,34 +205,12 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "custom-svg", name: "SVG / Custom Icon", category: "Media", icon: "⚡", description: "Sanitized custom SVG vector graphic asset viewer" },
   { type: "icon-library", name: "Icon Library", category: "Media", icon: "🎨", description: "Searchable ready-to-use vector icon picker library" },
 
-  // WooCommerce Store Widgets (F-292 Foundation)
-  { type: "wc-product", name: "Product Card", category: "WooCommerce", icon: "🛍️", description: "Complete WooCommerce product card container with title, price, image & CTA" },
-  { type: "wc-product-title", name: "Product Title", category: "WooCommerce", icon: "🏷️", description: "Displays WooCommerce product title" },
-  { type: "wc-product-images", name: "Product Images", category: "WooCommerce", icon: "🖼️", description: "Displays main product gallery & thumbnails" },
-  { type: "wc-product-price", name: "Product Price", category: "WooCommerce", icon: "💰", description: "Displays product pricing & sale discounts" },
-  { type: "wc-add-to-cart", name: "Add to Cart", category: "WooCommerce", icon: "🛒", description: "Customizable purchase & add to cart button" },
-  { type: "wc-product-rating", name: "Product Rating", category: "WooCommerce", icon: "⭐", description: "Displays product review star rating" },
-  { type: "wc-product-stock", name: "Product Stock", category: "WooCommerce", icon: "📦", description: "Displays product inventory stock status & badge" },
-  { type: "wc-product-meta", name: "Product Meta", category: "WooCommerce", icon: "🏷️", description: "Displays product SKU, categories, and tags" },
-  { type: "wc-product-content", name: "Product Content", category: "WooCommerce", icon: "📄", description: "Displays full product description and specifications" },
-  { type: "wc-short-description", name: "Short Description", category: "WooCommerce", icon: "📝", description: "Displays concise summary of product features" },
-  { type: "wc-product-data-tabs", name: "Product Data Tabs", category: "WooCommerce", icon: "📑", description: "Interactive product info tabs (Description, Specs, Reviews)" },
-  { type: "wc-additional-information", name: "Additional Info", category: "WooCommerce", icon: "ℹ️", description: "Displays product dimensions, weight, and custom attributes" },
-  { type: "wc-related-products", name: "Related Products", category: "WooCommerce", icon: "🔗", description: "Grid of dynamically linked recommendation products" },
-  { type: "wc-upsells", name: "Upsells", category: "WooCommerce", icon: "🚀", description: "Promotes premium or upgraded product alternatives" },
-  { type: "wc-products", name: "Products Grid", category: "WooCommerce", icon: "🛍️", description: "Multi-column catalog grid displaying store products" },
-  { type: "wc-custom-add-to-cart", name: "Custom Add to Cart", category: "WooCommerce", icon: "🛒", description: "Standalone floating or custom formatted cart button" },
-  { type: "wc-product-categories", name: "Product Categories", category: "WooCommerce", icon: "📂", description: "Displays product category cards or list menu" },
-  { type: "wc-menu-cart", name: "Menu Cart", category: "WooCommerce", icon: "🛍️", description: "Header navigation cart icon with item count badge" },
-  { type: "wc-cart", name: "Cart Page", category: "WooCommerce", icon: "🛒", description: "Full e-commerce cart page widget with item quantity & total breakdown" },
-  { type: "wc-checkout", name: "Checkout Form", category: "WooCommerce", icon: "💳", description: "Streamlined checkout form with billing, shipping & payment options" },
-  { type: "wc-my-account", name: "My Account", category: "WooCommerce", icon: "👤", description: "Customer account dashboard (Orders, Downloads, Profile, Addresses)" },
-  { type: "wc-purchase-summary", name: "Purchase Summary", category: "WooCommerce", icon: "🧾", description: "Order confirmation thank-you receipt and summary block" },
-  { type: "wc-notices", name: "WooCommerce Notices", category: "WooCommerce", icon: "🔔", description: "Displays system notification alerts, cart updates & errors" },
-  { type: "wc-shop-layouts", name: "Shop Layouts", category: "WooCommerce", icon: "🏪", description: "Customizable full store shop storefront layout grid" },
-  { type: "wc-product-archive", name: "Product Archive", category: "WooCommerce", icon: "🗃️", description: "Dynamic category archive catalog page renderer" },
-  { type: "wc-product-page-templates", name: "Product Page Template", category: "WooCommerce", icon: "📄", description: "Single product page layout template canvas container" },
-  { type: "wc-product-archive-templates", name: "Archive Template", category: "WooCommerce", icon: "🗂️", description: "Store category and archive page template container" },
+  // WooCommerce Store Widgets
+  { type: "wc-product-title", name: "Product Title", category: "Commerce", icon: "🏷️", description: "Displays WooCommerce product title" },
+  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
+  { type: "wc-product-images", name: "Product Images", category: "Commerce", icon: "🖼️", description: "Displays main product gallery & thumbnails" },
+  { type: "wc-add-to-cart", name: "Add to Cart", category: "Commerce", icon: "🛒", description: "Customizable purchase & add to cart button" },
+  { type: "wc-product-rating", name: "Product Rating", category: "Commerce", icon: "⭐", description: "Displays product review star rating" },
 
   // Commerce
   { type: "paypal-button", name: "PayPal Button", category: "Commerce", icon: "💳", description: "Direct PayPal express checkout button" },
@@ -346,7 +224,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
 
 export type DeviceMode = "desktop" | "tablet" | "mobile";
-export interface Breakpoint { id: string; name: string; width: number; minWidth?: number; maxWidth?: number; active?: boolean; }
+export interface Breakpoint { id: string; name: string; width: number; active?: boolean; }
 
 export interface PageConfig {
   id: string;
@@ -558,7 +436,7 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
-  rowGap?: number | string;
+rowGap?: number | string;
   columnGap?: number | string;
 
   // CSS Grid Controls (F-041, F-043)
@@ -602,7 +480,7 @@ export interface ElementStyles {
   marginLeft?: string;
   lineHeight?: string;
 
-  // Alignment & Self Alignment
+// Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
   justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
 
@@ -637,10 +515,6 @@ export interface ElementStyles {
   textDecoration?: "none" | "underline" | "overline" | "line-through";
   letterSpacing?: string;
   textShadow?: string;
-  textIndent?: string;
-  whiteSpace?: string;
-  wordSpacing?: string;
-  textOverflow?: string;
   backgroundImage?: string;
   backgroundPosition?: "center" | "top" | "bottom" | "left" | "right";
   backgroundSize?: "cover" | "contain" | "auto";
@@ -1296,90 +1170,8 @@ export interface EditorElement {
   productRatingCount?: number;
   productStarSize?: string;
   productStarColor?: string;
-  productSource?: "site" | "existing" | "manual" | "query" | "dynamic";
+  productSource?: "manual" | "existing";
   productId?: string;
-  productLayoutDirection?: "vertical" | "horizontal";
-  productImagePosition?: "top" | "left" | "right" | "bottom";
-  productImageWidth?: string;
-  productGap?: string;
-  productAlignment?: "start" | "center" | "end" | "left" | "right";
-  productShowTitle?: boolean;
-  productShowImage?: boolean;
-  productShowPrice?: boolean;
-  productShowRating?: boolean;
-  productShowStock?: boolean;
-  productShowShortDesc?: boolean;
-  productShowAddToCart?: boolean;
-  productShowMeta?: boolean;
-  productShowBadge?: boolean;
-  productsColumns?: number;
-  productsLimit?: number;
-  cartShowBadge?: boolean;
-  cartShowQuantity?: boolean;
-  cartButtonText?: string;
-  cartLoadingText?: string;
-  cartSuccessText?: string;
-  cartDisabledText?: string;
-  cartMinQuantity?: number;
-  cartMaxQuantity?: number;
-  cartDefaultQuantity?: number;
-  cartQuantityStep?: number;
-  cartPostAddAction?: "stay" | "open_cart" | "redirect";
-  cartQuantityLayout?: "inline" | "stacked";
-  ratingDisplayMode?: "full" | "stars_value" | "stars_count" | "stars_only" | "value_only";
-  ratingStarColor?: string;
-  ratingEmptyStarColor?: string;
-  ratingStarSize?: "sm" | "md" | "lg" | "xl";
-  ratingShowCount?: boolean;
-  ratingReviewFormat?: string;
-  ratingEmptyBehavior?: "show_empty_stars" | "hide" | "fallback_text";
-  ratingFallbackText?: string;
-  ratingLinkToReviews?: boolean;
-  metaShowSku?: boolean;
-  metaShowCategories?: boolean;
-  metaShowTags?: boolean;
-  metaShowId?: boolean;
-  metaShowType?: boolean;
-  metaShowBrand?: boolean;
-  metaLayout?: "vertical" | "horizontal" | "grid";
-  metaSeparator?: string;
-  metaSkuLabel?: string;
-  metaCategoriesLabel?: string;
-  metaTagsLabel?: string;
-  metaIdLabel?: string;
-  metaTypeLabel?: string;
-  metaBrandLabel?: string;
-  metaSkuFallback?: string;
-  metaEmptyBehavior?: "hide" | "fallback";
-  metaLinkCategories?: boolean;
-  metaLabelColor?: string;
-  metaValueColor?: string;
-  metaLinkColor?: string;
-  noticeType?: "info" | "success" | "warning" | "error";
-  noticeText?: string;
-  shopLayoutMode?: "grid" | "list";
-  galleryLayout?: "grid" | "thumbnails" | "carousel" | "stacked";
-  galleryPosition?: "bottom" | "top" | "left" | "right";
-  thumbnailAspectRatio?: "square" | "portrait" | "landscape" | "auto";
-  thumbnailSize?: string;
-  enableLightbox?: boolean;
-  productStockStatus?: "instock" | "in_stock" | "outofstock" | "out_of_stock" | "onbackorder";
-  productStockQty?: number;
-  priceDisplayMode?: "auto" | "regular" | "sale" | "both";
-  priceCurrencySymbol?: string;
-  priceCurrencyPosition?: "prefix" | "suffix";
-  priceShowDiscountBadge?: boolean;
-  priceShowTaxNotice?: boolean;
-  priceTaxNoticeText?: string;
-  priceColor?: string;
-  salePriceColor?: string;
-  regularPriceColor?: string;
-  discountBadgeBgColor?: string;
-  discountBadgeTextColor?: string;
-  priceFontSize?: string;
-  priceAlignment?: "left" | "center" | "right";
-  isLoadingProduct?: boolean;
-  productError?: string;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";

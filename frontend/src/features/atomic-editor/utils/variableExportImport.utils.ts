@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: variable Export Import utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { AtomicVariable } from "../types/variables.types";
 import type {
   ExportedVariablesPayload,
@@ -12,9 +8,6 @@ import { formatVariableKey } from "./variable.utils";
 
 /**
  * Download variables as JSON file
-
- * @param variables Variables supplied to this operation (type: AtomicVariable[]).
- * @param filename Filename supplied to this operation. Defaults to "forge-studio-variables.json".
  */
 export function exportVariablesToJson(variables: AtomicVariable[], filename = "forge-studio-variables.json"): void {
   const exportPayload: ExportedVariablesPayload = {
@@ -46,8 +39,6 @@ export function exportVariablesToJson(variables: AtomicVariable[], filename = "f
 
 /**
  * Parses and validates raw imported JSON string
-
- * @param rawJson Raw Json supplied to this operation (type: string).
  */
 export function parseAndValidateVariablesJson(rawJson: string): {
   isValid: boolean;
@@ -118,9 +109,6 @@ export function parseAndValidateVariablesJson(rawJson: string): {
 
 /**
  * Detects collisions between imported variables and current library
-
- * @param importedItems Imported Items supplied to this operation (type: ExportedVariableItem[]).
- * @param existingVariables Existing Variables supplied to this operation (type: AtomicVariable[]).
  */
 export function detectVariableConflicts(
   importedItems: ExportedVariableItem[],

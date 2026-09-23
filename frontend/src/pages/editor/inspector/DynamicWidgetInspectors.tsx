@@ -1052,20 +1052,22 @@ export function ShareButtonsInspector({
             <button
               type="button"
               onClick={() => updateProp("shareUrlSource", "current-page")}
-              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${shareUrlSource === "current-page"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
+              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${
+                shareUrlSource === "current-page"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
             >
               <span>📄 Current Page</span>
             </button>
             <button
               type="button"
               onClick={() => updateProp("shareUrlSource", "custom")}
-              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${shareUrlSource === "custom"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
+              className={`py-1.5 px-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1 cursor-pointer ${
+                shareUrlSource === "custom"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
             >
               <span>🌐 Custom URL</span>
             </button>
@@ -1110,10 +1112,11 @@ export function ShareButtonsInspector({
                   value={shareUrl}
                   onChange={(e) => updateProp("shareUrl", e.target.value)}
                   placeholder="https://example.com/about or /pricing"
-                  className={`w-full rounded-lg border bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none transition ${!isValidUrl
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-slate-300 focus:border-blue-500"
-                    }`}
+                  className={`w-full rounded-lg border bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none transition ${
+                    !isValidUrl
+                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
+                      : "border-slate-300 focus:border-blue-500"
+                  }`}
                 />
                 {shareUrl && (
                   <button
@@ -1517,10 +1520,11 @@ export function FormWidgetInspector({
           <button
             type="button"
             onClick={() => updateProp("formMode", "simple")}
-            className={`py-1.5 px-2 text-xs font-bold rounded-md transition ${formMode === "simple"
-              ? "bg-white text-blue-700 shadow-sm"
-              : "text-blue-900/70 hover:text-blue-900"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-md transition ${
+              formMode === "simple"
+                ? "bg-white text-blue-700 shadow-sm"
+                : "text-blue-900/70 hover:text-blue-900"
+            }`}
           >
             📋 Simple Form
           </button>
@@ -1532,10 +1536,11 @@ export function FormWidgetInspector({
                 updateProp("formSteps", steps);
               }
             }}
-            className={`py-1.5 px-2 text-xs font-bold rounded-md transition ${formMode === "step-by-step"
-              ? "bg-white text-blue-700 shadow-sm"
-              : "text-blue-900/70 hover:text-blue-900"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-md transition ${
+              formMode === "step-by-step"
+                ? "bg-white text-blue-700 shadow-sm"
+                : "text-blue-900/70 hover:text-blue-900"
+            }`}
           >
             🔢 Multi-Step Form
           </button>
@@ -2699,8 +2704,9 @@ export function UniversalIconControls({
               key={pos}
               type="button"
               onClick={() => updateProp("iconPosition", pos)}
-              className={`rounded py-1 text-[11px] font-bold capitalize transition cursor-pointer ${iconPosition === pos ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100"
-                }`}
+              className={`rounded py-1 text-[11px] font-bold capitalize transition cursor-pointer ${
+                iconPosition === pos ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 hover:bg-slate-100"
+              }`}
             >
               {pos}
             </button>
@@ -2799,8 +2805,9 @@ export function UniversalIconControls({
               key={deg}
               type="button"
               onClick={() => updateProp("iconRotate", deg)}
-              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${iconRotate === deg ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                }`}
+              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${
+                iconRotate === deg ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
             >
               {deg}°
             </button>
@@ -2811,16 +2818,18 @@ export function UniversalIconControls({
           <button
             type="button"
             onClick={() => updateProp("iconFlipH", !iconFlipH)}
-            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${iconFlipH ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-              }`}
+            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${
+              iconFlipH ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+            }`}
           >
             <span>↔️</span> Flip Horiz
           </button>
           <button
             type="button"
             onClick={() => updateProp("iconFlipV", !iconFlipV)}
-            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${iconFlipV ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-              }`}
+            className={`rounded-lg border px-2 py-1 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 ${
+              iconFlipV ? "border-blue-600 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+            }`}
           >
             <span>↕️</span> Flip Vert
           </button>
@@ -2838,8 +2847,9 @@ export function UniversalIconControls({
               key={sw}
               type="button"
               onClick={() => updateProp("iconStrokeWidth", sw)}
-              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${iconStrokeWidth === sw ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                }`}
+              className={`rounded py-1 text-[10px] font-bold transition cursor-pointer ${
+                iconStrokeWidth === sw ? "bg-blue-600 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
             >
               {sw}px
             </button>
@@ -3035,10 +3045,11 @@ export function ButtonWidgetInspector({
                   updateProp("linkUrl", defaultPage.slug);
                 }
               }}
-              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${activeDest === "page"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-                }`}
+              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                activeDest === "page"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
             >
               <span>📄</span> Internal Page
             </button>
@@ -3048,10 +3059,11 @@ export function ButtonWidgetInspector({
                 updateProp("destinationType", "url");
                 updateProp("linkType", "url");
               }}
-              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${activeDest === "url"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
-                }`}
+              className={`rounded py-1 px-2 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                activeDest === "url"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
             >
               <span>🌐</span> Custom URL
             </button>
@@ -3228,7 +3240,7 @@ export function ButtonWidgetInspector({
       {/* Independent Manual Color Controls */}
       <div className="space-y-2 pt-1 border-t border-slate-100">
         <label className="block text-xs font-bold text-slate-700">Button & Background Colors</label>
-
+        
         <div className="grid grid-cols-2 gap-2">
           {/* Button Color ONLY */}
           <div>
@@ -3646,50 +3658,50 @@ export function PriceTableWidgetInspector({
     : (el.pricePlans && el.pricePlans.length > 0)
       ? el.pricePlans
       : [
-        {
-          id: "plan_1",
-          name: "Starter",
-          price: "19",
-          currency: "$",
-          period: "/ month",
-          description: "Essential tools for personal projects & freelancers.",
-          isPopular: false,
-          isRecommended: false,
-          showBadge: false,
-          buttonText: "Start Free Trial",
-          buttonUrl: "#",
-          buttonAlignment: "full",
-          features: [
-            { id: "f1", text: "5 Projects included", included: true },
-            { id: "f2", text: "10GB SSD Storage", included: true },
-            { id: "f3", text: "Basic Analytics", included: true },
-            { id: "f4", text: "Custom Domain", included: false },
-            { id: "f5", text: "24/7 Dedicated Support", included: false },
-          ],
-        },
-        {
-          id: "plan_2",
-          name: "Professional",
-          price: "49",
-          currency: "$",
-          period: "/ month",
-          description: "Best for growing teams & expanding SaaS startups.",
-          isPopular: true,
-          isRecommended: true,
-          badgeText: "MOST POPULAR",
-          showBadge: true,
-          buttonText: "Get Pro Now",
-          buttonUrl: "#",
-          buttonAlignment: "full",
-          features: [
-            { id: "f1", text: "Unlimited Projects", included: true },
-            { id: "f2", text: "100GB SSD Storage", included: true },
-            { id: "f3", text: "Advanced Analytics & Reports", included: true },
-            { id: "f4", text: "Custom Domain & SSL", included: true },
-            { id: "f5", text: "Priority Support", included: true },
-          ],
-        },
-      ];
+          {
+            id: "plan_1",
+            name: "Starter",
+            price: "19",
+            currency: "$",
+            period: "/ month",
+            description: "Essential tools for personal projects & freelancers.",
+            isPopular: false,
+            isRecommended: false,
+            showBadge: false,
+            buttonText: "Start Free Trial",
+            buttonUrl: "#",
+            buttonAlignment: "full",
+            features: [
+              { id: "f1", text: "5 Projects included", included: true },
+              { id: "f2", text: "10GB SSD Storage", included: true },
+              { id: "f3", text: "Basic Analytics", included: true },
+              { id: "f4", text: "Custom Domain", included: false },
+              { id: "f5", text: "24/7 Dedicated Support", included: false },
+            ],
+          },
+          {
+            id: "plan_2",
+            name: "Professional",
+            price: "49",
+            currency: "$",
+            period: "/ month",
+            description: "Best for growing teams & expanding SaaS startups.",
+            isPopular: true,
+            isRecommended: true,
+            badgeText: "MOST POPULAR",
+            showBadge: true,
+            buttonText: "Get Pro Now",
+            buttonUrl: "#",
+            buttonAlignment: "full",
+            features: [
+              { id: "f1", text: "Unlimited Projects", included: true },
+              { id: "f2", text: "100GB SSD Storage", included: true },
+              { id: "f3", text: "Advanced Analytics & Reports", included: true },
+              { id: "f4", text: "Custom Domain & SSL", included: true },
+              { id: "f5", text: "Priority Support", included: true },
+            ],
+          },
+        ];
 
   const [expandedPlanId, setExpandedPlanId] = React.useState<string | null>(plans[0]?.id || null);
 
@@ -4838,10 +4850,11 @@ export function FlipBoxWidgetInspector({
           <button
             type="button"
             onClick={() => updateProp("flipIsFlippedManual", !el.flipIsFlippedManual)}
-            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${el.flipIsFlippedManual
-              ? "bg-indigo-600 text-white shadow-xs"
-              : "bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-              }`}
+            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
+              el.flipIsFlippedManual
+                ? "bg-indigo-600 text-white shadow-xs"
+                : "bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            }`}
           >
             {el.flipIsFlippedManual ? "Showing Back 🔄" : "Show Front 👁️"}
           </button>
@@ -4971,7 +4984,7 @@ export function FlipBoxWidgetInspector({
         {/* CTA Button Controls */}
         <div className="pt-2 border-t border-indigo-200/60 space-y-2">
           <span className="block text-[10px] font-bold text-indigo-900 uppercase">CTA Button & Link</span>
-
+          
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-[10px] font-semibold text-indigo-700 mb-0.5">Button Text</label>
@@ -6691,8 +6704,8 @@ export function FacebookWidgetInspector({
 }) {
   const mode = el.facebookMode || (
     el.type === "facebook-button" ? "button" :
-      el.type === "facebook-embed" ? "embed" :
-        el.type === "facebook-comments" ? "comments" : "page"
+    el.type === "facebook-embed" ? "embed" :
+    el.type === "facebook-comments" ? "comments" : "page"
   );
 
   return (
@@ -6708,32 +6721,36 @@ export function FacebookWidgetInspector({
           <button
             type="button"
             onClick={() => updateProp("facebookMode", "page")}
-            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${mode === "page" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${
+              mode === "page" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
+            }`}
           >
             📄 Page Feed
           </button>
           <button
             type="button"
             onClick={() => updateProp("facebookMode", "button")}
-            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${mode === "button" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${
+              mode === "button" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
+            }`}
           >
             👍 Like / Share
           </button>
           <button
             type="button"
             onClick={() => updateProp("facebookMode", "embed")}
-            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${mode === "embed" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${
+              mode === "embed" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
+            }`}
           >
             📌 Post Embed
           </button>
           <button
             type="button"
             onClick={() => updateProp("facebookMode", "comments")}
-            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${mode === "comments" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
-              }`}
+            className={`py-1.5 px-2 text-xs font-bold rounded-lg transition ${
+              mode === "comments" ? "bg-blue-600 text-white shadow" : "text-slate-600 hover:bg-slate-200"
+            }`}
           >
             💬 Comments
           </button>
@@ -7244,764 +7261,33 @@ export function WooCommerceWidgetInspector({
         />
       </div>
 
-      {/* Product Card Specific Layout & Component Toggles */}
-      {(el.type === "wc-product" || el.type === "woocommerce-product") && (
-        <>
-          <div className="rounded-xl border border-purple-200 bg-white p-3 space-y-3">
-            <h4 className="text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-              <span>📐</span> Product Layout Configuration
-            </h4>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Layout Direction</label>
-                <select
-                  value={el.productLayoutDirection || "vertical"}
-                  onChange={(e) => updateProp("productLayoutDirection", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-                >
-                  <option value="vertical">📱 Vertical Stack</option>
-                  <option value="horizontal">↔️ Horizontal Side-by-Side</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Image Position</label>
-                <select
-                  value={el.productImagePosition || "top"}
-                  onChange={(e) => updateProp("productImagePosition", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-                >
-                  <option value="top">⬆️ Top</option>
-                  <option value="left">⬅️ Left</option>
-                  <option value="right">➡️ Right</option>
-                  <option value="bottom">⬇️ Bottom</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Image Container Width</label>
-              <select
-                value={el.productImageWidth || "100%"}
-                onChange={(e) => updateProp("productImageWidth", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="100%">100% (Full Width)</option>
-                <option value="50%">50% (Half Width)</option>
-                <option value="40%">40% (Compact Side)</option>
-                <option value="33%">33% (One Third)</option>
-                <option value="25%">25% (Quarter)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-purple-200 bg-white p-3 space-y-2">
-            <h4 className="text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-              <span>👁️</span> Display Elements
-            </h4>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowTitle !== false}
-                  onChange={(e) => updateProp("productShowTitle", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Product Title
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowImage !== false}
-                  onChange={(e) => updateProp("productShowImage", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Product Image
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowPrice !== false}
-                  onChange={(e) => updateProp("productShowPrice", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Price & Discount
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowRating !== false}
-                  onChange={(e) => updateProp("productShowRating", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Star Rating
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowStock !== false}
-                  onChange={(e) => updateProp("productShowStock", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Stock Status
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowShortDesc !== false}
-                  onChange={(e) => updateProp("productShowShortDesc", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Short Description
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowAddToCart !== false}
-                  onChange={(e) => updateProp("productShowAddToCart", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Add to Cart
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                <input
-                  type="checkbox"
-                  checked={el.productShowBadge !== false}
-                  onChange={(e) => updateProp("productShowBadge", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                Sale Badge
-              </label>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Product Images Specific Gallery & Lightbox Configuration */}
-      {(el.type === "wc-product-images" || el.type === "woocommerce-product-images") && (
-        <div className="rounded-xl border border-purple-200 bg-white p-3 space-y-3">
-          <h4 className="text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🖼️</span> Gallery & Lightbox Configuration
-          </h4>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Layout Mode</label>
-              <select
-                value={el.galleryLayout || "thumbnails"}
-                onChange={(e) => updateProp("galleryLayout", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="thumbnails">🎞️ Thumbnails</option>
-                <option value="grid">🧱 Grid</option>
-                <option value="carousel">🎠 Slider / Carousel</option>
-                <option value="stacked">📜 Stacked</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Gallery Position</label>
-              <select
-                value={el.galleryPosition || "bottom"}
-                onChange={(e) => updateProp("galleryPosition", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="bottom">⬇️ Bottom</option>
-                <option value="top">⬆️ Top</option>
-                <option value="left">⬅️ Left</option>
-                <option value="right">➡️ Right</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Thumbnail Size</label>
-              <select
-                value={el.thumbnailSize || "sm"}
-                onChange={(e) => updateProp("thumbnailSize", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="xs">Extra Small (40px)</option>
-                <option value="sm">Small (56px)</option>
-                <option value="md">Medium (64px)</option>
-                <option value="lg">Large (80px)</option>
-              </select>
-            </div>
-
-            <div className="flex items-center pt-4">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold">
-                <input
-                  type="checkbox"
-                  checked={el.enableLightbox !== false}
-                  onChange={(e) => updateProp("enableLightbox", e.target.checked)}
-                  className="rounded text-purple-600 focus:ring-purple-500"
-                />
-                🔍 Enable Lightbox Modal
-              </label>
-            </div>
-          </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Price / Content</label>
+          <input
+            type="text"
+            value={el.wooPrice || "$199.99"}
+            onChange={(e) => {
+              updateProp("wooPrice", e.target.value);
+            }}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          />
         </div>
-      )}
-
-      {/* Product Price Specific Configuration */}
-      {(el.type === "wc-product-price" || el.type === "woocommerce-product-price") && (
-        <div className="rounded-xl border border-emerald-200 bg-white p-3 space-y-3">
-          <h4 className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🏷️</span> Price Display & Currency Settings
-          </h4>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Display Mode</label>
-              <select
-                value={el.priceDisplayMode || "auto"}
-                onChange={(e) => updateProp("priceDisplayMode", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="auto">✨ Auto (Sale + Reg)</option>
-                <option value="regular">Regular Only</option>
-                <option value="sale">Sale Only</option>
-                <option value="both">Both (Strike-through)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Alignment</label>
-              <select
-                value={el.priceAlignment || "left"}
-                onChange={(e) => updateProp("priceAlignment", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Currency Symbol</label>
-              <input
-                type="text"
-                value={el.priceCurrencySymbol ?? "$"}
-                onChange={(e) => updateProp("priceCurrencySymbol", e.target.value)}
-                placeholder="$, ₹, €, £"
-                className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Symbol Position</label>
-              <select
-                value={el.priceCurrencyPosition || "prefix"}
-                onChange={(e) => updateProp("priceCurrencyPosition", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="prefix">Prefix ($99)</option>
-                <option value="suffix">Suffix (99$)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-1 border-t border-slate-100">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold">
-              <input
-                type="checkbox"
-                checked={el.priceShowDiscountBadge !== false}
-                onChange={(e) => updateProp("priceShowDiscountBadge", e.target.checked)}
-                className="rounded text-purple-600 focus:ring-purple-500"
-              />
-              🔥 Show Discount Badge (-25%)
-            </label>
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold">
-              <input
-                type="checkbox"
-                checked={el.priceShowTaxNotice || false}
-                onChange={(e) => updateProp("priceShowTaxNotice", e.target.checked)}
-                className="rounded text-purple-600 focus:ring-purple-500"
-              />
-              🧾 Show Tax Notice Label
-            </label>
-
-            {el.priceShowTaxNotice && (
-              <div className="pl-6 pt-1">
-                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Tax Label Text</label>
-                <input
-                  type="text"
-                  value={el.priceTaxNoticeText || "incl. VAT"}
-                  onChange={(e) => updateProp("priceTaxNoticeText", e.target.value)}
-                  placeholder="e.g. incl. VAT, excl. tax"
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-            )}
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Rating</label>
+          <select
+            value={el.wooRating || 5}
+            onChange={(e) => updateProp("wooRating", parseInt(e.target.value, 10))}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium"
+          >
+            <option value={5}>5 Stars</option>
+            <option value={4}>4 Stars</option>
+            <option value={3}>3 Stars</option>
+            <option value={2}>2 Stars</option>
+            <option value={1}>1 Star</option>
+          </select>
         </div>
-      )}
-
-      {/* Add To Cart Specific Configuration */}
-      {(el.type === "wc-add-to-cart" || el.type === "woocommerce-add-to-cart") && (
-        <div className="rounded-xl border border-blue-200 bg-white p-3 space-y-3">
-          <h4 className="text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🛒</span> Add To Cart & Quantity Settings
-          </h4>
-
-          <div className="space-y-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Button Text (Idle)</label>
-              <input
-                type="text"
-                value={el.cartButtonText || el.content || "Add to Cart 🛒"}
-                onChange={(e) => {
-                  updateProp("cartButtonText", e.target.value);
-                  updateProp("content", e.target.value);
-                }}
-                className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Loading Text</label>
-                <input
-                  type="text"
-                  value={el.cartLoadingText || "Adding..."}
-                  onChange={(e) => updateProp("cartLoadingText", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Success Text</label>
-                <input
-                  type="text"
-                  value={el.cartSuccessText || "Added to Cart ✓"}
-                  onChange={(e) => updateProp("cartSuccessText", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Post-Add Action</label>
-              <select
-                value={el.cartPostAddAction || "stay"}
-                onChange={(e) => updateProp("cartPostAddAction", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="stay">Stay on Current Page</option>
-                <option value="open_cart">Open Cart Alert Notification</option>
-                <option value="redirect">Redirect to Cart Page</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold">
-              <input
-                type="checkbox"
-                checked={el.cartShowQuantity !== false}
-                onChange={(e) => updateProp("cartShowQuantity", e.target.checked)}
-                className="rounded text-blue-600 focus:ring-blue-500"
-              />
-              🔢 Show Quantity Stepper
-            </label>
-
-            {el.cartShowQuantity !== false && (
-              <div className="pl-4 space-y-2 pt-1">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">Quantity Layout</label>
-                    <select
-                      value={el.cartQuantityLayout || "inline"}
-                      onChange={(e) => updateProp("cartQuantityLayout", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs"
-                    >
-                      <option value="inline">Inline (Side by Side)</option>
-                      <option value="stacked">Stacked (Top to Bottom)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">Default Quantity</label>
-                    <input
-                      type="number"
-                      value={el.cartDefaultQuantity ?? 1}
-                      onChange={(e) => updateProp("cartDefaultQuantity", parseInt(e.target.value, 10) || 1)}
-                      min={1}
-                      className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">Min Quantity</label>
-                    <input
-                      type="number"
-                      value={el.cartMinQuantity ?? 1}
-                      onChange={(e) => updateProp("cartMinQuantity", parseInt(e.target.value, 10) || 1)}
-                      min={1}
-                      className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-600 mb-1">Max Quantity</label>
-                    <input
-                      type="number"
-                      value={el.cartMaxQuantity ?? 99}
-                      onChange={(e) => updateProp("cartMaxQuantity", parseInt(e.target.value, 10) || 99)}
-                      min={1}
-                      className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Product Rating Specific Configuration */}
-      {(el.type === "wc-product-rating" || el.type === "woocommerce-product-rating") && (
-        <div className="rounded-xl border border-amber-200 bg-white p-3 space-y-3">
-          <h4 className="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span>⭐</span> Product Rating & Review Settings
-          </h4>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Display Mode</label>
-              <select
-                value={el.ratingDisplayMode || "full"}
-                onChange={(e) => updateProp("ratingDisplayMode", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="full">Full (Stars + Val + Count)</option>
-                <option value="stars_value">Stars + Value</option>
-                <option value="stars_count">Stars + Review Count</option>
-                <option value="stars_only">Stars Only</option>
-                <option value="value_only">Value Only</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Star Size</label>
-              <select
-                value={el.ratingStarSize || "md"}
-                onChange={(e) => updateProp("ratingStarSize", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="sm">Small (14px)</option>
-                <option value="md">Medium (16px)</option>
-                <option value="lg">Large (20px)</option>
-                <option value="xl">Extra Large (24px)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Filled Star Color</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={el.ratingStarColor || "#eab308"}
-                  onChange={(e) => updateProp("ratingStarColor", e.target.value)}
-                  className="h-7 w-8 rounded border border-slate-300 p-0.5 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={el.ratingStarColor || "#eab308"}
-                  onChange={(e) => updateProp("ratingStarColor", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Empty Star Color</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={el.ratingEmptyStarColor || "#cbd5e1"}
-                  onChange={(e) => updateProp("ratingEmptyStarColor", e.target.value)}
-                  className="h-7 w-8 rounded border border-slate-300 p-0.5 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={el.ratingEmptyStarColor || "#cbd5e1"}
-                  onChange={(e) => updateProp("ratingEmptyStarColor", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Review Count Format</label>
-              <input
-                type="text"
-                value={el.ratingReviewFormat || "({count} customer reviews)"}
-                onChange={(e) => updateProp("ratingReviewFormat", e.target.value)}
-                placeholder="({count} reviews)"
-                className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-              />
-              <span className="text-[10px] text-slate-400">Use <code>{`{count}`}</code> for review number placeholder</span>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">No Reviews / Empty Behavior</label>
-              <select
-                value={el.ratingEmptyBehavior || "show_empty_stars"}
-                onChange={(e) => updateProp("ratingEmptyBehavior", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="show_empty_stars">Show Empty Stars (☆☆☆☆☆)</option>
-                <option value="hide">Hide Element Completely</option>
-                <option value="fallback_text">Show Fallback Text</option>
-              </select>
-            </div>
-
-            {el.ratingEmptyBehavior === "fallback_text" && (
-              <div className="pl-2 pt-1">
-                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Fallback Text</label>
-                <input
-                  type="text"
-                  value={el.ratingFallbackText || "No reviews yet"}
-                  onChange={(e) => updateProp("ratingFallbackText", e.target.value)}
-                  placeholder="e.g. Be the first to review"
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-            )}
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold pt-1">
-              <input
-                type="checkbox"
-                checked={el.ratingLinkToReviews || false}
-                onChange={(e) => updateProp("ratingLinkToReviews", e.target.checked)}
-                className="rounded text-amber-600 focus:ring-amber-500"
-              />
-              🔗 Link Review Count to Product Reviews
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* Product Meta Specific Configuration */}
-      {(el.type === "wc-product-meta" || el.type === "woocommerce-product-meta") && (
-        <div className="rounded-xl border border-slate-300 bg-white p-3 space-y-3">
-          <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <span>🏷️</span> Product Metadata Settings
-          </h4>
-
-          {/* Field Selection Toggles */}
-          <div>
-            <label className="block text-[10px] font-semibold text-slate-600 uppercase mb-1.5">Visible Metadata Fields</label>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowSku !== false}
-                  onChange={(e) => updateProp("metaShowSku", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                SKU Code
-              </label>
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowCategories !== false}
-                  onChange={(e) => updateProp("metaShowCategories", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                Categories
-              </label>
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowTags !== false}
-                  onChange={(e) => updateProp("metaShowTags", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                Tags
-              </label>
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowId === true}
-                  onChange={(e) => updateProp("metaShowId", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                Product ID
-              </label>
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowType === true}
-                  onChange={(e) => updateProp("metaShowType", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                Product Type
-              </label>
-              <label className="flex items-center gap-1.5 font-medium text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={el.metaShowBrand === true}
-                  onChange={(e) => updateProp("metaShowBrand", e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                Brand Name
-              </label>
-            </div>
-          </div>
-
-          {/* Layout & Separator */}
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">Display Layout</label>
-              <select
-                value={el.metaLayout || "vertical"}
-                onChange={(e) => updateProp("metaLayout", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium"
-              >
-                <option value="vertical">Vertical Stack</option>
-                <option value="horizontal">Horizontal Row</option>
-                <option value="grid">2-Column Grid</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-700 mb-1">List Separator</label>
-              <input
-                type="text"
-                value={el.metaSeparator || ", "}
-                onChange={(e) => updateProp("metaSeparator", e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Custom Labels */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <label className="block text-[10px] font-semibold text-slate-600 uppercase">Field Labels</label>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className="block text-[10px] text-slate-500 mb-0.5">SKU Label</label>
-                <input
-                  type="text"
-                  value={el.metaSkuLabel || "SKU:"}
-                  onChange={(e) => updateProp("metaSkuLabel", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] text-slate-500 mb-0.5">Category Label</label>
-                <input
-                  type="text"
-                  value={el.metaCategoriesLabel || "Category:"}
-                  onChange={(e) => updateProp("metaCategoriesLabel", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] text-slate-500 mb-0.5">Tags Label</label>
-                <input
-                  type="text"
-                  value={el.metaTagsLabel || "Tags:"}
-                  onChange={(e) => updateProp("metaTagsLabel", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Link & Fallback settings */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">SKU Fallback Text</label>
-                <input
-                  type="text"
-                  value={el.metaSkuFallback || "N/A"}
-                  onChange={(e) => updateProp("metaSkuFallback", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-2 py-1 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Empty Field Behavior</label>
-                <select
-                  value={el.metaEmptyBehavior || "fallback"}
-                  onChange={(e) => updateProp("metaEmptyBehavior", e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs"
-                >
-                  <option value="fallback">Show Fallback Text</option>
-                  <option value="hide">Hide Empty Row</option>
-                </select>
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-semibold pt-1">
-              <input
-                type="checkbox"
-                checked={el.metaLinkCategories !== false}
-                onChange={(e) => updateProp("metaLinkCategories", e.target.checked)}
-                className="rounded text-blue-600"
-              />
-              🔗 Make Categories & Tags Clickable Links
-            </label>
-          </div>
-
-          {/* Colors */}
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Label Color</label>
-              <input
-                type="color"
-                value={el.metaLabelColor || "#475569"}
-                onChange={(e) => updateProp("metaLabelColor", e.target.value)}
-                className="h-7 w-full rounded border border-slate-300 p-0.5 cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Value Color</label>
-              <input
-                type="color"
-                value={el.metaValueColor || "#0f172a"}
-                onChange={(e) => updateProp("metaValueColor", e.target.value)}
-                className="h-7 w-full rounded border border-slate-300 p-0.5 cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Link Color</label>
-              <input
-                type="color"
-                value={el.metaLinkColor || "#6366f1"}
-                onChange={(e) => updateProp("metaLinkColor", e.target.value)}
-                className="h-7 w-full rounded border border-slate-300 p-0.5 cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -8017,10 +7303,10 @@ export function AudioPlaylistInspector({
   const tracks = el.audioPlaylistTracks && el.audioPlaylistTracks.length > 0
     ? el.audioPlaylistTracks
     : [
-      { id: "tr-1", title: "01. Ambient Solar Echoes", artist: "ForgeStudio Soundscapes", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", duration: "06:12" },
-      { id: "tr-2", title: "02. Deep Focus Flow", artist: "Acoustic Frequency Labs", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", duration: "07:05" },
-      { id: "tr-3", title: "03. Midnight Synthesizer", artist: "Cybernetic Wave", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", duration: "05:48" }
-    ];
+        { id: "tr-1", title: "01. Ambient Solar Echoes", artist: "ForgeStudio Soundscapes", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", duration: "06:12" },
+        { id: "tr-2", title: "02. Deep Focus Flow", artist: "Acoustic Frequency Labs", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", duration: "07:05" },
+        { id: "tr-3", title: "03. Midnight Synthesizer", artist: "Cybernetic Wave", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", duration: "05:48" }
+      ];
 
   return (
     <div className="space-y-4">
@@ -8165,20 +7451,22 @@ export function PayPalWidgetInspector({
           <button
             type="button"
             onClick={() => updateProp("paypalEnv", "sandbox")}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${el.paypalEnv !== "live"
-              ? "bg-amber-600 text-white border-amber-600 shadow-xs"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-              }`}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${
+              el.paypalEnv !== "live"
+                ? "bg-amber-600 text-white border-amber-600 shadow-xs"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+            }`}
           >
             🟡 Sandbox (Test Mode)
           </button>
           <button
             type="button"
             onClick={() => updateProp("paypalEnv", "live")}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${el.paypalEnv === "live"
-              ? "bg-red-600 text-white border-red-600 shadow-xs"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-              }`}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${
+              el.paypalEnv === "live"
+                ? "bg-red-600 text-white border-red-600 shadow-xs"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+            }`}
           >
             🔴 Live (Production)
           </button>

@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: variable Export Import types. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { VariableType } from "./variables.types";
 
 export interface ExportedVariableItem {

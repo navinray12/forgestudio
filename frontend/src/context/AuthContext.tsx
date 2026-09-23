@@ -1,7 +1,3 @@
-/**
- * @file Auth Context: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import {
   createContext,
   useContext,
@@ -11,7 +7,7 @@ import {
 } from "react";
 
 const API_URL =
-  import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export type UserRole =
   | "USER"
@@ -51,21 +47,12 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-/**
- * Render the auth provider interface and connect its event handlers.
- * @param options Named inputs: children.
-
- * @param options.children Nested React content or document elements supplied by the parent.
- */
 export function AuthProvider({
   children,
 }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  /**
-   * Check Auth.
-   */
   const checkAuth = async () => {
     try {
       const response = await fetch(
@@ -98,9 +85,6 @@ export function AuthProvider({
     }
   };
 
-  /**
-   * Logout.
-   */
   const logout = async () => {
     try {
       await fetch(
@@ -118,9 +102,6 @@ export function AuthProvider({
   };
 
   useEffect(() => {
-    /**
-     * Initialize Auth.
-     */
     const initializeAuth = async () => {
       const params = new URLSearchParams(
         window.location.search
@@ -167,9 +148,6 @@ export function AuthProvider({
   );
 }
 
-/**
- * Coordinate auth state and lifecycle for the calling component.
- */
 export function useAuth() {
   const context = useContext(AuthContext);
 

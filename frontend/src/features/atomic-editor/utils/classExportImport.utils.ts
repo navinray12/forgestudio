@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: class Export Import utils. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { AtomicClass } from "../types/classes.types";
 import type {
   ExportedClassesPayload,
@@ -12,9 +8,6 @@ import { formatClassName } from "./class.utils";
 
 /**
  * Download classes as JSON file
-
- * @param classes Classes supplied to this operation (type: AtomicClass[]).
- * @param filename Filename supplied to this operation. Defaults to "forge-studio-classes.json".
  */
 export function exportClassesToJson(classes: AtomicClass[], filename = "forge-studio-classes.json"): void {
   const exportPayload: ExportedClassesPayload = {
@@ -46,8 +39,6 @@ export function exportClassesToJson(classes: AtomicClass[], filename = "forge-st
 
 /**
  * Parses and validates raw imported JSON string for classes
-
- * @param rawJson Raw Json supplied to this operation (type: string).
  */
 export function parseAndValidateClassesJson(rawJson: string): {
   isValid: boolean;
@@ -110,9 +101,6 @@ export function parseAndValidateClassesJson(rawJson: string): {
 
 /**
  * Detects collisions between imported classes and current library
-
- * @param importedItems Imported Items supplied to this operation (type: ExportedClassItem[]).
- * @param existingClasses Existing Classes supplied to this operation (type: AtomicClass[]).
  */
 export function detectClassConflicts(
   importedItems: ExportedClassItem[],

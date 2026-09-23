@@ -1,7 +1,3 @@
-/**
- * @file Plugin Manager: plugins module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 export interface PluginManifest {
     id: string;
     name: string;
@@ -61,9 +57,6 @@ export class PluginManagerCore {
 
     private static instance: PluginManagerCore;
 
-    /**
-     * Get Instance.
-     */
     public static getInstance(): PluginManagerCore {
         if (!PluginManagerCore.instance) {
             PluginManagerCore.instance = new PluginManagerCore();
@@ -71,18 +64,12 @@ export class PluginManagerCore {
         return PluginManagerCore.instance;
     }
 
-    /**
-     * Constructor.
-     */
     private constructor() {
         // Prevent uncontrolled instances
     }
 
     /**
      * Register a new plugin manifest and its lifecycle init callback.
-
-     * @param manifest Manifest supplied to this operation (type: PluginManifest).
-     * @param initPhase Init Phase supplied to this operation (type: (ctx: PluginExtensionContext) => void).
      */
     public registerPlugin(manifest: PluginManifest, initPhase: (ctx: PluginExtensionContext) => void) {
         if (this.plugins.has(manifest.id)) {
@@ -151,9 +138,6 @@ export class PluginManagerCore {
 
     /**
      * Generates bounds strictly mapping the architectural extensions dynamically preventing raw uncontrolled eval/window mappings.
-
-     * @param pluginId Plugin Id supplied to this operation (type: string).
-     * @param capabilities Capabilities supplied to this operation (type: PluginCapability[]).
      */
     private createPluginContext(pluginId: string, capabilities: PluginCapability[]): PluginExtensionContext {
         return {
@@ -200,24 +184,12 @@ export class PluginManagerCore {
     // Core Hook/Filter Engine Methods
     // ==========================================
 
-    /**
-     * Add Action.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param callback Callback supplied to this operation (type: Function).
-     * @param priority Priority supplied to this operation (type: number).
-     * @param pluginId Plugin Id supplied to this operation (type: string).
-     */
     private addAction(hook: string, callback: Function, priority: number, pluginId: string) {
         if (!this.actions.has(hook)) this.actions.set(hook, []);
         this.actions.get(hook)!.push({ callback, priority, pluginId });
         this.actions.get(hook)!.sort((a, b) => a.priority - b.priority); // Chronological Deterministic Priority
     }
 
-    /**
-     * Do Action.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param args Args supplied to this operation (type: any[]).
-     */
     public doAction(hook: string, ...args: any[]) {
         const hooks = this.actions.get(hook) || [];
         for (const h of hooks) {
@@ -229,25 +201,12 @@ export class PluginManagerCore {
         }
     }
 
-    /**
-     * Add Filter.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param callback Callback supplied to this operation (type: Function).
-     * @param priority Priority supplied to this operation (type: number).
-     * @param pluginId Plugin Id supplied to this operation (type: string).
-     */
     private addFilter(hook: string, callback: Function, priority: number, pluginId: string) {
         if (!this.filters.has(hook)) this.filters.set(hook, []);
         this.filters.get(hook)!.push({ callback, priority, pluginId });
         this.filters.get(hook)!.sort((a, b) => a.priority - b.priority);
     }
 
-    /**
-     * Apply Filters.
-     * @param hook Hook supplied to this operation (type: string).
-     * @param initialValue Initial Value supplied to this operation (type: T).
-     * @param args Args supplied to this operation (type: any[]).
-     */
     public applyFilters<T>(hook: string, initialValue: T, ...args: any[]): T {
         const hooks = this.filters.get(hook) || [];
         let value = initialValue;
@@ -265,9 +224,6 @@ export class PluginManagerCore {
     // Registry Exports
     // ==========================================
 
-    /**
-     * Get Registered Elements.
-     */
     public getRegisteredElements() {
         return this.registeredElements;
     }

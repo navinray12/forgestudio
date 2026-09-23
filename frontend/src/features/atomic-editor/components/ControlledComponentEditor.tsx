@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Controlled Component Editor. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 import { useControlledComponent } from "../hooks/useControlledComponent";
@@ -12,14 +8,6 @@ interface ControlledComponentEditorProps {
   onBack?: () => void;
 }
 
-/**
- * Render the controlled component editor interface and connect its event handlers.
- * @param options Named inputs: component, instanceId, onBack.
-
- * @param options.component Component passed by the caller.
- * @param options.instanceId Instance Id passed by the caller. Defaults to "instance-demo-1".
- * @param options.onBack Callback for back events.
- */
 export const ControlledComponentEditor: React.FC<ControlledComponentEditorProps> = ({
   component,
   instanceId = "instance-demo-1",

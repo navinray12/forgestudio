@@ -1,13 +1,6 @@
-/**
- * @file Seed: backend/prisma module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import "dotenv/config";
-import { prisma } from "../src/platform/database/prisma.js";
+import { prisma } from "../src/config/prisma.js";
 
-/**
- * Main.
- */
 async function main() {
   console.log("Seeding subscription plans...");
 
@@ -157,13 +150,9 @@ async function main() {
       console.log(`Plan seeded (raw): ${planData.name} (${planData.slug}) - ₹${planData.price}/mo`);
     }
   }
+
   console.log("Subscription plans seeding completed successfully.");
-
-  console.log("\nSeeding 10 Curated Website Template Packs...");
-  const { seedTemplatePacks } = await import("../src/scripts/seed-templates/template-seeder.service.js");
-  await seedTemplatePacks();
 }
-
 
 main()
   .catch((e) => {

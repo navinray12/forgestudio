@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Monitor, Smartphone, Tablet, Undo, Redo, Save, Eye, Settings, Plus, Trash2, Copy,
   ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid,
@@ -18,7 +18,6 @@ import {
   OffCanvasBoxIcon,
   IconRenderer
 } from "./icons";
-import { WooCommerceService } from "../services/WooCommerceService";
 
 // ==========================================
 // Types & Interfaces
@@ -152,8 +151,9 @@ export const SlidesWidgetRenderer = ({
         return (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-all duration-700 ease-in-out ${isActive ? "opacity-100 z-10 translate-x-0 pointer-events-auto" : transition === "fade" ? "opacity-0 z-0 pointer-events-none" : "opacity-0 z-0 translate-x-8 pointer-events-none"
-              }`}
+            className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+              isActive ? "opacity-100 z-10 translate-x-0 pointer-events-auto" : transition === "fade" ? "opacity-0 z-0 pointer-events-none" : "opacity-0 z-0 translate-x-8 pointer-events-none"
+            }`}
             style={{
               backgroundImage: slide.bgImage ? `url(${slide.bgImage})` : undefined,
               backgroundSize: "cover",
@@ -243,8 +243,9 @@ export const SlidesWidgetRenderer = ({
               type="button"
               onClick={(e) => handleDotClick(idx, e)}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${idx === validIndex ? "w-7 bg-white" : "w-2.5 bg-white/40 hover:bg-white/80"
-                }`}
+              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                idx === validIndex ? "w-7 bg-white" : "w-2.5 bg-white/40 hover:bg-white/80"
+              }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -513,19 +514,13 @@ export const FormWidgetRenderer = ({
                   key={step.id}
                   type="button"
                   onClick={() => setCurrentStepIndex(sIdx)}
-                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${isCurrent
-<<<<<<< HEAD
+                  className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+                    isCurrent
                       ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md scale-110"
                       : isPast
-                        ? "bg-emerald-500 text-white"
-                        : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-=======
-                    ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md scale-110"
-                    : isPast
                       ? "bg-emerald-500 text-white"
                       : "bg-slate-200 text-slate-600 hover:bg-slate-300"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                    }`}
+                  }`}
                 >
                   {isPast ? "✓" : sIdx + 1}
                 </button>
@@ -723,8 +718,9 @@ export const FormWidgetRenderer = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${btnFullWidth ? "w-full" : "w-auto"
-                }`}
+              className={`group inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-3.5 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                btnFullWidth ? "w-full" : "w-auto"
+              }`}
               style={{
                 backgroundColor: btnBg,
                 color: btnColor,
@@ -1079,45 +1075,17 @@ export function resolveForgeLink(
   if (!targetPage && raw && pages.length > 0) {
     const withoutHash = raw.split("#")[0];
     const pathOnly = withoutHash.split("?")[0];
-    const clean = pathOnly.replace(/^\//, "").trim().toLowerCase();
+    const clean = pathOnly.replace(/^\//, "").trim();
 
-    // 1. Direct slug, id, or name match
     targetPage = pages.find(
       (p) =>
         p.slug === pathOnly ||
         p.slug === `/${clean}` ||
-        p.slug.replace(/^\//, "").toLowerCase() === clean ||
-        p.id.toLowerCase() === clean ||
-        p.name.toLowerCase() === clean ||
+        p.slug.replace(/^\//, "") === clean ||
+        p.id === clean ||
+        p.name.toLowerCase() === clean.toLowerCase() ||
         (clean === "" && (p.isHome || p.id === homePageId || p.id === "home"))
     );
-
-    // 2. Element widget type match (e.g. cart, checkout, shop, product, etc.)
-    if (!targetPage && clean) {
-      targetPage = pages.find((p) =>
-        p.elements?.some(
-          (e) =>
-            e.type === clean ||
-            e.type === `wc-${clean}` ||
-            e.type === `woocommerce-${clean}`
-        )
-      );
-    }
-
-    // 3. Keyword / partial slug match
-    if (!targetPage && clean) {
-      targetPage = pages.find(
-        (p) =>
-          p.slug.toLowerCase().includes(clean) ||
-          p.name.toLowerCase().includes(clean) ||
-          clean.includes(p.slug.replace(/^\//, "").toLowerCase())
-      );
-    }
-
-    // 4. Default home page fallback if clean target exists but doesn't match an explicit external URL
-    if (!targetPage && (clean || pageId)) {
-      targetPage = pages.find((p) => p.isHome || p.id === homePageId || p.id === "home") || pages[0];
-    }
   }
 
   if (targetPage) {
@@ -1359,15 +1327,12 @@ export const NavMenuWidgetRenderer = ({
     const hasSubmenu = (item.dropdownEnabled ?? true) && item.submenu && item.submenu.length > 0;
     const triggerMode = item.trigger || globalTrigger;
 
-    const isExternal = /^https?:\/\//i.test(displayUrl) || /^mailto:/i.test(displayUrl) || /^tel:/i.test(displayUrl);
-    if (!isExternal) {
-      e.preventDefault();
-    }
-
     if (!isPreview) {
+      e.preventDefault();
       e.stopPropagation();
     } else {
       if (targetPage && onNavigatePage) {
+        e.preventDefault();
         onNavigatePage(targetPage.id);
         const hashMatch = displayUrl.match(/#([^?&]+)/);
         if (hashMatch) {
@@ -1379,6 +1344,7 @@ export const NavMenuWidgetRenderer = ({
       } else if (displayUrl.startsWith("#") && displayUrl.length > 1) {
         const targetEl = document.querySelector(displayUrl);
         if (targetEl) {
+          e.preventDefault();
           targetEl.scrollIntoView({ behavior: "smooth" });
         }
       }
@@ -1462,8 +1428,9 @@ export const NavMenuWidgetRenderer = ({
                 target={item.target || "_self"}
                 rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
                 onClick={(e) => handleLinkClick(e, item)}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none ${isOrphaned ? "border border-amber-300 bg-amber-50 text-amber-800" : ""
-                  }`}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 transition-all duration-200 cursor-pointer select-none ${
+                  isOrphaned ? "border border-amber-300 bg-amber-50 text-amber-800" : ""
+                }`}
                 style={{
                   backgroundColor: isOrphaned ? undefined : currentBg,
                   color: isOrphaned ? undefined : currentColor,
@@ -1496,23 +1463,17 @@ export const NavMenuWidgetRenderer = ({
               {/* Submenu Dropdown */}
               {hasSubmenu && isOpen && (
                 <div
-                  className={`z-50 min-w-[220px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${isVertical || mobileMenuOpen
-<<<<<<< HEAD
+                  className={`z-50 min-w-[220px] rounded-2xl border border-slate-100 p-2 shadow-xl backdrop-blur-md transition-all duration-200 ${
+                    isVertical || mobileMenuOpen
                       ? "static mt-1 ml-4"
                       : alignment === "right" || alignment === "flex-end"
-                        ? "absolute right-0 top-full mt-1.5 animate-fadeIn"
-                        : "absolute left-0 top-full mt-1.5 animate-fadeIn"
-=======
-                    ? "static mt-1 ml-4"
-                    : alignment === "right" || alignment === "flex-end"
                       ? "absolute right-0 top-full mt-1.5 animate-fadeIn"
                       : "absolute left-0 top-full mt-1.5 animate-fadeIn"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                    }`}
+                  }`}
                   style={{ backgroundColor: submenuBg }}
                 >
                   <div className="flex flex-col gap-1">
-                    {(item.submenu || []).map((subItem) => {
+                    {item.submenu!.map((subItem) => {
                       const subRes = resolveItem(subItem);
                       return (
                         <a
@@ -1542,8 +1503,9 @@ export const NavMenuWidgetRenderer = ({
                               }
                             }
                           }}
-                          className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${subItem.isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-slate-100/80"
-                            } ${subRes.isOrphaned ? "bg-amber-50 text-amber-800" : ""}`}
+                          className={`group/sub flex items-center justify-between rounded-xl p-2.5 transition duration-150 cursor-pointer ${
+                            subItem.isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-slate-100/80"
+                          } ${subRes.isOrphaned ? "bg-amber-50 text-amber-800" : ""}`}
                           style={{
                             color: subRes.isOrphaned ? undefined : submenuTextColor,
                             fontFamily: mergedStyles?.fontFamily,
@@ -1734,71 +1696,71 @@ export const PriceTableWidgetRenderer = ({
   const plans = el.pricingPlans && el.pricingPlans.length > 0
     ? el.pricingPlans
     : [
-      {
-        id: "1",
-        name: "Starter",
-        price: "19",
-        currency: "$",
-        period: "/ month",
-        description: "Essential tools for personal projects & freelancers.",
-        isPopular: false,
-        isRecommended: false,
-        showBadge: false,
-        buttonText: "Start Free Trial",
-        buttonUrl: "#",
-        buttonAlignment: "full",
-        features: [
-          { id: "f1", text: "5 Projects included", included: true },
-          { id: "f2", text: "10GB SSD Storage", included: true },
-          { id: "f3", text: "Basic Analytics", included: true },
-          { id: "f4", text: "Custom Domain", included: false },
-          { id: "f5", text: "24/7 Dedicated Support", included: false },
-        ],
-      },
-      {
-        id: "2",
-        name: "Professional",
-        price: "49",
-        currency: "$",
-        period: "/ month",
-        description: "Best for growing teams & expanding SaaS startups.",
-        isPopular: true,
-        isRecommended: true,
-        badgeText: "MOST POPULAR",
-        showBadge: true,
-        buttonText: "Get Pro Now",
-        buttonUrl: "#",
-        buttonAlignment: "full",
-        features: [
-          { id: "f1", text: "Unlimited Projects", included: true },
-          { id: "f2", text: "100GB SSD Storage", included: true },
-          { id: "f3", text: "Advanced Analytics & Reports", included: true },
-          { id: "f4", text: "Custom Domain & SSL", included: true },
-          { id: "f5", text: "Priority Support", included: true },
-        ],
-      },
-      {
-        id: "3",
-        name: "Enterprise",
-        price: "99",
-        currency: "$",
-        period: "/ month",
-        description: "Advanced security, custom SLA, and dedicated scale.",
-        isPopular: false,
-        isRecommended: false,
-        showBadge: false,
-        buttonText: "Contact Sales",
-        buttonUrl: "#",
-        buttonAlignment: "full",
-        features: [
-          { id: "f1", text: "Unlimited Everything", included: true },
-          { id: "f2", text: "1TB High Speed Storage", included: true },
-          { id: "f3", text: "Custom Analytics & Export", included: true },
-          { id: "f4", text: "Multi-Region Cloud Hosting", included: true },
-          { id: "f5", text: "24/7 Dedicated Account Manager", included: true },
-        ],
-      },
-    ];
+        {
+          id: "1",
+          name: "Starter",
+          price: "19",
+          currency: "$",
+          period: "/ month",
+          description: "Essential tools for personal projects & freelancers.",
+          isPopular: false,
+          isRecommended: false,
+          showBadge: false,
+          buttonText: "Start Free Trial",
+          buttonUrl: "#",
+          buttonAlignment: "full",
+          features: [
+            { id: "f1", text: "5 Projects included", included: true },
+            { id: "f2", text: "10GB SSD Storage", included: true },
+            { id: "f3", text: "Basic Analytics", included: true },
+            { id: "f4", text: "Custom Domain", included: false },
+            { id: "f5", text: "24/7 Dedicated Support", included: false },
+          ],
+        },
+        {
+          id: "2",
+          name: "Professional",
+          price: "49",
+          currency: "$",
+          period: "/ month",
+          description: "Best for growing teams & expanding SaaS startups.",
+          isPopular: true,
+          isRecommended: true,
+          badgeText: "MOST POPULAR",
+          showBadge: true,
+          buttonText: "Get Pro Now",
+          buttonUrl: "#",
+          buttonAlignment: "full",
+          features: [
+            { id: "f1", text: "Unlimited Projects", included: true },
+            { id: "f2", text: "100GB SSD Storage", included: true },
+            { id: "f3", text: "Advanced Analytics & Reports", included: true },
+            { id: "f4", text: "Custom Domain & SSL", included: true },
+            { id: "f5", text: "Priority Support", included: true },
+          ],
+        },
+        {
+          id: "3",
+          name: "Enterprise",
+          price: "99",
+          currency: "$",
+          period: "/ month",
+          description: "Advanced security, custom SLA, and dedicated scale.",
+          isPopular: false,
+          isRecommended: false,
+          showBadge: false,
+          buttonText: "Contact Sales",
+          buttonUrl: "#",
+          buttonAlignment: "full",
+          features: [
+            { id: "f1", text: "Unlimited Everything", included: true },
+            { id: "f2", text: "1TB High Speed Storage", included: true },
+            { id: "f3", text: "Custom Analytics & Export", included: true },
+            { id: "f4", text: "Multi-Region Cloud Hosting", included: true },
+            { id: "f5", text: "24/7 Dedicated Account Manager", included: true },
+          ],
+        },
+      ];
 
   const cols = el.pricingColumns || 3;
   const gap = el.pricingGap ?? 24;
@@ -1848,15 +1810,11 @@ export const PriceTableWidgetRenderer = ({
         return (
           <div
             key={plan.id}
-            className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${isHighlight
-<<<<<<< HEAD
+            className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${
+              isHighlight
                 ? "shadow-2xl ring-2 scale-[1.02] z-10"
                 : "shadow-md hover:shadow-lg border"
-=======
-              ? "shadow-2xl ring-2 scale-[1.02] z-10"
-              : "shadow-md hover:shadow-lg border"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-              }`}
+            }`}
             style={{
               backgroundColor: effectiveCardBg,
               borderColor: effectiveCardBorder,
@@ -1936,15 +1894,11 @@ export const PriceTableWidgetRenderer = ({
                 onClick={(e) => {
                   if (!isPreview) e.preventDefault();
                 }}
-                className={`rounded-xl py-3 px-5 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow active:scale-[0.98] ${plan.buttonAlignment === "left" || plan.buttonAlignment === "center" || plan.buttonAlignment === "right"
-<<<<<<< HEAD
+                className={`rounded-xl py-3 px-5 text-center text-xs font-bold transition-all duration-200 cursor-pointer block select-none shadow-sm hover:shadow active:scale-[0.98] ${
+                  plan.buttonAlignment === "left" || plan.buttonAlignment === "center" || plan.buttonAlignment === "right"
                     ? "w-auto min-w-[140px]"
                     : "w-full"
-=======
-                  ? "w-auto min-w-[140px]"
-                  : "w-full"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                  }`}
+                }`}
                 style={{
                   backgroundColor: isHighlight ? highlightColor : btnBg,
                   color: btnColor,
@@ -1978,39 +1932,39 @@ export const PriceListWidgetRenderer = ({
   const items = el.priceListItems && el.priceListItems.length > 0
     ? el.priceListItems
     : [
-      {
-        id: "1",
-        name: "Signature Espresso Blend",
-        price: "$4.50",
-        description: "Freshly roasted double shot arabica blend with velvety microfoam.",
-        imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150&auto=format&fit=crop&q=80",
-        icon: "☕",
-      },
-      {
-        id: "2",
-        name: "Haircut & Precision Styling",
-        price: "$35.00",
-        description: "Precision scissor cut, wash, scalp massage, and hot towel finish.",
-        imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150&auto=format&fit=crop&q=80",
-        icon: "✂️",
-      },
-      {
-        id: "3",
-        name: "Web Design & UX Sprint",
-        price: "$499.00",
-        description: "Custom responsive website design with SEO optimization & CMS integration.",
-        imageUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=150&auto=format&fit=crop&q=80",
-        icon: "💻",
-      },
-      {
-        id: "4",
-        name: "Organic Facial Treatment",
-        price: "$85.00",
-        description: "Deep cleansing facial treatment with organic botanicals & anti-aging serum.",
-        imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=150&auto=format&fit=crop&q=80",
-        icon: "🌿",
-      },
-    ];
+        {
+          id: "1",
+          name: "Signature Espresso Blend",
+          price: "$4.50",
+          description: "Freshly roasted double shot arabica blend with velvety microfoam.",
+          imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150&auto=format&fit=crop&q=80",
+          icon: "☕",
+        },
+        {
+          id: "2",
+          name: "Haircut & Precision Styling",
+          price: "$35.00",
+          description: "Precision scissor cut, wash, scalp massage, and hot towel finish.",
+          imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150&auto=format&fit=crop&q=80",
+          icon: "✂️",
+        },
+        {
+          id: "3",
+          name: "Web Design & UX Sprint",
+          price: "$499.00",
+          description: "Custom responsive website design with SEO optimization & CMS integration.",
+          imageUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=150&auto=format&fit=crop&q=80",
+          icon: "💻",
+        },
+        {
+          id: "4",
+          name: "Organic Facial Treatment",
+          price: "$85.00",
+          description: "Deep cleansing facial treatment with organic botanicals & anti-aging serum.",
+          imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=150&auto=format&fit=crop&q=80",
+          icon: "🌿",
+        },
+      ];
 
   const gap = el.priceListGap ?? 20;
   const showImages = el.priceListShowImages !== false;
@@ -2132,43 +2086,43 @@ export const GalleryWidgetRenderer = ({
   const images = el.galleryImages && el.galleryImages.length > 0
     ? el.galleryImages
     : [
-      {
-        id: "1",
-        url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
-        caption: "Modern Minimalist Architecture",
-        altText: "Modern Architecture",
-      },
-      {
-        id: "2",
-        url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80",
-        caption: "Scandinavian Living Space",
-        altText: "Interior Living Room",
-      },
-      {
-        id: "3",
-        url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
-        caption: "Bright Collaborative Workspace",
-        altText: "Office Workspace",
-      },
-      {
-        id: "4",
-        url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80",
-        caption: "Glass Highrise Skyscraper",
-        altText: "City Skyscraper",
-      },
-      {
-        id: "5",
-        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
-        caption: "Serene Alpine Lake Reflection",
-        altText: "Alpine Nature Landscape",
-      },
-      {
-        id: "6",
-        url: "https://images.unsplash.com/photo-1545241047-6083a3684587?w=600&auto=format&fit=crop&q=80",
-        caption: "Botanical Plant Oasis",
-        altText: "Green Botanical Decor",
-      },
-    ];
+        {
+          id: "1",
+          url: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
+          caption: "Modern Minimalist Architecture",
+          altText: "Modern Architecture",
+        },
+        {
+          id: "2",
+          url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80",
+          caption: "Scandinavian Living Space",
+          altText: "Interior Living Room",
+        },
+        {
+          id: "3",
+          url: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
+          caption: "Bright Collaborative Workspace",
+          altText: "Office Workspace",
+        },
+        {
+          id: "4",
+          url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80",
+          caption: "Glass Highrise Skyscraper",
+          altText: "City Skyscraper",
+        },
+        {
+          id: "5",
+          url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80",
+          caption: "Serene Alpine Lake Reflection",
+          altText: "Alpine Nature Landscape",
+        },
+        {
+          id: "6",
+          url: "https://images.unsplash.com/photo-1545241047-6083a3684587?w=600&auto=format&fit=crop&q=80",
+          caption: "Botanical Plant Oasis",
+          altText: "Green Botanical Decor",
+        },
+      ];
 
   const cols = el.galleryColumns || 3;
   const gap = el.galleryGap ?? 16;
@@ -2463,19 +2417,18 @@ export const CtaWidgetRenderer = ({
   const textColor = el.ctaTextColor || "#ffffff";
 
   const handleBtnClick = (e: React.MouseEvent, url: string) => {
-    const isExternal = /^https?:\/\//i.test(url) || /^mailto:/i.test(url) || /^tel:/i.test(url);
-    if (!isExternal) {
-      e.preventDefault();
-    }
     if (!isPreview) {
+      e.preventDefault();
       return;
     }
     const { targetPage } = resolveForgeLink(url, undefined, "url", { pages });
     if (targetPage && onNavigatePage) {
+      e.preventDefault();
       onNavigatePage(targetPage.id);
     } else if (url.startsWith("#") && url.length > 1) {
       const targetEl = document.querySelector(url);
       if (targetEl) {
+        e.preventDefault();
         targetEl.scrollIntoView({ behavior: "smooth" });
       }
     }
@@ -2825,8 +2778,9 @@ export const MediaCarouselWidgetRenderer = ({
                 return (
                   <div
                     key={item.id}
-                    className={`w-full transition-all duration-500 ${isSelected ? "relative opacity-100 z-10" : "absolute inset-0 opacity-0 z-0 pointer-events-none"
-                      }`}
+                    className={`w-full transition-all duration-500 ${
+                      isSelected ? "relative opacity-100 z-10" : "absolute inset-0 opacity-0 z-0 pointer-events-none"
+                    }`}
                     onClick={(e) => {
                       if (draggedFar) {
                         e.stopPropagation();
@@ -2963,8 +2917,9 @@ export const MediaCarouselWidgetRenderer = ({
                 handlePrev();
               }}
               disabled={!loop && currentIndex === 0}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-                }`}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+                !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
               title="Previous Slide"
             >
               <span className="text-base font-bold">‹</span>
@@ -2976,8 +2931,9 @@ export const MediaCarouselWidgetRenderer = ({
                 handleNext();
               }}
               disabled={!loop && currentIndex >= maxIndex}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-                }`}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+                !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+              }`}
               title="Next Slide"
             >
               <span className="text-base font-bold">›</span>
@@ -2996,8 +2952,9 @@ export const MediaCarouselWidgetRenderer = ({
                   e.stopPropagation();
                   setCurrentIndex(idx);
                 }}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-cyan-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-                  }`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  currentIndex === idx ? "w-6 bg-cyan-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
                 title={`Go to slide ${idx + 1}`}
               />
             ))}
@@ -3075,31 +3032,31 @@ export const TestimonialCarouselWidgetRenderer = ({
   const items: TestimonialItem[] = el.testimonialItems && el.testimonialItems.length > 0
     ? el.testimonialItems
     : [
-      {
-        id: "1",
-        quote: "ForgeStudio transformed how we launch client sites. What used to take weeks now takes hours with incredible quality!",
-        name: "Sarah Jenkins",
-        role: "VP of Product, TechScale Inc.",
-        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-        rating: 5,
-      },
-      {
-        id: "2",
-        quote: "The visual editor and element customization options are second to none. Our conversion rates increased by 42%.",
-        name: "Marcus Vance",
-        role: "Founder & CEO, GrowthFlow",
-        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        rating: 5,
-      },
-      {
-        id: "3",
-        quote: "Extremely intuitive UI, lightning-fast rendering, and fantastic pre-built components. A absolute game changer!",
-        name: "Elena Rostova",
-        role: "Head of Design, Studio Craft",
-        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        rating: 5,
-      },
-    ];
+        {
+          id: "1",
+          quote: "ForgeStudio transformed how we launch client sites. What used to take weeks now takes hours with incredible quality!",
+          name: "Sarah Jenkins",
+          role: "VP of Product, TechScale Inc.",
+          avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+          rating: 5,
+        },
+        {
+          id: "2",
+          quote: "The visual editor and element customization options are second to none. Our conversion rates increased by 42%.",
+          name: "Marcus Vance",
+          role: "Founder & CEO, GrowthFlow",
+          avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          rating: 5,
+        },
+        {
+          id: "3",
+          quote: "Extremely intuitive UI, lightning-fast rendering, and fantastic pre-built components. A absolute game changer!",
+          name: "Elena Rostova",
+          role: "Head of Design, Studio Craft",
+          avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+          rating: 5,
+        },
+      ];
 
   const rawSlidesPerView = el.testimonialSlidesPerView || 2;
   const gap = el.testimonialGap ?? 20;
@@ -3300,8 +3257,9 @@ export const TestimonialCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Previous Testimonial"
           >
             <span className="text-base font-bold">‹</span>
@@ -3313,8 +3271,9 @@ export const TestimonialCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Next Testimonial"
           >
             <span className="text-base font-bold">›</span>
@@ -3333,8 +3292,9 @@ export const TestimonialCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-emerald-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                currentIndex === idx ? "w-6 bg-emerald-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+              }`}
               title={`Go to testimonial ${idx + 1}`}
             />
           ))}
@@ -3496,8 +3456,9 @@ export const NestedCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Previous Slide"
           >
             <span className="text-base font-bold">‹</span>
@@ -3509,8 +3470,9 @@ export const NestedCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-indigo-900/80 hover:bg-indigo-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Next Slide"
           >
             <span className="text-base font-bold">›</span>
@@ -3529,8 +3491,9 @@ export const NestedCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-indigo-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                currentIndex === idx ? "w-6 bg-indigo-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+              }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -3675,8 +3638,9 @@ export const LoopCarouselWidgetRenderer = ({
           {items.map((item, idx) => (
             <div
               key={item.id}
-              className={`absolute inset-0 transition-opacity duration-700 ease-in-out flex flex-col justify-between p-6 shadow-md border border-slate-100 ${currentIndex === idx ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                }`}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out flex flex-col justify-between p-6 shadow-md border border-slate-100 ${
+                currentIndex === idx ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+              }`}
               style={{
                 backgroundColor: cardBg,
                 borderRadius,
@@ -3838,8 +3802,9 @@ export const LoopCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Previous Item"
           >
             <span className="text-base font-bold">‹</span>
@@ -3851,8 +3816,9 @@ export const LoopCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
-              }`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-purple-900/80 hover:bg-purple-900 text-white flex items-center justify-center backdrop-blur shadow-lg transition-all z-20 cursor-pointer ${
+              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110"
+            }`}
             title="Next Item"
           >
             <span className="text-base font-bold">›</span>
@@ -3871,8 +3837,9 @@ export const LoopCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-purple-600" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                currentIndex === idx ? "w-6 bg-purple-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+              }`}
               title={`Go to slide ${idx + 1}`}
             />
           ))}
@@ -4060,15 +4027,11 @@ export const TocWidgetRenderer = ({
                     key={heading.id}
                     type="button"
                     onClick={() => handleHeadingClick(heading.id)}
-                    className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150 text-left cursor-pointer ${isActive
-<<<<<<< HEAD
+                    className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs transition-all duration-150 text-left cursor-pointer ${
+                      isActive
                         ? "font-bold shadow-2xs"
                         : "font-normal hover:bg-slate-100/70"
-=======
-                      ? "font-bold shadow-2xs"
-                      : "font-normal hover:bg-slate-100/70"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                      }`}
+                    }`}
                     style={{
                       marginLeft: `${indent}px`,
                       color: isActive ? hoverColor : textColor,
@@ -4087,16 +4050,18 @@ export const TocWidgetRenderer = ({
                     {/* Marker Styles */}
                     {markerStyle === "bullet" && (
                       <span
-                        className={`h-1.5 w-1.5 rounded-full shrink-0 transition-transform ${isActive ? "scale-125" : "group-hover:scale-110 opacity-60"
-                          }`}
+                        className={`h-1.5 w-1.5 rounded-full shrink-0 transition-transform ${
+                          isActive ? "scale-125" : "group-hover:scale-110 opacity-60"
+                        }`}
                         style={{ backgroundColor: isActive ? hoverColor : textColor }}
                       />
                     )}
 
                     {markerStyle === "number" && (
                       <span
-                        className={`font-mono text-[10px] font-bold shrink-0 px-1 py-0.5 rounded ${isActive ? "bg-blue-600 text-white" : "opacity-60 bg-slate-100"
-                          }`}
+                        className={`font-mono text-[10px] font-bold shrink-0 px-1 py-0.5 rounded ${
+                          isActive ? "bg-blue-600 text-white" : "opacity-60 bg-slate-100"
+                        }`}
                       >
                         {index + 1}
                       </span>
@@ -4104,8 +4069,9 @@ export const TocWidgetRenderer = ({
 
                     {markerStyle === "line" && (
                       <span
-                        className={`h-0.5 shrink-0 transition-all ${isActive ? "w-4" : "w-2.5 opacity-40 group-hover:w-3.5 group-hover:opacity-100"
-                          }`}
+                        className={`h-0.5 shrink-0 transition-all ${
+                          isActive ? "w-4" : "w-2.5 opacity-40 group-hover:w-3.5 group-hover:opacity-100"
+                        }`}
                         style={{ backgroundColor: hoverColor }}
                       />
                     )}
@@ -4280,8 +4246,8 @@ export const FacebookPageWidgetRenderer = ({
 }) => {
   const mode = el.facebookMode || (
     el.type === "facebook-button" ? "button" :
-      el.type === "facebook-embed" ? "embed" :
-        el.type === "facebook-comments" ? "comments" : "page"
+    el.type === "facebook-embed" ? "embed" :
+    el.type === "facebook-comments" ? "comments" : "page"
   );
 
   const alignment = el.facebookAlignment || el.fbButtonAlignment || "center";
@@ -4407,8 +4373,8 @@ export const FacebookPageWidgetRenderer = ({
 
   const isValidUrl = Boolean(
     url &&
-    (url.startsWith("http://") || url.startsWith("https://")) &&
-    (url.includes("facebook.com") || url.includes("fb.com"))
+      (url.startsWith("http://") || url.startsWith("https://")) &&
+      (url.includes("facebook.com") || url.includes("fb.com"))
   );
 
   if (!isValidUrl) {
@@ -4727,15 +4693,15 @@ export const ReviewsWidgetRenderer = ({
 
   const gridColsStyle = isGrid
     ? {
-      gridTemplateColumns:
-        columns === 1
-          ? "repeat(1, minmax(0, 1fr))"
-          : columns === 2
+        gridTemplateColumns:
+          columns === 1
+            ? "repeat(1, minmax(0, 1fr))"
+            : columns === 2
             ? "repeat(auto-fit, minmax(280px, 1fr))"
             : columns === 4
-              ? "repeat(auto-fit, minmax(220px, 1fr))"
-              : "repeat(auto-fit, minmax(260px, 1fr))",
-    }
+            ? "repeat(auto-fit, minmax(220px, 1fr))"
+            : "repeat(auto-fit, minmax(260px, 1fr))",
+      }
     : { gridTemplateColumns: "1fr" };
 
   const handleManualAddReview = (e: React.FormEvent) => {
@@ -4885,16 +4851,18 @@ export const ReviewsWidgetRenderer = ({
                 <button
                   type="button"
                   onClick={() => setAvatarInputType("url")}
-                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${avatarInputType === "url" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
-                    }`}
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${
+                    avatarInputType === "url" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
+                  }`}
                 >
                   1. Image URL
                 </button>
                 <button
                   type="button"
                   onClick={() => setAvatarInputType("file")}
-                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${avatarInputType === "file" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
-                    }`}
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${
+                    avatarInputType === "file" ? "bg-white text-amber-900 shadow-2xs" : "text-amber-700 hover:text-amber-900"
+                  }`}
                 >
                   2. 📁 Upload File
                 </button>
@@ -4980,8 +4948,9 @@ export const ReviewsWidgetRenderer = ({
               <div className={`flex flex-col ${textAlignClass} w-full`}>
                 {/* Rating Stars */}
                 <div
-                  className={`flex items-center gap-1 mb-3 ${alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start"
-                    }`}
+                  className={`flex items-center gap-1 mb-3 ${
+                    alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start"
+                  }`}
                 >
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
@@ -5003,19 +4972,13 @@ export const ReviewsWidgetRenderer = ({
 
               {/* Reviewer Details */}
               <div
-                className={`flex items-center gap-3 pt-3 border-t border-slate-100 w-full ${alignment === "center"
-<<<<<<< HEAD
+                className={`flex items-center gap-3 pt-3 border-t border-slate-100 w-full ${
+                  alignment === "center"
                     ? "justify-center"
                     : alignment === "right"
-                      ? "justify-end flex-row-reverse"
-                      : "justify-start"
-=======
-                  ? "justify-center"
-                  : alignment === "right"
                     ? "justify-end flex-row-reverse"
                     : "justify-start"
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                  }`}
+                }`}
               >
                 {showAvatar && (
                   <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
@@ -5231,8 +5194,8 @@ export const PayPalButtonWidgetRenderer = ({
     size === "sm"
       ? "px-4 py-2 text-xs gap-1.5"
       : size === "lg"
-        ? "px-8 py-4 text-base gap-3 font-extrabold"
-        : "px-6 py-3 text-sm gap-2 font-bold";
+      ? "px-8 py-4 text-base gap-3 font-extrabold"
+      : "px-6 py-3 text-sm gap-2 font-bold";
 
   const roundedClass = shape === "rect" ? "rounded-lg" : "rounded-full";
 
@@ -5287,7 +5250,7 @@ export const PayPalButtonWidgetRenderer = ({
       if (popupWindow && !popupWindow.closed) {
         try {
           popupWindow.close();
-        } catch (_) { }
+        } catch (_) {}
       }
 
       if (captureRes.ok && captureData.success) {
@@ -5464,8 +5427,8 @@ export const StripeButtonWidgetRenderer = ({
     size === "sm"
       ? "px-3.5 py-1.5 text-xs gap-1.5"
       : size === "lg"
-        ? "px-7 py-3.5 text-base gap-3 font-bold"
-        : "px-5 py-2.5 text-sm gap-2 font-semibold";
+      ? "px-7 py-3.5 text-base gap-3 font-bold"
+      : "px-5 py-2.5 text-sm gap-2 font-semibold";
 
   const formattedUrl = rawCheckoutUrl
     ? /^https?:\/\//i.test(rawCheckoutUrl)
@@ -5525,28 +5488,28 @@ export const ImageCarouselWidgetRenderer = ({
   const items: ImageCarouselItem[] = el.imageCarouselItems?.length
     ? el.imageCarouselItems
     : [
-      {
-        id: "1",
-        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
-        alt: "Abstract Visual Art",
-        caption: "Abstract Geometry",
-        title: "Modern Visuals",
-      },
-      {
-        id: "2",
-        url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
-        alt: "Digital Workspace",
-        caption: "Clean Digital Workspace",
-        title: "Workspace",
-      },
-      {
-        id: "3",
-        url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-        alt: "Responsive Motion",
-        caption: "Dynamic Motion",
-        title: "Interactive Motion",
-      },
-    ];
+        {
+          id: "1",
+          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+          alt: "Abstract Visual Art",
+          caption: "Abstract Geometry",
+          title: "Modern Visuals",
+        },
+        {
+          id: "2",
+          url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
+          alt: "Digital Workspace",
+          caption: "Clean Digital Workspace",
+          title: "Workspace",
+        },
+        {
+          id: "3",
+          url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+          alt: "Responsive Motion",
+          caption: "Dynamic Motion",
+          title: "Interactive Motion",
+        },
+      ];
 
   const rawSlidesPerView = el.imageCarouselSlidesPerView ?? 3;
   const gap = el.imageCarouselGap ?? 16;
@@ -5714,8 +5677,9 @@ export const ImageCarouselWidgetRenderer = ({
               return (
                 <div
                   key={item.id}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                    }`}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                  }`}
                 >
                   <a
                     href={item.linkUrl || "#"}
@@ -5757,8 +5721,9 @@ export const ImageCarouselWidgetRenderer = ({
               className={`flex ${isMouseDown ? "transition-none" : "transition-transform duration-500 ease-out"}`}
               style={{
                 gap: `${gap}px`,
-                transform: `translateX(calc(-${currentIndex * (100 / effectiveSlidesPerView)}% - ${currentIndex * (gap / effectiveSlidesPerView)
-                  }px + ${dragOffset}px))`,
+                transform: `translateX(calc(-${currentIndex * (100 / effectiveSlidesPerView)}% - ${
+                  currentIndex * (gap / effectiveSlidesPerView)
+                }px + ${dragOffset}px))`,
               }}
             >
               {items.map((item, idx) => (
@@ -5806,8 +5771,9 @@ export const ImageCarouselWidgetRenderer = ({
               handlePrev();
             }}
             disabled={!loop && currentIndex === 0}
-            className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${!loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
-              }`}
+            className={`absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${
+              !loop && currentIndex === 0 ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
+            }`}
             title="Previous Image"
           >
             <span className="text-lg font-bold leading-none">‹</span>
@@ -5823,8 +5789,9 @@ export const ImageCarouselWidgetRenderer = ({
               handleNext();
             }}
             disabled={!loop && currentIndex >= maxIndex}
-            className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${!loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
-              }`}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur shadow-md transition-all z-20 cursor-pointer ${
+              !loop && currentIndex >= maxIndex ? "opacity-30 cursor-not-allowed" : "hover:scale-110 active:scale-95"
+            }`}
             title="Next Image"
           >
             <span className="text-lg font-bold leading-none">›</span>
@@ -5843,8 +5810,9 @@ export const ImageCarouselWidgetRenderer = ({
                 e.stopPropagation();
                 setCurrentIndex(idx);
               }}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? "w-6 bg-blue-600 shadow-xs" : "w-2 bg-slate-300 hover:bg-slate-400"
-                }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                currentIndex === idx ? "w-6 bg-blue-600 shadow-xs" : "w-2 bg-slate-300 hover:bg-slate-400"
+              }`}
               title={`Jump to slide ${idx + 1}`}
             />
           ))}
@@ -6088,10 +6056,10 @@ export const MegaMenuWidgetRenderer = ({
     alignment === "left" || alignment === "flex-start"
       ? "justify-start"
       : alignment === "right" || alignment === "flex-end"
-        ? "justify-end"
-        : alignment === "between" || alignment === "space-between"
-          ? "justify-between"
-          : "justify-center";
+      ? "justify-end"
+      : alignment === "between" || alignment === "space-between"
+      ? "justify-between"
+      : "justify-center";
 
   const resolveMegaCategory = (cat: MegaMenuItem) => {
     let displayTitle = cat.title;
@@ -6349,40 +6317,30 @@ export const MegaMenuWidgetRenderer = ({
                   {/* Mega Dropdown Panel */}
                   {isOpen && hasColumns && (
                     <div
-                      className={`absolute top-full ${alignment === "right" || alignment === "flex-end"
-<<<<<<< HEAD
+                      className={`absolute top-full ${
+                        alignment === "right" || alignment === "flex-end"
                           ? "right-0 left-auto translate-x-0"
                           : alignment === "left" || alignment === "flex-start"
-                            ? "left-0 right-auto translate-x-0"
-                            : "left-1/2 -translate-x-1/2"
-                        } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${item.columns!.length === 1
-                          ? "w-[300px] grid grid-cols-1"
-                          : item.columns!.length === 2
-                            ? "w-[540px] grid grid-cols-2"
-                            : item.columns!.length === 3
-=======
-                        ? "right-0 left-auto translate-x-0"
-                        : alignment === "left" || alignment === "flex-start"
                           ? "left-0 right-auto translate-x-0"
                           : "left-1/2 -translate-x-1/2"
-                        } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${(item.columns?.length || 0) === 1
+                      } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${
+                        (item.columns?.length || 0) === 1
                           ? "w-[300px] grid grid-cols-1"
                           : (item.columns?.length || 0) === 2
-                            ? "w-[540px] grid grid-cols-2"
-                            : (item.columns?.length || 0) === 3
->>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
-                              ? "w-[720px] grid grid-cols-3"
-                              : "w-[880px] grid grid-cols-4"
-                        }`}
+                          ? "w-[540px] grid grid-cols-2"
+                          : (item.columns?.length || 0) === 3
+                          ? "w-[720px] grid grid-cols-3"
+                          : "w-[880px] grid grid-cols-4"
+                      }`}
                       style={{ backgroundColor: "#ffffff" }}
                     >
-                      {(item.columns || []).map((col, cIdx) => (
+                      {item.columns!.map((col, cIdx) => (
                         <div key={col.id || `col_${cIdx}`} className="flex flex-col gap-2">
                           <h5 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 border-b pb-1.5 border-slate-100">
                             {col.title}
                           </h5>
                           <ul className="flex flex-col gap-2 mt-1">
-                            {(col.links || []).map((link, lIdx) => {
+                            {col.links.map((link, lIdx) => {
                               const lRes = resolveMegaLink(link);
                               return (
                                 <li key={link.id || `link_${lIdx}`}>
@@ -6472,10 +6430,10 @@ export const MegaMenuWidgetRenderer = ({
 
                   {hasColumns && (
                     <div className="pl-3 space-y-2 border-l-2 border-blue-200">
-                      {(item.columns || []).map((col) => (
+                      {item.columns!.map((col) => (
                         <div key={`m_col_${col.id || col.title}`} className="space-y-1">
                           <span className="block text-[10px] font-bold text-slate-400 uppercase">{col.title}</span>
-                          {(col.links || []).map((link) => {
+                          {col.links.map((link) => {
                             const lRes = resolveMegaLink(link);
                             return (
                               <a
@@ -6569,8 +6527,9 @@ export const OffCanvasWidgetRenderer = ({
 
           {/* Off Canvas Sliding Panel */}
           <div
-            className={`fixed top-0 bottom-0 z-50 flex flex-col shadow-2xl transition-transform duration-300 ${position === "right" ? "right-0" : "left-0"
-              }`}
+            className={`fixed top-0 bottom-0 z-50 flex flex-col shadow-2xl transition-transform duration-300 ${
+              position === "right" ? "right-0" : "left-0"
+            }`}
             style={{ width: panelWidth, backgroundColor: panelBg }}
           >
             {/* Panel Header */}
@@ -6913,8 +6872,9 @@ export const AudioPlaylistWidgetRenderer = ({
                 setIsPlaying(true);
                 setHasError(false);
               }}
-              className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition ${isActive ? "bg-white/15 border border-white/20 font-bold" : "hover:bg-white/5 opacity-80"
-                }`}
+              className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition ${
+                isActive ? "bg-white/15 border border-white/20 font-bold" : "hover:bg-white/5 opacity-80"
+              }`}
             >
               <div className="flex items-center gap-2.5 truncate">
                 <span className="text-xs font-mono opacity-60">{idx + 1}</span>
@@ -7162,8 +7122,8 @@ export const IconLibraryWidgetRenderer = ({
     alignment === "left"
       ? "justify-start"
       : alignment === "right"
-        ? "justify-end"
-        : "justify-center";
+      ? "justify-end"
+      : "justify-center";
 
   return (
     <div
@@ -7343,41 +7303,33 @@ export const resolveButtonHref = (el: EditorElement, pages?: PageConfig[]): stri
 
   // 1. Explicit Custom URL mode with non-empty URL
   if (isCustomUrl && rawUrl && rawUrl.trim() !== "") {
-    const trimmed = rawUrl.trim();
-    if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) {
-      return "#";
-    }
-    return trimmed;
+    return rawUrl.trim();
   }
 
-  // 2. Bound to internal page by pageId or page: prefix
-  const boundPageId = el.pageId || (rawUrl && rawUrl.startsWith("page:") ? rawUrl.replace("page:", "").trim() : undefined);
-  if (boundPageId && pages && pages.length > 0) {
-    const page = pages.find((p) => p.id === boundPageId);
+  // 2. Bound to internal page by pageId
+  if (el.pageId && pages && pages.length > 0) {
+    const page = pages.find((p) => p.id === el.pageId);
     if (page) {
-      return page.slug === "home" || page.isHome || page.slug === "/" ? "/" : (page.slug.startsWith("/") ? page.slug : `/${page.slug}`);
+      return page.slug === "home" || page.isHome ? "/" : (page.slug.startsWith("/") ? page.slug : `/${page.slug}`);
     }
   }
 
   // 3. Fallback raw URL if available
   if (rawUrl && rawUrl.trim() !== "") {
     const trimmed = rawUrl.trim();
-    if (/^(javascript:|data:|vbscript:)/i.test(trimmed)) {
-      return "#";
-    }
     if (pages && pages.length > 0) {
       const pageBySlug = pages.find((p) => p.slug === trimmed || (trimmed.startsWith("/") && p.slug === trimmed));
       if (pageBySlug) {
-        return pageBySlug.slug === "home" || pageBySlug.isHome || pageBySlug.slug === "/" ? "/" : (pageBySlug.slug.startsWith("/") ? pageBySlug.slug : `/${pageBySlug.slug}`);
+        return pageBySlug.slug === "home" || pageBySlug.isHome ? "/" : (pageBySlug.slug.startsWith("/") ? pageBySlug.slug : `/${pageBySlug.slug}`);
       }
     }
     return trimmed;
   }
 
   // 4. Default Home page route fallback
-  const homePage = pages?.find((p) => p.isHome || p.id === "home" || p.slug === "/") || pages?.[0];
+  const homePage = pages?.find((p) => p.isHome || p.id === "home") || pages?.[0];
   if (homePage) {
-    return homePage.slug === "home" || homePage.isHome || homePage.slug === "/" ? "/" : (homePage.slug.startsWith("/") ? homePage.slug : `/${homePage.slug}`);
+    return homePage.slug === "home" || homePage.isHome ? "/" : (homePage.slug.startsWith("/") ? homePage.slug : `/${homePage.slug}`);
   }
 
   return "/";
@@ -7497,7 +7449,7 @@ export const getSocialShareUrl = (
 ): string => {
   const safeTarget = targetUrl && isSafeShareUrl(targetUrl) ? targetUrl.trim() : "https://example.com";
   const url = encodeURIComponent(safeTarget);
-
+  
   const textVal = shareText ? shareText.trim() : "";
   const title = encodeURIComponent(textVal);
 
@@ -7763,12 +7715,12 @@ export const ShareButtonsWidgetRenderer = ({
                 net.network === "twitter"
                   ? "Tweet"
                   : net.network === "copy"
-                    ? "Copy Link"
-                    : net.network === "instagram"
-                      ? "Instagram"
-                      : net.network === "custom"
-                        ? "Visit Link"
-                        : net.network.charAt(0).toUpperCase() + net.network.slice(1);
+                  ? "Copy Link"
+                  : net.network === "instagram"
+                  ? "Instagram"
+                  : net.network === "custom"
+                  ? "Visit Link"
+                  : net.network.charAt(0).toUpperCase() + net.network.slice(1);
               const displayLabel = isCopied ? "Copied!" : net.label || defaultNetLabel;
 
               const actionResult = resolveShareAction(el, net, pages, activePageId);
@@ -7809,1603 +7761,127 @@ export const ShareButtonsWidgetRenderer = ({
 // Colorful placeholder icon inside empty image box
 
 // ==========================================
-// WOOCOMMERCE STORE WIDGET RENDERERS (F-292)
+// WOOCOMMERCE STORE WIDGET RENDERERS
 // ==========================================
-
-export const WcProductWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  // 1. Loading Skeleton State
-  if (data.isLoading) {
-    return (
-      <div style={styles as React.CSSProperties} className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-xs animate-pulse space-y-4">
-        <div className="h-48 w-full rounded-xl bg-slate-200"></div>
-        <div className="h-4 w-3/4 rounded bg-slate-200"></div>
-        <div className="h-3 w-1/2 rounded bg-slate-200"></div>
-        <div className="h-6 w-1/3 rounded bg-slate-200"></div>
-        <div className="h-10 w-full rounded-xl bg-slate-200"></div>
-      </div>
-    );
-  }
-
-  // 2. Product Not Found Fallback State
-  if (data.isNotFound) {
-    return (
-      <div style={styles as React.CSSProperties} className="relative rounded-2xl border border-amber-300 bg-amber-50/70 p-5 text-amber-900 shadow-xs space-y-2">
-        <div className="flex items-center gap-2 font-bold text-amber-800 text-sm">
-          <span>⚠️</span> Product Not Found
-        </div>
-        <p className="text-xs text-amber-700 leading-relaxed">
-          Product ID <code className="bg-amber-100 px-1.5 py-0.5 rounded font-mono text-[11px]">{el.productId || "none"}</code> is not in the store catalog. Select a valid product from the inspector settings.
-        </p>
-      </div>
-    );
-  }
-
-  // 3. Flex / Layout Settings Resolution
-  const isHorizontal = data.layoutDirection === "horizontal" || data.imagePosition === "left" || data.imagePosition === "right";
-  const isImageRight = data.imagePosition === "right";
-  const isImageBottom = data.imagePosition === "bottom";
-
-  const flexDir = isHorizontal
-    ? (isImageRight ? "flex-col md:flex-row-reverse" : "flex-col md:flex-row")
-    : (isImageBottom ? "flex-col-reverse" : "flex-col");
-
-  const imageWidthStyle = isHorizontal ? (data.imageWidth !== "100%" ? data.imageWidth : "40%") : "100%";
-
-  return (
-    <div style={styles as React.CSSProperties} className={`relative rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:shadow-md flex ${flexDir} gap-5`}>
-      {data.showBadge && data.badge && (
-        <span className="absolute top-4 right-4 z-10 rounded-full bg-purple-600 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-xs">
-          {data.badge}
-        </span>
-      )}
-
-      {/* Image Block */}
-      {data.showImage && (
-        <div style={{ width: isHorizontal ? imageWidthStyle : "100%" }} className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50 shrink-0">
-          <img src={data.image} alt={data.title} className="h-56 w-full object-cover transition transform hover:scale-105" />
-        </div>
-      )}
-
-      {/* Content Block */}
-      <div className="flex-1 space-y-2 flex flex-col justify-between">
-        <div className="space-y-2">
-          {data.showRating && (
-            <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold">
-              <span>{WooCommerceService.renderStarRating(data.rating)}</span>
-              <span className="text-slate-500 font-medium">({data.ratingCount})</span>
-            </div>
-          )}
-          {data.showTitle && (
-            <h3 className="text-lg font-extrabold text-slate-900 leading-snug">{data.title}</h3>
-          )}
-          {data.showShortDesc && (
-            <p className="text-xs text-slate-500 line-clamp-2">{data.shortDescription}</p>
-          )}
-          {data.showStock && (
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-              <span>{data.inStock ? `In Stock (${data.stockQuantity} available)` : "Out of Stock"}</span>
-            </div>
-          )}
-          {data.showPrice && (
-            <div className="flex items-baseline gap-2 pt-1">
-              <span className="text-xl font-black text-emerald-600">{data.price}</span>
-              {data.regularPrice && data.regularPrice !== data.price && (
-                <span className="text-xs text-slate-400 line-through font-normal">{data.regularPrice}</span>
-              )}
-            </div>
-          )}
-          {data.showMeta && (
-            <div className="text-[10px] text-slate-400 pt-1 flex items-center gap-3">
-              <span>SKU: <strong className="text-slate-600 font-mono">{data.sku}</strong></span>
-              <span>Category: <strong className="text-slate-600">{data.category}</strong></span>
-            </div>
-          )}
-        </div>
-
-        {data.showAddToCart && (
-          <div className="pt-3">
-            <button type="button" className="w-full rounded-xl bg-slate-900 py-2.5 px-4 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition cursor-pointer flex items-center justify-center gap-2">
-              🛒 Add to Cart
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-  return <h2 style={styles as React.CSSProperties} className="font-extrabold text-slate-900 tracking-tight">{data.title}</h2>;
+  let title = el.content || el.productTitle || "Sample Product Title";
+
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      title = prod.name;
+    } else {
+      title = "⚠️ Product Unavailable";
+    }
+  }
+
+  return <h2 style={styles as React.CSSProperties} className="font-bold text-slate-900">{title}</h2>;
 };
 
 export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
+  let price = el.content || el.productPrice || "$99.99";
+  let regularPrice = "";
 
-  // Loading Skeleton State
-  if (data.isLoading) {
-    return (
-      <div style={styles as React.CSSProperties} className="h-8 w-36 animate-pulse rounded-lg bg-slate-200"></div>
-    );
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      price = prod.price;
+      regularPrice = prod.regularPrice || "";
+    } else {
+      price = "$0.00";
+    }
   }
-
-  // Not Found State
-  if (data.isNotFound) {
-    return (
-      <div style={styles as React.CSSProperties} className="text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-200 inline-block">
-        ⚠️ Price unavailable (Product ID missing)
-      </div>
-    );
-  }
-
-  const mode = el.priceDisplayMode || "auto";
-  const showDiscountBadge = el.priceShowDiscountBadge !== false;
-  const showTax = el.priceShowTaxNotice || false;
-  const taxText = el.priceTaxNoticeText || "incl. VAT";
-
-  const isSale = mode === "sale" || (mode !== "regular" && data.isOnSale);
-  const showBoth = mode === "both" || (mode === "auto" && data.isOnSale && data.regularPrice && data.regularPrice !== data.price);
-
-  const displayPrice = mode === "regular"
-    ? data.formattedRegularPrice
-    : isSale && data.formattedSalePrice
-      ? data.formattedSalePrice
-      : data.formattedPrice;
-
-  const alignClass =
-    el.priceAlignment === "center" ? "justify-center" :
-      el.priceAlignment === "right" ? "justify-end" : "justify-start";
 
   return (
-    <div style={styles as React.CSSProperties} className={`flex items-baseline flex-wrap gap-2.5 font-bold ${alignClass}`}>
-      {/* Active / Sale Price */}
-      <span
-        style={{ color: el.salePriceColor || el.priceColor }}
-        className="text-2xl font-black text-emerald-600 tracking-tight"
-        aria-label={`Product price: ${displayPrice}`}
-      >
-        {displayPrice}
-      </span>
-
-      {/* Regular / Original Price Crossed Out */}
-      {showBoth && data.regularPrice && data.regularPrice !== data.price && (
-        <del
-          style={{ color: el.regularPriceColor }}
-          className="text-sm font-normal text-slate-400 line-through"
-          aria-label={`Original price: ${data.formattedRegularPrice}`}
-        >
-          {data.formattedRegularPrice}
-        </del>
-      )}
-
-      {/* Discount Percentage Badge */}
-      {showBoth && showDiscountBadge && data.discountPercentage > 0 && (
-        <span
-          style={{ backgroundColor: el.discountBadgeBgColor, color: el.discountBadgeTextColor }}
-          className="rounded-full bg-red-100 px-2.5 py-0.5 text-[11px] font-extrabold text-red-600 uppercase tracking-wider"
-        >
-          -{data.discountPercentage}%
-        </span>
-      )}
-
-      {/* Tax Notice */}
-      {showTax && (
-        <span className="text-[10px] text-slate-400 font-normal">
-          ({taxText})
-        </span>
-      )}
+    <div style={styles as React.CSSProperties} className="flex items-baseline gap-2 font-bold text-emerald-600">
+      <span className="text-xl">{price}</span>
+      {regularPrice && <span className="text-xs text-slate-400 line-through font-normal">{regularPrice}</span>}
     </div>
   );
 };
 
 export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
+  let imgSrc = el.src || el.productImage || (el.content && (el.content.startsWith("http") || el.content.startsWith("blob:")) ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
 
-  const galleryImages: string[] = (data.galleryImages && data.galleryImages.length > 0
-    ? data.galleryImages
-    : [data.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800"]).filter(Boolean) as string[];
-
-  const [activeImg, setActiveImg] = useState<string>(galleryImages[0]);
-  const [activeIdx, setActiveIdx] = useState<number>(0);
-  const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
-  const [imgError, setImgError] = useState<boolean>(false);
-
-  // Sync active image when productId or siteProducts changes
-  useEffect(() => {
-    setActiveImg(galleryImages[0]);
-    setActiveIdx(0);
-    setImgError(false);
-  }, [el.productId, data.image]);
-
-  // Loading skeleton
-  if (data.isLoading) {
-    return (
-      <div style={styles as React.CSSProperties} className="space-y-3 animate-pulse">
-        <div className="h-72 w-full rounded-2xl bg-slate-200"></div>
-        <div className="flex gap-2">
-          <div className="h-16 w-16 rounded-xl bg-slate-200"></div>
-          <div className="h-16 w-16 rounded-xl bg-slate-200"></div>
-          <div className="h-16 w-16 rounded-xl bg-slate-200"></div>
-        </div>
-      </div>
-    );
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod && prod.image) {
+      imgSrc = prod.image;
+    }
   }
 
-  // Not found fallback state
-  if (data.isNotFound) {
-    return (
-      <div style={styles as React.CSSProperties} className="rounded-2xl border border-amber-300 bg-amber-50/70 p-5 text-amber-900 shadow-xs space-y-2">
-        <div className="flex items-center gap-2 font-bold text-amber-800 text-sm">
-          <span>🖼️</span> Product Images Not Available
-        </div>
-        <p className="text-xs text-amber-700">
-          Product ID <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">{el.productId || "none"}</code> not found. Select a product in inspector.
-        </p>
-      </div>
-    );
-  }
-
-  const layout = el.galleryLayout || "thumbnails";
-  const position = el.galleryPosition || "bottom";
-  const enableLightbox = el.enableLightbox !== false;
-  const fallbackImg = "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=800&q=80";
-
-  const handleSelectImage = (img: string, idx: number) => {
-    setActiveImg(img);
-    setActiveIdx(idx);
-    setImgError(false);
+  const handleLocalImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      el.src = url;
+      el.productImage = url;
+      el.content = url;
+    }
   };
-
-  const handlePrev = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const prev = (activeIdx - 1 + galleryImages.length) % galleryImages.length;
-    handleSelectImage(galleryImages[prev], prev);
-  };
-
-  const handleNext = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const next = (activeIdx + 1) % galleryImages.length;
-    handleSelectImage(galleryImages[next], next);
-  };
-
-  const thumbnailSizeClass =
-    el.thumbnailSize === "xs" ? "h-10 w-10" :
-      el.thumbnailSize === "lg" ? "h-20 w-20" :
-        el.thumbnailSize === "md" ? "h-16 w-16" : "h-14 w-14";
-
-  // Thumbnail list component
-  const RenderThumbnails = () => (
-    <div className={`flex gap-2.5 overflow-x-auto pb-1 pt-1 ${position === "left" || position === "right" ? "flex-col" : "flex-row"}`}>
-      {galleryImages.map((img, idx) => {
-        const isSelected = activeIdx === idx;
-        return (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => handleSelectImage(img, idx)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleSelectImage(img, idx); }}
-            aria-label={`Select product thumbnail ${idx + 1}`}
-            className={`${thumbnailSizeClass} shrink-0 rounded-xl overflow-hidden border-2 transition-all transform cursor-pointer ${isSelected ? "border-purple-600 ring-2 ring-purple-300 scale-105 shadow-sm" : "border-slate-200 opacity-70 hover:opacity-100"
-              }`}
-          >
-            <img
-              src={img}
-              alt={`${data.title} thumbnail ${idx + 1}`}
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-            />
-          </button>
-        );
-      })}
-    </div>
-  );
 
   return (
-    <div style={styles as React.CSSProperties} className="relative group">
-      {/* Lightbox Modal */}
-      {lightboxOpen && enableLightbox && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 transition-all"
-          onClick={() => setLightboxOpen(false)}
-        >
-          <div className="relative max-w-4xl w-full flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(false)}
-              className="absolute -top-12 right-0 rounded-full bg-white/20 p-2 text-white hover:bg-white/40 transition cursor-pointer"
-              aria-label="Close Lightbox"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <img
-              src={activeImg || fallbackImg}
-              alt={data.title}
-              className="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl"
-              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-            />
-            {galleryImages.length > 1 && (
-              <div className="flex items-center justify-between w-full mt-4 text-white text-xs font-semibold px-4">
-                <button type="button" onClick={handlePrev} className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition cursor-pointer">
-                  ← Previous
-                </button>
+    <div style={styles as React.CSSProperties} className="relative group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 transition">
+      <img src={imgSrc} alt={el.alt || "Product"} className="h-auto w-full rounded-lg object-cover shadow-xs" />
 
-                <span>{activeIdx + 1} / {galleryImages.length}</span>
-
-                <button type="button" onClick={handleNext} className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition cursor-pointer">
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Grid Mode */}
-      {layout === "grid" ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {galleryImages.map((img, idx) => (
-            <div
-              key={idx}
-              className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 cursor-pointer group/item shadow-xs hover:shadow-md transition"
-              onClick={() => {
-                handleSelectImage(img, idx);
-                if (enableLightbox) setLightboxOpen(true);
-              }}
-            >
-              <img
-                src={img}
-                alt={`${data.title} - View ${idx + 1}`}
-                className="w-full h-48 object-cover transition transform group-hover/item:scale-105"
-                onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-              />
-            </div>
-          ))}
-        </div>
-      ) : layout === "stacked" ? (
-        /* Stacked Column Mode */
-        <div className="space-y-4">
-          {galleryImages.map((img, idx) => (
-            <div
-              key={idx}
-              className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 cursor-pointer shadow-xs hover:shadow-md transition"
-              onClick={() => {
-                handleSelectImage(img, idx);
-                if (enableLightbox) setLightboxOpen(true);
-              }}
-            >
-              <img
-                src={img}
-                alt={`${data.title} - View ${idx + 1}`}
-                className="w-full h-auto max-h-[500px] object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-              />
-            </div>
-          ))}
-        </div>
-      ) : layout === "carousel" ? (
-        /* Slider / Carousel Mode */
-        <div className="space-y-3">
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-xs">
-            <img
-              src={activeImg || fallbackImg}
-              alt={data.title}
-              className="w-full h-80 object-cover cursor-pointer transition transform hover:scale-102"
-              onClick={() => enableLightbox && setLightboxOpen(true)}
-              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-            />
-            {galleryImages.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 text-slate-800 shadow hover:bg-white transition cursor-pointer"
-                  aria-label="Previous Image"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 text-slate-800 shadow hover:bg-white transition cursor-pointer"
-                  aria-label="Next Image"
-                >
-                  ›
-                </button>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-slate-900/40 backdrop-blur-xs px-3 py-1 rounded-full">
-                  {galleryImages.map((_, idx) => (
-                    <span
-                      key={idx}
-                      onClick={() => handleSelectImage(galleryImages[idx], idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${activeIdx === idx ? "w-5 bg-white" : "w-2 bg-white/50"
-                        }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          {galleryImages.length > 1 && <RenderThumbnails />}
-        </div>
-      ) : (
-        /* Thumbnails Mode (Default) with Position Layout */
-        <div className={`flex ${position === "left" ? "flex-row-reverse" : position === "right" ? "flex-row" : position === "top" ? "flex-col-reverse" : "flex-col"} gap-3`}>
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-xs flex-1">
-            <img
-              src={activeImg || fallbackImg}
-              alt={data.title}
-              className="w-full h-80 object-cover transition transform hover:scale-102 cursor-pointer"
-              onClick={() => enableLightbox && setLightboxOpen(true)}
-              onError={(e) => { (e.target as HTMLImageElement).src = fallbackImg; }}
-            />
-            {enableLightbox && (
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className="absolute top-3 right-3 rounded-full bg-slate-900/60 p-2 text-white backdrop-blur-xs opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                title="Expand Lightbox"
-              >
-                🔍
-              </button>
-            )}
-          </div>
-          {galleryImages.length > 1 && <RenderThumbnails />}
+      {!isPreview && (
+        <div className="absolute inset-2 rounded-lg bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2 p-2">
+          <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-bold shadow-md hover:bg-slate-100 cursor-pointer transition active:scale-95">
+            <span>📁 Change Product Image</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleLocalImageSelect} />
+          </label>
+          <span className="text-[10px] font-medium text-white/90 drop-shadow">Upload local file or edit in Inspector</span>
         </div>
       )}
     </div>
   );
 };
 
-export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles, siteProducts, pages, onNavigatePage }) => {
+export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  const minQty = el.cartMinQuantity || 1;
-  const maxQty = el.cartMaxQuantity || data.stockQuantity || 99;
-  const qtyStep = el.cartQuantityStep || 1;
-
-  const [quantity, setQuantity] = useState<number>(el.cartDefaultQuantity || 1);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // Sync quantity boundaries when product stock changes
-  useEffect(() => {
-    setQuantity(Math.max(minQty, Math.min(el.cartDefaultQuantity || 1, maxQty)));
-    setErrorMsg(null);
-  }, [el.productId, maxQty, minQty]);
-
-  const handleDecrease = () => {
-    setQuantity((prev) => Math.max(minQty, prev - qtyStep));
-  };
-
-  const handleIncrease = () => {
-    setQuantity((prev) => Math.min(maxQty, prev + qtyStep));
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value, 10);
-    if (isNaN(val)) {
-      setQuantity(minQty);
-    } else {
-      setQuantity(Math.max(minQty, Math.min(val, maxQty)));
-    }
-  };
-
-  const handleAddToCart = async () => {
-    if (isSubmitting) return;
-
-    if (!data.inStock) {
-      setErrorMsg(`"${data.title}" is out of stock.`);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrorMsg(null);
-
-    // Simulate real network request timing safely
-    setTimeout(() => {
-      const res = WooCommerceService.addToCart(data.product.id, quantity, {}, siteProducts);
-
-      setIsSubmitting(false);
-
-      if (res.success) {
-        setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 2500);
-
-        if (el.cartPostAddAction === "redirect" || onNavigatePage) {
-          if (onNavigatePage) {
-            onNavigatePage("cart");
-          } else {
-            window.location.hash = "#/cart";
-          }
-        }
-      } else {
-        setErrorMsg(res.error || "Failed to add item to cart.");
-        setTimeout(() => setErrorMsg(null), 4000);
-      }
-    }, 400);
-  };
-
-  const showQty = el.cartShowQuantity !== false;
-  const isStacked = el.cartQuantityLayout === "stacked";
-  const isInStock = data.inStock !== false;
-
-  const buttonText = isSubmitting
-    ? (el.cartLoadingText || "Adding...")
-    : isSuccess
-      ? (el.cartSuccessText || "Added to Cart ✓")
-      : !isInStock
-        ? (el.cartDisabledText || "Out of Stock")
-        : (el.cartButtonText || el.content || "Add to Cart 🛒");
-
   return (
-    <div style={styles as React.CSSProperties} className="space-y-2">
-      {/* Error Notice Box */}
-      {errorMsg && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-red-700 font-semibold flex items-center justify-between animate-fadeIn">
-          <span>⚠️ {errorMsg}</span>
-          <button type="button" onClick={() => setErrorMsg(null)} className="text-red-500 hover:text-red-800">×</button>
-        </div>
-      )}
-
-      <div className={`flex ${isStacked ? "flex-col items-stretch" : "flex-row items-center"} gap-3`}>
-        {/* Quantity Stepper Selector */}
-        {showQty && (
-          <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-xs shrink-0" role="group" aria-label="Quantity selector">
-            <button
-              type="button"
-              onClick={handleDecrease}
-              disabled={quantity <= minQty || isSubmitting || !isInStock}
-              aria-label="Decrease quantity"
-              className="h-9 w-9 rounded-lg bg-white font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer shadow-xs flex items-center justify-center"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              value={quantity}
-              onChange={handleInputChange}
-              min={minQty}
-              max={maxQty}
-              step={qtyStep}
-              disabled={isSubmitting || !isInStock}
-              aria-label="Product quantity"
-              role="spinbutton"
-              className="w-12 text-center font-bold text-sm text-slate-900 bg-transparent border-none focus:outline-none focus:ring-0"
-            />
-            <button
-              type="button"
-              onClick={handleIncrease}
-              disabled={quantity >= maxQty || isSubmitting || !isInStock}
-              aria-label="Increase quantity"
-              className="h-9 w-9 rounded-lg bg-white font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer shadow-xs flex items-center justify-center"
-            >
-              +
-            </button>
-          </div>
-        )}
-
-        {/* Add to Cart Submit Button */}
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isSubmitting || !isInStock}
-          aria-live="polite"
-          className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm font-bold text-white transition-all transform active:scale-95 shadow-md cursor-pointer ${isSuccess
-            ? "bg-emerald-600 hover:bg-emerald-700"
-            : !isInStock
-              ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
-              : "bg-slate-900 hover:bg-purple-700 hover:shadow-lg"
-            }`}
-        >
-          {isSubmitting && (
-            <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin inline-block"></span>
-          )}
-          <span>{buttonText}</span>
-        </button>
-      </div>
-    </div>
+    <button type="button" style={styles as React.CSSProperties} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white shadow-md transition hover:bg-slate-800 cursor-pointer">
+      🛒 {el.content || el.buttonText || "Add to Cart"}
+    </button>
   );
 };
 
 export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
+  let rating = el.productRating ?? 5;
+  let count = el.productRatingCount ?? 128;
+  let text = el.productRatingText;
 
-  // Loading Skeleton State
-  if (data.isLoading) {
-    return (
-      <div style={styles as React.CSSProperties} className="h-6 w-32 animate-pulse rounded-md bg-slate-200"></div>
-    );
-  }
-
-  const ratingVal = typeof data.rating === "number" && !isNaN(data.rating) ? data.rating : 0;
-  const ratingCount = typeof data.ratingCount === "number" && !isNaN(data.ratingCount) ? data.ratingCount : 0;
-  const emptyBehavior = el.ratingEmptyBehavior || "show_empty_stars";
-
-  // Handle zero/empty review states
-  if (ratingCount === 0 || ratingVal === 0) {
-    if (emptyBehavior === "hide") {
-      return null;
-    }
-    if (emptyBehavior === "fallback_text") {
-      return (
-        <div style={styles as React.CSSProperties} className="text-xs text-slate-400 font-medium">
-          {el.ratingFallbackText || "No reviews yet"}
-        </div>
-      );
+  if (el.productSource === "existing" && el.productId) {
+    const prod = siteProducts?.find((p) => p.id === el.productId);
+    if (prod) {
+      rating = prod.rating ?? 5;
+      count = prod.ratingCount ?? 0;
     }
   }
 
-  const mode = el.ratingDisplayMode || "full";
-  const starDetails = WooCommerceService.getStarRatingDetails(ratingVal);
-  const starColor = el.ratingStarColor || "#eab308";
-  const emptyStarColor = el.ratingEmptyStarColor || "#cbd5e1";
+  const roundedRating = Math.min(5, Math.max(1, rating));
+  const fullStars = Math.floor(roundedRating);
+  const hasHalfStar = roundedRating % 1 >= 0.5;
+  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
 
-  const sizeClass =
-    el.ratingStarSize === "sm" ? "text-sm" :
-      el.ratingStarSize === "lg" ? "text-xl" :
-        el.ratingStarSize === "xl" ? "text-2xl" : "text-base";
-
-  const rawFormat = el.ratingReviewFormat || "({count} customer reviews)";
-  const formattedCountText = rawFormat.replace("{count}", ratingCount.toString());
-
-  const showStars = mode !== "value_only";
-  const showValue = mode === "full" || mode === "stars_value" || mode === "value_only";
-  const showCount = el.ratingShowCount !== false && (mode === "full" || mode === "stars_count");
-
-  const ariaLabelText = `Rated ${ratingVal.toFixed(1)} out of 5 stars based on ${ratingCount} reviews`;
+  const starColor = el.productStarColor || "#f59e0b";
+  const starSize = el.productStarSize || "14px";
 
   return (
-    <div
-      style={styles as React.CSSProperties}
-      className="flex items-center flex-wrap gap-2 font-bold"
-      aria-label={ariaLabelText}
-    >
-      {/* Stars System (Full, Half, Empty) */}
-      {showStars && (
-        <div className={`flex items-center ${sizeClass} tracking-tight select-none`}>
-          {/* Full Stars */}
-          {Array.from({ length: starDetails.full }).map((_, idx) => (
-            <span key={`star_full_${idx}`} style={{ color: starColor }}>★</span>
-          ))}
-
-          {/* Half Star */}
-          {starDetails.half > 0 && (
-            <span key="star_half" style={{ color: starColor }}>½</span>
-          )}
-
-          {/* Empty Stars */}
-          {Array.from({ length: starDetails.empty }).map((_, idx) => (
-            <span key={`star_empty_${idx}`} style={{ color: emptyStarColor }}>☆</span>
-          ))}
-        </div>
-      )}
-
-      {/* Numerical Rating Value */}
-      {showValue && (
-        <span className="text-xs font-bold text-slate-800">
-          {ratingVal.toFixed(1)}
-        </span>
-      )}
-
-      {/* Review Count & Link */}
-      {showCount && (
-        el.ratingLinkToReviews ? (
-          <a
-            href={data.product.url || "#reviews"}
-            className="text-xs font-semibold text-purple-600 hover:text-purple-800 hover:underline transition"
-          >
-            {formattedCountText}
-          </a>
-        ) : (
-          <span className="text-xs font-normal text-slate-500">
-            {formattedCountText}
-          </span>
-        )
-      )}
-    </div>
-  );
-};
-
-export const WcProductStockWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="inline-flex items-center gap-2">
-      {data.inStock ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          In Stock ({data.stockQuantity} items available)
-        </span>
-      ) : (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-200">
-          <span className="h-2 w-2 rounded-full bg-rose-500"></span>
-          Out of Stock
-        </span>
-      )}
-    </div>
-  );
-};
-
-export const WcProductMetaWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  if (data.isLoading) {
-    return (
-      <div style={styles as React.CSSProperties} className="space-y-2 animate-pulse">
-        <div className="h-4 w-36 bg-slate-200 rounded"></div>
-        <div className="h-4 w-48 bg-slate-200 rounded"></div>
-      </div>
-    );
-  }
-
-  const showSku = el.metaShowSku !== false;
-  const showCategories = el.metaShowCategories !== false;
-  const showTags = el.metaShowTags !== false;
-  const showId = el.metaShowId === true;
-  const showType = el.metaShowType === true;
-  const showBrand = el.metaShowBrand === true;
-
-  const layout = el.metaLayout || "vertical";
-  const separator = el.metaSeparator || ", ";
-  const emptyBehavior = el.metaEmptyBehavior || "fallback";
-  const linkCategories = el.metaLinkCategories !== false;
-
-  const labelColor = el.metaLabelColor || "#475569";
-  const valueColor = el.metaValueColor || "#0f172a";
-  const linkColor = el.metaLinkColor || "#6366f1";
-
-  // Build active items array
-  const items: Array<{ key: string; label: string; valueNode: React.ReactNode }> = [];
-
-  // 1. SKU
-  if (showSku) {
-    const skuVal = data.sku;
-    if (skuVal || emptyBehavior === "fallback") {
-      items.push({
-        key: "sku",
-        label: el.metaSkuLabel || "SKU:",
-        valueNode: <span className="font-mono">{skuVal || el.metaSkuFallback || "N/A"}</span>
-      });
-    }
-  }
-
-  // 2. Categories
-  if (showCategories) {
-    const cats = data.categories || [];
-    if (cats.length > 0 || emptyBehavior === "fallback") {
-      items.push({
-        key: "categories",
-        label: el.metaCategoriesLabel || (cats.length > 1 ? "Categories:" : "Category:"),
-        valueNode: cats.length > 0 ? (
-          <span>
-            {cats.map((cat, idx) => (
-              <React.Fragment key={`cat_${idx}`}>
-                {linkCategories ? (
-                  <a
-                    href={`#category-${cat.toLowerCase().replace(/\s+/g, "-")}`}
-                    style={{ color: linkColor }}
-                    className="hover:underline font-medium"
-                  >
-                    {cat}
-                  </a>
-                ) : (
-                  <span>{cat}</span>
-                )}
-                {idx < cats.length - 1 && <span>{separator}</span>}
-              </React.Fragment>
-            ))}
-          </span>
-        ) : (
-          <span className="italic text-slate-400">Uncategorized</span>
-        )
-      });
-    }
-  }
-
-  // 3. Tags
-  if (showTags) {
-    const tags = data.tags || [];
-    if (tags.length > 0 || emptyBehavior === "fallback") {
-      items.push({
-        key: "tags",
-        label: el.metaTagsLabel || (tags.length > 1 ? "Tags:" : "Tag:"),
-        valueNode: tags.length > 0 ? (
-          <span>
-            {tags.map((tag, idx) => (
-              <React.Fragment key={`tag_${idx}`}>
-                {linkCategories ? (
-                  <a
-                    href={`#tag-${tag.toLowerCase().replace(/\s+/g, "-")}`}
-                    style={{ color: linkColor }}
-                    className="hover:underline font-medium"
-                  >
-                    #{tag}
-                  </a>
-                ) : (
-                  <span>#{tag}</span>
-                )}
-                {idx < tags.length - 1 && <span>{separator}</span>}
-              </React.Fragment>
-            ))}
-          </span>
-        ) : (
-          <span className="italic text-slate-400">None</span>
-        )
-      });
-    }
-  }
-
-  // 4. Product ID
-  if (showId && data.product) {
-    items.push({
-      key: "id",
-      label: el.metaIdLabel || "ID:",
-      valueNode: <span className="font-mono text-slate-600">{data.product.id}</span>
-    });
-  }
-
-  // 5. Product Type
-  if (showType && data.product) {
-    items.push({
-      key: "type",
-      label: el.metaTypeLabel || "Type:",
-      valueNode: <span className="capitalize">{(data.product as any).type || "Simple Product"}</span>
-    });
-  }
-
-  // 6. Brand
-  if (showBrand && (data.product as any)?.brand) {
-    items.push({
-      key: "brand",
-      label: el.metaBrandLabel || "Brand:",
-      valueNode: <span>{(data.product as any).brand}</span>
-    });
-  }
-
-  if (items.length === 0) {
-    return null;
-  }
-
-  const containerClass =
-    layout === "horizontal" ? "flex flex-wrap items-center gap-x-4 gap-y-1" :
-      layout === "grid" ? "grid grid-cols-2 gap-x-4 gap-y-2" : "flex flex-col gap-1.5";
-
-  return (
-    <dl style={styles as React.CSSProperties} className={`text-xs ${containerClass}`}>
-      {items.map(item => (
-        <div key={item.key} className="inline-flex items-center gap-1.5">
-          <dt className="font-bold shrink-0" style={{ color: labelColor }}>
-            {item.label}
-          </dt>
-          <dd className="font-semibold" style={{ color: valueColor }}>
-            {item.valueNode}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-};
-
-export const WcProductContentWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="prose prose-slate max-w-none text-sm text-slate-700 leading-relaxed">
-      <p>{data.description}</p>
-    </div>
-  );
-};
-
-export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="text-sm font-medium text-slate-600 leading-normal">
-      {data.shortDescription}
-    </div>
-  );
-};
-
-export const WcProductDataTabsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews">("desc");
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-3 mb-4">
-        <button
-          type="button"
-          onClick={() => setActiveTab("desc")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${activeTab === "desc" ? "bg-purple-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-        >
-          📄 Description
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("specs")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${activeTab === "specs" ? "bg-purple-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-        >
-          ℹ️ Specifications
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("reviews")}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${activeTab === "reviews" ? "bg-purple-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-        >
-          ⭐ Reviews ({data.ratingCount})
-        </button>
-      </div>
-
-      {activeTab === "desc" && (
-        <p className="text-xs text-slate-600 leading-relaxed">{data.description}</p>
-      )}
-
-      {activeTab === "specs" && (
-        <div className="divide-y divide-slate-100">
-          {Object.entries(data.attributes).map(([key, val]) => (
-            <div key={key} className="py-2 flex justify-between text-xs">
-              <span className="font-bold text-slate-700">{key}</span>
-              <span className="text-slate-500">{val}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === "reviews" && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 font-bold">
-            <span>{WooCommerceService.renderStarRating(data.rating)}</span>
-            <span>{data.rating.toFixed(1)} out of 5 stars based on {data.ratingCount} reviews.</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const WcAdditionalInformationWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="overflow-hidden rounded-xl border border-slate-200">
-      <table className="w-full text-xs text-left">
-        <tbody className="divide-y divide-slate-100">
-          {Object.entries(data.attributes).map(([key, val], idx) => (
-            <tr key={key} className={idx % 2 === 0 ? "bg-slate-50/50" : "bg-white"}>
-              <td className="px-4 py-2.5 font-bold text-slate-800 w-1/3 border-r border-slate-100">{key}</td>
-              <td className="px-4 py-2.5 text-slate-600">{val}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export const WcRelatedProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const products = WooCommerceService.getProducts(siteProducts).slice(0, el.productsLimit || 3);
-
-  return (
-    <div style={styles as React.CSSProperties} className="space-y-4">
-      <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-        <span>🔗</span> Related Products
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {products.map((p) => (
-          <div key={p.id} onClick={() => onNavigatePage?.("product")} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs hover:shadow-sm transition cursor-pointer">
-            <img src={p.image} alt={p.name} className="h-32 w-full object-cover rounded-lg" />
-            <h4 className="text-xs font-bold text-slate-900 line-clamp-1 hover:text-purple-600 transition">{p.name}</h4>
-            <span className="text-xs font-black text-emerald-600">{p.price}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const products = WooCommerceService.getProducts(siteProducts).slice(1, (el.productsLimit || 3) + 1);
-
-  return (
-    <div style={styles as React.CSSProperties} className="space-y-4">
-      <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-        <span>🚀</span> You May Also Like
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {products.map((p) => (
-          <div key={p.id} onClick={() => onNavigatePage?.("product")} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs hover:shadow-sm transition cursor-pointer">
-            <img src={p.image} alt={p.name} className="h-32 w-full object-cover rounded-lg" />
-            <h4 className="text-xs font-bold text-slate-900 line-clamp-1 hover:text-purple-600 transition">{p.name}</h4>
-            <span className="text-xs font-black text-emerald-600">{p.price}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const WcProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const products = WooCommerceService.getProducts(siteProducts);
-  const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
-
-  const handleAddToCart = (productId: string) => {
-    WooCommerceService.addToCart(productId, 1, undefined, siteProducts);
-    setAddedIds((prev) => ({ ...prev, [productId]: true }));
-    setTimeout(() => {
-      setAddedIds((prev) => ({ ...prev, [productId]: false }));
-    }, 1500);
-  };
-
-  return (
-    <div style={styles as React.CSSProperties} className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-extrabold text-slate-900">🛍️ Store Catalog</h3>
-        <span className="text-xs text-slate-500 font-medium">Showing {products.length} Products</span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        {products.map((p) => (
-          <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs hover:shadow-md transition">
-            <img src={p.image} alt={p.name} className="h-44 w-full object-cover rounded-xl cursor-pointer" onClick={() => onNavigatePage?.("product")} />
-            <h4 className="text-sm font-bold text-slate-900 line-clamp-1 cursor-pointer hover:text-purple-600" onClick={() => onNavigatePage?.("product")}>{p.name}</h4>
-            <div className="flex items-center justify-between">
-              <span className="text-base font-black text-emerald-600">{p.price}</span>
-              <button
-                type="button"
-                onClick={() => handleAddToCart(p.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${addedIds[p.id]
-                  ? "bg-emerald-600 text-white"
-                  : "bg-slate-900 text-white hover:bg-purple-700"
-                  }`}
-              >
-                {addedIds[p.id] ? "✓ Added" : "Add to Cart"}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const WcCustomAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-  const [isAdded, setIsAdded] = useState(false);
-
-  const handleClick = () => {
-    WooCommerceService.addToCart(data.product.id, 1, undefined, siteProducts);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-    if (onNavigatePage) {
-      onNavigatePage("cart");
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      style={styles as React.CSSProperties}
-      className={`inline-flex items-center justify-center gap-3 rounded-2xl px-8 py-4 font-black text-white shadow-lg transition hover:scale-105 active:scale-95 cursor-pointer ${isAdded ? "bg-emerald-600" : "bg-gradient-to-r from-blue-600 to-indigo-600"
-        }`}
-    >
-      <span>{isAdded ? "✓" : "🚀"}</span>
-      <span>{isAdded ? "Added to Cart!" : (el.cartButtonText || el.content || `Buy Now - ${data.price}`)}</span>
-    </button>
-  );
-};
-
-export const WcProductCategoriesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const categories = [
-    { title: "Electronics", count: "12 items", icon: "🎧" },
-    { title: "Wearables", count: "8 items", icon: "⌚" },
-    { title: "Footwear", count: "15 items", icon: "👟" },
-    { title: "Accessories", count: "20 items", icon: "🎒" }
-  ];
-
-  return (
-    <div style={styles as React.CSSProperties} className="space-y-3">
-      <h3 className="text-base font-extrabold text-slate-900">📂 Shop by Category</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {categories.map((c) => (
-          <div key={c.title} onClick={() => onNavigatePage?.("shop")} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center hover:border-purple-500 hover:bg-purple-50/30 transition cursor-pointer">
-            <span className="text-2xl">{c.icon}</span>
-            <h4 className="text-xs font-bold text-slate-900 mt-1">{c.title}</h4>
-            <span className="text-[10px] text-slate-500">{c.count}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [cartState, setCartState] = useState(() => WooCommerceService.getCartState(siteProducts));
-  const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
-
-  useEffect(() => {
-    const unsub = WooCommerceService.subscribeCart(() => {
-      setCartState(WooCommerceService.getCartState(siteProducts));
-    });
-    return unsub;
-  }, [siteProducts]);
-
-  return (
-    <div className="relative inline-block">
-      <div
-        onClick={() => setIsMiniCartOpen(!isMiniCartOpen)}
-        style={styles as React.CSSProperties}
-        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-2xs hover:border-purple-500 transition cursor-pointer"
-      >
-        <span className="text-base">🛒</span>
-        <span className="text-xs font-extrabold text-slate-900">Cart</span>
-        <span className="rounded-full bg-purple-600 px-2 py-0.5 text-[10px] font-black text-white">
-          {cartState.totalQuantity}
-        </span>
-        <span className="text-xs font-bold text-emerald-600 ml-1">
-          {cartState.formattedSubtotal}
-        </span>
-      </div>
-
-      {isMiniCartOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 space-y-3 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <span>🛒</span> Mini Cart ({cartState.totalQuantity})
-            </h4>
-            <button type="button" onClick={() => setIsMiniCartOpen(false)} className="text-slate-400 hover:text-slate-600 text-xs">✕</button>
-          </div>
-          {cartState.items.length === 0 ? (
-            <p className="text-xs text-slate-500 text-center py-4">Your cart is currently empty.</p>
-          ) : (
-            <div className="space-y-2 max-h-48 overflow-y-auto divide-y divide-slate-100">
-              {cartState.items.map((item) => (
-                <div key={item.id} className="pt-2 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <img src={item.image} alt={item.name} className="h-8 w-8 rounded object-cover" />
-                    <div>
-                      <p className="font-bold text-slate-900 line-clamp-1">{item.name}</p>
-                      <p className="text-[10px] text-slate-500">{item.quantity} x {item.price}</p>
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => WooCommerceService.removeFromCart(item.id)} className="text-slate-400 hover:text-rose-600">✕</button>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="border-t border-slate-100 pt-2 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700">Total:</span>
-            <span className="text-sm font-black text-emerald-600">{cartState.formattedSubtotal}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => { setIsMiniCartOpen(false); onNavigatePage?.("cart"); }}
-              className="w-full rounded-xl bg-slate-100 py-2 text-xs font-bold text-slate-800 hover:bg-slate-200 transition cursor-pointer"
-            >
-              View Cart
-            </button>
-            <button
-              type="button"
-              onClick={() => { setIsMiniCartOpen(false); onNavigatePage?.("checkout"); }}
-              className="w-full rounded-xl bg-purple-600 py-2 text-xs font-bold text-white hover:bg-purple-700 transition cursor-pointer"
-            >
-              Checkout
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [cartState, setCartState] = useState(() => WooCommerceService.getCartState(siteProducts));
-
-  useEffect(() => {
-    const unsub = WooCommerceService.subscribeCart(() => {
-      setCartState(WooCommerceService.getCartState(siteProducts));
-    });
-    return unsub;
-  }, [siteProducts]);
-
-  // Fallback to sample items if cart is empty for builder preview
-  const displayItems = cartState.items.length > 0 ? cartState.items : [
-    {
-      id: "sample_1",
-      productId: "prod_1",
-      name: "Premium Noise-Canceling Headphones",
-      price: "$199.99",
-      priceNumber: 199.99,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
-      quantity: 1
-    },
-    {
-      id: "sample_2",
-      productId: "prod_2",
-      name: "Smart Watch Series X",
-      price: "$149.00",
-      priceNumber: 149.00,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
-      quantity: 1
-    }
-  ];
-
-  const subtotal = cartState.items.length > 0 ? cartState.formattedSubtotal : "$348.99";
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-slate-900">🛒 Shopping Cart</h2>
-        {cartState.items.length > 0 && (
-          <button
-            type="button"
-            onClick={() => WooCommerceService.clearCart()}
-            className="text-xs font-bold text-rose-600 hover:text-rose-700 cursor-pointer"
-          >
-            Clear Cart
-          </button>
-        )}
-      </div>
-      <div className="divide-y divide-slate-100">
-        {displayItems.map((item) => (
-          <div key={item.id || item.productId} className="py-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img src={item.image} alt={item.name} className="h-16 w-16 rounded-xl object-cover border border-slate-200" />
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">{item.name}</h4>
-                <div className="flex items-center gap-2 mt-1">
-                  <button
-                    type="button"
-                    onClick={() => WooCommerceService.updateCartItemQuantity(item.id, (item.quantity || 1) - 1)}
-                    className="h-6 w-6 rounded bg-slate-100 font-bold text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs"
-                  >
-                    -
-                  </button>
-                  <span className="text-xs font-extrabold text-slate-800">{item.quantity || 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => WooCommerceService.updateCartItemQuantity(item.id, (item.quantity || 1) + 1)}
-                    className="h-6 w-6 rounded bg-slate-100 font-bold text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-base font-extrabold text-emerald-600">{item.price}</span>
-              <button
-                type="button"
-                onClick={() => WooCommerceService.removeFromCart(item.id)}
-                className="text-slate-400 hover:text-rose-600 text-sm cursor-pointer"
-                title="Remove item"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="border-t border-slate-200 pt-4 flex items-center justify-between">
-        <span className="text-sm font-bold text-slate-700">Subtotal:</span>
-        <span className="text-xl font-black text-slate-900">{subtotal}</span>
-      </div>
-      <button
-        type="button"
-        onClick={() => onNavigatePage?.("checkout")}
-        className="w-full rounded-xl bg-purple-600 py-3 text-sm font-bold text-white shadow-md hover:bg-purple-700 transition cursor-pointer"
-      >
-        Proceed to Checkout →
-      </button>
-    </div>
-  );
-};
-
-export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [cartState, setCartState] = useState(() => WooCommerceService.getCartState(siteProducts));
-  const [isOrdered, setIsOrdered] = useState(false);
-  const [fullName, setFullName] = useState("Alex Johnson");
-  const [email, setEmail] = useState("alex.johnson@example.com");
-
-  useEffect(() => {
-    const unsub = WooCommerceService.subscribeCart(() => {
-      setCartState(WooCommerceService.getCartState(siteProducts));
-    });
-    return unsub;
-  }, [siteProducts]);
-
-  const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsOrdered(true);
-    WooCommerceService.clearCart();
-  };
-
-  const totalAmount = cartState.items.length > 0 ? cartState.formattedSubtotal : "$348.99";
-
-  if (isOrdered) {
-    return (
-      <div style={styles as React.CSSProperties} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-xs space-y-4">
-        <div className="flex items-center gap-3 text-emerald-900">
-          <span className="text-3xl">🎉</span>
-          <div>
-            <h3 className="text-lg font-black">Order Placed Successfully!</h3>
-            <p className="text-xs text-emerald-700">Thank you {fullName}! Order confirmation sent to {email}.</p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => onNavigatePage?.("purchase-summary")}
-            className="px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 transition cursor-pointer"
-          >
-            View Order Receipt
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigatePage?.("shop")}
-            className="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold hover:bg-slate-300 transition cursor-pointer"
-          >
-            Back to Store
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handlePlaceOrder} style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
-      <h2 className="text-xl font-black text-slate-900">💳 Checkout & Payment</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
-          <input
-            type="text"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs focus:ring-2 focus:ring-purple-500 outline-none"
-          />
-        </div>
-      </div>
-      <div className="rounded-xl bg-purple-50 border border-purple-200 p-4 flex items-center justify-between">
-        <span className="text-xs font-bold text-purple-900">Total Order Amount:</span>
-        <span className="text-lg font-black text-purple-700">{totalAmount}</span>
-      </div>
-      <button type="submit" className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md hover:bg-emerald-700 transition cursor-pointer">
-        ✓ Place Order & Pay Now
-      </button>
-    </form>
-  );
-};
-
-export const WcMyAccountWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [tab, setTab] = useState<"orders" | "addresses" | "account">("orders");
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
-        <button type="button" onClick={() => setTab("orders")} className={`px-4 py-2 text-xs font-bold rounded-xl transition ${tab === "orders" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600"}`}>
-          📦 Orders
-        </button>
-        <button type="button" onClick={() => setTab("addresses")} className={`px-4 py-2 text-xs font-bold rounded-xl transition ${tab === "addresses" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600"}`}>
-          🏠 Addresses
-        </button>
-        <button type="button" onClick={() => setTab("account")} className={`px-4 py-2 text-xs font-bold rounded-xl transition ${tab === "account" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600"}`}>
-          👤 Account Details
-        </button>
-      </div>
-      {tab === "orders" && (
-        <div className="space-y-3">
-          <div className="rounded-xl border border-slate-200 p-4 flex justify-between items-center text-xs">
-            <div>
-              <span className="font-extrabold text-slate-900">Order #WC-94021</span>
-              <span className="text-slate-500 block">Placed on Oct 24, 2026</span>
-            </div>
-            <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 font-bold">Completed</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const WcPurchaseSummaryWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-xs space-y-4">
-      <div className="flex items-center justify-between text-emerald-800">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🎉</span>
-          <div>
-            <h3 className="text-lg font-black">Thank you! Your order has been received.</h3>
-            <p className="text-xs text-emerald-700">Order #WC-94021 • October 24, 2026</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => onNavigatePage?.("shop")}
-          className="px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 transition cursor-pointer"
-        >
-          Continue Shopping
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export const WcNoticesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-xs font-bold text-emerald-800 flex items-center justify-between">
-      <span>{el.noticeText || el.content || "✓ Item added to your cart successfully."}</span>
-      <span className="text-emerald-500 cursor-pointer">✕</span>
-    </div>
-  );
-};
-
-export const WcShopLayoutsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const products = WooCommerceService.getProducts(siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="space-y-6">
-      <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
-        <h2 className="text-xl font-black text-slate-900">🏪 Storefront Shop Layout</h2>
-        <span className="text-xs font-bold text-slate-500">Filter: All Categories</span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {products.map(p => (
-          <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
-            <img src={p.image} alt={p.name} className="h-40 w-full object-cover rounded-xl cursor-pointer" onClick={() => onNavigatePage?.("product")} />
-            <h4 className="text-sm font-bold text-slate-900 cursor-pointer hover:text-purple-600" onClick={() => onNavigatePage?.("product")}>{p.name}</h4>
-            <span className="text-base font-black text-emerald-600">{p.price}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const WcProductArchiveWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  return <WcShopLayoutsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={onNavigatePage} />;
-};
-
-export const WcProductPageTemplatesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const data = WooCommerceService.resolveWooElementData(el, siteProducts);
-
-  return (
-    <div style={styles as React.CSSProperties} className="grid grid-cols-1 md:grid-cols-2 gap-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-      <div>
-        <WcProductImagesWidgetRenderer el={el} mergedStyles={{}} siteProducts={siteProducts} />
-      </div>
-      <div className="space-y-4">
-        <WcProductTitleWidgetRenderer el={el} mergedStyles={{ fontSize: "28px" }} siteProducts={siteProducts} />
-        <WcProductRatingWidgetRenderer el={el} mergedStyles={{}} siteProducts={siteProducts} />
-        <WcProductPriceWidgetRenderer el={el} mergedStyles={{ fontSize: "24px" }} siteProducts={siteProducts} />
-        <WcShortDescriptionWidgetRenderer el={el} mergedStyles={{}} siteProducts={siteProducts} />
-        <WcAddToCartWidgetRenderer el={el} mergedStyles={{}} siteProducts={siteProducts} pages={pages} onNavigatePage={onNavigatePage} />
-      </div>
-    </div>
-  );
-};
-
-export const WcProductArchiveTemplatesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  return <WcShopLayoutsWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} mergedStyles={mergedStyles} siteProducts={siteProducts} pages={pages} onNavigatePage={onNavigatePage} />;
-};
-
-export const WcShopFiltersWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[]; pages?: any[]; onNavigatePage?: (targetSlugOrId: string) => void }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts, pages, onNavigatePage }) => {
-  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
-  const [maxPrice, setMaxPrice] = useState<number>(500);
-
-  return (
-    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-5">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-          <span>🎛️</span> Shop Archive Filters
-        </h3>
-        <button
-          type="button"
-          onClick={() => { setSelectedCategory("all"); setInStockOnly(false); setMaxPrice(500); }}
-          className="text-[11px] font-bold text-purple-600 hover:text-purple-700 cursor-pointer"
-        >
-          Reset All
-        </button>
-      </div>
-
-      {/* Category Filter */}
-      <div className="space-y-2">
-        <label className="block text-xs font-bold text-slate-700">Categories</label>
-        <div className="space-y-1.5 text-xs text-slate-600">
-          {["All Categories", "Electronics", "Wearables", "Footwear", "Accessories"].map(cat => {
-            const val = cat === "All Categories" ? "all" : cat.toLowerCase();
-            return (
-              <label key={cat} className="flex items-center gap-2 cursor-pointer hover:text-slate-900 font-medium">
-                <input
-                  type="radio"
-                  name="shop_cat"
-                  checked={selectedCategory === val}
-                  onChange={() => setSelectedCategory(val)}
-                  className="text-purple-600 focus:ring-purple-500"
-                />
-                {cat}
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Price Filter */}
-      <div className="space-y-2 border-t border-slate-100 pt-3">
-        <div className="flex justify-between text-xs font-bold text-slate-700">
-          <span>Price Range</span>
-          <span className="text-purple-600">${maxPrice}</span>
-        </div>
-        <input
-          type="range"
-          min="10"
-          max="1000"
-          step="10"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(Number(e.target.value))}
-          className="w-full accent-purple-600 cursor-pointer"
-        />
-      </div>
-
-      {/* Availability Filter */}
-      <div className="border-t border-slate-100 pt-3">
-        <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-          <input
-            type="checkbox"
-            checked={inStockOnly}
-            onChange={(e) => setInStockOnly(e.target.checked)}
-            className="rounded text-purple-600 focus:ring-purple-500"
-          />
-          In Stock Items Only
-        </label>
-      </div>
+    <div style={styles as React.CSSProperties} className="flex items-center gap-1 font-bold">
+      <span className="flex items-center" style={{ color: starColor, fontSize: starSize }}>
+        {"★".repeat(fullStars)}
+        {hasHalfStar && "½"}
+        {"☆".repeat(emptyStars)}
+      </span>
+      <span className="text-xs text-slate-600 ml-1 font-semibold">
+        {rating.toFixed(1)} <span className="text-slate-400 font-normal">({text || `${count} Reviews`})</span>
+      </span>
     </div>
   );
 };
@@ -9673,7 +8149,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
     try {
       const saved = localStorage.getItem("forgestudio_favorite_widgets");
       if (saved) return JSON.parse(saved);
-    } catch { }
+    } catch {}
     return ["heading", "text", "button", "image"];
   });
 
@@ -9686,7 +8162,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
           .filter(([_id, c]: any) => c.isFavorite)
           .map(([id, c]: any) => ({ id, name: c.name }));
       }
-    } catch { }
+    } catch {}
     return [];
   });
 
@@ -9704,7 +8180,7 @@ export const FavoriteWidgetsWidgetRenderer = ({
               .map(([id, c]: any) => ({ id, name: c.name }))
           );
         }
-      } catch { }
+      } catch {}
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
@@ -9790,4 +8266,5 @@ export const FavoriteWidgetsWidgetRenderer = ({
     </div>
   );
 };
-export { LanguageSwitcherWidgetRenderer } from "../components/accessibility/LanguageSwitcherWidgetRenderer";
+
+

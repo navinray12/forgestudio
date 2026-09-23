@@ -1,13 +1,6 @@
-/**
- * @file Create user: backend module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
-import { prisma } from './src/platform/database/prisma.js';
-import { hashPassword } from './src/modules/authentication/password.js';
+import { prisma } from './src/config/prisma.js';
+import { hashPassword } from './src/utils/password.js';
 
-/**
- * Main.
- */
 async function main() {
     const email = 'kevin@gmail.com';
     const plainPassword = 'password123';

@@ -1,7 +1,3 @@
-/**
- * @file F351 hr: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 
 let page = fs.readFileSync('src/pages/subscriptions/SubscriptionPage.tsx', 'utf8');

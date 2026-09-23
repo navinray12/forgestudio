@@ -1,7 +1,3 @@
-/**
- * @file Templates feature: Template Card. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useRef, useEffect } from "react";
 import type { Template } from "../types/template.types";
 
@@ -19,22 +15,6 @@ interface TemplateCardProps {
   onDelete?: (template: Template) => void;
 }
 
-/**
- * Render the template card interface and connect its event handlers.
- * @param options Named inputs: template, onPreview, onInsert, onShare, onExport, onDuplicate, onTransfer, onToggleFavorite, isPendingFavorite, onRename, onDelete.
-
- * @param options.template Template passed by the caller.
- * @param options.onPreview Callback for preview events.
- * @param options.onInsert Callback for insert events.
- * @param options.onShare Callback for share events.
- * @param options.onExport Callback for export events.
- * @param options.onDuplicate Callback for duplicate events.
- * @param options.onTransfer Callback for transfer events.
- * @param options.onToggleFavorite Callback for toggle favorite events.
- * @param options.isPendingFavorite Is Pending Favorite passed by the caller. Defaults to false.
- * @param options.onRename Callback for rename events.
- * @param options.onDelete Callback for delete events.
- */
 export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
   onPreview,
@@ -52,10 +32,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    /**
-     * Handle Click Outside.
-     * @param event Event being handled; its type determines the available target and payload.
-     */
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
@@ -79,10 +55,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
 
   const elementCount = template.templateData?.elements?.length || 0;
 
-  /**
-   * Get Type Badge Color.
-   * @param type Type supplied to this operation (type: string).
-   */
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case "GLOBAL_WIDGET":
@@ -100,10 +72,6 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
     }
   };
 
-  /**
-   * Get Type Icon.
-   * @param type Type supplied to this operation (type: string).
-   */
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "GLOBAL_WIDGET":

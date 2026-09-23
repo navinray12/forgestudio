@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Delete Variable Confirm Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React from "react";
 import type { AtomicVariable } from "../types/variables.types";
 import { useClasses } from "../hooks/useClasses";
@@ -14,15 +10,6 @@ interface DeleteVariableConfirmModalProps {
   onConfirmDelete: (id: string) => Promise<void>;
 }
 
-/**
- * Render the delete variable confirm modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, variable, onClose, onConfirmDelete.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.variable Variable passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmDelete Callback for confirm delete events.
- */
 export const DeleteVariableConfirmModal: React.FC<DeleteVariableConfirmModalProps> = ({
   isOpen,
   variable,

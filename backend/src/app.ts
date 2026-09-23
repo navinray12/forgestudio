@@ -1,15 +1,9 @@
-/**
- * @file Assemble Express middleware, application routes, readiness and error handling.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import { jsonBodyParser } from "./platform/http/webhook-body.middleware.js";
-import { checkDatabaseReadiness } from "./platform/database/database-readiness.js";
-import passport from "./platform/authentication/passport.js";
+import passport from "./config/passport.js";
 
 import {
   loginRoutes,
@@ -20,7 +14,6 @@ import {
   subscriptionRoutes,
   websiteRoutes,
   teamRoutes,
-  workspaceRoutes,
   uploadRoutes,
   apiKeysRoutes,
   developerRoutes,
@@ -45,18 +38,16 @@ import {
   stagingRoutes,
   serverConfigRoutes,
   hostingRoutes,
-  websiteKitRoutes,
-} from "./modules/authentication/index.js";
+} from "./routes/index.js";
 
-import apiV1Routes from "./modules/public-api/api-v1.routes.js";
-import websiteDraftRoutes from "./modules/pages/website-draft.routes.js";
-import operationsRoutes from "./modules/authentication/operations.routes.js";
-import auditLogRoutes from "./modules/authentication/auditLog.routes.js";
-import mediaRoutes from "./modules/authentication/media.routes.js";
-import { downloadWordPressPluginHandler } from "./modules/wordpress-connections/wordpress.controller.js";
-import { errorMiddleware } from "./platform/http/error.middleware.js";
-import healthRoutes from "./modules/authentication/health.routes.js";
-import mailerRoutes from "./modules/authentication/mailer.routes.js";
+import apiV1Routes from "./routes/api-v1.routes.js";
+import operationsRoutes from "./routes/operations.routes.js";
+import auditLogRoutes from "./routes/auditLog.routes.js";
+import mediaRoutes from "./routes/media.routes.js";
+import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
+import healthRoutes from "./routes/health.routes.js";
+import mailerRoutes from "./routes/mailer.routes.js";
 import { rateLimit } from "express-rate-limit";
 
 const authRateLimiter = rateLimit({
@@ -78,7 +69,6 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false,
   })
 );
 
@@ -86,13 +76,12 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
 
-// The body parser preserves signed webhook bytes and applies request-size limits.
-app.use(jsonBodyParser);
+app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -101,17 +90,8 @@ app.use(passport.initialize());
 app.get("/api/v1/health", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: "API process is running",
+    message: "API is healthy",
   });
-});
-
-app.get("/api/v1/ready", async (_req: Request, res: Response) => {
-  try {
-    await checkDatabaseReadiness();
-    res.status(200).json({ ready: true });
-  } catch {
-    res.status(503).json({ ready: false, code: "DATABASE_NOT_READY" });
-  }
 });
 
 // Auth & Session Rate Limiting (F-439)
@@ -142,15 +122,12 @@ app.use("/api/users/me", usageRoutes);
 app.use("/api/v1", apiV1Routes);
 
 // Websites & Workspace
-app.use('/api/v1/websites', websiteDraftRoutes);
 app.use("/api/v1/websites", websiteRoutes);
 app.use("/api/websites", websiteRoutes);
 app.use("/api/v1/websites", mailerRoutes);
 app.use("/api/websites", mailerRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
-app.use("/api/v1/workspaces", workspaceRoutes);
-app.use("/api/workspaces", workspaceRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
@@ -180,9 +157,6 @@ app.use("/api/component-access", componentAccessRoutes);
 
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/templates", templateRoutes);
-
-app.use("/api/v1/website-kits", websiteKitRoutes);
-app.use("/api/website-kits", websiteKitRoutes);
 
 // Forms: public submission + protected owner operations are enforced by the router.
 app.use("/api/v1/forms", formRoutes);
@@ -241,6 +215,7 @@ app.get("/api/health", (_req, res) => {
 
 // Phase 20: Production Health & Canary
 app.use("/api", healthRoutes);
+
 app.use(errorMiddleware);
 
 export default app;

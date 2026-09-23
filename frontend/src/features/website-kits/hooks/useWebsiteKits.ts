@@ -1,7 +1,3 @@
-/**
- * @file Website kits feature: use Website Kits. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { WebsiteKit, WebsiteKitCategory } from "../types/websiteKit.types";
 import { getWebsiteKits, applyWebsiteKit } from "../services/websiteKitService";
@@ -10,12 +6,6 @@ interface UseWebsiteKitsParams {
   apiUrl: string;
 }
 
-/**
- * Coordinate website kits state and lifecycle for the calling component.
- * @param options Named inputs: apiUrl.
-
- * @param options.apiUrl Api Url passed by the caller.
- */
 export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
   const [kits, setKits] = useState<WebsiteKit[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

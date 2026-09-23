@@ -1,7 +1,3 @@
-/**
- * @file Revision history feature: revision History Service. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { RevisionItem, PageSettingsData } from "../types/revisionHistory.types";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 
@@ -10,8 +6,6 @@ export const MAX_REVISIONS = 30;
 
 /**
  * Counts total elements in an element tree recursively.
-
- * @param elements Elements supplied to this operation (type: EditorElement[]).
  */
 function countElementsRecursively(elements: EditorElement[]): number {
   if (!Array.isArray(elements)) return 0;
@@ -30,8 +24,6 @@ function countElementsRecursively(elements: EditorElement[]): number {
 export const revisionHistoryService = {
   /**
    * Retrieves all valid saved revisions for a website, sorted NEWEST -> OLDEST by timestamp.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
    */
   getRevisions(websiteId: string): RevisionItem[] {
     if (!websiteId) return [];
@@ -65,9 +57,6 @@ export const revisionHistoryService = {
 
   /**
    * Validates if a revision object is completely valid for restoration.
-
-   * @param revision Revision supplied to this operation (type: any).
-   * @param currentWebsiteId Current Website Id supplied to this operation (type: string). Optional; callers may omit it.
    */
   validateRevision(revision: any, currentWebsiteId?: string): { valid: boolean; reason?: string } {
     if (!revision || typeof revision !== "object") {
@@ -91,11 +80,6 @@ export const revisionHistoryService = {
   /**
    * Creates and saves a new snapshot revision for a website.
    * Prevents creating duplicate identical snapshots.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param elements Elements supplied to this operation (type: EditorElement[]).
-   * @param pageSettings Page Settings supplied to this operation (type: PageSettingsData). Optional; callers may omit it.
-   * @param description Description supplied to this operation (type: string). Defaults to "Saved design change".
    */
   saveRevision(
     websiteId: string,
@@ -158,9 +142,6 @@ export const revisionHistoryService = {
 
   /**
    * Deletes a specific revision by ID.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param revisionId Revision Id supplied to this operation (type: string).
    */
   deleteRevision(websiteId: string, revisionId: string): RevisionItem[] {
     if (!websiteId || !revisionId) return [];
@@ -176,8 +157,6 @@ export const revisionHistoryService = {
 
   /**
    * Clears all saved revisions for a website.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
    */
   clearRevisions(websiteId: string): void {
     if (!websiteId) return;
@@ -191,9 +170,6 @@ export const revisionHistoryService = {
   /**
    * Fetches authoritative revisions from backend PostgreSQL API.
    * Caches to localStorage for offline fallback.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param apiUrl Api Url supplied to this operation (type: string). Defaults to "".
    */
   async fetchServerRevisions(websiteId: string, apiUrl: string = ""): Promise<RevisionItem[]> {
     if (!websiteId) return [];
@@ -244,10 +220,6 @@ export const revisionHistoryService = {
 
   /**
    * Fetches full revision detail and snapshot data from backend.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param revisionId Revision Id supplied to this operation (type: string).
-   * @param apiUrl Api Url supplied to this operation (type: string). Defaults to "".
    */
   async fetchServerRevisionById(websiteId: string, revisionId: string, apiUrl: string = ""): Promise<any> {
     const res = await fetch(`${apiUrl}/api/websites/${websiteId}/revisions/${revisionId}`, {
@@ -266,10 +238,6 @@ export const revisionHistoryService = {
 
   /**
    * Creates a new authoritative revision checkpoint on the server.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param payload Payload supplied to this operation (type: { description?: string; revisionType?: string; snapshot?: any; elements?: EditorElement[]; pageSettings?: PageSettingsData; pages?: any[]; siteParts?: any; globalSettings?: any; breakpoints?: any[]; popups?: any[]; pageCss?: string; homePageId?: string; }).
-   * @param apiUrl Api Url supplied to this operation (type: string). Defaults to "".
    */
   async createServerRevision(
     websiteId: string,
@@ -317,10 +285,6 @@ export const revisionHistoryService = {
   /**
    * Restores a revision snapshot to working draft on the server.
    * INVARIANT: Restore updates working draft ONLY. Does NOT publish.
-
-   * @param websiteId Identifier of the website whose data is being read or changed.
-   * @param revisionId Revision Id supplied to this operation (type: string).
-   * @param apiUrl Api Url supplied to this operation (type: string). Defaults to "".
    */
   async restoreServerRevision(websiteId: string, revisionId: string, apiUrl: string = ""): Promise<any> {
     const res = await fetch(`${apiUrl}/api/websites/${websiteId}/revisions/${revisionId}/restore`, {

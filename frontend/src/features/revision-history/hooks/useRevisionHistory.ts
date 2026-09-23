@@ -1,17 +1,8 @@
-/**
- * @file Revision history feature: use Revision History. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import { useState, useCallback, useEffect } from "react";
 import type { RevisionItem, RestoreConfirmationState, PageSettingsData } from "../types/revisionHistory.types";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 import { revisionHistoryService } from "../services/revisionHistoryService";
 
-/**
- * Coordinate revision history state and lifecycle for the calling component.
- * @param websiteId Identifier of the website whose data is being read or changed.
- * @param apiUrl Api Url supplied to this operation (type: string). Defaults to "".
- */
 export function useRevisionHistory(websiteId: string, apiUrl: string = "") {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
   const [selectedRevision, setSelectedRevision] = useState<RevisionItem | null>(null);
@@ -135,10 +126,18 @@ export function useRevisionHistory(websiteId: string, apiUrl: string = "") {
         setIsLoading(true);
         setError(null);
 
-        // Load immutable input; the editor's single save coordinator performs the guarded write.
-        const revision = await revisionHistoryService.fetchServerRevisionById(websiteId, revToRestore.id, apiUrl);
-        const restoredData = revision.data;
-        if (!restoredData || typeof restoredData !== 'object') throw new Error('This revision has no readable document.');
+        // 1. Attempt server-side restoration to update database working draft
+        let restoredData: any = null;
+        try {
+          const serverResult = await revisionHistoryService.restoreServerRevision(
+            websiteId,
+            revToRestore.id,
+            apiUrl
+          );
+          restoredData = serverResult?.restoredRevision?.data;
+        } catch (serverErr: any) {
+          console.warn("Server restore API failed, checking local snapshot:", serverErr);
+        }
 
         // If server returned snapshot data, prefer it; otherwise use local snapshot
         const elementsSource = restoredData?.elements || revToRestore.elements || [];

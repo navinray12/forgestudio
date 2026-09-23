@@ -1,7 +1,3 @@
-/**
- * @file F354 lazy: frontend/ agent module support.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 const fs = require('fs');
 let app = fs.readFileSync('src/App.tsx', 'utf8');
 

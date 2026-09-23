@@ -188,143 +188,6 @@ export function searchIcons(query: string, category: string = "All", favorites: 
   });
 }
 
-// Normalized map of all available Lucide icons for instant case-insensitive lookup
-const LUCIDE_NORMALIZED_MAP: Record<string, React.ComponentType<any>> = {};
-
-// Common aliases mapping to standard Lucide icon names
-const ICON_ALIASES: Record<string, string> = {
-  cart: "ShoppingCart",
-  bag: "ShoppingBag",
-  trash: "Trash2",
-  delete: "Trash2",
-  edit: "Edit3",
-  pencil: "Edit3",
-  close: "X",
-  cross: "X",
-  times: "X",
-  cancel: "X",
-  check: "Check",
-  checkmark: "Check",
-  tick: "Check",
-  warning: "AlertTriangle",
-  caution: "AlertTriangle",
-  alert: "AlertTriangle",
-  error: "AlertCircle",
-  info: "Info",
-  search: "Search",
-  find: "Search",
-  filter: "Filter",
-  settings: "Settings",
-  gear: "Settings",
-  cog: "Settings",
-  config: "Settings",
-  pin: "MapPin",
-  location: "MapPin",
-  gps: "MapPin",
-  mail: "Mail",
-  email: "Mail",
-  envelope: "Mail",
-  phone: "Phone",
-  call: "Phone",
-  mobile: "Phone",
-  twitter: "Twitter",
-  x: "Twitter",
-  facebook: "Facebook",
-  fb: "Facebook",
-  instagram: "Instagram",
-  ig: "Instagram",
-  youtube: "Youtube",
-  yt: "Youtube",
-  linkedin: "Linkedin",
-  github: "Github",
-  globe: "Globe",
-  eye: "Eye",
-  hidden: "EyeOff",
-  user: "User",
-  profile: "User",
-  account: "User",
-  users: "Users",
-  people: "Users",
-  team: "Users",
-  star: "Star",
-  rating: "Star",
-  heart: "Heart",
-  like: "Heart",
-  lock: "Lock",
-  secure: "Lock",
-  unlock: "Unlock",
-  shield: "Shield",
-  key: "Key",
-  cloud: "Cloud",
-  sun: "Sun",
-  light: "Sun",
-  moon: "Moon",
-  dark: "Moon",
-  bell: "Bell",
-  notice: "Bell",
-};
-
-// Initialize Lucide Normalized Map
-(function initLucideMap() {
-  const iconsRecord = LucideIcons as unknown as Record<string, React.ComponentType<any>>;
-  Object.keys(iconsRecord).forEach((key) => {
-    const comp = iconsRecord[key];
-    if (typeof comp === "function" || (typeof comp === "object" && comp !== null)) {
-      LUCIDE_NORMALIZED_MAP[key] = comp;
-      LUCIDE_NORMALIZED_MAP[key.toLowerCase()] = comp;
-      const kebab = key.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-      LUCIDE_NORMALIZED_MAP[kebab] = comp;
-      const snake = key.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-      LUCIDE_NORMALIZED_MAP[snake] = comp;
-    }
-  });
-})();
-
-function isEmojiString(str: string): boolean {
-  const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F1E6}-\u{1F1FF}]/u;
-  return emojiRegex.test(str);
-}
-
-function resolveLucideComponent(targetKey: string): React.ComponentType<any> | null {
-  if (!targetKey || isEmojiString(targetKey)) return null;
-
-  const raw = targetKey.trim();
-  const cleanLower = raw.toLowerCase().replace(/[\s_]+/g, "-");
-
-  // 1. Registry match
-  const foundDef = ICON_REGISTRY.find(
-    (item) =>
-      item.id === raw ||
-      item.id === cleanLower ||
-      item.name.toLowerCase() === raw.toLowerCase() ||
-      (item.lucideName && item.lucideName.toLowerCase() === raw.toLowerCase())
-  );
-  if (foundDef?.lucideName && LUCIDE_NORMALIZED_MAP[foundDef.lucideName]) {
-    return LUCIDE_NORMALIZED_MAP[foundDef.lucideName];
-  }
-
-  // 2. Direct normalized map lookup (handles camel, kebab, snake, lowercase, exact PascalCase)
-  if (LUCIDE_NORMALIZED_MAP[raw]) return LUCIDE_NORMALIZED_MAP[raw];
-  if (LUCIDE_NORMALIZED_MAP[cleanLower]) return LUCIDE_NORMALIZED_MAP[cleanLower];
-
-  // 3. Alias map lookup
-  const aliasName = ICON_ALIASES[cleanLower] || ICON_ALIASES[raw.toLowerCase()];
-  if (aliasName && LUCIDE_NORMALIZED_MAP[aliasName]) {
-    return LUCIDE_NORMALIZED_MAP[aliasName];
-  }
-
-  // 4. Convert kebab/snake/spaces to PascalCase (e.g. arrow-right -> ArrowRight)
-  const pascalCase = cleanLower
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-  if (LUCIDE_NORMALIZED_MAP[pascalCase]) {
-    return LUCIDE_NORMALIZED_MAP[pascalCase];
-  }
-
-  return LucideIcons.Star;
-}
-
 /** Central Icon Renderer Component */
 export interface IconRendererProps {
   icon?: string;
@@ -357,6 +220,23 @@ export const IconRenderer: React.FC<IconRendererProps> = ({
   const targetKey = (iconName || icon || "Star").trim();
   const numericSize = typeof size === "number" ? size : parseInt(size as string, 10) || 24;
 
+  // Find in registry or match by Lucide name directly
+  const foundDef = ICON_REGISTRY.find(
+    (item) =>
+      item.id === targetKey ||
+      item.name.toLowerCase() === targetKey.toLowerCase() ||
+      (item.lucideName && item.lucideName.toLowerCase() === targetKey.toLowerCase())
+  );
+
+  const lucideName = foundDef?.lucideName || targetKey;
+
+  // Dynamic Lucide lookup
+  const iconsRecord = LucideIcons as unknown as Record<string, React.ComponentType<any>>;
+  const LucideComp =
+    iconsRecord[lucideName] ||
+    iconsRecord[lucideName.charAt(0).toUpperCase() + lucideName.slice(1)] ||
+    LucideIcons.Star;
+
   // CSS transform for rotation & flip
   const transforms: string[] = [];
   if (rotate) transforms.push(`rotate(${rotate}deg)`);
@@ -371,26 +251,6 @@ export const IconRenderer: React.FC<IconRendererProps> = ({
     transition: "transform 0.15s ease, color 0.15s ease",
     ...style,
   };
-
-  // Check if target is an emoji character
-  if (isEmojiString(targetKey)) {
-    return (
-      <span
-        className={`shrink-0 inline-flex items-center justify-center leading-none ${className}`}
-        style={{
-          fontSize: `${numericSize}px`,
-          width: `${numericSize}px`,
-          height: `${numericSize}px`,
-          ...combinedStyle,
-        }}
-        aria-hidden={ariaHidden ? "true" : undefined}
-      >
-        {targetKey}
-      </span>
-    );
-  }
-
-  const LucideComp = resolveLucideComponent(targetKey) || LucideIcons.Star;
 
   return (
     <LucideComp

@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Form Preview. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { FormContainerConfig } from "../types/atomicForm.types";
 import { validateFormValues } from "../utils/formValidation.utils";
@@ -11,12 +7,6 @@ interface FormPreviewProps {
   form: FormContainerConfig;
 }
 
-/**
- * Render the form preview interface and connect its event handlers.
- * @param options Named inputs: form.
-
- * @param options.form Form passed by the caller.
- */
 export const FormPreview: React.FC<FormPreviewProps> = ({ form }) => {
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -24,11 +14,6 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ form }) => {
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  /**
-   * Handle Input Change.
-   * @param fieldName Field Name supplied to this operation (type: string).
-   * @param value Value supplied to this operation (type: any).
-   */
   const handleInputChange = (fieldName: string, value: any) => {
     setFormValues((prev) => ({ ...prev, [fieldName]: value }));
     if (fieldErrors[fieldName]) {
@@ -40,10 +25,6 @@ export const FormPreview: React.FC<FormPreviewProps> = ({ form }) => {
     }
   };
 
-  /**
-   * Handle Submit.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitSuccess(false);

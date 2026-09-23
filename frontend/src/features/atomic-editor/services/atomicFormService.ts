@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: atomic Form Service. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import type { FormContainerConfig, CreateFormPayload } from "../types/atomicForm.types";
 
 const STORAGE_KEY = "forge_studio_atomic_forms";
@@ -106,8 +102,6 @@ export class AtomicFormService {
 
   /**
    * Persists form definitions to LocalStorage
-
-   * @param forms Forms supplied to this operation (type: FormContainerConfig[]).
    */
   static saveForms(forms: FormContainerConfig[]): void {
     try {
@@ -119,8 +113,6 @@ export class AtomicFormService {
 
   /**
    * Creates a new Form Container definition
-
-   * @param payload Payload supplied to this operation (type: CreateFormPayload).
    */
   static createForm(payload: CreateFormPayload): FormContainerConfig {
     const list = this.getForms();
@@ -150,9 +142,6 @@ export class AtomicFormService {
 
   /**
    * Updates an existing Form Container definition
-
-   * @param id Id supplied to this operation (type: string).
-   * @param payload Payload supplied to this operation (type: Partial<FormContainerConfig>).
    */
   static updateForm(id: string, payload: Partial<FormContainerConfig>): FormContainerConfig {
     const list = this.getForms();
@@ -172,8 +161,6 @@ export class AtomicFormService {
 
   /**
    * Deletes a Form Container
-
-   * @param id Id supplied to this operation (type: string).
    */
   static deleteForm(id: string): void {
     const list = this.getForms();

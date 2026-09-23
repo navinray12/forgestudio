@@ -1,10 +1,6 @@
-/**
- * @file Custom Code Panel: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 type Placement = "HEAD" | "BODY_START" | "BODY_END";
 type Language = "JS" | "CSS" | "HTML";
@@ -20,9 +16,6 @@ interface CustomCodeEntry {
     createdAt: string;
 }
 
-/**
- * Render the custom code panel interface and connect its event handlers.
- */
 export default function CustomCodePanel() {
     const [entries, setEntries] = useState<CustomCodeEntry[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,9 +29,6 @@ export default function CustomCodePanel() {
     useEffect(() => { fetchWebsites(); }, []);
     useEffect(() => { if (selectedSite) fetchEntries(); }, [selectedSite]);
 
-    /**
-     * Fetch Websites.
-     */
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -50,9 +40,6 @@ export default function CustomCodePanel() {
         } catch { setError("Could not load websites."); }
     };
 
-    /**
-     * Fetch Entries.
-     */
     const fetchEntries = async () => {
         setLoading(true); setError(null);
         try {
@@ -64,10 +51,6 @@ export default function CustomCodePanel() {
         finally { setLoading(false); }
     };
 
-    /**
-     * Handle Save.
-     * @param e E supplied to this operation (type: React.FormEvent).
-     */
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.code.trim()) return;
@@ -100,10 +83,6 @@ export default function CustomCodePanel() {
         finally { setSaving(false); }
     };
 
-    /**
-     * Handle Delete.
-     * @param id Id supplied to this operation (type: string).
-     */
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this code snippet?")) return;
         try {

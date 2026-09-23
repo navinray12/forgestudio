@@ -1,7 +1,3 @@
-/**
- * @file Phone Input: React UI composition and event handling for this screen or component.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect, useCallback } from "react";
 import { CountrySelector } from "./CountrySelector";
 import {
@@ -12,26 +8,6 @@ import {
 import type { CountryData } from "./phoneCountries";
 import type { PhoneInputProps } from "./phoneInput.types";
 
-/**
- * Render the phone input interface and connect its event handlers.
- * @param options Named inputs: value, defaultCountryIso, onChange, onBlur, disabled, required, id, name, className, inputClassName, selectorClassName, externalError, showErrorText, label, autoFocus.
-
- * @param options.value Value passed by the caller. Defaults to "".
- * @param options.defaultCountryIso Default Country Iso passed by the caller. Defaults to "IN".
- * @param options.onChange Callback invoked when the controlled value changes.
- * @param options.onBlur Callback for blur events.
- * @param options.disabled Disabled passed by the caller. Defaults to false.
- * @param options.required Required passed by the caller. Defaults to false.
- * @param options.id Id passed by the caller. Defaults to "phone-input".
- * @param options.name Name passed by the caller. Defaults to "phoneNumber".
- * @param options.className CSS classes to apply to the rendered element. Defaults to "".
- * @param options.inputClassName Input Class Name passed by the caller. Defaults to "".
- * @param options.selectorClassName Selector Class Name passed by the caller. Defaults to "".
- * @param options.error Error passed by the caller.
- * @param options.showErrorText Show Error Text passed by the caller. Defaults to true.
- * @param options.label Label passed by the caller.
- * @param options.autoFocus Auto Focus passed by the caller. Defaults to false.
- */
 export const PhoneInput: React.FC<PhoneInputProps> = ({
   value = "",
   defaultCountryIso = "IN",
@@ -116,20 +92,12 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   }, [value, defaultCountryIso]);
 
   // Handle Country Selection
-  /**
-   * Handle Country Select.
-   * @param country Country supplied to this operation (type: CountryData).
-   */
   const handleCountrySelect = (country: CountryData) => {
     setSelectedCountry(country);
     emitChange(country, nationalNumber);
   };
 
   // Handle National Phone Number Typing
-  /**
-   * Handle Input Change.
-   * @param e E supplied to this operation (type: React.ChangeEvent<HTMLInputElement>).
-   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     // If user attempts to type '+' or paste international number directly into box, parse it!

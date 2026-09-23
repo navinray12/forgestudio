@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Import Classes Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState } from "react";
 import type { ExportedClassItem, ClassConflictItem, ClassConflictResolutionMode } from "../types/classExportImport.types";
 import type { CreateClassPayload } from "../types/classes.types";
@@ -17,16 +13,6 @@ interface ImportClassesModalProps {
   ) => Promise<void>;
 }
 
-/**
- * Render the import classes modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, newItems, initialConflicts, onClose, onConfirmImport.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.newItems New Items passed by the caller.
- * @param options.initialConflicts Initial Conflicts passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onConfirmImport Callback for confirm import events.
- */
 export const ImportClassesModal: React.FC<ImportClassesModalProps> = ({
   isOpen,
   newItems,
@@ -40,11 +26,6 @@ export const ImportClassesModal: React.FC<ImportClassesModalProps> = ({
 
   if (!isOpen) return null;
 
-  /**
-   * Update Conflict Resolution.
-   * @param index Index supplied to this operation (type: number).
-   * @param mode Mode supplied to this operation (type: ClassConflictResolutionMode).
-   */
   const updateConflictResolution = (index: number, mode: ClassConflictResolutionMode) => {
     setConflicts((prev) => {
       const copy = [...prev];
@@ -53,9 +34,6 @@ export const ImportClassesModal: React.FC<ImportClassesModalProps> = ({
     });
   };
 
-  /**
-   * Handle Confirm.
-   */
   const handleConfirm = async () => {
     setErrorMsg(null);
     setIsSubmitting(true);

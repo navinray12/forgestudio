@@ -1,7 +1,3 @@
-/**
- * @file Atomic editor feature: Reusable Component Form Modal. Keep feature UI, hooks, services and types in this module.
- * Navigation and conventions: docs/code-navigation/README.md.
- */
 import React, { useState, useEffect } from "react";
 import type { ReusableComponentDefinition, CreateReusableComponentPayload } from "../types/reusableComponents.types";
 
@@ -12,15 +8,6 @@ interface ReusableComponentFormModalProps {
   onSubmit: (payload: CreateReusableComponentPayload) => Promise<void>;
 }
 
-/**
- * Render the reusable component form modal interface and connect its event handlers.
- * @param options Named inputs: isOpen, componentToEdit, onClose, onSubmit.
-
- * @param options.isOpen Is Open passed by the caller.
- * @param options.componentToEdit Component To Edit passed by the caller.
- * @param options.onClose Callback invoked when this interface should close.
- * @param options.onSubmit Callback for submit events.
- */
 export const ReusableComponentFormModal: React.FC<ReusableComponentFormModalProps> = ({
   isOpen,
   componentToEdit,
@@ -54,10 +41,6 @@ export const ReusableComponentFormModal: React.FC<ReusableComponentFormModalProp
 
   if (!isOpen) return null;
 
-  /**
-   * Handle Submit.
-   * @param e E supplied to this operation (type: React.FormEvent).
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
