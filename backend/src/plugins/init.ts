@@ -1,3 +1,7 @@
+/**
+ * @file Init: plugins module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { BackendPluginManager } from "./PluginManager.js";
 
 // Example Plugin ensuring the architecture works natively!

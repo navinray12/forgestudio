@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: Save Template Dialog. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useRef } from "react";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
 import type { PageSettingsData } from "../../revision-history/types/revisionHistory.types";
@@ -24,6 +28,28 @@ interface SaveTemplateDialogProps {
   pageSettings: PageSettingsData;
 }
 
+/**
+ * Render the save template dialog interface and connect its event handlers.
+ * @param options Named inputs: isOpen, isUpdateMode, name, setName, description, setDescription, type, setType, category, setCategory, isSaving, error, validationError, onClose, onSave, elements, pageSettings.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.isUpdateMode Is Update Mode passed by the caller. Defaults to false.
+ * @param options.name Name passed by the caller.
+ * @param options.setName Set Name passed by the caller.
+ * @param options.description Description passed by the caller.
+ * @param options.setDescription Set Description passed by the caller.
+ * @param options.type Type passed by the caller.
+ * @param options.setType Set Type passed by the caller.
+ * @param options.category Category passed by the caller. Defaults to "Other".
+ * @param options.setCategory Set Category passed by the caller.
+ * @param options.isSaving Is Saving passed by the caller.
+ * @param options.error Error value to inspect, report or pass to the next error boundary.
+ * @param options.validationError Validation Error passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onSave Callback for save events.
+ * @param options.elements Elements passed by the caller.
+ * @param options.pageSettings Page Settings passed by the caller.
+ */
 export const SaveTemplateDialog: React.FC<SaveTemplateDialogProps> = ({
   isOpen,
   isUpdateMode = false,
@@ -54,6 +80,10 @@ export const SaveTemplateDialog: React.FC<SaveTemplateDialogProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
+    /**
+     * Handle Key Down.
+     * @param e E supplied to this operation (type: KeyboardEvent).
+     */
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isOpen && e.key === "Escape" && !isSaving) {
         onClose();
@@ -65,6 +95,10 @@ export const SaveTemplateDialog: React.FC<SaveTemplateDialogProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * Handle Submit.
+   * @param e E supplied to this operation (type: React.FormEvent).
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSaving) {

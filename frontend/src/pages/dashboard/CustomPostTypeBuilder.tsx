@@ -1,8 +1,15 @@
+/**
+ * @file Custom Post Type Builder: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+/**
+ * Render the custom post type builder interface and connect its event handlers.
+ */
 export default function CustomPostTypeBuilder() {
     const { websiteId, cptId } = useParams();
     const navigate = useNavigate();
@@ -19,6 +26,9 @@ export default function CustomPostTypeBuilder() {
 
     const [saving, setSaving] = useState(false);
 
+    /**
+     * Handle Add Field.
+     */
     const handleAddField = () => {
         setFields(prev => [...prev, {
             name: "New Field",
@@ -29,6 +39,10 @@ export default function CustomPostTypeBuilder() {
         }]);
     };
 
+    /**
+     * Handle Save.
+     * @param e E supplied to this operation (type: any).
+     */
     const handleSave = async (e: any) => {
         e.preventDefault();
         setSaving(true);

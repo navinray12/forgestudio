@@ -1,8 +1,22 @@
+/**
+ * @file Country Selector: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useRef, useEffect } from "react";
 import { COUNTRY_DATA } from "./phoneCountries";
 import type { CountrySelectorProps } from "./phoneInput.types";
 import { searchCountries } from "./phoneInput.utils";
 
+/**
+ * Render the country selector interface and connect its event handlers.
+ * @param options Named inputs: selectedCountry, onSelectCountry, disabled, className, id.
+
+ * @param options.selectedCountry Selected Country passed by the caller.
+ * @param options.onSelectCountry Callback for select country events.
+ * @param options.disabled Disabled passed by the caller. Defaults to false.
+ * @param options.className CSS classes to apply to the rendered element. Defaults to "".
+ * @param options.id Id passed by the caller. Defaults to "country-selector".
+ */
 export const CountrySelector: React.FC<CountrySelectorProps> = ({
   selectedCountry,
   onSelectCountry,
@@ -19,6 +33,10 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    /**
+     * Handle Click Outside.
+     * @param event Event being handled; its type determines the available target and payload.
+     */
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -48,6 +66,10 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
   }, [isOpen]);
 
   // Handle keyboard navigation
+  /**
+   * Handle Key Down.
+   * @param e E supplied to this operation (type: React.KeyboardEvent).
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
       setIsOpen(false);

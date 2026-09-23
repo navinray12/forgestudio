@@ -1991,40 +1991,336 @@ export function createDefaultElement(type: ElementType): EditorElement {
           marginBottom: "16px",
         },
       };
+    case "woocommerce-product":
+    case "wc-product":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        productLayoutDirection: "vertical",
+        productImagePosition: "top",
+        productImageWidth: "100%",
+        productGap: "16px",
+        productAlignment: "start",
+        productShowTitle: true,
+        productShowImage: true,
+        productShowPrice: true,
+        productShowRating: true,
+        productShowStock: true,
+        productShowShortDesc: true,
+        productShowAddToCart: true,
+        productShowMeta: true,
+        productShowBadge: true,
+        content: "Product Card",
+        styles: {
+          width: "100%",
+          paddingTop: "20px",
+          paddingRight: "20px",
+          paddingBottom: "20px",
+          paddingLeft: "20px",
+          backgroundColor: "#ffffff",
+          borderRadius: "16px",
+          borderColor: "#e2e8f0",
+          borderWidth: "1px",
+          borderStyle: "solid",
+          marginTop: "16px",
+          marginBottom: "16px"
+        }
+      };
     case "wc-product-title":
       return {
         id,
         type,
+        productId: "prod_1",
+        productSource: "site",
         content: "Sample Product Title",
         styles: { fontSize: "24px", fontWeight: "700", color: "#0f172a", marginBottom: "8px" }
       };
+    case "woocommerce-product-price":
     case "wc-product-price":
       return {
         id,
         type,
-        content: "$99.99",
-        styles: { fontSize: "20px", fontWeight: "600", color: "#16a34a", marginBottom: "12px" }
+        productId: "prod_1",
+        productSource: "site",
+        priceDisplayMode: "auto",
+        priceShowDiscountBadge: true,
+        priceShowTaxNotice: false,
+        priceTaxNoticeText: "incl. VAT",
+        content: "$199.99",
+        styles: { fontSize: "22px", fontWeight: "700", color: "#16a34a", marginBottom: "12px" }
       };
+    case "woocommerce-product-images":
     case "wc-product-images":
       return {
         id,
         type,
-        content: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
-        styles: { width: "100%", borderRadius: "8px", marginBottom: "12px" }
+        productId: "prod_1",
+        productSource: "site",
+        galleryLayout: "thumbnails",
+        galleryPosition: "bottom",
+        thumbnailAspectRatio: "square",
+        thumbnailSize: "sm",
+        enableLightbox: true,
+        content: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
+        styles: { width: "100%", borderRadius: "12px", marginBottom: "12px" }
       };
+    case "woocommerce-add-to-cart":
     case "wc-add-to-cart":
       return {
         id,
         type,
+        productId: "prod_1",
+        productSource: "site",
         content: "Add to Cart 🛒",
-        styles: { backgroundColor: "#0f172a", color: "#ffffff", padding: "12px 24px", borderRadius: "8px", fontWeight: "600" }
+        cartButtonText: "Add to Cart 🛒",
+        cartLoadingText: "Adding...",
+        cartSuccessText: "Added to Cart ✓",
+        cartDisabledText: "Out of Stock",
+        cartShowQuantity: true,
+        cartDefaultQuantity: 1,
+        cartMinQuantity: 1,
+        cartMaxQuantity: 99,
+        cartQuantityStep: 1,
+        cartPostAddAction: "stay",
+        cartQuantityLayout: "inline",
+        styles: { backgroundColor: "#0f172a", color: "#ffffff", paddingTop: "12px", paddingRight: "24px", paddingBottom: "12px", paddingLeft: "24px", borderRadius: "10px", fontWeight: "600" }
       };
+    case "woocommerce-product-rating":
     case "wc-product-rating":
       return {
         id,
         type,
+        productId: "prod_1",
+        productSource: "site",
+        ratingDisplayMode: "full",
+        ratingStarColor: "#eab308",
+        ratingEmptyStarColor: "#cbd5e1",
+        ratingStarSize: "md",
+        ratingShowCount: true,
+        ratingReviewFormat: "({count} customer reviews)",
+        ratingEmptyBehavior: "show_empty_stars",
+        ratingFallbackText: "No reviews yet",
+        ratingLinkToReviews: false,
         content: "5",
-        styles: { color: "#eab308", fontSize: "18px", marginBottom: "8px" }
+        styles: { color: "#eab308", fontSize: "16px", marginBottom: "8px" }
+      };
+    case "wc-product-stock":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        content: "In Stock (45 available)",
+        productStockStatus: "in_stock",
+        productStockQty: 45,
+        styles: { color: "#16a34a", fontSize: "14px", fontWeight: "600", marginBottom: "8px" }
+      };
+    case "woocommerce-product-meta":
+    case "wc-product-meta":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        metaShowSku: true,
+        metaShowCategories: true,
+        metaShowTags: true,
+        metaShowId: false,
+        metaShowType: false,
+        metaShowBrand: false,
+        metaLayout: "vertical",
+        metaSeparator: ", ",
+        metaSkuLabel: "SKU:",
+        metaCategoriesLabel: "Category:",
+        metaTagsLabel: "Tags:",
+        metaIdLabel: "ID:",
+        metaTypeLabel: "Type:",
+        metaBrandLabel: "Brand:",
+        metaSkuFallback: "N/A",
+        metaEmptyBehavior: "fallback",
+        metaLinkCategories: true,
+        metaLabelColor: "#475569",
+        metaValueColor: "#0f172a",
+        metaLinkColor: "#6366f1",
+        content: "SKU: AUD-HD-001 | Category: Electronics",
+        styles: { color: "#64748b", fontSize: "13px", marginBottom: "12px" }
+      };
+    case "wc-product-content":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        content: "Detailed product specification and features breakdown for online store items.",
+        styles: { color: "#334155", fontSize: "15px", lineHeight: "1.6", marginBottom: "16px" }
+      };
+    case "wc-short-description":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        content: "Experience immersive studio-quality sound with active noise cancellation and 30-hour battery life.",
+        styles: { color: "#475569", fontSize: "15px", lineHeight: "1.5", marginBottom: "12px" }
+      };
+    case "wc-product-data-tabs":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        content: "Product Data Tabs",
+        styles: { width: "100%", marginTop: "16px", marginBottom: "16px" }
+      };
+    case "wc-additional-information":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        content: "Additional Information",
+        styles: { width: "100%", color: "#334155", fontSize: "14px", marginBottom: "16px" }
+      };
+    case "wc-related-products":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        productsColumns: 3,
+        productsLimit: 3,
+        content: "Related Products",
+        styles: { width: "100%", marginTop: "24px", marginBottom: "24px" }
+      };
+    case "wc-upsells":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        productsColumns: 3,
+        productsLimit: 3,
+        content: "You May Also Like",
+        styles: { width: "100%", marginTop: "24px", marginBottom: "24px" }
+      };
+    case "wc-products":
+      return {
+        id,
+        type,
+        productsColumns: 3,
+        productsLimit: 6,
+        content: "Store Products Catalog",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-custom-add-to-cart":
+      return {
+        id,
+        type,
+        productId: "prod_1",
+        productSource: "site",
+        cartButtonText: "Buy Now 🚀",
+        content: "Buy Now 🚀",
+        styles: { backgroundColor: "#2563eb", color: "#ffffff", paddingTop: "14px", paddingRight: "28px", paddingBottom: "14px", paddingLeft: "28px", borderRadius: "12px", fontWeight: "700" }
+      };
+    case "wc-product-categories":
+      return {
+        id,
+        type,
+        content: "Store Categories",
+        styles: { width: "100%", marginTop: "16px", marginBottom: "16px" }
+      };
+    case "wc-menu-cart":
+      return {
+        id,
+        type,
+        content: "🛒 Cart (2)",
+        cartShowBadge: true,
+        styles: { display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", backgroundColor: "#f8fafc", borderRadius: "8px", fontWeight: "600", color: "#0f172a" }
+      };
+    case "wc-cart":
+      return {
+        id,
+        type,
+        content: "Shopping Cart",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-checkout":
+      return {
+        id,
+        type,
+        content: "Checkout",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-my-account":
+      return {
+        id,
+        type,
+        content: "My Account Dashboard",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-purchase-summary":
+      return {
+        id,
+        type,
+        content: "Order Confirmation & Receipt",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-notices":
+      return {
+        id,
+        type,
+        noticeType: "success",
+        noticeText: "✓ “Premium Headphones” has been added to your cart.",
+        content: "✓ “Premium Headphones” has been added to your cart.",
+        styles: { width: "100%", backgroundColor: "#f0fdf4", color: "#15803d", padding: "12px 20px", borderRadius: "10px", borderColor: "#bbf7d0", borderWidth: "1px", borderStyle: "solid", marginBottom: "16px" }
+      };
+    case "wc-shop-layouts":
+      return {
+        id,
+        type,
+        shopLayoutMode: "grid",
+        productsColumns: 3,
+        content: "Full Storefront Shop Layout",
+        styles: { width: "100%", marginTop: "24px", marginBottom: "24px" }
+      };
+    case "wc-product-archive":
+      return {
+        id,
+        type,
+        content: "Product Archive Catalog",
+        styles: { width: "100%", marginTop: "20px", marginBottom: "20px" }
+      };
+    case "wc-product-page-templates":
+      return {
+        id,
+        type,
+        content: "Single Product Page Template Canvas",
+        styles: { width: "100%", paddingTop: "24px", paddingBottom: "24px" }
+      };
+    case "woocommerce-product-archive-templates":
+    case "wc-product-archive-templates":
+      return {
+        id,
+        type,
+        content: "Store Archive Page Template Canvas",
+        styles: { width: "100%", paddingTop: "24px", paddingBottom: "24px" }
+      };
+    case "woocommerce-shop-filters":
+    case "wc-shop-filters":
+      return {
+        id,
+        type,
+        content: "Shop Archive Filters",
+        styles: { width: "100%", marginTop: "16px", marginBottom: "16px" }
+      };
+    case "language-switcher":
+      return {
+        id,
+        type,
+        content: "Language Switcher",
+        styles: { display: "inline-block", marginTop: "4px", marginBottom: "4px" }
       };
 
     case "price-table":

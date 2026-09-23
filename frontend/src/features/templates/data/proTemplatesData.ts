@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: pro Templates Data. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { Template } from "../types/template.types";
 import { HOME_TEMPLATES } from "./homeTemplates";
 import { ABOUT_TEMPLATES } from "./aboutTemplates";

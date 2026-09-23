@@ -2812,6 +2812,7 @@ export default defineConfig({
 `;
 
   // 4. src/styles/global.css (Tokens from GlobalStylesConfig)
+<<<<<<< HEAD
   const gStyles = data.globalStyles || (data.globalSettings as any)?.globalStyles || data.globalSettings || {};
   const gVars = (data as any).variables || gStyles.variables || (data.globalSettings as any)?.variables || {};
   const gClasses = (data as any).globalClasses || gStyles.globalClasses || (data.globalSettings as any)?.globalClasses || {};
@@ -2840,6 +2841,9 @@ export default defineConfig({
     });
   }
 
+=======
+  const gStyles = (data.globalStyles || {}) as Record<string, any>;
+>>>>>>> b1870cd2d41c979a7ad7f08427b4567b2b3d7630
   files["src/styles/global.css"] = `:root {
   --forge-primary: ${gStyles.primaryColor || gStyles.colors?.primary || "#3b82f6"};
   --forge-secondary: ${gStyles.secondaryColor || gStyles.colors?.secondary || "#10b981"};

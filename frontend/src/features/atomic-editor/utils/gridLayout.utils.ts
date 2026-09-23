@@ -1,7 +1,14 @@
+/**
+ * @file Atomic editor feature: grid Layout utils. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { GridContainerConfig, GridItemPlacement, GridBreakpoint } from "../types/atomicGrid.types";
 
 /**
  * Generates inline CSS style object for a Grid Container based on responsive breakpoint
+
+ * @param grid Grid supplied to this operation (type: GridContainerConfig).
+ * @param breakpoint Breakpoint supplied to this operation (type: GridBreakpoint). Defaults to "desktop".
  */
 export function generateGridStyles(grid: GridContainerConfig, breakpoint: GridBreakpoint = "desktop"): React.CSSProperties {
   const resp = grid.responsive[breakpoint] || {
@@ -23,6 +30,8 @@ export function generateGridStyles(grid: GridContainerConfig, breakpoint: GridBr
 
 /**
  * Generates inline CSS style object for an individual Grid Item
+
+ * @param item Item supplied to this operation (type: GridItemPlacement).
  */
 export function generateGridItemStyles(item: GridItemPlacement): React.CSSProperties {
   return {

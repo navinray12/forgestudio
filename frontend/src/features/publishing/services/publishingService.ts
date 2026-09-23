@@ -1,3 +1,7 @@
+/**
+ * @file Publishing feature: publishing Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { DeploymentRecord, DeploymentStatus } from "../../../pages/editor/types";
 
 export interface PublishApiResponse {
@@ -22,11 +26,19 @@ export interface ValidationApiResponse {
   };
 }
 
+/**
+ * Get Base Url.
+ * @param override Override supplied to this operation (type: string). Optional; callers may omit it.
+ */
 const getBaseUrl = (override?: string) => override || (import.meta.env.VITE_API_URL || "");
 
 export const publishingService = {
   /**
    * Run pre-publish validation on current draft
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param editorData Editor Data supplied to this operation (type: any). Optional; callers may omit it.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async validateWebsite(websiteId: string, editorData?: any, apiUrl?: string): Promise<ValidationApiResponse> {
     const base = getBaseUrl(apiUrl);
@@ -46,6 +58,10 @@ export const publishingService = {
 
   /**
    * Trigger production publish pipeline
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param options Options supplied to this operation (type: { editorData?: any; environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT"; destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC"; metadata?: Record<string, any>; }). Defaults to {}.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async publishWebsite(
     websiteId: string,
@@ -74,6 +90,9 @@ export const publishingService = {
 
   /**
    * Fetch deployment history
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async getDeployments(websiteId: string, apiUrl?: string): Promise<DeploymentRecord[]> {
     const base = getBaseUrl(apiUrl);
@@ -92,6 +111,10 @@ export const publishingService = {
 
   /**
    * Rollback to a previous successful deployment
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param deploymentId Deployment Id supplied to this operation (type: string).
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async rollbackDeployment(websiteId: string, deploymentId: string, apiUrl?: string): Promise<PublishApiResponse> {
     const base = getBaseUrl(apiUrl);
@@ -110,6 +133,12 @@ export const publishingService = {
 
   /**
    * Connect to a WordPress destination site
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param siteUrl Site Url supplied to this operation (type: string).
+   * @param apiKey Api Key supplied to this operation (type: string).
+   * @param siteName Site Name supplied to this operation (type: string). Optional; callers may omit it.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async connectWordPress(
     websiteId: string,
@@ -135,6 +164,9 @@ export const publishingService = {
 
   /**
    * Fetch WordPress connection status
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async getWordPressStatus(websiteId: string, apiUrl?: string): Promise<any> {
     const base = getBaseUrl(apiUrl);
@@ -153,6 +185,9 @@ export const publishingService = {
 
   /**
    * Verify WordPress connection health
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async verifyWordPress(websiteId: string, apiUrl?: string): Promise<any> {
     const base = getBaseUrl(apiUrl);
@@ -171,6 +206,9 @@ export const publishingService = {
 
   /**
    * Safely disconnect WordPress integration
+
+   * @param websiteId Identifier of the website whose data is being read or changed.
+   * @param apiUrl Api Url supplied to this operation (type: string). Optional; callers may omit it.
    */
   async disconnectWordPress(websiteId: string, apiUrl?: string): Promise<any> {
     const base = getBaseUrl(apiUrl);

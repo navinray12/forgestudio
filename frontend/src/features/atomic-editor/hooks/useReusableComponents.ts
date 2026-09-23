@@ -1,7 +1,14 @@
+/**
+ * @file Atomic editor feature: use Reusable Components. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { ReusableComponentDefinition, CreateReusableComponentPayload } from "../types/reusableComponents.types";
 import { ReusableComponentService } from "../services/reusableComponentService";
 
+/**
+ * Coordinate reusable components state and lifecycle for the calling component.
+ */
 export function useReusableComponents() {
   const [components, setComponents] = useState<ReusableComponentDefinition[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -40,6 +47,10 @@ export function useReusableComponents() {
     );
   }, [components, searchQuery]);
 
+  /**
+   * Create Component.
+   * @param payload Payload supplied to this operation (type: CreateReusableComponentPayload).
+   */
   const createComponent = async (payload: CreateReusableComponentPayload) => {
     setError(null);
     try {
@@ -52,6 +63,11 @@ export function useReusableComponents() {
     }
   };
 
+  /**
+   * Update Component.
+   * @param id Id supplied to this operation (type: string).
+   * @param payload Payload supplied to this operation (type: Partial<CreateReusableComponentPayload>).
+   */
   const updateComponent = async (id: string, payload: Partial<CreateReusableComponentPayload>) => {
     setError(null);
     try {
@@ -64,6 +80,10 @@ export function useReusableComponents() {
     }
   };
 
+  /**
+   * Duplicate Component.
+   * @param id Id supplied to this operation (type: string).
+   */
   const duplicateComponent = async (id: string) => {
     setError(null);
     try {
@@ -76,6 +96,10 @@ export function useReusableComponents() {
     }
   };
 
+  /**
+   * Delete Component.
+   * @param id Id supplied to this operation (type: string).
+   */
   const deleteComponent = async (id: string) => {
     setError(null);
     try {

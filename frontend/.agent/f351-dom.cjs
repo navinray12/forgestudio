@@ -1,3 +1,7 @@
+/**
+ * @file F351 dom: frontend/ agent module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs');
 
 let userDash = fs.readFileSync('src/pages/dashboard/UserDashboard.tsx', 'utf8');

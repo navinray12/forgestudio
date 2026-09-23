@@ -1,75 +1,16 @@
-# React + TypeScript + Vite
+# Frontend feature modules
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Start with the business capability, then choose the file matching the operation.
 
-Currently, two official plugins are available:
+| Module | Owns |
+| --- | --- |
+| [atomic-editor](atomic-editor/README.md) | Coordinate existing atomic editing features, including classes, variables, loops and reusable components. |
+| [autosave](autosave/README.md) | Connect editor changes to the shared save coordinator, cloud persistence and browser recovery. |
+| [fonts](fonts/README.md) | Load and register fonts available to the editor. |
+| [global-widget](global-widget/README.md) | Manage reusable global widgets and their editor dialogs. |
+| [publishing](publishing/README.md) | Publishing controls, client state and API calls used by the editor. |
+| [revision-history](revision-history/README.md) | Display and restore saved document revisions. |
+| [templates](templates/README.md) | Template browsing, validation, import/export and save dialogs. |
+| [website-kits](website-kits/README.md) | Browse and apply bundled website kits. |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+See the [project navigation guide](../../../docs/code-navigation/README.md) for the request pipeline and development conventions.

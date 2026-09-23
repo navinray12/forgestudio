@@ -1,8 +1,15 @@
+/**
+ * @file Atomic editor feature: use Atomic Loop. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { LoopContainerConfig, CreateLoopPayload } from "../types/atomicLoop.types";
 import { AtomicLoopService } from "../services/atomicLoopService";
 import { resolveLoopItems } from "../utils/loopData.utils";
 
+/**
+ * Coordinate atomic loop state and lifecycle for the calling component.
+ */
 export function useAtomicLoop() {
   const [loops, setLoops] = useState<LoopContainerConfig[]>([]);
   const [activeLoop, setActiveLoop] = useState<LoopContainerConfig | null>(null);
@@ -43,6 +50,10 @@ export function useAtomicLoop() {
     return resolveLoopItems(activeLoop);
   }, [activeLoop]);
 
+  /**
+   * Create Loop.
+   * @param payload Payload supplied to this operation (type: CreateLoopPayload).
+   */
   const createLoop = async (payload: CreateLoopPayload) => {
     try {
       const created = AtomicLoopService.createLoop(payload);
@@ -55,6 +66,10 @@ export function useAtomicLoop() {
     }
   };
 
+  /**
+   * Update Active Loop.
+   * @param payload Payload supplied to this operation (type: Partial<LoopContainerConfig>).
+   */
   const updateActiveLoop = async (payload: Partial<LoopContainerConfig>) => {
     if (!activeLoop) return;
     try {
@@ -66,6 +81,10 @@ export function useAtomicLoop() {
     }
   };
 
+  /**
+   * Delete Loop.
+   * @param id Id supplied to this operation (type: string).
+   */
   const deleteLoop = async (id: string) => {
     try {
       AtomicLoopService.deleteLoop(id);

@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: Transfer Template Dialog. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState, useEffect } from "react";
 import type { Template } from "../types/template.types";
 
@@ -15,6 +19,16 @@ interface TransferTemplateDialogProps {
   onTransfer: (template: Template, targetWebsiteId: string, targetWebsiteName: string) => Promise<void>;
 }
 
+/**
+ * Render the transfer template dialog interface and connect its event handlers.
+ * @param options Named inputs: isOpen, template, apiUrl, onClose, onTransfer.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.template Template passed by the caller.
+ * @param options.apiUrl Api Url passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onTransfer Callback for transfer events.
+ */
 export const TransferTemplateDialog: React.FC<TransferTemplateDialogProps> = ({
   isOpen,
   template,
@@ -37,6 +51,9 @@ export const TransferTemplateDialog: React.FC<TransferTemplateDialogProps> = ({
     }
   }, [isOpen]);
 
+  /**
+   * Fetch User Websites.
+   */
   const fetchUserWebsites = async () => {
     try {
       setLoadingWebsites(true);
@@ -62,6 +79,9 @@ export const TransferTemplateDialog: React.FC<TransferTemplateDialogProps> = ({
 
   if (!isOpen || !template) return null;
 
+  /**
+   * Handle Confirm Transfer.
+   */
   const handleConfirmTransfer = async () => {
     if (!selectedWebsiteId || isTransferring) return;
 
