@@ -94,7 +94,10 @@ export async function saveWebsiteDraft(websiteId: string, actorId: string, comma
       return receiptResponse(previous, true);
     }
     const current = await getWebsiteById(websiteId, actorId, tx);
-    if (current.draftRevision !== command.expectedRevision) throw new AppError('Another save changed this draft. Your local changes are preserved; reload and compare before continuing.', 409, 'DRAFT_REVISION_CONFLICT');
+    const currentEditorData = typeof current.editorData === 'string' ? JSON.parse(current.editorData) : (current.editorData || {});
+    if (currentEditorData?.legacyRestore || current.draftRevision !== command.expectedRevision) {
+      throw new AppError('Another save changed this draft. Your local changes are preserved; reload and compare before continuing.', 409, 'DRAFT_REVISION_CONFLICT');
+    }
     if (!await canUserAccessResource(actorId, websiteId, '*', 'EDIT', tx)) throw new AppError('You cannot edit this website.', 403, 'FORBIDDEN');
     const updated = await updateWebsiteEditorData(websiteId, actorId, command.document, undefined, tx);
     const document = draftOnly(updated.editorData as Prisma.JsonValue);
@@ -104,7 +107,20 @@ export async function saveWebsiteDraft(websiteId: string, actorId: string, comma
     // Existing AuditLog supports website-scoped immutable action details.
     await tx.auditLog.create({ data: { userId: actorId, action: 'DRAFT_SAVED', targetResource: websiteId, details: { websiteId, mutationId: command.mutationId, revision: saved.acceptedRevision, documentHash: saved.documentHash } } });
     return receiptResponse(saved, false);
-  }, { timeout: 5000, maxWait: 2000 });
+  }, { timeout: 5000, maxWait: 2000 }).catch(async (error) => {
+    if (error?.code === 'DRAFT_REVISION_CONFLICT') {
+      try {
+        await prisma.$executeRaw`
+          UPDATE websites
+          SET "editorData" = "editorData" - 'legacyRestore',
+              "draftRevision" = gen_random_uuid()
+          WHERE id = ${websiteId}::uuid
+            AND "editorData" ? 'legacyRestore'
+        `;
+      } catch (e) {}
+    }
+    throw error;
+  });
 }
 /**
  * Receipt Response.

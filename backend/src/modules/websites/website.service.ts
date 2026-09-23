@@ -918,8 +918,25 @@ export async function updateWebsiteEditorData(
   editorDataInput?: any,
   performanceSettingsInput?: any,
   performanceInput?: any,
-  client: Prisma.TransactionClient = prisma,
+  clientArg?: Prisma.TransactionClient,
 ) {
+  const isPrismaClient = (obj: any): boolean =>
+    Boolean(obj && (typeof obj.$queryRaw === "function" || typeof obj.$executeRaw === "function" || obj._originalClient));
+
+  let client: Prisma.TransactionClient = prisma;
+  let perfSettings = performanceSettingsInput;
+  let perfInput = performanceInput;
+
+  if (isPrismaClient(clientArg)) {
+    client = clientArg as Prisma.TransactionClient;
+  } else if (isPrismaClient(performanceInput)) {
+    client = performanceInput as Prisma.TransactionClient;
+    perfInput = undefined;
+  } else if (isPrismaClient(performanceSettingsInput)) {
+    client = performanceSettingsInput as Prisma.TransactionClient;
+    perfSettings = undefined;
+  }
+
   validateCanonicalEditorData(editorDataInput || {});
 
   // Ensure website exists and fetch permission boundaries
@@ -945,7 +962,8 @@ export async function updateWebsiteEditorData(
   const currentPerf = typeof website.performanceSettings === "string" ? JSON.parse(website.performanceSettings) : (website.performanceSettings || {});
 
   const incomingEditorData = editorDataInput || {};
-  const incomingPerformance = performanceSettingsInput || performanceInput || incomingEditorData.performanceSettings || incomingEditorData.performance;
+  const rawIncomingPerf = perfSettings || perfInput || incomingEditorData.performanceSettings || incomingEditorData.performance;
+  const incomingPerformance = isPrismaClient(rawIncomingPerf) ? undefined : rawIncomingPerf;
 
   /**
    * Safe Merge.
@@ -1063,6 +1081,7 @@ export async function updateWebsiteEditorData(
     ...(safePages !== undefined ? { pages: safePages } : {}),
     ...(safeSiteParts !== undefined ? { siteParts: safeSiteParts } : {}),
   };
+  delete finalEditorData.legacyRestore;
 
   try {
     if (incomingPerformance !== undefined) finalEditorData.performanceSettings = mergedPerf;

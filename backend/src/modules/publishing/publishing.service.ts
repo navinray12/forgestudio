@@ -283,7 +283,7 @@ export async function publishWebsite(
     ? JSON.parse(website.editorData)
     : (website.editorData || {});
 
-  const candidateData = options.editorData || rawEditorData;
+  const candidateData = { ...(options.editorData || rawEditorData) };
 
   // 3. Pre-Publish Validation
   const validation = await validateWebsiteForPublish(websiteId, userId, candidateData);
@@ -331,12 +331,8 @@ export async function publishWebsite(
         label: `Pre-Publish Snapshot (v${nextVersion})`,
         notes: `Automated safety snapshot created before deploying version ${nextVersion}`,
       });
-      const currentBackups = Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [];
-      rawEditorData.backups = appendBackup(currentBackups, prePublishBackup);
-      await db.website.update({
-        where: { id: websiteId },
-        data: { editorData: rawEditorData },
-      });
+      const currentBackups = Array.isArray(candidateData.backups) ? candidateData.backups : [];
+      candidateData.backups = appendBackup(currentBackups, prePublishBackup);
     } catch (backupErr) {
       console.warn("Pre-publish safety backup warning:", backupErr);
     }

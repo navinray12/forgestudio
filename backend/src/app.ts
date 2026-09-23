@@ -180,6 +180,9 @@ app.use("/api/component-access", componentAccessRoutes);
 
 
 
+app.use("/api/v1/templates", templateRoutes);
+app.use("/api/templates", templateRoutes);
+
 app.use("/api/v1/website-kits", websiteKitRoutes);
 app.use("/api/website-kits", websiteKitRoutes);
 

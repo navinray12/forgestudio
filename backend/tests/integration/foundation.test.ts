@@ -423,7 +423,7 @@ it("disabled adapters never claim remote verification or create mappings", async
 it("database readiness works while an application role cannot change schema", async () => {
   await checkDatabaseReadiness();
   await prisma.$executeRawUnsafe(
-    `CREATE ROLE forgestudio_runtime_fixture LOGIN PASSWORD 'fixture-only'`,
+    `DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'forgestudio_runtime_fixture') THEN CREATE ROLE forgestudio_runtime_fixture LOGIN PASSWORD 'fixture-only'; END IF; END $$;`,
   );
   await prisma.$executeRawUnsafe(
     `GRANT USAGE ON SCHEMA public TO forgestudio_runtime_fixture`,

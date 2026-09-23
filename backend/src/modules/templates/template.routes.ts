@@ -30,6 +30,7 @@ router.post("/admin/seed", requireAuth, adminBulkSeedHandler);
 router.post("/", requireAuth, createTemplateHandler);
 router.get("/", requireAuth, getUserTemplatesHandler);
 router.post("/:id/share", requireAuth, toggleShareHandler);
+router.put("/:id", requireAuth, updateTemplateHandler);
 router.patch("/:id", requireAuth, updateTemplateHandler);
 router.delete("/:id", requireAuth, deleteTemplateHandler);
 

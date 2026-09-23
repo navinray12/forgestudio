@@ -2956,222 +2956,6 @@ export default function WebsiteEditor() {
     return results;
   };
 
-  const renderTypographySection = () => {
-    if (!selectedElementAny) return null;
-
-    const currentFontFamily = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily");
-    const supportedWeights = FontService.getSupportedWeights(currentFontFamily);
-    const hasItalic = FontService.hasItalic(currentFontFamily);
-
-    const weightLabels: Record<number, string> = {
-      100: "100 Thin",
-      200: "200 Extra Light",
-      300: "300 Light",
-      400: "400 Normal",
-      500: "500 Medium",
-      600: "600 Semi-Bold",
-      700: "700 Bold",
-      800: "800 Extra Bold",
-      900: "900 Black"
-    };
-
-    const applyTypographyToken = (token: { fontSize?: string; fontWeight?: string; lineHeight?: string; letterSpacing?: string; textTransform?: any }) => {
-      if (token.fontSize) updateSelectedStyle("fontSize", token.fontSize);
-      if (token.fontWeight) updateSelectedStyle("fontWeight", token.fontWeight);
-      if (token.lineHeight) updateSelectedStyle("lineHeight", token.lineHeight);
-      if (token.letterSpacing) updateSelectedStyle("letterSpacing", token.letterSpacing);
-      if (token.textTransform) updateSelectedStyle("textTransform", token.textTransform);
-    };
-
-    return (
-      <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3 shadow-xs my-2">
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-            <span>🔤</span>
-            <span>Typography Controls</span>
-          </span>
-          <span className="text-[10px] font-semibold text-blue-600 capitalize">
-            {activeDevice}
-          </span>
-        </div>
-
-        {/* Global Typography Tokens / Presets */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Typography Preset / Design Token</label>
-          <select
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "h1") applyTypographyToken({ fontSize: "36px", fontWeight: "700", lineHeight: "1.2", letterSpacing: "-0.5px" });
-              if (val === "h2") applyTypographyToken({ fontSize: "28px", fontWeight: "700", lineHeight: "1.3", letterSpacing: "-0.3px" });
-              if (val === "h3") applyTypographyToken({ fontSize: "22px", fontWeight: "600", lineHeight: "1.4", letterSpacing: "0px" });
-              if (val === "body") applyTypographyToken({ fontSize: "16px", fontWeight: "400", lineHeight: "1.6", letterSpacing: "0px" });
-              if (val === "lead") applyTypographyToken({ fontSize: "18px", fontWeight: "400", lineHeight: "1.7", letterSpacing: "0px" });
-              if (val === "small") applyTypographyToken({ fontSize: "13px", fontWeight: "400", lineHeight: "1.5", letterSpacing: "0.2px" });
-              if (val === "caption") applyTypographyToken({ fontSize: "11px", fontWeight: "500", lineHeight: "1.4", letterSpacing: "0.5px", textTransform: "uppercase" });
-              if (val === "button") applyTypographyToken({ fontSize: "14px", fontWeight: "600", lineHeight: "1", letterSpacing: "0.5px", textTransform: "uppercase" });
-            }}
-            defaultValue=""
-            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-          >
-            <option value="" disabled>Select Preset / Design Token...</option>
-            <option value="h1">H1 Heading (36px, Bold)</option>
-            <option value="h2">H2 Subtitle (28px, Bold)</option>
-            <option value="h3">H3 Section Header (22px, Semi-Bold)</option>
-            <option value="body">Body Text (16px, Regular)</option>
-            <option value="lead">Lead Paragraph (18px, Regular)</option>
-            <option value="small">Small (13px, Regular)</option>
-            <option value="caption">Caption (11px, Uppercase)</option>
-            <option value="button">Button Text (14px, Semi-Bold)</option>
-          </select>
-        </div>
-
-        {/* Font Family Picker */}
-        <FontPickerControl
-          value={currentFontFamily}
-          onChange={(fam) => updateSelectedStyle("fontFamily", fam)}
-          onOpenModal={() => handleOpenFontPicker((fam) => updateSelectedStyle("fontFamily", fam))}
-          onReset={() => resetSelectedStyle("fontFamily")}
-          isConfigured={isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
-        />
-
-        {/* Font Size & Weight */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            {renderResponsiveLabel("Font Size")}
-            <input
-              type="text"
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontSize") || "16px"}
-              onChange={(e) => updateSelectedStyle("fontSize", e.target.value.endsWith("px") || e.target.value.endsWith("rem") || e.target.value.endsWith("em") ? e.target.value : `${e.target.value}px`)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-              placeholder="16px"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Font Weight</label>
-            <select
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontWeight") || "normal"}
-              onChange={(e) => updateSelectedStyle("fontWeight", e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            >
-              <option value="inherit">Default</option>
-              {supportedWeights.map((w) => (
-                <option key={w} value={String(w)}>
-                  {weightLabels[w] || `${w}`}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Font Style & Text Transform */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Font Style</label>
-            <select
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontStyle") || "normal"}
-              onChange={(e) => updateSelectedStyle("fontStyle", e.target.value as any)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            >
-              <option value="normal">Normal</option>
-              <option value="italic" disabled={!hasItalic}>
-                Italic {!hasItalic ? "(N/A)" : ""}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Transform</label>
-            <select
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textTransform") || "none"}
-              onChange={(e) => updateSelectedStyle("textTransform", e.target.value as any)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            >
-              <option value="none">None</option>
-              <option value="capitalize">Capitalize</option>
-              <option value="uppercase">Uppercase</option>
-              <option value="lowercase">Lowercase</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Text Alignment */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Text Alignment</label>
-          <div className="grid grid-cols-4 gap-0.5 rounded-lg bg-slate-100 p-0.5 border border-slate-200">
-            {(["left", "center", "right", "justify"] as const).map((align) => {
-              const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
-              const isActive = currentAlign === align;
-              return (
-                <button
-                  key={align}
-                  type="button"
-                  onClick={() => updateSelectedStyle("textAlign", align)}
-                  className={`rounded py-1 text-[10px] font-bold uppercase transition ${isActive ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:text-slate-900"}`}
-                >
-                  {align}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Line Height & Letter Spacing */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Line Height</label>
-            <input
-              type="text"
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "lineHeight") || ""}
-              onChange={(e) => updateSelectedStyle("lineHeight", e.target.value)}
-              placeholder="e.g. 1.5 or 24px"
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Letter Spacing</label>
-            <input
-              type="text"
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "letterSpacing") || ""}
-              onChange={(e) => updateSelectedStyle("letterSpacing", e.target.value)}
-              placeholder="e.g. 0.5px"
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Text Decoration & Text Shadow */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Decoration</label>
-            <select
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textDecoration") || "none"}
-              onChange={(e) => updateSelectedStyle("textDecoration", e.target.value as any)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            >
-              <option value="none">None</option>
-              <option value="underline">Underline</option>
-              <option value="line-through">Line-Through</option>
-              <option value="overline">Overline</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Text Shadow</label>
-            <select
-              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textShadow") || "none"}
-              onChange={(e) => updateSelectedStyle("textShadow", e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-            >
-              <option value="none">None</option>
-              <option value="1px 1px 2px rgba(0,0,0,0.25)">Subtle Soft</option>
-              <option value="2px 4px 6px rgba(0,0,0,0.35)">Drop Shadow</option>
-              <option value="0 0 10px rgba(59,130,246,0.6)">Neon Glow</option>
-              <option value="2px 2px 0px #000000">Hard Retro</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const renderNavigatorTreeItem = (el: EditorElement, depth: number = 0, isLast: boolean = true): React.ReactNode => {
     const isSelected = selectedIds.includes(el.id) || selectedId === el.id;
     const isContainer = el.type === "container";
@@ -8958,11 +8742,10 @@ export default function WebsiteEditor() {
                       >
                         <button
                           type="button"
-                          onClick={(e) => toggleFavoriteWidget(widget.type, e)}
-                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${isFav ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
+                          onClick={(e) => toggleFavoriteWidget("mega-menu", e)}
+                          className={`absolute top-1.5 right-2 text-xs transition hover:scale-125 ${favoriteWidgets.includes("mega-menu") ? "text-amber-500" : "text-slate-300 hover:text-amber-400"
                             }`}
-                          title={isFav ? "Remove favorite" : "Mark as favorite"}
-
+                          title={favoriteWidgets.includes("mega-menu") ? "Remove favorite" : "Mark as favorite"}
                         >
                           {favoriteWidgets.includes("mega-menu") ? "★" : "☆"}
                         </button>
@@ -9265,7 +9048,6 @@ export default function WebsiteEditor() {
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
-              maxWidth: `${(breakpoints.find((b: any) => b.id === activeDevice)?.width) || (activeDevice === "mobile" ? 380 : activeDevice === "tablet" ? 768 : 1024)}px`,
               backgroundColor: pageSettings.backgroundColor || "#ffffff",
               backgroundImage: userPreferences.gridOverlay
                 ? "linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)"
@@ -9662,9 +9444,16 @@ export default function WebsiteEditor() {
                 <div className="space-y-5">
                   {/* Element Type Header & Quick Actions */}
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <span className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                      {selectedElementAny.type}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                        {selectedElementAny.type}
+                      </span>
+                      {activeElementState === "hover" && (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                          Editing :hover State
+                        </span>
+                      )}
+                    </div>
 
                     <div className="flex items-center gap-2 text-xs font-semibold">
                       <button
@@ -9696,48 +9485,31 @@ export default function WebsiteEditor() {
                         Delete
                       </button>
                     </div>
-
                   </div>
-              )}
+                  <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-200/70 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveElementState("normal")}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "normal"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
+                    >
+                      Normal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveElementState("hover")}
+                      className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "hover"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                        }`}
+                    >
+                      Hover (:hover)
+                    </button>
+                  </div>
 
-                  {selectedElementAny ? (
-                    <div className="space-y-5">
-                      {/* Element Type Header & Quick Actions */}
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <span className="text-xs font-bold uppercase tracking-wide text-blue-600">
-                          {selectedElementAny.type}
-                        </span>
-                        {activeElementState === "hover" && (
-                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                            Editing :hover State
-                          </span>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-200/70 p-1">
-                        <button
-                          type="button"
-                          onClick={() => setActiveElementState("normal")}
-                          className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "normal"
-                            ? "bg-white text-blue-600 shadow-sm"
-                            : "text-slate-600 hover:text-slate-900"
-                            }`}
-                        >
-                          Normal
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveElementState("hover")}
-                          className={`rounded-md px-3 py-1 text-xs font-semibold transition ${activeElementState === "hover"
-                            ? "bg-white text-blue-600 shadow-sm"
-                            : "text-slate-600 hover:text-slate-900"
-                            }`}
-                        >
-                          Hover (:hover)
-                        </button>
-                      </div>
-                    </div>
-
-                {/* Container Specific Layout Controls (Flexbox & CSS Grid) */}
+                  {/* Container Specific Layout Controls (Flexbox & CSS Grid) */}
                   {selectedElementAny.type === "container" && (() => {
                     const effectiveLayoutType = getEffectiveLayout(selectedElementAny, activeDevice, "layoutType") ?? selectedElementAny.layout?.layoutType ?? "flex";
                     const isGrid = effectiveLayoutType === "grid";
@@ -11385,11 +11157,9 @@ export default function WebsiteEditor() {
                                 updateSelectedProp("slidesActiveIndex", updated.length - 1);
                               }}
                               className="text-[11px] font-bold text-pink-600 hover:text-pink-800"
-
                             >
-                              <option value="column">Column (Vertical)</option>
-                              <option value="row">Row (Horizontal)</option>
-                            </select>
+                              + Add Slide
+                            </button>
                           </div>
 
                           <div className="space-y-3">
@@ -11624,7 +11394,8 @@ export default function WebsiteEditor() {
                             />
                           </div>
                         </div>
-                  )}
+                      </div>
+                      )}
 
                         {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) */}
                         <div className="space-y-4 pt-2">
@@ -11988,29 +11759,13 @@ export default function WebsiteEditor() {
                                         rows={2}
                                         value={post.excerpt}
                                         onChange={(e) => {
-                                          const newType = e.target.value as FormFieldType;
-                                          const updated = (selectedElementAny.formFields || []).map((f) =>
-                                            f.id === field.id
-                                              ? {
-                                                ...f,
-                                                type: newType,
-                                                options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
-                                              }
-                                              : f
+                                          const updatedPosts = (selectedElementAny.posts || []).map((p) =>
+                                            p.id === post.id ? { ...p, excerpt: e.target.value } : p
                                           );
-                                          updateSelectedProp("formFields", updated);
+                                          updateSelectedProp("posts", updatedPosts);
                                         }}
-                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
-                                      >
-                                        <option value="text">Text</option>
-                                        <option value="email">Email</option>
-                                        <option value="number">Number</option>
-                                        <option value="tel">Telephone</option>
-                                        <option value="textarea">Textarea</option>
-                                        <option value="select">Select Dropdown</option>
-                                        <option value="checkbox">Checkbox</option>
-                                        <option value="radio">Radio Group</option>
-                                      </select>
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                                      />
 
                                     </div>
                                   </div>
@@ -14886,1705 +14641,425 @@ export default function WebsiteEditor() {
                         {/* Facebook Button Inspector Panel (F-197) */}
                         {selectedElementAny.type === "facebook-button" && (
                           <div className="space-y-4">
-                            {/* Facebook Button Configuration */}
                             <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                              <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <FacebookButtonBoxIcon />
-                                <span>Facebook Button Settings</span>
-                              </span>
-
+                              <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider">Facebook Button Settings</span>
                               <div>
-                                <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                  Target Facebook URL *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={selectedElementAny.fbButtonUrl || "https://facebook.com"}
-                                  onChange={(e) => updateSelectedProp("fbButtonUrl", e.target.value)}
-                                  placeholder="https://facebook.com/yourpage"
-                                  className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                />
+                                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Target Facebook URL</label>
+                                <input type="url" value={selectedElementAny.fbButtonUrl || "https://facebook.com"} onChange={(e) => updateSelectedProp("fbButtonUrl", e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none" />
                               </div>
-
                               <div>
-                                <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                  Button Label *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={selectedElementAny.fbButtonLabel || "Like Us on Facebook"}
-                                  onChange={(e) => updateSelectedProp("fbButtonLabel", e.target.value)}
-                                  placeholder="e.g. Like Us on Facebook, Share Page, Follow Us"
-                                  className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
-                                />
+                                <label className="block text-[10px] font-semibold text-slate-700 mb-1">Button Label</label>
+                                <input type="text" value={selectedElementAny.fbButtonLabel || "Like Us on Facebook"} onChange={(e) => updateSelectedProp("fbButtonLabel", e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none" />
                               </div>
-
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                    Button Action
-                                  </label>
-                                  <select
-                                    value={selectedElementAny.fbButtonAction || "like"}
-                                    onChange={(e) => updateSelectedProp("fbButtonAction", e.target.value as any)}
-                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                  >
-                                    <option value="like">Like</option>
-                                    <option value="share">Share</option>
-                                    <option value="follow">Follow</option>
-                                    <option value="custom">Custom</option>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">Action</label>
+                                  <select value={selectedElementAny.fbButtonAction || "like"} onChange={(e) => updateSelectedProp("fbButtonAction", e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs">
+                                    <option value="like">Like</option><option value="share">Share</option><option value="follow">Follow</option><option value="custom">Custom</option>
                                   </select>
                                 </div>
-
                                 <div>
-                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                    Button Size
-                                  </label>
-                                  <select
-                                    value={selectedElementAny.fbButtonSize || "md"}
-                                    onChange={(e) => updateSelectedProp("fbButtonSize", e.target.value as any)}
-                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                  >
-                                    <option value="sm">Small</option>
-                                    <option value="md">Medium</option>
-                                    <option value="lg">Large</option>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-1">Size</label>
+                                  <select value={selectedElementAny.fbButtonSize || "md"} onChange={(e) => updateSelectedProp("fbButtonSize", e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs">
+                                    <option value="sm">Small</option><option value="md">Medium</option><option value="lg">Large</option>
                                   </select>
                                 </div>
                               </div>
-
-                              <div>
-                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                  Alignment
-                                </label>
-                                <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                  {(["left", "center", "right"] as const).map((align) => (
-                                    <button
-                                      key={align}
-                                      type="button"
-                                      onClick={() => updateSelectedProp("fbButtonAlignment", align)}
-                                      className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbButtonAlignment || "left") === align
-                                        ? "bg-white text-blue-700 shadow-2xs"
-                                        : "text-slate-600 hover:text-slate-900"
-                                        }`}
-                                    >
-                                      {align}
-                                    </button>
-                                  ))}
-                                </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div><label className="block text-[10px] font-semibold text-slate-500 mb-1">Background</label><input type="color" value={selectedElementAny.fbButtonBgColor || "#1877F2"} onChange={(e) => updateSelectedProp("fbButtonBgColor", e.target.value)} className="h-8 w-full cursor-pointer rounded border border-slate-200" /></div>
+                                <div><label className="block text-[10px] font-semibold text-slate-500 mb-1">Text Color</label><input type="color" value={selectedElementAny.fbButtonTextColor || "#ffffff"} onChange={(e) => updateSelectedProp("fbButtonTextColor", e.target.value)} className="h-8 w-full cursor-pointer rounded border border-slate-200" /></div>
                               </div>
                             </div>
+                          </div>
+                        )}
 
-                            {/* Color Customization */}
-                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                              <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                Button Colors & Styling
-                              </span>
-
+                        {/* Flip Box Specific Properties (F-185) */}
+                        {selectedElementAny.type === "flip-box" && (
+                          <div className="space-y-4">
+                            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 space-y-3">
+                              <span className="block text-[11px] font-bold text-amber-900 uppercase tracking-wider">Flip Box Settings</span>
+                              <div>
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-1">Flip Direction</label>
+                                <select value={selectedElementAny.flipDirection || "flip-right"} onChange={(e) => updateSelectedProp("flipDirection", e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs">
+                                  <option value="flip-right">Flip Right</option><option value="flip-left">Flip Left</option><option value="flip-up">Flip Up</option><option value="flip-down">Flip Down</option>
+                                </select>
+                              </div>
                               <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                                  <div className="flex items-center gap-1.5">
-                                    <input
-                                      type="color"
-                                      value={selectedElementAny.fbButtonBgColor || "#1877F2"}
-                                      onChange={(e) => updateSelectedProp("fbButtonBgColor", e.target.value)}
-                                      className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                    />
-                                    <input
-                                      type="text"
-                                      value={selectedElementAny.fbButtonBgColor || "#1877F2"}
-                                      onChange={(e) => updateSelectedProp("fbButtonBgColor", e.target.value)}
-                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                    />
+                                <input type="text" value={selectedElementAny.flipFrontTitle || "Front Title"} onChange={(e) => updateSelectedProp("flipFrontTitle", e.target.value)} placeholder="Front title" className="rounded-lg border border-slate-200 px-2 py-1 text-xs" />
+                                <input type="text" value={selectedElementAny.flipBackTitle || "Back Title"} onChange={(e) => updateSelectedProp("flipBackTitle", e.target.value)} placeholder="Back title" className="rounded-lg border border-slate-200 px-2 py-1 text-xs" />
+                              </div>
+                              <button type="button" onClick={() => updateSelectedProp("flipIsFlippedManual", !selectedElementAny.flipIsFlippedManual)} className="w-full rounded-lg bg-amber-600 px-3 py-2 text-xs font-bold text-white">{selectedElementAny.flipIsFlippedManual ? "Show Front" : "Show Back"}</button>
+                            </div>
+                          </div>
+                        )}
+
+                              {/* Facebook Embed Inspector Panel (F-198) */}
+                              {selectedElementAny.type === "facebook-embed" && (
+                                <div className="space-y-4">
+                                  <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <FacebookEmbedBoxIcon />
+                                      <span>Facebook Embed Settings</span>
+                                    </span>
+
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Post or Video URL *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedElementAny.fbEmbedUrl || "https://www.facebook.com/facebook"}
+                                        onChange={(e) => updateSelectedProp("fbEmbedUrl", e.target.value)}
+                                        placeholder="https://www.facebook.com/username/posts/123"
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                      />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Width</label>
+                                        <input
+                                          type="text"
+                                          value={selectedElementAny.fbEmbedWidth || "100%"}
+                                          onChange={(e) => updateSelectedProp("fbEmbedWidth", e.target.value)}
+                                          placeholder="e.g. 100% or 500px"
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
+                                        <input
+                                          type="text"
+                                          value={selectedElementAny.fbEmbedHeight || "450px"}
+                                          onChange={(e) => updateSelectedProp("fbEmbedHeight", e.target.value)}
+                                          placeholder="e.g. 450px"
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
+                                      <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
+                                        {(["left", "center", "right"] as const).map((align) => (
+                                          <button
+                                            key={align}
+                                            type="button"
+                                            onClick={() => updateSelectedProp("fbEmbedAlignment", align)}
+                                            className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbEmbedAlignment || "center") === align
+                                              ? "bg-white text-blue-700 shadow-2xs"
+                                              : "text-slate-600 hover:text-slate-900"
+                                              }`}
+                                          >
+                                            {align}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                              )}
 
-                                {/* Flip Box Specific Properties (F-185) */}
-                                {selectedElementAny.type === "flip-box" && (
-                                  <div className="space-y-4">
-                                    {/* Card Animation & Dimensions Settings */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <div className="flex items-center justify-between border-b border-slate-200/60 pb-1.5">
-                                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                          Card Settings & Effect
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => updateSelectedProp("flipIsFlippedManual", !selectedElementAny.flipIsFlippedManual)}
-                                          className={`rounded px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${selectedElementAny.flipIsFlippedManual
-                                            ? "bg-amber-600 text-white"
-                                            : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                                            }`}
-                                        >
-                                          {selectedElementAny.flipIsFlippedManual ? "Viewing: BACK" : "Flip to Back"}
-                                        </button>
-                                      </div>
+                              {/* Facebook Comments Inspector Panel (F-199) */}
+                              {selectedElementAny.type === "facebook-comments" && (
+                                <div className="space-y-4">
+                                  <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <FacebookCommentsBoxIcon />
+                                      <span>Facebook Comments Settings</span>
+                                    </span>
 
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Flip Direction
-                                          </label>
-                                          <select
-                                            value={selectedElementAny.flipDirection || "flip-right"}
-                                            onChange={(e) => updateSelectedProp("flipDirection", e.target.value as any)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-amber-500"
-                                          >
-                                            <option value="flip-right">Flip Right (0° → 180°)</option>
-                                            <option value="flip-left">Flip Left (0° → -180°)</option>
-                                            <option value="flip-up">Flip Up (-180° X)</option>
-                                            <option value="flip-down">Flip Down (180° X)</option>
-                                          </select>
-
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text & Icon Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.fbButtonTextColor || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("fbButtonTextColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.fbButtonTextColor || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("fbButtonTextColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                  )}
-
-                                    {/* Facebook Embed Inspector Panel (F-198) */}
-                                    {selectedElementAny.type === "facebook-embed" && (
-                                      <div className="space-y-4">
-                                        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                                          <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                            <FacebookEmbedBoxIcon />
-                                            <span>Facebook Embed Settings</span>
-                                          </span>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                              Post or Video URL *
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.fbEmbedUrl || "https://www.facebook.com/facebook"}
-                                              onChange={(e) => updateSelectedProp("fbEmbedUrl", e.target.value)}
-                                              placeholder="https://www.facebook.com/username/posts/123"
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                            />
-                                          </div>
-
-                                          <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Width</label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.fbEmbedWidth || "100%"}
-                                                onChange={(e) => updateSelectedProp("fbEmbedWidth", e.target.value)}
-                                                placeholder="e.g. 100% or 500px"
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.fbEmbedHeight || "450px"}
-                                                onChange={(e) => updateSelectedProp("fbEmbedHeight", e.target.value)}
-                                                placeholder="e.g. 450px"
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                            <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                              {(["left", "center", "right"] as const).map((align) => (
-                                                <button
-                                                  key={align}
-                                                  type="button"
-                                                  onClick={() => updateSelectedProp("fbEmbedAlignment", align)}
-                                                  className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbEmbedAlignment || "center") === align
-                                                    ? "bg-white text-blue-700 shadow-2xs"
-                                                    : "text-slate-600 hover:text-slate-900"
-                                                    }`}
-                                                >
-                                                  {align}
-                                                </button>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Facebook Comments Inspector Panel (F-199) */}
-                                    {selectedElementAny.type === "facebook-comments" && (
-                                      <div className="space-y-4">
-                                        <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                                          <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                            <FacebookCommentsBoxIcon />
-                                            <span>Facebook Comments Settings</span>
-                                          </span>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                              Target Discussion URL *
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.fbCommentsUrl || "https://facebook.com"}
-                                              onChange={(e) => updateSelectedProp("fbCommentsUrl", e.target.value)}
-                                              placeholder="https://yourwebsite.com/blog/article-1"
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                            />
-                                          </div>
-
-                                          <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Number of Posts</label>
-                                              <input
-                                                type="number"
-                                                min={1}
-                                                max={50}
-                                                value={selectedElementAny.fbCommentsNumPosts || 5}
-                                                onChange={(e) => updateSelectedProp("fbCommentsNumPosts", parseInt(e.target.value) || 5)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Container Width</label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.fbCommentsWidth || "100%"}
-                                                onChange={(e) => updateSelectedProp("fbCommentsWidth", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                            <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                              {(["left", "center", "right"] as const).map((align) => (
-                                                <button
-                                                  key={align}
-                                                  type="button"
-                                                  onClick={() => updateSelectedProp("fbCommentsAlignment", align)}
-                                                  className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbCommentsAlignment || "center") === align
-                                                    ? "bg-white text-blue-700 shadow-2xs"
-                                                    : "text-slate-600 hover:text-slate-900"
-                                                    }`}
-                                                >
-                                                  {align}
-                                                </button>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* PayPal Button Inspector Panel (F-200 / F-217) */}
-                                    {selectedElementAny.type === "paypal-button" && (
-                                      <PayPalWidgetInspector
-                                        el={selectedElementAny}
-                                        updateProp={updateSelectedProp}
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Target Discussion URL *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedElementAny.fbCommentsUrl || "https://facebook.com"}
+                                        onChange={(e) => updateSelectedProp("fbCommentsUrl", e.target.value)}
+                                        placeholder="https://yourwebsite.com/blog/article-1"
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
                                       />
-                                    )}
+                                    </div>
 
-                                    {/* Stripe Button Inspector Panel (F-201) */}
-                                    {selectedElementAny.type === "stripe-button" && (
-                                      <div className="space-y-4">
-                                        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 space-y-3">
-                                          <span className="block text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
-                                            <StripeButtonBoxIcon />
-                                            <span>Stripe Checkout Settings</span>
-                                          </span>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                              Button Text
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.stripeText || "Checkout with Stripe"}
-                                              onChange={(e) => updateSelectedProp("stripeText", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                            />
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                              Stripe Payment Link URL *
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.stripeCheckoutUrl || "https://buy.stripe.com"}
-                                              onChange={(e) => updateSelectedProp("stripeCheckoutUrl", e.target.value)}
-                                              placeholder="https://buy.stripe.com/..."
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-indigo-500"
-                                            />
-                                          </div>
-
-                                          <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Display Amount</label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.stripeAmount || "$49.00"}
-                                                onChange={(e) => updateSelectedProp("stripeAmount", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                              Button Background
-                                            </label>
-                                            <div className="flex items-center gap-1.5">
-                                              <input
-                                                type="color"
-                                                value={selectedElementAny.flipBackBtnBg || "#ffffff"}
-                                                onChange={(e) => updateSelectedProp("flipBackBtnBg", e.target.value)}
-                                                className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.flipBackBtnBg || "#ffffff"}
-                                                onChange={(e) => updateSelectedProp("flipBackBtnBg", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none font-mono"
-                                              />
-                                            </div>
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                              Button Text Color
-                                            </label>
-                                            <div className="flex items-center gap-1.5">
-                                              <input
-                                                type="color"
-                                                value={selectedElementAny.flipBackBtnTextColor || "#4f46e5"}
-                                                onChange={(e) => updateSelectedProp("flipBackBtnTextColor", e.target.value)}
-                                                className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.flipBackBtnTextColor || "#4f46e5"}
-                                                onChange={(e) => updateSelectedProp("flipBackBtnTextColor", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none font-mono"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                  </div>
-                                )}
-
-                                {/* Call to Action Specific Properties (F-186) */}
-                                {selectedElementAny.type === "call-to-action" && (
-                                  <CTAWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Media Carousel Specific Properties (F-187) */}
-                                {selectedElementAny.type === "media-carousel" && (
-                                  <MediaCarouselWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Testimonial Carousel Specific Properties (F-188) */}
-                                {selectedElementAny.type === "testimonial-carousel" && (
-                                  <TestimonialCarouselWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Nested Carousel Inspector Panel (F-189) */}
-                                {selectedElementAny.type === "nested-carousel" && (
-                                  <NestedCarouselWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                    setSelectedId={setSelectedId}
-                                  />
-                                )}
-
-                                {/* Loop Carousel Inspector Panel (F-190) */}
-                                {selectedElementAny.type === "loop-carousel" && (
-                                  <LoopCarouselWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Table of Contents Inspector Panel (F-191) */}
-                                {selectedElementAny.type === "table-of-contents" && (
-                                  <TOCWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Countdown Inspector Panel (F-192) */}
-                                {selectedElementAny.type === "countdown" && (
-                                  <div className="space-y-4">
-                                    {/* Target Date & Time */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Target Date & Time
-                                      </span>
-
+                                    <div className="grid grid-cols-2 gap-2">
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Target Date & Time
-                                        </label>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Number of Posts</label>
                                         <input
-                                          type="datetime-local"
-                                          value={selectedElementAny.countdownTargetDate || ""}
-                                          onChange={(e) => updateSelectedProp("countdownTargetDate", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none cursor-pointer"
+                                          type="number"
+                                          min={1}
+                                          max={50}
+                                          value={selectedElementAny.fbCommentsNumPosts || 5}
+                                          onChange={(e) => updateSelectedProp("fbCommentsNumPosts", parseInt(e.target.value) || 5)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
                                         />
                                       </div>
-
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Expired Message
-                                        </label>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Container Width</label>
                                         <input
                                           type="text"
-                                          value={selectedElementAny.countdownExpiredMessage || "Event Has Ended!"}
-                                          onChange={(e) => updateSelectedProp("countdownExpiredMessage", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                                          value={selectedElementAny.fbCommentsWidth || "100%"}
+                                          onChange={(e) => updateSelectedProp("fbCommentsWidth", e.target.value)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
                                         />
                                       </div>
                                     </div>
 
-                                    {/* Display Units */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Displayed Units & Labels
-                                      </span>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div className="flex flex-col gap-1">
-                                          <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.countdownShowDays !== false}
-                                              onChange={(e) => updateSelectedProp("countdownShowDays", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                            />
-                                            <span>Days</span>
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownDaysLabel || "Days"}
-                                            onChange={(e) => updateSelectedProp("countdownDaysLabel", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div className="flex flex-col gap-1">
-                                          <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.countdownShowHours !== false}
-                                              onChange={(e) => updateSelectedProp("countdownShowHours", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                            />
-                                            <span>Hours</span>
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownHoursLabel || "Hours"}
-                                            onChange={(e) => updateSelectedProp("countdownHoursLabel", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div className="flex flex-col gap-1">
-                                          <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.countdownShowMinutes !== false}
-                                              onChange={(e) => updateSelectedProp("countdownShowMinutes", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                            />
-                                            <span>Minutes</span>
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownMinutesLabel || "Minutes"}
-                                            onChange={(e) => updateSelectedProp("countdownMinutesLabel", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div className="flex flex-col gap-1">
-                                          <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.countdownShowSeconds !== false}
-                                              onChange={(e) => updateSelectedProp("countdownShowSeconds", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                            />
-                                            <span>Seconds</span>
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownSecondsLabel || "Seconds"}
-                                            onChange={(e) => updateSelectedProp("countdownSecondsLabel", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Layout & Styling */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Layout & Box Styling
-                                      </span>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                          <select
-                                            value={selectedElementAny.countdownAlignment || "center"}
-                                            onChange={(e) => updateSelectedProp("countdownAlignment", e.target.value as "left" | "center" | "right")}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="left">Left</option>
-                                            <option value="center">Center</option>
-                                            <option value="right">Right</option>
-                                          </select>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Box Gap (px)</label>
-                                          <input
-                                            type="number"
-                                            value={selectedElementAny.countdownGap ?? 16}
-                                            onChange={(e) => updateSelectedProp("countdownGap", Number(e.target.value))}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Number Size</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownNumberSize || "32px"}
-                                            onChange={(e) => updateSelectedProp("countdownNumberSize", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Label Size</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.countdownLabelSize || "11px"}
-                                            onChange={(e) => updateSelectedProp("countdownLabelSize", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-2 pt-1">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Box Background</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.countdownBoxBg || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("countdownBoxBg", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.countdownBoxBg || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("countdownBoxBg", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Number Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.countdownNumberColor || "#0f172a"}
-                                              onChange={(e) => updateSelectedProp("countdownNumberColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.countdownNumberColor || "#0f172a"}
-                                              onChange={(e) => updateSelectedProp("countdownNumberColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Border Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.countdownBoxBorder || "#e2e8f0"}
-                                              onChange={(e) => updateSelectedProp("countdownBoxBorder", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.countdownBoxBorder || "#e2e8f0"}
-                                              onChange={(e) => updateSelectedProp("countdownBoxBorder", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Label Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.countdownLabelColor || "#64748b"}
-                                              onChange={(e) => updateSelectedProp("countdownLabelColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.countdownLabelColor || "#64748b"}
-                                              onChange={(e) => updateSelectedProp("countdownLabelColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Facebook Page Inspector Panel (F-193) */}
-                                {selectedElementAny.type === "facebook-page" && (
-                                  <div className="space-y-4">
-                                    {/* Page URL & Tabs */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Facebook Page Configuration
-                                      </span>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Facebook Page URL
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={selectedElementAny.facebookPageUrl || ""}
-                                          onChange={(e) => updateSelectedProp("facebookPageUrl", e.target.value)}
-                                          placeholder="https://www.facebook.com/facebook"
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                        />
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Displayed Tabs
-                                        </label>
-                                        <select
-                                          value={selectedElementAny.facebookTabs || "timeline"}
-                                          onChange={(e) => updateSelectedProp("facebookTabs", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                        >
-                                          <option value="timeline">Timeline</option>
-                                          <option value="events">Events</option>
-                                          <option value="messages">Messages</option>
-                                          <option value="timeline,events">Timeline & Events</option>
-                                          <option value="timeline,messages">Timeline & Messages</option>
-                                          <option value="events,messages">Events & Messages</option>
-                                          <option value="timeline,events,messages">Timeline, Events & Messages</option>
-                                        </select>
-                                      </div>
-                                    </div>
-
-                                    {/* Dimensions & Alignment */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Dimensions & Alignment
-                                      </span>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Width (px)
-                                          </label>
-                                          <input
-                                            type="number"
-                                            min={180}
-                                            max={500}
-                                            value={selectedElementAny.facebookWidth ?? 340}
-                                            onChange={(e) => updateSelectedProp("facebookWidth", Number(e.target.value))}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Height (px)
-                                          </label>
-                                          <input
-                                            type="number"
-                                            min={130}
-                                            max={1000}
-                                            value={selectedElementAny.facebookHeight ?? 500}
-                                            onChange={(e) => updateSelectedProp("facebookHeight", Number(e.target.value))}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Alignment
-                                        </label>
-                                        <select
-                                          value={selectedElementAny.facebookAlignment || "center"}
-                                          onChange={(e) => updateSelectedProp("facebookAlignment", e.target.value as "left" | "center" | "right")}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                        >
-                                          <option value="left">Left</option>
-                                          <option value="center">Center</option>
-                                          <option value="right">Right</option>
-                                        </select>
-                                      </div>
-                                    </div>
-
-                                    {/* Display Options Toggles */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                                        Display Controls
-                                      </span>
-
-                                      <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer py-1">
-                                        <span>Adapt Container Width</span>
-                                        <input
-                                          type="checkbox"
-                                          checked={selectedElementAny.facebookAdaptContainerWidth !== false}
-                                          onChange={(e) => updateSelectedProp("facebookAdaptContainerWidth", e.target.checked)}
-                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                      </label>
-
-                                      <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer py-1 border-t border-slate-200/60">
-                                        <span>Use Small Header</span>
-                                        <input
-                                          type="checkbox"
-                                          checked={selectedElementAny.facebookSmallHeader === true}
-                                          onChange={(e) => updateSelectedProp("facebookSmallHeader", e.target.checked)}
-                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                      </label>
-
-                                      <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer py-1 border-t border-slate-200/60">
-                                        <span>Hide Cover Photo</span>
-                                        <input
-                                          type="checkbox"
-                                          checked={selectedElementAny.facebookHideCover === true}
-                                          onChange={(e) => updateSelectedProp("facebookHideCover", e.target.checked)}
-                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                      </label>
-
-                                      <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer py-1 border-t border-slate-200/60">
-                                        <span>Show Friend Faces</span>
-                                        <input
-                                          type="checkbox"
-                                          checked={selectedElementAny.facebookShowFacepile !== false}
-                                          onChange={(e) => updateSelectedProp("facebookShowFacepile", e.target.checked)}
-                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        />
-                                      </label>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Blockquote Inspector Panel (F-194) */}
-                                {selectedElementAny.type === "blockquote" && (
-                                  <div className="space-y-4">
-                                    {/* Content & Citation */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Quote Content & Citation
-                                      </span>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                          Quotation Text
-                                        </label>
-                                        <textarea
-                                          rows={3}
-                                          value={selectedElementAny.content || selectedElementAny.quoteContent || ""}
-                                          onChange={(e) => {
-                                            updateSelectedProp("content", e.target.value);
-                                            updateSelectedProp("quoteContent", e.target.value);
-                                          }}
-                                          placeholder="The only way to do great work is to love what you do."
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
-                                        />
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Author Name
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.quoteAuthor || ""}
-                                            onChange={(e) => updateSelectedProp("quoteAuthor", e.target.value)}
-                                            placeholder="Steve Jobs"
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Citation / Title
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.quoteCitation || ""}
-                                            onChange={(e) => updateSelectedProp("quoteCitation", e.target.value)}
-                                            placeholder="Co-founder, Apple Inc."
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Style Variant & Alignment */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Style Variant & Layout
-                                      </span>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Style Variant
-                                          </label>
-                                          <select
-                                            value={selectedElementAny.quoteStyle || "accent-left"}
-                                            onChange={(e) => updateSelectedProp("quoteStyle", e.target.value as "accent-left" | "boxed" | "centered-clean" | "top-border")}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="accent-left">Left Accent Line</option>
-                                            <option value="boxed">Boxed Card</option>
-                                            <option value="top-border">Top Accent Line</option>
-                                            <option value="centered-clean">Centered Clean</option>
-                                          </select>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Text Alignment
-                                          </label>
-                                          <select
-                                            value={selectedElementAny.quoteAlignment || "left"}
-                                            onChange={(e) => updateSelectedProp("quoteAlignment", e.target.value as "left" | "center" | "right")}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="left">Left</option>
-                                            <option value="center">Center</option>
-                                            <option value="right">Right</option>
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Icon & Colors */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Appearance & Colors
-                                      </span>
-
-                                      <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer py-0.5">
-                                        <span>Show Decorative Quote Icon</span>
-                                        <input
-                                          type="checkbox"
-                                          checked={selectedElementAny.quoteShowIcon !== false}
-                                          onChange={(e) => updateSelectedProp("quoteShowIcon", e.target.checked)}
-                                          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                        />
-                                      </label>
-
-                                      <div className="grid grid-cols-2 gap-2 pt-1">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Icon Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.quoteIconColor || "#6366f1"}
-                                              onChange={(e) => updateSelectedProp("quoteIconColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.quoteIconColor || "#6366f1"}
-                                              onChange={(e) => updateSelectedProp("quoteIconColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Border/Accent</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.quoteBorderColor || "#6366f1"}
-                                              onChange={(e) => updateSelectedProp("quoteBorderColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.quoteBorderColor || "#6366f1"}
-                                              onChange={(e) => updateSelectedProp("quoteBorderColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Quote Text Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.quoteTextColor || "#1e293b"}
-                                              onChange={(e) => updateSelectedProp("quoteTextColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.quoteTextColor || "#1e293b"}
-                                              onChange={(e) => updateSelectedProp("quoteTextColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Author Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.quoteAuthorColor || "#475569"}
-                                              onChange={(e) => updateSelectedProp("quoteAuthorColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.quoteAuthorColor || "#475569"}
-                                              onChange={(e) => updateSelectedProp("quoteAuthorColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Template Inspector Panel (F-195) */}
-                                {selectedElementAny.type === "template" && (
-                                  <div className="space-y-4">
-                                    {/* Source Selection & Picker */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Template Source & Selection
-                                      </span>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-1">
-                                          Template Source Type
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-1 bg-slate-200/60 p-1 rounded-lg">
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
+                                      <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
+                                        {(["left", "center", "right"] as const).map((align) => (
                                           <button
+                                            key={align}
                                             type="button"
-                                            onClick={() => {
-                                              updateSelectedProp("templateSource", "preset");
-                                              updateSelectedProp("templateId", undefined);
-                                              if (!selectedElementAny.templatePresetName) {
-                                                updateSelectedProp("templatePresetName", "hero");
-                                              }
-                                            }}
-                                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource !== "custom"
-                                              ? "bg-white text-purple-700 shadow-2xs"
+                                            onClick={() => updateSelectedProp("fbCommentsAlignment", align)}
+                                            className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbCommentsAlignment || "center") === align
+                                              ? "bg-white text-blue-700 shadow-2xs"
                                               : "text-slate-600 hover:text-slate-900"
                                               }`}
                                           >
-                                            Presets
+                                            {align}
                                           </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              updateSelectedProp("templateSource", "custom");
-                                              updateSelectedProp("templatePresetName", undefined);
-                                              const firstCompKey = Object.keys(components)[0];
-                                              if (firstCompKey) {
-                                                updateSelectedProp("templateId", firstCompKey);
-                                              }
-                                            }}
-                                            className={`py-1 text-xs font-bold rounded-md transition ${selectedElementAny.templateSource === "custom"
-                                              ? "bg-white text-purple-700 shadow-2xs"
-                                              : "text-slate-600 hover:text-slate-900"
-                                              }`}
-                                          >
-                                            Saved Components
-                                          </button>
-                                        </div>
+                                        ))}
                                       </div>
-
-                                      {selectedElementAny.templateSource === "custom" ? (
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Select Saved Reusable Component
-                                          </label>
-                                          {Object.keys(components).length === 0 ? (
-                                            <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-2.5 text-center text-[10px] font-medium text-purple-700">
-                                              No components saved yet. Select any element & click "Save as Comp".
-                                            </div>
-                                          ) : (
-
-                                            <select
-                                              value={selectedElementAny.stripeButtonSize || "md"}
-                                              onChange={(e) => updateSelectedProp("stripeButtonSize", e.target.value as any)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                            >
-                                              <option value="sm">Small</option>
-                                              <option value="md">Medium</option>
-                                              <option value="lg">Large</option>
-                                            </select>
-                                          )}
-                                        </div>
-                                      ) : (
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Select Section Template Preset
-                                          </label>
-                                          <select
-                                            value={selectedElementAny.templatePresetName || "hero"}
-                                            onChange={(e) => updateSelectedProp("templatePresetName", e.target.value as any)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-purple-500"
-                                          >
-                                            {Object.entries(PRESET_SECTION_TEMPLATES).map(([key, tpl]) => (
-                                              <option key={key} value={key}>
-                                                {tpl.icon} {tpl.name}
-                                              </option>
-                                            ))}
-                                          </select>
-                                        </div>
-                                      )}
-
-                                      <button
-                                        type="button"
-                                        onClick={() => handleUnpackTemplate(selectedElementAny.id)}
-                                        className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-purple-700 active:scale-98 mt-2"
-                                      >
-                                        <span>⚡</span>
-                                        <span>Unpack / Insert into Canvas</span>
-                                      </button>
                                     </div>
                                   </div>
-                                )}
+                                </div>
+                              )}
 
-                                {/* Reviews Inspector Panel (F-196) */}
-                                {selectedElementAny.type === "reviews" && (
-                                  <div className="space-y-4">
-                                    {/* Layout & Columns */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Layout & Alignment
-                                      </span>
+                              {/* PayPal Button Inspector Panel (F-200 / F-217) */}
+                              {selectedElementAny.type === "paypal-button" && (
+                                <PayPalWidgetInspector
+                                  el={selectedElementAny}
+                                  updateProp={updateSelectedProp}
+                                />
+                              )}
 
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Layout Mode</label>
-                                          <select
-                                            value={selectedElementAny.reviewLayout || "grid"}
-                                            onChange={(e) => updateSelectedProp("reviewLayout", e.target.value as "grid" | "list")}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="grid">Grid Layout</option>
-                                            <option value="list">List Layout</option>
-                                          </select>
-                                        </div>
+                              {/* Stripe Button Inspector Panel (F-201) */}
+                              {selectedElementAny.type === "stripe-button" && (
+                                <div className="space-y-4">
+                                  <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <StripeButtonBoxIcon />
+                                      <span>Stripe Checkout Settings</span>
+                                    </span>
 
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Grid Columns</label>
-                                          <select
-                                            value={selectedElementAny.reviewColumns || 3}
-                                            onChange={(e) => updateSelectedProp("reviewColumns", parseInt(e.target.value))}
-                                            disabled={selectedElementAny.reviewLayout === "list"}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none disabled:opacity-50"
-                                          >
-                                            <option value={1}>1 Column</option>
-                                            <option value={2}>2 Columns</option>
-                                            <option value={3}>3 Columns</option>
-                                            <option value={4}>4 Columns</option>
-                                          </select>
-                                        </div>
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Alignment</label>
-                                        <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                          {(["left", "center", "right"] as const).map((align) => (
-                                            <button
-                                              key={align}
-                                              type="button"
-                                              onClick={() => updateSelectedProp("reviewAlignment", align)}
-                                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.reviewAlignment || "left") === align
-                                                ? "bg-white text-amber-700 shadow-2xs"
-                                                : "text-slate-600 hover:text-slate-900"
-                                                }`}
-                                            >
-                                              {align}
-                                            </button>
-                                          ))}
-                                        </div>
-                                      </div>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Button Text
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedElementAny.stripeText || "Checkout with Stripe"}
+                                        onChange={(e) => updateSelectedProp("stripeText", e.target.value)}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                                      />
                                     </div>
 
-                                    {/* Colors & Visual Features */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Color & Badges
-                                      </span>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Stripe Payment Link URL *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedElementAny.stripeCheckoutUrl || "https://buy.stripe.com"}
+                                        onChange={(e) => updateSelectedProp("stripeCheckoutUrl", e.target.value)}
+                                        placeholder="https://buy.stripe.com/..."
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-indigo-500"
+                                      />
+                                    </div>
 
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Star Rating Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.reviewStarColor || "#f59e0b"}
-                                              onChange={(e) => updateSelectedProp("reviewStarColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.reviewStarColor || "#f59e0b"}
-                                              onChange={(e) => updateSelectedProp("reviewStarColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Card Background</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.reviewCardBg || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("reviewCardBg", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.reviewCardBg || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("reviewCardBg", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-
-                                          </div>
-                                        </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Display Amount</label>
+                                        <input
+                                          type="text"
+                                          value={selectedElementAny.stripeAmount || "$49.00"}
+                                          onChange={(e) => updateSelectedProp("stripeAmount", e.target.value)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                        />
                                       </div>
-
-                                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                        <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Colors</span>
-                                        <div className="grid grid-cols-2 gap-2">
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                                            <div className="flex items-center gap-1.5">
-                                              <input
-                                                type="color"
-                                                value={selectedElementAny.stripeBgColor || "#635BFF"}
-                                                onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
-                                                className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.stripeBgColor || "#635BFF"}
-                                                onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                          </div>
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
-                                            <div className="flex items-center gap-1.5">
-                                              <input
-                                                type="color"
-                                                value={selectedElementAny.stripeTextColor || "#ffffff"}
-                                                onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
-                                                className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.stripeTextColor || "#ffffff"}
-                                                onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Size</label>
+                                        <select
+                                          value={selectedElementAny.stripeButtonSize || "md"}
+                                          onChange={(e) => updateSelectedProp("stripeButtonSize", e.target.value as any)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                        >
+                                          <option value="sm">Small</option>
+                                          <option value="md">Medium</option>
+                                          <option value="lg">Large</option>
+                                        </select>
                                       </div>
                                     </div>
-                  )}
+                                  </div>
 
-                                    {/* Lottie Inspector Panel (F-202) */}
-                                    {selectedElementAny.type === "lottie" && (
-                                      <div className="space-y-4">
-                                        <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-3 space-y-3">
-                                          <span className="block text-[11px] font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                                            <LottieBoxIcon />
-                                            <span>Lottie Animation Settings</span>
-                                          </span>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                              Lottie JSON Animation URL *
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.lottieUrl || ""}
-                                              onChange={(e) => updateSelectedProp("lottieUrl", e.target.value)}
-                                              placeholder="https://assets9.lottiefiles.com/..."
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-teal-500"
-                                            />
-                                          </div>
-
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                              Button Size
-                                            </label>
-                                            <select
-                                              value={selectedElementAny.fbButtonSize || "md"}
-                                              onChange={(e) => updateSelectedProp("fbButtonSize", e.target.value as any)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                            >
-                                              <option value="sm">Small</option>
-                                              <option value="md">Medium</option>
-                                              <option value="lg">Large</option>
-                                            </select>
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                            Alignment
-                                          </label>
-                                          <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                            {(["left", "center", "right"] as const).map((align) => (
-                                              <button
-                                                key={align}
-                                                type="button"
-                                                onClick={() => updateSelectedProp("fbButtonAlignment", align)}
-                                                className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbButtonAlignment || "left") === align
-                                                  ? "bg-white text-blue-700 shadow-2xs"
-                                                  : "text-slate-600 hover:text-slate-900"
-                                                  }`}
-                                              >
-                                                {align}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                    {/* Color Customization */}
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                        Button Colors & Styling
-                                      </span>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.fbButtonBgColor || "#1877F2"}
-                                              onChange={(e) => updateSelectedProp("fbButtonBgColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.lottieWidth || "280px"}
-                                              onChange={(e) => updateSelectedProp("lottieWidth", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                          <div>
-                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.lottieHeight || "280px"}
-                                              onChange={(e) => updateSelectedProp("lottieHeight", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Hover Background</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.fbButtonHoverBgColor || "#0d65d9"}
-                                              onChange={(e) => updateSelectedProp("fbButtonHoverBgColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.fbButtonHoverBgColor || "#0d65d9"}
-                                              onChange={(e) => updateSelectedProp("fbButtonHoverBgColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
-
+                                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Colors</span>
+                                    <div className="grid grid-cols-2 gap-2">
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text & Icon Color</label>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
                                         <div className="flex items-center gap-1.5">
                                           <input
                                             type="color"
-                                            value={selectedElementAny.fbButtonTextColor || "#ffffff"}
-                                            onChange={(e) => updateSelectedProp("fbButtonTextColor", e.target.value)}
+                                            value={selectedElementAny.stripeBgColor || "#635BFF"}
+                                            onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
                                             className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
                                           />
                                           <input
                                             type="text"
-                                            value={selectedElementAny.fbButtonTextColor || "#ffffff"}
-                                            onChange={(e) => updateSelectedProp("fbButtonTextColor", e.target.value)}
+                                            value={selectedElementAny.stripeBgColor || "#635BFF"}
+                                            onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
+                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
+                                        <div className="flex items-center gap-1.5">
+                                          <input
+                                            type="color"
+                                            value={selectedElementAny.stripeTextColor || "#ffffff"}
+                                            onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
+                                            className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
+                                          />
+                                          <input
+                                            type="text"
+                                            value={selectedElementAny.stripeTextColor || "#ffffff"}
+                                            onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
                                             className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
                                           />
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                )}
+                                </div>
+                              )}
 
-                                {/* Facebook Embed Inspector Panel (F-198) */}
-                                {selectedElementAny.type === "facebook-embed" && (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                        <FacebookEmbedBoxIcon />
-                                        <span>Facebook Embed Settings</span>
-                                      </span>
+                              {/* Lottie Inspector Panel (F-202) */}
+                              {selectedElementAny.type === "lottie" && (
+                                <div className="space-y-4">
+                                  <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <LottieBoxIcon />
+                                      <span>Lottie Animation Settings</span>
+                                    </span>
 
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Lottie JSON Animation URL *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedElementAny.lottieUrl || ""}
+                                        onChange={(e) => updateSelectedProp("lottieUrl", e.target.value)}
+                                        placeholder="https://assets9.lottiefiles.com/..."
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-teal-500"
+                                      />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Post or Video URL *
-                                        </label>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Width</label>
                                         <input
                                           type="text"
-                                          value={selectedElementAny.fbEmbedUrl || "https://www.facebook.com/facebook"}
-                                          onChange={(e) => updateSelectedProp("fbEmbedUrl", e.target.value)}
-                                          placeholder="https://www.facebook.com/username/posts/123"
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                          value={selectedElementAny.lottieWidth || "280px"}
+                                          onChange={(e) => updateSelectedProp("lottieWidth", e.target.value)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
                                         />
                                       </div>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Width</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.fbEmbedWidth || "100%"}
-                                            onChange={(e) => updateSelectedProp("fbEmbedWidth", e.target.value)}
-                                            placeholder="e.g. 100% or 500px"
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.fbEmbedHeight || "450px"}
-                                            onChange={(e) => updateSelectedProp("fbEmbedHeight", e.target.value)}
-                                            placeholder="e.g. 450px"
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                        <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                          {(["left", "center", "right"] as const).map((align) => (
-                                            <button
-                                              key={align}
-                                              type="button"
-                                              onClick={() => updateSelectedProp("fbEmbedAlignment", align)}
-                                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbEmbedAlignment || "center") === align
-                                                ? "bg-white text-blue-700 shadow-2xs"
-                                                : "text-slate-600 hover:text-slate-900"
-                                                }`}
-                                            >
-                                              {align}
-                                            </button>
-                                          ))}
-                                        </div>
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
+                                        <input
+                                          type="text"
+                                          value={selectedElementAny.lottieHeight || "280px"}
+                                          onChange={(e) => updateSelectedProp("lottieHeight", e.target.value)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                        />
                                       </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-1">
+                                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedElementAny.lottieAutoplay ?? true}
+                                          onChange={(e) => updateSelectedProp("lottieAutoplay", e.target.checked)}
+                                          className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                        />
+                                        <span>Autoplay</span>
+                                      </label>
+
+                                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedElementAny.lottieLoop ?? true}
+                                          onChange={(e) => updateSelectedProp("lottieLoop", e.target.checked)}
+                                          className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                        />
+                                        <span>Loop</span>
+                                      </label>
                                     </div>
                                   </div>
-                                )}
+                                </div>
+                              )}
 
-                                {/* Facebook Comments Inspector Panel (F-199) */}
-                                {selectedElementAny.type === "facebook-comments" && (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                        <FacebookCommentsBoxIcon />
-                                        <span>Facebook Comments Settings</span>
-                                      </span>
+                              {/* Code Highlight Inspector Panel (F-203) */}
+                              {selectedElementAny.type === "code-highlight" && (
+                                <div className="space-y-4">
+                                  <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <CodeHighlightBoxIcon />
+                                      <span>Code Highlight Settings</span>
+                                    </span>
 
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Target Discussion URL *
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={selectedElementAny.fbCommentsUrl || "https://facebook.com"}
-                                          onChange={(e) => updateSelectedProp("fbCommentsUrl", e.target.value)}
-                                          placeholder="https://yourwebsite.com/blog/article-1"
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                        />
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Number of Posts</label>
-                                          <input
-                                            type="number"
-                                            min={1}
-                                            max={50}
-                                            value={selectedElementAny.fbCommentsNumPosts || 5}
-                                            onChange={(e) => updateSelectedProp("fbCommentsNumPosts", parseInt(e.target.value) || 5)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Container Width</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.fbCommentsWidth || "100%"}
-                                            onChange={(e) => updateSelectedProp("fbCommentsWidth", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                        <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                          {(["left", "center", "right"] as const).map((align) => (
-                                            <button
-                                              key={align}
-                                              type="button"
-                                              onClick={() => updateSelectedProp("fbCommentsAlignment", align)}
-                                              className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.fbCommentsAlignment || "center") === align
-                                                ? "bg-white text-blue-700 shadow-2xs"
-                                                : "text-slate-600 hover:text-slate-900"
-                                                }`}
-                                            >
-                                              {align}
-                                            </button>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* PayPal Button Inspector Panel (F-200 / F-217) */}
-                                {selectedElementAny.type === "paypal-button" && (
-                                  <PayPalWidgetInspector
-                                    el={selectedElementAny}
-                                    updateProp={updateSelectedProp}
-                                  />
-                                )}
-
-                                {/* Stripe Button Inspector Panel (F-201) */}
-                                {selectedElementAny.type === "stripe-button" && (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
-                                        <StripeButtonBoxIcon />
-                                        <span>Stripe Checkout Settings</span>
-                                      </span>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Button Text
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={selectedElementAny.stripeText || "Checkout with Stripe"}
-                                          onChange={(e) => updateSelectedProp("stripeText", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                        />
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Stripe Payment Link URL *
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={selectedElementAny.stripeCheckoutUrl || "https://buy.stripe.com"}
-                                          onChange={(e) => updateSelectedProp("stripeCheckoutUrl", e.target.value)}
-                                          placeholder="https://buy.stripe.com/..."
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-indigo-500"
-                                        />
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Display Amount</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.stripeAmount || "$49.00"}
-                                            onChange={(e) => updateSelectedProp("stripeAmount", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Size</label>
-                                          <select
-                                            value={selectedElementAny.stripeButtonSize || "md"}
-                                            onChange={(e) => updateSelectedProp("stripeButtonSize", e.target.value as any)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="sm">Small</option>
-                                            <option value="md">Medium</option>
-                                            <option value="lg">Large</option>
-                                          </select>
-                                        </div>
-                                      </div>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Language
+                                      </label>
+                                      <select
+                                        value={selectedElementAny.codeLanguage || "typescript"}
+                                        onChange={(e) => updateSelectedProp("codeLanguage", e.target.value)}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                                      >
+                                        <option value="typescript">TypeScript</option>
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="python">Python</option>
+                                        <option value="html">HTML</option>
+                                        <option value="css">CSS</option>
+                                        <option value="json">JSON</option>
+                                        <option value="bash">Bash / Shell</option>
+                                        <option value="sql">SQL</option>
+                                      </select>
                                     </div>
 
-                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Colors</span>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.stripeBgColor || "#635BFF"}
-                                              onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.stripeBgColor || "#635BFF"}
-                                              onChange={(e) => updateSelectedProp("stripeBgColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
-                                          <div className="flex items-center gap-1.5">
-                                            <input
-                                              type="color"
-                                              value={selectedElementAny.stripeTextColor || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
-                                              className="h-6 w-6 rounded cursor-pointer border border-slate-200 p-0.5"
-                                            />
-                                            <input
-                                              type="text"
-                                              value={selectedElementAny.stripeTextColor || "#ffffff"}
-                                              onChange={(e) => updateSelectedProp("stripeTextColor", e.target.value)}
-                                              className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                            />
-                                          </div>
-                                        </div>
-                                      </div>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
+                                        Code Snippet Content
+                                      </label>
+                                      <textarea
+                                        rows={6}
+                                        value={selectedElementAny.codeSnippet || ""}
+                                        onChange={(e) => updateSelectedProp("codeSnippet", e.target.value)}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none leading-relaxed"
+                                      />
                                     </div>
-                                  </div>
-                                )}
 
-                                {/* Lottie Inspector Panel (F-202) */}
-                                {selectedElementAny.type === "lottie" && (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                                        <LottieBoxIcon />
-                                        <span>Lottie Animation Settings</span>
-                                      </span>
-
+                                    <div className="grid grid-cols-2 gap-2">
                                       <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Lottie JSON Animation URL *
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={selectedElementAny.lottieUrl || ""}
-                                          onChange={(e) => updateSelectedProp("lottieUrl", e.target.value)}
-                                          placeholder="https://assets9.lottiefiles.com/..."
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-teal-500"
-                                        />
+                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Theme Mode</label>
+                                        <select
+                                          value={selectedElementAny.codeTheme || "dark"}
+                                          onChange={(e) => updateSelectedProp("codeTheme", e.target.value as any)}
+                                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                        >
+                                          <option value="dark">Dark (Vs Code Dark)</option>
+                                          <option value="light">Light (Vs Code Light)</option>
+                                        </select>
                                       </div>
 
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Width</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.lottieWidth || "280px"}
-                                            onChange={(e) => updateSelectedProp("lottieWidth", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Height</label>
-                                          <input
-                                            type="text"
-                                            value={selectedElementAny.lottieHeight || "280px"}
-                                            onChange={(e) => updateSelectedProp("lottieHeight", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                          />
-                                        </div>
-                                      </div>
+                                      <div className="flex items-center pt-4">
 
-                                      <div className="flex items-center justify-between pt-1">
                                         <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                                           <input
                                             type="checkbox"
@@ -16607,245 +15082,899 @@ export default function WebsiteEditor() {
                                       </div>
                                     </div>
                                   </div>
-                                )}
+                                </div>
+                              )}
 
-                                {/* Code Highlight Inspector Panel (F-203) */}
-                                {selectedElementAny.type === "code-highlight" && (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 space-y-3">
-                                      <span className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-                                        <CodeHighlightBoxIcon />
-                                        <span>Code Highlight Settings</span>
-                                      </span>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Language
-                                        </label>
-                                        <select
-                                          value={selectedElementAny.codeLanguage || "typescript"}
-                                          onChange={(e) => updateSelectedProp("codeLanguage", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                        >
-                                          <option value="typescript">TypeScript</option>
-                                          <option value="javascript">JavaScript</option>
-                                          <option value="python">Python</option>
-                                          <option value="html">HTML</option>
-                                          <option value="css">CSS</option>
-                                          <option value="json">JSON</option>
-                                          <option value="bash">Bash / Shell</option>
-                                          <option value="sql">SQL</option>
-                                        </select>
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                          Code Snippet Content
-                                        </label>
-                                        <textarea
-                                          rows={6}
-                                          value={selectedElementAny.codeSnippet || ""}
-                                          onChange={(e) => updateSelectedProp("codeSnippet", e.target.value)}
-                                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none leading-relaxed"
-                                        />
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Theme Mode</label>
-                                          <select
-                                            value={selectedElementAny.codeTheme || "dark"}
-                                            onChange={(e) => updateSelectedProp("codeTheme", e.target.value as any)}
-                                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                          >
-                                            <option value="dark">Dark (Vs Code Dark)</option>
-                                            <option value="light">Light (Vs Code Light)</option>
-                                          </select>
-                                        </div>
-
-                                        <div className="flex items-center pt-4">
-
-                                          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.lottieAutoplay ?? true}
-                                              onChange={(e) => updateSelectedProp("lottieAutoplay", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                                            />
-                                            <span>Autoplay</span>
-                                          </label>
-
-                                          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={selectedElementAny.lottieLoop ?? true}
-                                              onChange={(e) => updateSelectedProp("lottieLoop", e.target.checked)}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                                            />
-                                            <span>Loop</span>
-                                          </label>
-                                        </div>
-                                      </div>
+                                  {/* Video Playlist Inspector Panel (F-204) */}
+                              {selectedElementAny.type === "video-playlist" && (
+                                <div className="space-y-4 pt-2 border-t border-slate-100">
+                                  <div className="rounded-xl border border-red-200 bg-red-50/50 p-3 space-y-3">
+                                    <span className="block text-[11px] font-bold text-red-900 uppercase tracking-wider flex items-center gap-1.5">
+                                      <VideoPlaylistBoxIcon />
+                                      <span>Video Playlist Settings</span>
+                                    </span>
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-1">Playlist Position</label>
+                                      <select
+                                        value={selectedElementAny.playlistPosition || "right"}
+                                        onChange={(e) => updateSelectedProp("playlistPosition", e.target.value)}
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                      >
+                                        <option value="right">Right</option>
+                                        <option value="bottom">Bottom</option>
+                                      </select>
                                     </div>
-                  )}
+                                    <div>
+                                      <label className="block text-[10px] font-semibold text-slate-500 mb-1">Playlist Items</label>
+                                      <textarea
+                                        rows={4}
+                                        value={(selectedElementAny.playlistItems || []).map((item: any) => item.title || "").join("\n")}
+                                        onChange={(e) => {
+                                          const titles = e.target.value.split("\n").filter(Boolean);
+                                          const current = selectedElementAny.playlistItems || [];
+                                          const updated = titles.map((title, index) => ({
+                                            ...(current[index] || {}),
+                                            id: current[index]?.id || `vp_${Date.now()}_${index}`,
+                                            title,
+                                            url: current[index]?.url || "",
+                                            videoUrl: current[index]?.videoUrl || current[index]?.url || "",
+                                          }));
+                                          updateSelectedProp("playlistItems", updated);
+                                        }}
+                                        placeholder="One video title per line"
+                                        className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
 
-                                    {/* Video Playlist Inspector Panel (F-204) */}
-                                    {selectedElementAny.type === "video-playlist" && (() => {
-                                      const items: PlaylistItem[] = selectedElementAny.playlistItems?.length
-                                        ? selectedElementAny.playlistItems
-                                        : [
-                                          {
-                                            id: "1",
-                                            title: "ForgeStudio Platform Overview & Quick Start Guide",
-                                            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                            videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                            duration: "3:45",
-                                            thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                                            thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                                          },
-                                          {
-                                            id: "2",
-                                            title: "Designing Responsive SaaS Layouts in Record Time",
-                                            url: "https://vimeo.com/76979871",
-                                            videoUrl: "https://vimeo.com/76979871",
-                                            duration: "5:12",
-                                            thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                                            thumbnailUrl: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=400&q=80",
-                                          },
-                                        ];
+                                        {/* Mega Menu Inspector Panel (F-205) */}
+                                        {selectedElementAny.type === "mega-menu" && (
+                                          <div className="space-y-4">
+                                            {/* General Settings */}
+                                            <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
+                                              <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                                                <MegaMenuBoxIcon />
+                                                <span>Mega Menu Navigation Settings</span>
+                                              </span>
 
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
+                                                  <input
+                                                    type="color"
+                                                    value={selectedElementAny.megaMenuBgColor || "#ffffff"}
+                                                    onChange={(e) => updateSelectedProp("megaMenuBgColor", e.target.value)}
+                                                    className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
+                                                  <input
+                                                    type="color"
+                                                    value={selectedElementAny.megaMenuTextColor || "#0f172a"}
+                                                    onChange={(e) => updateSelectedProp("megaMenuTextColor", e.target.value)}
+                                                    className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
+                                                  />
+                                                </div>
+                                              </div>
 
-                                      return (
-                                        <div className="space-y-4">
-                                          <div className="rounded-xl border border-red-200 bg-red-50/50 p-3 space-y-3">
-                                            <span className="block text-[11px] font-bold text-red-900 uppercase tracking-wider flex items-center gap-1.5">
-                                              <VideoPlaylistBoxIcon />
-                                              <span>Video Playlist Settings</span>
-                                            </span>
-
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">
-                                                Playlist Layout Position
-                                              </label>
-                                              <div className="grid grid-cols-2 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                                {(["right", "bottom"] as const).map((pos) => (
-                                                  <button
-                                                    key={pos}
-                                                    type="button"
-                                                    onClick={() => updateSelectedProp("playlistPosition", pos)}
-                                                    className={`py-1 text-xs font-bold capitalize rounded-md transition ${(selectedElementAny.playlistPosition || "right") === pos
-                                                      ? "bg-white text-red-700 shadow-2xs"
-                                                      : "text-slate-600 hover:text-slate-900"
-                                                      }`}
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
+                                                  <select
+                                                    value={selectedElementAny.megaMenuAlignment || "center"}
+                                                    onChange={(e) => updateSelectedProp("megaMenuAlignment", e.target.value as any)}
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
                                                   >
-                                                    {pos}
-                                                  </button>
-                                                ))}
+                                                    <option value="left">Left Align</option>
+                                                    <option value="center">Center Align</option>
+                                                    <option value="right">Right Align</option>
+                                                  </select>
+                                                </div>
 
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Menu Trigger</label>
+                                                  <select
+                                                    value={selectedElementAny.megaMenuTrigger || "hover"}
+                                                    onChange={(e) => updateSelectedProp("megaMenuTrigger", e.target.value as any)}
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                  >
+                                                    <option value="hover">On Hover</option>
+                                                    <option value="click">On Click</option>
+                                                  </select>
+                                                </div>
                                               </div>
                                             </div>
 
-                                            {/* Dynamic Video Playlist Editor */}
-                                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                            {/* Mega Menu Items Manager */}
+                                            <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-3 space-y-3">
                                               <div className="flex items-center justify-between">
-                                                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                                  Playlist Videos ({items.length})
+                                                <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider">
+                                                  Categories ({selectedElementAny.megaMenuItems?.length || 3})
                                                 </span>
                                                 <button
                                                   type="button"
                                                   onClick={() => {
-                                                    const newItem: PlaylistItem = {
-                                                      id: `v_${Date.now()}`,
-                                                      title: `New Video ${items.length + 1}`,
-                                                      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                      duration: "2:30",
-                                                      thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-                                                      thumbnailUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
+                                                    const defaultItems: MegaMenuItem[] = [
+                                                      { id: "1", title: "Products" },
+                                                      { id: "2", title: "Resources" },
+                                                      { id: "3", title: "Pricing", href: "#pricing" },
+                                                    ];
+                                                    const current = selectedElementAny.megaMenuItems?.length ? selectedElementAny.megaMenuItems : defaultItems;
+                                                    const newItem: MegaMenuItem = {
+                                                      id: `mega_${Date.now()}`,
+                                                      title: `New Category ${current.length + 1}`,
+                                                      trigger: "hover",
+                                                      columns: [
+                                                        {
+                                                          id: `col_${Date.now()}`,
+                                                          title: "Category Section",
+                                                          links: [
+                                                            { label: "New Link 1", href: "#" },
+                                                            { label: "New Link 2", href: "#" },
+                                                          ],
+                                                        },
+                                                      ],
                                                     };
-                                                    updateSelectedProp("playlistItems", [...items, newItem]);
+                                                    updateSelectedProp("megaMenuItems", [...current, newItem]);
                                                   }}
-                                                  className="rounded-lg bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs hover:bg-red-700 transition cursor-pointer"
+                                                  className="rounded bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-blue-700 transition cursor-pointer shadow-xs"
                                                 >
-                                                  + Add Video
+                                                  + Add Category
                                                 </button>
                                               </div>
 
                                               <div className="space-y-3">
-                                                {items.map((item, idx) => (
+                                                {(selectedElementAny.megaMenuItems || [
+                                                  {
+                                                    id: "1",
+                                                    title: "Products",
+                                                    columns: [
+                                                      {
+                                                        id: "col_1",
+                                                        title: "Core Platform",
+                                                        links: [
+                                                          { label: "Visual Builder", href: "#", badge: "New", description: "Drag & drop visual builder" },
+                                                          { label: "Design System", href: "#", description: "Design tokens & components" },
+                                                        ],
+                                                      },
+                                                      {
+                                                        id: "col_2",
+                                                        title: "Solutions",
+                                                        links: [
+                                                          { label: "SaaS Agencies", href: "#", description: "White-label builder" },
+                                                          { label: "E-Commerce Stores", href: "#", badge: "Pro", description: "Product & Woo integration" },
+                                                        ],
+                                                      },
+                                                    ],
+                                                  },
+                                                  {
+                                                    id: "2",
+                                                    title: "Resources",
+                                                    columns: [
+                                                      {
+                                                        id: "col_3",
+                                                        title: "Documentation",
+                                                        links: [
+                                                          { label: "Getting Started Guide", href: "#" },
+                                                          { label: "API Reference", href: "#" },
+                                                        ],
+                                                      },
+                                                    ],
+                                                  },
+                                                  { id: "3", title: "Pricing", href: "#pricing" },
+                                                ]).map((catItem, cIdx, catArr) => (
                                                   <div
-                                                    key={item.id || idx}
-                                                    className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs"
+                                                    key={catItem.id}
+                                                    className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5"
                                                   >
-                                                    <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                                                      <span className="text-xs font-bold text-red-700">Video #{idx + 1}</span>
-                                                      {items.length > 1 && (
+                                                    <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
+                                                      <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+                                                        <span className="text-blue-600">#{cIdx + 1}</span>
+                                                        {catItem.icon && <span>{catItem.icon}</span>}
+                                                        <span>{catItem.title}</span>
+                                                      </span>
+
+                                                      <div className="flex items-center gap-1">
+                                                        <button
+                                                          type="button"
+                                                          disabled={cIdx === 0}
+                                                          onClick={() => {
+                                                            const copy = [...catArr];
+                                                            const temp = copy[cIdx - 1];
+                                                            copy[cIdx - 1] = copy[cIdx];
+                                                            copy[cIdx] = temp;
+                                                            updateSelectedProp("megaMenuItems", copy);
+                                                          }}
+                                                          className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                                          title="Move Up"
+                                                        >
+                                                          ↑
+                                                        </button>
+                                                        <button
+                                                          type="button"
+                                                          disabled={cIdx === catArr.length - 1}
+                                                          onClick={() => {
+                                                            const copy = [...catArr];
+                                                            const temp = copy[cIdx + 1];
+                                                            copy[cIdx + 1] = copy[cIdx];
+                                                            copy[cIdx] = temp;
+                                                            updateSelectedProp("megaMenuItems", copy);
+                                                          }}
+                                                          className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                                          title="Move Down"
+                                                        >
+                                                          ↓
+                                                        </button>
                                                         <button
                                                           type="button"
                                                           onClick={() => {
-                                                            const updated = items.filter((_, i) => i !== idx);
-                                                            updateSelectedProp("playlistItems", updated);
+                                                            const dup: MegaMenuItem = {
+                                                              ...catItem,
+                                                              id: `mega_${Date.now()}`,
+                                                              title: `${catItem.title} (Copy)`,
+                                                            };
+                                                            const copy = [...catArr];
+                                                            copy.splice(cIdx + 1, 0, dup);
+                                                            updateSelectedProp("megaMenuItems", copy);
                                                           }}
-                                                          className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline"
+                                                          className="h-5 w-5 rounded border border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                                          title="Duplicate Category"
                                                         >
-                                                          Delete
+                                                          ⧉
                                                         </button>
-                                                      )}
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            const filtered = catArr.filter((i) => i.id !== catItem.id);
+                                                            updateSelectedProp("megaMenuItems", filtered);
+                                                          }}
+                                                          className="h-5 w-5 rounded border border-red-200 bg-red-50 text-[10px] font-bold text-red-600 hover:bg-red-100 cursor-pointer"
+                                                          title="Delete Category"
+                                                        >
+                                                          ✕
+                                                        </button>
+                                                      </div>
                                                     </div>
 
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Title</label>
-                                                      <input
-                                                        type="text"
-                                                        value={item.title || ""}
-                                                        onChange={(e) => {
-                                                          const updated = [...items];
-                                                          updated[idx] = { ...updated[idx], title: e.target.value };
-                                                          updateSelectedProp("playlistItems", updated);
-                                                        }}
-                                                        placeholder="Video Title"
-                                                        className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-red-500"
-                                                      />
-                                                    </div>
-
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                        Video URL (YouTube, Vimeo, MP4 link) *
-                                                      </label>
-                                                      <input
-                                                        type="text"
-                                                        value={item.videoUrl || ""}
-                                                        onChange={(e) => {
-                                                          const updated = [...items];
-                                                          updated[idx] = { ...updated[idx], videoUrl: e.target.value };
-                                                          updateSelectedProp("playlistItems", updated);
-                                                        }}
-                                                        placeholder="https://www.youtube.com/watch?v=..."
-                                                        className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-red-500"
-                                                      />
-                                                    </div>
-
+                                                    {/* Category Details */}
                                                     <div className="grid grid-cols-2 gap-2">
                                                       <div>
-                                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Duration</label>
+                                                        <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Category Title</label>
                                                         <input
                                                           type="text"
-                                                          value={item.duration || ""}
+                                                          value={catItem.title}
                                                           onChange={(e) => {
-                                                            const updated = [...items];
-                                                            updated[idx] = { ...updated[idx], duration: e.target.value };
-                                                            updateSelectedProp("playlistItems", updated);
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, title: e.target.value } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
                                                           }}
-                                                          placeholder="e.g. 4:15"
-                                                          className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                                          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                                                         />
                                                       </div>
 
                                                       <div>
+                                                        <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Destination Type</label>
+                                                        <select
+                                                          value={catItem.destinationType || (catItem.pageId ? "page" : catItem.productId ? "product" : "url")}
+                                                          onChange={(e) => {
+                                                            const val = e.target.value as "url" | "page" | "product";
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, destinationType: val, linkType: val } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                                        >
+                                                          <option value="url">URL / Anchor</option>
+                                                          <option value="page">📄 Site Page</option>
+                                                          <option value="product">🛍️ Product</option>
+                                                        </select>
+                                                      </div>
+                                                    </div>
+
+                                                    {/* Category Dynamic Destination Target */}
+                                                    {(catItem.destinationType === "page" || (!catItem.destinationType && catItem.pageId)) && (
+                                                      <div className="space-y-1 rounded-lg border border-blue-100 bg-blue-50/40 p-2">
+                                                        <div className="flex items-center justify-between">
+                                                          <label className="block text-[9px] font-bold text-blue-900 uppercase">Target Page</label>
+                                                          <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                              const created = handleCreatePageQuick();
+                                                              const updated = catArr.map((i) =>
+                                                                i.id === catItem.id ? { ...i, pageId: created.id, href: created.slug, destinationType: "page" } : i
+                                                              );
+                                                              updateSelectedProp("megaMenuItems", updated);
+                                                            }}
+                                                            className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                                          >
+                                                            + Create Page
+                                                          </button>
+                                                        </div>
+                                                        <select
+                                                          value={catItem.pageId || ""}
+                                                          onChange={(e) => {
+                                                            const pId = e.target.value;
+                                                            const pObj = pages.find(p => p.id === pId);
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, pageId: pId, href: pObj?.slug || i.href, destinationType: "page" } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          className="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                        >
+                                                          <option value="">-- Select Page --</option>
+                                                          {pages.map((p) => (
+                                                            <option key={p.id} value={p.id}>{p.name} ({p.slug})</option>
+                                                          ))}
+                                                        </select>
+                                                      </div>
+                                                    )}
+
+                                                    {(catItem.destinationType === "product" || (!catItem.destinationType && catItem.productId)) && (
+                                                      <div className="space-y-1 rounded-lg border border-purple-100 bg-purple-50/40 p-2">
+                                                        <label className="block text-[9px] font-bold text-purple-900 uppercase">Target Product</label>
+                                                        <select
+                                                          value={catItem.productId || ""}
+                                                          onChange={(e) => {
+                                                            const prId = e.target.value;
+                                                            const prObj = siteProducts.find(p => p.id === prId);
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, productId: prId, href: prObj?.url || i.href, destinationType: "product" } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          className="w-full rounded border border-purple-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                        >
+                                                          <option value="">-- Select Product --</option>
+                                                          {siteProducts.map((prod) => (
+                                                            <option key={prod.id} value={prod.id}>{prod.name} ({prod.price})</option>
+                                                          ))}
+                                                        </select>
+                                                      </div>
+                                                    )}
+
+                                                    {(!catItem.destinationType || catItem.destinationType === "url") && (
+                                                      <div>
+                                                        <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Link Href / URL</label>
+                                                        <input
+                                                          type="text"
+                                                          value={catItem.href || ""}
+                                                          onChange={(e) => {
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, href: e.target.value } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          placeholder="# (optional direct link)"
+                                                          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                                        />
+                                                      </div>
+                                                    )}
+
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                      <div>
+                                                        <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Badge (e.g. New)</label>
+                                                        <input
+                                                          type="text"
+                                                          value={catItem.badge || ""}
+                                                          onChange={(e) => {
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, badge: e.target.value } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          placeholder="New / Pro"
+                                                          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                        />
+                                                      </div>
+
+                                                      <div>
+                                                        <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Icon / Emoji</label>
+                                                        <input
+                                                          type="text"
+                                                          value={catItem.icon || ""}
+                                                          onChange={(e) => {
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, icon: e.target.value } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          placeholder="e.g. 📦"
+                                                          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                        />
+                                                      </div>
+                                                    </div>
+
+                                                    {/* Columns Manager */}
+                                                    <div className="mt-3 pl-3 border-l-2 border-blue-400 space-y-2 bg-blue-50/20 p-2.5 rounded-r-xl">
+                                                      <div className="flex items-center justify-between">
+                                                        <span className="block text-[10px] font-bold text-blue-900 uppercase tracking-wider">
+                                                          Mega Columns ({catItem.columns?.length || 0})
+                                                        </span>
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            const cols = catItem.columns || [];
+                                                            const newCol: MegaMenuColumn = {
+                                                              id: `col_${Date.now()}`,
+                                                              title: `Column ${cols.length + 1}`,
+                                                              links: [
+                                                                { label: "New Column Link", href: "#" },
+                                                              ],
+                                                            };
+                                                            const updated = catArr.map((i) =>
+                                                              i.id === catItem.id ? { ...i, columns: [...cols, newCol] } : i
+                                                            );
+                                                            updateSelectedProp("megaMenuItems", updated);
+                                                          }}
+                                                          className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                                        >
+                                                          + Add Column
+                                                        </button>
+                                                      </div>
+
+                                                      {catItem.columns?.map((col, colIdx) => (
+                                                        <div key={col.id || `col_${colIdx}`} className="rounded-xl border border-slate-200 bg-white p-2.5 space-y-2">
+                                                          <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
+                                                            <span className="text-[10px] font-bold text-slate-700">Column #{colIdx + 1}</span>
+                                                            <div className="flex items-center gap-1">
+                                                              <button
+                                                                type="button"
+                                                                disabled={colIdx === 0}
+                                                                onClick={() => {
+                                                                  const cols = [...catItem.columns!];
+                                                                  const temp = cols[colIdx - 1];
+                                                                  cols[colIdx - 1] = cols[colIdx];
+                                                                  cols[colIdx] = temp;
+                                                                  const updated = catArr.map((i) =>
+                                                                    i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                  );
+                                                                  updateSelectedProp("megaMenuItems", updated);
+                                                                }}
+                                                                className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                                              >
+                                                                ↑
+                                                              </button>
+                                                              <button
+                                                                type="button"
+                                                                disabled={colIdx === catItem.columns!.length - 1}
+                                                                onClick={() => {
+                                                                  const cols = [...catItem.columns!];
+                                                                  const temp = cols[colIdx + 1];
+                                                                  cols[colIdx + 1] = cols[colIdx];
+                                                                  cols[colIdx] = temp;
+                                                                  const updated = catArr.map((i) =>
+                                                                    i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                  );
+                                                                  updateSelectedProp("megaMenuItems", updated);
+                                                                }}
+                                                                className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                                              >
+                                                                ↓
+                                                              </button>
+                                                              <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                  const cols = catItem.columns!.filter((_, idx) => idx !== colIdx);
+                                                                  const updated = catArr.map((i) =>
+                                                                    i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                  );
+                                                                  updateSelectedProp("megaMenuItems", updated);
+                                                                }}
+                                                                className="h-4 w-4 shrink-0 rounded border border-red-200 bg-red-50 text-[9px] font-bold text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                                                                title="Delete Column"
+                                                              >
+                                                                ✕
+                                                              </button>
+                                                            </div>
+                                                          </div>
+
+                                                          <div>
+                                                            <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Column Header Title</label>
+                                                            <input
+                                                              type="text"
+                                                              value={col.title}
+                                                              onChange={(e) => {
+                                                                const cols = catItem.columns!.map((c, idx) =>
+                                                                  idx === colIdx ? { ...c, title: e.target.value } : c
+                                                                );
+                                                                const updated = catArr.map((i) =>
+                                                                  i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                );
+                                                                updateSelectedProp("megaMenuItems", updated);
+                                                              }}
+                                                              className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-800 outline-none"
+                                                            />
+                                                          </div>
+
+                                                          {/* Column Links */}
+                                                          <div className="space-y-1.5 pt-1">
+                                                            <div className="flex items-center justify-between">
+                                                              <span className="text-[9px] font-bold text-slate-500 uppercase">
+                                                                Links ({col.links.length})
+                                                              </span>
+                                                              <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                  const newLink: MegaMenuColumnLink = {
+                                                                    id: `link_${Date.now()}`,
+                                                                    label: `New Link ${col.links.length + 1}`,
+                                                                    href: "#",
+                                                                  };
+                                                                  const cols = catItem.columns!.map((c, idx) =>
+                                                                    idx === colIdx ? { ...c, links: [...c.links, newLink] } : c
+                                                                  );
+                                                                  const updated = catArr.map((i) =>
+                                                                    i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                  );
+                                                                  updateSelectedProp("megaMenuItems", updated);
+                                                                }}
+                                                                className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
+                                                              >
+                                                                + Add Link
+                                                              </button>
+                                                            </div>
+
+                                                            {col.links.map((link, lIdx) => (
+                                                              <div key={link.id || `l_${lIdx}`} className="rounded border border-slate-100 bg-slate-50 p-2 space-y-1">
+                                                                <div className="flex items-center justify-between gap-1">
+                                                                  <span className="text-[9px] font-bold text-slate-600">Link #{lIdx + 1}</span>
+                                                                  <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                      const newLinks = col.links.filter((_, idx) => idx !== lIdx);
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    className="h-3.5 w-3.5 rounded border border-red-200 bg-red-50 text-[8px] text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                                                                    title="Delete Link"
+                                                                  >
+                                                                    ✕
+                                                                  </button>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-2 gap-1">
+                                                                  <input
+                                                                    type="text"
+                                                                    value={link.label}
+                                                                    onChange={(e) => {
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, label: e.target.value } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    placeholder="Link Label"
+                                                                    className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-800 outline-none"
+                                                                  />
+                                                                  <select
+                                                                    value={link.destinationType || (link.pageId ? "page" : link.productId ? "product" : "url")}
+                                                                    onChange={(e) => {
+                                                                      const val = e.target.value as "url" | "page" | "product";
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, destinationType: val, linkType: val } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    className="rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px] font-semibold text-slate-800 outline-none"
+                                                                  >
+                                                                    <option value="url">URL</option>
+                                                                    <option value="page">Page</option>
+                                                                    <option value="product">Product</option>
+                                                                  </select>
+                                                                </div>
+
+                                                                {link.destinationType === "page" ? (
+                                                                  <select
+                                                                    value={link.pageId || ""}
+                                                                    onChange={(e) => {
+                                                                      const pId = e.target.value;
+                                                                      const pObj = pages.find(p => p.id === pId);
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, pageId: pId, href: pObj?.slug || l.href } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    className="w-full rounded border border-blue-200 bg-blue-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
+                                                                  >
+                                                                    <option value="">-- Select Page --</option>
+                                                                    {pages.map((p) => (
+                                                                      <option key={p.id} value={p.id}>{p.name}</option>
+                                                                    ))}
+                                                                  </select>
+                                                                ) : link.destinationType === "product" ? (
+                                                                  <select
+                                                                    value={link.productId || ""}
+                                                                    onChange={(e) => {
+                                                                      const prId = e.target.value;
+                                                                      const prObj = siteProducts.find(p => p.id === prId);
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, productId: prId, href: prObj?.url || l.href } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    className="w-full rounded border border-purple-200 bg-purple-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
+                                                                  >
+                                                                    <option value="">-- Select Product --</option>
+                                                                    {siteProducts.map((p) => (
+                                                                      <option key={p.id} value={p.id}>{p.name}</option>
+                                                                    ))}
+                                                                  </select>
+                                                                ) : (
+                                                                  <input
+                                                                    type="text"
+                                                                    value={link.href}
+                                                                    onChange={(e) => {
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, href: e.target.value } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    placeholder="Href / URL"
+                                                                    className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs font-mono text-slate-800 outline-none"
+                                                                  />
+                                                                )}
+
+                                                                <div className="grid grid-cols-2 gap-1">
+                                                                  <input
+                                                                    type="text"
+                                                                    value={link.description || ""}
+                                                                    onChange={(e) => {
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, description: e.target.value } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    placeholder="Description (optional)"
+                                                                    className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                                                  />
+                                                                  <input
+                                                                    type="text"
+                                                                    value={link.badge || ""}
+                                                                    onChange={(e) => {
+                                                                      const newLinks = col.links.map((l, idx) =>
+                                                                        idx === lIdx ? { ...l, badge: e.target.value } : l
+                                                                      );
+                                                                      const cols = catItem.columns!.map((c, idx) =>
+                                                                        idx === colIdx ? { ...c, links: newLinks } : c
+                                                                      );
+                                                                      const updated = catArr.map((i) =>
+                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                      );
+                                                                      updateSelectedProp("megaMenuItems", updated);
+                                                                    }}
+                                                                    placeholder="Badge (e.g. New)"
+                                                                    className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
+                                                                  />
+                                                                </div>
+
+                                                                <input
+                                                                  type="text"
+                                                                  value={link.image || ""}
+                                                                  onChange={(e) => {
+                                                                    const newLinks = col.links.map((l, idx) =>
+                                                                      idx === lIdx ? { ...l, image: e.target.value } : l
+                                                                    );
+                                                                    const cols = catItem.columns!.map((c, idx) =>
+                                                                      idx === colIdx ? { ...c, links: newLinks } : c
+                                                                    );
+                                                                    const updated = catArr.map((i) =>
+                                                                      i.id === catItem.id ? { ...i, columns: cols } : i
+                                                                    );
+                                                                    updateSelectedProp("megaMenuItems", updated);
+                                                                  }}
+                                                                  placeholder="Image URL (optional)"
+                                                                  className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-mono text-slate-700 outline-none"
+                                                                />
+                                                              </div>
+                                                            ))}
+                                                          </div>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Off Canvas Inspector Panel (F-206) */}
+                                        {selectedElementAny.type === "off-canvas" && (
+                                          <div className="space-y-4">
+                                            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 space-y-3">
+                                              <span className="block text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                                                <OffCanvasBoxIcon />
+                                                <span>Off Canvas Panel Settings</span>
+                                              </span>
+
+                                              <div>
+                                                <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">Trigger Button Text</label>
+                                                <input
+                                                  type="text"
+                                                  value={selectedElementAny.offCanvasButtonText || "Open Panel"}
+                                                  onChange={(e) => updateSelectedProp("offCanvasButtonText", e.target.value)}
+                                                  className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                                                />
+                                              </div>
+
+                                              <div>
+                                                <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">Panel Title</label>
+                                                <input
+                                                  type="text"
+                                                  value={selectedElementAny.offCanvasTitle || "Navigation & Tools"}
+                                                  onChange={(e) => updateSelectedProp("offCanvasTitle", e.target.value)}
+                                                  className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                                                />
+                                              </div>
+
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Position</label>
+                                                  <select
+                                                    value={selectedElementAny.offCanvasPosition || "right"}
+                                                    onChange={(e) => updateSelectedProp("offCanvasPosition", e.target.value as any)}
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                                  >
+                                                    <option value="right">Slide Right</option>
+                                                    <option value="left">Slide Left</option>
+                                                  </select>
+                                                </div>
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Panel Width</label>
+                                                  <input
+                                                    type="text"
+                                                    value={selectedElementAny.offCanvasWidth || "340px"}
+                                                    onChange={(e) => updateSelectedProp("offCanvasWidth", e.target.value)}
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Image Carousel Inspector Panel (F-210) */}
+                                        {selectedElementAny.type === "image-carousel" && (() => {
+                                          const items: ImageCarouselItem[] = selectedElementAny.imageCarouselItems || [];
+                                          return (
+                                            <div className="space-y-4">
+                                              {/* CONTENT SECTION */}
+                                              <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3 space-y-3">
+                                                <div className="flex items-center justify-between border-b border-blue-200/60 pb-2">
+                                                  <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span>🖼️</span>
+                                                    <span>CONTENT — Images ({items.length})</span>
+                                                  </span>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      const newItem: ImageCarouselItem = {
+                                                        id: "img_" + Math.random().toString(36).substring(2, 9),
+                                                        url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+                                                        title: `Image Slide ${items.length + 1}`,
+                                                        caption: "New Carousel Image",
+                                                        alt: "Carousel Image",
+                                                      };
+                                                      updateSelectedProp("imageCarouselItems", [...items, newItem]);
+                                                    }}
+                                                    className="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white shadow-2xs hover:bg-blue-700 transition cursor-pointer"
+                                                  >
+                                                    + Add Image
+                                                  </button>
+                                                </div>
+
+                                                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                                                  {items.map((item, idx) => (
+                                                    <div key={item.id || idx} className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-2xs space-y-2">
+                                                      <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                          <span className="flex h-5 w-5 items-center justify-center rounded bg-blue-100 text-[10px] font-bold text-blue-700">
+                                                            {idx + 1}
+                                                          </span>
+                                                          {item.url && (
+                                                            <img src={item.url} alt={item.title || "thumbnail"} className="h-6 w-8 object-cover rounded border border-slate-200" />
+                                                          )}
+                                                          <span className="text-xs font-bold text-slate-800 truncate max-w-[120px]">
+                                                            {item.title || `Image ${idx + 1}`}
+                                                          </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                          <button
+                                                            type="button"
+                                                            disabled={idx === 0}
+                                                            onClick={() => {
+                                                              const updated = [...items];
+                                                              const temp = updated[idx];
+                                                              updated[idx] = updated[idx - 1];
+                                                              updated[idx - 1] = temp;
+                                                              updateSelectedProp("imageCarouselItems", updated);
+                                                            }}
+                                                            className="px-1 py-0.5 text-[10px] font-bold text-slate-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer"
+                                                            title="Move Up"
+                                                          >
+                                                            ▲
+                                                          </button>
+                                                          <button
+                                                            type="button"
+                                                            disabled={idx === items.length - 1}
+                                                            onClick={() => {
+                                                              const updated = [...items];
+                                                              const temp = updated[idx];
+                                                              updated[idx] = updated[idx + 1];
+                                                              updated[idx + 1] = temp;
+                                                              updateSelectedProp("imageCarouselItems", updated);
+                                                            }}
+                                                            className="px-1 py-0.5 text-[10px] font-bold text-slate-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer"
+                                                            title="Move Down"
+                                                          >
+                                                            ▼
+                                                          </button>
+                                                          {items.length > 1 && (
+                                                            <button
+                                                              type="button"
+                                                              onClick={() => {
+                                                                const updated = items.filter((_, i) => i !== idx);
+                                                                updateSelectedProp("imageCarouselItems", updated);
+                                                              }}
+                                                              className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline ml-1 cursor-pointer"
+                                                            >
+                                                              Remove
+                                                            </button>
+                                                          )}
+                                                        </div>
+                                                      </div>
+
+                                                      <div>
                                                         <div className="flex items-center justify-between mb-0.5">
-                                                          <label className="block text-[10px] font-semibold text-slate-500">Thumbnail</label>
-                                                          <label className="text-[9px] font-bold text-red-600 hover:text-red-800 cursor-pointer">
-                                                            📁 Upload
+                                                          <label className="block text-[10px] font-semibold text-slate-500">Image Source URL *</label>
+                                                          <label className="text-[9px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer">
+                                                            📁 Upload File
                                                             <input
                                                               type="file"
                                                               accept="image/*"
@@ -16857,8 +15986,8 @@ export default function WebsiteEditor() {
                                                                   reader.onloadend = () => {
                                                                     if (typeof reader.result === "string") {
                                                                       const updated = [...items];
-                                                                      updated[idx] = { ...updated[idx], thumbnail: reader.result };
-                                                                      updateSelectedProp("playlistItems", updated);
+                                                                      updated[idx] = { ...updated[idx], url: reader.result };
+                                                                      updateSelectedProp("imageCarouselItems", updated);
                                                                     }
                                                                   };
                                                                   reader.readAsDataURL(file);
@@ -16869,1508 +15998,241 @@ export default function WebsiteEditor() {
                                                         </div>
                                                         <input
                                                           type="text"
-                                                          value={item.thumbnail || ""}
+                                                          value={item.url || ""}
                                                           onChange={(e) => {
                                                             const updated = [...items];
-                                                            updated[idx] = { ...updated[idx], thumbnail: e.target.value };
-                                                            updateSelectedProp("playlistItems", updated);
+                                                            updated[idx] = { ...updated[idx], url: e.target.value };
+                                                            updateSelectedProp("imageCarouselItems", updated);
                                                           }}
-                                                          placeholder="https://..."
-                                                          className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                                          placeholder="https://images.unsplash.com/..."
+                                                          className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
                                                         />
                                                       </div>
-                                                    </div>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            </div>
-                                          </div>
-                                          );
-                  })()}
-
-                                          {/* Mega Menu Inspector Panel (F-205) */}
-                                          {selectedElementAny.type === "mega-menu" && (
-                                            <div className="space-y-4">
-                                              {/* General Settings */}
-                                              <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-3">
-                                                <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                                  <MegaMenuBoxIcon />
-                                                  <span>Mega Menu Navigation Settings</span>
-                                                </span>
-
-                                                <div className="grid grid-cols-2 gap-2">
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Background</label>
-                                                    <input
-                                                      type="color"
-                                                      value={selectedElementAny.megaMenuBgColor || "#ffffff"}
-                                                      onChange={(e) => updateSelectedProp("megaMenuBgColor", e.target.value)}
-                                                      className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
-                                                    />
-                                                  </div>
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Text Color</label>
-                                                    <input
-                                                      type="color"
-                                                      value={selectedElementAny.megaMenuTextColor || "#0f172a"}
-                                                      onChange={(e) => updateSelectedProp("megaMenuTextColor", e.target.value)}
-                                                      className="h-8 w-full cursor-pointer rounded border border-slate-200 p-0.5 bg-white"
-                                                    />
-                                                  </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-2">
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alignment</label>
-                                                    <select
-                                                      value={selectedElementAny.megaMenuAlignment || "center"}
-                                                      onChange={(e) => updateSelectedProp("megaMenuAlignment", e.target.value as any)}
-                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
-                                                    >
-                                                      <option value="left">Left Align</option>
-                                                      <option value="center">Center Align</option>
-                                                      <option value="right">Right Align</option>
-                                                    </select>
-                                                  </div>
-
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Menu Trigger</label>
-                                                    <select
-                                                      value={selectedElementAny.megaMenuTrigger || "hover"}
-                                                      onChange={(e) => updateSelectedProp("megaMenuTrigger", e.target.value as any)}
-                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
-                                                    >
-                                                      <option value="hover">On Hover</option>
-                                                      <option value="click">On Click</option>
-                                                    </select>
-                                                  </div>
-                                                </div>
-                                              </div>
-
-                                              {/* Mega Menu Items Manager */}
-                                              <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-3 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                  <span className="block text-[11px] font-bold text-blue-900 uppercase tracking-wider">
-                                                    Categories ({selectedElementAny.megaMenuItems?.length || 3})
-                                                  </span>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                      const defaultItems: MegaMenuItem[] = [
-                                                        { id: "1", title: "Products" },
-                                                        { id: "2", title: "Resources" },
-                                                        { id: "3", title: "Pricing", href: "#pricing" },
-                                                      ];
-                                                      const current = selectedElementAny.megaMenuItems?.length ? selectedElementAny.megaMenuItems : defaultItems;
-                                                      const newItem: MegaMenuItem = {
-                                                        id: `mega_${Date.now()}`,
-                                                        title: `New Category ${current.length + 1}`,
-                                                        trigger: "hover",
-                                                        columns: [
-                                                          {
-                                                            id: `col_${Date.now()}`,
-                                                            title: "Category Section",
-                                                            links: [
-                                                              { label: "New Link 1", href: "#" },
-                                                              { label: "New Link 2", href: "#" },
-                                                            ],
-                                                          },
-                                                        ],
-                                                      };
-                                                      updateSelectedProp("megaMenuItems", [...current, newItem]);
-                                                    }}
-                                                    className="rounded bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-blue-700 transition cursor-pointer shadow-xs"
-                                                  >
-                                                    + Add Category
-                                                  </button>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                  {(selectedElementAny.megaMenuItems || [
-                                                    {
-                                                      id: "1",
-                                                      title: "Products",
-                                                      columns: [
-                                                        {
-                                                          id: "col_1",
-                                                          title: "Core Platform",
-                                                          links: [
-                                                            { label: "Visual Builder", href: "#", badge: "New", description: "Drag & drop visual builder" },
-                                                            { label: "Design System", href: "#", description: "Design tokens & components" },
-                                                          ],
-                                                        },
-                                                        {
-                                                          id: "col_2",
-                                                          title: "Solutions",
-                                                          links: [
-                                                            { label: "SaaS Agencies", href: "#", description: "White-label builder" },
-                                                            { label: "E-Commerce Stores", href: "#", badge: "Pro", description: "Product & Woo integration" },
-                                                          ],
-                                                        },
-                                                      ],
-                                                    },
-                                                    {
-                                                      id: "2",
-                                                      title: "Resources",
-                                                      columns: [
-                                                        {
-                                                          id: "col_3",
-                                                          title: "Documentation",
-                                                          links: [
-                                                            { label: "Getting Started Guide", href: "#" },
-                                                            { label: "API Reference", href: "#" },
-                                                          ],
-                                                        },
-                                                      ],
-                                                    },
-                                                    { id: "3", title: "Pricing", href: "#pricing" },
-                                                  ]).map((catItem, cIdx, catArr) => (
-                                                    <div
-                                                      key={catItem.id}
-                                                      className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs space-y-2.5"
-                                                    >
-                                                      <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
-                                                        <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
-                                                          <span className="text-blue-600">#{cIdx + 1}</span>
-                                                          {catItem.icon && <span>{catItem.icon}</span>}
-                                                          <span>{catItem.title}</span>
-                                                        </span>
-
-                                                        <div className="flex items-center gap-1">
-                                                          <button
-                                                            type="button"
-                                                            disabled={cIdx === 0}
-                                                            onClick={() => {
-                                                              const copy = [...catArr];
-                                                              const temp = copy[cIdx - 1];
-                                                              copy[cIdx - 1] = copy[cIdx];
-                                                              copy[cIdx] = temp;
-                                                              updateSelectedProp("megaMenuItems", copy);
-                                                            }}
-                                                            className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                                                            title="Move Up"
-                                                          >
-                                                            ↑
-                                                          </button>
-                                                          <button
-                                                            type="button"
-                                                            disabled={cIdx === catArr.length - 1}
-                                                            onClick={() => {
-                                                              const copy = [...catArr];
-                                                              const temp = copy[cIdx + 1];
-                                                              copy[cIdx + 1] = copy[cIdx];
-                                                              copy[cIdx] = temp;
-                                                              updateSelectedProp("megaMenuItems", copy);
-                                                            }}
-                                                            className="h-5 w-5 rounded border border-slate-200 text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                                                            title="Move Down"
-                                                          >
-                                                            ↓
-                                                          </button>
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                              const dup: MegaMenuItem = {
-                                                                ...catItem,
-                                                                id: `mega_${Date.now()}`,
-                                                                title: `${catItem.title} (Copy)`,
-                                                              };
-                                                              const copy = [...catArr];
-                                                              copy.splice(cIdx + 1, 0, dup);
-                                                              updateSelectedProp("megaMenuItems", copy);
-                                                            }}
-                                                            className="h-5 w-5 rounded border border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-                                                            title="Duplicate Category"
-                                                          >
-                                                            ⧉
-                                                          </button>
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                              const filtered = catArr.filter((i) => i.id !== catItem.id);
-                                                              updateSelectedProp("megaMenuItems", filtered);
-                                                            }}
-                                                            className="h-5 w-5 rounded border border-red-200 bg-red-50 text-[10px] font-bold text-red-600 hover:bg-red-100 cursor-pointer"
-                                                            title="Delete Category"
-                                                          >
-                                                            ✕
-                                                          </button>
-                                                        </div>
-                                                      </div>
-
-                                                      {/* Category Details */}
-                                                      <div className="grid grid-cols-2 gap-2">
-                                                        <div>
-                                                          <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Category Title</label>
-                                                          <input
-                                                            type="text"
-                                                            value={catItem.title}
-                                                            onChange={(e) => {
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, title: e.target.value } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
-                                                            }}
-                                                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                          />
-                                                        </div>
-
-                                                        <div>
-                                                          <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Destination Type</label>
-                                                          <select
-                                                            value={catItem.destinationType || (catItem.pageId ? "page" : catItem.productId ? "product" : "url")}
-                                                            onChange={(e) => {
-                                                              const val = e.target.value as "url" | "page" | "product";
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, destinationType: val, linkType: val } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
-                                                            }}
-                                                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                          >
-                                                            <option value="url">URL / Anchor</option>
-                                                            <option value="page">📄 Site Page</option>
-                                                            <option value="product">🛍️ Product</option>
-                                                          </select>
-                                                        </div>
-                                                      </div>
-
-                                                      {/* Category Dynamic Destination Target */}
-                                                      {(catItem.destinationType === "page" || (!catItem.destinationType && catItem.pageId)) && (
-                                                        <div className="space-y-1 rounded-lg border border-blue-100 bg-blue-50/40 p-2">
-                                                          <div className="flex items-center justify-between">
-                                                            <label className="block text-[9px] font-bold text-blue-900 uppercase">Target Page</label>
-                                                            <button
-                                                              type="button"
-                                                              onClick={() => {
-                                                                const created = handleCreatePageQuick();
-                                                                const updated = catArr.map((i) =>
-                                                                  i.id === catItem.id ? { ...i, pageId: created.id, href: created.slug, destinationType: "page" } : i
-                                                                );
-                                                                updateSelectedProp("megaMenuItems", updated);
-                                                              }}
-                                                              className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
-                                                            >
-                                                              + Create Page
-                                                            </button>
-                                                          </div>
-                                                          <select
-                                                            value={catItem.pageId || ""}
-                                                            onChange={(e) => {
-                                                              const pId = e.target.value;
-                                                              const pObj = pages.find(p => p.id === pId);
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, pageId: pId, href: pObj?.slug || i.href, destinationType: "page" } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
-                                                            }}
-                                                            className="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
-                                                          >
-                                                            <option value="">-- Select Page --</option>
-                                                            {pages.map((p) => (
-                                                              <option key={p.id} value={p.id}>{p.name} ({p.slug})</option>
-                                                            ))}
-                                                          </select>
-                                                        </div>
-                                                      )}
-
-                                                      {(catItem.destinationType === "product" || (!catItem.destinationType && catItem.productId)) && (
-                                                        <div className="space-y-1 rounded-lg border border-purple-100 bg-purple-50/40 p-2">
-                                                          <label className="block text-[9px] font-bold text-purple-900 uppercase">Target Product</label>
-                                                          <select
-                                                            value={catItem.productId || ""}
-                                                            onChange={(e) => {
-                                                              const prId = e.target.value;
-                                                              const prObj = siteProducts.find(p => p.id === prId);
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, productId: prId, href: prObj?.url || i.href, destinationType: "product" } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
-                                                            }}
-                                                            className="w-full rounded border border-purple-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none"
-                                                          >
-                                                            <option value="">-- Select Product --</option>
-                                                            {siteProducts.map((prod) => (
-                                                              <option key={prod.id} value={prod.id}>{prod.name} ({prod.price})</option>
-                                                            ))}
-                                                          </select>
-                                                        </div>
-                                                      )}
-
-                                                      {(!catItem.destinationType || catItem.destinationType === "url") && (
-                                                        <div>
-                                                          <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Link Href / URL</label>
-                                                          <input
-                                                            type="text"
-                                                            value={catItem.href || ""}
-                                                            onChange={(e) => {
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, href: e.target.value } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
-                                                            }}
-                                                            placeholder="# (optional direct link)"
-                                                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                          />
-                                                        </div>
-                                                      )}
 
                                                       <div className="grid grid-cols-2 gap-2">
                                                         <div>
-                                                          <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Badge (e.g. New)</label>
+                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Title</label>
                                                           <input
                                                             type="text"
-                                                            value={catItem.badge || ""}
+                                                            value={item.title || ""}
                                                             onChange={(e) => {
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, badge: e.target.value } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
+                                                              const updated = [...items];
+                                                              updated[idx] = { ...updated[idx], title: e.target.value };
+                                                              updateSelectedProp("imageCarouselItems", updated);
                                                             }}
-                                                            placeholder="New / Pro"
-                                                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                            placeholder="Slide Title"
+                                                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
                                                           />
                                                         </div>
-
                                                         <div>
-                                                          <label className="block text-[9px] font-semibold text-slate-500 mb-0.5">Icon / Emoji</label>
+                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alt Text</label>
                                                           <input
                                                             type="text"
-                                                            value={catItem.icon || ""}
+                                                            value={item.alt || ""}
                                                             onChange={(e) => {
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, icon: e.target.value } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
+                                                              const updated = [...items];
+                                                              updated[idx] = { ...updated[idx], alt: e.target.value };
+                                                              updateSelectedProp("imageCarouselItems", updated);
                                                             }}
-                                                            placeholder="e.g. 📦"
-                                                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none"
+                                                            placeholder="Image Alt Text"
+                                                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
                                                           />
                                                         </div>
                                                       </div>
 
-                                                      {/* Columns Manager */}
-                                                      <div className="mt-3 pl-3 border-l-2 border-blue-400 space-y-2 bg-blue-50/20 p-2.5 rounded-r-xl">
-                                                        <div className="flex items-center justify-between">
-                                                          <span className="block text-[10px] font-bold text-blue-900 uppercase tracking-wider">
-                                                            Mega Columns ({catItem.columns?.length || 0})
-                                                          </span>
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                              const cols = catItem.columns || [];
-                                                              const newCol: MegaMenuColumn = {
-                                                                id: `col_${Date.now()}`,
-                                                                title: `Column ${cols.length + 1}`,
-                                                                links: [
-                                                                  { label: "New Column Link", href: "#" },
-                                                                ],
-                                                              };
-                                                              const updated = catArr.map((i) =>
-                                                                i.id === catItem.id ? { ...i, columns: [...cols, newCol] } : i
-                                                              );
-                                                              updateSelectedProp("megaMenuItems", updated);
+                                                      <div className="grid grid-cols-2 gap-2">
+                                                        <div>
+                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Caption Overlay</label>
+                                                          <input
+                                                            type="text"
+                                                            value={item.caption || ""}
+                                                            onChange={(e) => {
+                                                              const updated = [...items];
+                                                              updated[idx] = { ...updated[idx], caption: e.target.value };
+                                                              updateSelectedProp("imageCarouselItems", updated);
                                                             }}
-                                                            className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
-                                                          >
-                                                            + Add Column
-                                                          </button>
+                                                            placeholder="Short Caption"
+                                                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                                          />
                                                         </div>
-
-                                                        {catItem.columns?.map((col, colIdx) => (
-                                                          <div key={col.id || `col_${colIdx}`} className="rounded-xl border border-slate-200 bg-white p-2.5 space-y-2">
-                                                            <div className="flex items-center justify-between gap-1 pb-1 border-b border-slate-100">
-                                                              <span className="text-[10px] font-bold text-slate-700">Column #{colIdx + 1}</span>
-                                                              <div className="flex items-center gap-1">
-                                                                <button
-                                                                  type="button"
-                                                                  disabled={colIdx === 0}
-                                                                  onClick={() => {
-                                                                    const cols = [...catItem.columns!];
-                                                                    const temp = cols[colIdx - 1];
-                                                                    cols[colIdx - 1] = cols[colIdx];
-                                                                    cols[colIdx] = temp;
-                                                                    const updated = catArr.map((i) =>
-                                                                      i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                    );
-                                                                    updateSelectedProp("megaMenuItems", updated);
-                                                                  }}
-                                                                  className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                                                                >
-                                                                  ↑
-                                                                </button>
-                                                                <button
-                                                                  type="button"
-                                                                  disabled={colIdx === catItem.columns!.length - 1}
-                                                                  onClick={() => {
-                                                                    const cols = [...catItem.columns!];
-                                                                    const temp = cols[colIdx + 1];
-                                                                    cols[colIdx + 1] = cols[colIdx];
-                                                                    cols[colIdx] = temp;
-                                                                    const updated = catArr.map((i) =>
-                                                                      i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                    );
-                                                                    updateSelectedProp("megaMenuItems", updated);
-                                                                  }}
-                                                                  className="h-4 w-4 rounded border border-slate-200 text-[9px] text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                                                                >
-                                                                  ↓
-                                                                </button>
-                                                                <button
-                                                                  type="button"
-                                                                  onClick={() => {
-                                                                    const cols = catItem.columns!.filter((_, idx) => idx !== colIdx);
-                                                                    const updated = catArr.map((i) =>
-                                                                      i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                    );
-                                                                    updateSelectedProp("megaMenuItems", updated);
-                                                                  }}
-                                                                  className="h-4 w-4 shrink-0 rounded border border-red-200 bg-red-50 text-[9px] font-bold text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
-                                                                  title="Delete Column"
-                                                                >
-                                                                  ✕
-                                                                </button>
-                                                              </div>
-                                                            </div>
-
-                                                            <div>
-                                                              <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Column Header Title</label>
-                                                              <input
-                                                                type="text"
-                                                                value={col.title}
-                                                                onChange={(e) => {
-                                                                  const cols = catItem.columns!.map((c, idx) =>
-                                                                    idx === colIdx ? { ...c, title: e.target.value } : c
-                                                                  );
-                                                                  const updated = catArr.map((i) =>
-                                                                    i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                  );
-                                                                  updateSelectedProp("megaMenuItems", updated);
-                                                                }}
-                                                                className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-800 outline-none"
-                                                              />
-                                                            </div>
-
-                                                            {/* Column Links */}
-                                                            <div className="space-y-1.5 pt-1">
-                                                              <div className="flex items-center justify-between">
-                                                                <span className="text-[9px] font-bold text-slate-500 uppercase">
-                                                                  Links ({col.links.length})
-                                                                </span>
-                                                                <button
-                                                                  type="button"
-                                                                  onClick={() => {
-                                                                    const newLink: MegaMenuColumnLink = {
-                                                                      id: `link_${Date.now()}`,
-                                                                      label: `New Link ${col.links.length + 1}`,
-                                                                      href: "#",
-                                                                    };
-                                                                    const cols = catItem.columns!.map((c, idx) =>
-                                                                      idx === colIdx ? { ...c, links: [...c.links, newLink] } : c
-                                                                    );
-                                                                    const updated = catArr.map((i) =>
-                                                                      i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                    );
-                                                                    updateSelectedProp("megaMenuItems", updated);
-                                                                  }}
-                                                                  className="text-[9px] font-bold text-blue-600 hover:underline cursor-pointer"
-                                                                >
-                                                                  + Add Link
-                                                                </button>
-                                                              </div>
-
-                                                              {col.links.map((link, lIdx) => (
-                                                                <div key={link.id || `l_${lIdx}`} className="rounded border border-slate-100 bg-slate-50 p-2 space-y-1">
-                                                                  <div className="flex items-center justify-between gap-1">
-                                                                    <span className="text-[9px] font-bold text-slate-600">Link #{lIdx + 1}</span>
-                                                                    <button
-                                                                      type="button"
-                                                                      onClick={() => {
-                                                                        const newLinks = col.links.filter((_, idx) => idx !== lIdx);
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      className="h-3.5 w-3.5 rounded border border-red-200 bg-red-50 text-[8px] text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
-                                                                      title="Delete Link"
-                                                                    >
-                                                                      ✕
-                                                                    </button>
-                                                                  </div>
-
-                                                                  <div className="grid grid-cols-2 gap-1">
-                                                                    <input
-                                                                      type="text"
-                                                                      value={link.label}
-                                                                      onChange={(e) => {
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, label: e.target.value } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      placeholder="Link Label"
-                                                                      className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-800 outline-none"
-                                                                    />
-                                                                    <select
-                                                                      value={link.destinationType || (link.pageId ? "page" : link.productId ? "product" : "url")}
-                                                                      onChange={(e) => {
-                                                                        const val = e.target.value as "url" | "page" | "product";
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, destinationType: val, linkType: val } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      className="rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px] font-semibold text-slate-800 outline-none"
-                                                                    >
-                                                                      <option value="url">URL</option>
-                                                                      <option value="page">Page</option>
-                                                                      <option value="product">Product</option>
-                                                                    </select>
-                                                                  </div>
-
-                                                                  {link.destinationType === "page" ? (
-                                                                    <select
-                                                                      value={link.pageId || ""}
-                                                                      onChange={(e) => {
-                                                                        const pId = e.target.value;
-                                                                        const pObj = pages.find(p => p.id === pId);
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, pageId: pId, href: pObj?.slug || l.href } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      className="w-full rounded border border-blue-200 bg-blue-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
-                                                                    >
-                                                                      <option value="">-- Select Page --</option>
-                                                                      {pages.map((p) => (
-                                                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                                                      ))}
-                                                                    </select>
-                                                                  ) : link.destinationType === "product" ? (
-                                                                    <select
-                                                                      value={link.productId || ""}
-                                                                      onChange={(e) => {
-                                                                        const prId = e.target.value;
-                                                                        const prObj = siteProducts.find(p => p.id === prId);
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, productId: prId, href: prObj?.url || l.href } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      className="w-full rounded border border-purple-200 bg-purple-50/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 outline-none"
-                                                                    >
-                                                                      <option value="">-- Select Product --</option>
-                                                                      {siteProducts.map((p) => (
-                                                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                                                      ))}
-                                                                    </select>
-                                                                  ) : (
-                                                                    <input
-                                                                      type="text"
-                                                                      value={link.href}
-                                                                      onChange={(e) => {
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, href: e.target.value } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      placeholder="Href / URL"
-                                                                      className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs font-mono text-slate-800 outline-none"
-                                                                    />
-                                                                  )}
-
-                                                                  <div className="grid grid-cols-2 gap-1">
-                                                                    <input
-                                                                      type="text"
-                                                                      value={link.description || ""}
-                                                                      onChange={(e) => {
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, description: e.target.value } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      placeholder="Description (optional)"
-                                                                      className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
-                                                                    />
-                                                                    <input
-                                                                      type="text"
-                                                                      value={link.badge || ""}
-                                                                      onChange={(e) => {
-                                                                        const newLinks = col.links.map((l, idx) =>
-                                                                          idx === lIdx ? { ...l, badge: e.target.value } : l
-                                                                        );
-                                                                        const cols = catItem.columns!.map((c, idx) =>
-                                                                          idx === colIdx ? { ...c, links: newLinks } : c
-                                                                        );
-                                                                        const updated = catArr.map((i) =>
-                                                                          i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                        );
-                                                                        updateSelectedProp("megaMenuItems", updated);
-                                                                      }}
-                                                                      placeholder="Badge (e.g. New)"
-                                                                      className="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] text-slate-700 outline-none"
-                                                                    />
-                                                                  </div>
-
-                                                                  <input
-                                                                    type="text"
-                                                                    value={link.image || ""}
-                                                                    onChange={(e) => {
-                                                                      const newLinks = col.links.map((l, idx) =>
-                                                                        idx === lIdx ? { ...l, image: e.target.value } : l
-                                                                      );
-                                                                      const cols = catItem.columns!.map((c, idx) =>
-                                                                        idx === colIdx ? { ...c, links: newLinks } : c
-                                                                      );
-                                                                      const updated = catArr.map((i) =>
-                                                                        i.id === catItem.id ? { ...i, columns: cols } : i
-                                                                      );
-                                                                      updateSelectedProp("megaMenuItems", updated);
-                                                                    }}
-                                                                    placeholder="Image URL (optional)"
-                                                                    className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-mono text-slate-700 outline-none"
-                                                                  />
-                                                                </div>
-                                                              ))}
-                                                            </div>
-                                                          </div>
-                                                        ))}
+                                                        <div>
+                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Click Link URL</label>
+                                                          <input
+                                                            type="text"
+                                                            value={item.linkUrl || ""}
+                                                            onChange={(e) => {
+                                                              const updated = [...items];
+                                                              updated[idx] = { ...updated[idx], linkUrl: e.target.value };
+                                                              updateSelectedProp("imageCarouselItems", updated);
+                                                            }}
+                                                            placeholder="https://..."
+                                                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                                          />
+                                                        </div>
                                                       </div>
                                                     </div>
                                                   ))}
                                                 </div>
                                               </div>
-                                            </div>
-                                          )}
 
-                                          {/* Off Canvas Inspector Panel (F-206) */}
-                                          {selectedElementAny.type === "off-canvas" && (
-                                            <div className="space-y-4">
-                                              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 space-y-3">
-                                                <span className="block text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                                                  <OffCanvasBoxIcon />
-                                                  <span>Off Canvas Panel Settings</span>
-                                                </span>
-
-                                                <div>
-                                                  <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">Trigger Button Text</label>
-                                                  <input
-                                                    type="text"
-                                                    value={selectedElementAny.offCanvasButtonText || "Open Panel"}
-                                                    onChange={(e) => updateSelectedProp("offCanvasButtonText", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                                  />
-                                                </div>
-
-                                                <div>
-                                                  <label className="block text-[10px] font-semibold text-slate-700 mb-0.5">Panel Title</label>
-                                                  <input
-                                                    type="text"
-                                                    value={selectedElementAny.offCanvasTitle || "Navigation & Tools"}
-                                                    onChange={(e) => updateSelectedProp("offCanvasTitle", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
-                                                  />
-                                                </div>
-
+                                              {/* SLIDES SECTION */}
+                                              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                                <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">SLIDES — Sizing & Ratio</span>
                                                 <div className="grid grid-cols-2 gap-2">
                                                   <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Position</label>
+                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Image Sizing</label>
                                                     <select
-                                                      value={selectedElementAny.offCanvasPosition || "right"}
-                                                      onChange={(e) => updateSelectedProp("offCanvasPosition", e.target.value as any)}
+                                                      value={selectedElementAny.imageCarouselImageSizing || "cover"}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselImageSizing", e.target.value as any)}
                                                       className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
                                                     >
-                                                      <option value="right">Slide Right</option>
-                                                      <option value="left">Slide Left</option>
+                                                      <option value="cover">Cover (Fill & Crop)</option>
+                                                      <option value="contain">Contain (Fit inside)</option>
+                                                      <option value="fill">Fill (Stretch)</option>
+                                                      <option value="auto">Auto Original</option>
                                                     </select>
                                                   </div>
                                                   <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Panel Width</label>
-                                                    <input
-                                                      type="text"
-                                                      value={selectedElementAny.offCanvasWidth || "340px"}
-                                                      onChange={(e) => updateSelectedProp("offCanvasWidth", e.target.value)}
-                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                                    />
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          )}
-
-                                          {/* Image Carousel Inspector Panel (F-210) */}
-                                          {selectedElementAny.type === "image-carousel" && (() => {
-                                            const items: ImageCarouselItem[] = selectedElementAny.imageCarouselItems || [];
-                                            return (
-                                              <div className="space-y-4">
-                                                {/* CONTENT SECTION */}
-                                                <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3 space-y-3">
-                                                  <div className="flex items-center justify-between border-b border-blue-200/60 pb-2">
-                                                    <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                                                      <span>🖼️</span>
-                                                      <span>CONTENT — Images ({items.length})</span>
-                                                    </span>
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => {
-                                                        const newItem: ImageCarouselItem = {
-                                                          id: "img_" + Math.random().toString(36).substring(2, 9),
-                                                          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
-                                                          title: `Image Slide ${items.length + 1}`,
-                                                          caption: "New Carousel Image",
-                                                          alt: "Carousel Image",
-                                                        };
-                                                        updateSelectedProp("imageCarouselItems", [...items, newItem]);
-                                                      }}
-                                                      className="rounded bg-blue-600 px-2 py-1 text-[10px] font-bold text-white shadow-2xs hover:bg-blue-700 transition cursor-pointer"
-                                                    >
-                                                      + Add Image
-                                                    </button>
-                                                  </div>
-
-                                                  <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                                                    {items.map((item, idx) => (
-                                                      <div key={item.id || idx} className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-2xs space-y-2">
-                                                        <div className="flex items-center justify-between">
-                                                          <div className="flex items-center gap-2">
-                                                            <span className="flex h-5 w-5 items-center justify-center rounded bg-blue-100 text-[10px] font-bold text-blue-700">
-                                                              {idx + 1}
-                                                            </span>
-                                                            {item.url && (
-                                                              <img src={item.url} alt={item.title || "thumbnail"} className="h-6 w-8 object-cover rounded border border-slate-200" />
-                                                            )}
-                                                            <span className="text-xs font-bold text-slate-800 truncate max-w-[120px]">
-                                                              {item.title || `Image ${idx + 1}`}
-                                                            </span>
-                                                          </div>
-                                                          <div className="flex items-center gap-1">
-                                                            <button
-                                                              type="button"
-                                                              disabled={idx === 0}
-                                                              onClick={() => {
-                                                                const updated = [...items];
-                                                                const temp = updated[idx];
-                                                                updated[idx] = updated[idx - 1];
-                                                                updated[idx - 1] = temp;
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              className="px-1 py-0.5 text-[10px] font-bold text-slate-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer"
-                                                              title="Move Up"
-                                                            >
-                                                              ▲
-                                                            </button>
-                                                            <button
-                                                              type="button"
-                                                              disabled={idx === items.length - 1}
-                                                              onClick={() => {
-                                                                const updated = [...items];
-                                                                const temp = updated[idx];
-                                                                updated[idx] = updated[idx + 1];
-                                                                updated[idx + 1] = temp;
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              className="px-1 py-0.5 text-[10px] font-bold text-slate-500 hover:text-blue-600 disabled:opacity-30 cursor-pointer"
-                                                              title="Move Down"
-                                                            >
-                                                              ▼
-                                                            </button>
-                                                            {items.length > 1 && (
-                                                              <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                  const updated = items.filter((_, i) => i !== idx);
-                                                                  updateSelectedProp("imageCarouselItems", updated);
-                                                                }}
-                                                                className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline ml-1 cursor-pointer"
-                                                              >
-                                                                Remove
-                                                              </button>
-                                                            )}
-                                                          </div>
-                                                        </div>
-
-                                                        <div>
-                                                          <div className="flex items-center justify-between mb-0.5">
-                                                            <label className="block text-[10px] font-semibold text-slate-500">Image Source URL *</label>
-                                                            <label className="text-[9px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer">
-                                                              📁 Upload File
-                                                              <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                className="hidden"
-                                                                onChange={(e) => {
-                                                                  const file = e.target.files?.[0];
-                                                                  if (file) {
-                                                                    const reader = new FileReader();
-                                                                    reader.onloadend = () => {
-                                                                      if (typeof reader.result === "string") {
-                                                                        const updated = [...items];
-                                                                        updated[idx] = { ...updated[idx], url: reader.result };
-                                                                        updateSelectedProp("imageCarouselItems", updated);
-                                                                      }
-                                                                    };
-                                                                    reader.readAsDataURL(file);
-                                                                  }
-                                                                }}
-                                                              />
-                                                            </label>
-                                                          </div>
-                                                          <input
-                                                            type="text"
-                                                            value={item.url || ""}
-                                                            onChange={(e) => {
-                                                              const updated = [...items];
-                                                              updated[idx] = { ...updated[idx], url: e.target.value };
-                                                              updateSelectedProp("imageCarouselItems", updated);
-                                                            }}
-                                                            placeholder="https://images.unsplash.com/..."
-                                                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                          />
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                          <div>
-                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Title</label>
-                                                            <input
-                                                              type="text"
-                                                              value={item.title || ""}
-                                                              onChange={(e) => {
-                                                                const updated = [...items];
-                                                                updated[idx] = { ...updated[idx], title: e.target.value };
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              placeholder="Slide Title"
-                                                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Alt Text</label>
-                                                            <input
-                                                              type="text"
-                                                              value={item.alt || ""}
-                                                              onChange={(e) => {
-                                                                const updated = [...items];
-                                                                updated[idx] = { ...updated[idx], alt: e.target.value };
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              placeholder="Image Alt Text"
-                                                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
-                                                            />
-                                                          </div>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                          <div>
-                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Caption Overlay</label>
-                                                            <input
-                                                              type="text"
-                                                              value={item.caption || ""}
-                                                              onChange={(e) => {
-                                                                const updated = [...items];
-                                                                updated[idx] = { ...updated[idx], caption: e.target.value };
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              placeholder="Short Caption"
-                                                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Click Link URL</label>
-                                                            <input
-                                                              type="text"
-                                                              value={item.linkUrl || ""}
-                                                              onChange={(e) => {
-                                                                const updated = [...items];
-                                                                updated[idx] = { ...updated[idx], linkUrl: e.target.value };
-                                                                updateSelectedProp("imageCarouselItems", updated);
-                                                              }}
-                                                              placeholder="https://..."
-                                                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                                            />
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    ))}
-                                                  </div>
-                                                </div>
-
-                                                {/* SLIDES SECTION */}
-                                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                                  <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">SLIDES — Sizing & Ratio</span>
-                                                  <div className="grid grid-cols-2 gap-2">
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Image Sizing</label>
-                                                      <select
-                                                        value={selectedElementAny.imageCarouselImageSizing || "cover"}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselImageSizing", e.target.value as any)}
-                                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                      >
-                                                        <option value="cover">Cover (Fill & Crop)</option>
-                                                        <option value="contain">Contain (Fit inside)</option>
-                                                        <option value="fill">Fill (Stretch)</option>
-                                                        <option value="auto">Auto Original</option>
-                                                      </select>
-                                                    </div>
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Aspect Ratio</label>
-                                                      <select
-                                                        value={selectedElementAny.imageCarouselAspectRatio || "landscape"}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselAspectRatio", e.target.value as any)}
-                                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                      >
-                                                        <option value="landscape">Landscape (16:10)</option>
-                                                        <option value="video">Video (16:9)</option>
-                                                        <option value="square">Square (1:1)</option>
-                                                        <option value="portrait">Portrait (3:4)</option>
-                                                        <option value="auto">Custom Height</option>
-                                                      </select>
-                                                    </div>
-                                                  </div>
-
-                                                  {selectedElementAny.imageCarouselAspectRatio === "auto" && (
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slide Fixed Height</label>
-                                                      <input
-                                                        type="text"
-                                                        value={selectedElementAny.imageCarouselHeight || "320px"}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselHeight", e.target.value)}
-                                                        placeholder="e.g. 320px or 40vh"
-                                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                                      />
-                                                    </div>
-                                                  )}
-
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slide Corner Radius</label>
-                                                    <input
-                                                      type="text"
-                                                      value={selectedElementAny.imageCarouselBorderRadius || "16px"}
-                                                      onChange={(e) => updateSelectedProp("imageCarouselBorderRadius", e.target.value)}
-                                                      placeholder="e.g. 16px"
-                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
-                                                    />
-                                                  </div>
-                                                </div>
-
-                                                {/* NAVIGATION SECTION */}
-                                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                                  <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">NAVIGATION</span>
-                                                  <div className="flex items-center justify-between">
-                                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                                      <input
-                                                        type="checkbox"
-                                                        checked={selectedElementAny.imageCarouselShowNav !== false}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselShowNav", e.target.checked)}
-                                                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                      />
-                                                      <span>Show Previous / Next Arrows</span>
-                                                    </label>
-                                                  </div>
-
-                                                  <div className="flex items-center justify-between">
-                                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                                      <input
-                                                        type="checkbox"
-                                                        checked={selectedElementAny.imageCarouselShowDots !== false}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselShowDots", e.target.checked)}
-                                                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                      />
-                                                      <span>Show Pagination Dots</span>
-                                                    </label>
-                                                  </div>
-                                                </div>
-
-                                                {/* AUTOPLAY SECTION */}
-                                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                                  <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">AUTOPLAY & LOOP</span>
-                                                  <div className="flex items-center justify-between">
-                                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                                      <input
-                                                        type="checkbox"
-                                                        checked={selectedElementAny.imageCarouselAutoplay !== false}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselAutoplay", e.target.checked)}
-                                                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                      />
-                                                      <span>Enable Autoplay</span>
-                                                    </label>
-                                                  </div>
-
-                                                  <div className="flex items-center justify-between">
-                                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                                      <input
-                                                        type="checkbox"
-                                                        checked={selectedElementAny.imageCarouselLoop !== false}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselLoop", e.target.checked)}
-                                                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                      />
-                                                      <span>Infinite Loop Rotation</span>
-                                                    </label>
-                                                  </div>
-
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                      Autoplay Speed ({selectedElementAny.imageCarouselAutoplaySpeed ?? 3000} ms)
-                                                    </label>
-                                                    <input
-                                                      type="range"
-                                                      min={1000}
-                                                      max={8000}
-                                                      step={500}
-                                                      value={selectedElementAny.imageCarouselAutoplaySpeed ?? 3000}
-                                                      onChange={(e) => updateSelectedProp("imageCarouselAutoplaySpeed", parseInt(e.target.value))}
-                                                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                                    />
-                                                  </div>
-
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Transition Type</label>
+                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Aspect Ratio</label>
                                                     <select
-                                                      value={selectedElementAny.imageCarouselTransition || "slide"}
-                                                      onChange={(e) => updateSelectedProp("imageCarouselTransition", e.target.value as any)}
+                                                      value={selectedElementAny.imageCarouselAspectRatio || "landscape"}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselAspectRatio", e.target.value as any)}
                                                       className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
                                                     >
-                                                      <option value="slide">Slide Track</option>
-                                                      <option value="fade">Fade In/Out</option>
+                                                      <option value="landscape">Landscape (16:10)</option>
+                                                      <option value="video">Video (16:9)</option>
+                                                      <option value="square">Square (1:1)</option>
+                                                      <option value="portrait">Portrait (3:4)</option>
+                                                      <option value="auto">Custom Height</option>
                                                     </select>
                                                   </div>
                                                 </div>
 
-                                                {/* LAYOUT SECTION */}
-                                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
-                                                  <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">LAYOUT & RESPONSIVE</span>
-                                                  <div className="grid grid-cols-2 gap-2">
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slides Per View (Desktop)</label>
-                                                      <select
-                                                        value={selectedElementAny.imageCarouselSlidesPerView ?? 3}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselSlidesPerView", parseInt(e.target.value))}
-                                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                      >
-                                                        <option value={1}>1 Slide</option>
-                                                        <option value={2}>2 Slides</option>
-                                                        <option value={3}>3 Slides</option>
-                                                        <option value={4}>4 Slides</option>
-                                                        <option value={5}>5 Slides</option>
-                                                        <option value={6}>6 Slides</option>
-                                                      </select>
-                                                    </div>
-
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Gap Between Slides (px)</label>
-                                                      <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={40}
-                                                        value={selectedElementAny.imageCarouselGap ?? 16}
-                                                        onChange={(e) => updateSelectedProp("imageCarouselGap", parseInt(e.target.value) || 0)}
-                                                        className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
-                                                      />
-                                                    </div>
-                                                  </div>
-
+                                                {selectedElementAny.imageCarouselAspectRatio === "auto" && (
                                                   <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Widget Alignment</label>
-                                                    <div className="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-                                                      {(["left", "center", "right"] as const).map((align) => (
-                                                        <button
-                                                          key={align}
-                                                          type="button"
-                                                          onClick={() => updateSelectedProp("imageCarouselAlignment", align)}
-                                                          className={`py-1 text-xs font-bold capitalize rounded-md transition cursor-pointer ${(selectedElementAny.imageCarouselAlignment || "center") === align
-                                                            ? "bg-white text-blue-700 shadow-2xs"
-                                                            : "text-slate-600 hover:text-slate-900"
-                                                            }`}
-                                                        >
-                                                          {align}
-                                                        </button>
-                                                      ))}
-                                                    </div>
+                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slide Fixed Height</label>
+                                                    <input
+                                                      type="text"
+                                                      value={selectedElementAny.imageCarouselHeight || "320px"}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselHeight", e.target.value)}
+                                                      placeholder="e.g. 320px or 40vh"
+                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
+                                                    />
                                                   </div>
-                                                </div>
-                                              </div>
-                                            );
-                                          })()}
-
-                                          {/* Heading Level Selector (F-191) */}
-                                          {selectedElementAny.type === "heading" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Heading Level Tag
-                                              </label>
-                                              <select
-                                                value={selectedElementAny.headingLevel || "h2"}
-                                                onChange={(e) => updateSelectedProp("headingLevel", e.target.value as "h1" | "h2" | "h3" | "h4" | "h5" | "h6")}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                              >
-                                                <option value="h1">H1 - Main Page Heading</option>
-                                                <option value="h2">H2 - Section Heading</option>
-                                                <option value="h3">H3 - Sub-section Heading</option>
-                                                <option value="h4">H4 - Minor Heading</option>
-                                                <option value="h5">H5 - Small Heading</option>
-                                                <option value="h6">H6 - Tiny Heading</option>
-                                              </select>
-                                            </div>
-                                          )}
-
-                                          {/* Content Input */}
-                                          {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "container" && selectedElementAny.type !== "posts" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "portfolio" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "form" && selectedElementAny.type !== "login" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "animated-headline" && selectedElementAny.type !== "price-table" && selectedElementAny.type !== "price-list" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "flip-box" && selectedElementAny.type !== "call-to-action" && selectedElementAny.type !== "media-carousel" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "nested-carousel" && selectedElementAny.type !== "loop-carousel" && selectedElementAny.type !== "table-of-contents" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "facebook-page" && selectedElementAny.type !== "blockquote" && selectedElementAny.type !== "template" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "facebook-button" && selectedElementAny.type !== "facebook-embed" && selectedElementAny.type !== "facebook-comments" && selectedElementAny.type !== "paypal-button" && selectedElementAny.type !== "stripe-button" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "mega-menu" && selectedElementAny.type !== "off-canvas" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Text
-                                              </label>
-                                              <textarea
-                                                rows={selectedElementAny.type === "text" ? 3 : 2}
-                                                value={selectedElementAny.content}
-                                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                              />
-                                            </div>
-                                          )}
-
-                                          {/* Advanced Typography Section */}
-                                          {renderTypographySection()}
-
-                                          {/* Text Color Input */}
-                                          {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "posts" && (
-                                            <div>
-                                              <div className="flex items-center justify-between mb-1">
-                                                <label className="block text-xs font-semibold text-slate-700">
-                                                  Text Color
-                                                </label>
-                                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => resetSelectedStyle("color")}
-                                                    title="Reset Text Color to Default"
-                                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                                  >
-                                                    ↺ Reset
-                                                  </button>
                                                 )}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="color"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                                />
-                                                <input
-                                                  type="text"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                />
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleSampleColor((hex) => updateSelectedStyle("color", hex))}
-                                                  title="Sample Color from Screen / Image"
-                                                  className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-                                                >
-                                                  <span>🧪</span>
-                                                  <span className="text-[10px]">Sample</span>
-                                                </button>
-                                              </div>
-                                            </div>
-                                          )}
 
-                                          {/* Alignment */}
-                                          <div>
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Alignment
-                                            </label>
-                                            <select
-                                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left"}
-                                              onChange={(e) => updateSelectedStyle("textAlign", e.target.value as any)}
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                            >
-                                              <option value="left">Left</option>
-                                              <option value="center">Center</option>
-                                              <option value="right">Right</option>
-                                              <option value="justify">Justify</option>
-                                            </select>
-                                          </div>
-
-                                          {/* Button Href Link */}
-                                          {selectedElementAny.type === "button" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Button Link (URL)
-                                              </label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.href || "#"}
-                                                onChange={(e) => updateSelectedProp("href", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                              />
-                                            </div>
-                                          )}
-
-                                          {/* Button Background Color */}
-                                          {selectedElementAny.type === "button" && (
-                                            <div>
-                                              <div className="flex items-center justify-between mb-1">
-                                                <label className="block text-xs font-semibold text-slate-700">
-                                                  Button Color
-                                                </label>
-                                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => resetSelectedStyle("backgroundColor")}
-                                                    title="Reset Button Color to Default"
-                                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                                  >
-                                                    ↺ Reset
-                                                  </button>
-                                                )}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="color"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
-                                                  onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                                />
-                                                <input
-                                                  type="text"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
-                                                  onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                />
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
-                                                  title="Sample Color from Screen / Image"
-                                                  className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-                                                >
-                                                  <span>🧪</span>
-                                                  <span className="text-[10px]">Sample</span>
-                                                </button>
-                                              </div>
-                                            </div>
-                                          )}
-
-                                          {/* Video Widget Inspector Panel (F-208) */}
-                                          {selectedElementAny.type === "video" && (
-                                            <div className="space-y-6 pt-2 border-t border-slate-100">
-                                              {/* Hidden file input for video file */}
-                                              <input
-                                                id="video-file-input"
-                                                type="file"
-                                                accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                  if (e.target.files && e.target.files[0]) {
-                                                    handleVideoFileSelect(e.target.files[0]);
-                                                  }
-                                                }}
-                                              />
-
-                                              {/* Hidden file input for video poster image */}
-                                              <input
-                                                id="video-poster-input"
-                                                type="file"
-                                                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                  if (e.target.files && e.target.files[0]) {
-                                                    handleVideoPosterSelect(e.target.files[0]);
-                                                  }
-                                                }}
-                                              />
-
-                                              {/* CONTENT SECTION */}
-                                              <div className="space-y-3">
-                                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1 flex items-center justify-between">
-                                                  <span>Content</span>
-                                                  <span className="text-[10px] text-blue-600 font-normal">Source & Poster</span>
-                                                </h3>
-
-                                                {/* Video Source Input & Upload Trigger */}
                                                 <div>
-                                                  <div className="flex items-center justify-between mb-1">
-                                                    <label className="block text-xs font-semibold text-slate-700">
-                                                      Video Source URL
-                                                    </label>
-                                                    <button
-                                                      type="button"
-                                                      disabled={isUploading}
-                                                      onClick={() => document.getElementById("video-file-input")?.click()}
-                                                      className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 disabled:opacity-50"
-                                                    >
-                                                      <span>📁</span>
-                                                      <span>{isUploading ? "Uploading..." : "Browse Video File"}</span>
-                                                    </button>
-                                                  </div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slide Corner Radius</label>
                                                   <input
                                                     type="text"
-                                                    value={selectedElementAny.src || ""}
-                                                    onChange={(e) => updateSelectedProp("src", e.target.value)}
-                                                    placeholder="YouTube, Vimeo, or MP4 URL..."
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                    value={selectedElementAny.imageCarouselBorderRadius || "16px"}
+                                                    onChange={(e) => updateSelectedProp("imageCarouselBorderRadius", e.target.value)}
+                                                    placeholder="e.g. 16px"
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none"
                                                   />
-                                                  <p className="mt-1 text-[10px] text-slate-400">
-                                                    Supports YouTube (`youtu.be`), Vimeo (`vimeo.com`), and direct `.mp4` video files
-                                                  </p>
-                                                </div>
-
-                                                {/* Video Poster Image Input */}
-                                                <div>
-                                                  <div className="flex items-center justify-between mb-1">
-                                                    <label className="block text-xs font-semibold text-slate-700">
-                                                      Poster Image URL (HTML5)
-                                                    </label>
-                                                    <button
-                                                      type="button"
-                                                      disabled={isUploading}
-                                                      onClick={() => document.getElementById("video-poster-input")?.click()}
-                                                      className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 disabled:opacity-50"
-                                                    >
-                                                      <span>🖼️</span>
-                                                      <span>{isUploading ? "Uploading..." : "Browse Image"}</span>
-                                                    </button>
-                                                  </div>
-                                                  <input
-                                                    type="text"
-                                                    value={selectedElementAny.videoPoster || ""}
-                                                    onChange={(e) => updateSelectedProp("videoPoster", e.target.value)}
-                                                    placeholder="https://.../poster.jpg"
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  />
-                                                  {selectedElementAny.videoPoster && (
-                                                    <div className="mt-2 flex items-center gap-2">
-                                                      <img
-                                                        src={resolveImageUrl(selectedElementAny.videoPoster, apiUrl)}
-                                                        alt="Poster preview"
-                                                        className="h-10 w-16 object-cover rounded border border-slate-200 bg-slate-100"
-                                                      />
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => updateSelectedProp("videoPoster", "")}
-                                                        className="text-[10px] font-bold text-red-500 hover:underline"
-                                                      >
-                                                        Remove Poster
-                                                      </button>
-                                                    </div>
-                                                  )}
                                                 </div>
                                               </div>
 
-                                              {/* PLAYBACK SECTION */}
-                                              <div className="space-y-3 pt-3 border-t border-slate-200">
-                                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                  Playback Controls
-                                                </h3>
-
-                                                <div className="grid grid-cols-2 gap-3">
-                                                  {/* Show Controls */}
-                                                  <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2.5 cursor-pointer hover:bg-slate-100 transition">
+                                              {/* NAVIGATION SECTION */}
+                                              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                                <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">NAVIGATION</span>
+                                                <div className="flex items-center justify-between">
+                                                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                                                     <input
                                                       type="checkbox"
-                                                      checked={selectedElementAny.videoControls !== false}
-                                                      onChange={(e) => updateSelectedProp("videoControls", e.target.checked)}
-                                                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                      checked={selectedElementAny.imageCarouselShowNav !== false}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselShowNav", e.target.checked)}
+                                                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-slate-700">Show Controls</span>
+                                                    <span>Show Previous / Next Arrows</span>
                                                   </label>
+                                                </div>
 
-                                                  {/* Autoplay */}
-                                                  <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2.5 cursor-pointer hover:bg-slate-100 transition">
+                                                <div className="flex items-center justify-between">
+                                                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                                                     <input
                                                       type="checkbox"
-                                                      checked={Boolean(selectedElementAny.videoAutoplay)}
-                                                      onChange={(e) => updateSelectedProp("videoAutoplay", e.target.checked)}
-                                                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                      checked={selectedElementAny.imageCarouselShowDots !== false}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselShowDots", e.target.checked)}
+                                                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-slate-700">Autoplay</span>
+                                                    <span>Show Pagination Dots</span>
                                                   </label>
+                                                </div>
+                                              </div>
 
-                                                  {/* Loop */}
-                                                  <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2.5 cursor-pointer hover:bg-slate-100 transition">
+                                              {/* AUTOPLAY SECTION */}
+                                              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                                <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">AUTOPLAY & LOOP</span>
+                                                <div className="flex items-center justify-between">
+                                                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                                                     <input
                                                       type="checkbox"
-                                                      checked={Boolean(selectedElementAny.videoLoop)}
-                                                      onChange={(e) => updateSelectedProp("videoLoop", e.target.checked)}
-                                                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                      checked={selectedElementAny.imageCarouselAutoplay !== false}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselAutoplay", e.target.checked)}
+                                                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-slate-700">Loop</span>
+                                                    <span>Enable Autoplay</span>
                                                   </label>
+                                                </div>
 
-                                                  {/* Muted */}
-                                                  <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2.5 cursor-pointer hover:bg-slate-100 transition">
+                                                <div className="flex items-center justify-between">
+                                                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                                                     <input
                                                       type="checkbox"
-                                                      checked={Boolean(selectedElementAny.videoMuted)}
-                                                      onChange={(e) => updateSelectedProp("videoMuted", e.target.checked)}
-                                                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                      checked={selectedElementAny.imageCarouselLoop !== false}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselLoop", e.target.checked)}
+                                                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                                     />
-                                                    <span className="text-xs font-medium text-slate-700">Muted</span>
+                                                    <span>Infinite Loop Rotation</span>
                                                   </label>
+                                                </div>
+
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                                    Autoplay Speed ({selectedElementAny.imageCarouselAutoplaySpeed ?? 3000} ms)
+                                                  </label>
+                                                  <input
+                                                    type="range"
+                                                    min={1000}
+                                                    max={8000}
+                                                    step={500}
+                                                    value={selectedElementAny.imageCarouselAutoplaySpeed ?? 3000}
+                                                    onChange={(e) => updateSelectedProp("imageCarouselAutoplaySpeed", parseInt(e.target.value))}
+                                                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                                  />
+                                                </div>
+
+                                                <div>
+                                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Transition Type</label>
+                                                  <select
+                                                    value={selectedElementAny.imageCarouselTransition || "slide"}
+                                                    onChange={(e) => updateSelectedProp("imageCarouselTransition", e.target.value as any)}
+                                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
+                                                  >
+                                                    <option value="slide">Slide Track</option>
+                                                    <option value="fade">Fade In/Out</option>
+                                                  </select>
                                                 </div>
                                               </div>
 
                                               {/* LAYOUT SECTION */}
-                                              <div className="space-y-3 pt-3 border-t border-slate-200">
-                                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                  Layout & Alignment
-                                                </h3>
-
-                                                {/* Width & Height */}
+                                              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                                                <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">LAYOUT & RESPONSIVE</span>
                                                 <div className="grid grid-cols-2 gap-2">
                                                   <div>
-                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                      Width
-                                                    </label>
+                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Slides Per View (Desktop)</label>
                                                     <select
-                                                      value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "100%"}
-                                                      onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                                                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                      value={selectedElementAny.imageCarouselSlidesPerView ?? 3}
+                                                      onChange={(e) => updateSelectedProp("imageCarouselSlidesPerView", parseInt(e.target.value))}
+                                                      className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none"
                                                     >
-                                                      <option value="100%">100% (Full Width)</option>
-                                                      <option value="80%">80%</option>
-                                                      <option value="60%">60%</option>
-                                                      <option value="50%">50%</option>
-                                                      <option value="auto">Auto</option>
+                                                      <option value={1}>1 Slide</option>
+                                                      <option value={2}>2 Slides</option>
+                                                      <option value={3}>3 Slides</option>
+                                                      <option value={4}>4 Slides</option>
+                                                      <option value={5}>5 Slides</option>
+                                                      <option value={6}>6 Slides</option>
                                                     </select>
                                                   </div>
 
@@ -18408,673 +16270,458 @@ export default function WebsiteEditor() {
                                               </div>
                                             </div>
                                           );
-                })()}
+                                        })()}
 
-                                          {/* Heading Level Selector (F-191) */}
-                                          {selectedElementAny.type === "heading" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Heading Level Tag
-                                              </label>
-                                              <select
-                                                value={selectedElementAny.headingLevel || "h2"}
-                                                onChange={(e) => updateSelectedProp("headingLevel", e.target.value as "h1" | "h2" | "h3" | "h4" | "h5" | "h6")}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                              >
-                                                <option value="h1">H1 - Main Page Heading</option>
-                                                <option value="h2">H2 - Section Heading</option>
-                                                <option value="h3">H3 - Sub-section Heading</option>
-                                                <option value="h4">H4 - Minor Heading</option>
-                                                <option value="h5">H5 - Small Heading</option>
-                                                <option value="h6">H6 - Tiny Heading</option>
-                                              </select>
-                                            </div>
-                                          )}
-
-                                          {/* Content Input */}
-                                          {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "container" && selectedElementAny.type !== "posts" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "portfolio" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "form" && selectedElementAny.type !== "login" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "animated-headline" && selectedElementAny.type !== "price-table" && selectedElementAny.type !== "price-list" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "flip-box" && selectedElementAny.type !== "call-to-action" && selectedElementAny.type !== "media-carousel" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "nested-carousel" && selectedElementAny.type !== "loop-carousel" && selectedElementAny.type !== "table-of-contents" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "facebook-page" && selectedElementAny.type !== "blockquote" && selectedElementAny.type !== "template" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "facebook-button" && selectedElementAny.type !== "facebook-embed" && selectedElementAny.type !== "facebook-comments" && selectedElementAny.type !== "paypal-button" && selectedElementAny.type !== "stripe-button" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "mega-menu" && selectedElementAny.type !== "off-canvas" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Text
-                                              </label>
-                                              <textarea
-                                                rows={selectedElementAny.type === "text" ? 3 : 2}
-                                                value={selectedElementAny.content}
-                                                onChange={(e) => updateSelectedProp("content", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                              />
-                                            </div>
-                                          )}
-
-                                          {/* Advanced Typography Section */}
-                                          {renderTypographySection()}
-
-                                          {/* Text Color Input */}
-                                          {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "posts" && (
-                                            <div>
-                                              <div className="flex items-center justify-between mb-1">
-                                                <label className="block text-xs font-semibold text-slate-700">
-                                                  Text Color
-                                                </label>
-                                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => resetSelectedStyle("color")}
-                                                    title="Reset Text Color to Default"
-                                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                                  >
-                                                    ↺ Reset
-                                                  </button>
-                                                )}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="color"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                                />
-                                                <input
-                                                  type="text"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
-                                                  onChange={(e) => updateSelectedStyle("color", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                />
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleSampleColor((hex) => updateSelectedStyle("color", hex))}
-                                                  title="Sample Color from Screen / Image"
-                                                  className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-                                                >
-                                                  <span>🧪</span>
-                                                  <span className="text-[10px]">Sample</span>
-                                                </button>
-                                              </div>
-                                            </div>
-                                          )}
-
-                                          {/* Alignment */}
+                                        {/* Heading Level Selector (F-191) */}
+                                        {selectedElementAny.type === "heading" && (
                                           <div>
                                             <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Alignment
+                                              Heading Level Tag
                                             </label>
                                             <select
-                                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left"}
-                                              onChange={(e) => updateSelectedStyle("textAlign", e.target.value as any)}
+                                              value={selectedElementAny.headingLevel || "h2"}
+                                              onChange={(e) => updateSelectedProp("headingLevel", e.target.value as "h1" | "h2" | "h3" | "h4" | "h5" | "h6")}
                                               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                             >
-                                              <option value="left">Left</option>
-                                              <option value="center">Center</option>
-                                              <option value="right">Right</option>
-                                              <option value="justify">Justify</option>
+                                              <option value="h1">H1 - Main Page Heading</option>
+                                              <option value="h2">H2 - Section Heading</option>
+                                              <option value="h3">H3 - Sub-section Heading</option>
+                                              <option value="h4">H4 - Minor Heading</option>
+                                              <option value="h5">H5 - Small Heading</option>
+                                              <option value="h6">H6 - Tiny Heading</option>
                                             </select>
                                           </div>
+                                        )
+                                        }
 
-                                          {/* Button Href Link */}
-                                          {selectedElementAny.type === "button" && (
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Button Link (URL)
-                                              </label>
-                                              <input
-                                                type="text"
-                                                value={selectedElementAny.href || "#"}
-                                                onChange={(e) => updateSelectedProp("href", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                              />
-                                            </div>
-                                          )}
-
-                                          {/* Button Background Color */}
-                                          {selectedElementAny.type === "button" && (
-                                            <div>
-                                              <div className="flex items-center justify-between mb-1">
-                                                <label className="block text-xs font-semibold text-slate-700">
-                                                  Button Color
-                                                </label>
-                                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => resetSelectedStyle("backgroundColor")}
-                                                    title="Reset Button Color to Default"
-                                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                                  >
-                                                    ↺ Reset
-                                                  </button>
-                                                )}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="color"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
-                                                  onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                                                  className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                                />
-                                                <input
-                                                  type="text"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
-                                                  onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                />
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
-                                                  title="Sample Color from Screen / Image"
-                                                  className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
-                                                >
-                                                  <span>🧪</span>
-                                                  <span className="text-[10px]">Sample</span>
-                                                </button>
-                                              </div>
-                                            </div>
-                                          )}
-
-                                          {/* Video Widget Inspector Panel (F-208) */}
-                                          {selectedElementAny.type === "video" && (
-                                            <div className="space-y-6 pt-2 border-t border-slate-100">
-                                              {/* Hidden file input for video file */}
-                                              <input
-                                                id="video-file-input"
-                                                type="file"
-                                                accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                  if (e.target.files && e.target.files[0]) {
-                                                    handleVideoFileSelect(e.target.files[0]);
-                                                  }
-                                                }}
-                                              />
-
-                                              {/* Hidden file input for video poster image */}
-                                              <input
-                                                id="video-poster-input"
-                                                type="file"
-                                                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                  if (e.target.files && e.target.files[0]) {
-                                                    handleVideoPosterSelect(e.target.files[0]);
-                                                  }
-                                                }}
-                                              />
-
-                                              {/* CONTENT SECTION */}
-                                              <div className="space-y-3">
-                                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1 flex items-center justify-between">
-                                                  <span>Content</span>
-                                                  <span className="text-[10px] text-blue-600 font-normal">Source & Poster</span>
-                                                </h3>
-
-                                                {/* Video Source Input & Upload Trigger */}
-                                                <div>
-                                                  <div className="flex items-center justify-between mb-1">
-                                                    <label className="block text-xs font-semibold text-slate-700">
-                                                      Video Source URL
-                                                    </label>
-                                                    <button
-                                                      type="button"
-                                                      disabled={isUploading}
-                                                      onClick={() => document.getElementById("video-file-input")?.click()}
-                                                      className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 disabled:opacity-50"
-                                                    >
-                                                      <span>📁</span>
-                                                      <span>{isUploading ? "Uploading..." : "Browse Video File"}</span>
-                                                    </button>
-                                                  </div>
-                                                  <input
-                                                    type="text"
-                                                    value={selectedElementAny.src || ""}
-                                                    onChange={(e) => updateSelectedProp("src", e.target.value)}
-                                                    placeholder="YouTube, Vimeo, or MP4 URL..."
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  />
-                                                  <p className="mt-1 text-[10px] text-slate-400">
-                                                    Supports YouTube (`youtu.be`), Vimeo (`vimeo.com`), and direct `.mp4` video files
-                                                  </p>
-                                                </div>
-
-                                                {/* Video Poster Image Input */}
-                                                <div>
-                                                  <div className="flex items-center justify-between mb-1">
-                                                    <label className="block text-xs font-semibold text-slate-700">
-                                                      Poster Image URL (HTML5)
-                                                    </label>
-                                                    <button
-                                                      type="button"
-                                                      disabled={isUploading}
-                                                      onClick={() => document.getElementById("video-poster-input")?.click()}
-                                                      className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 disabled:opacity-50"
-                                                    >
-                                                      <span>🖼️</span>
-                                                      <span>{isUploading ? "Uploading..." : "Browse Image"}</span>
-                                                    </button>
-                                                  </div>
-                                                  <input
-                                                    type="text"
-                                                    value={selectedElementAny.videoPoster || ""}
-                                                    onChange={(e) => updateSelectedProp("videoPoster", e.target.value)}
-                                                    placeholder="https://.../poster.jpg"
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  />
-                                                  {selectedElementAny.videoPoster && (
-                                                    <div className="mt-2 flex items-center gap-2">
-                                                      <img
-                                                        src={resolveImageUrl(selectedElementAny.videoPoster, apiUrl)}
-                                                        alt="Poster preview"
-                                                        className="h-10 w-16 object-cover rounded border border-slate-200 bg-slate-100"
-                                                      />
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => updateSelectedProp("videoPoster", "")}
-                                                        className="text-[10px] font-bold text-red-500 hover:underline"
-
-                                                      >
-                                                        <option value="auto">Auto (16:9 Aspect)</option>
-                                                        <option value="250px">250px</option>
-                                                        <option value="350px">350px</option>
-                                                        <option value="450px">450px</option>
-                                                        <option value="550px">550px</option>
-                                                      </select>
-                                                    </div>
-                        </div>
-
-                                                {/* Alignment */}
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Alignment
-                                                  </label>
-                                                  <select
-                                                    value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
-                                                    onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="auto">Auto (16:9 Aspect)</option>
-                                                    <option value="250px">250px</option>
-                                                    <option value="350px">350px</option>
-                                                    <option value="450px">450px</option>
-                                                    <option value="550px">550px</option>
-                                                  </select>
-                                                </div>
-                                              </div>
-
-                                              {/* Alignment */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Alignment
-                                                </label>
-                                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
-                                                  {(["left", "center", "right"] as const).map((align) => {
-                                                    const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
-                                                    const isActive = currentAlign === align;
-                                                    return (
-                                                      <button
-                                                        key={align}
-                                                        type="button"
-                                                        onClick={() => updateSelectedStyle("textAlign", align)}
-                                                        className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
-                                                          ? "bg-white text-blue-600 shadow-xs"
-                                                          : "text-slate-600 hover:text-slate-900"
-                                                          }`}
-                                                      >
-                                                        {align}
-                                                      </button>
-                                                    );
-                                                  })}
-                                                </div>
-                                              </div>
-                                            </div>
-
-                    {/* STYLE SECTION */}
-                                          <div className="space-y-3 pt-3 border-t border-slate-200">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                              Style & Border
-                                            </h3>
-
-                                            {/* Border Radius */}
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Border Radius
-                                              </label>
-                                              <select
-                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "8px"}
-                                                onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                              >
-                                                <option value="0px">0px (Square Sharp)</option>
-                                                <option value="4px">4px (Small)</option>
-                                                <option value="8px">8px (Medium Rounded)</option>
-                                                <option value="16px">16px (Large Rounded)</option>
-                                                <option value="24px">24px (Extra Rounded)</option>
-                                              </select>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )
-                                    }
-
-                {/* Video Playlist Inspector Panel (F-209) */}
-                                    {selectedElementAny.type === "video-playlist" && (
-                                      <div className="space-y-6 pt-2 border-t border-slate-100">
-                                        {/* PLAYLIST ITEMS MANAGEMENT */}
-                                        <div className="space-y-3">
-                                          <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                                              <span>📺</span>
-                                              <span>Playlist Videos</span>
-                                            </h3>
-                                            <span className="text-[10px] font-semibold text-slate-400">
-                                              {(selectedElementAny.playlistItems || []).length} items
-                                            </span>
-                                          </div>
-
-                                          {/* Add Video Button */}
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              const items = selectedElementAny.playlistItems || [];
-                                              const newItemId = `vp_${Date.now()}`;
-                                              const newItem: PlaylistItem = {
-                                                id: newItemId,
-                                                title: `New Video ${items.length + 1}`,
-                                                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                duration: "03:00",
-                                              };
-                                              const updated = [...items, newItem];
-                                              updateSelectedProp("playlistItems", updated);
-                                              if (!selectedElementAny.playlistActiveId) {
-                                                updateSelectedProp("playlistActiveId", newItemId);
-                                              }
-                                            }}
-                                            className="w-full rounded-lg border border-dashed border-blue-400 bg-blue-50/50 py-2 text-xs font-bold text-blue-600 hover:bg-blue-100/60 transition flex items-center justify-center gap-1.5 shadow-2xs"
-                                          >
-                                            <span>➕</span>
-                                            <span>Add Video to Playlist</span>
-                                          </button>
-
-                                          {/* Playlist Item Cards */}
-                                          <div className="space-y-3 pt-1">
-                                            {(selectedElementAny.playlistItems || []).map((item: any, index: number) => {
-                                              const isActive = item.id === (selectedElementAny.playlistActiveId || selectedElementAny.playlistItems?.[0]?.id);
-                                              return (
-                                                <div
-                                                  key={item.id || index}
-                                                  className={`rounded-xl border p-3 transition space-y-2.5 ${isActive
-                                                    ? "border-blue-400 bg-blue-50/40 ring-1 ring-blue-400/50 shadow-xs"
-                                                    : "border-slate-200 bg-white hover:border-slate-300"
-                                                    }`}
-                                                >
-                                                  {/* Header & Item Actions */}
-                                                  <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => updateSelectedProp("playlistActiveId", item.id)}
-                                                        title={isActive ? "Currently Active Video" : "Set as Active Video"}
-                                                        className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${isActive
-                                                          ? "bg-blue-600 text-white"
-                                                          : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
-                                                          }`}
-                                                      >
-                                                        {isActive ? "▶" : index + 1}
-                                                      </button>
-                                                      <span className="text-xs font-bold text-slate-800">
-                                                        Video #{index + 1}
-                                                      </span>
-                                                      {isActive && (
-                                                        <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700">
-                                                          Active
-                                                        </span>
-                                                      )}
-                                                    </div>
-
-                                                    <div className="flex items-center gap-1">
-                                                      {/* Move Up */}
-                                                      <button
-                                                        type="button"
-                                                        disabled={index === 0}
-                                                        onClick={() => {
-                                                          const items = [...(selectedElementAny.playlistItems || [])];
-                                                          if (index > 0) {
-                                                            const temp = items[index];
-                                                            items[index] = items[index - 1];
-                                                            items[index - 1] = temp;
-                                                            updateSelectedProp("playlistItems", items);
-                                                          }
-                                                        }}
-                                                        title="Move Up"
-                                                        className="h-6 w-6 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center text-xs"
-                                                      >
-                                                        ↑
-                                                      </button>
-
-                                                      {/* Move Down */}
-                                                      <button
-                                                        type="button"
-                                                        disabled={index === (selectedElementAny.playlistItems || []).length - 1}
-                                                        onClick={() => {
-                                                          const items = [...(selectedElementAny.playlistItems || [])];
-                                                          if (index < items.length - 1) {
-                                                            const temp = items[index];
-                                                            items[index] = items[index + 1];
-                                                            items[index + 1] = temp;
-                                                            updateSelectedProp("playlistItems", items);
-                                                          }
-                                                        }}
-                                                        title="Move Down"
-                                                        className="h-6 w-6 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center text-xs"
-                                                      >
-                                                        ↓
-                                                      </button>
-
-                                                      {/* Delete */}
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                          const items = (selectedElementAny.playlistItems || []).filter(
-                                                            (_: any, i: number) => i !== index
-                                                          );
-                                                          updateSelectedProp("playlistItems", items);
-                                                          if (selectedElementAny.playlistActiveId === item.id && items.length > 0) {
-                                                            updateSelectedProp("playlistActiveId", items[0].id);
-                                                          }
-                                                        }}
-                                                        title="Delete Video Item"
-                                                        className="h-6 w-6 rounded border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center text-xs ml-1"
-                                                      >
-                                                        🗑️
-                                                      </button>
-                                                    </div>
-                                                  </div>
-
-                                                  {/* Title Input */}
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                      Video Title
-                                                    </label>
-                                                    <input
-                                                      type="text"
-                                                      value={item.title || ""}
-                                                      onChange={(e) => {
-                                                        const items = [...(selectedElementAny.playlistItems || [])];
-                                                        items[index] = { ...items[index], title: e.target.value };
-                                                        updateSelectedProp("playlistItems", items);
-                                                      }}
-                                                      placeholder="e.g. 01. Introduction Overview"
-                                                      className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                    />
-                                                  </div>
-
-                                                  {/* URL Input */}
-                                                  <div>
-                                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                      Video URL (YouTube, Vimeo, MP4)
-                                                    </label>
-                                                    <input
-                                                      type="text"
-                                                      value={item.url || ""}
-                                                      onChange={(e) => {
-                                                        const items = [...(selectedElementAny.playlistItems || [])];
-                                                        items[index] = { ...items[index], url: e.target.value };
-                                                        updateSelectedProp("playlistItems", items);
-                                                      }}
-                                                      placeholder="https://www.youtube.com/watch?v=..."
-                                                      className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                    />
-                                                  </div>
-
-                                                  {/* Duration & Thumbnail URL Row */}
-                                                  <div className="grid grid-cols-2 gap-2">
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                        Duration
-                                                      </label>
-                                                      <input
-                                                        type="text"
-                                                        value={item.duration || ""}
-                                                        onChange={(e) => {
-                                                          const items = [...(selectedElementAny.playlistItems || [])];
-                                                          items[index] = { ...items[index], duration: e.target.value };
-                                                          updateSelectedProp("playlistItems", items);
-                                                        }}
-                                                        placeholder="e.g. 04:30"
-                                                        className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                      />
-                                                    </div>
-
-                                                    <div>
-                                                      <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                        Thumbnail URL
-                                                      </label>
-                                                      <input
-                                                        type="text"
-                                                        value={item.thumbnailUrl || ""}
-                                                        onChange={(e) => {
-                                                          const items = [...(selectedElementAny.playlistItems || [])];
-                                                          items[index] = { ...items[index], thumbnailUrl: e.target.value };
-                                                          updateSelectedProp("playlistItems", items);
-                                                        }}
-                                                        placeholder="https://.../thumb.jpg"
-                                                        className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                        </div>
-
-                                        {/* LAYOUT SECTION */}
-                                        <div className="space-y-3 pt-3 border-t border-slate-200">
-                                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                            Layout & Position
-                                          </h3>
-
-                                          {/* Playlist Position Selector */}
+                                        {/* Content Input */}
+                                        {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "container" && selectedElementAny.type !== "posts" && selectedElementAny.type !== "share-buttons" && selectedElementAny.type !== "portfolio" && selectedElementAny.type !== "slides" && selectedElementAny.type !== "form" && selectedElementAny.type !== "login" && selectedElementAny.type !== "nav-menu" && selectedElementAny.type !== "animated-headline" && selectedElementAny.type !== "price-table" && selectedElementAny.type !== "price-list" && selectedElementAny.type !== "gallery" && selectedElementAny.type !== "flip-box" && selectedElementAny.type !== "call-to-action" && selectedElementAny.type !== "media-carousel" && selectedElementAny.type !== "testimonial-carousel" && selectedElementAny.type !== "nested-carousel" && selectedElementAny.type !== "loop-carousel" && selectedElementAny.type !== "table-of-contents" && selectedElementAny.type !== "countdown" && selectedElementAny.type !== "facebook-page" && selectedElementAny.type !== "blockquote" && selectedElementAny.type !== "template" && selectedElementAny.type !== "reviews" && selectedElementAny.type !== "facebook-button" && selectedElementAny.type !== "facebook-embed" && selectedElementAny.type !== "facebook-comments" && selectedElementAny.type !== "paypal-button" && selectedElementAny.type !== "stripe-button" && selectedElementAny.type !== "lottie" && selectedElementAny.type !== "code-highlight" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "mega-menu" && selectedElementAny.type !== "off-canvas" && (
                                           <div>
                                             <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Playlist Position
+                                              Text
                                             </label>
-                                            <div className="grid grid-cols-2 gap-2">
+                                            <textarea
+                                              rows={selectedElementAny.type === "text" ? 3 : 2}
+                                              value={selectedElementAny.content}
+                                              onChange={(e) => updateSelectedProp("content", e.target.value)}
+                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                            />
+                                          </div>
+                                        )}
+
+                                        {/* Advanced Typography Section */}
+                                        {renderTypographySection()}
+
+                                        {/* Text Color Input */}
+                                        {selectedElementAny.type !== "image" && selectedElementAny.type !== "video" && selectedElementAny.type !== "video-playlist" && selectedElementAny.type !== "posts" && (
+                                          <div>
+                                            <div className="flex items-center justify-between mb-1">
+                                              <label className="block text-xs font-semibold text-slate-700">
+                                                Text Color
+                                              </label>
+                                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => resetSelectedStyle("color")}
+                                                  title="Reset Text Color to Default"
+                                                  className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                                >
+                                                  ↺ Reset
+                                                </button>
+                                              )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <input
+                                                type="color"
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                                className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                                              />
+                                              <input
+                                                type="text"
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                                                onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                              />
                                               <button
                                                 type="button"
-                                                onClick={() => updateSelectedProp("playlistPosition", "right")}
-                                                className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${(selectedElementAny.playlistPosition || "right") === "right"
-                                                  ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                                  }`}
+                                                onClick={() => handleSampleColor((hex) => updateSelectedStyle("color", hex))}
+                                                title="Sample Color from Screen / Image"
+                                                className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
                                               >
-                                                <span>▶️</span>
-                                                <span>Right Sidebar</span>
+                                                <span>🧪</span>
+                                                <span className="text-[10px]">Sample</span>
                                               </button>
-
-                                              <button
-                                                type="button"
-                                                onClick={() => updateSelectedProp("playlistPosition", "bottom")}
-                                                className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${selectedElementAny.playlistPosition === "bottom"
-                                                  ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                                  }`}
-                                              >
-                                                <span>🔽</span>
-                                                <span>Bottom List</span>
-                                              </button>
-
                                             </div>
                                           </div>
+                                        )}
 
-                                          {/* STYLE SECTION */}
-                                          <div className="space-y-3 pt-3 border-t border-slate-200">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                              Style & Border
+                                        {/* Alignment */}
+                                        <div>
+                                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                            Alignment
+                                          </label>
+                                          <select
+                                            value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left"}
+                                            onChange={(e) => updateSelectedStyle("textAlign", e.target.value as any)}
+                                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                          >
+                                            <option value="left">Left</option>
+                                            <option value="center">Center</option>
+                                            <option value="right">Right</option>
+                                            <option value="justify">Justify</option>
+                                          </select>
+                                        </div>
+
+                                        {/* Button Href Link */}
+                                        {selectedElementAny.type === "button" && (
+                                          <div>
+                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                              Button Link (URL)
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={selectedElementAny.href || "#"}
+                                              onChange={(e) => updateSelectedProp("href", e.target.value)}
+                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                            />
+                                          </div>
+                                        )}
+
+                                        {/* Button Background Color */}
+                                        {selectedElementAny.type === "button" && (
+                                          <div>
+                                            <div className="flex items-center justify-between mb-1">
+                                              <label className="block text-xs font-semibold text-slate-700">
+                                                Button Color
+                                              </label>
+                                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => resetSelectedStyle("backgroundColor")}
+                                                  title="Reset Button Color to Default"
+                                                  className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                                >
+                                                  ↺ Reset
+                                                </button>
+                                              )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <input
+                                                type="color"
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
+                                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                                className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                                              />
+                                              <input
+                                                type="text"
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#2563eb"}
+                                                onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                              />
+                                              <button
+                                                type="button"
+                                                onClick={() => handleSampleColor((hex) => updateSelectedStyle("backgroundColor", hex))}
+                                                title="Sample Color from Screen / Image"
+                                                className="h-8 px-2 rounded border border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-xs font-bold text-slate-700 hover:text-blue-600 transition flex items-center gap-1 shrink-0"
+                                              >
+                                                <span>🧪</span>
+                                                <span className="text-[10px]">Sample</span>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Video Widget Inspector Panel (F-208) */}
+                                        {selectedElementAny.type === "video" && (
+                                          <div className="space-y-5 pt-2 border-t border-slate-100">
+                                            <div>
+                                              <label className="block text-xs font-semibold text-slate-700 mb-1">Video Source URL</label>
+                                              <input
+                                                type="text"
+                                                value={selectedElementAny.src || ""}
+                                                onChange={(e) => updateSelectedProp("src", e.target.value)}
+                                                placeholder="YouTube, Vimeo, or MP4 URL"
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-xs font-semibold text-slate-700 mb-1">Poster Image URL</label>
+                                              <input
+                                                type="text"
+                                                value={selectedElementAny.videoPoster || ""}
+                                                onChange={(e) => updateSelectedProp("videoPoster", e.target.value)}
+                                                placeholder="https://.../poster.jpg"
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+                                              />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs font-medium text-slate-700">
+                                                <input type="checkbox" checked={selectedElementAny.videoControls !== false} onChange={(e) => updateSelectedProp("videoControls", e.target.checked)} />
+                                                Controls
+                                              </label>
+                                              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs font-medium text-slate-700">
+                                                <input type="checkbox" checked={Boolean(selectedElementAny.videoAutoplay)} onChange={(e) => updateSelectedProp("videoAutoplay", e.target.checked)} />
+                                                Autoplay
+                                              </label>
+                                              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs font-medium text-slate-700">
+                                                <input type="checkbox" checked={Boolean(selectedElementAny.videoLoop)} onChange={(e) => updateSelectedProp("videoLoop", e.target.checked)} />
+                                                Loop
+                                              </label>
+                                              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs font-medium text-slate-700">
+                                                <input type="checkbox" checked={Boolean(selectedElementAny.videoMuted)} onChange={(e) => updateSelectedProp("videoMuted", e.target.checked)} />
+                                                Muted
+                                              </label>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                      {/* Image Widget Inspector Panel (F-207) */}
+                                      {selectedElementAny.type === "image" && (
+                                        <div className="space-y-6 pt-2 border-t border-slate-100">
+                                          <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                              if (e.target.files && e.target.files[0]) {
+                                                handleImageFileSelect(e.target.files[0]);
+                                              }
+                                            }}
+                                          />
+
+                                          {/* CONTENT SECTION */}
+                                          <div className="space-y-3">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1 flex items-center justify-between">
+                                              <span>Content</span>
+                                              <span className="text-[10px] text-blue-600 font-normal">Source & Alt Text</span>
                                             </h3>
 
-                                            {/* Border Radius */}
-                                            <div>
-                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                Border Radius
+                                            {/* Image Source Selection / Active Thumbnail */}
+                                            <div className="space-y-2">
+                                              <label className="block text-xs font-semibold text-slate-700">
+                                                Image Source
                                               </label>
-                                              <select
-                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "8px"}
-                                                onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                              >
-                                                <option value="0px">0px (Square Sharp)</option>
-                                                <option value="4px">4px (Small)</option>
-                                                <option value="8px">8px (Medium Rounded)</option>
-                                                <option value="16px">16px (Large Rounded)</option>
-                                                <option value="24px">24px (Extra Rounded)</option>
-                                              </select>
-                                            </div>
-                                          </div>
-                                        </div>
-                  )}
 
-                                        {/* Video Playlist Inspector Panel (F-209) */}
-                                        {selectedElementAny.type === "video-playlist" && (
-                                          <div className="space-y-6 pt-2 border-t border-slate-100">
-                                            {/* PLAYLIST ITEMS MANAGEMENT */}
-                                            <div className="space-y-3">
-                                              <div className="flex items-center justify-between border-b border-slate-100 pb-1">
-                                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                                                  <span>📺</span>
-                                                  <span>Playlist Videos</span>
-                                                </h3>
-                                                <span className="text-[10px] font-semibold text-slate-400">
-                                                  {(selectedElementAny.playlistItems || []).length} items
-                                                </span>
+                                              {selectedElementAny.src ? (
+                                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
+                                                  <div className="flex items-center justify-between">
+                                                    <span className="text-[11px] font-bold text-slate-600">Preview</span>
+                                                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                                      Active Image
+                                                    </span>
+                                                  </div>
+                                                  <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
+                                                    <img
+                                                      src={resolveImageUrl(selectedElementAny.src, apiUrl)}
+                                                      alt="Thumbnail preview"
+                                                      className="h-28 w-full object-cover"
+                                                    />
+                                                  </div>
+                                                  <div className="flex gap-2">
+                                                    <button
+                                                      type="button"
+                                                      disabled={isUploading}
+                                                      onClick={() => fileInputRef.current?.click()}
+                                                      className="flex-1 rounded-lg border border-slate-300 bg-white py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1 shadow-2xs disabled:opacity-50"
+                                                    >
+                                                      <span>🔄</span>
+                                                      <span>{isUploading ? "Uploading..." : "Replace Image"}</span>
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => updateSelectedProp("src", "")}
+                                                      className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
+                                                    >
+                                                      Remove
+                                                    </button>
+                                                  </div>
+
+                                                  {/* Extracted Image Color Palette (F-034) */}
+                                                  {extractedColors.length > 0 && (
+                                                    <div className="pt-2 border-t border-slate-200">
+                                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                                        Extracted Palette
+                                                      </span>
+                                                      <div className="flex items-center gap-1.5">
+                                                        {extractedColors.map((hex, idx) => (
+                                                          <button
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => updateSelectedStyle("backgroundColor", hex)}
+                                                            title={`Apply extracted color ${hex}`}
+                                                            className="h-6 w-6 rounded-full border border-slate-300 shadow-xs hover:scale-110 transition shrink-0"
+                                                            style={{ backgroundColor: hex }}
+                                                          />
+                                                        ))}
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              ) : (
+                                                <div
+                                                  onDragOver={(e) => {
+                                                    e.preventDefault();
+                                                    setDragOver(true);
+                                                  }}
+                                                  onDragLeave={() => setDragOver(false)}
+                                                  onDrop={handleDrop}
+                                                  className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
+                                                    ? "border-blue-500 bg-blue-50"
+                                                    : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
+                                                    }`}
+                                                >
+                                                  <UploadCloudIcon />
+                                                  <p className="mt-2 text-xs font-bold text-slate-700">
+                                                    No image selected
+                                                  </p>
+                                                  <p className="mt-0.5 text-[10px] text-slate-400">
+                                                    Choose local file or drop image here
+                                                  </p>
+
+                                                  <button
+                                                    type="button"
+                                                    disabled={isUploading}
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="mt-3 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition disabled:opacity-50"
+                                                  >
+                                                    {isUploading ? "Uploading..." : "Select Image"}
+                                                  </button>
+                                                </div>
+                                              )}
+
+                                              {/* Extracted Image Color Palette (F-034) */}
+                                              {extractedColors.length > 0 && (
+                                                <div className="pt-2 border-t border-slate-200">
+                                                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                                    Extracted Palette
+                                                  </span>
+                                                  <div className="flex items-center gap-1.5">
+                                                    {extractedColors.map((hex, idx) => (
+                                                      <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={() => updateSelectedStyle("backgroundColor", hex)}
+                                                        title={`Apply extracted color ${hex}`}
+                                                        className="h-6 w-6 rounded-full border border-slate-300 shadow-xs hover:scale-110 transition shrink-0"
+                                                        style={{ backgroundColor: hex }}
+                                                      />
+                                                    ))}
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                            ) : (
+                                            <div
+                                              onDragOver={(e) => {
+                                                e.preventDefault();
+                                                setDragOver(true);
+                                              }}
+                                              onDragLeave={() => setDragOver(false)}
+                                              onDrop={handleDrop}
+                                              className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
+                                                ? "border-blue-500 bg-blue-50"
+                                                : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
+                                                }`}
+                                            >
+                                              <UploadCloudIcon />
+                                              <p className="mt-2 text-xs font-bold text-slate-700">
+                                                No image selected
+                                              </p>
+                                              <p className="mt-0.5 text-[10px] text-slate-400">
+                                                Choose local file or drop image here
+                                              </p>
+
+
+                                              {/* Direct Image URL input */}
+                                              <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                  Image Web URL / Source
+                                                </label>
+                                                <select
+                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "100%"}
+                                                  onChange={(e) => updateSelectedStyle("width", e.target.value)}
+                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                >
+                                                  <option value="100%">100% (Full Width)</option>
+                                                  <option value="75%">75%</option>
+                                                  <option value="50%">50% (Half Width)</option>
+                                                  <option value="33%">33%</option>
+                                                  <option value="25%">25%</option>
+                                                  <option value="auto">Auto</option>
+                                                </select>
                                               </div>
 
-                                              {/* Add Video Button */}
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const items = selectedElementAny.playlistItems || [];
-                                                  const newItemId = `vp_${Date.now()}`;
-                                                  const newItem: PlaylistItem = {
-                                                    id: newItemId,
-                                                    title: `New Video ${items.length + 1}`,
-                                                    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                                                    duration: "03:00",
-                                                  };
-                                                  const updated = [...items, newItem];
-                                                  updateSelectedProp("playlistItems", updated);
-                                                  if (!selectedElementAny.playlistActiveId) {
-                                                    updateSelectedProp("playlistActiveId", newItemId);
-                                                  }
-                                                }}
-                                                className="w-full rounded-lg border border-dashed border-blue-400 bg-blue-50/50 py-2 text-xs font-bold text-blue-600 hover:bg-blue-100/60 transition flex items-center justify-center gap-1.5 shadow-2xs"
-                                              >
-                                                <span>➕</span>
-                                                <span>Add Video to Playlist</span>
-                                              </button>
+                                              <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                  Height
+                                                </label>
+                                                <select
+                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
+                                                  onChange={(e) => updateSelectedStyle("height", e.target.value)}
+                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                >
+                                                  <option value="auto">Auto</option>
+                                                  <option value="150px">150px</option>
+                                                  <option value="200px">200px</option>
+                                                  <option value="300px">300px</option>
+                                                  <option value="400px">400px</option>
+                                                  <option value="500px">500px</option>
+                                                </select>
+                                              </div>
+                                            </div>
 
-                                              {/* Playlist Item Cards */}
-                                              <div className="space-y-3 pt-1">
-                                                {(selectedElementAny.playlistItems || []).map((item: any, index: number) => {
-                                                  const isActive = item.id === (selectedElementAny.playlistActiveId || selectedElementAny.playlistItems?.[0]?.id);
+                                            {/* Object Fit & Object Position */}
+                                            <div className="grid grid-cols-2 gap-2">
+                                              <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                  Object Fit
+                                                </label>
+                                                <select
+                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectFit") || "cover"}
+                                                  onChange={(e) => updateSelectedStyle("objectFit", e.target.value as any)}
+                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                >
+                                                  <option value="cover">Cover (Fill Container)</option>
+                                                  <option value="contain">Contain (Fit Whole Image)</option>
+                                                  <option value="fill">Fill (Stretch)</option>
+                                                  <option value="none">None (Original Size)</option>
+                                                  <option value="scale-down">Scale Down</option>
+                                                </select>
+                                              </div>
+
+                                              <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                  Object Position
+                                                </label>
+                                                <select
+                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectPosition") || "center"}
+                                                  onChange={(e) => updateSelectedStyle("objectPosition", e.target.value)}
+                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                                >
+                                                  <option value="center">Center</option>
+                                                  <option value="top">Top</option>
+                                                  <option value="bottom">Bottom</option>
+                                                  <option value="left">Left</option>
+                                                  <option value="right">Right</option>
+                                                  <option value="top left">Top Left</option>
+                                                  <option value="top right">Top Right</option>
+                                                  <option value="bottom left">Bottom Left</option>
+                                                  <option value="bottom right">Bottom Right</option>
+                                                </select>
+                                              </div>
+                                            </div>
+
+                                            {/* Alignment */}
+                                            <div>
+                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                Alignment
+                                              </label>
+                                              <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
+                                                {(["left", "center", "right"] as const).map((align) => {
+                                                  const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
+                                                  const isActive = currentAlign === align;
                                                   return (
                                                     <button
                                                       key={align}
@@ -19083,3265 +16730,1857 @@ export default function WebsiteEditor() {
                                                       className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
                                                         ? "bg-white text-blue-600 shadow-xs"
                                                         : "text-slate-600 hover:text-slate-900"
-
                                                         }`}
                                                     >
-                                                      {/* Header & Item Actions */}
-                                                      <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => updateSelectedProp("playlistActiveId", item.id)}
-                                                            title={isActive ? "Currently Active Video" : "Set as Active Video"}
-                                                            className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition ${isActive
-                                                              ? "bg-blue-600 text-white"
-                                                              : "bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white"
-                                                              }`}
-                                                          >
-                                                            {isActive ? "▶" : index + 1}
-                                                          </button>
-                                                          <span className="text-xs font-bold text-slate-800">
-                                                            Video #{index + 1}
-                                                          </span>
-                                                          {isActive && (
-                                                            <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-700">
-                                                              Active
-                                                            </span>
-                                                          )}
-                                                        </div>
-
-                                                        <div className="flex items-center gap-1">
-                                                          {/* Move Up */}
-                                                          <button
-                                                            type="button"
-                                                            disabled={index === 0}
-                                                            onClick={() => {
-                                                              const items = [...(selectedElementAny.playlistItems || [])];
-                                                              if (index > 0) {
-                                                                const temp = items[index];
-                                                                items[index] = items[index - 1];
-                                                                items[index - 1] = temp;
-                                                                updateSelectedProp("playlistItems", items);
-                                                              }
-                                                            }}
-                                                            title="Move Up"
-                                                            className="h-6 w-6 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center text-xs"
-                                                          >
-                                                            ↑
-                                                          </button>
-
-                                                          {/* Move Down */}
-                                                          <button
-                                                            type="button"
-                                                            disabled={index === (selectedElementAny.playlistItems || []).length - 1}
-                                                            onClick={() => {
-                                                              const items = [...(selectedElementAny.playlistItems || [])];
-                                                              if (index < items.length - 1) {
-                                                                const temp = items[index];
-                                                                items[index] = items[index + 1];
-                                                                items[index + 1] = temp;
-                                                                updateSelectedProp("playlistItems", items);
-                                                              }
-                                                            }}
-                                                            title="Move Down"
-                                                            className="h-6 w-6 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center text-xs"
-                                                          >
-                                                            ↓
-                                                          </button>
-
-                                                          {/* Delete */}
-                                                          <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                              const items = (selectedElementAny.playlistItems || []).filter(
-                                                                (_: any, i: number) => i !== index
-                                                              );
-                                                              updateSelectedProp("playlistItems", items);
-                                                              if (selectedElementAny.playlistActiveId === item.id && items.length > 0) {
-                                                                updateSelectedProp("playlistActiveId", items[0].id);
-                                                              }
-                                                            }}
-                                                            title="Delete Video Item"
-                                                            className="h-6 w-6 rounded border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center text-xs ml-1"
-                                                          >
-                                                            🗑️
-                                                          </button>
-                                                        </div>
-                                                      </div>
-
-                                                      {/* Title Input */}
-                                                      <div>
-                                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                          Video Title
-                                                        </label>
-                                                        <input
-                                                          type="text"
-                                                          value={item.title || ""}
-                                                          onChange={(e) => {
-                                                            const items = [...(selectedElementAny.playlistItems || [])];
-                                                            items[index] = { ...items[index], title: e.target.value };
-                                                            updateSelectedProp("playlistItems", items);
-                                                          }}
-                                                          placeholder="e.g. 01. Introduction Overview"
-                                                          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                        />
-                                                      </div>
-
-                                                      {/* URL Input */}
-                                                      <div>
-                                                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                          Video URL (YouTube, Vimeo, MP4)
-                                                        </label>
-                                                        <input
-                                                          type="text"
-                                                          value={item.url || ""}
-                                                          onChange={(e) => {
-                                                            const items = [...(selectedElementAny.playlistItems || [])];
-                                                            items[index] = { ...items[index], url: e.target.value };
-                                                            updateSelectedProp("playlistItems", items);
-                                                          }}
-                                                          placeholder="https://www.youtube.com/watch?v=..."
-                                                          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                        />
-                                                      </div>
-
-                                                      {/* Duration & Thumbnail URL Row */}
-                                                      <div className="grid grid-cols-2 gap-2">
-                                                        <div>
-                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                            Duration
-                                                          </label>
-                                                          <input
-                                                            type="text"
-                                                            value={item.duration || ""}
-                                                            onChange={(e) => {
-                                                              const items = [...(selectedElementAny.playlistItems || [])];
-                                                              items[index] = { ...items[index], duration: e.target.value };
-                                                              updateSelectedProp("playlistItems", items);
-                                                            }}
-                                                            placeholder="e.g. 04:30"
-                                                            className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                          />
-                                                        </div>
-
-                                                        <div>
-                                                          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                                                            Thumbnail URL
-                                                          </label>
-                                                          <input
-                                                            type="text"
-                                                            value={item.thumbnailUrl || ""}
-                                                            onChange={(e) => {
-                                                              const items = [...(selectedElementAny.playlistItems || [])];
-                                                              items[index] = { ...items[index], thumbnailUrl: e.target.value };
-                                                              updateSelectedProp("playlistItems", items);
-                                                            }}
-                                                            placeholder="https://.../thumb.jpg"
-                                                            className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
-                                                          />
-                                                        </div>
-                                                      </div>
-                                                    </div>
+                                                      {align}
+                                                    </button>
                                                   );
                                                 })}
                                               </div>
                                             </div>
-
-                                            {/* LAYOUT SECTION */}
-                                            <div className="space-y-3 pt-3 border-t border-slate-200">
-                                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                Layout & Position
-                                              </h3>
-
-                                              {/* Playlist Position Selector */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Playlist Position
-                                                </label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => updateSelectedProp("playlistPosition", "right")}
-                                                    className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${(selectedElementAny.playlistPosition || "right") === "right"
-                                                      ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                                      }`}
-                                                  >
-                                                    <span>▶️</span>
-                                                    <span>Right Sidebar</span>
-                                                  </button>
-
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => updateSelectedProp("playlistPosition", "bottom")}
-                                                    className={`rounded-lg border p-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${selectedElementAny.playlistPosition === "bottom"
-                                                      ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                                                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                                                      }`}
-                                                  >
-                                                    <span>🔽</span>
-                                                    <span>Bottom List</span>
-                                                  </button>
-                                                </div>
-                                              </div>
-
-                                              {/* Player Width Selector (Right Sidebar mode) */}
-                                              {(selectedElementAny.playlistPosition || "right") === "right" && (
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Player Portion Width
-                                                  </label>
-                                                  <select
-                                                    value={selectedElementAny.playlistPlayerWidth || "65%"}
-                                                    onChange={(e) => updateSelectedProp("playlistPlayerWidth", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="60%">60% Player / 40% Playlist</option>
-                                                    <option value="65%">65% Player / 35% Playlist (Standard)</option>
-                                                    <option value="70%">70% Player / 30% Playlist</option>
-                                                    <option value="75%">75% Player / 25% Playlist</option>
-                                                  </select>
-                                                </div>
-                                              )}
-
-                                              {/* Alignment */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Alignment
-                                                </label>
-                                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
-                                                  {(["left", "center", "right"] as const).map((align) => {
-                                                    const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
-                                                    const isActive = currentAlign === align;
-                                                    return (
-                                                      <button
-                                                        key={align}
-                                                        type="button"
-                                                        onClick={() => updateSelectedStyle("textAlign", align)}
-                                                        className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
-                                                          ? "bg-white text-blue-600 shadow-xs"
-                                                          : "text-slate-600 hover:text-slate-900"
-                                                          }`}
-                                                      >
-                                                        {align}
-                                                      </button>
-                                                    );
-                                                  })}
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* STYLE SECTION */}
-                                            <div className="space-y-3 pt-3 border-t border-slate-200">
-                                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                Style & Border
-                                              </h3>
-
-                                              {/* Border Radius */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Border Radius
-                                                </label>
-                                                <select
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "12px"}
-                                                  onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                >
-                                                  <option value="0px">0px (Square Sharp)</option>
-                                                  <option value="8px">8px (Small Rounded)</option>
-                                                  <option value="12px">12px (Medium Rounded)</option>
-                                                  <option value="16px">16px (Large Rounded)</option>
-                                                  <option value="24px">24px (Extra Rounded)</option>
-                                                </select>
-                                              </div>
-                                            </div>
                                           </div>
-                                        )}
 
-                                        {/* Image Widget Inspector Panel (F-207) */}
-                                        {selectedElementAny.type === "image" && (
-                                          <div className="space-y-6 pt-2 border-t border-slate-100">
-                                            <input
-                                              ref={fileInputRef}
-                                              type="file"
-                                              accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-                                              className="hidden"
-                                              onChange={(e) => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                  handleImageFileSelect(e.target.files[0]);
-                                                }
-                                              }}
-                                            />
+                                          {/* STYLE SECTION */}
+                                          <div className="space-y-3 pt-3 border-t border-slate-200">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
+                                              Style & Effects
+                                            </h3>
 
-                                            {/* CONTENT SECTION */}
-                                            <div className="space-y-3">
-                                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1 flex items-center justify-between">
-                                                <span>Content</span>
-                                                <span className="text-[10px] text-blue-600 font-normal">Source & Alt Text</span>
-                                              </h3>
-
-                                              {/* Image Source Selection / Active Thumbnail */}
-                                              <div className="space-y-2">
-                                                <label className="block text-xs font-semibold text-slate-700">
-                                                  Image Source
-                                                </label>
-
-                                                {selectedElementAny.src ? (
-                                                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2.5">
-                                                    <div className="flex items-center justify-between">
-                                                      <span className="text-[11px] font-bold text-slate-600">Preview</span>
-                                                      <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                                        Active Image
-                                                      </span>
-                                                    </div>
-                                                    <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
-                                                      <img
-                                                        src={resolveImageUrl(selectedElementAny.src, apiUrl)}
-                                                        alt="Thumbnail preview"
-                                                        className="h-28 w-full object-cover"
-                                                      />
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                      <button
-                                                        type="button"
-                                                        disabled={isUploading}
-                                                        onClick={() => fileInputRef.current?.click()}
-                                                        className="flex-1 rounded-lg border border-slate-300 bg-white py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1 shadow-2xs disabled:opacity-50"
-                                                      >
-                                                        <span>🔄</span>
-                                                        <span>{isUploading ? "Uploading..." : "Replace Image"}</span>
-                                                      </button>
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => updateSelectedProp("src", "")}
-                                                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
-                                                      >
-                                                        Remove
-                                                      </button>
-                                                    </div>
-
-                                                    {/* Extracted Image Color Palette (F-034) */}
-                                                    {extractedColors.length > 0 && (
-                                                      <div className="pt-2 border-t border-slate-200">
-                                                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                                          Extracted Palette
-                                                        </span>
-                                                        <div className="flex items-center gap-1.5">
-                                                          {extractedColors.map((hex, idx) => (
-                                                            <button
-                                                              key={idx}
-                                                              type="button"
-                                                              onClick={() => updateSelectedStyle("backgroundColor", hex)}
-                                                              title={`Apply extracted color ${hex}`}
-                                                              className="h-6 w-6 rounded-full border border-slate-300 shadow-xs hover:scale-110 transition shrink-0"
-                                                              style={{ backgroundColor: hex }}
-                                                            />
-                                                          ))}
-                                                        </div>
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                ) : (
-                                                  <div
-                                                    onDragOver={(e) => {
-                                                      e.preventDefault();
-                                                      setDragOver(true);
-                                                    }}
-                                                    onDragLeave={() => setDragOver(false)}
-                                                    onDrop={handleDrop}
-                                                    className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
-                                                      ? "border-blue-500 bg-blue-50"
-                                                      : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
-                                                      }`}
-                                                  >
-                                                    <UploadCloudIcon />
-                                                    <p className="mt-2 text-xs font-bold text-slate-700">
-                                                      No image selected
-                                                    </p>
-                                                    <p className="mt-0.5 text-[10px] text-slate-400">
-                                                      Choose local file or drop image here
-                                                    </p>
-
-                                                    <button
-                                                      type="button"
-                                                      disabled={isUploading}
-                                                      onClick={() => fileInputRef.current?.click()}
-                                                      className="mt-3 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition disabled:opacity-50"
-                                                    >
-                                                      {isUploading ? "Uploading..." : "Select Image"}
-                                                    </button>
-                                                  </div>
-                                                )}
-
-                                                {/* Extracted Image Color Palette (F-034) */}
-                                                {extractedColors.length > 0 && (
-                                                  <div className="pt-2 border-t border-slate-200">
-                                                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                                      Extracted Palette
-                                                    </span>
-                                                    <div className="flex items-center gap-1.5">
-                                                      {extractedColors.map((hex, idx) => (
-                                                        <button
-                                                          key={idx}
-                                                          type="button"
-                                                          onClick={() => updateSelectedStyle("backgroundColor", hex)}
-                                                          title={`Apply extracted color ${hex}`}
-                                                          className="h-6 w-6 rounded-full border border-slate-300 shadow-xs hover:scale-110 transition shrink-0"
-                                                          style={{ backgroundColor: hex }}
-                                                        />
-                                                      ))}
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </div>
-                                              ) : (
-                                              <div
-                                                onDragOver={(e) => {
-                                                  e.preventDefault();
-                                                  setDragOver(true);
-                                                }}
-                                                onDragLeave={() => setDragOver(false)}
-                                                onDrop={handleDrop}
-                                                className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-4 text-center transition ${dragOver
-                                                  ? "border-blue-500 bg-blue-50"
-                                                  : "border-slate-300 bg-slate-50/50 hover:border-slate-400"
-                                                  }`}
-                                              >
-                                                <UploadCloudIcon />
-                                                <p className="mt-2 text-xs font-bold text-slate-700">
-                                                  No image selected
-                                                </p>
-                                                <p className="mt-0.5 text-[10px] text-slate-400">
-                                                  Choose local file or drop image here
-                                                </p>
-
-
-                                                {/* Direct Image URL input */}
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Image Web URL / Source
-                                                  </label>
-                                                  <select
-                                                    value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || "100%"}
-                                                    onChange={(e) => updateSelectedStyle("width", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="100%">100% (Full Width)</option>
-                                                    <option value="75%">75%</option>
-                                                    <option value="50%">50% (Half Width)</option>
-                                                    <option value="33%">33%</option>
-                                                    <option value="25%">25%</option>
-                                                    <option value="auto">Auto</option>
-                                                  </select>
-                                                </div>
-
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Height
-                                                  </label>
-                                                  <select
-                                                    value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || "auto"}
-                                                    onChange={(e) => updateSelectedStyle("height", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="auto">Auto</option>
-                                                    <option value="150px">150px</option>
-                                                    <option value="200px">200px</option>
-                                                    <option value="300px">300px</option>
-                                                    <option value="400px">400px</option>
-                                                    <option value="500px">500px</option>
-                                                  </select>
-                                                </div>
-                                              </div>
-
-                                              {/* Object Fit & Object Position */}
-                                              <div className="grid grid-cols-2 gap-2">
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Object Fit
-                                                  </label>
-                                                  <select
-                                                    value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectFit") || "cover"}
-                                                    onChange={(e) => updateSelectedStyle("objectFit", e.target.value as any)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="cover">Cover (Fill Container)</option>
-                                                    <option value="contain">Contain (Fit Whole Image)</option>
-                                                    <option value="fill">Fill (Stretch)</option>
-                                                    <option value="none">None (Original Size)</option>
-                                                    <option value="scale-down">Scale Down</option>
-                                                  </select>
-                                                </div>
-
-                                                <div>
-                                                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                    Object Position
-                                                  </label>
-                                                  <select
-                                                    value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectPosition") || "center"}
-                                                    onChange={(e) => updateSelectedStyle("objectPosition", e.target.value)}
-                                                    className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                  >
-                                                    <option value="center">Center</option>
-                                                    <option value="top">Top</option>
-                                                    <option value="bottom">Bottom</option>
-                                                    <option value="left">Left</option>
-                                                    <option value="right">Right</option>
-                                                    <option value="top left">Top Left</option>
-                                                    <option value="top right">Top Right</option>
-                                                    <option value="bottom left">Bottom Left</option>
-                                                    <option value="bottom right">Bottom Right</option>
-                                                  </select>
-                                                </div>
-                                              </div>
-
-                                              {/* Alignment */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Alignment
-                                                </label>
-                                                <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
-                                                  {(["left", "center", "right"] as const).map((align) => {
-                                                    const currentAlign = getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "textAlign") || "left";
-                                                    const isActive = currentAlign === align;
-                                                    return (
-                                                      <button
-                                                        key={align}
-                                                        type="button"
-                                                        onClick={() => updateSelectedStyle("textAlign", align)}
-                                                        className={`rounded-md py-1 text-xs font-semibold capitalize transition ${isActive
-                                                          ? "bg-white text-blue-600 shadow-xs"
-                                                          : "text-slate-600 hover:text-slate-900"
-                                                          }`}
-                                                      >
-                                                        {align}
-                                                      </button>
-                                                    );
-                                                  })}
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* STYLE SECTION */}
-                                            <div className="space-y-3 pt-3 border-t border-slate-200">
-                                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                Style & Effects
-                                              </h3>
-
-                                              {/* Border Radius */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Border Radius
-                                                </label>
-                                                <select
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "8px"}
-                                                  onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                >
-                                                  <option value="0px">0px (Square Sharp)</option>
-                                                  <option value="4px">4px (Small)</option>
-                                                  <option value="8px">8px (Medium Rounded)</option>
-                                                  <option value="16px">16px (Large Rounded)</option>
-                                                  <option value="24px">24px (Extra Rounded)</option>
-                                                  <option value="9999px">9999px (Pill / Circle)</option>
-                                                </select>
-                                              </div>
-
-                                              {/* Opacity */}
-                                              <div>
-                                                <div className="flex items-center justify-between mb-1">
-                                                  <label className="block text-xs font-semibold text-slate-700">
-                                                    Opacity
-                                                  </label>
-                                                  <span className="text-xs font-mono font-bold text-slate-600">
-                                                    {Math.round(Number(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1) * 100)}%
-                                                  </span>
-                                                </div>
-                                                <input
-                                                  type="range"
-                                                  min="0"
-                                                  max="1"
-                                                  step="0.05"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1}
-                                                  onChange={(e) => updateSelectedStyle("opacity", parseFloat(e.target.value))}
-                                                  className="w-full accent-blue-600 cursor-pointer"
-                                                />
-                                              </div>
-                                              {/* F-220: Image Mask Shape */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Image Mask Shape (F-220)
-                                                </label>
-                                                <select
-                                                  value={selectedElementAny.imageMaskShape || "none"}
-                                                  onChange={(e) => updateSelectedProp("imageMaskShape", e.target.value as any)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
-                                                >
-                                                  <option value="none">None (Rectangular)</option>
-                                                  <option value="circle">⚪ Circle</option>
-                                                  <option value="rounded">▢ Smooth Rounded</option>
-                                                  <option value="blob">🫧 Organic Blob</option>
-                                                  <option value="hexagon">⬡ Hexagon</option>
-                                                  <option value="star">⭐ Star</option>
-                                                  <option value="diamond">◆ Diamond</option>
-                                                  <option value="squircle">⭕ Squircle</option>
-                                                  <option value="heart">💖 Heart</option>
-                                                </select>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-212: Basic Media Carousel Inspector */}
-                                        {selectedElementAny.type === "basic-media-carousel" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🎠 Media Carousel Settings
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Slides Per View</label>
-                                                <input
-                                                  type="number"
-                                                  min={1}
-                                                  max={6}
-                                                  value={selectedElementAny.mediaCarouselSlidesPerView || 2}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselSlidesPerView", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
-                                                <input
-                                                  type="number"
-                                                  min={0}
-                                                  max={40}
-                                                  value={selectedElementAny.mediaCarouselGap ?? 12}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselGap", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                            </div>
-                                            <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselShowNav !== false}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselShowNav", e.target.checked)}
-                                                />
-                                                Nav Arrows
-                                              </label>
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselShowDots !== false}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselShowDots", e.target.checked)}
-                                                />
-                                                Pagination Dots
-                                              </label>
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselAutoplay ?? true}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselAutoplay", e.target.checked)}
-                                                />
-                                                Autoplay
-                                              </label>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-214: Basic Gallery Inspector */}
-                                        {selectedElementAny.type === "basic-gallery" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🖼️ Basic Gallery Settings
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Columns</label>
-                                                <select
-                                                  value={selectedElementAny.basicGalleryColumns || 3}
-                                                  onChange={(e) => updateSelectedProp("basicGalleryColumns", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
-                                                >
-                                                  <option value={1}>1 Column</option>
-                                                  <option value={2}>2 Columns</option>
-                                                  <option value={3}>3 Columns</option>
-                                                  <option value={4}>4 Columns</option>
-                                                </select>
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
-                                                <input
-                                                  type="number"
-                                                  min={0}
-                                                  max={40}
-                                                  value={selectedElementAny.basicGalleryGap ?? 12}
-                                                  onChange={(e) => updateSelectedProp("basicGalleryGap", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-215: Audio Playlist Inspector */}
-                                        {selectedElementAny.type === "audio-playlist" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🎵 Audio Playlist Colors & Tracks
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Card Background</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.audioPlaylistCardBg || "#0f172a"}
-                                                  onChange={(e) => updateSelectedProp("audioPlaylistCardBg", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Accent Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.audioPlaylistAccentColor || "#38bdf8"}
-                                                  onChange={(e) => updateSelectedProp("audioPlaylistAccentColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-219: Dynamic Lightbox Inspector */}
-                                        {selectedElementAny.type === "dynamic-lightbox" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🔍 Dynamic Lightbox Settings
-                                            </span>
+                                            {/* Border Radius */}
                                             <div>
-                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Trigger Button Label</label>
+                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                Border Radius
+                                              </label>
+                                              <select
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "8px"}
+                                                onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                              >
+                                                <option value="0px">0px (Square Sharp)</option>
+                                                <option value="4px">4px (Small)</option>
+                                                <option value="8px">8px (Medium Rounded)</option>
+                                                <option value="16px">16px (Large Rounded)</option>
+                                                <option value="24px">24px (Extra Rounded)</option>
+                                                <option value="9999px">9999px (Pill / Circle)</option>
+                                              </select>
+                                            </div>
+
+                                            {/* Opacity */}
+                                            <div>
+                                              <div className="flex items-center justify-between mb-1">
+                                                <label className="block text-xs font-semibold text-slate-700">
+                                                  Opacity
+                                                </label>
+                                                <span className="text-xs font-mono font-bold text-slate-600">
+                                                  {Math.round(Number(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1) * 100)}%
+                                                </span>
+                                              </div>
                                               <input
-                                                type="text"
-                                                value={selectedElementAny.lightboxTriggerText || "🔍 Open Dynamic Lightbox"}
-                                                onChange={(e) => updateSelectedProp("lightboxTriggerText", e.target.value)}
+                                                type="range"
+                                                min="0"
+                                                max="1"
+                                                step="0.05"
+                                                value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1}
+                                                onChange={(e) => updateSelectedStyle("opacity", parseFloat(e.target.value))}
+                                                className="w-full accent-blue-600 cursor-pointer"
+                                              />
+                                            </div>
+                                            {/* F-220: Image Mask Shape */}
+                                            <div>
+                                              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                Image Mask Shape (F-220)
+                                              </label>
+                                              <select
+                                                value={selectedElementAny.imageMaskShape || "none"}
+                                                onChange={(e) => updateSelectedProp("imageMaskShape", e.target.value as any)}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
+                                              >
+                                                <option value="none">None (Rectangular)</option>
+                                                <option value="circle">⚪ Circle</option>
+                                                <option value="rounded">▢ Smooth Rounded</option>
+                                                <option value="blob">🫧 Organic Blob</option>
+                                                <option value="hexagon">⬡ Hexagon</option>
+                                                <option value="star">⭐ Star</option>
+                                                <option value="diamond">◆ Diamond</option>
+                                                <option value="squircle">⭕ Squircle</option>
+                                                <option value="heart">💖 Heart</option>
+                                              </select>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* F-212: Basic Media Carousel Inspector */}
+                                      {selectedElementAny.type === "basic-media-carousel" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            🎠 Media Carousel Settings
+                                          </span>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Slides Per View</label>
+                                              <input
+                                                type="number"
+                                                min={1}
+                                                max={6}
+                                                value={selectedElementAny.mediaCarouselSlidesPerView || 2}
+                                                onChange={(e) => updateSelectedProp("mediaCarouselSlidesPerView", Number(e.target.value))}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
+                                              <input
+                                                type="number"
+                                                min={0}
+                                                max={40}
+                                                value={selectedElementAny.mediaCarouselGap ?? 12}
+                                                onChange={(e) => updateSelectedProp("mediaCarouselGap", Number(e.target.value))}
                                                 className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
                                               />
                                             </div>
                                           </div>
-                                        )}
+                                          <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                                            <label className="flex items-center gap-1.5 cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={selectedElementAny.mediaCarouselShowNav !== false}
+                                                onChange={(e) => updateSelectedProp("mediaCarouselShowNav", e.target.checked)}
+                                              />
+                                              Nav Arrows
+                                            </label>
+                                            <label className="flex items-center gap-1.5 cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={selectedElementAny.mediaCarouselShowDots !== false}
+                                                onChange={(e) => updateSelectedProp("mediaCarouselShowDots", e.target.checked)}
+                                              />
+                                              Pagination Dots
+                                            </label>
+                                            <label className="flex items-center gap-1.5 cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={selectedElementAny.mediaCarouselAutoplay ?? true}
+                                                onChange={(e) => updateSelectedProp("mediaCarouselAutoplay", e.target.checked)}
+                                              />
+                                              Autoplay
+                                            </label>
+                                          </div>
+                                        </div>
+                                      )}
 
-                                        {/* F-221: Custom SVG Inspector */}
-                                        {selectedElementAny.type === "custom-svg" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              ⚡ Custom SVG Markup & Styling
-                                            </span>
+                                      {/* F-214: Basic Gallery Inspector */}
+                                      {selectedElementAny.type === "basic-gallery" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            🖼️ Basic Gallery Settings
+                                          </span>
+                                          <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Raw SVG Markup Code</label>
-                                              <textarea
-                                                rows={4}
-                                                value={selectedElementAny.svgRawContent || ""}
-                                                onChange={(e) => updateSelectedProp("svgRawContent", e.target.value)}
-                                                placeholder="<svg viewBox='0 0 24 24'>...</svg>"
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-mono outline-none"
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Columns</label>
+                                              <select
+                                                value={selectedElementAny.basicGalleryColumns || 3}
+                                                onChange={(e) => updateSelectedProp("basicGalleryColumns", Number(e.target.value))}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
+                                              >
+                                                <option value={1}>1 Column</option>
+                                                <option value={2}>2 Columns</option>
+                                                <option value={3}>3 Columns</option>
+                                                <option value={4}>4 Columns</option>
+                                              </select>
+                                            </div>
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
+                                              <input
+                                                type="number"
+                                                min={0}
+                                                max={40}
+                                                value={selectedElementAny.basicGalleryGap ?? 12}
+                                                onChange={(e) => updateSelectedProp("basicGalleryGap", Number(e.target.value))}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
                                               />
                                             </div>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">SVG Fill / Stroke Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.svgColor || "#0284c7"}
-                                                  onChange={(e) => updateSelectedProp("svgColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Alignment</label>
-                                                <select
-                                                  value={selectedElementAny.svgAlignment || "center"}
-                                                  onChange={(e) => updateSelectedProp("svgAlignment", e.target.value as any)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
-                                                >
-                                                  <option value="left">Left</option>
-                                                  <option value="center">Center</option>
-                                                  <option value="right">Right</option>
-                                                </select>
-                                              </div>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* F-215: Audio Playlist Inspector */}
+                                      {selectedElementAny.type === "audio-playlist" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            🎵 Audio Playlist Colors & Tracks
+                                          </span>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Card Background</label>
+                                              <input
+                                                type="color"
+                                                value={selectedElementAny.audioPlaylistCardBg || "#0f172a"}
+                                                onChange={(e) => updateSelectedProp("audioPlaylistCardBg", e.target.value)}
+                                                className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Accent Color</label>
+                                              <input
+                                                type="color"
+                                                value={selectedElementAny.audioPlaylistAccentColor || "#38bdf8"}
+                                                onChange={(e) => updateSelectedProp("audioPlaylistAccentColor", e.target.value)}
+                                                className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
+                                              />
                                             </div>
                                           </div>
-                                        )}
+                                        </div>
+                                      )}
 
-                                        {/* F-222: Icon Library Inspector */}
-                                        {selectedElementAny.type === "icon-library" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              ✨ Icon Library Styling
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Size (px)</label>
-                                                <input
-                                                  type="number"
-                                                  value={selectedElementAny.iconSize || 48}
-                                                  onChange={(e) => updateSelectedProp("iconSize", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.iconColor || "#e11d48"}
-                                                  onChange={(e) => updateSelectedProp("iconColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
+                                      {/* F-219: Dynamic Lightbox Inspector */}
+                                      {selectedElementAny.type === "dynamic-lightbox" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            🔍 Dynamic Lightbox Settings
+                                          </span>
+                                          <div>
+                                            <label className="block text-[10px] font-semibold text-slate-600 mb-1">Trigger Button Label</label>
+                                            <input
+                                              type="text"
+                                              value={selectedElementAny.lightboxTriggerText || "🔍 Open Dynamic Lightbox"}
+                                              onChange={(e) => updateSelectedProp("lightboxTriggerText", e.target.value)}
+                                              className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* F-221: Custom SVG Inspector */}
+                                      {selectedElementAny.type === "custom-svg" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            ⚡ Custom SVG Markup & Styling
+                                          </span>
+                                          <div>
+                                            <label className="block text-[10px] font-semibold text-slate-600 mb-1">Raw SVG Markup Code</label>
+                                            <textarea
+                                              rows={4}
+                                              value={selectedElementAny.svgRawContent || ""}
+                                              onChange={(e) => updateSelectedProp("svgRawContent", e.target.value)}
+                                              placeholder="<svg viewBox='0 0 24 24'>...</svg>"
+                                              className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-mono outline-none"
+                                            />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">SVG Fill / Stroke Color</label>
+                                              <input
+                                                type="color"
+                                                value={selectedElementAny.svgColor || "#0284c7"}
+                                                onChange={(e) => updateSelectedProp("svgColor", e.target.value)}
+                                                className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Alignment</label>
+                                              <select
+                                                value={selectedElementAny.svgAlignment || "center"}
+                                                onChange={(e) => updateSelectedProp("svgAlignment", e.target.value as any)}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
+                                              >
+                                                <option value="left">Left</option>
+                                                <option value="center">Center</option>
+                                                <option value="right">Right</option>
+                                              </select>
                                             </div>
                                           </div>
-                                        )}
+                                        </div>
+                                      )}
 
-                                        {/* Advanced Spacing Controls for non-container elements */}
-                                        {selectedElementAny.type !== "container" && (
-                                          <div className="space-y-4 pt-4 border-t border-slate-200">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                                              Advanced Spacing
-                                            </h3>
-                                            {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
-                                            {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
+                                      {/* F-222: Icon Library Inspector */}
+                                      {selectedElementAny.type === "icon-library" && (
+                                        <div className="space-y-4 pt-2 border-t border-slate-100">
+                                          <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                            ✨ Icon Library Styling
+                                          </span>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Size (px)</label>
+                                              <input
+                                                type="number"
+                                                value={selectedElementAny.iconSize || 48}
+                                                onChange={(e) => updateSelectedProp("iconSize", Number(e.target.value))}
+                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Color</label>
+                                              <input
+                                                type="color"
+                                                value={selectedElementAny.iconColor || "#e11d48"}
+                                                onChange={(e) => updateSelectedProp("iconColor", e.target.value)}
+                                                className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
+                                              />
+                                            </div>
                                           </div>
-                                        )}
+                                        </div>
+                                      )}
 
-                                        {/* Background & Border Controls */}
-                                        {renderBackgroundAndBorderControls()}
+                                      {/* Advanced Spacing Controls for non-container elements */}
+                                      {selectedElementAny.type !== "container" && (
+                                        <div className="space-y-4 pt-4 border-t border-slate-200">
+                                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                            Advanced Spacing
+                                          </h3>
+                                          {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
+                                          {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
+                                        </div>
+                                      )}
 
-                                        {/* Positioning & Layering Controls */}
-                                        {renderPositioningControls()}
-                                      </div>
-                                    ) : (
-                                    <div className="space-y-5">
-                                      {/* Page Settings Section (F-018 & F-019) */}
-                                      <div className="border-b border-slate-100 pb-3">
-                                        <h3 className="text-xs font-bold uppercase tracking-wide text-blue-600 flex items-center gap-1.5">
-                                          <span>📄</span>
-                                          <span>PAGE SETTINGS</span>
-                                        </h3>
-                                        <p className="text-[11px] text-slate-400 mt-0.5">
-                                          Configure page-level properties & SEO settings.
-                                        </p>
-                                      </div>
-                                      {/* Site Identity */}
-                                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                        <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                                      {/* Background & Border Controls */}
+                                      {renderBackgroundAndBorderControls()}
+
+                                      {/* Positioning & Layering Controls */}
+                                      {renderPositioningControls()}
+                                    </div>
+                                  </div>
+                                  ) : (
+                                  <div className="space-y-5">
+                                    {/* Page Settings Section (F-018 & F-019) */}
+                                    <div className="border-b border-slate-100 pb-3">
+                                      <h3 className="text-xs font-bold uppercase tracking-wide text-blue-600 flex items-center gap-1.5">
+                                        <span>📄</span>
+                                        <span>PAGE SETTINGS</span>
+                                      </h3>
+                                      <p className="text-[11px] text-slate-400 mt-0.5">
+                                        Configure page-level properties & SEO settings.
+                                      </p>
+                                    </div>
+                                    {/* Site Identity */}
+                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                      <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
+                                      <input
+                                        type="text"
+                                        value={globalSettings.siteIdentity?.name || ""}
+                                        onChange={(e) =>
+                                          setGlobalSettings((prev: any) => ({
+                                            ...prev,
+                                            siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                                          }))
+                                        }
+                                        placeholder="Site Name"
+                                        className="w-full rounded border px-2 py-1 text-xs"
+                                      />
+                                    </div>
+
+                                    {/* Back To Top Button Settings */}
+                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
                                         <input
-                                          type="text"
-                                          value={globalSettings.siteIdentity?.name || ""}
+                                          type="checkbox"
+                                          checked={globalSettings.backToTop?.enabled !== false}
                                           onChange={(e) =>
                                             setGlobalSettings((prev: any) => ({
                                               ...prev,
-                                              siteIdentity: { ...prev.siteIdentity, name: e.target.value },
+                                              backToTop: { ...prev.backToTop, enabled: e.target.checked },
                                             }))
                                           }
-                                          placeholder="Site Name"
-                                          className="w-full rounded border px-2 py-1 text-xs"
+                                          className="h-4 w-4 rounded text-blue-600"
                                         />
                                       </div>
-
-                                      {/* Back To Top Button Settings */}
-                                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                                        <div className="flex items-center justify-between">
-                                          <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                                          <input
-                                            type="checkbox"
-                                            checked={globalSettings.backToTop?.enabled !== false}
-                                            onChange={(e) =>
-                                              setGlobalSettings((prev: any) => ({
-                                                ...prev,
-                                                backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                                              }))
-                                            }
-                                            className="h-4 w-4 rounded text-blue-600"
-                                          />
-                                        </div>
-                                        {globalSettings.backToTop?.enabled !== false && (
-                                          <div className="space-y-2 pt-1">
-                                            <div className="flex items-center justify-between gap-2">
-                                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                              <select
-                                                value={globalSettings.backToTop?.position || "bottom-right"}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    backToTop: { ...prev.backToTop, position: e.target.value },
-                                                  }))
-                                                }
-                                                className="rounded border px-2 py-1 text-[11px]"
-                                              >
-                                                <option value="bottom-right">Bottom Right</option>
-                                                <option value="bottom-left">Bottom Left</option>
-                                              </select>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-2">
-                                              <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                                              <input
-                                                type="number"
-                                                value={globalSettings.backToTop?.offset ?? 300}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                                  }))
-                                                }
-                                                className="w-20 rounded border px-2 py-1 text-[11px]"
-                                              />
-                                            </div>
+                                      {globalSettings.backToTop?.enabled !== false && (
+                                        <div className="space-y-2 pt-1">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                            <select
+                                              value={globalSettings.backToTop?.position || "bottom-right"}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  backToTop: { ...prev.backToTop, position: e.target.value },
+                                                }))
+                                              }
+                                              className="rounded border px-2 py-1 text-[11px]"
+                                            >
+                                              <option value="bottom-right">Bottom Right</option>
+                                              <option value="bottom-left">Bottom Left</option>
+                                            </select>
                                           </div>
-                                        )}
-                                      </div>
-
-                                      {/* Floating Action Button Settings */}
-                                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                                        <div className="flex items-center justify-between">
-                                          <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                                          <input
-                                            type="checkbox"
-                                            checked={globalSettings.floatingActionButton?.enabled === true}
-                                            onChange={(e) =>
-                                              setGlobalSettings((prev: any) => ({
-                                                ...prev,
-                                                floatingActionButton: {
-                                                  ...prev.floatingActionButton,
-                                                  enabled: e.target.checked,
-                                                },
-                                              }))
-                                            }
-                                            className="h-4 w-4 rounded text-blue-600"
-                                          />
-                                        </div>
-
-                                        {globalSettings.floatingActionButton?.enabled && (
-                                          <div className="space-y-2 pt-1">
-                                            <div>
-                                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                Icon & Type
-                                              </label>
-                                              <select
-                                                value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    floatingActionButton: {
-                                                      ...prev.floatingActionButton,
-                                                      icon: e.target.value,
-                                                      backgroundColor:
-                                                        e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                                    },
-                                                  }))
-                                                }
-                                                className="w-full rounded border px-2 py-1 text-[11px]"
-                                              >
-                                                <option value="whatsapp">WhatsApp Button</option>
-                                                <option value="chat">Live Chat / Message</option>
-                                                <option value="phone">Call Now (Phone)</option>
-                                                <option value="email">Email Us</option>
-                                              </select>
-                                            </div>
-
-                                            <div>
-                                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                Label
-                                              </label>
-                                              <input
-                                                type="text"
-                                                value={globalSettings.floatingActionButton?.label || ""}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    floatingActionButton: {
-                                                      ...prev.floatingActionButton,
-                                                      label: e.target.value,
-                                                    },
-                                                  }))
-                                                }
-                                                placeholder="Chat with us"
-                                                className="w-full rounded border px-2 py-1 text-[11px]"
-                                              />
-                                            </div>
-
-                                            <div>
-                                              <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                Link or Smart Action
-                                              </label>
-                                              <input
-                                                type="text"
-                                                value={globalSettings.floatingActionButton?.link || ""}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    floatingActionButton: {
-                                                      ...prev.floatingActionButton,
-                                                      link: e.target.value,
-                                                    },
-                                                  }))
-                                                }
-                                                placeholder="https://wa.me/... or popup:open(id)"
-                                                className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                                              />
-                                            </div>
-
-                                            <div className="flex items-center justify-between gap-2">
-                                              <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                              <select
-                                                value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    floatingActionButton: {
-                                                      ...prev.floatingActionButton,
-                                                      position: e.target.value,
-                                                    },
-                                                  }))
-                                                }
-                                                className="rounded border px-2 py-1 text-[11px]"
-                                              >
-                                                <option value="bottom-left">Bottom Left</option>
-                                                <option value="bottom-right">Bottom Right</option>
-                                              </select>
-                                            </div>
+                                          <div className="flex items-center justify-between gap-2">
+                                            <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
+                                            <input
+                                              type="number"
+                                              value={globalSettings.backToTop?.offset ?? 300}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
+                                                }))
+                                              }
+                                              className="w-20 rounded border px-2 py-1 text-[11px]"
+                                            />
                                           </div>
-                                        )}
-                                      </div>
-
-
-                                      {/* Object Fit & Object Position */}
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                            Object Fit
-                                          </label>
-                                          <select
-                                            value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectFit") || "cover"}
-                                            onChange={(e) => updateSelectedStyle("objectFit", e.target.value as any)}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                          >
-                                            <option value="cover">Cover (Fill Container)</option>
-                                            <option value="contain">Contain (Fit Whole Image)</option>
-                                            <option value="fill">Fill (Stretch)</option>
-                                            <option value="none">None (Original Size)</option>
-                                            <option value="scale-down">Scale Down</option>
-                                          </select>
                                         </div>
+                                      )}
+                                    </div>
 
-                                        <div>
-                                          <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                            Object Position
-                                          </label>
-                                          <select
-                                            value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectPosition") || "center"}
-                                            onChange={(e) => updateSelectedStyle("objectPosition", e.target.value)}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                          >
-                                            <option value="center">Center</option>
-                                            <option value="top">Top</option>
-                                            <option value="bottom">Bottom</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                            <option value="top left">Top Left</option>
-                                            <option value="top right">Top Right</option>
-                                            <option value="bottom left">Bottom Left</option>
-                                            <option value="bottom right">Bottom Right</option>
-                                          </select>
-                                        </div>
-                                      </div>
-
-                                      {/* Page Title */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                          Page Title
-                                        </label>
+                                    {/* Floating Action Button Settings */}
+                                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
                                         <input
-                                          type="text"
-                                          value={pageSettings.title || ""}
-                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, title: e.target.value }))}
-                                          placeholder="Home"
-                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                          type="checkbox"
+                                          checked={globalSettings.floatingActionButton?.enabled === true}
+                                          onChange={(e) =>
+                                            setGlobalSettings((prev: any) => ({
+                                              ...prev,
+                                              floatingActionButton: {
+                                                ...prev.floatingActionButton,
+                                                enabled: e.target.checked,
+                                              },
+                                            }))
+                                          }
+                                          className="h-4 w-4 rounded text-blue-600"
                                         />
                                       </div>
 
-                                      {/* Meta Description */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                          Meta Description (SEO)
-                                        </label>
-                                        <textarea
-                                          rows={3}
-                                          value={pageSettings.description || ""}
-                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, description: e.target.value }))}
-                                          placeholder="Page SEO description..."
-                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                        />
-                                      </div>
-
-                                      {/* Page Path / URL Slug */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                          URL Path Slug
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={pageSettings.path || "/"}
-                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, path: e.target.value }))}
-                                          placeholder="/"
-                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                        />
-                                      </div>
-
-                                      {/* Page SEO & Social Graph (Phase 4) */}
-                                      <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
-                                        <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
-                                          <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                            <span>🌐</span>
-                                            <span>SEO & Social Graph</span>
-                                          </label>
-                                          <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
-                                            Metadata
-                                          </span>
-                                        </div>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => setIsSeoModalOpen(true)}
-                                          className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer"
-                                        >
-                                          <Sparkles className="w-3.5 h-3.5" />
-                                          <span>Open Full SEO & Quality Audit</span>
-                                        </button>
-
-                                        <div>
-                                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                                            Canonical URL
-                                          </label>
-                                          <input
-                                            type="url"
-                                            value={pageSettings.canonicalUrl || ""}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
-                                            placeholder="https://example.com/canonical-page"
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                                            OpenGraph Title
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={pageSettings.ogTitle || ""}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, ogTitle: e.target.value }))}
-                                            placeholder={pageSettings.title || "Social title..."}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                                            OpenGraph Description
-                                          </label>
-                                          <textarea
-                                            rows={2}
-                                            value={pageSettings.ogDescription || ""}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, ogDescription: e.target.value }))}
-                                            placeholder={pageSettings.description || "Social share description..."}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
-                                          />
-                                        </div>
-
-                                        <div>
-                                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                                            Social Share Image URL (og:image)
-                                          </label>
-                                          <input
-                                            type="url"
-                                            value={pageSettings.ogImage || ""}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, ogImage: e.target.value }))}
-                                            placeholder="https://example.com/share-card.jpg"
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
-                                          />
-                                        </div>
-
-                                        {/* Search Engine Robots Indexing */}
-                                        <div className="pt-2 border-t border-slate-200/80 space-y-2">
-                                          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                                            Robots Directives
-                                          </span>
-                                          <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={!!pageSettings.noindex}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, noindex: e.target.checked }))}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
-                                            />
-                                            <span>Prevent search engine indexing (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">noindex</code>)</span>
-                                          </label>
-                                          <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                                            <input
-                                              type="checkbox"
-                                              checked={!!pageSettings.nofollow}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, nofollow: e.target.checked }))}
-                                              className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
-                                            />
-                                            <span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
-                                          </label>
-                                        </div>
-                                      </div>
-
-                                      {/* Site / Website Published Language (F-022) */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                                          <span>{t("siteLang", "Site Language (Published)")}</span>
-                                          <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">HTML lang</span>
-                                        </label>
-                                        <select
-                                          value={pageSettings.siteLanguage || "en"}
-                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, siteLanguage: e.target.value }))}
-                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                        >
-                                          <option value="en">English (en)</option>
-                                          <option value="es">Spanish (es)</option>
-                                          <option value="fr">French (fr)</option>
-                                          <option value="de">German (de)</option>
-                                          <option value="it">Italian (it)</option>
-                                          <option value="ja">Japanese (ja)</option>
-                                        </select>
-                                        <p className="mt-1 text-[10px] text-slate-400">
-                                          Controls published HTML website language. Completely independent from Editor UI language.
-                                        </p>
-                                      </div>
-
-                                      {/* Page Canvas Background Color */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                          Page Canvas Background Color
-                                        </label>
-                                        <div className="flex items-center gap-2">
-                                          <input
-                                            type="color"
-                                            value={pageSettings.backgroundColor || "#ffffff"}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                                            className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                          />
-                                          <input
-                                            type="text"
-                                            value={pageSettings.backgroundColor || "#ffffff"}
-                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                          />
-                                        </div>
-                                      </div>
-
-                                      {/* Custom Head Script/Tags */}
-                                      <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                          Custom Head Tags / Scripts
-                                        </label>
-                                        <textarea
-                                          rows={3}
-                                          value={pageSettings.customHead || ""}
-                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, customHead: e.target.value }))}
-                                          placeholder="<meta name='keywords' content='builder' />"
-                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                        />
-                                      </div>
-
-                                      {/* Temporary Support Credentials (F-020) */}
-                                      <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 space-y-3 pt-3">
-                                        <div className="flex items-center justify-between border-b border-purple-100 pb-2">
-                                          <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                            <span>🔐</span>
-                                            <span>Temporary Support Access</span>
-                                          </label>
-                                          <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
-                                            2-Hr Limit
-                                          </span>
-                                        </div>
-
-                                        <p className="text-[11px] text-slate-500 leading-normal">
-                                          Generate temporary, time-limited credentials for support troubleshooting without sharing your password.
-                                        </p>
-
-                                        {supportToken ? (
-                                          <div className="space-y-2 rounded-lg border border-purple-200 bg-white p-3">
-                                            <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                                              <span>Support Token:</span>
-                                              <span className="text-purple-600 font-bold">Expires ~{supportExpiresAt}</span>
-
-                                            </div>
-
-                                            {/* STYLE SECTION */}
-                                            <div className="space-y-3 pt-3 border-t border-slate-200">
-                                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1">
-                                                Style & Effects
-                                              </h3>
-
-                                              {/* Border Radius */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Border Radius
-                                                </label>
-                                                <select
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderRadius") || "8px"}
-                                                  onChange={(e) => updateSelectedStyle("borderRadius", e.target.value)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                                >
-                                                  <option value="0px">0px (Square Sharp)</option>
-                                                  <option value="4px">4px (Small)</option>
-                                                  <option value="8px">8px (Medium Rounded)</option>
-                                                  <option value="16px">16px (Large Rounded)</option>
-                                                  <option value="24px">24px (Extra Rounded)</option>
-                                                  <option value="9999px">9999px (Pill / Circle)</option>
-                                                </select>
-                                              </div>
-
-                                              {/* Opacity */}
-                                              <div>
-                                                <div className="flex items-center justify-between mb-1">
-                                                  <label className="block text-xs font-semibold text-slate-700">
-                                                    Opacity
-                                                  </label>
-                                                  <span className="text-xs font-mono font-bold text-slate-600">
-                                                    {Math.round(Number(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1) * 100)}%
-                                                  </span>
-                                                </div>
-                                                <input
-                                                  type="range"
-                                                  min="0"
-                                                  max="1"
-                                                  step="0.05"
-                                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "opacity") ?? 1}
-                                                  onChange={(e) => updateSelectedStyle("opacity", parseFloat(e.target.value))}
-                                                  className="w-full accent-blue-600 cursor-pointer"
-                                                />
-                                              </div>
-                                              {/* F-220: Image Mask Shape */}
-                                              <div>
-                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                                  Image Mask Shape (F-220)
-                                                </label>
-                                                <select
-                                                  value={selectedElementAny.imageMaskShape || "none"}
-                                                  onChange={(e) => updateSelectedProp("imageMaskShape", e.target.value as any)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
-                                                >
-                                                  <option value="none">None (Rectangular)</option>
-                                                  <option value="circle">⚪ Circle</option>
-                                                  <option value="rounded">▢ Smooth Rounded</option>
-                                                  <option value="blob">🫧 Organic Blob</option>
-                                                  <option value="hexagon">⬡ Hexagon</option>
-                                                  <option value="star">⭐ Star</option>
-                                                  <option value="diamond">◆ Diamond</option>
-                                                  <option value="squircle">⭕ Squircle</option>
-                                                  <option value="heart">💖 Heart</option>
-                                                </select>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-212: Basic Media Carousel Inspector */}
-                                        {selectedElementAny.type === "basic-media-carousel" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🎠 Media Carousel Settings
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Slides Per View</label>
-                                                <input
-                                                  type="number"
-                                                  min={1}
-                                                  max={6}
-                                                  value={selectedElementAny.mediaCarouselSlidesPerView || 2}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselSlidesPerView", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
-                                                <input
-                                                  type="number"
-                                                  min={0}
-                                                  max={40}
-                                                  value={selectedElementAny.mediaCarouselGap ?? 12}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselGap", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                            </div>
-                                            <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselShowNav !== false}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselShowNav", e.target.checked)}
-                                                />
-                                                Nav Arrows
-                                              </label>
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselShowDots !== false}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselShowDots", e.target.checked)}
-                                                />
-                                                Pagination Dots
-                                              </label>
-                                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                                <input
-                                                  type="checkbox"
-                                                  checked={selectedElementAny.mediaCarouselAutoplay ?? true}
-                                                  onChange={(e) => updateSelectedProp("mediaCarouselAutoplay", e.target.checked)}
-                                                />
-                                                Autoplay
-                                              </label>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-214: Basic Gallery Inspector */}
-                                        {selectedElementAny.type === "basic-gallery" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🖼️ Basic Gallery Settings
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Columns</label>
-                                                <select
-                                                  value={selectedElementAny.basicGalleryColumns || 3}
-                                                  onChange={(e) => updateSelectedProp("basicGalleryColumns", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
-                                                >
-                                                  <option value={1}>1 Column</option>
-                                                  <option value={2}>2 Columns</option>
-                                                  <option value={3}>3 Columns</option>
-                                                  <option value={4}>4 Columns</option>
-                                                </select>
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Gap (px)</label>
-                                                <input
-                                                  type="number"
-                                                  min={0}
-                                                  max={40}
-                                                  value={selectedElementAny.basicGalleryGap ?? 12}
-                                                  onChange={(e) => updateSelectedProp("basicGalleryGap", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-215: Audio Playlist Inspector */}
-                                        {selectedElementAny.type === "audio-playlist" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🎵 Audio Playlist Colors & Tracks
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Card Background</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.audioPlaylistCardBg || "#0f172a"}
-                                                  onChange={(e) => updateSelectedProp("audioPlaylistCardBg", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Accent Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.audioPlaylistAccentColor || "#38bdf8"}
-                                                  onChange={(e) => updateSelectedProp("audioPlaylistAccentColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-219: Dynamic Lightbox Inspector */}
-                                        {selectedElementAny.type === "dynamic-lightbox" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              🔍 Dynamic Lightbox Settings
-                                            </span>
-                                            <div>
-                                              <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-2">
-                                                <span>{item.title}</span>
-                                                <span
-                                                  className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.category === "page"
-                                                    ? "bg-slate-100 text-slate-600"
-                                                    : item.category === "template"
-                                                      ? "bg-purple-100 text-purple-700"
-                                                      : item.category === "setting"
-                                                        ? "bg-blue-100 text-blue-700"
-                                                        : "bg-emerald-100 text-emerald-700"
-                                                    }`}
-                                                >
-                                                  {item.category}
-                                                </span>
-                                              </h4>
-                                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                                {item.description}
-                                              </p>
-
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-221: Custom SVG Inspector */}
-                                        {selectedElementAny.type === "custom-svg" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              ⚡ Custom SVG Markup & Styling
-                                            </span>
-                                            <div>
-                                              <label className="block text-[10px] font-semibold text-slate-600 mb-1">Raw SVG Markup Code</label>
-                                              <textarea
-                                                rows={4}
-                                                value={selectedElementAny.svgRawContent || ""}
-                                                onChange={(e) => updateSelectedProp("svgRawContent", e.target.value)}
-                                                placeholder="<svg viewBox='0 0 24 24'>...</svg>"
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-mono outline-none"
-                                              />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">SVG Fill / Stroke Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.svgColor || "#0284c7"}
-                                                  onChange={(e) => updateSelectedProp("svgColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Alignment</label>
-                                                <select
-                                                  value={selectedElementAny.svgAlignment || "center"}
-                                                  onChange={(e) => updateSelectedProp("svgAlignment", e.target.value as any)}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold outline-none"
-                                                >
-                                                  <option value="left">Left</option>
-                                                  <option value="center">Center</option>
-                                                  <option value="right">Right</option>
-                                                </select>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* F-222: Icon Library Inspector */}
-                                        {selectedElementAny.type === "icon-library" && (
-                                          <div className="space-y-4 pt-2 border-t border-slate-100">
-                                            <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                              ✨ Icon Library Styling
-                                            </span>
-                                            <div className="grid grid-cols-2 gap-2">
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Size (px)</label>
-                                                <input
-                                                  type="number"
-                                                  value={selectedElementAny.iconSize || 48}
-                                                  onChange={(e) => updateSelectedProp("iconSize", Number(e.target.value))}
-                                                  className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs outline-none"
-                                                />
-                                              </div>
-                                              <div>
-                                                <label className="block text-[10px] font-semibold text-slate-600 mb-1">Icon Color</label>
-                                                <input
-                                                  type="color"
-                                                  value={selectedElementAny.iconColor || "#e11d48"}
-                                                  onChange={(e) => updateSelectedProp("iconColor", e.target.value)}
-                                                  className="h-8 w-full cursor-pointer rounded border border-slate-300 p-0.5"
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        {/* Advanced Spacing Controls for non-container elements */}
-                                        {selectedElementAny.type !== "container" && (
-                                          <div className="space-y-4 pt-4 border-t border-slate-200">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                                              Advanced Spacing
-                                            </h3>
-                                            {render4SideSpacingControl("Margin", "margin", isMarginLinked, setIsMarginLinked)}
-                                            {render4SideSpacingControl("Padding", "padding", isPaddingLinked, setIsPaddingLinked)}
-                                          </div>
-                                        )}
-
-                                        {/* Background & Border Controls */}
-                                        {renderBackgroundAndBorderControls()}
-
-                                        {/* Positioning & Layering Controls */}
-                                        {renderPositioningControls()}
-                                      </div>
-                                      ) : (
-                                      <div className="space-y-5">
-                                        {/* Page Settings Section (F-018 & F-019) */}
-                                        <div className="border-b border-slate-100 pb-3">
-                                          <h3 className="text-xs font-bold uppercase tracking-wide text-blue-600 flex items-center gap-1.5">
-                                            <span>📄</span>
-                                            <span>PAGE SETTINGS</span>
-                                          </h3>
-                                          <p className="text-[11px] text-slate-400 mt-0.5">
-                                            Configure page-level properties & SEO settings.
-                                          </p>
-                                        </div>
-                                        {/* Site Identity */}
-                                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                          <h3 className="text-xs font-bold text-slate-700 mb-2">Site Identity</h3>
-                                          <input
-                                            type="text"
-                                            value={globalSettings.siteIdentity?.name || ""}
-                                            onChange={(e) =>
-                                              setGlobalSettings((prev: any) => ({
-                                                ...prev,
-                                                siteIdentity: { ...prev.siteIdentity, name: e.target.value },
-                                              }))
-                                            }
-                                            placeholder="Site Name"
-                                            className="w-full rounded border px-2 py-1 text-xs"
-                                          />
-
-                                          {/* Back To Top Button Settings */}
-                                          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                                            <div className="flex items-center justify-between">
-                                              <h3 className="text-xs font-bold text-slate-700">Back To Top Button</h3>
-                                              <input
-                                                type="checkbox"
-                                                checked={globalSettings.backToTop?.enabled !== false}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    backToTop: { ...prev.backToTop, enabled: e.target.checked },
-                                                  }))
-                                                }
-                                                className="h-4 w-4 rounded text-blue-600"
-                                              />
-                                            </div>
-                                            {globalSettings.backToTop?.enabled !== false && (
-                                              <div className="space-y-2 pt-1">
-                                                <div className="flex items-center justify-between gap-2">
-                                                  <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                                  <select
-                                                    value={globalSettings.backToTop?.position || "bottom-right"}
-                                                    onChange={(e) =>
-                                                      setGlobalSettings((prev: any) => ({
-                                                        ...prev,
-                                                        backToTop: { ...prev.backToTop, position: e.target.value },
-                                                      }))
-                                                    }
-                                                    className="rounded border px-2 py-1 text-[11px]"
-                                                  >
-                                                    <option value="bottom-right">Bottom Right</option>
-                                                    <option value="bottom-left">Bottom Left</option>
-                                                  </select>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-2">
-                                                  <label className="text-[11px] font-semibold text-slate-600">Scroll Offset (px):</label>
-                                                  <input
-                                                    type="number"
-                                                    value={globalSettings.backToTop?.offset ?? 300}
-                                                    onChange={(e) =>
-                                                      setGlobalSettings((prev: any) => ({
-                                                        ...prev,
-                                                        backToTop: { ...prev.backToTop, offset: Number(e.target.value) },
-                                                      }))
-                                                    }
-                                                    className="w-20 rounded border px-2 py-1 text-[11px]"
-                                                  />
-                                                </div>
-                                              </div>
-                                            )}
-                                          </div>
-
-                                          {/* Floating Action Button Settings */}
-                                          < div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2" >
-                                            <div className="flex items-center justify-between">
-                                              <h3 className="text-xs font-bold text-slate-700">Floating Action Button (FAB)</h3>
-                                              <input
-                                                type="checkbox"
-                                                checked={globalSettings.floatingActionButton?.enabled === true}
-                                                onChange={(e) =>
-                                                  setGlobalSettings((prev: any) => ({
-                                                    ...prev,
-                                                    floatingActionButton: {
-                                                      ...prev.floatingActionButton,
-                                                      enabled: e.target.checked,
-                                                    },
-                                                  }))
-                                                }
-                                                className="h-4 w-4 rounded text-blue-600"
-                                              />
-                                            </div>
-
-                                            {
-                                              globalSettings.floatingActionButton?.enabled && (
-                                                <div className="space-y-2 pt-1">
-                                                  <div>
-                                                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                      Icon & Type
-                                                    </label>
-                                                    <select
-                                                      value={globalSettings.floatingActionButton?.icon || "whatsapp"}
-                                                      onChange={(e) =>
-                                                        setGlobalSettings((prev: any) => ({
-                                                          ...prev,
-                                                          floatingActionButton: {
-                                                            ...prev.floatingActionButton,
-                                                            icon: e.target.value,
-                                                            backgroundColor:
-                                                              e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
-                                                          },
-                                                        }))
-                                                      }
-                                                      className="w-full rounded border px-2 py-1 text-[11px]"
-                                                    >
-                                                      <option value="whatsapp">WhatsApp Button</option>
-                                                      <option value="chat">Live Chat / Message</option>
-                                                      <option value="phone">Call Now (Phone)</option>
-                                                      <option value="email">Email Us</option>
-                                                    </select>
-                                                  </div>
-
-                                                  <div>
-                                                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                      Label
-                                                    </label>
-                                                    <input
-                                                      type="text"
-                                                      value={globalSettings.floatingActionButton?.label || ""}
-                                                      onChange={(e) =>
-                                                        setGlobalSettings((prev: any) => ({
-                                                          ...prev,
-                                                          floatingActionButton: {
-                                                            ...prev.floatingActionButton,
-                                                            label: e.target.value,
-                                                          },
-                                                        }))
-                                                      }
-                                                      placeholder="Chat with us"
-                                                      className="w-full rounded border px-2 py-1 text-[11px]"
-                                                    />
-                                                  </div>
-
-                                                  <div>
-                                                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                                                      Link or Smart Action
-                                                    </label>
-                                                    <input
-                                                      type="text"
-                                                      value={globalSettings.floatingActionButton?.link || ""}
-                                                      onChange={(e) =>
-                                                        setGlobalSettings((prev: any) => ({
-                                                          ...prev,
-                                                          floatingActionButton: {
-                                                            ...prev.floatingActionButton,
-                                                            link: e.target.value,
-                                                          },
-                                                        }))
-                                                      }
-                                                      placeholder="https://wa.me/... or popup:open(id)"
-                                                      className="w-full rounded border px-2 py-1 text-[11px] font-mono"
-                                                    />
-                                                  </div>
-
-                                                  <div className="flex items-center justify-between gap-2">
-                                                    <label className="text-[11px] font-semibold text-slate-600">Position:</label>
-                                                    <select
-                                                      value={globalSettings.floatingActionButton?.position || "bottom-left"}
-                                                      onChange={(e) =>
-                                                        setGlobalSettings((prev: any) => ({
-                                                          ...prev,
-                                                          floatingActionButton: {
-                                                            ...prev.floatingActionButton,
-                                                            position: e.target.value,
-                                                          },
-                                                        }))
-                                                      }
-                                                      className="rounded border px-2 py-1 text-[11px]"
-                                                    >
-                                                      <option value="bottom-left">Bottom Left</option>
-                                                      <option value="bottom-right">Bottom Right</option>
-                                                    </select>
-                                                  </div>
-                                                </div>
-                                              )
-                                            }
-                                          </div >
-
-                                          {/* Maintenance Mode Toggle (F-019) */}
-                                          < div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-2" >
-                                            <div className="flex items-center justify-between">
-                                              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer">
-                                                <span>🛠️</span>
-                                                <span>Maintenance Mode</span>
-                                              </label>
-                                              <input
-                                                type="checkbox"
-                                                checked={!!pageSettings.isMaintenanceMode}
-                                                onChange={(e) => setPageSettings((prev) => ({ ...prev, isMaintenanceMode: e.target.checked }))}
-                                                className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                              />
-                                            </div>
-                                            <p className="text-[11px] text-slate-500 leading-normal">
-                                              Show temporary maintenance state to public visitors & preview while editing.
-                                            </p>
-                                            {
-                                              pageSettings.isMaintenanceMode && (
-                                                <span className="inline-block rounded bg-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                                                  Active — Site displays Maintenance Notice
-                                                </span>
-                                              )
-                                            }
-
-                                          </div >
-
-                                          {/* Page Title */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Page Title
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={pageSettings.title || ""}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, title: e.target.value }))}
-                                              placeholder="Home"
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                            />
-                                          </div >
-
-                                          {/* Meta Description */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Meta Description (SEO)
-                                            </label>
-                                            <textarea
-                                              rows={3}
-                                              value={pageSettings.description || ""}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, description: e.target.value }))}
-                                              placeholder="Page SEO description..."
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
-                                            />
-                                          </div >
-
-                                          {/* Page Path / URL Slug */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              URL Path Slug
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={pageSettings.path || "/"}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, path: e.target.value }))}
-                                              placeholder="/"
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                            />
-                                          </div >
-
-                                          {/* Site / Website Published Language (F-022) */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                                              <span>{t("siteLang", "Site Language (Published)")}</span>
-                                              <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">HTML lang</span>
+                                      {globalSettings.floatingActionButton?.enabled && (
+                                        <div className="space-y-2 pt-1">
+                                          <div>
+                                            <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                              Icon & Type
                                             </label>
                                             <select
-                                              value={pageSettings.siteLanguage || "en"}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, siteLanguage: e.target.value }))}
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                              value={globalSettings.floatingActionButton?.icon || "whatsapp"}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  floatingActionButton: {
+                                                    ...prev.floatingActionButton,
+                                                    icon: e.target.value,
+                                                    backgroundColor:
+                                                      e.target.value === "whatsapp" ? "#25D366" : prev.floatingActionButton?.backgroundColor || "#2563eb",
+                                                  },
+                                                }))
+                                              }
+                                              className="w-full rounded border px-2 py-1 text-[11px]"
                                             >
-                                              <option value="en">English (en)</option>
-                                              <option value="es">Spanish (es)</option>
-                                              <option value="fr">French (fr)</option>
-                                              <option value="de">German (de)</option>
-                                              <option value="it">Italian (it)</option>
-                                              <option value="ja">Japanese (ja)</option>
+                                              <option value="whatsapp">WhatsApp Button</option>
+                                              <option value="chat">Live Chat / Message</option>
+                                              <option value="phone">Call Now (Phone)</option>
+                                              <option value="email">Email Us</option>
                                             </select>
-                                            <p className="mt-1 text-[10px] text-slate-400">
-                                              Controls published HTML website language. Completely independent from Editor UI language.
-                                            </p>
-                                          </div >
+                                          </div>
 
-                                          {/* Page Canvas Background Color */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Page Canvas Background Color
+                                          <div>
+                                            <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                              Label
                                             </label>
-                                            <div className="flex items-center gap-2">
-                                              <input
-                                                type="color"
-                                                value={pageSettings.backgroundColor || "#ffffff"}
-                                                onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                                                className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
-                                              />
-                                              <input
-                                                type="text"
-                                                value={pageSettings.backgroundColor || "#ffffff"}
-                                                onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
-                                              />
-                                            </div>
-                                          </div >
-
-                                          {/* Custom Head Script/Tags */}
-                                          < div >
-                                            <label className="block text-xs font-semibold text-slate-700 mb-1">
-                                              Custom Head Tags / Scripts
-                                            </label>
-                                            <textarea
-                                              rows={3}
-                                              value={pageSettings.customHead || ""}
-                                              onChange={(e) => setPageSettings((prev) => ({ ...prev, customHead: e.target.value }))}
-                                              placeholder="<meta name='keywords' content='builder' />"
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                            <input
+                                              type="text"
+                                              value={globalSettings.floatingActionButton?.label || ""}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  floatingActionButton: {
+                                                    ...prev.floatingActionButton,
+                                                    label: e.target.value,
+                                                  },
+                                                }))
+                                              }
+                                              placeholder="Chat with us"
+                                              className="w-full rounded border px-2 py-1 text-[11px]"
                                             />
-                                          </div >
-
-                                          {/* Temporary Support Credentials (F-020) */}
-                                          < div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 space-y-3 pt-3" >
-                                            <div className="flex items-center justify-between border-b border-purple-100 pb-2">
-                                              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                                <span>🔐</span>
-                                                <span>Temporary Support Access</span>
-                                              </label>
-                                              <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
-                                                2-Hr Limit
-                                              </span>
-                                            </div>
-
-                                            <p className="text-[11px] text-slate-500 leading-normal">
-                                              Generate temporary, time-limited credentials for support troubleshooting without sharing your password.
-                                            </p>
-
-                                            {
-                                              supportToken ? (
-                                                <div className="space-y-2 rounded-lg border border-purple-200 bg-white p-3">
-                                                  <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                                                    <span>Support Token:</span>
-                                                    <span className="text-purple-600 font-bold">Expires ~{supportExpiresAt}</span>
-                                                  </div>
-                                                  <div className="flex items-center gap-2">
-                                                    <input
-                                                      type="text"
-                                                      readOnly
-                                                      value={supportToken}
-                                                      className="w-full rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-mono text-slate-800"
-                                                    />
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => {
-                                                        if (supportToken) {
-                                                          navigator.clipboard.writeText(supportToken);
-                                                          setSupportCopied(true);
-                                                          setTimeout(() => setSupportCopied(false), 2000);
-                                                        }
-                                                      }}
-                                                      className="rounded-md bg-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0"
-                                                    >
-                                                      {supportCopied ? "Copied!" : "Copy"}
-                                                    </button>
-                                                  </div>
-                                                </div>
-                                              ) : null
-                                            }
-
-                                            {
-                                              supportMessage && (
-                                                <p className="text-[11px] font-semibold text-purple-700">{supportMessage}</p>
-                                              )
-                                            }
-
-                                            <div className="flex items-center gap-2 pt-1">
-                                              <button
-                                                type="button"
-                                                disabled={isGeneratingToken}
-                                                onClick={handleGenerateSupportToken}
-                                                className="flex-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition"
-                                              >
-                                                {isGeneratingToken ? "Generating..." : "Generate Support Token"}
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={handleRevokeSupportTokens}
-                                                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition"
-                                                title="Revoke active support credentials"
-                                              >
-                                                Revoke
-                                              </button>
-                                            </div>
-                                          </div >
-
-                                          {/* Editor User Preferences (F-026) */}
-                                          < div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3" >
-                                            <div className="flex items-center justify-between border-b border-blue-100 pb-2">
-                                              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                                <span>⚙️</span>
-                                                <span>Editor User Preferences</span>
-                                              </label>
-                                              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
-                                                Persistent
-                                              </span>
-                                            </div>
-
-                                            <div className="space-y-2.5 pt-1">
-                                              {/* Auto Save Toggle */}
-                                              <div className="flex items-center justify-between">
-                                                <span className="text-xs font-semibold text-slate-700">⚡ Auto-Save Drafts</span>
-                                                <input
-                                                  type="checkbox"
-                                                  checked={userPreferences.autoSaveEnabled}
-                                                  onChange={(e) => updatePreference("autoSaveEnabled", e.target.checked)}
-                                                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                />
-                                              </div>
-
-                                              {/* Canvas Grid Alignment Overlay Toggle */}
-                                              <div className="flex items-center justify-between">
-                                                <span className="text-xs font-semibold text-slate-700">📐 Canvas Alignment Grid</span>
-                                                <input
-                                                  type="checkbox"
-                                                  checked={userPreferences.gridOverlay}
-                                                  onChange={(e) => updatePreference("gridOverlay", e.target.checked)}
-                                                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                />
-                                              </div>
-
-                                              {/* Header Toolbar Theme Switch */}
-                                              <div className="flex items-center justify-between pt-1">
-                                                <span className="text-xs font-semibold text-slate-700">🎨 Header Toolbar Theme</span>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark")}
-                                                  className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm transition"
-                                                >
-                                                  {userPreferences.themeMode === "dark" ? "🌙 Dark Navy" : "☀️ Light Modern"}
-                                                </button>
-                                              </div>
-                                            </div>
-                                          </div >
-                                        </div >
-                                      </div >
-              )}
-                                    </aside >
-          )}
-                                  </div >
-
-      {/* Contextual Action Menu Overlay (F-010) */}
-                                {
-                                  contextMenu && !isPreview && (
-                                    <div
-                                      style={{
-                                        top: `${Math.min(contextMenu.y, window.innerHeight - 260)}px`,
-                                        left: `${Math.min(contextMenu.x, window.innerWidth - 190)}px`,
-                                      }}
-                                      className="fixed z-50 min-w-[170px] rounded-xl border border-slate-200 bg-white/95 backdrop-blur-md p-1.5 shadow-xl text-xs font-semibold text-slate-700 animate-in fade-in zoom-in-95 duration-100"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
-                                        Element Actions
-                                      </div>
-                                      <button
-                                        onClick={() => {
-                                          handleReorderElement(contextMenu.elementId, "up");
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
-                                      >
-                                        <span>Move Up</span>
-                                        <span className="text-[10px] text-slate-400">▲</span>
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          handleReorderElement(contextMenu.elementId, "down");
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
-                                      >
-                                        <span>Move Down</span>
-                                        <span className="text-[10px] text-slate-400">▼</span>
-                                      </button>
-                                      <div className="my-1 border-t border-slate-100" />
-                                      <button
-                                        onClick={(e) => {
-                                          handleCopyElement(contextMenu.elementId, e);
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
-                                      >
-                                        <span>Copy</span>
-                                        <span className="text-[10px] text-slate-400">Ctrl+C</span>
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          handleCopyStyle(contextMenu.elementId, e);
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
-                                      >
-                                        <span>Copy Style</span>
-                                        <span className="text-[10px]">🎨</span>
-                                      </button>
-                                      {copiedStyles && (
-                                        <button
-                                          onClick={(e) => {
-                                            handlePasteStyle(contextMenu.elementId, e);
-                                            setContextMenu(null);
-                                          }}
-                                          className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-emerald-50 text-emerald-600 font-bold transition"
-                                        >
-                                          <span>Paste Style</span>
-                                          <span className="text-[10px]">🖌️</span>
-                                        </button>
-                                      )}
-                                      <button
-                                        onClick={(e) => {
-                                          handleDuplicateElement(contextMenu.elementId, e);
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
-                                      >
-                                        <span>Duplicate</span>
-                                        <span className="text-[10px] text-slate-400">Ctrl+D</span>
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          handleSaveAsComponent(contextMenu.elementId);
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-purple-50 text-purple-700 transition"
-                                      >
-                                        <span>Save as Comp</span>
-                                        <span className="text-[10px]">🧩</span>
-                                      </button>
-                                      <div className="my-1 border-t border-slate-100" />
-                                      <button
-                                        onClick={(e) => {
-                                          handleDeleteElement(contextMenu.elementId, e);
-                                          setContextMenu(null);
-                                        }}
-                                        className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-red-50 text-red-600 transition"
-                                      >
-                                        <span>Delete</span>
-                                        <span className="text-[10px] text-red-400">✕</span>
-                                      </button>
-                                    </div>
-                                  )
-                                }
-
-                                {/* Finder Command Palette Modal (F-027) */}
-                                {
-                                  isFinderOpen && (
-                                    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 pt-20 px-4 backdrop-blur-sm">
-                                      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
-                                        {/* Search Header Input */}
-                                        <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 bg-slate-50/50">
-                                          <span className="text-slate-400 text-lg">🔍</span>
-                                          <input
-                                            type="text"
-                                            autoFocus
-                                            value={finderQuery}
-                                            onChange={(e) => setFinderQuery(e.target.value)}
-                                            placeholder="Search pages, templates, settings and features... (Esc to close)"
-                                            className="w-full bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
-                                          />
-                                          <button
-                                            type="button"
-                                            onClick={() => setIsFinderOpen(false)}
-                                            className="rounded-lg px-2 py-1 text-xs font-bold text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-
-                                        {/* Category Filter Pills */}
-                                        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 bg-white text-[11px] overflow-x-auto">
-                                          <span className="text-slate-400 font-semibold mr-1">Filter:</span>
-                                          <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 font-medium">Pages</span>
-                                          <span className="rounded-full bg-purple-50 text-purple-600 px-2 py-0.5 font-medium">Templates</span>
-                                          <span className="rounded-full bg-blue-50 text-blue-600 px-2 py-0.5 font-medium">Settings</span>
-                                          <span className="rounded-full bg-emerald-50 text-emerald-600 px-2 py-0.5 font-medium">Features</span>
-                                        </div>
-
-                                        {/* Search Results List */}
-                                        <div className="max-h-[380px] overflow-y-auto p-2 divide-y divide-slate-50">
-                                          {[
-                                            {
-                                              id: "page-home",
-                                              title: "Home Page",
-                                              category: "page",
-                                              icon: "📄",
-                                              description: "Current main landing page route (/)",
-                                              keywords: "home page index main route",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                              },
-                                            },
-                                            {
-                                              id: "page-settings",
-                                              title: "Page Settings",
-                                              category: "page",
-                                              icon: "⚙️",
-                                              description: "Configure page title, SEO description, URL slug",
-                                              keywords: "page settings config seo title description slug",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                              },
-                                            },
-                                            {
-                                              id: "tpl-hero",
-                                              title: "Hero Section Template",
-                                              category: "template",
-                                              icon: "✨",
-                                              description: "Header section with title, subtitle & action button",
-                                              keywords: "hero header template banner section title subtitle button",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setLeftSidebarTab("elements");
-                                                handleAddElement("container");
-                                              },
-                                            },
-                                            {
-                                              id: "tpl-features",
-                                              title: "Features Grid Template",
-                                              category: "template",
-                                              icon: "📌",
-                                              description: "Container block layout for product feature cards",
-                                              keywords: "features grid template cards layout block container",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setLeftSidebarTab("elements");
-                                                handleAddElement("container");
-                                              },
-                                            },
-                                            {
-                                              id: "tpl-cta",
-                                              title: "Call to Action Template",
-                                              category: "template",
-                                              icon: "🚀",
-                                              description: "Conversion banner block with text and primary button",
-                                              keywords: "call to action cta template banner button conversion",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setLeftSidebarTab("elements");
-                                                handleAddElement("button");
-                                              },
-                                            },
-                                            {
-                                              id: "set-maintenance",
-                                              title: "Maintenance Mode",
-                                              category: "setting",
-                                              icon: "🛠️",
-                                              description: "Show temporary maintenance state to public visitors",
-                                              keywords: "maintenance mode public temporary offline state",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                              },
-                                            },
-                                            {
-                                              id: "set-sitelang",
-                                              title: "Site Published Language",
-                                              category: "setting",
-                                              icon: "🌐",
-                                              description: "Set published HTML lang attribute (en, es, fr, de...)",
-                                              keywords: "site language html lang published website",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                              },
-                                            },
-                                            {
-                                              id: "set-editorlang",
-                                              title: "Editor UI Language",
-                                              category: "setting",
-                                              icon: "🗣️",
-                                              description: "Switch Editor interface language (English, Spanish...)",
-                                              keywords: "editor language ui interface translate english spanish french german",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                              },
-                                            },
-                                            {
-                                              id: "set-grid",
-                                              title: "Canvas Alignment Grid",
-                                              category: "setting",
-                                              icon: "📐",
-                                              description: "Toggle 20px visual layout grid overlay on canvas",
-                                              keywords: "grid alignment layout overlay canvas guidelines",
-                                              action: () => {
-                                                updatePreference("gridOverlay", !userPreferences.gridOverlay);
-                                              },
-                                            },
-                                            {
-                                              id: "set-theme",
-                                              title: "Header Toolbar Theme",
-                                              category: "setting",
-                                              icon: "🎨",
-                                              description: "Switch Header theme between Dark Navy and Light Modern",
-                                              keywords: "theme dark light header toolbar appearance mode",
-                                              action: () => {
-                                                updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark");
-                                              },
-                                            },
-                                            {
-                                              id: "feat-elements",
-                                              title: "Elements Palette",
-                                              category: "feature",
-                                              icon: "🧱",
-                                              description: "Browse containers, headings, text, images & buttons",
-                                              keywords: "elements palette add container heading text image button widgets",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setLeftSidebarTab("elements");
-                                              },
-                                            },
-                                            {
-                                              id: "feat-navigator",
-                                              title: "Navigator Layers",
-                                              category: "feature",
-                                              icon: "🌳",
-                                              description: "Visual tree structure hierarchy navigation panel",
-                                              keywords: "navigator layers tree structure hierarchy elements outline",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setLeftSidebarTab("navigator");
-                                              },
-                                            },
-                                            {
-                                              id: "feat-save",
-                                              title: "Save Website",
-                                              category: "feature",
-                                              icon: "💾",
-                                              description: "Persist all editor elements & page settings (Ctrl+S)",
-                                              keywords: "save site website persist publish store ctrl+s",
-                                              action: () => {
-                                                handleSave();
-                                              },
-                                            },
-                                            {
-                                              id: "feat-preview",
-                                              title: "Toggle Preview Mode",
-                                              category: "feature",
-                                              icon: "👁️",
-                                              description: "Switch between editing canvas and published site view (Ctrl+P)",
-                                              keywords: "preview mode view exit preview test ctrl+p",
-                                              action: () => {
-                                                setIsPreview(!isPreview);
-                                              },
-                                            },
-                                            {
-                                              id: "feat-undo",
-                                              title: "Undo Action",
-                                              category: "feature",
-                                              icon: "↩️",
-                                              description: "Restore previous canvas state (Ctrl+Z)",
-                                              keywords: "undo revert history ctrl+z",
-                                              action: () => {
-                                                handleUndo();
-                                              },
-                                            },
-                                            {
-                                              id: "feat-redo",
-                                              title: "Redo Action",
-                                              category: "feature",
-                                              icon: "↪️",
-                                              description: "Reapply undone canvas change (Ctrl+Y)",
-                                              keywords: "redo reapply history ctrl+y",
-                                              action: () => {
-                                                handleRedo();
-                                              },
-                                            },
-                                            {
-                                              id: "feat-moveup",
-                                              title: "Move Section Up",
-                                              category: "feature",
-                                              icon: "▲",
-                                              description: "Move selected section upward in page hierarchy (Alt+Up)",
-                                              keywords: "move section up reorder upward alt+up",
-                                              action: () => {
-                                                if (selectedId) handleReorderElement(selectedId, "up");
-                                              },
-                                            },
-                                            {
-                                              id: "feat-movedown",
-                                              title: "Move Section Down",
-                                              category: "feature",
-                                              icon: "▼",
-                                              description: "Move selected section downward in page hierarchy (Alt+Down)",
-                                              keywords: "move section down reorder downward alt+down",
-                                              action: () => {
-                                                if (selectedId) handleReorderElement(selectedId, "down");
-                                              },
-                                            },
-                                            {
-                                              id: "feat-support",
-                                              title: "Temporary Support Token",
-                                              category: "feature",
-                                              icon: "🔐",
-                                              description: "Generate 2-hour temporary support access credential",
-                                              keywords: "support token access credentials temporary auth troubleshooting",
-                                              action: () => {
-                                                setIsPreview(false);
-                                                setSelectedId(null);
-                                                handleGenerateSupportToken();
-                                              },
-                                            },
-                                            {
-                                              id: "feat-quit",
-                                              title: "Quit Editor",
-                                              category: "feature",
-                                              icon: "🚪",
-                                              description: "Exit visual editor and return to Dashboard",
-                                              keywords: "quit exit return dashboard leave back",
-                                              action: () => {
-                                                handleQuitEditor();
-                                              },
-                                            },
-                                          ]
-                                            .filter((item) => {
-                                              if (!finderQuery.trim()) return true;
-                                              const q = finderQuery.toLowerCase().trim();
-                                              return (
-                                                item.title.toLowerCase().includes(q) ||
-                                                item.description.toLowerCase().includes(q) ||
-                                                item.keywords.toLowerCase().includes(q) ||
-                                                item.category.toLowerCase().includes(q)
-                                              );
-                                            })
-                                            .map((item) => (
-                                              <div
-                                                key={item.id}
-                                                onClick={() => {
-                                                  setIsFinderOpen(false);
-                                                  setFinderQuery("");
-                                                  item.action();
-                                                }}
-                                                className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition group"
-                                              >
-                                                <div className="flex items-center gap-3">
-                                                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-base shadow-sm group-hover:bg-blue-600 group-hover:text-white transition">
-                                                    {item.icon}
-                                                  </span>
-                                                  <div>
-                                                    <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-2">
-                                                      <span>{item.title}</span>
-                                                      <span
-                                                        className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.category === "page"
-                                                          ? "bg-slate-100 text-slate-600"
-                                                          : item.category === "template"
-                                                            ? "bg-purple-100 text-purple-700"
-                                                            : item.category === "setting"
-                                                              ? "bg-blue-100 text-blue-700"
-                                                              : "bg-emerald-100 text-emerald-700"
-                                                          }`}
-                                                      >
-                                                        {item.category}
-                                                      </span>
-                                                    </h4>
-                                                    <p className="text-[11px] text-slate-400 mt-0.5">
-                                                      {item.description}
-                                                    </p>
-                                                  </div>
-                                                </div>
-
-                                                <span className="text-xs text-slate-300 group-hover:text-blue-500 transition font-bold">
-                                                  →
-                                                </span>
-                                              </div>
-                                            ))}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )
-                                }
-                                {/* ========================================== */}
-                                {/* Keyboard Shortcuts Help Modal (F-031)      */}
-                                {/* ========================================== */}
-                                {
-                                  isShortcutsHelpOpen && (
-                                    <div
-                                      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in"
-                                      onClick={() => setIsShortcutsHelpOpen(false)}
-                                    >
-                                      <div
-                                        className="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] animate-scale-up"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {/* Header */}
-                                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-900 text-white">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-lg">⌨️</span>
-                                            <div>
-                                              <h3 className="text-sm font-bold tracking-tight">Keyboard Shortcuts</h3>
-                                              <p className="text-[11px] text-slate-400">Supported editor actions & key bindings</p>
-                                            </div>
                                           </div>
-                                          <button
-                                            type="button"
-                                            onClick={() => setIsShortcutsHelpOpen(false)}
-                                            className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
 
-                                        {/* Shortcuts Content List */}
-                                        <div className="p-6 overflow-y-auto space-y-6">
-                                          {/* Category 1: Editor Navigation & Canvas */}
                                           <div>
-                                            <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 mb-3 flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
-                                              <span>🚀</span> Editor & Navigation
-                                            </h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Finder Search Palette</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + K</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Save Website</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + S</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Toggle Preview Mode</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + P</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Shortcuts Help Modal</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">?</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 sm:col-span-2">
-                                                <span className="text-xs font-semibold text-slate-700">Exit Fullscreen / Close Modal</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Esc</kbd>
-                                              </div>
-                                            </div>
+                                            <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                                              Link or Smart Action
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={globalSettings.floatingActionButton?.link || ""}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  floatingActionButton: {
+                                                    ...prev.floatingActionButton,
+                                                    link: e.target.value,
+                                                  },
+                                                }))
+                                              }
+                                              placeholder="https://wa.me/... or popup:open(id)"
+                                              className="w-full rounded border px-2 py-1 text-[11px] font-mono"
+                                            />
                                           </div>
 
-                                          {/* Category 2: Element Editing & Clipboard */}
-                                          <div>
-                                            <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-purple-600 mb-3 flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
-                                              <span>🎨</span> Element Editing & Clipboard
-                                            </h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Undo Action</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + Z</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Redo Action</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + Y</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Copy Element</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + C</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Paste Element</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + V</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Duplicate Element</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + D</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Delete Element</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Delete / Backspace</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Move Section Up</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Alt + Up</kbd>
-                                              </div>
-                                              <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                                                <span className="text-xs font-semibold text-slate-700">Move Section Down</span>
-                                                <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Alt + Down</kbd>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        {/* Footer */}
-                                        <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                                          <span className="text-[11px] text-slate-400">Press <kbd className="font-mono bg-white border border-slate-200 px-1 rounded">Esc</kbd> anytime to close</span>
-                                          <button
-                                            type="button"
-                                            onClick={() => setIsShortcutsHelpOpen(false)}
-                                            className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
-                                          >
-                                            Got it
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )
-                                }
-                                {/* ========================================== */}
-                                {/* Manage Widgets & Visibility Modal (F-032)  */}
-                                {/* ========================================== */}
-                                {
-                                  isElementManagerOpen && (
-                                    <div
-                                      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in"
-                                      onClick={() => setIsElementManagerOpen(false)}
-                                    >
-                                      <div
-                                        className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-scale-up"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        {/* Header */}
-                                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-900 text-white">
-                                          <div className="flex items-center gap-3">
-                                            <span className="text-xl">⚙️</span>
-                                            <div>
-                                              <h3 className="text-sm font-bold tracking-tight">Manage Widgets & Visibility</h3>
-                                              <p className="text-[11px] text-slate-400">
-                                                Control which widgets appear in the main Widget Library. Hiding a widget preserves all canvas elements.
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <button
-                                            type="button"
-                                            onClick={() => setIsElementManagerOpen(false)}
-                                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-                                      </div>
-
-                                      {/* Category Filter Tabs */}
-                                      <div className="px-6 py-2.5 border-b border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto">
-                                        {["All", "Layout", "Basic", "Content", "Interactive", "Media", "Commerce", "Social"].map((cat) => (
-                                          <button
-                                            key={cat}
-                                            type="button"
-                                            onClick={() => setManagerCategoryFilter(cat)}
-                                            className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${managerCategoryFilter === cat
-                                              ? "bg-blue-600 text-white shadow-xs"
-                                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                              }`}
-                                          >
-                                            {cat}
-                                          </button>
-                                        ))}
-                                      </div>
-
-                                      {/* Widget Toggles List */}
-                                      <div className="p-6 overflow-y-auto space-y-2.5 max-h-[50vh]">
-                                        {ALL_WIDGET_REGISTRY.filter((w) => {
-                                          const matchesCat = managerCategoryFilter === "All" || w.category === managerCategoryFilter;
-                                          if (!matchesCat) return false;
-                                          if (!managerSearchQuery.trim()) return true;
-                                          const q = managerSearchQuery.toLowerCase().trim();
-                                          return (
-                                            w.name.toLowerCase().includes(q) ||
-                                            w.type.toLowerCase().includes(q) ||
-                                            w.description.toLowerCase().includes(q) ||
-                                            w.category.toLowerCase().includes(q)
-                                          );
-                                        }).map((w) => {
-                                          const isDisabled = disabledWidgets.includes(w.type);
-                                          return (
-                                            <div
-                                              key={w.type}
-                                              className={`flex items-center justify-between p-3 rounded-xl border transition ${isDisabled
-                                                ? "border-slate-200 bg-slate-50/60 opacity-80"
-                                                : "border-emerald-200 bg-emerald-50/20 shadow-xs"
-                                                }`}
+                                          <div className="flex items-center justify-between gap-2">
+                                            <label className="text-[11px] font-semibold text-slate-600">Position:</label>
+                                            <select
+                                              value={globalSettings.floatingActionButton?.position || "bottom-left"}
+                                              onChange={(e) =>
+                                                setGlobalSettings((prev: any) => ({
+                                                  ...prev,
+                                                  floatingActionButton: {
+                                                    ...prev.floatingActionButton,
+                                                    position: e.target.value,
+                                                  },
+                                                }))
+                                              }
+                                              className="rounded border px-2 py-1 text-[11px]"
                                             >
-                                              <div className="flex items-center gap-3">
-                                                <span className="text-xl flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-xs">
-                                                  {w.icon}
-                                                </span>
-                                                <div>
-                                                  <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                                                    <span>{w.name}</span>
-                                                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                                                      {w.category}
-                                                    </span>
-                                                    <span
-                                                      className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDisabled
-                                                        ? "bg-slate-200 text-slate-600"
-                                                        : "bg-emerald-100 text-emerald-700"
-                                                        }`}
-                                                    >
-                                                      {isDisabled ? "Hidden" : "Visible"}
-                                                    </span>
-                                                  </h4>
-                                                  <p className="text-[11px] text-slate-500 mt-0.5">{w.description}</p>
-                                                </div>
-                                              </div>
+                                              <option value="bottom-left">Bottom Left</option>
+                                              <option value="bottom-right">Bottom Right</option>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
 
 
-                                              {/* Top Toolbar: Search & Quick Action Buttons */}
-                                              <div className="p-4 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                                                <div className="relative w-full sm:w-64">
-                                                  <input
-                                                    type="text"
-                                                    value={managerSearchQuery}
-                                                    onChange={(e) => setManagerSearchQuery(e.target.value)}
-                                                    placeholder="Search all widgets..."
-                                                    className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-8 pr-7 text-xs font-medium text-slate-700 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition shadow-xs"
-                                                  />
-                                                  <span className="absolute left-2.5 top-2 text-xs text-slate-400">🔍</span>
-                                                  {managerSearchQuery && (
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => toggleWidgetAvailability(w.type)}
-                                                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDisabled ? "bg-slate-300" : "bg-emerald-500"
-                                                        }`}
-                                                      title={isDisabled ? `Enable ${w.name} in Widget Library` : `Hide ${w.name} from Widget Library`}
-                                                    >
-                                                      <span
-                                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDisabled ? "translate-x-0" : "translate-x-5"
-                                                          }`}
-                                                      />
+                                    {/* Object Fit & Object Position */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                          Object Fit
+                                        </label>
+                                        <select
+                                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectFit") || "cover"}
+                                          onChange={(e) => updateSelectedStyle("objectFit", e.target.value as any)}
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                        >
+                                          <option value="cover">Cover (Fill Container)</option>
+                                          <option value="contain">Contain (Fit Whole Image)</option>
+                                          <option value="fill">Fill (Stretch)</option>
+                                          <option value="none">None (Original Size)</option>
+                                          <option value="scale-down">Scale Down</option>
+                                        </select>
+                                      </div>
 
-                                                    </button>
-                                                  )}
-                                                </div>
+                                      <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                          Object Position
+                                        </label>
+                                        <select
+                                          value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "objectPosition") || "center"}
+                                          onChange={(e) => updateSelectedStyle("objectPosition", e.target.value)}
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                        >
+                                          <option value="center">Center</option>
+                                          <option value="top">Top</option>
+                                          <option value="bottom">Bottom</option>
+                                          <option value="left">Left</option>
+                                          <option value="right">Right</option>
+                                          <option value="top left">Top Left</option>
+                                          <option value="top right">Top Right</option>
+                                          <option value="bottom left">Bottom Left</option>
+                                          <option value="bottom right">Bottom Right</option>
+                                        </select>
+                                      </div>
+                                    </div>
 
-                                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                                                  <button
-                                                    type="button"
-                                                    onClick={enableAllWidgets}
-                                                    className="px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-xs"
-                                                  >
-                                                    Enable All ({ALL_WIDGET_REGISTRY.length})
-                                                  </button>
-                                                  <button
-                                                    type="button"
-                                                    onClick={resetWidgetsToDefault}
-                                                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition shadow-xs"
-                                                  >
-                                                    Reset Default (5 Core)
-                                                  </button>
-                                                </div>
-                                              </div>
-
-                                              {/* Category Filter Tabs */}
-                                              <div className="px-6 py-2.5 border-b border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto">
-                                                {["All", "Layout", "Basic", "Content", "Interactive", "Media", "Commerce", "Social"].map((cat) => (
-                                                  <button
-                                                    key={cat}
-                                                    type="button"
-                                                    onClick={() => setManagerCategoryFilter(cat)}
-                                                    className={`px-3 py-1 rounded-full text-[11px] font-bold transition whitespace-nowrap ${managerCategoryFilter === cat
-                                                      ? "bg-blue-600 text-white shadow-xs"
-                                                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                                      }`}
-                                                  >
-                                                    {cat}
-                                                  </button>
-                                                ))}
-                                              </div>
-
-                                              {/* Widget Toggles List */}
-                                              <div className="p-6 overflow-y-auto space-y-2.5 max-h-[50vh]">
-                                                {ALL_WIDGET_REGISTRY.filter((w) => {
-                                                  const matchesCat = managerCategoryFilter === "All" || w.category === managerCategoryFilter;
-                                                  if (!matchesCat) return false;
-                                                  if (!managerSearchQuery.trim()) return true;
-                                                  const q = managerSearchQuery.toLowerCase().trim();
-                                                  return (
-                                                    w.name.toLowerCase().includes(q) ||
-                                                    w.type.toLowerCase().includes(q) ||
-                                                    w.description.toLowerCase().includes(q) ||
-                                                    w.category.toLowerCase().includes(q)
-                                                  );
-                                                }).map((w) => {
-                                                  const isDisabled = disabledWidgets.includes(w.type);
-                                                  return (
-                                                    <div
-                                                      key={w.type}
-                                                      className={`flex items-center justify-between p-3 rounded-xl border transition ${isDisabled
-                                                        ? "border-slate-200 bg-slate-50/60 opacity-80"
-                                                        : "border-emerald-200 bg-emerald-50/20 shadow-xs"
-                                                        }`}
-                                                    >
-                                                      <div className="flex items-center gap-3">
-                                                        <span className="text-xl flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-xs">
-                                                          {w.icon}
-                                                        </span>
-                                                        <div>
-                                                          <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                                                            <span>{w.name}</span>
-                                                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                                                              {w.category}
-                                                            </span>
-                                                            <span
-                                                              className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDisabled
-                                                                ? "bg-slate-200 text-slate-600"
-                                                                : "bg-emerald-100 text-emerald-700"
-                                                                }`}
-                                                            >
-                                                              {isDisabled ? "Hidden" : "Visible"}
-                                                            </span>
-                                                          </h4>
-                                                          <p className="text-[11px] text-slate-500 mt-0.5">{w.description}</p>
-                                                        </div>
-                                                      </div>
-
-                                                      <button
-                                                        type="button"
-                                                        onClick={() => toggleWidgetAvailability(w.type)}
-                                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDisabled ? "bg-slate-300" : "bg-emerald-500"
-                                                          }`}
-                                                        title={isDisabled ? `Enable ${w.name} in Widget Library` : `Hide ${w.name} from Widget Library`}
-                                                      >
-                                                        <span
-                                                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isDisabled ? "translate-x-0" : "translate-x-5"
-                                                            }`}
-                                                        />
-                                                      </button>
-                                                    </div>
-                                                  );
-                                                })}
-                                              </div>
-
-                                              {/* Footer */}
-                                              <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                                                <span className="text-[11px] font-medium text-slate-500">
-                                                  {ALL_WIDGET_REGISTRY.length - disabledWidgets.length} of {ALL_WIDGET_REGISTRY.length} widgets active in Main Library
-                                                </span>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => setIsElementManagerOpen(false)}
-                                                  className="rounded-lg bg-blue-600 px-5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition"
-                                                >
-                                                  Done
-                                                </button>
-                                              </div>
-                                            </div>
-          </div>
-                                      )
-      }
-
-                                      {/* Popup Manager Modal */}
-                                      <PopupManagerModal
-                                        isOpen={isPopupManagerOpen}
-                                        onClose={() => setIsPopupManagerOpen(false)}
-                                        popups={popups}
-                                        onSelectPopupForEdit={handleSelectPopupForEdit}
-                                        onCreatePopup={handleCreatePopup}
-                                        onUpdatePopup={handleUpdatePopup}
-                                        onDeletePopup={handleDeletePopup}
-                                        onDuplicatePopup={handleDuplicatePopup}
+                                    {/* Page Title */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                        Page Title
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={pageSettings.title || ""}
+                                        onChange={(e) => setPageSettings((prev) => ({ ...prev, title: e.target.value }))}
+                                        placeholder="Home"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
                                       />
+                                    </div>
 
-                                      {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
-                                      {
-                                        isPreview && (
-                                          <PopupRuntimePreview
-                                            popups={popups}
-                                            renderElementTree={renderElementTree}
-                                            onTrackView={handleTrackPopupView}
-                                            onTrackClick={handleTrackPopupClick}
-                                            isPreviewMode={true}
-                                            globalSettings={globalSettings}
+                                    {/* Meta Description */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                        Meta Description (SEO)
+                                      </label>
+                                      <textarea
+                                        rows={3}
+                                        value={pageSettings.description || ""}
+                                        onChange={(e) => setPageSettings((prev) => ({ ...prev, description: e.target.value }))}
+                                        placeholder="Page SEO description..."
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                      />
+                                    </div>
+
+                                    {/* Page Path / URL Slug */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                        URL Path Slug
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={pageSettings.path || "/"}
+                                        onChange={(e) => setPageSettings((prev) => ({ ...prev, path: e.target.value }))}
+                                        placeholder="/"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                      />
+                                    </div>
+
+                                    {/* Page SEO & Social Graph (Phase 4) */}
+                                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                          <span>🌐</span>
+                                          <span>SEO & Social Graph</span>
+                                        </label>
+                                        <span className="text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded">
+                                          Metadata
+                                        </span>
+                                      </div>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => setIsSeoModalOpen(true)}
+                                        className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer"
+                                      >
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                        <span>Open Full SEO & Quality Audit</span>
+                                      </button>
+
+                                      <div>
+                                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                                          Canonical URL
+                                        </label>
+                                        <input
+                                          type="url"
+                                          value={pageSettings.canonicalUrl || ""}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
+                                          placeholder="https://example.com/canonical-page"
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                                          OpenGraph Title
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={pageSettings.ogTitle || ""}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, ogTitle: e.target.value }))}
+                                          placeholder={pageSettings.title || "Social title..."}
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                                          OpenGraph Description
+                                        </label>
+                                        <textarea
+                                          rows={2}
+                                          value={pageSettings.ogDescription || ""}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, ogDescription: e.target.value }))}
+                                          placeholder={pageSettings.description || "Social share description..."}
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                                          Social Share Image URL (og:image)
+                                        </label>
+                                        <input
+                                          type="url"
+                                          value={pageSettings.ogImage || ""}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, ogImage: e.target.value }))}
+                                          placeholder="https://example.com/share-card.jpg"
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-mono outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+
+                                      {/* Search Engine Robots Indexing */}
+                                      <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                                        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                          Robots Directives
+                                        </span>
+                                        <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={!!pageSettings.noindex}
+                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, noindex: e.target.checked }))}
+                                            className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
                                           />
-                                        )
-                                      }
+                                          <span>Prevent search engine indexing (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">noindex</code>)</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={!!pageSettings.nofollow}
+                                            onChange={(e) => setPageSettings((prev) => ({ ...prev, nofollow: e.target.checked }))}
+                                            className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                                          />
+                                          <span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
+                                        </label>
+                                      </div>
+                                    </div>
 
-                                      {/* Developer Modal (F-102 - F-109) */}
-                                      <DeveloperModal
-                                        isOpen={!!devModalMode}
-                                        onClose={() => setDevModalMode(null)}
-                                        mode={devModalMode!}
-                                        targetElement={selectedElement || elements[0]}
-                                        initialValue={
-                                          devModalMode === "element-css" ? selectedElement?.customCss :
-                                            devModalMode === "css-selectors" ? selectedElement?.customSelectors :
-                                              devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
-                                                devModalMode === "page-css" ? pageCss :
-                                                  devModalMode === "global-css" ? globalSettings.customCss :
-                                                    ""
-                                        }
-                                        onSave={(val) => {
-                                          if (devModalMode === "element-css" && selectedElement) {
-                                            updateSelectedProp("customCss", val);
-                                          } else if (devModalMode === "css-selectors" && selectedElement) {
-                                            updateSelectedProp("customSelectors", val);
-                                          } else if (devModalMode === "custom-attributes" && selectedElement) {
-                                            updateSelectedProp("customAttributes", val);
-                                          } else if (devModalMode === "page-css") {
-                                            setPageCss(val);
-                                          } else if (devModalMode === "global-css") {
-                                            setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
-                                          } else if (devModalMode === "export-code") {
-                                            const target = selectedElement || elements[0];
-                                            if (target && val) {
-                                              setElements((prev) => updateTreeElement(prev, target.id, () => val));
-                                              setSelectedId(val.id);
-                                            }
-                                          }
+                                    {/* Site / Website Published Language (F-022) */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                                        <span>{t("siteLang", "Site Language (Published)")}</span>
+                                        <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">HTML lang</span>
+                                      </label>
+                                      <select
+                                        value={pageSettings.siteLanguage || "en"}
+                                        onChange={(e) => setPageSettings((prev) => ({ ...prev, siteLanguage: e.target.value }))}
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                                      >
+                                        <option value="en">English (en)</option>
+                                        <option value="es">Spanish (es)</option>
+                                        <option value="fr">French (fr)</option>
+                                        <option value="de">German (de)</option>
+                                        <option value="it">Italian (it)</option>
+                                        <option value="ja">Japanese (ja)</option>
+                                      </select>
+                                      <p className="mt-1 text-[10px] text-slate-400">
+                                        Controls published HTML website language. Completely independent from Editor UI language.
+                                      </p>
+                                    </div>
+
+                                    {/* Page Canvas Background Color */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                        Page Canvas Background Color
+                                      </label>
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          type="color"
+                                          value={pageSettings.backgroundColor || "#ffffff"}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                                          className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
+                                        />
+                                        <input
+                                          type="text"
+                                          value={pageSettings.backgroundColor || "#ffffff"}
+                                          onChange={(e) => setPageSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* Custom Head Script/Tags */}
+                                    <div>
+                                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                        Custom Head Tags / Scripts
+                                      </label>
+                                      <textarea
+                                        rows={3}
+                                        value={pageSettings.customHead || ""}
+                                        onChange={(e) => setPageSettings((prev) => ({ ...prev, customHead: e.target.value }))}
+                                        placeholder="<meta name='keywords' content='builder' />"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
+                                      />
+                                    </div>
+
+                                    {/* Temporary Support Credentials (F-020) */}
+                                <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4 space-y-3 pt-3">
+                                  <div className="flex items-center justify-between border-b border-purple-100 pb-2">
+                                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                      <span>🔐</span><span>Temporary Support Access</span>
+                                    </label>
+                                    <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">2-Hr Limit</span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 leading-normal">Generate temporary, time-limited credentials for support troubleshooting without sharing your password.</p>
+                                  {supportToken ? (
+                                    <div className="space-y-2 rounded-lg border border-purple-200 bg-white p-3">
+                                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                                        <span>Support Token:</span>
+                                        <span className="text-purple-600 font-bold">Expires ~{supportExpiresAt}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <input type="text" readOnly value={supportToken} className="w-full rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-mono text-slate-800" />
+                                        <button type="button" onClick={() => { if (supportToken) { navigator.clipboard.writeText(supportToken); setSupportCopied(true); setTimeout(() => setSupportCopied(false), 2000); } }} className="rounded-md bg-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-purple-700 transition shrink-0">
+                                          {supportCopied ? "Copied!" : "Copy"}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                  {supportMessage && <p className="text-[11px] font-semibold text-purple-700">{supportMessage}</p>}
+                                  <div className="flex items-center gap-2 pt-1">
+                                    <button type="button" disabled={isGeneratingToken} onClick={handleGenerateSupportToken} className="flex-1 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition">
+                                      {isGeneratingToken ? "Generating..." : "Generate Support Token"}
+                                    </button>
+                                    <button type="button" onClick={handleRevokeSupportTokens} className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition" title="Revoke active support credentials">Revoke</button>
+                                  </div>
+                                </div>
+                                {/* Editor User Preferences (F-026) */}
+                                  <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
+                                    <div className="flex items-center justify-between border-b border-blue-100 pb-2">
+                                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span>⚙️</span>
+                                        <span>Editor User Preferences</span>
+                                      </label>
+                                      <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                                        Persistent
+                                      </span>
+                                    </div>
+
+                                    <div className="space-y-2.5 pt-1">
+                                      {/* Auto Save Toggle */}
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-semibold text-slate-700">⚡ Auto-Save Drafts</span>
+                                        <input
+                                          type="checkbox"
+                                          checked={userPreferences.autoSaveEnabled}
+                                          onChange={(e) => updatePreference("autoSaveEnabled", e.target.checked)}
+                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                      </div>
+
+                                      {/* Canvas Grid Alignment Overlay Toggle */}
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-semibold text-slate-700">📐 Canvas Alignment Grid</span>
+                                        <input
+                                          type="checkbox"
+                                          checked={userPreferences.gridOverlay}
+                                          onChange={(e) => updatePreference("gridOverlay", e.target.checked)}
+                                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                      </div>
+
+                                      {/* Header Toolbar Theme Switch */}
+                                      <div className="flex items-center justify-between pt-1">
+                                        <span className="text-xs font-semibold text-slate-700">🎨 Header Toolbar Theme</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark")}
+                                          className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 shadow-sm transition"
+                                        >
+                                          {userPreferences.themeMode === "dark" ? "🌙 Dark Navy" : "☀️ Light Modern"}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div >
+                                </div >
+              )}
+                            </aside >
+          )}
+                          </div >
+
+                            {/* Contextual Action Menu Overlay (F-010) */}
+                        {
+                          contextMenu && !isPreview && (
+                            <div
+                              style={{
+                                top: `${Math.min(contextMenu.y, window.innerHeight - 260)}px`,
+                                left: `${Math.min(contextMenu.x, window.innerWidth - 190)}px`,
+                              }}
+                              className="fixed z-50 min-w-[170px] rounded-xl border border-slate-200 bg-white/95 backdrop-blur-md p-1.5 shadow-xl text-xs font-semibold text-slate-700 animate-in fade-in zoom-in-95 duration-100"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+                                Element Actions
+                              </div>
+                              <button
+                                onClick={() => {
+                                  handleReorderElement(contextMenu.elementId, "up");
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
+                              >
+                                <span>Move Up</span>
+                                <span className="text-[10px] text-slate-400">▲</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleReorderElement(contextMenu.elementId, "down");
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
+                              >
+                                <span>Move Down</span>
+                                <span className="text-[10px] text-slate-400">▼</span>
+                              </button>
+                              <div className="my-1 border-t border-slate-100" />
+                              <button
+                                onClick={(e) => {
+                                  handleCopyElement(contextMenu.elementId, e);
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
+                              >
+                                <span>Copy</span>
+                                <span className="text-[10px] text-slate-400">Ctrl+C</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  handleCopyStyle(contextMenu.elementId, e);
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
+                              >
+                                <span>Copy Style</span>
+                                <span className="text-[10px]">🎨</span>
+                              </button>
+                              {copiedStyles && (
+                                <button
+                                  onClick={(e) => {
+                                    handlePasteStyle(contextMenu.elementId, e);
+                                    setContextMenu(null);
+                                  }}
+                                  className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-emerald-50 text-emerald-600 font-bold transition"
+                                >
+                                  <span>Paste Style</span>
+                                  <span className="text-[10px]">🖌️</span>
+                                </button>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  handleDuplicateElement(contextMenu.elementId, e);
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 hover:text-blue-600 transition"
+                              >
+                                <span>Duplicate</span>
+                                <span className="text-[10px] text-slate-400">Ctrl+D</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleSaveAsComponent(contextMenu.elementId);
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-purple-50 text-purple-700 transition"
+                              >
+                                <span>Save as Comp</span>
+                                <span className="text-[10px]">🧩</span>
+                              </button>
+                              <div className="my-1 border-t border-slate-100" />
+                              <button
+                                onClick={(e) => {
+                                  handleDeleteElement(contextMenu.elementId, e);
+                                  setContextMenu(null);
+                                }}
+                                className="w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left hover:bg-red-50 text-red-600 transition"
+                              >
+                                <span>Delete</span>
+                                <span className="text-[10px] text-red-400">✕</span>
+                              </button>
+                            </div>
+                          )
+                        }
+
+                        {/* Finder Command Palette Modal (F-027) */}
+                        {
+                          isFinderOpen && (
+                            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 pt-20 px-4 backdrop-blur-sm">
+                              <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
+                                {/* Search Header Input */}
+                                <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 bg-slate-50/50">
+                                  <span className="text-slate-400 text-lg">🔍</span>
+                                  <input
+                                    type="text"
+                                    autoFocus
+                                    value={finderQuery}
+                                    onChange={(e) => setFinderQuery(e.target.value)}
+                                    placeholder="Search pages, templates, settings and features... (Esc to close)"
+                                    className="w-full bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsFinderOpen(false)}
+                                    className="rounded-lg px-2 py-1 text-xs font-bold text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+
+                                {/* Category Filter Pills */}
+                                <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 bg-white text-[11px] overflow-x-auto">
+                                  <span className="text-slate-400 font-semibold mr-1">Filter:</span>
+                                  <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 font-medium">Pages</span>
+                                  <span className="rounded-full bg-purple-50 text-purple-600 px-2 py-0.5 font-medium">Templates</span>
+                                  <span className="rounded-full bg-blue-50 text-blue-600 px-2 py-0.5 font-medium">Settings</span>
+                                  <span className="rounded-full bg-emerald-50 text-emerald-600 px-2 py-0.5 font-medium">Features</span>
+                                </div>
+
+                                {/* Search Results List */}
+                                <div className="max-h-[380px] overflow-y-auto p-2 divide-y divide-slate-50">
+                                  {[
+                                    {
+                                      id: "page-home",
+                                      title: "Home Page",
+                                      category: "page",
+                                      icon: "📄",
+                                      description: "Current main landing page route (/)",
+                                      keywords: "home page index main route",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                      },
+                                    },
+                                    {
+                                      id: "page-settings",
+                                      title: "Page Settings",
+                                      category: "page",
+                                      icon: "⚙️",
+                                      description: "Configure page title, SEO description, URL slug",
+                                      keywords: "page settings config seo title description slug",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                      },
+                                    },
+                                    {
+                                      id: "tpl-hero",
+                                      title: "Hero Section Template",
+                                      category: "template",
+                                      icon: "✨",
+                                      description: "Header section with title, subtitle & action button",
+                                      keywords: "hero header template banner section title subtitle button",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setLeftSidebarTab("elements");
+                                        handleAddElement("container");
+                                      },
+                                    },
+                                    {
+                                      id: "tpl-features",
+                                      title: "Features Grid Template",
+                                      category: "template",
+                                      icon: "📌",
+                                      description: "Container block layout for product feature cards",
+                                      keywords: "features grid template cards layout block container",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setLeftSidebarTab("elements");
+                                        handleAddElement("container");
+                                      },
+                                    },
+                                    {
+                                      id: "tpl-cta",
+                                      title: "Call to Action Template",
+                                      category: "template",
+                                      icon: "🚀",
+                                      description: "Conversion banner block with text and primary button",
+                                      keywords: "call to action cta template banner button conversion",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setLeftSidebarTab("elements");
+                                        handleAddElement("button");
+                                      },
+                                    },
+                                    {
+                                      id: "set-maintenance",
+                                      title: "Maintenance Mode",
+                                      category: "setting",
+                                      icon: "🛠️",
+                                      description: "Show temporary maintenance state to public visitors",
+                                      keywords: "maintenance mode public temporary offline state",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                      },
+                                    },
+                                    {
+                                      id: "set-sitelang",
+                                      title: "Site Published Language",
+                                      category: "setting",
+                                      icon: "🌐",
+                                      description: "Set published HTML lang attribute (en, es, fr, de...)",
+                                      keywords: "site language html lang published website",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                      },
+                                    },
+                                    {
+                                      id: "set-editorlang",
+                                      title: "Editor UI Language",
+                                      category: "setting",
+                                      icon: "🗣️",
+                                      description: "Switch Editor interface language (English, Spanish...)",
+                                      keywords: "editor language ui interface translate english spanish french german",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                      },
+                                    },
+                                    {
+                                      id: "set-grid",
+                                      title: "Canvas Alignment Grid",
+                                      category: "setting",
+                                      icon: "📐",
+                                      description: "Toggle 20px visual layout grid overlay on canvas",
+                                      keywords: "grid alignment layout overlay canvas guidelines",
+                                      action: () => {
+                                        updatePreference("gridOverlay", !userPreferences.gridOverlay);
+                                      },
+                                    },
+                                    {
+                                      id: "set-theme",
+                                      title: "Header Toolbar Theme",
+                                      category: "setting",
+                                      icon: "🎨",
+                                      description: "Switch Header theme between Dark Navy and Light Modern",
+                                      keywords: "theme dark light header toolbar appearance mode",
+                                      action: () => {
+                                        updatePreference("themeMode", userPreferences.themeMode === "dark" ? "light" : "dark");
+                                      },
+                                    },
+                                    {
+                                      id: "feat-elements",
+                                      title: "Elements Palette",
+                                      category: "feature",
+                                      icon: "🧱",
+                                      description: "Browse containers, headings, text, images & buttons",
+                                      keywords: "elements palette add container heading text image button widgets",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setLeftSidebarTab("elements");
+                                      },
+                                    },
+                                    {
+                                      id: "feat-navigator",
+                                      title: "Navigator Layers",
+                                      category: "feature",
+                                      icon: "🌳",
+                                      description: "Visual tree structure hierarchy navigation panel",
+                                      keywords: "navigator layers tree structure hierarchy elements outline",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setLeftSidebarTab("navigator");
+                                      },
+                                    },
+                                    {
+                                      id: "feat-save",
+                                      title: "Save Website",
+                                      category: "feature",
+                                      icon: "💾",
+                                      description: "Persist all editor elements & page settings (Ctrl+S)",
+                                      keywords: "save site website persist publish store ctrl+s",
+                                      action: () => {
+                                        handleSave();
+                                      },
+                                    },
+                                    {
+                                      id: "feat-preview",
+                                      title: "Toggle Preview Mode",
+                                      category: "feature",
+                                      icon: "👁️",
+                                      description: "Switch between editing canvas and published site view (Ctrl+P)",
+                                      keywords: "preview mode view exit preview test ctrl+p",
+                                      action: () => {
+                                        setIsPreview(!isPreview);
+                                      },
+                                    },
+                                    {
+                                      id: "feat-undo",
+                                      title: "Undo Action",
+                                      category: "feature",
+                                      icon: "↩️",
+                                      description: "Restore previous canvas state (Ctrl+Z)",
+                                      keywords: "undo revert history ctrl+z",
+                                      action: () => {
+                                        handleUndo();
+                                      },
+                                    },
+                                    {
+                                      id: "feat-redo",
+                                      title: "Redo Action",
+                                      category: "feature",
+                                      icon: "↪️",
+                                      description: "Reapply undone canvas change (Ctrl+Y)",
+                                      keywords: "redo reapply history ctrl+y",
+                                      action: () => {
+                                        handleRedo();
+                                      },
+                                    },
+                                    {
+                                      id: "feat-moveup",
+                                      title: "Move Section Up",
+                                      category: "feature",
+                                      icon: "▲",
+                                      description: "Move selected section upward in page hierarchy (Alt+Up)",
+                                      keywords: "move section up reorder upward alt+up",
+                                      action: () => {
+                                        if (selectedId) handleReorderElement(selectedId, "up");
+                                      },
+                                    },
+                                    {
+                                      id: "feat-movedown",
+                                      title: "Move Section Down",
+                                      category: "feature",
+                                      icon: "▼",
+                                      description: "Move selected section downward in page hierarchy (Alt+Down)",
+                                      keywords: "move section down reorder downward alt+down",
+                                      action: () => {
+                                        if (selectedId) handleReorderElement(selectedId, "down");
+                                      },
+                                    },
+                                    {
+                                      id: "feat-support",
+                                      title: "Temporary Support Token",
+                                      category: "feature",
+                                      icon: "🔐",
+                                      description: "Generate 2-hour temporary support access credential",
+                                      keywords: "support token access credentials temporary auth troubleshooting",
+                                      action: () => {
+                                        setIsPreview(false);
+                                        setSelectedId(null);
+                                        handleGenerateSupportToken();
+                                      },
+                                    },
+                                    {
+                                      id: "feat-quit",
+                                      title: "Quit Editor",
+                                      category: "feature",
+                                      icon: "🚪",
+                                      description: "Exit visual editor and return to Dashboard",
+                                      keywords: "quit exit return dashboard leave back",
+                                      action: () => {
+                                        handleQuitEditor();
+                                      },
+                                    },
+                                  ]
+                                    .filter((item) => {
+                                      if (!finderQuery.trim()) return true;
+                                      const q = finderQuery.toLowerCase().trim();
+                                      return (
+                                        item.title.toLowerCase().includes(q) ||
+                                        item.description.toLowerCase().includes(q) ||
+                                        item.keywords.toLowerCase().includes(q) ||
+                                        item.category.toLowerCase().includes(q)
+                                      );
+                                    })
+                                    .map((item) => (
+                                      <div
+                                        key={item.id}
+                                        onClick={() => {
+                                          setIsFinderOpen(false);
+                                          setFinderQuery("");
+                                          item.action();
                                         }}
-                                      />
-
-                                      {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
-                                      <SaveTemplateDialog
-                                        isOpen={isSaveTemplateOpen}
-                                        isUpdateMode={isSaveTemplateUpdateMode}
-                                        name={saveTemplateName}
-                                        setName={setSaveTemplateName}
-                                        description={saveTemplateDescription}
-                                        setDescription={setSaveTemplateDescription}
-                                        type={saveTemplateType}
-                                        setType={setSaveTemplateType}
-                                        category={saveTemplateCategory}
-                                        setCategory={setSaveTemplateCategory}
-                                        isSaving={isSavingTemplate}
-                                        error={saveTemplateError}
-                                        validationError={saveTemplateValidationError}
-                                        onClose={closeSaveTemplateDialog}
-                                        onSave={handleSaveTemplateSubmit}
-                                        elements={elements}
-                                        pageSettings={pageSettings}
-                                      />
-
-                                      {/* F-332 Replace Template Dialog Modal */}
-                                      <ReplaceTemplateDialog
-                                        isOpen={isReplaceTemplateOpen}
-                                        targetElementName={selectedElement ? selectedElement.content || selectedElement.type : "Selected Element"}
-                                        templates={libraryTemplates}
-                                        onClose={() => setIsReplaceTemplateOpen(false)}
-                                        onConfirmReplace={handleConfirmReplaceTemplate}
-                                      />
-
-                                      {/* F-336 Import Website Kit Dialog Modal */}
-                                      <ImportWebsiteKitDialog
-                                        isOpen={isImportWebsiteKitOpen}
-                                        onClose={() => setIsImportWebsiteKitOpen(false)}
-                                        onImportKit={handleConfirmImportWebsiteKit}
-                                      />
-
-                                      {/* F-320 Revision History Slide-Over Drawer */}
-                                      <RevisionHistoryPanel
-                                        isOpen={isRevisionHistoryOpen}
-                                        onClose={() => setIsRevisionHistoryOpen(false)}
-                                        websiteId={websiteId || ""}
-                                        apiUrl={apiUrl}
-                                        onRestore={handleRestoreRevision}
-                                        currentWorkingState={{
-                                          elements,
-                                          pageSettings,
-                                          pages,
-                                          siteParts,
-                                          globalSettings,
-                                          breakpoints,
-                                          popups,
-                                          pageCss,
-                                          homePageId,
-                                        }}
-                                      />
-
-                                      {/* Modal for Adding New Page */}
-                                      {
-                                        isAddPageModalOpen && (
-                                          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
-                                            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
-                                              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                                                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                                                  <span>✨</span>
-                                                  <span>Add New Website Page</span>
-                                                </h3>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => setIsAddPageModalOpen(false)}
-                                                  className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
-                                                >
-                                                  ✕
-                                                </button>
-                                              </div>
-
-                                              <div className="space-y-3">
-                                                <div>
-                                                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                                                    Page Title / Name
-                                                  </label>
-                                                  <input
-                                                    type="text"
-                                                    placeholder="e.g. About, Services, Contact, Pricing"
-                                                    value={newPageName}
-                                                    onChange={(e) => {
-                                                      const val = e.target.value;
-                                                      setNewPageName(val);
-                                                      if (!newPageSlug || newPageSlug === `/${newPageName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`) {
-                                                        setNewPageSlug(`/${val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`);
-                                                      }
-                                                    }}
-                                                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
-                                                    autoFocus
-                                                  />
-                                                </div>
-
-                                                <div>
-                                                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                                                    URL Path / Slug
-                                                  </label>
-                                                  <input
-                                                    type="text"
-                                                    placeholder="e.g. /about, /services, /contact"
-                                                    value={newPageSlug}
-                                                    onChange={(e) => setNewPageSlug(e.target.value)}
-                                                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
-                                                  />
-                                                </div>
-                                              </div>
-
-                                              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-                                                <button
-                                                  type="button"
-                                                  onClick={() => setIsAddPageModalOpen(false)}
-                                                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
-                                                >
-                                                  Cancel
-                                                </button>
-                                                <button
-                                                  type="button"
-                                                  onClick={handleCreateNewPage}
-                                                  disabled={!newPageName.trim()}
-                                                  className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
-                                                >
-                                                  Create Page
-                                                </button>
-                                              </div>
-                                            </div>
+                                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition group"
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-base shadow-sm group-hover:bg-blue-600 group-hover:text-white transition">
+                                            {item.icon}
+                                          </span>
+                                          <div>
+                                            <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition flex items-center gap-2">
+                                              <span>{item.title}</span>
+                                              <span
+                                                className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${item.category === "page"
+                                                  ? "bg-slate-100 text-slate-600"
+                                                  : item.category === "template"
+                                                    ? "bg-purple-100 text-purple-700"
+                                                    : item.category === "setting"
+                                                      ? "bg-blue-100 text-blue-700"
+                                                      : "bg-emerald-100 text-emerald-700"
+                                                  }`}
+                                              >
+                                                {item.category}
+                                              </span>
+                                            </h4>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">
+                                              {item.description}
+                                            </p>
                                           </div>
-                                        )
-                                      }
+                                        </div>
 
-                                      {/* Modal for Editing Existing Page */}
-                                      {
-                                        isEditPageModalOpen && (
-                                          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
-                                            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
-                                              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                                                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                                                  <span>✏️</span>
-                                                  <span>Edit Page Settings</span>
-                                                </h3>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => setIsEditPageModalOpen(false)}
-                                                  className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
-                                                >
-                                                  ✕
-                                                </button>
-                                              </div>
+                                        <span className="text-xs text-slate-300 group-hover:text-blue-500 transition font-bold">
+                                          →
+                                        </span>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+                        {/* ========================================== */}
+                        {/* Keyboard Shortcuts Help Modal (F-031)      */}
+                        {/* ========================================== */}
+                        {
+                          isShortcutsHelpOpen && (
+                            <div
+                              className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in"
+                              onClick={() => setIsShortcutsHelpOpen(false)}
+                            >
+                              <div
+                                className="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh] animate-scale-up"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {/* Header */}
+                                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-900 text-white">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">⌨️</span>
+                                    <div>
+                                      <h3 className="text-sm font-bold tracking-tight">Keyboard Shortcuts</h3>
+                                      <p className="text-[11px] text-slate-400">Supported editor actions & key bindings</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsShortcutsHelpOpen(false)}
+                                    className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
 
-                                              <div className="space-y-3">
-                                                <div>
-                                                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                                                    Page Title / Name
-                                                  </label>
-                                                  <input
-                                                    type="text"
-                                                    placeholder="e.g. About Us, Our Services, Contact"
-                                                    value={editPageName}
-                                                    onChange={(e) => {
-                                                      const val = e.target.value;
-                                                      setEditPageName(val);
-                                                    }}
-                                                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
-                                                    autoFocus
-                                                  />
-                                                </div>
+                                {/* Shortcuts Content List */}
+                                <div className="p-6 overflow-y-auto space-y-6">
+                                  {/* Category 1: Editor Navigation & Canvas */}
+                                  <div>
+                                    <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-blue-600 mb-3 flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
+                                      <span>🚀</span> Editor & Navigation
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Finder Search Palette</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + K</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Save Website</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + S</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Toggle Preview Mode</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + P</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Shortcuts Help Modal</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">?</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 sm:col-span-2">
+                                        <span className="text-xs font-semibold text-slate-700">Exit Fullscreen / Close Modal</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Esc</kbd>
+                                      </div>
+                                    </div>
+                                  </div>
 
-                                                <div>
-                                                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                                                    URL Path / Slug
-                                                  </label>
-                                                  <input
-                                                    type="text"
-                                                    placeholder="e.g. /about, /services, /contact"
-                                                    value={editPageSlug}
-                                                    onChange={(e) => setEditPageSlug(e.target.value)}
-                                                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
-                                                  />
-                                                </div>
-                                              </div>
+                                  {/* Category 2: Element Editing & Clipboard */}
+                                  <div>
+                                    <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-purple-600 mb-3 flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
+                                      <span>🎨</span> Element Editing & Clipboard
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Undo Action</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + Z</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Redo Action</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + Y</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Copy Element</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + C</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Paste Element</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + V</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Duplicate Element</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Ctrl + D</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Delete Element</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Delete / Backspace</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Move Section Up</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Alt + Up</kbd>
+                                      </div>
+                                      <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <span className="text-xs font-semibold text-slate-700">Move Section Down</span>
+                                        <kbd className="text-[10px] font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm">Alt + Down</kbd>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
 
-                                              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-                                                <button
-                                                  type="button"
-                                                  onClick={() => setIsEditPageModalOpen(false)}
-                                                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
-                                                >
-                                                  Cancel
-                                                </button>
-                                                <button
-                                                  type="button"
-                                                  onClick={handleSaveEditPage}
-                                                  disabled={!editPageName.trim()}
-                                                  className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
-                                                >
-                                                  Save Changes
-                                                </button>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )
-                                      }
-
-                                      {/* Multi-Page Management Modal (Comments 10, 11, 23, 36, 37) */}
-                                      <PageManagerModal
-                                        isOpen={isPageManagerModalOpen}
-                                        onClose={() => setIsPageManagerModalOpen(false)}
-                                        pages={pages}
-                                        activePageId={activePageId}
-                                        homePageId={homePageId}
-                                        onSwitchPage={(pageId) => {
-                                          handleSwitchEditingPage(pageId);
-                                          setIsPageManagerModalOpen(false);
-                                        }}
-                                        onUpdatePages={(updatedPages, newHomeId) => {
-                                          setPages(updatedPages);
-                                          if (newHomeId) setHomePageId(newHomeId);
-                                        }}
-                                        siteParts={siteParts}
-                                      />
-
-                                      {/* Website Publishing & Deployment Modal (Comment 8) */}
-                                      <PublishModal
-                                        isOpen={isPublishModalOpen}
-                                        onClose={() => setIsPublishModalOpen(false)}
-                                        publishing={publishing}
-                                        deployment={deployment}
-                                        pages={pages}
-                                        websiteName={website?.name || "ForgeStudio Project"}
-                                        websiteId={websiteId || ""}
-                                        approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
-                                        onPublish={handlePublishWebsite}
-                                        onRollback={handleRollbackDeployment}
-                                        onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
-                                        onOpenPreview={() => {
-                                          setIsPublishModalOpen(false);
-                                          setIsPreview(true);
-                                        }}
-                                      />
-
-                                      {/* SEO & Quality Analyzer Modal */}
-                                      <SeoAnalyzerModal
-                                        isOpen={isSeoModalOpen}
-                                        onClose={() => setIsSeoModalOpen(false)}
-                                        websiteId={websiteId || ""}
-                                        activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
-                                        allPages={pages}
-                                        websiteData={{
-                                          name: website?.name,
-                                          siteSettings: globalSettings || {},
-                                          pages,
-                                        }}
-                                        onSelectElement={handleSelectElementFromAudit}
-                                        onUpdateElementProp={handleUpdateElementPropById}
-                                        onUpdatePageSettings={setPageSettings}
-                                      />
-
-                                      {/* Collaborative Design Notes & Feedback Overlay */}
-                                      <DesignNotesOverlay
-                                        isOpen={isDesignNotesOpen}
-                                        onClose={() => setIsDesignNotesOpen(false)}
-                                        websiteId={websiteId || ""}
-                                        activeElementId={selectedElementAny?.id || null}
-                                      />
-
-                                      {/* Advanced Icon Library Modal */}
-                                      <IconPickerModal
-                                        isOpen={isIconPickerOpen}
-                                        onClose={() => setIsIconPickerOpen(false)}
-                                        currentIcon={
-                                          selectedElementAny
-                                            ? (selectedElementAny as any)[iconPickerTargetField] || selectedElementAny.iconName || selectedElementAny.icon || ""
-                                            : ""
-                                        }
-                                        onSelectIcon={(iconName, iconProvider) => {
-                                          if (selectedElementAny) {
-                                            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, iconName);
-                                            if (iconProvider) {
-                                              updateSelectedProp("iconProvider", iconProvider);
-                                            }
-                                            updateSelectedProp("icon", iconName);
-                                          }
-                                        }}
-                                        onRemoveIcon={() => {
-                                          if (selectedElementAny) {
-                                            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, "");
-                                            updateSelectedProp("icon", "");
-                                          }
-                                        }}
-                                      />
-
-                                      {/* Dynamic Font System Modal */}
-                                      <FontPickerModal
-                                        isOpen={isFontPickerModalOpen}
-                                        onClose={() => setIsFontPickerModalOpen(false)}
-                                        selectedFont={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
-                                        onSelectFont={(fontFamily) => {
-                                          if (fontPickerCallback) {
-                                            fontPickerCallback(fontFamily);
-                                          } else {
-                                            updateSelectedStyle("fontFamily", fontFamily);
-                                          }
-                                          setIsFontPickerModalOpen(false);
-                                        }}
-                                      />
-
-                                      {/* F-339: Variables Manager Modal */}
-                                      <VariablesManagerModal
-                                        isOpen={isVariablesModalOpen}
-                                        onClose={() => setIsVariablesModalOpen(false)}
-                                        variables={globalVariables}
-                                        onSaveVariables={(updated) => {
-                                          setGlobalVariables(updated);
-                                          handleSave();
-                                        }}
-                                      />
-
-                                      {/* F-340: Global Class Manager Modal */}
-                                      <ClassManagerModal
-                                        isOpen={isClassModalOpen}
-                                        onClose={() => setIsClassModalOpen(false)}
-                                        classes={globalClasses}
-                                        userRole="OWNER"
-                                        onSaveClasses={(updated) => {
-                                          setGlobalClasses(updated);
-                                          handleSave();
-                                        }}
-                                      />
-
-                                      {/* Visitor Accessibility Widget */}
-                                      <AccessibilityWidgetRuntime isPreview={isPreview} />
-
-                                      {/* In-Editor Accessibility & Compliance Auditor Modal */}
-                                      <AccessibilityAuditorModal
-                                        isOpen={isAccessibilityAuditorOpen}
-                                        onClose={() => setIsAccessibilityAuditorOpen(false)}
-                                        websiteData={website?.editorData || null}
-                                      />
-
-                                      {/* Accessibility & Language Settings Modal */}
-                                      <AccessibilitySettingsModal
-                                        isOpen={isAccessibilitySettingsOpen}
-                                        onClose={() => setIsAccessibilitySettingsOpen(false)}
-                                      />
+                                {/* Footer */}
+                                <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                                  <span className="text-[11px] text-slate-400">Press <kbd className="font-mono bg-white border border-slate-200 px-1 rounded">Esc</kbd> anytime to close</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsShortcutsHelpOpen(false)}
+                                    className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
+                                  >
+                                    Got it
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+                        {/* ========================================== */}
+                        {/* Manage Widgets & Visibility Modal (F-032)  */}
+                        {/* ========================================== */}
+                        {isElementManagerOpen && (
+                          <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+                            onClick={() => setIsElementManagerOpen(false)}
+                          >
+                            <div
+                              className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-900 text-white">
+                                <div>
+                                  <h3 className="text-sm font-bold">Manage Widgets & Visibility</h3>
+                                  <p className="text-[11px] text-slate-400">Control which widgets appear in the Widget Library.</p>
+                                </div>
+                                <button type="button" onClick={() => setIsElementManagerOpen(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white">✕</button>
+                              </div>
+                              <div className="p-4 border-b border-slate-100 bg-white flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={managerSearchQuery}
+                                  onChange={(e) => setManagerSearchQuery(e.target.value)}
+                                  placeholder="Search widgets..."
+                                  className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-blue-500"
+                                />
+                                <select
+                                  value={managerCategoryFilter}
+                                  onChange={(e) => setManagerCategoryFilter(e.target.value)}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs"
+                                >
+                                  {["All", "Layout", "Basic", "Content", "Interactive", "Media", "Commerce", "Social"].map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                                </select>
+                              </div>
+                              <div className="p-4 overflow-y-auto space-y-2.5 max-h-[55vh]">
+                                {ALL_WIDGET_REGISTRY.filter((w) => {
+                                  const matchesCat = managerCategoryFilter === "All" || w.category === managerCategoryFilter;
+                                  const q = managerSearchQuery.trim().toLowerCase();
+                                  return matchesCat && (!q || w.name.toLowerCase().includes(q) || w.type.toLowerCase().includes(q) || w.description.toLowerCase().includes(q) || w.category.toLowerCase().includes(q));
+                                }).map((w) => {
+                                  const isDisabled = disabledWidgets.includes(w.type);
+                                  return (
+                                    <div key={w.type} className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
+                                      <div className="flex items-center gap-3">
+                                        <span className="text-xl">{w.icon}</span>
+                                        <div><div className="text-xs font-bold text-slate-800">{w.name}</div><div className="text-[10px] text-slate-500">{w.description}</div></div>
+                                      </div>
+                                      <button type="button" onClick={() => toggleWidgetAvailability(w.type)} className={`relative inline-flex h-6 w-11 rounded-full border-2 border-transparent ${isDisabled ? "bg-slate-300" : "bg-emerald-500"}`} title={isDisabled ? `Enable ${w.name}` : `Hide ${w.name}`}>
+                                        <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition ${isDisabled ? "translate-x-0" : "translate-x-5"}`} />
+                                      </button>
                                     </div>
                                   );
+                                })}
+                              </div>
+                              <div className="border-t border-slate-100 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                                <span className="text-[11px] text-slate-500">{ALL_WIDGET_REGISTRY.length - disabledWidgets.length} of {ALL_WIDGET_REGISTRY.length} widgets active</span>
+                                <button type="button" onClick={() => setIsElementManagerOpen(false)} className="rounded-lg bg-blue-600 px-5 py-1.5 text-xs font-bold text-white hover:bg-blue-700">Done</button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                              {/* Popup Manager Modal */}
+                              <PopupManagerModal
+                                isOpen={isPopupManagerOpen}
+                                onClose={() => setIsPopupManagerOpen(false)}
+                                popups={popups}
+                                onSelectPopupForEdit={handleSelectPopupForEdit}
+                                onCreatePopup={handleCreatePopup}
+                                onUpdatePopup={handleUpdatePopup}
+                                onDeletePopup={handleDeletePopup}
+                                onDuplicatePopup={handleDuplicatePopup}
+                              />
+
+                              {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
+                              {
+                                isPreview && (
+                                  <PopupRuntimePreview
+                                    popups={popups}
+                                    renderElementTree={renderElementTree}
+                                    onTrackView={handleTrackPopupView}
+                                    onTrackClick={handleTrackPopupClick}
+                                    isPreviewMode={true}
+                                    globalSettings={globalSettings}
+                                  />
+                                )
+                              }
+
+                              {/* Developer Modal (F-102 - F-109) */}
+                              <DeveloperModal
+                                isOpen={!!devModalMode}
+                                onClose={() => setDevModalMode(null)}
+                                mode={devModalMode!}
+                                targetElement={selectedElement || elements[0]}
+                                initialValue={
+                                  devModalMode === "element-css" ? selectedElement?.customCss :
+                                    devModalMode === "css-selectors" ? selectedElement?.customSelectors :
+                                      devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
+                                        devModalMode === "page-css" ? pageCss :
+                                          devModalMode === "global-css" ? globalSettings.customCss :
+                                            ""
+                                }
+                                onSave={(val) => {
+                                  if (devModalMode === "element-css" && selectedElement) {
+                                    updateSelectedProp("customCss", val);
+                                  } else if (devModalMode === "css-selectors" && selectedElement) {
+                                    updateSelectedProp("customSelectors", val);
+                                  } else if (devModalMode === "custom-attributes" && selectedElement) {
+                                    updateSelectedProp("customAttributes", val);
+                                  } else if (devModalMode === "page-css") {
+                                    setPageCss(val);
+                                  } else if (devModalMode === "global-css") {
+                                    setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
+                                  } else if (devModalMode === "export-code") {
+                                    const target = selectedElement || elements[0];
+                                    if (target && val) {
+                                      setElements((prev) => updateTreeElement(prev, target.id, () => val));
+                                      setSelectedId(val.id);
+                                    }
+                                  }
+                                }}
+                              />
+
+                              {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
+                              <SaveTemplateDialog
+                                isOpen={isSaveTemplateOpen}
+                                isUpdateMode={isSaveTemplateUpdateMode}
+                                name={saveTemplateName}
+                                setName={setSaveTemplateName}
+                                description={saveTemplateDescription}
+                                setDescription={setSaveTemplateDescription}
+                                type={saveTemplateType}
+                                setType={setSaveTemplateType}
+                                category={saveTemplateCategory}
+                                setCategory={setSaveTemplateCategory}
+                                isSaving={isSavingTemplate}
+                                error={saveTemplateError}
+                                validationError={saveTemplateValidationError}
+                                onClose={closeSaveTemplateDialog}
+                                onSave={handleSaveTemplateSubmit}
+                                elements={elements}
+                                pageSettings={pageSettings}
+                              />
+
+                              {/* F-332 Replace Template Dialog Modal */}
+                              <ReplaceTemplateDialog
+                                isOpen={isReplaceTemplateOpen}
+                                targetElementName={selectedElement ? selectedElement.content || selectedElement.type : "Selected Element"}
+                                templates={libraryTemplates}
+                                onClose={() => setIsReplaceTemplateOpen(false)}
+                                onConfirmReplace={handleConfirmReplaceTemplate}
+                              />
+
+                              {/* F-336 Import Website Kit Dialog Modal */}
+                              <ImportWebsiteKitDialog
+                                isOpen={isImportWebsiteKitOpen}
+                                onClose={() => setIsImportWebsiteKitOpen(false)}
+                                onImportKit={handleConfirmImportWebsiteKit}
+                              />
+
+                              {/* F-320 Revision History Slide-Over Drawer */}
+                              <RevisionHistoryPanel
+                                isOpen={isRevisionHistoryOpen}
+                                onClose={() => setIsRevisionHistoryOpen(false)}
+                                websiteId={websiteId || ""}
+                                apiUrl={apiUrl}
+                                onRestore={handleRestoreRevision}
+                                currentWorkingState={{
+                                  elements,
+                                  pageSettings,
+                                  pages,
+                                  siteParts,
+                                  globalSettings,
+                                  breakpoints,
+                                  popups,
+                                  pageCss,
+                                  homePageId,
+                                }}
+                              />
+
+                              {/* Modal for Adding New Page */}
+                              {
+                                isAddPageModalOpen && (
+                                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+                                    <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+                                      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                                        <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                                          <span>✨</span>
+                                          <span>Add New Website Page</span>
+                                        </h3>
+                                        <button
+                                          type="button"
+                                          onClick={() => setIsAddPageModalOpen(false)}
+                                          className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+
+                                      <div className="space-y-3">
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                                            Page Title / Name
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="e.g. About, Services, Contact, Pricing"
+                                            value={newPageName}
+                                            onChange={(e) => {
+                                              const val = e.target.value;
+                                              setNewPageName(val);
+                                              if (!newPageSlug || newPageSlug === `/${newPageName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`) {
+                                                setNewPageSlug(`/${val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`);
+                                              }
+                                            }}
+                                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                                            autoFocus
+                                          />
+                                        </div>
+
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                                            URL Path / Slug
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="e.g. /about, /services, /contact"
+                                            value={newPageSlug}
+                                            onChange={(e) => setNewPageSlug(e.target.value)}
+                                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                                        <button
+                                          type="button"
+                                          onClick={() => setIsAddPageModalOpen(false)}
+                                          className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={handleCreateNewPage}
+                                          disabled={!newPageName.trim()}
+                                          className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+                                        >
+                                          Create Page
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }
+
+                              {/* Modal for Editing Existing Page */}
+                              {
+                                isEditPageModalOpen && (
+                                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fadeIn">
+                                    <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl space-y-4">
+                                      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                                        <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                                          <span>✏️</span>
+                                          <span>Edit Page Settings</span>
+                                        </h3>
+                                        <button
+                                          type="button"
+                                          onClick={() => setIsEditPageModalOpen(false)}
+                                          className="text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+
+                                      <div className="space-y-3">
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                                            Page Title / Name
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="e.g. About Us, Our Services, Contact"
+                                            value={editPageName}
+                                            onChange={(e) => {
+                                              const val = e.target.value;
+                                              setEditPageName(val);
+                                            }}
+                                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition"
+                                            autoFocus
+                                          />
+                                        </div>
+
+                                        <div>
+                                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                                            URL Path / Slug
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="e.g. /about, /services, /contact"
+                                            value={editPageSlug}
+                                            onChange={(e) => setEditPageSlug(e.target.value)}
+                                            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-blue-500 transition font-mono"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                                        <button
+                                          type="button"
+                                          onClick={() => setIsEditPageModalOpen(false)}
+                                          className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition cursor-pointer"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={handleSaveEditPage}
+                                          disabled={!editPageName.trim()}
+                                          className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-500 disabled:opacity-50 transition cursor-pointer"
+                                        >
+                                          Save Changes
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }
+
+                              {/* Multi-Page Management Modal (Comments 10, 11, 23, 36, 37) */}
+                              <PageManagerModal
+                                isOpen={isPageManagerModalOpen}
+                                onClose={() => setIsPageManagerModalOpen(false)}
+                                pages={pages}
+                                activePageId={activePageId}
+                                homePageId={homePageId}
+                                onSwitchPage={(pageId) => {
+                                  handleSwitchEditingPage(pageId);
+                                  setIsPageManagerModalOpen(false);
+                                }}
+                                onUpdatePages={(updatedPages, newHomeId) => {
+                                  setPages(updatedPages);
+                                  if (newHomeId) setHomePageId(newHomeId);
+                                }}
+                                siteParts={siteParts}
+                              />
+
+                              {/* Website Publishing & Deployment Modal (Comment 8) */}
+                              <PublishModal
+                                isOpen={isPublishModalOpen}
+                                onClose={() => setIsPublishModalOpen(false)}
+                                publishing={publishing}
+                                deployment={deployment}
+                                pages={pages}
+                                websiteName={website?.name || "ForgeStudio Project"}
+                                websiteId={websiteId || ""}
+                                approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
+                                onPublish={handlePublishWebsite}
+                                onRollback={handleRollbackDeployment}
+                                onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
+                                onOpenPreview={() => {
+                                  setIsPublishModalOpen(false);
+                                  setIsPreview(true);
+                                }}
+                              />
+
+                              {/* SEO & Quality Analyzer Modal */}
+                              <SeoAnalyzerModal
+                                isOpen={isSeoModalOpen}
+                                onClose={() => setIsSeoModalOpen(false)}
+                                websiteId={websiteId || ""}
+                                activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
+                                allPages={pages}
+                                websiteData={{
+                                  name: website?.name,
+                                  siteSettings: globalSettings || {},
+                                  pages,
+                                }}
+                                onSelectElement={handleSelectElementFromAudit}
+                                onUpdateElementProp={handleUpdateElementPropById}
+                                onUpdatePageSettings={setPageSettings}
+                              />
+
+                              {/* Collaborative Design Notes & Feedback Overlay */}
+                              <DesignNotesOverlay
+                                isOpen={isDesignNotesOpen}
+                                onClose={() => setIsDesignNotesOpen(false)}
+                                websiteId={websiteId || ""}
+                                activeElementId={selectedElementAny?.id || null}
+                              />
+
+                              {/* Advanced Icon Library Modal */}
+                              <IconPickerModal
+                                isOpen={isIconPickerOpen}
+                                onClose={() => setIsIconPickerOpen(false)}
+                                currentIcon={
+                                  selectedElementAny
+                                    ? (selectedElementAny as any)[iconPickerTargetField] || selectedElementAny.iconName || selectedElementAny.icon || ""
+                                    : ""
+                                }
+                                onSelectIcon={(iconName, iconProvider) => {
+                                  if (selectedElementAny) {
+                                    updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, iconName);
+                                    if (iconProvider) {
+                                      updateSelectedProp("iconProvider", iconProvider);
+                                    }
+                                    updateSelectedProp("icon", iconName);
+                                  }
+                                }}
+                                onRemoveIcon={() => {
+                                  if (selectedElementAny) {
+                                    updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, "");
+                                    updateSelectedProp("icon", "");
+                                  }
+                                }}
+                              />
+
+                              {/* Dynamic Font System Modal */}
+                              <FontPickerModal
+                                isOpen={isFontPickerModalOpen}
+                                onClose={() => setIsFontPickerModalOpen(false)}
+                                selectedFont={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+                                onSelectFont={(fontFamily) => {
+                                  if (fontPickerCallback) {
+                                    fontPickerCallback(fontFamily);
+                                  } else {
+                                    updateSelectedStyle("fontFamily", fontFamily);
+                                  }
+                                  setIsFontPickerModalOpen(false);
+                                }}
+                              />
+
+                              {/* F-339: Variables Manager Modal */}
+                              <VariablesManagerModal
+                                isOpen={isVariablesModalOpen}
+                                onClose={() => setIsVariablesModalOpen(false)}
+                                variables={globalVariables}
+                                onSaveVariables={(updated) => {
+                                  setGlobalVariables(updated);
+                                  handleSave();
+                                }}
+                              />
+
+                              {/* F-340: Global Class Manager Modal */}
+                              <ClassManagerModal
+                                isOpen={isClassModalOpen}
+                                onClose={() => setIsClassModalOpen(false)}
+                                classes={globalClasses}
+                                userRole="OWNER"
+                                onSaveClasses={(updated) => {
+                                  setGlobalClasses(updated);
+                                  handleSave();
+                                }}
+                              />
+
+                              {/* Visitor Accessibility Widget */}
+                              <AccessibilityWidgetRuntime isPreview={isPreview} />
+
+                              {/* In-Editor Accessibility & Compliance Auditor Modal */}
+                              <AccessibilityAuditorModal
+                                isOpen={isAccessibilityAuditorOpen}
+                                onClose={() => setIsAccessibilityAuditorOpen(false)}
+                                websiteData={website?.editorData || null}
+                              />
+
+                              {/* Accessibility & Language Settings Modal */}
+                              <AccessibilitySettingsModal
+                                isOpen={isAccessibilitySettingsOpen}
+                                onClose={() => setIsAccessibilitySettingsOpen(false)}
+                              />
+                            </div>
+                          );
 }

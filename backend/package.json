@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && node -e \"fs.cpSync('src/generated', 'dist/generated', { recursive: true })\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --root .. --project backend",
     "test:url": "tsx src/tests/url-system.test.ts",
@@ -24,7 +24,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@forgestudio/document-contract": "0.1.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.10.0",
     "@types/sharp": "^0.31.1",
@@ -64,6 +63,7 @@
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
     "tsx": "^4.23.12",
-    "typescript": "6.0.2"
+    "typescript": "6.0.2",
+    "vitest": "^5.0.1"
   }
 }

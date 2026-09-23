@@ -164,12 +164,7 @@ export async function canUserAccessResource(
   }
   // 1. Check basic ownership / team access via getWebsiteById
   // Defensive try/catch: prevents AuthError from crashing permission checks on non-existent or inaccessible websites
-  let website: any;
-  try {
-    website = await getWebsiteById(websiteId, userId);
-  } catch {
-    return false;
-  }
+  const website = await getWebsiteById(websiteId, userId, client);
   const role = website.userPermission || "REVIEWER";
 
   if (role === "OWNER" || role === "PROJECT_OWNER") return true;
@@ -275,7 +270,11 @@ export function authorizeCapability(capability: string, resourceId: string = "*"
         (req.query?.websiteId as string)
       ) as string;
       if (!websiteId) {
-        return next();
+        throw new AppError(
+          "Authorization requires a target website context.",
+          400,
+          "MISSING_AUTHORIZATION_CONTEXT"
+        );
       }
 
       await authorizeResourceAccess(user.id, websiteId, resourceId, capability);
