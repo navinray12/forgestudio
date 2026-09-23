@@ -1593,8 +1593,17 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
-  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
-  const sourceData = rawEditorData.publishedData || rawEditorData;
+  // Authoritative atomic release resolution: resolve snapshot via currentReleaseId pointer
+  let activeReleaseSnapshot: any = null;
+  if (rawEditorData.currentReleaseId && Array.isArray(rawEditorData.releases)) {
+    const activeRelease = rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId);
+    if (activeRelease?.snapshotData) {
+      activeReleaseSnapshot = activeRelease.snapshotData;
+    }
+  }
+
+  // Fallback to publishedData or working editorData (Comment 12)
+  const sourceData = activeReleaseSnapshot || rawEditorData.publishedData || rawEditorData;
 
   // Build site context for dynamic token resolution
   const siteContext: DynamicContext = {

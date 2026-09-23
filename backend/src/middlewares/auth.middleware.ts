@@ -72,6 +72,7 @@ export async function requireAuth(
 
     res.locals.user = session.user;
     res.locals.session = session;
+    (req as any).user = session.user;
 
     next();
   } catch (error) {

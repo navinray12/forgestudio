@@ -41,6 +41,8 @@ import {
   rollbackDeploymentHandler,
   downloadStaticExportHandler,
   downloadLatestStaticExportHandler,
+  getReleasesHandler,
+  instantRollbackHandler,
 } from "../controllers/publishing.controller.js";
 import {
   connectWordPressHandler,
@@ -154,6 +156,8 @@ router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDep
 router.get("/:id/deployments/:deploymentId/export-download", authorizeCapability("VIEW"), downloadStaticExportHandler);
 router.get("/:id/export/zip", authorizeCapability("VIEW"), downloadLatestStaticExportHandler);
 router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);
+router.get("/:id/releases", authorizeCapability("VIEW"), getReleasesHandler);
+router.post("/:id/releases/:releaseId/rollback", authorizeCapability("ROLLBACK"), instantRollbackHandler);
 router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
 router.post("/:id/cancel-scheduled-publish", authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);

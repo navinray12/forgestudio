@@ -141,11 +141,109 @@ export interface FormSubmitPayload {
     rateLimitPerMinute?: number;
   };
   honeypotValue?: string;
+  conditionalLogic?: Array<{
+    id: string;
+    action: 'show' | 'hide' | 'require' | 'skip_to_step';
+    targetFieldId: string;
+    targetStepIndex?: number;
+    matchType: 'all' | 'any';
+    rules: Array<{
+      id: string;
+      fieldId: string;
+      operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'is_empty' | 'is_not_empty';
+      value?: string | number | boolean;
+    }>;
+  }>;
+  fieldConfigs?: Array<{
+    id: string;
+    name: string;
+    required?: boolean;
+    label?: string;
+  }>;
   metadata?: {
     ip?: string;
     userAgent?: string;
     referer?: string;
   };
+}
+
+/**
+ * Evaluates server-side conditional logic to filter out hidden fields from strict required checks
+ */
+export function evaluateServerConditionalLogic(
+  fieldConfigs: Array<{ id: string; name: string; required?: boolean; label?: string }>,
+  conditionalLogic: any[],
+  submittedValues: Record<string, any>
+): { validatedFields: Record<string, any>; invalidRequiredFields: string[] } {
+  const invalidRequiredFields: string[] = [];
+  const validatedFields: Record<string, any> = { ...submittedValues };
+
+  for (const field of fieldConfigs) {
+    let isVisible = true;
+    let isRequired = !!field.required;
+
+    const targetRules = (conditionalLogic || []).filter(
+      (l) => l.targetFieldId === field.id || l.targetFieldId === field.name
+    );
+
+    for (const block of targetRules) {
+      if (!block.rules || block.rules.length === 0) continue;
+
+      const matches = block.rules.map((rule: any) => {
+        const triggerField = fieldConfigs.find((f) => f.id === rule.fieldId);
+        const key = triggerField ? triggerField.name : rule.fieldId;
+        const rawVal =
+          submittedValues[key] !== undefined ? submittedValues[key] : submittedValues[rule.fieldId];
+        const valStr = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : "";
+        const targetStr =
+          rule.value !== undefined && rule.value !== null ? String(rule.value).trim() : "";
+
+        switch (rule.operator) {
+          case "equals":
+            return valStr.toLowerCase() === targetStr.toLowerCase();
+          case "not_equals":
+            return valStr.toLowerCase() !== targetStr.toLowerCase();
+          case "contains":
+            return valStr.toLowerCase().includes(targetStr.toLowerCase());
+          case "greater_than":
+            return Number(rawVal) > Number(rule.value);
+          case "less_than":
+            return Number(rawVal) < Number(rule.value);
+          case "is_empty":
+            return rawVal === undefined || rawVal === null || valStr === "";
+          case "is_not_empty":
+            return rawVal !== undefined && rawVal !== null && valStr !== "";
+          default:
+            return false;
+        }
+      });
+
+      const isMatch =
+        block.matchType === "any" ? matches.some(Boolean) : matches.every(Boolean);
+
+      if (block.action === "show") {
+        isVisible = isMatch;
+      } else if (block.action === "hide") {
+        if (isMatch) isVisible = false;
+      } else if (block.action === "require") {
+        if (isMatch) isRequired = true;
+      }
+    }
+
+    // If field is hidden, it is excluded from required validation
+    if (!isVisible) {
+      continue;
+    }
+
+    if (isRequired) {
+      const val = submittedValues[field.name];
+      if (val === undefined || val === null || String(val).trim() === "") {
+        invalidRequiredFields.push(field.label || field.name);
+      }
+    }
+  }
+
+  return { validatedFields, invalidRequiredFields };
 }
 
 /**
@@ -160,6 +258,8 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     actions,
     spamProtection,
     honeypotValue,
+    conditionalLogic,
+    fieldConfigs,
     metadata,
   } = payload;
 
@@ -185,6 +285,22 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
       429,
       "RATE_LIMIT_EXCEEDED"
     );
+  }
+
+  // 2b. Evaluate Server-side Conditional Logic & Required Checks
+  if (fieldConfigs && fieldConfigs.length > 0) {
+    const { invalidRequiredFields } = evaluateServerConditionalLogic(
+      fieldConfigs,
+      conditionalLogic || [],
+      fields || {}
+    );
+    if (invalidRequiredFields.length > 0) {
+      throw new AppError(
+        `Missing required fields: ${invalidRequiredFields.join(", ")}`,
+        400,
+        "VALIDATION_ERROR"
+      );
+    }
   }
 
   // 3. Sanitize fields
