@@ -1,3 +1,7 @@
+/**
+ * @file Templates feature: index. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 export * from "./types/template.types";
 export * from "./services/templateService";
 export * from "./hooks/useSaveTemplate";

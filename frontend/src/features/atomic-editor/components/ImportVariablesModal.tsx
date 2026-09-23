@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Import Variables Modal. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { ExportedVariableItem, VariableConflictItem, ConflictResolutionMode } from "../types/variableExportImport.types";
 import type { CreateVariablePayload } from "../types/variables.types";
@@ -13,6 +17,16 @@ interface ImportVariablesModalProps {
   ) => Promise<void>;
 }
 
+/**
+ * Render the import variables modal interface and connect its event handlers.
+ * @param options Named inputs: isOpen, newItems, initialConflicts, onClose, onConfirmImport.
+
+ * @param options.isOpen Is Open passed by the caller.
+ * @param options.newItems New Items passed by the caller.
+ * @param options.initialConflicts Initial Conflicts passed by the caller.
+ * @param options.onClose Callback invoked when this interface should close.
+ * @param options.onConfirmImport Callback for confirm import events.
+ */
 export const ImportVariablesModal: React.FC<ImportVariablesModalProps> = ({
   isOpen,
   newItems,
@@ -26,6 +40,11 @@ export const ImportVariablesModal: React.FC<ImportVariablesModalProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * Update Conflict Resolution.
+   * @param index Index supplied to this operation (type: number).
+   * @param mode Mode supplied to this operation (type: ConflictResolutionMode).
+   */
   const updateConflictResolution = (index: number, mode: ConflictResolutionMode) => {
     setConflicts((prev) => {
       const copy = [...prev];
@@ -34,6 +53,9 @@ export const ImportVariablesModal: React.FC<ImportVariablesModalProps> = ({
     });
   };
 
+  /**
+   * Handle Confirm.
+   */
   const handleConfirm = async () => {
     setErrorMsg(null);
     setIsSubmitting(true);

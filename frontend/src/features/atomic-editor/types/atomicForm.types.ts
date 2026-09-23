@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: atomic Form types. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 export type FormFieldType =
   | "text"
   | "email"

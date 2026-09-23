@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: controlled Component Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const LOCKS_STORAGE_KEY = "forge_studio_component_locks";
 const OVERRIDES_STORAGE_KEY = "forge_studio_component_overrides";
 
@@ -9,6 +13,8 @@ const DEFAULT_ALLOWED_KEYS: Record<string, string[]> = {
 export class ControlledComponentService {
   /**
    * Gets allowed editable keys for a component
+
+   * @param componentId Component Id supplied to this operation (type: string).
    */
   static getComponentLockSettings(componentId: string): string[] {
     try {
@@ -25,6 +31,9 @@ export class ControlledComponentService {
 
   /**
    * Saves allowed editable keys for a component
+
+   * @param componentId Component Id supplied to this operation (type: string).
+   * @param allowedKeys Allowed Keys supplied to this operation (type: string[]).
    */
   static saveComponentLockSettings(componentId: string, allowedKeys: string[]): void {
     try {
@@ -39,6 +48,8 @@ export class ControlledComponentService {
 
   /**
    * Gets instance property overrides
+
+   * @param instanceId Instance Id supplied to this operation (type: string).
    */
   static getInstanceOverrides(instanceId: string): Record<string, string> {
     try {
@@ -53,6 +64,10 @@ export class ControlledComponentService {
 
   /**
    * Saves instance property overrides
+
+   * @param instanceId Instance Id supplied to this operation (type: string).
+   * @param propertyKey Property Key supplied to this operation (type: string).
+   * @param value Value supplied to this operation (type: string).
    */
   static saveInstanceOverride(instanceId: string, propertyKey: string, value: string): Record<string, string> {
     try {
@@ -70,6 +85,9 @@ export class ControlledComponentService {
 
   /**
    * Resets a specific instance override to component default
+
+   * @param instanceId Instance Id supplied to this operation (type: string).
+   * @param propertyKey Property Key supplied to this operation (type: string).
    */
   static resetInstanceOverride(instanceId: string, propertyKey: string): Record<string, string> {
     try {

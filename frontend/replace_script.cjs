@@ -1,3 +1,7 @@
+/**
+ * @file Replace script: frontend module support.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 const fs = require('fs');
 let code = fs.readFileSync('src/pages/editor/WebsiteEditor.tsx', 'utf8');
 

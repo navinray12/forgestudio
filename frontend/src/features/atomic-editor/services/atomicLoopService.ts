@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: atomic Loop Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { LoopContainerConfig, CreateLoopPayload } from "../types/atomicLoop.types";
 
 const STORAGE_KEY = "forge_studio_atomic_loops";
@@ -70,6 +74,8 @@ export class AtomicLoopService {
 
   /**
    * Persists loop definitions to LocalStorage
+
+   * @param loops Loops supplied to this operation (type: LoopContainerConfig[]).
    */
   static saveLoops(loops: LoopContainerConfig[]): void {
     try {
@@ -81,6 +87,8 @@ export class AtomicLoopService {
 
   /**
    * Creates a new Loop definition
+
+   * @param payload Payload supplied to this operation (type: CreateLoopPayload).
    */
   static createLoop(payload: CreateLoopPayload): LoopContainerConfig {
     const list = this.getLoops();
@@ -113,6 +121,9 @@ export class AtomicLoopService {
 
   /**
    * Updates an existing Loop definition
+
+   * @param id Id supplied to this operation (type: string).
+   * @param payload Payload supplied to this operation (type: Partial<LoopContainerConfig>).
    */
   static updateLoop(id: string, payload: Partial<LoopContainerConfig>): LoopContainerConfig {
     const list = this.getLoops();
@@ -132,6 +143,8 @@ export class AtomicLoopService {
 
   /**
    * Deletes a Loop definition
+
+   * @param id Id supplied to this operation (type: string).
    */
   static deleteLoop(id: string): void {
     const list = this.getLoops();

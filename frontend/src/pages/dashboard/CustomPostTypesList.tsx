@@ -1,8 +1,15 @@
+/**
+ * @file Custom Post Types List: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
+/**
+ * Render the custom post types list interface and connect its event handlers.
+ */
 export default function CustomPostTypesList() {
     const { websiteId } = useParams();
     const [cpts, setCpts] = useState<any[]>([]);
@@ -13,6 +20,9 @@ export default function CustomPostTypesList() {
         fetchCpts();
     }, [websiteId]);
 
+    /**
+     * Fetch Cpts.
+     */
     const fetchCpts = async () => {
         try {
             setLoading(true);

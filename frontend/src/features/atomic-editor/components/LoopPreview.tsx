@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Loop Preview. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React from "react";
 import type { LoopContainerConfig, LoopDataItem } from "../types/atomicLoop.types";
 import { evaluateDynamicField } from "../utils/loopData.utils";
@@ -7,6 +11,13 @@ interface LoopPreviewProps {
   items: LoopDataItem[];
 }
 
+/**
+ * Render the loop preview interface and connect its event handlers.
+ * @param options Named inputs: loop, items.
+
+ * @param options.loop Loop passed by the caller.
+ * @param options.items Items passed by the caller.
+ */
 export const LoopPreview: React.FC<LoopPreviewProps> = ({ loop, items }) => {
   if (items.length === 0) {
     return (

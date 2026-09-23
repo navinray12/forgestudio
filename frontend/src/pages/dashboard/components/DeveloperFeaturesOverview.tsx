@@ -1,3 +1,7 @@
+/**
+ * @file Developer Features Overview: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,13 +40,16 @@ const ICON_COLORS: Record<string, string> = {
     dashboard: "bg-emerald-50 text-emerald-600 border-emerald-100",
 };
 
+/**
+ * Render the developer features overview interface and connect its event handlers.
+ */
 export default function DeveloperFeaturesOverview() {
     const navigate = useNavigate();
     const [websites, setWebsites] = useState<any[]>([]);
 
     // Fetch websites so we can smart-route to the editor
     useEffect(() => {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
         fetch(`${apiUrl}/api/websites`, { credentials: "include" })
             .then(r => r.json())
             .then(d => {
@@ -51,6 +58,10 @@ export default function DeveloperFeaturesOverview() {
             .catch(() => { });
     }, []);
 
+    /**
+     * Handle Feature Click.
+     * @param f F supplied to this operation (type: FeatureDef).
+     */
     const handleFeatureClick = (f: FeatureDef) => {
         if (f.location === "dashboard" && f.tab) {
             navigate(`/dashboard?tab=${f.tab}`);

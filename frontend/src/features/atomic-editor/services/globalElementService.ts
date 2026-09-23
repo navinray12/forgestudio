@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: global Element Service. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import type { GlobalElementDefinition, CreateGlobalElementPayload } from "../types/globalElements.types";
 
 const STORAGE_KEY = "forge_studio_global_elements";
@@ -78,6 +82,8 @@ export class GlobalElementService {
 
   /**
    * Persists global element definitions
+
+   * @param elements Elements supplied to this operation (type: GlobalElementDefinition[]).
    */
   static saveGlobalElements(elements: GlobalElementDefinition[]): void {
     try {
@@ -89,6 +95,8 @@ export class GlobalElementService {
 
   /**
    * Creates a new Global Element
+
+   * @param payload Payload supplied to this operation (type: CreateGlobalElementPayload).
    */
   static createGlobalElement(payload: CreateGlobalElementPayload): GlobalElementDefinition {
     const list = this.getGlobalElements();
@@ -111,6 +119,9 @@ export class GlobalElementService {
 
   /**
    * Updates an existing Global Element
+
+   * @param id Id supplied to this operation (type: string).
+   * @param payload Payload supplied to this operation (type: Partial<CreateGlobalElementPayload>).
    */
   static updateGlobalElement(
     id: string,
@@ -140,6 +151,8 @@ export class GlobalElementService {
 
   /**
    * Deletes a Global Element by ID
+
+   * @param id Id supplied to this operation (type: string).
    */
   static deleteGlobalElement(id: string): void {
     const list = this.getGlobalElements();

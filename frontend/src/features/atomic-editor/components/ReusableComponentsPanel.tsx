@@ -1,3 +1,7 @@
+/**
+ * @file Atomic editor feature: Reusable Components Panel. Keep feature UI, hooks, services and types in this module.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useState } from "react";
 import type { ReusableComponentDefinition } from "../types/reusableComponents.types";
 import { useReusableComponents } from "../hooks/useReusableComponents";
@@ -11,6 +15,12 @@ interface ReusableComponentsPanelProps {
   onInsertComponent?: (componentId: string) => void;
 }
 
+/**
+ * Render the reusable components panel interface and connect its event handlers.
+ * @param options Named inputs: onInsertComponent.
+
+ * @param options.onInsertComponent Callback for insert component events.
+ */
 export const ReusableComponentsPanel: React.FC<ReusableComponentsPanelProps> = ({
   onInsertComponent,
 }) => {
@@ -41,6 +51,10 @@ export const ReusableComponentsPanel: React.FC<ReusableComponentsPanelProps> = (
     updateLockSettings,
   } = useControlledComponent(activeInstanceComponent);
 
+  /**
+   * Handle Form Submit.
+   * @param payload Payload supplied to this operation (type: any).
+   */
   const handleFormSubmit = async (payload: any) => {
     if (editingComponent) {
       await updateComponent(editingComponent.id, payload);

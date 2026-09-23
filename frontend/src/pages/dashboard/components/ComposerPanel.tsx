@@ -1,6 +1,10 @@
+/**
+ * @file Composer Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
 interface ComposerStatus {
     available: boolean;
@@ -10,6 +14,9 @@ interface ComposerStatus {
     error?: string;
 }
 
+/**
+ * Render the composer panel interface and connect its event handlers.
+ */
 export default function ComposerPanel() {
     const [status, setStatus] = useState<ComposerStatus | null>(null);
     const [loading, setLoading] = useState(true);
@@ -22,6 +29,9 @@ export default function ComposerPanel() {
         fetchStatus();
     }, []);
 
+    /**
+     * Fetch Status.
+     */
     const fetchStatus = async () => {
         try {
             // Composer routes use requireAuth (cookie-based session), mounted at /api/v1/composer
@@ -39,6 +49,9 @@ export default function ComposerPanel() {
         }
     };
 
+    /**
+     * Handle Validate.
+     */
     const handleValidate = async () => {
         setValidating(true);
         setOutput("");
@@ -62,6 +75,9 @@ export default function ComposerPanel() {
         }
     };
 
+    /**
+     * Handle Install.
+     */
     const handleInstall = async () => {
         setInstalling(true);
         setOutput("Starting installation...\n");

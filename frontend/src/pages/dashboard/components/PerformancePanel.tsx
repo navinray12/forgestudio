@@ -1,6 +1,10 @@
+/**
+ * @file Performance Panel: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import { useState, useEffect } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
 interface PerformanceSettings {
     reducedDom: boolean;
@@ -34,6 +38,9 @@ const defaultSettings: PerformanceSettings = {
     performanceMode: false, imageOptimization: false,
 };
 
+/**
+ * Render the performance panel interface and connect its event handlers.
+ */
 export default function PerformancePanel() {
     const [websites, setWebsites] = useState<any[]>([]);
     const [selectedSite, setSelectedSite] = useState<string>("");
@@ -45,6 +52,9 @@ export default function PerformancePanel() {
     useEffect(() => { fetchWebsites(); }, []);
     useEffect(() => { if (selectedSite) fetchSettings(); }, [selectedSite]);
 
+    /**
+     * Fetch Websites.
+     */
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -56,34 +66,46 @@ export default function PerformancePanel() {
         } catch { /* no-op */ }
     };
 
+    /**
+     * Fetch Settings.
+     */
     const fetchSettings = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${apiUrl}/api/websites/${selectedSite}`, { credentials: "include" });
+            const res = await fetch(`${apiUrl}/api/v1/websites/${selectedSite}`, { credentials: "include" });
             const data = await res.json();
             if (res.ok) {
-                const saved = data.website?.performanceSettings || data.performanceSettings;
+                const saved = data.data?.performanceSettings || data.website?.performanceSettings || data.performanceSettings || data.website?.editorData?.performanceSettings;
                 if (saved) setSettings({ ...defaultSettings, ...saved });
             }
         } catch { /* use defaults */ }
         finally { setLoading(false); }
     };
 
+    /**
+     * Toggle.
+     * @param key Key supplied to this operation (type: keyof PerformanceSettings).
+     */
     const toggle = (key: keyof PerformanceSettings) => {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));
         setSaved(false);
     };
 
+    /**
+     * Handle Save.
+     */
     const handleSave = async () => {
         setSaving(true); setSaved(false);
         try {
-            await fetch(`${apiUrl}/api/websites/${selectedSite}/editor-data`, {
+            const res = await fetch(`${apiUrl}/api/v1/websites/${selectedSite}/editor-data`, {
                 method: "PUT", credentials: "include",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ performanceSettings: settings }),
+                body: JSON.stringify({ performanceSettings: settings, performance: settings }),
             });
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
+            if (res.ok) {
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+            }
         } catch { /* no-op */ }
         finally { setSaving(false); }
     };
@@ -135,8 +157,8 @@ export default function PerformancePanel() {
                             key={feat.key}
                             onClick={() => toggle(feat.key)}
                             className={`cursor-pointer rounded-2xl border p-4 transition-all select-none ${settings[feat.key]
-                                    ? "bg-slate-900 border-slate-800 shadow-md"
-                                    : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
+                                ? "bg-slate-900 border-slate-800 shadow-md"
+                                : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                                 }`}
                         >
                             <div className="flex items-start justify-between gap-3">

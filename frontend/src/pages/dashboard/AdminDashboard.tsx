@@ -8,11 +8,9 @@ import {
   LogOut,
   RefreshCw,
   Search,
-  CheckCircle2,
   AlertCircle,
   ExternalLink,
   Layers,
-  HardDrive,
   Cpu,
 } from "lucide-react";
 
@@ -53,7 +51,7 @@ interface AdminWebsite {
   _count?: { deployments: number; revisions: number };
 }
 
-function AdminDashboard() {
+export function AdminDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -89,15 +87,15 @@ function AdminDashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   useEffect(() => {
     fetchAdminData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login", { replace: true });
-  };
 
   const filteredWebsites = websites.filter(
     (w) =>
@@ -286,11 +284,10 @@ function AdminDashboard() {
                       </td>
                       <td className="py-3 px-4">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            site.status === "PUBLISHED"
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${site.status === "PUBLISHED"
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
                               : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-                          }`}
+                            }`}
                         >
                           {site.status}
                         </span>
@@ -352,13 +349,12 @@ function AdminDashboard() {
                       </div>
                     </div>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        d.status === "PUBLISHED"
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${d.status === "PUBLISHED"
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                           : d.status === "FAILED"
-                          ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                          : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                      }`}
+                            ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                        }`}
                     >
                       {d.status}
                     </span>

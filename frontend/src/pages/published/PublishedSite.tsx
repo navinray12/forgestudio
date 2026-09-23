@@ -1,9 +1,20 @@
+/**
+ * @file Published Site: React UI composition and event handling for this screen or component.
+ * Navigation and conventions: docs/code-navigation/README.md.
+ */
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { resolveElementStyles, getInnerStyles, getMergedLayout } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
+/**
+ * Render the background slideshow interface and connect its event handlers.
+ * @param options Named inputs: urls, interval.
+
+ * @param options.urls Urls passed by the caller.
+ * @param options.interval Interval passed by the caller.
+ */
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
     const [index, setIndex] = useState(0);
     useEffect(() => {
@@ -20,9 +31,8 @@ const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ 
             {urls.map((url, i) => (
                 <div
                     key={url + i}
-                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-                        i === index ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"
+                        }`}
                     style={{ backgroundImage: `url(${url})` }}
                 />
             ))}
@@ -39,10 +49,24 @@ export interface PageConfig {
     isHome?: boolean;
 }
 
+/**
+ * F352 get Media Optimization Props.
+ * @param src Src supplied to this operation (type: string).
+ * @param _apiUrl Api Url supplied to this operation (type: string).
+ * @param _styles Styles supplied to this operation (type: any).
+ */
 export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _styles: any) {
     return { src };
 }
 
+/**
+ * Get Global Custom Css.
+ * @param _pages Pages supplied to this operation (type: any).
+ * @param _popups Popups supplied to this operation (type: any).
+ * @param _breakpoints Breakpoints supplied to this operation (type: any).
+ * @param _globalSettings Global Settings supplied to this operation (type: any).
+ * @param _id Id supplied to this operation (type: any).
+ */
 export function getGlobalCustomCss(_pages: any, _popups: any, _breakpoints: any, _globalSettings: any, _id: any) {
     return "";
 }
@@ -90,11 +114,35 @@ import {
     MegaMenuWidgetRenderer,
     OffCanvasWidgetRenderer,
     ShareButtonsWidgetRenderer,
+    WcProductWidgetRenderer,
     WcProductTitleWidgetRenderer,
     WcProductPriceWidgetRenderer,
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
     WcProductRatingWidgetRenderer,
+    WcProductStockWidgetRenderer,
+    WcProductMetaWidgetRenderer,
+    WcProductContentWidgetRenderer,
+    WcShortDescriptionWidgetRenderer,
+    WcProductDataTabsWidgetRenderer,
+    WcAdditionalInformationWidgetRenderer,
+    WcRelatedProductsWidgetRenderer,
+    WcUpsellsWidgetRenderer,
+    WcProductsWidgetRenderer,
+    WcCustomAddToCartWidgetRenderer,
+    WcProductCategoriesWidgetRenderer,
+    WcMenuCartWidgetRenderer,
+    WcCartWidgetRenderer,
+    WcCheckoutWidgetRenderer,
+    WcMyAccountWidgetRenderer,
+    WcPurchaseSummaryWidgetRenderer,
+    WcNoticesWidgetRenderer,
+    WcShopLayoutsWidgetRenderer,
+    WcProductArchiveWidgetRenderer,
+    WcProductPageTemplatesWidgetRenderer,
+    WcProductArchiveTemplatesWidgetRenderer,
+    WcShopFiltersWidgetRenderer,
+    LanguageSwitcherWidgetRenderer,
     resolveButtonHref
 } from "../editor/widgets";
 import { IconRenderer } from "../editor/widgets/icons";
@@ -110,23 +158,58 @@ const DEFAULT_BREAKPOINTS: Breakpoint[] = [
     { id: "mobile", name: "Mobile", width: 360, active: true },
 ];
 
+/**
+ * Render Svg Icon.
+ * @param _name Name supplied to this operation (type: string).
+ * @param size Size supplied to this operation (type: string).
+ * @param color Color supplied to this operation (type: string).
+ */
 const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
 
 const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
     if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
-    return pagesList.find(
+    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0].trim().toLowerCase();
+
+    // 1. Direct ID, slug, or name match
+    let matched = pagesList.find(
         (p) =>
             p.id === target ||
             p.slug === target ||
             p.slug === `/${clean}` ||
-            p.slug.replace(/^\//, "") === clean ||
+            p.slug.replace(/^\//, "").toLowerCase() === clean ||
+            p.id.toLowerCase() === clean ||
             p.name.toLowerCase() === target.toLowerCase() ||
-            p.name.toLowerCase() === clean.toLowerCase() ||
+            p.name.toLowerCase() === clean ||
             (clean === "" && (p.isHome || p.id === "home"))
     );
+    if (matched) return matched;
+
+    // 2. Element widget type match (e.g. page containing wc-cart, wc-checkout, wc-product, wc-products, etc.)
+    matched = pagesList.find((p) =>
+        p.elements?.some(
+            (e) =>
+                e.type === clean ||
+                e.type === `wc-${clean}` ||
+                e.type === `woocommerce-${clean}`
+        )
+    );
+    if (matched) return matched;
+
+    // 3. Keyword / partial slug match
+    if (clean) {
+        matched = pagesList.find(
+            (p) =>
+                p.slug.toLowerCase().includes(clean) ||
+                p.name.toLowerCase().includes(clean) ||
+                clean.includes(p.slug.replace(/^\//, "").toLowerCase())
+        );
+    }
+    if (matched) return matched;
+
+    // 4. Fallback to home page or first available page to prevent blank screen
+    return pagesList.find((p) => p.isHome || p.id === "home") || pagesList[0];
 };
 
 interface RenderNodeProps {
@@ -200,13 +283,20 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         const isDownload = el.download;
         const imgElement = el.src && <img {...f352_getMediaOptimizationProps(el.src, apiUrl, resolvedStyles)} alt={el.alt || "Image"} loading={isCritical ? "eager" : "lazy"} fetchPriority={isCritical ? "high" : "auto"} decoding="async" className="max-w-full rounded-lg" />;
 
+        const isUnsafeImageHref = /^(javascript|vbscript|data):/i.test(imageHref);
+        const resolvedImageHref = isUnsafeImageHref ? "#" : (imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref);
+
         const wrappedImg = imageHref ? (
             <a
-                href={imageHref.startsWith("page:") ? (pages?.find(p => p.id === imageHref.replace("page:", ""))?.slug || "#") : imageHref}
+                href={resolvedImageHref}
                 target={target}
                 rel={rel}
                 download={isDownload ? true : undefined}
                 onClick={(e) => {
+                    const isExternal = /^https?:\/\//i.test(imageHref) || /^mailto:/i.test(imageHref) || /^tel:/i.test(imageHref);
+                    if (!isExternal && target !== "_blank") {
+                        e.preventDefault();
+                    }
                     let targetPage: PageConfig | undefined;
                     if (el.pageId && pages) {
                         targetPage = pages.find((p) => p.id === el.pageId);
@@ -215,10 +305,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         targetPage = findTargetPage(pages, imageHref);
                     }
                     if (targetPage && target !== "_blank" && onSwitchPage) {
-                        e.preventDefault();
                         onSwitchPage(targetPage);
                     } else if (imageHref.startsWith("#") && imageHref.length > 1) {
-                        e.preventDefault();
                         const targetEl = document.querySelector(imageHref);
                         if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                     }
@@ -277,6 +365,10 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         rel={rel}
                         download={isDownload ? true : undefined}
                         onClick={(e) => {
+                            const isExternal = /^https?:\/\//i.test(resolvedHref) || /^mailto:/i.test(resolvedHref) || /^tel:/i.test(resolvedHref);
+                            if (!isExternal && target !== "_blank") {
+                                e.preventDefault();
+                            }
                             let targetPage: PageConfig | undefined;
                             if (el.pageId && pages) {
                                 targetPage = pages.find((p) => p.id === el.pageId);
@@ -286,10 +378,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                             }
 
                             if (targetPage && target !== "_blank" && onSwitchPage) {
-                                e.preventDefault();
                                 onSwitchPage(targetPage);
                             } else if (resolvedHref.startsWith("#") && resolvedHref.length > 1) {
-                                e.preventDefault();
                                 const targetEl = document.querySelector(resolvedHref);
                                 if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
                             }
@@ -307,9 +397,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
                         }}
                     >
                         <span
-                            className={`inline-flex items-center justify-center ${
-                                isFlexCol ? "flex-col" : "flex-row"
-                            } ${isReverse ? "flex-col-reverse" : ""}`}
+                            className={`inline-flex items-center justify-center ${isFlexCol ? "flex-col" : "flex-row"
+                                } ${isReverse ? "flex-col-reverse" : ""}`}
                             style={{ gap: `${gap}px` }}
                         >
                             {!isReverse && renderIcon}
@@ -486,11 +575,41 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     );
     if (el.type === "share-buttons") return <div ref={assignRefIfTracked as any} {...mergedProps}><ShareButtonsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} pages={pages} activePageId={pages?.find(p => p.elements?.some(e => e.id === el.id))?.id || pages?.[0]?.id} /></div>;
 
-    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
-    if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+    const wcNavHandler = (targetSlugOrId: string) => {
+        if (!pages || !onSwitchPage) return;
+        const targetPage = findTargetPage(pages, targetSlugOrId);
+        if (targetPage) onSwitchPage(targetPage);
+    };
+
+    if (el.type === "wc-product" || el.type === "woocommerce-product") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-title") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductTitleWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-price" || el.type === "woocommerce-product-price") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPriceWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-images" || el.type === "woocommerce-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-add-to-cart" || el.type === "woocommerce-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-rating" || el.type === "woocommerce-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-stock") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductStockWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-meta" || el.type === "woocommerce-product-meta") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductMetaWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-content" || el.type === "woocommerce-product-content") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductContentWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-short-description" || el.type === "woocommerce-product-short-description") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShortDescriptionWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-data-tabs" || el.type === "woocommerce-product-data-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductDataTabsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-additional-information" || el.type === "woocommerce-additional-information") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAdditionalInformationWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-related-products" || el.type === "woocommerce-related-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcRelatedProductsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-upsells" || el.type === "woocommerce-upsells") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcUpsellsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-products" || el.type === "woocommerce-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-custom-add-to-cart" || el.type === "woocommerce-custom-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCustomAddToCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-categories" || el.type === "woocommerce-product-categories") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductCategoriesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-menu-cart" || el.type === "woocommerce-menu-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMenuCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-cart" || el.type === "woocommerce-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCartWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-checkout" || el.type === "woocommerce-checkout") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCheckoutWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-my-account" || el.type === "woocommerce-my-account") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMyAccountWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-purchase-summary" || el.type === "woocommerce-purchase-summary") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcPurchaseSummaryWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-notices" || el.type === "woocommerce-notices") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcNoticesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-shop-layouts" || el.type === "woocommerce-shop-layouts") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopLayoutsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-archive" || el.type === "woocommerce-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-page-templates" || el.type === "woocommerce-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-product-archive-templates" || el.type === "woocommerce-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "wc-shop-filters" || el.type === "woocommerce-shop-filters") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopFiltersWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} onNavigatePage={wcNavHandler} pages={pages} /></div>;
+    if (el.type === "language-switcher") return <div ref={assignRefIfTracked as any} {...mergedProps}><LanguageSwitcherWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
 
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
@@ -633,9 +752,13 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         prev.elementClassMap.get(prev.el.id) === next.elementClassMap.get(next.el.id);
 });
 
+/**
+ * Render the published site interface and connect its event handlers.
+ */
 export default function PublishedSite() {
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+
 
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
@@ -693,6 +816,9 @@ export default function PublishedSite() {
     useEffect(() => {
         if (!websiteId) return;
 
+        /**
+         * Fetch Website.
+         */
         const fetchWebsite = async () => {
             try {
                 setLoading(true);
@@ -745,6 +871,10 @@ export default function PublishedSite() {
         fetchWebsite();
     }, [websiteId, apiUrl, pageSlug]);
 
+    /**
+     * Handle Switch Page.
+     * @param page Page supplied to this operation (type: PageConfig).
+     */
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
         setElements(page.elements || []);
@@ -860,6 +990,9 @@ export default function PublishedSite() {
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
 
     useEffect(() => {
+        /**
+         * Handle Resize.
+         */
         const handleResize = () => {
             const width = window.innerWidth;
             const sorted = [...breakpoints].filter(b => b.active).sort((a, b) => b.width - a.width);
@@ -879,6 +1012,10 @@ export default function PublishedSite() {
         const styleHashToClass = new Map<string, string>();
         const customCssBuffer: string[] = [];
 
+        /**
+         * Hash Str.
+         * @param str Str supplied to this operation (type: string).
+         */
         const hashStr = (str: string) => {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -888,6 +1025,10 @@ export default function PublishedSite() {
             return Math.abs(hash).toString(36);
         };
 
+        /**
+         * Process Element.
+         * @param el El supplied to this operation (type: EditorElement).
+         */
         const processElement = (el: EditorElement) => {
             const resolved = resolveElementStyles(el, activeBreakpointId, breakpoints, globalSettings);
             const innerProps = getInnerStyles(resolved);
@@ -904,6 +1045,10 @@ export default function PublishedSite() {
                 if (!styleHashToClass.has(stylePayload)) {
                     let cssRulesOuter = "";
                     let cssRulesInner = "";
+                    /**
+                     * To Css.
+                     * @param obj Obj supplied to this operation (type: any).
+                     */
                     const toCss = (obj: any) => Object.entries(obj)
                         .filter(([_, v]) => v !== undefined && v !== "")
                         .map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}: ${v};`)
@@ -997,11 +1142,10 @@ export default function PublishedSite() {
                                         key={p.id}
                                         type="button"
                                         onClick={() => handleSwitchPage(p)}
-                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                                            isCurrent
-                                                ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
-                                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-                                        }`}
+                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isCurrent
+                                            ? "bg-white text-blue-600 shadow-sm border border-slate-200/60 font-extrabold"
+                                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                            }`}
                                     >
                                         {p.name || "Untitled"}
                                     </button>
@@ -1032,11 +1176,10 @@ export default function PublishedSite() {
                                             handleSwitchPage(p);
                                             setMobileMenuOpen(false);
                                         }}
-                                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${
-                                            isCurrent
-                                                ? "bg-blue-600 text-white font-extrabold shadow-sm"
-                                                : "text-slate-700 hover:bg-slate-200/70"
-                                        }`}
+                                        className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between ${isCurrent
+                                            ? "bg-blue-600 text-white font-extrabold shadow-sm"
+                                            : "text-slate-700 hover:bg-slate-200/70"
+                                            }`}
                                     >
                                         <span>{p.name}</span>
                                         <span className="text-[10px] opacity-70 font-mono">{p.slug}</span>
