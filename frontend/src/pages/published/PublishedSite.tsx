@@ -107,6 +107,11 @@ const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
 import { CookieConsentBanner } from "../../components/CookieConsentBanner";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
+import { SkipLinks } from "../../components/accessibility/SkipLinks";
+import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar";
+import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
+import { AccessibilityStatementModal } from "../../components/accessibility/AccessibilityStatementModal";
+import { WooCommerceProvider } from "../../context/WooCommerceContext";
 
 import {
     SlidesWidgetRenderer,
@@ -150,6 +155,29 @@ import {
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
     WcProductRatingWidgetRenderer,
+    WcBuilderWidgetRenderer,
+    WcProductWidgetRenderer,
+    WcProductStockWidgetRenderer,
+    WcProductMetaWidgetRenderer,
+    WcProductContentWidgetRenderer,
+    WcShortDescriptionWidgetRenderer,
+    WcProductDataTabsWidgetRenderer,
+    WcAdditionalInfoWidgetRenderer,
+    WcRelatedProductsWidgetRenderer,
+    WcUpsellsWidgetRenderer,
+    WcProductsWidgetRenderer,
+    WcCustomAddToCartWidgetRenderer,
+    WcProductCategoriesWidgetRenderer,
+    WcMenuCartWidgetRenderer,
+    WcCartWidgetRenderer,
+    WcCheckoutWidgetRenderer,
+    WcMyAccountWidgetRenderer,
+    WcPurchaseSummaryWidgetRenderer,
+    WcNoticesWidgetRenderer,
+    WcShopLayoutsWidgetRenderer,
+    WcProductArchiveWidgetRenderer,
+    WcProductPageTemplatesWidgetRenderer,
+    WcProductArchiveTemplatesWidgetRenderer,
     resolveButtonHref
 } from "../editor/widgets";
 import { IconRenderer } from "../editor/widgets/icons";
@@ -555,6 +583,30 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
     if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
 
+    if (el.type === "wc-builder") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcBuilderWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-stock") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductStockWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-meta") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductMetaWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-content") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductContentWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-short-description") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShortDescriptionWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-data-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductDataTabsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-additional-info") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAdditionalInfoWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-related-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcRelatedProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-upsells") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcUpsellsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-custom-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCustomAddToCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-categories") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductCategoriesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-menu-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMenuCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-checkout") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCheckoutWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-my-account") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMyAccountWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-purchase-summary") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcPurchaseSummaryWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-notices") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcNoticesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-shop-layouts") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopLayoutsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
             <NestedCarouselWidgetRenderer
@@ -714,18 +766,39 @@ export default function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
+    const [experiments, setExperiments] = useState<any[]>([]);
+    const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
         let css = "";
         if (globalVariables && globalVariables.length > 0) {
-            css += ":root {\n";
+            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
             for (const v of globalVariables) {
-                if (v && v.token && v.value) {
-                    css += `  ${v.token}: ${v.value};\n`;
+                if (v && v.token) {
+                    const lightVal = v.modes?.light || v.value;
+                    if (lightVal) {
+                        css += `  ${v.token}: ${lightVal};\n`;
+                    }
                 }
             }
             css += "}\n\n";
+
+            // Multi-mode Dark Theme overrides
+            const darkModeVars = globalVariables.filter((v: any) => v && v.token && v.modes?.dark);
+            if (darkModeVars.length > 0) {
+                css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
+                for (const v of darkModeVars) {
+                    css += `  ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "}\n\n";
+
+                css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
+                for (const v of darkModeVars) {
+                    css += `    ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "  }\n}\n\n";
+            }
         }
         if (globalClasses && globalClasses.length > 0) {
             for (const c of globalClasses) {
@@ -808,6 +881,9 @@ export default function PublishedSite() {
                 if (editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent) {
                     setCookieConsentConfig(editorData.siteSettings?.cookieConsent || editorData.cookieConsent);
                 }
+                if (site?.editorData?.experiments) {
+                    setExperiments(site.editorData.experiments);
+                }
 
             } catch (_err: any) {
                 setErrorMessage("This website is unavailable.");
@@ -817,6 +893,66 @@ export default function PublishedSite() {
         };
         fetchWebsite();
     }, [websiteId, apiUrl, pageSlug]);
+
+    // Phase 3 Subsystem 2: A/B Split Testing & Impression Telemetry
+    useEffect(() => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+
+        const running = experiments.filter((e) => e.status === "RUNNING");
+        if (running.length === 0) return;
+
+        const assignments: Record<string, string> = {};
+
+        for (const exp of running) {
+            const storageKey = `fs_exp_${exp.id}`;
+            let variantId = localStorage.getItem(storageKey);
+
+            if (!variantId || !exp.variants.some((v: any) => v.id === variantId)) {
+                // Weighted random traffic allocation
+                const rand = Math.random() * 100;
+                let cumulative = 0;
+                let selected = exp.variants[0]?.id || "control";
+
+                for (const v of exp.variants) {
+                    cumulative += v.trafficAllocation || 50;
+                    if (rand <= cumulative) {
+                        selected = v.id;
+                        break;
+                    }
+                }
+                variantId = selected;
+                try {
+                    localStorage.setItem(storageKey, variantId);
+                } catch {}
+            }
+
+            assignments[exp.id] = variantId;
+
+            // Dispatch impression telemetry (fire-and-forget)
+            fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/impression`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ variantId }),
+            }).catch(() => {});
+        }
+
+        setAssignedVariants(assignments);
+    }, [experiments, websiteId, apiUrl]);
+
+    const recordConversionForGoal = (action: string) => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+        const matching = experiments.filter((e) => e.status === "RUNNING" && e.goalAction === action);
+        for (const exp of matching) {
+            const variantId = assignedVariants[exp.id] || localStorage.getItem(`fs_exp_${exp.id}`);
+            if (variantId) {
+                fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/conversion`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ variantId }),
+                }).catch(() => {});
+            }
+        }
+    };
 
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
@@ -864,6 +1000,14 @@ export default function PublishedSite() {
         const siteSettings = (globalSettings as any)?.siteSettings || globalSettings || {};
         const title = pSettings.title || curPage.name || siteSettings.siteName || "Published Website";
         document.title = title;
+
+        // F-379 & F-380: Sync HTML language and RTL direction for published site
+        const siteLang = pSettings.siteLanguage || siteSettings.siteLanguage || "en";
+        const rtlLangs = ["ar", "he", "fa", "ur", "ar-sa", "he-il"];
+        const isRtl = pSettings.siteDirection === "rtl" || siteSettings.siteDirection === "rtl" || rtlLangs.includes(siteLang.toLowerCase());
+
+        document.documentElement.lang = siteLang;
+        document.documentElement.dir = isRtl ? "rtl" : "ltr";
 
         const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
             if (!content) return;
@@ -1044,8 +1188,17 @@ export default function PublishedSite() {
         );
     }
 
+    const [statementOpen, setStatementOpen] = useState<boolean>(false);
+
     return (
+        <WooCommerceProvider websiteId={websiteId}>
         <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+            {/* F-366: Keyboard Skip Link */}
+            <SkipLinks targetId="main-content" />
+
+            {/* F-376: Reading Guide Bar */}
+            <ReadingGuideBar />
+
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
             {compiledDesignTokensCss && <style id="fs-design-tokens-styles">{compiledDesignTokensCss}</style>}
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
@@ -1153,22 +1306,38 @@ export default function PublishedSite() {
                 </header>
             )}
 
-            {elements.map((el, index) => (
-                <RenderNode
-                    key={el.id}
-                    el={el}
-                    isCritical={index === 0}
-                    activeBreakpointId={activeBreakpointId}
-                    breakpoints={breakpoints}
-                    globalSettings={globalSettings}
-                    elementClassMap={elementClassMap}
-                    apiUrl={apiUrl}
-                    allElements={elements}
-                    pages={pages}
-                    onSwitchPage={handleSwitchPage}
-                    websiteId={websiteId}
-                />
-            ))}
+            {/* F-361: Semantic Main Container */}
+            <main id="main-content" className="w-full">
+                {elements.map((el, index) => (
+                    <RenderNode
+                        key={el.id}
+                        el={el}
+                        isCritical={index === 0}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={elements}
+                        pages={pages}
+                        onSwitchPage={handleSwitchPage}
+                        websiteId={websiteId}
+                    />
+                ))}
+            </main>
+
+            {/* F-364 & F-367 & F-374: Accessibility Visitor Widget */}
+            <AccessibilityWidget
+                config={globalSettings?.accessibilityWidget}
+                onOpenStatement={() => setStatementOpen(true)}
+            />
+
+            {/* F-373: Accessibility Statement Modal */}
+            <AccessibilityStatementModal
+                isOpen={statementOpen}
+                onClose={() => setStatementOpen(false)}
+                organizationName={globalSettings?.siteIdentity?.name || "Website"}
+            />
 
             {/* Configured Global Footer */}
             {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
@@ -1195,6 +1364,7 @@ export default function PublishedSite() {
             {/* F-438: Cookie Consent Runtime Banner */}
             <CookieConsentBanner config={cookieConsentConfig} />
         </div>
+        </WooCommerceProvider>
     );
 }
 

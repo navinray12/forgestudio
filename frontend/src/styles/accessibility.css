@@ -1,0 +1,94 @@
+/* ========================================== */
+/* FORGESTUDIO ACCESSIBILITY & USABILITY STYLES */
+/* ========================================== */
+
+:root {
+  --fs-a11y-font-scale: 1;
+}
+
+/* F-365: Font Scaling */
+body {
+  font-size: calc(1rem * var(--fs-a11y-font-scale));
+}
+
+/* F-370: Dyslexia-Friendly Font Override */
+.fs-a11y-dyslexic-font,
+.fs-a11y-dyslexic-font * {
+  font-family: "OpenDyslexic", "Comic Sans MS", sans-serif !important;
+}
+
+[data-a11y-spacing="wide"] * {
+  letter-spacing: 0.08em !important;
+}
+[data-a11y-spacing="extra-wide"] * {
+  letter-spacing: 0.16em !important;
+}
+
+[data-a11y-lineheight="loose"] * {
+  line-height: 1.8 !important;
+}
+[data-a11y-lineheight="extra-loose"] * {
+  line-height: 2.2 !important;
+}
+
+/* F-375: Visitor Contrast Modes */
+.fs-a11y-high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+.fs-a11y-high-contrast * {
+  border-color: #ffff00 !important;
+}
+
+.fs-a11y-dark-contrast {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+.fs-a11y-dark-contrast img,
+.fs-a11y-dark-contrast video {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
+
+.fs-a11y-monochrome {
+  filter: grayscale(100%) !important;
+}
+
+/* F-369: Pause Animations & Reduced Motion */
+.fs-a11y-pause-animations *,
+.fs-a11y-pause-animations *::before,
+.fs-a11y-pause-animations *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+/* F-377: Hide Images Mode */
+.fs-a11y-hide-images img,
+.fs-a11y-hide-images [style*="background-image"] {
+  opacity: 0.05 !important;
+  filter: blur(10px) !important;
+}
+
+/* F-368: High Contrast Keyboard Focus Ring */
+.fs-a11y-focus-ring *:focus,
+.fs-a11y-focus-ring *:focus-visible {
+  outline: 4px solid #2563eb !important;
+  outline-offset: 3px !important;
+}
+
+/* Big Cursor Mode */
+.fs-a11y-big-cursor,
+.fs-a11y-big-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%234f46e5' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M3 3l7 18 3-7 7-3L3 3z'/%3E%3C/svg%3E"), auto !important;
+}
+
+/* Highlight Links Mode */
+.fs-a11y-highlight-links a,
+.fs-a11y-highlight-links button {
+  background-color: #fef08a !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  text-decoration: underline !important;
+  text-decoration-color: #2563eb !important;
+  text-decoration-thickness: 3px !important;
+  border-radius: 4px !important;
+}

@@ -960,16 +960,26 @@ export async function updateWebsiteEditorData(
 
       // If deleted by user
       if (!incoming) {
+        // If restricted role (!canEditDesign && canEditContent), deletion is forbidden - preserve element
+        if (!canEditDesign && canEditContent) {
+          mergedEls.push(cEl);
+          continue;
+        }
         // It's allowed to be deleted because they have rights.
         continue;
       }
 
-      // If !canEditDesign && canEditContent
+      // If !canEditDesign && canEditContent (Content-Only Sandbox / Client Mode)
       if (!canEditDesign && canEditContent) {
         if (incoming.content !== undefined) cEl.content = incoming.content;
+        if (incoming.text !== undefined) cEl.text = incoming.text;
         if (incoming.src !== undefined) cEl.src = incoming.src;
+        if (incoming.image_asset_id !== undefined) cEl.image_asset_id = incoming.image_asset_id;
         if (incoming.alt !== undefined) cEl.alt = incoming.alt;
         if (incoming.href !== undefined) cEl.href = incoming.href;
+        if (incoming.settings?.href !== undefined) {
+          cEl.settings = { ...(cEl.settings || {}), href: incoming.settings.href };
+        }
       } else {
         // Full design rights! Merge everything (classes, styles, etc).
         Object.assign(cEl, incoming);
@@ -983,10 +993,12 @@ export async function updateWebsiteEditorData(
       mergedEls.push(cEl);
     }
 
-    // Now append any newly created elements that didn't exist in currentEls
-    for (const nEl of newEls) {
-      if (!currentEls.find(c => c.id === nEl.id)) {
-        mergedEls.push(nEl);
+    // Now append any newly created elements that didn't exist in currentEls (only if user has design rights)
+    if (canEditDesign) {
+      for (const nEl of newEls) {
+        if (!currentEls.find(c => c.id === nEl.id)) {
+          mergedEls.push(nEl);
+        }
       }
     }
 
@@ -1669,8 +1681,17 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
-  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
-  let sourceData = rawEditorData.publishedData || rawEditorData;
+  // Authoritative atomic release resolution: resolve snapshot via currentReleaseId pointer
+  let activeReleaseSnapshot: any = null;
+  if (rawEditorData.currentReleaseId && Array.isArray(rawEditorData.releases)) {
+    const activeRelease = rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId);
+    if (activeRelease?.snapshotData) {
+      activeReleaseSnapshot = activeRelease.snapshotData;
+    }
+  }
+
+  // Fallback to publishedData or working editorData (Comment 12)
+  let sourceData = activeReleaseSnapshot || rawEditorData.publishedData || rawEditorData;
   if (typeof sourceData === "string") {
     try {
       sourceData = JSON.parse(sourceData);

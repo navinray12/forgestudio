@@ -109,4 +109,6 @@ export { default as usageRoutes } from "./usage.routes.js";
 export { default as stagingRoutes } from "./staging.routes.js";
 export { default as serverConfigRoutes } from "./serverConfig.routes.js";
 export { default as hostingRoutes } from "./hosting.routes.js";
+export { default as performanceRoutes } from "./performance.routes.js";
+export { default as imageOptimizationRoutes } from "./imageOptimization.routes.js";
 

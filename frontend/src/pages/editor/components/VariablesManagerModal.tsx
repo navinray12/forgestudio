@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-import { X, Plus, Trash2, Download, Upload, Palette, Type, Move, Layers, Sparkles, Check } from "lucide-react";
+import { X, Plus, Trash2, Download, Upload, Palette, Type, Move, Layers, Sparkles, Check, Sun, Moon } from "lucide-react";
+
+export interface VariableModeValue {
+    modeId: "light" | "dark" | string;
+    value: string;
+}
 
 export interface DesignVariable {
     id: string;
     name: string;
     category: "color" | "typography" | "spacing" | "shadow" | "radius" | "custom";
     token: string;
-    value: string;
+    value: string; // Base / Light mode value
     description?: string;
+    defaultMode?: "light" | "dark";
+    modes?: Record<string, string>; // e.g. { light: '#ffffff', dark: '#0f172a' }
 }
 
 interface VariablesManagerModalProps {
@@ -36,6 +43,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     const [localVars, setLocalVars] = useState<DesignVariable[]>(variables);
     const [newVarName, setNewVarName] = useState("");
     const [newVarValue, setNewVarValue] = useState("");
+    const [newVarDarkValue, setNewVarDarkValue] = useState("");
     const [newVarToken, setNewVarToken] = useState("");
     const [importError, setImportError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
@@ -51,18 +59,28 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         const autoToken = newVarToken.trim() || `--fs-${activeTab}-${newVarName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
         const sanitizedToken = autoToken.startsWith("--") ? autoToken : `--${autoToken}`;
 
+        const modes: Record<string, string> = {
+            light: newVarValue.trim(),
+        };
+        if (newVarDarkValue.trim()) {
+            modes.dark = newVarDarkValue.trim();
+        }
+
         const newVar: DesignVariable = {
             id: `var-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
             name: newVarName.trim(),
             category: activeTab,
             token: sanitizedToken,
             value: newVarValue.trim(),
+            defaultMode: "light",
+            modes,
         };
 
         const updated = [...localVars, newVar];
         setLocalVars(updated);
         setNewVarName("");
         setNewVarValue("");
+        setNewVarDarkValue("");
         setNewVarToken("");
     };
 
@@ -74,7 +92,28 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         setLocalVars(
             localVars.map((v) => {
                 if (v.id === id) {
-                    return { ...v, [field]: val };
+                    const currentModes = v.modes ? { ...v.modes } : { light: v.value };
+                    if (field === "value") {
+                        currentModes.light = val;
+                    }
+                    return { ...v, [field]: val, modes: currentModes };
+                }
+                return v;
+            })
+        );
+    };
+
+    const handleUpdateDarkMode = (id: string, darkVal: string) => {
+        setLocalVars(
+            localVars.map((v) => {
+                if (v.id === id) {
+                    const currentModes = v.modes ? { ...v.modes } : { light: v.value };
+                    if (darkVal.trim()) {
+                        currentModes.dark = darkVal.trim();
+                    } else {
+                        delete currentModes.dark;
+                    }
+                    return { ...v, modes: currentModes };
                 }
                 return v;
             })
@@ -92,7 +131,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
 
     const handleExport = () => {
         const payload = {
-            version: 1,
+            version: 2,
             exportedAt: new Date().toISOString(),
             variables: localVars,
         };
@@ -100,7 +139,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `forgestudio-design-tokens-${Date.now()}.json`;
+        a.download = `forgestudio-design-tokens-${new Date().toISOString().split("T")[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -108,38 +147,36 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setImportError(null);
 
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
-                const parsed = JSON.parse(event.target?.result as string);
-                if (Array.isArray(parsed.variables)) {
-                    setLocalVars(parsed.variables);
-                } else if (Array.isArray(parsed)) {
-                    setLocalVars(parsed);
-                } else {
-                    setImportError("Invalid design tokens JSON format.");
+                const json = JSON.parse(event.target?.result as string);
+                const importedVars = Array.isArray(json.variables) ? json.variables : Array.isArray(json) ? json : null;
+                if (!importedVars) {
+                    throw new Error("Invalid format: JSON must contain a 'variables' array");
                 }
-            } catch {
-                setImportError("Error parsing JSON file.");
+                setLocalVars(importedVars);
+                setImportError(null);
+            } catch (err: any) {
+                setImportError(err.message || "Failed to parse JSON file");
             }
         };
         reader.readAsText(file);
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 border border-slate-750 text-slate-100 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                {/* Modal Header */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                        <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                             <Palette className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold">Design Variables Manager</h2>
-                            <p className="text-xs text-slate-400">Manage centralized CSS variables and design tokens (F-339)</p>
+                            <h2 className="text-lg font-bold">Design Token Multi-Mode System</h2>
+                            <p className="text-xs text-slate-400">Manage centralized CSS variables with dual Dark and Light mode themes (F-339)</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -200,14 +237,14 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                     {/* Add Token Form */}
                     <form onSubmit={handleAddVariable} className="bg-slate-950/40 p-4 rounded-lg border border-slate-800 space-y-3">
                         <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                            Add New {CATEGORIES.find((c) => c.key === activeTab)?.label} Token
+                            Add New {CATEGORIES.find((c) => c.key === activeTab)?.label} Token (Light & Dark)
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                             <div>
                                 <label className="block text-[11px] text-slate-400 mb-1">Display Name</label>
                                 <input
                                     type="text"
-                                    placeholder={activeTab === "color" ? "Accent Color" : "Headline Spacing"}
+                                    placeholder={activeTab === "color" ? "Surface Background" : "Headline Spacing"}
                                     value={newVarName}
                                     onChange={(e) => {
                                         setNewVarName(e.target.value);
@@ -229,26 +266,52 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-[11px] text-slate-400 mb-1">Value</label>
-                                <div className="flex gap-2">
+                                <label className="flex items-center gap-1 text-[11px] text-slate-400 mb-1">
+                                    <Sun className="w-3 h-3 text-amber-400" />
+                                    <span>Light Value</span>
+                                </label>
+                                <div className="flex gap-1.5">
                                     {activeTab === "color" && (
                                         <input
                                             type="color"
-                                            value={newVarValue.startsWith("#") && newVarValue.length === 7 ? newVarValue : "#6366f1"}
+                                            value={newVarValue.startsWith("#") && newVarValue.length === 7 ? newVarValue : "#ffffff"}
                                             onChange={(e) => setNewVarValue(e.target.value)}
-                                            className="w-8 h-8 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0"
+                                            className="w-7 h-7 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0"
                                         />
                                     )}
                                     <input
                                         type="text"
-                                        placeholder={activeTab === "color" ? "#6366f1" : activeTab === "spacing" ? "24px" : "1.5rem"}
+                                        placeholder={activeTab === "color" ? "#ffffff" : "16px"}
                                         value={newVarValue}
                                         onChange={(e) => setNewVarValue(e.target.value)}
-                                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-1 text-[11px] text-slate-400 mb-1">
+                                    <Moon className="w-3 h-3 text-indigo-400" />
+                                    <span>Dark Value (Optional)</span>
+                                </label>
+                                <div className="flex gap-1.5">
+                                    {activeTab === "color" && (
+                                        <input
+                                            type="color"
+                                            value={newVarDarkValue.startsWith("#") && newVarDarkValue.length === 7 ? newVarDarkValue : "#0f172a"}
+                                            onChange={(e) => setNewVarDarkValue(e.target.value)}
+                                            className="w-7 h-7 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0"
+                                        />
+                                    )}
+                                    <input
+                                        type="text"
+                                        placeholder={activeTab === "color" ? "#0f172a" : "16px"}
+                                        value={newVarDarkValue}
+                                        onChange={(e) => setNewVarDarkValue(e.target.value)}
+                                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
                                     />
                                     <button
                                         type="submit"
-                                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-medium flex items-center gap-1 transition-colors"
+                                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-medium flex items-center gap-1 transition-colors shrink-0"
                                     >
                                         <Plus className="w-3.5 h-3.5" />
                                         Add
@@ -269,54 +332,87 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-800 border border-slate-800 rounded-lg bg-slate-950/20 overflow-hidden">
-                                {filteredVars.map((v) => (
-                                    <div key={v.id} className="p-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors">
-                                        {v.category === "color" && (
-                                            <div
-                                                className="w-7 h-7 rounded-md border border-slate-700 shadow-sm shrink-0"
-                                                style={{ backgroundColor: v.value }}
-                                            />
-                                        )}
-                                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <input
-                                                type="text"
-                                                value={v.name}
-                                                onChange={(e) => handleUpdate(v.id, "name", e.target.value)}
-                                                className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-slate-200"
-                                            />
-                                            <input
-                                                type="text"
-                                                value={v.token}
-                                                onChange={(e) => handleUpdate(v.id, "token", e.target.value)}
-                                                className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs font-mono text-indigo-300"
-                                            />
-                                            <div className="flex items-center gap-2">
-                                                {v.category === "color" && (
-                                                    <input
-                                                        type="color"
-                                                        value={v.value.startsWith("#") && v.value.length === 7 ? v.value : "#6366f1"}
-                                                        onChange={(e) => handleUpdate(v.id, "value", e.target.value)}
-                                                        className="w-6 h-6 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0"
-                                                    />
-                                                )}
+                                {filteredVars.map((v) => {
+                                    const lightVal = v.modes?.light || v.value;
+                                    const darkVal = v.modes?.dark || "";
+
+                                    return (
+                                        <div key={v.id} className="p-3 flex items-center gap-4 hover:bg-slate-800/30 transition-colors">
+                                            <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+                                                {/* Name */}
                                                 <input
                                                     type="text"
-                                                    value={v.value}
-                                                    onChange={(e) => handleUpdate(v.id, "value", e.target.value)}
-                                                    className="flex-1 bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-slate-200"
+                                                    value={v.name}
+                                                    onChange={(e) => handleUpdate(v.id, "name", e.target.value)}
+                                                    className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-slate-200"
                                                 />
+                                                {/* CSS Token */}
+                                                <input
+                                                    type="text"
+                                                    value={v.token}
+                                                    onChange={(e) => handleUpdate(v.id, "token", e.target.value)}
+                                                    className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs font-mono text-indigo-300"
+                                                />
+                                                {/* Light Value */}
+                                                <div className="flex items-center gap-1.5">
+                                                    {v.category === "color" && (
+                                                        <div
+                                                            className="w-5 h-5 rounded border border-slate-700 shadow-sm shrink-0"
+                                                            style={{ backgroundColor: lightVal }}
+                                                        />
+                                                    )}
+                                                    {v.category === "color" && (
+                                                        <input
+                                                            type="color"
+                                                            value={lightVal.startsWith("#") && lightVal.length === 7 ? lightVal : "#ffffff"}
+                                                            onChange={(e) => handleUpdate(v.id, "value", e.target.value)}
+                                                            className="w-6 h-6 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0 shrink-0"
+                                                        />
+                                                    )}
+                                                    <input
+                                                        type="text"
+                                                        value={lightVal}
+                                                        onChange={(e) => handleUpdate(v.id, "value", e.target.value)}
+                                                        placeholder="Light mode"
+                                                        className="flex-1 bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-slate-200"
+                                                    />
+                                                </div>
+                                                {/* Dark Value */}
+                                                <div className="flex items-center gap-1.5">
+                                                    {v.category === "color" && (
+                                                        <div
+                                                            className="w-5 h-5 rounded border border-slate-700 shadow-sm shrink-0"
+                                                            style={{ backgroundColor: darkVal || "#0f172a" }}
+                                                        />
+                                                    )}
+                                                    {v.category === "color" && (
+                                                        <input
+                                                            type="color"
+                                                            value={darkVal.startsWith("#") && darkVal.length === 7 ? darkVal : "#0f172a"}
+                                                            onChange={(e) => handleUpdateDarkMode(v.id, e.target.value)}
+                                                            className="w-6 h-6 rounded border border-slate-700 bg-slate-900 cursor-pointer p-0 shrink-0"
+                                                        />
+                                                    )}
+                                                    <input
+                                                        type="text"
+                                                        value={darkVal}
+                                                        onChange={(e) => handleUpdateDarkMode(v.id, e.target.value)}
+                                                        placeholder="Dark mode override"
+                                                        className="flex-1 bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-indigo-200 placeholder:text-slate-600"
+                                                    />
+                                                </div>
                                             </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDelete(v.id)}
+                                                className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                                                title="Delete token"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDelete(v.id)}
-                                            className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                                            title="Delete token"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -325,7 +421,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
                     <div className="text-xs text-slate-500">
-                        Tokens will be dynamically compiled to <code className="text-indigo-400">:root</code> CSS rules.
+                        Tokens will be dynamically compiled to <code className="text-indigo-400">:root</code> and <code className="text-indigo-400">[data-theme="dark"]</code> CSS rules.
                     </div>
                     <div className="flex items-center gap-3">
                         <button
@@ -338,7 +434,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                         <button
                             type="button"
                             onClick={handleSaveAndApply}
-                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-lg shadow-indigo-600/20"
+                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-lg shadow-indigo-600/20 cursor-pointer"
                         >
                             {saveSuccess ? (
                                 <>

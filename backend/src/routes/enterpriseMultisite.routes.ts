@@ -10,6 +10,8 @@ import {
   verifyDomain,
   setDomainPrimary,
   removeDomain,
+  getDomainStatus,
+  provisionDomainSsl,
 } from "../controllers/customDomain.controller.js";
 import {
   listBackups,
@@ -31,6 +33,8 @@ const router = Router({ mergeParams: true });
 router.get("/:websiteId/domains", requireAuth, listDomains);
 router.post("/:websiteId/domains", requireAuth, addDomain);
 router.post("/:websiteId/domains/:domain/verify", requireAuth, verifyDomain);
+router.get("/:websiteId/domains/:domain/status", requireAuth, getDomainStatus);
+router.post("/:websiteId/domains/:domain/ssl/provision", requireAuth, provisionDomainSsl);
 router.patch("/:websiteId/domains/:domain/primary", requireAuth, setDomainPrimary);
 router.delete("/:websiteId/domains/:domain", requireAuth, removeDomain);
 
