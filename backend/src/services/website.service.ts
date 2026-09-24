@@ -1597,7 +1597,14 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
   }
 
   // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
-  const sourceData = rawEditorData.publishedData || rawEditorData;
+  let sourceData = rawEditorData.publishedData || rawEditorData;
+  if (typeof sourceData === "string") {
+    try {
+      sourceData = JSON.parse(sourceData);
+    } catch (_e) {
+      sourceData = rawEditorData;
+    }
+  }
 
   // Build site context for dynamic token resolution
   const siteContext: DynamicContext = {

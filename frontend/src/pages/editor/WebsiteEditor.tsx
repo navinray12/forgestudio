@@ -2302,9 +2302,38 @@ export default function WebsiteEditor() {
     e.stopPropagation();
 
     const dataString = e.dataTransfer.getData("application/json") || e.dataTransfer.getData("text/plain");
+
+    let effectiveTargetId = targetId || dropTargetId;
+    let effectivePosition: "before" | "after" | "inside" = position || dropPosition || "after";
+
     setDropTargetId(null);
     setDropPosition(null);
     setDraggingId(null);
+
+    if (!effectiveTargetId && elements.length > 0) {
+      let closestId: string | null = null;
+      let minDist = Infinity;
+      let calculatedPos: "before" | "after" = "after";
+
+      const nodes = document.querySelectorAll("[data-el-id]");
+      nodes.forEach((node) => {
+        const id = node.getAttribute("data-el-id");
+        if (!id) return;
+        const rect = node.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        const dist = Math.abs(e.clientY - midY);
+        if (dist < minDist) {
+          minDist = dist;
+          closestId = id;
+          calculatedPos = e.clientY < midY ? "before" : "after";
+        }
+      });
+
+      if (closestId) {
+        effectiveTargetId = closestId;
+        effectivePosition = calculatedPos;
+      }
+    }
 
     if (!dataString) return;
 
@@ -2324,12 +2353,12 @@ export default function WebsiteEditor() {
             newEl.target = "_self";
           }
         }
-        setElements((prev) => insertTreeElementAtPosition(prev, targetId, position || "after", newEl));
+        setElements((prev) => insertTreeElementAtPosition(prev, effectiveTargetId, effectivePosition, newEl));
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-        if (targetId && (data.id === targetId || isDescendant(elements, data.id, targetId))) return;
-        setElements((prev) => moveTreeElement(prev, data.id, targetId, position || "after"));
+        if (effectiveTargetId && (data.id === effectiveTargetId || isDescendant(elements, data.id, effectiveTargetId))) return;
+        setElements((prev) => moveTreeElement(prev, data.id, effectiveTargetId, effectivePosition));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
       }
@@ -4596,6 +4625,7 @@ export default function WebsiteEditor() {
           onDragLeave={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (e.currentTarget.contains(e.relatedTarget as Node)) return;
             if (dropTargetId === el.id) {
               setDropTargetId(null);
               setDropPosition(null);
@@ -4874,6 +4904,7 @@ export default function WebsiteEditor() {
         onDragLeave={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
           if (dropTargetId === el.id) {
             setDropTargetId(null);
             setDropPosition(null);
@@ -6508,48 +6539,48 @@ export default function WebsiteEditor() {
       {/* ========================================== */}
       {!isFullScreenCanvas && (
         <header
-          className={`relative w-full h-14 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-clip ${userPreferences.themeMode === "light"
+          className={`relative w-full h-13 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-auto ${userPreferences.themeMode === "light"
             ? "bg-white border-b border-slate-200 text-slate-800"
             : "bg-[#0b1329] text-white"
             }`}
         >
-          {/* 1. Left Region: Brand / Back / Breadcrumb & Utility Tools */}
+          {/* 1. Left Region: Brand / Back / Breadcrumb & Page Selector */}
           <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
             {/* Quit Editor Button */}
             <button
               type="button"
               onClick={handleQuitEditor}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Quit Editor"
-              aria-label="Quit Editor"
+              className="w-8 h-8 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
+              title="Back to Dashboard"
+              aria-label="Back to Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
             {/* Project Title / Breadcrumb */}
-            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700 pl-2.5 hidden sm:inline-block max-w-[100px] md:max-w-[140px] truncate">
-              {website?.name || "ForgeStudio Project"}
+            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700/80 pl-2.5 hidden sm:inline-block max-w-[90px] md:max-w-[130px] truncate">
+              {website?.name || "ForgeStudio"}
             </span>
 
-            {/* Multi-Page Selector Dropdown & Page Manager Trigger */}
+            {/* Page Selector Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsPageSelectorOpen(!isPageSelectorOpen)}
-                className="h-8 px-2.5 text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="h-8 px-2.5 text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 rounded-lg border border-slate-700/80 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
                 title="Switch Active Page or Manage Site Pages"
                 aria-label="Switch Active Page"
                 aria-expanded={isPageSelectorOpen}
                 aria-haspopup="listbox"
               >
-                <span className="text-amber-400">📄</span>
+                <span className="text-amber-400 text-xs">📄</span>
                 <span className="max-w-[70px] sm:max-w-[110px] truncate font-bold">
                   {pages.find((p) => p.id === activePageId)?.name || "Page"}
                 </span>
                 {homePageId === activePageId && (
                   <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold hidden md:inline">Home</span>
                 )}
-                <span className="text-[10px] text-slate-400">▾</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {isPageSelectorOpen && (
@@ -6604,119 +6635,26 @@ export default function WebsiteEditor() {
               )}
             </div>
 
-            {/* Vertical Divider */}
-            <div className="h-5 w-px bg-slate-700/60 mx-1 md:mx-1.5 shrink-0" />
-
-            {/* Developer Mode Button */}
-            <button
-              type="button"
-              onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
-              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 ${devModalMode === "export-code"
-                ? "bg-blue-600 text-white border-blue-500 shadow-blue-500/20"
-                : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
-                }`}
-              title="Developer Mode"
-              aria-label="Developer Mode"
-            >
-              <Code2 className="w-4 h-4" />
-            </button>
-
-            {/* Shortcuts Button */}
-            <button
-              type="button"
-              onClick={() => setIsShortcutsHelpOpen(true)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Keyboard Shortcuts"
-              aria-label="Keyboard Shortcuts"
-            >
-              <Keyboard className="w-4 h-4" />
-            </button>
-
-            {/* Search Control */}
-            <button
-              type="button"
-              onClick={() => setIsFinderOpen(true)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Search (Ctrl+K)"
-              aria-label="Search"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* 2. Center Region: True Dead Center Device Viewport Switcher */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
-            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setActiveDevice("desktop")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "desktop"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Desktop View"
-                aria-label="Desktop View"
-              >
-                <Monitor className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveDevice("tablet")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "tablet"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Tablet View"
-                aria-label="Tablet View"
-              >
-                <Tablet className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveDevice("mobile")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer focus-visible:ring-1 focus-visible:ring-blue-400 ${activeDevice === "mobile"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Mobile View"
-                aria-label="Mobile View"
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* 3. Right Region: Scope Switcher, History, Kit, Fullscreen, Preview, Save, Publish */}
-          <div className="flex items-center justify-end gap-2 md:gap-2.5 shrink-0">
-            {/* Status Messages */}
-            {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden 2xl:inline">✓ {saveMessage}</span>}
-            {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden 2xl:inline">{errorMessage}</span>}
-
             {/* Scope Switcher Dropdown (Page / Header / Footer) */}
             <div className="relative" ref={scopeDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
-                className="h-8 px-2.5 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 hover:text-white rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="h-8 px-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 hover:text-white rounded-lg border border-slate-700/80 transition flex items-center gap-1 shadow-sm cursor-pointer"
                 title="Switch Canvas Scope (Page / Header / Footer)"
                 aria-label="Switch Canvas Scope"
-                aria-expanded={isScopeDropdownOpen}
-                aria-haspopup="listbox"
               >
                 <span className="text-xs">
                   {canvasMode === "page" && "📄"}
                   {canvasMode === "header" && "🌐"}
                   {canvasMode === "footer" && "🌐"}
                 </span>
-                <span className="capitalize font-semibold">{canvasMode}</span>
-                <ChevronDown
-                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isScopeDropdownOpen ? "rotate-180" : ""
-                    }`}
-                />
+                <span className="capitalize font-semibold hidden md:inline">{canvasMode}</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {isScopeDropdownOpen && (
-                <div className="absolute top-full right-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
                   {(
                     [
                       { mode: "page", label: "Page", icon: "📄" },
@@ -6735,8 +6673,6 @@ export default function WebsiteEditor() {
                         ? "bg-blue-600/20 text-blue-300 font-bold"
                         : "text-slate-300 hover:text-white"
                         }`}
-                      role="option"
-                      aria-selected={canvasMode === mode}
                     >
                       <div className="flex items-center gap-2">
                         <span>{icon}</span>
@@ -6750,9 +6686,55 @@ export default function WebsiteEditor() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Subtle Divider */}
-            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
+          {/* 2. Center Region: Viewport Switcher */}
+          <div className="hidden lg:flex items-center justify-center pointer-events-auto">
+            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setActiveDevice("desktop")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "desktop"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Desktop View"
+                aria-label="Desktop View"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDevice("tablet")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "tablet"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Tablet View"
+                aria-label="Tablet View"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveDevice("mobile")}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "mobile"
+                  ? "bg-blue-600 text-white shadow-xs font-bold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                title="Mobile View"
+                aria-label="Mobile View"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 3. Right Region: Compact Tools, History, Primary Actions */}
+          <div className="flex items-center justify-end gap-1.5 md:gap-2 shrink-0">
+            {/* Status Messages */}
+            {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden xl:inline">✓ {saveMessage}</span>}
+            {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden xl:inline">{errorMessage}</span>}
 
             {/* History Controls Group (Undo / Redo / History) */}
             <div className="flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-slate-700/80 shrink-0">
@@ -6784,9 +6766,9 @@ export default function WebsiteEditor() {
               </button>
             </div>
 
-            {/* Selected Element Controls (Only active when element selected) */}
+            {/* Selected Element Quick Actions (Only active when element selected) */}
             {selectedId && (
-              <div className="hidden 2xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/30 shrink-0">
+              <div className="hidden xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/40 shrink-0">
                 <button
                   onClick={() => handleReorderElement(selectedId, "up")}
                   className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
@@ -6805,23 +6787,23 @@ export default function WebsiteEditor() {
                 </button>
                 <button
                   onClick={(e) => handleCopyElement(selectedId, e)}
-                  className="px-1.5 py-0.5 text-[10px] font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
                   title="Copy (Ctrl+C)"
                   aria-label="Copy Element"
                 >
-                  Copy
+                  <Copy className="w-3 h-3" />
                 </button>
                 <button
                   onClick={(e) => handleDuplicateElement(selectedId, e)}
-                  className="px-1.5 py-0.5 text-[10px] font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
+                  className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
                   title="Duplicate (Ctrl+D)"
                   aria-label="Duplicate Element"
                 >
-                  Dup
+                  <Layers className="w-3 h-3" />
                 </button>
                 <button
                   onClick={() => handleSaveAsComponent(selectedId)}
-                  className="px-1.5 py-0.5 text-[10px] font-semibold text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer border border-purple-500/40"
+                  className="w-6 h-6 flex items-center justify-center text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer"
                   title="Save as Reusable Component"
                   aria-label="Save Component"
                 >
@@ -6829,7 +6811,7 @@ export default function WebsiteEditor() {
                 </button>
                 <button
                   onClick={handleOpenReplaceTemplate}
-                  className="px-1.5 py-0.5 text-[10px] font-semibold text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer border border-amber-500/40"
+                  className="w-6 h-6 flex items-center justify-center text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer"
                   title="Replace with Template"
                   aria-label="Replace with Template"
                 >
@@ -6838,95 +6820,103 @@ export default function WebsiteEditor() {
               </div>
             )}
 
-            {/* Kit & Tools Actions */}
-            <button
-              type="button"
-              onClick={handleExportWebsiteKit}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-blue-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Export Website Kit JSON"
-              aria-label="Export Website Kit JSON"
-            >
-              <Box className="w-4 h-4" />
-            </button>
+            {/* Icon-Based Utility Tools Group */}
+            <div className="flex items-center gap-1 border-l border-slate-700/80 pl-1.5 shrink-0">
+              {/* Search */}
+              <button
+                type="button"
+                onClick={() => setIsFinderOpen(true)}
+                className="w-7 h-7 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
+                title="Search (Ctrl+K)"
+                aria-label="Search"
+              >
+                <Search className="w-3.5 h-3.5" />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-              className="w-8 h-8 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Toggle Full Screen Canvas"
-              aria-label="Toggle Full Screen Canvas"
-            >
-              <span className="text-sm leading-none">⛶</span>
-            </button>
+              {/* SEO & Quality Audit */}
+              <button
+                type="button"
+                onClick={() => setIsSeoModalOpen(true)}
+                className="w-7 h-7 rounded-lg border border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
+                title="SEO & Quality Audit"
+                aria-label="SEO & Quality Audit"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              </button>
 
-            {/* Collaborative Design Notes & Feedback */}
-            <button
-              type="button"
-              onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${isDesignNotesOpen
-                ? "bg-purple-600/30 text-purple-200 border-purple-500/60 shadow-sm"
-                : "text-slate-300 bg-slate-800 hover:bg-slate-700 border-slate-700"
-                }`}
-              title="Toggle Collaborative Design Notes & Element Comments"
-            >
-              <span>💬</span>
-              <span>Notes</span>
-            </button>
+              {/* Tokens */}
+              <button
+                type="button"
+                onClick={() => setIsVariablesModalOpen(true)}
+                className="w-7 h-7 rounded-lg border border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
+                title="Design Variables & CSS Tokens"
+                aria-label="Tokens"
+              >
+                <Palette className="w-3.5 h-3.5 text-indigo-400" />
+              </button>
 
-            {/* F-339: Variables Manager (Tokens) */}
-            <button
-              type="button"
-              onClick={() => setIsVariablesModalOpen(true)}
-              className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
-              title="Design Variables & CSS Tokens (F-339)"
-            >
-              <span>🎨</span>
-              <span>Tokens</span>
-            </button>
+              {/* Classes */}
+              <button
+                type="button"
+                onClick={() => setIsClassModalOpen(true)}
+                className="w-7 h-7 rounded-lg border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
+                title="Global Utility Classes"
+                aria-label="Classes"
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-400" />
+              </button>
 
-            {/* F-340: Global Class Manager */}
-            <button
-              type="button"
-              onClick={() => setIsClassModalOpen(true)}
-              className="px-3 py-1 text-xs font-semibold rounded-lg border text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border-emerald-800/60 transition flex items-center gap-1.5 cursor-pointer"
-              title="Global Utility Classes (F-340)"
-            >
-              <span>🏷️</span>
-              <span>Classes</span>
-            </button>
+              {/* Notes */}
+              <button
+                type="button"
+                onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
+                className={`w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${isDesignNotesOpen
+                  ? "bg-purple-600/30 text-purple-200 border-purple-500/60"
+                  : "text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/80"
+                  }`}
+                title="Collaborative Design Notes"
+                aria-label="Notes"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+              </button>
 
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
-            >
-              {saving ? "Saving..." : "💾 Save"}
-            </button>
+              {/* Dev Mode */}
+              <button
+                type="button"
+                onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
+                className={`w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${devModalMode === "export-code"
+                  ? "bg-blue-600 text-white border-blue-500"
+                  : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
+                  }`}
+                title="Developer Mode"
+                aria-label="Developer Mode"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+              </button>
 
-            {/* Subtle Divider */}
+              {/* Fullscreen Canvas */}
+              <button
+                type="button"
+                onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+                className="w-7 h-7 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
+                title="Toggle Full Screen Canvas"
+                aria-label="Toggle Full Screen Canvas"
+              >
+                <span className="text-xs leading-none">⛶</span>
+              </button>
+            </div>
+
+            {/* Divider */}
             <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
 
-            {/* SEO & Quality Audit Button */}
-            <button
-              type="button"
-              onClick={() => setIsSeoModalOpen(true)}
-              className="h-8 px-2.5 rounded-lg border border-indigo-500/40 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-white transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-indigo-400"
-              title="SEO & Quality Audit"
-              aria-label="SEO & Quality Audit"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">SEO & Quality</span>
-            </button>
-
-            {/* Primary Action Buttons: Preview, Save, Publish */}
+            {/* Primary Actions: Preview, Save, Publish */}
             {/* Preview Button */}
             <button
               type="button"
               onClick={() => setIsPreview(!isPreview)}
-              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 ${isPreview
+              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 ${isPreview
                 ? "bg-amber-500/20 text-amber-300 border-amber-500/60 hover:bg-amber-500/30"
-                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700/80 hover:text-white"
+                : "bg-slate-800/80 text-slate-300 border-slate-700/80 hover:bg-slate-700/80 hover:text-white"
                 }`}
               title={isPreview ? "Exit Preview (Ctrl+P)" : "Preview"}
               aria-label={isPreview ? "Exit Preview" : "Preview"}
@@ -6939,28 +6929,30 @@ export default function WebsiteEditor() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="w-8 h-8 rounded-lg border border-blue-500 bg-blue-600 hover:bg-blue-500 text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="h-8 px-3 rounded-lg border border-blue-500 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Save (Ctrl+S)"
               aria-label="Save"
             >
               {saving ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Save className="w-4 h-4" />
+                <Save className="w-3.5 h-3.5" />
               )}
+              <span className="hidden sm:inline">Save</span>
             </button>
 
             {/* Publish Button */}
             <button
               type="button"
               onClick={() => setIsPublishModalOpen(true)}
-              className="w-8 h-8 relative rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-emerald-400"
-              title="Publish"
+              className="h-8 px-3.5 relative rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+              title="Publish Website"
               aria-label="Publish"
             >
-              <Rocket className="w-4 h-4" />
+              <Rocket className="w-3.5 h-3.5" />
+              <span>Publish</span>
               {publishing.status === "PUBLISHED" && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-300 animate-pulse ring-1 ring-emerald-950"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse ring-1 ring-emerald-950"></span>
               )}
             </button>
           </div>
@@ -8653,8 +8645,8 @@ export default function WebsiteEditor() {
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
-                    {/* Shared Global Header & Navigation in Page Mode Canvas */}
-                    {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) && (
+                    {/* Shared Global Header & Navigation in Page Mode Canvas (Only rendered if custom header elements exist) */}
+                    {(siteParts.header?.enabled ?? siteParts.header?.isEnabled ?? true) && siteParts.header?.elements && siteParts.header.elements.length > 0 && (
                       <div className="mb-6 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
                         <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
                           <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -8671,33 +8663,11 @@ export default function WebsiteEditor() {
                             <span>Edit Header</span>
                           </button>
                         </div>
-                        {siteParts.header?.elements && siteParts.header.elements.length > 0 ? (
-                          <div className="space-y-3">
-                            {siteParts.header.elements.map((el) => renderElementTree(el))}
-                          </div>
-                        ) : (
-                          <DefaultWebsiteNavbar
-                            websiteName={website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio"}
-                            pages={pages}
-                            activePageId={activePageId}
-                            isPreview={false}
-                            activeDevice={activeDevice}
-                            onNavigatePage={(page) => handleSwitchEditingPage(page.id)}
-                            onEditHeader={() => handleSwitchCanvasMode("header")}
-                          />
-                        )}
+                        <div className="space-y-3">
+                          {siteParts.header.elements.map((el) => renderElementTree(el))}
+                        </div>
                       </div>
                     )}
-
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6 select-none opacity-60 hover:opacity-100 transition">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <span>📄</span>
-                        <span>Page Canvas Layout: {pages.find((p) => p.id === activePageId)?.name || "Home"}</span>
-                      </span>
-                      <span className="text-[10px] font-medium text-slate-400">
-                        Page Content (Isolated)
-                      </span>
-                    </div>
                   </>
                 )}
 
@@ -8725,8 +8695,8 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
-                {/* Shared Global Footer in Page Mode Canvas */}
-                {canvasMode === "page" && (siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) && (
+                {/* Shared Global Footer in Page Mode Canvas (Only rendered if custom footer elements exist) */}
+                {canvasMode === "page" && (siteParts.footer?.enabled ?? siteParts.footer?.isEnabled ?? true) && siteParts.footer?.elements && siteParts.footer.elements.length > 0 && (
                   <div className="mt-8 rounded-2xl border border-dashed border-purple-300/80 bg-purple-50/20 p-2.5 transition hover:border-purple-400">
                     <div className="flex items-center justify-between pb-2 border-b border-purple-200/50 mb-2 px-1">
                       <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -8743,15 +8713,9 @@ export default function WebsiteEditor() {
                         <span>Edit Footer</span>
                       </button>
                     </div>
-                    {siteParts.footer?.elements && siteParts.footer.elements.length > 0 ? (
-                      <div className="space-y-3">
-                        {siteParts.footer.elements.map((el) => renderElementTree(el))}
-                      </div>
-                    ) : (
-                      <div className="py-3 text-center text-xs text-slate-400 italic">
-                        Global footer is empty. Click "Edit Footer" to add footer links, copyright, or social widgets.
-                      </div>
-                    )}
+                    <div className="space-y-3">
+                      {siteParts.footer.elements.map((el) => renderElementTree(el))}
+                    </div>
                   </div>
                 )}
               </>
