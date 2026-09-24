@@ -38306,6 +38306,11 @@ export namespace Prisma {
     status: string | null
     wpSiteName: string | null
     apiKeyHash: string | null
+    pluginVersion: string | null
+    apiVersion: string | null
+    failureReason: string | null
+    revokedAt: Date | null
+    lastSyncedAt: Date | null
     lastVerifiedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -38319,6 +38324,11 @@ export namespace Prisma {
     status: string | null
     wpSiteName: string | null
     apiKeyHash: string | null
+    pluginVersion: string | null
+    apiVersion: string | null
+    failureReason: string | null
+    revokedAt: Date | null
+    lastSyncedAt: Date | null
     lastVerifiedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -38334,6 +38344,11 @@ export namespace Prisma {
     apiKeyHash: number
     capabilities: number
     metadata: number
+    pluginVersion: number
+    apiVersion: number
+    failureReason: number
+    revokedAt: number
+    lastSyncedAt: number
     lastVerifiedAt: number
     createdAt: number
     updatedAt: number
@@ -38349,6 +38364,11 @@ export namespace Prisma {
     status?: true
     wpSiteName?: true
     apiKeyHash?: true
+    pluginVersion?: true
+    apiVersion?: true
+    failureReason?: true
+    revokedAt?: true
+    lastSyncedAt?: true
     lastVerifiedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -38362,6 +38382,11 @@ export namespace Prisma {
     status?: true
     wpSiteName?: true
     apiKeyHash?: true
+    pluginVersion?: true
+    apiVersion?: true
+    failureReason?: true
+    revokedAt?: true
+    lastSyncedAt?: true
     lastVerifiedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -38377,6 +38402,11 @@ export namespace Prisma {
     apiKeyHash?: true
     capabilities?: true
     metadata?: true
+    pluginVersion?: true
+    apiVersion?: true
+    failureReason?: true
+    revokedAt?: true
+    lastSyncedAt?: true
     lastVerifiedAt?: true
     createdAt?: true
     updatedAt?: true
@@ -38465,6 +38495,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities: JsonValue | null
     metadata: JsonValue | null
+    pluginVersion: string | null
+    apiVersion: string | null
+    failureReason: string | null
+    revokedAt: Date | null
+    lastSyncedAt: Date | null
     lastVerifiedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -38497,6 +38532,11 @@ export namespace Prisma {
     apiKeyHash?: boolean
     capabilities?: boolean
     metadata?: boolean
+    pluginVersion?: boolean
+    apiVersion?: boolean
+    failureReason?: boolean
+    revokedAt?: boolean
+    lastSyncedAt?: boolean
     lastVerifiedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -38514,6 +38554,11 @@ export namespace Prisma {
     apiKeyHash?: boolean
     capabilities?: boolean
     metadata?: boolean
+    pluginVersion?: boolean
+    apiVersion?: boolean
+    failureReason?: boolean
+    revokedAt?: boolean
+    lastSyncedAt?: boolean
     lastVerifiedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -38531,6 +38576,11 @@ export namespace Prisma {
     apiKeyHash?: boolean
     capabilities?: boolean
     metadata?: boolean
+    pluginVersion?: boolean
+    apiVersion?: boolean
+    failureReason?: boolean
+    revokedAt?: boolean
+    lastSyncedAt?: boolean
     lastVerifiedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -38548,12 +38598,17 @@ export namespace Prisma {
     apiKeyHash?: boolean
     capabilities?: boolean
     metadata?: boolean
+    pluginVersion?: boolean
+    apiVersion?: boolean
+    failureReason?: boolean
+    revokedAt?: boolean
+    lastSyncedAt?: boolean
     lastVerifiedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WordPressConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "websiteId" | "siteUrl" | "status" | "wpSiteName" | "apiKeyHash" | "capabilities" | "metadata" | "lastVerifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["wordPressConnection"]>
+  export type WordPressConnectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "websiteId" | "siteUrl" | "status" | "wpSiteName" | "apiKeyHash" | "capabilities" | "metadata" | "pluginVersion" | "apiVersion" | "failureReason" | "revokedAt" | "lastSyncedAt" | "lastVerifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["wordPressConnection"]>
   export type WordPressConnectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     website?: boolean | WebsiteDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -38583,6 +38638,11 @@ export namespace Prisma {
       apiKeyHash: string
       capabilities: Prisma.JsonValue | null
       metadata: Prisma.JsonValue | null
+      pluginVersion: string | null
+      apiVersion: string | null
+      failureReason: string | null
+      revokedAt: Date | null
+      lastSyncedAt: Date | null
       lastVerifiedAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -39020,6 +39080,11 @@ export namespace Prisma {
     readonly apiKeyHash: FieldRef<"WordPressConnection", 'String'>
     readonly capabilities: FieldRef<"WordPressConnection", 'Json'>
     readonly metadata: FieldRef<"WordPressConnection", 'Json'>
+    readonly pluginVersion: FieldRef<"WordPressConnection", 'String'>
+    readonly apiVersion: FieldRef<"WordPressConnection", 'String'>
+    readonly failureReason: FieldRef<"WordPressConnection", 'String'>
+    readonly revokedAt: FieldRef<"WordPressConnection", 'DateTime'>
+    readonly lastSyncedAt: FieldRef<"WordPressConnection", 'DateTime'>
     readonly lastVerifiedAt: FieldRef<"WordPressConnection", 'DateTime'>
     readonly createdAt: FieldRef<"WordPressConnection", 'DateTime'>
     readonly updatedAt: FieldRef<"WordPressConnection", 'DateTime'>
@@ -65050,6 +65115,11 @@ export namespace Prisma {
     apiKeyHash: 'apiKeyHash',
     capabilities: 'capabilities',
     metadata: 'metadata',
+    pluginVersion: 'pluginVersion',
+    apiVersion: 'apiVersion',
+    failureReason: 'failureReason',
+    revokedAt: 'revokedAt',
+    lastSyncedAt: 'lastSyncedAt',
     lastVerifiedAt: 'lastVerifiedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -67867,6 +67937,11 @@ export namespace Prisma {
     apiKeyHash?: StringFilter<"WordPressConnection"> | string
     capabilities?: JsonNullableFilter<"WordPressConnection">
     metadata?: JsonNullableFilter<"WordPressConnection">
+    pluginVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    apiVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    failureReason?: StringNullableFilter<"WordPressConnection"> | string | null
+    revokedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
+    lastSyncedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     lastVerifiedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     createdAt?: DateTimeFilter<"WordPressConnection"> | Date | string
     updatedAt?: DateTimeFilter<"WordPressConnection"> | Date | string
@@ -67884,6 +67959,11 @@ export namespace Prisma {
     apiKeyHash?: SortOrder
     capabilities?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
+    pluginVersion?: SortOrderInput | SortOrder
+    apiVersion?: SortOrderInput | SortOrder
+    failureReason?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    lastSyncedAt?: SortOrderInput | SortOrder
     lastVerifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67904,6 +67984,11 @@ export namespace Prisma {
     apiKeyHash?: StringFilter<"WordPressConnection"> | string
     capabilities?: JsonNullableFilter<"WordPressConnection">
     metadata?: JsonNullableFilter<"WordPressConnection">
+    pluginVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    apiVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    failureReason?: StringNullableFilter<"WordPressConnection"> | string | null
+    revokedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
+    lastSyncedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     lastVerifiedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     createdAt?: DateTimeFilter<"WordPressConnection"> | Date | string
     updatedAt?: DateTimeFilter<"WordPressConnection"> | Date | string
@@ -67921,6 +68006,11 @@ export namespace Prisma {
     apiKeyHash?: SortOrder
     capabilities?: SortOrderInput | SortOrder
     metadata?: SortOrderInput | SortOrder
+    pluginVersion?: SortOrderInput | SortOrder
+    apiVersion?: SortOrderInput | SortOrder
+    failureReason?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    lastSyncedAt?: SortOrderInput | SortOrder
     lastVerifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67942,6 +68032,11 @@ export namespace Prisma {
     apiKeyHash?: StringWithAggregatesFilter<"WordPressConnection"> | string
     capabilities?: JsonNullableWithAggregatesFilter<"WordPressConnection">
     metadata?: JsonNullableWithAggregatesFilter<"WordPressConnection">
+    pluginVersion?: StringNullableWithAggregatesFilter<"WordPressConnection"> | string | null
+    apiVersion?: StringNullableWithAggregatesFilter<"WordPressConnection"> | string | null
+    failureReason?: StringNullableWithAggregatesFilter<"WordPressConnection"> | string | null
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"WordPressConnection"> | Date | string | null
+    lastSyncedAt?: DateTimeNullableWithAggregatesFilter<"WordPressConnection"> | Date | string | null
     lastVerifiedAt?: DateTimeNullableWithAggregatesFilter<"WordPressConnection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"WordPressConnection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WordPressConnection"> | Date | string
@@ -72150,6 +72245,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -72167,6 +72267,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -72180,6 +72285,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72197,6 +72307,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72212,6 +72327,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -72225,6 +72345,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72240,6 +72365,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -76033,6 +76163,11 @@ export namespace Prisma {
     apiKeyHash?: SortOrder
     capabilities?: SortOrder
     metadata?: SortOrder
+    pluginVersion?: SortOrder
+    apiVersion?: SortOrder
+    failureReason?: SortOrder
+    revokedAt?: SortOrder
+    lastSyncedAt?: SortOrder
     lastVerifiedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -76046,6 +76181,11 @@ export namespace Prisma {
     status?: SortOrder
     wpSiteName?: SortOrder
     apiKeyHash?: SortOrder
+    pluginVersion?: SortOrder
+    apiVersion?: SortOrder
+    failureReason?: SortOrder
+    revokedAt?: SortOrder
+    lastSyncedAt?: SortOrder
     lastVerifiedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -76059,6 +76199,11 @@ export namespace Prisma {
     status?: SortOrder
     wpSiteName?: SortOrder
     apiKeyHash?: SortOrder
+    pluginVersion?: SortOrder
+    apiVersion?: SortOrder
+    failureReason?: SortOrder
+    revokedAt?: SortOrder
+    lastSyncedAt?: SortOrder
     lastVerifiedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -81816,6 +81961,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81831,6 +81981,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -82877,6 +83032,11 @@ export namespace Prisma {
     apiKeyHash?: StringFilter<"WordPressConnection"> | string
     capabilities?: JsonNullableFilter<"WordPressConnection">
     metadata?: JsonNullableFilter<"WordPressConnection">
+    pluginVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    apiVersion?: StringNullableFilter<"WordPressConnection"> | string | null
+    failureReason?: StringNullableFilter<"WordPressConnection"> | string | null
+    revokedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
+    lastSyncedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     lastVerifiedAt?: DateTimeNullableFilter<"WordPressConnection"> | Date | string | null
     createdAt?: DateTimeFilter<"WordPressConnection"> | Date | string
     updatedAt?: DateTimeFilter<"WordPressConnection"> | Date | string
@@ -83836,6 +83996,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -83851,6 +84016,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -84648,6 +84818,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -84663,6 +84838,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96701,6 +96881,11 @@ export namespace Prisma {
     apiKeyHash: string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: string | null
+    apiVersion?: string | null
+    failureReason?: string | null
+    revokedAt?: Date | string | null
+    lastSyncedAt?: Date | string | null
     lastVerifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97389,6 +97574,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97404,6 +97594,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97418,6 +97613,11 @@ export namespace Prisma {
     apiKeyHash?: StringFieldUpdateOperationsInput | string
     capabilities?: NullableJsonNullValueInput | InputJsonValue
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    pluginVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    apiVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

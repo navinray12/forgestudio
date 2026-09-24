@@ -12,6 +12,31 @@ const db = prisma as any;
  */
 export async function initWebsiteTable() {
   try {
+    try {
+      await prisma.$executeRawUnsafe(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'users' AND column_name = 'optimizationCredits'
+          ) THEN
+            ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER DEFAULT 250;
+          END IF;
+        END $$;
+
+        CREATE TABLE IF NOT EXISTS optimization_credit_ledgers (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "websiteId" UUID,
+          "creditsUsed" INTEGER NOT NULL,
+          "actionType" VARCHAR(100) NOT NULL,
+          "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_opt_credits_user ON optimization_credit_ledgers("userId", "createdAt");
+      `);
+    } catch (optErr) {}
+
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS websites (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

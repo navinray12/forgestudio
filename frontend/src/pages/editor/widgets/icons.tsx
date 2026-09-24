@@ -158,9 +158,88 @@ export const ICON_REGISTRY: IconDefinition[] = [
   { id: "cloud", name: "Cloud", provider: "lucide", category: "Weather", tags: ["sky", "weather", "storage"], lucideName: "Cloud" },
 ];
 
-/** Search icons dynamically by term, category, or alias */
+/** Dynamically discover and register all 1,400+ vector icons from lucide-react */
+function buildCompleteIconRegistry(): IconDefinition[] {
+  const registry: IconDefinition[] = [];
+  const seenIds = new Set<string>();
+
+  // 1. Add hand-curated icon definitions first (preserves explicit category & tag metadata)
+  ICON_REGISTRY.forEach((item) => {
+    registry.push(item);
+    seenIds.add(item.id.toLowerCase());
+    if (item.lucideName) seenIds.add(item.lucideName.toLowerCase());
+  });
+
+  // 2. Discover all remaining vector icons exported by lucide-react
+  const ignoreKeys = new Set([
+    "createLucideIcon",
+    "Icon",
+    "LucideProps",
+    "default",
+    "icons",
+    "LucideIcon",
+  ]);
+
+  Object.keys(LucideIcons).forEach((key) => {
+    if (ignoreKeys.has(key) || key.startsWith("Lucide")) return;
+
+    const comp = (LucideIcons as any)[key];
+    if (typeof comp !== "function" && typeof comp !== "object") return;
+
+    const kebabId = key.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+
+    if (seenIds.has(kebabId) || seenIds.has(key.toLowerCase())) return;
+    seenIds.add(kebabId);
+    seenIds.add(key.toLowerCase());
+
+    const humanName = key.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+    const lowerKey = key.toLowerCase();
+
+    let category = "Interface";
+    if (lowerKey.includes("arrow") || lowerKey.includes("chevron") || lowerKey.includes("move") || lowerKey.includes("corner") || lowerKey.includes("rotate") || lowerKey.includes("trending")) {
+      category = "Arrows";
+    } else if (lowerKey.includes("mail") || lowerKey.includes("message") || lowerKey.includes("phone") || lowerKey.includes("send") || lowerKey.includes("bell") || lowerKey.includes("chat") || lowerKey.includes("contact") || lowerKey.includes("inbox")) {
+      category = "Communication";
+    } else if (lowerKey.includes("user") || lowerKey.includes("people") || lowerKey.includes("person") || lowerKey.includes("smile") || lowerKey.includes("heart") || lowerKey.includes("contact") || lowerKey.includes("team")) {
+      category = "Users";
+    } else if (lowerKey.includes("image") || lowerKey.includes("video") || lowerKey.includes("film") || lowerKey.includes("play") || lowerKey.includes("music") || lowerKey.includes("audio") || lowerKey.includes("mic") || lowerKey.includes("volume") || lowerKey.includes("camera") || lowerKey.includes("disc") || lowerKey.includes("radio")) {
+      category = "Media";
+    } else if (lowerKey.includes("file") || lowerKey.includes("folder") || lowerKey.includes("doc") || lowerKey.includes("edit") || lowerKey.includes("clipboard") || lowerKey.includes("paper") || lowerKey.includes("archive") || lowerKey.includes("book")) {
+      category = "Files";
+    } else if (lowerKey.includes("cart") || lowerKey.includes("bag") || lowerKey.includes("card") || lowerKey.includes("dollar") || lowerKey.includes("credit") || lowerKey.includes("tag") || lowerKey.includes("shopping") || lowerKey.includes("coin") || lowerKey.includes("bank") || lowerKey.includes("wallet") || lowerKey.includes("percent") || lowerKey.includes("gift")) {
+      category = "Commerce";
+    } else if (lowerKey.includes("shield") || lowerKey.includes("lock") || lowerKey.includes("key") || lowerKey.includes("protect") || lowerKey.includes("vault") || lowerKey.includes("pass")) {
+      category = "Security";
+    } else if (lowerKey.includes("phone") || lowerKey.includes("laptop") || lowerKey.includes("monitor") || lowerKey.includes("tv") || lowerKey.includes("device") || lowerKey.includes("wifi") || lowerKey.includes("cpu") || lowerKey.includes("harddrive") || lowerKey.includes("printer") || lowerKey.includes("smartphone") || lowerKey.includes("tablet") || lowerKey.includes("cast")) {
+      category = "Devices";
+    } else if (lowerKey.includes("sun") || lowerKey.includes("moon") || lowerKey.includes("cloud") || lowerKey.includes("wind") || lowerKey.includes("rain") || lowerKey.includes("umbrella") || lowerKey.includes("thermometer") || lowerKey.includes("snowflake") || lowerKey.includes("zap")) {
+      category = "Weather";
+    } else if (lowerKey.includes("facebook") || lowerKey.includes("twitter") || lowerKey.includes("instagram") || lowerKey.includes("linkedin") || lowerKey.includes("github") || lowerKey.includes("youtube") || lowerKey.includes("globe") || lowerKey.includes("chrome") || lowerKey.includes("slack") || lowerKey.includes("dribbble") || lowerKey.includes("figma")) {
+      category = "Social";
+    } else if (lowerKey.includes("home") || lowerKey.includes("menu") || lowerKey.includes("search") || lowerKey.includes("map") || lowerKey.includes("compass") || lowerKey.includes("list") || lowerKey.includes("grid") || lowerKey.includes("locate") || lowerKey.includes("navigation") || lowerKey.includes("pin")) {
+      category = "Navigation";
+    } else if (lowerKey.includes("school") || lowerKey.includes("graduat") || lowerKey.includes("award") || lowerKey.includes("lightbulb") || lowerKey.includes("certificate") || lowerKey.includes("briefcase")) {
+      category = "Education";
+    }
+
+    registry.push({
+      id: kebabId,
+      name: humanName,
+      provider: "lucide",
+      category,
+      tags: humanName.toLowerCase().split(" "),
+      lucideName: key,
+    });
+  });
+
+  return registry;
+}
+
+export const ALL_ICONS_REGISTRY: IconDefinition[] = buildCompleteIconRegistry();
+
+/** Search icons dynamically by term, category, or alias across ALL 1400+ icons */
 export function searchIcons(query: string, category: string = "All", favorites: string[] = [], recents: string[] = []): IconDefinition[] {
-  let list = ICON_REGISTRY;
+  let list = ALL_ICONS_REGISTRY;
 
   if (category === "Favorites") {
     return list.filter((item) => favorites.includes(item.id) || favorites.includes(item.name) || (item.lucideName && favorites.includes(item.lucideName)));
@@ -192,6 +271,7 @@ export function searchIcons(query: string, category: string = "All", favorites: 
 export interface IconRendererProps {
   icon?: string;
   iconName?: string;
+  name?: string;
   iconProvider?: string;
   size?: number | string;
   color?: string;
@@ -207,6 +287,7 @@ export interface IconRendererProps {
 export const IconRenderer: React.FC<IconRendererProps> = ({
   icon,
   iconName,
+  name,
   size = 24,
   color,
   rotate = 0,
@@ -217,7 +298,7 @@ export const IconRenderer: React.FC<IconRendererProps> = ({
   style = {},
   ariaHidden = true,
 }) => {
-  const targetKey = (iconName || icon || "Star").trim();
+  const targetKey = (iconName || name || icon || "Star").trim();
   const numericSize = typeof size === "number" ? size : parseInt(size as string, 10) || 24;
 
   // Find in registry or match by Lucide name directly

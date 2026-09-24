@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 import { getUserSubscription } from "./subscription.service.js";
 import { getUserLicenses } from "./license.service.js";
+import { initOptimizationTables } from "./imageOptimization.service.js";
 
 const db = prisma as any;
 
@@ -12,6 +13,10 @@ export async function getUserUsageSummary(userId: string) {
   if (!userId) {
     throw new AppError("User ID is required", 400, "INVALID_USER_ID");
   }
+
+  try {
+    await initOptimizationTables();
+  } catch (_) {}
 
   // 1. Fetch Subscription and Plan
   const subscription = await getUserSubscription(userId);

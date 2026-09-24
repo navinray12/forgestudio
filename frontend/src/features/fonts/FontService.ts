@@ -134,6 +134,17 @@ class FontServiceClass {
     return Boolean(meta.hasItalic);
   }
 
+  public getFontPairings(): { id: string; name: string; heading: string; body: string; description: string; category: string }[] {
+    return [
+      { id: 'pair_1', name: 'Modern Sans', heading: 'Inter', body: 'Roboto', description: 'Clean, highly legible corporate & SaaS layout pairing.', category: 'SaaS / Modern' },
+      { id: 'pair_2', name: 'Editorial Serif', heading: 'Playfair Display', body: 'Source Sans Pro', description: 'High contrast luxury, magazine & editorial design.', category: 'Editorial / Luxury' },
+      { id: 'pair_3', name: 'Creative Display', heading: 'Abril Fatface', body: 'Poppins', description: 'Bold statement headings paired with friendly geometric body font.', category: 'Creative / Agency' },
+      { id: 'pair_4', name: 'Tech & Code', heading: 'Oswald', body: 'Fira Code', description: 'Industrial condensed headline with crisp developer body font.', category: 'Tech / Portfolio' },
+      { id: 'pair_5', name: 'Warm Warmth', heading: 'Merriweather', body: 'Open Sans', description: 'Warm literary serif with balanced humanist sans-serif.', category: 'Blog / E-commerce' },
+      { id: 'pair_6', name: 'Minimalist Clean', heading: 'Montserrat', body: 'Lato', description: 'Geometric geometric header with soft neutral body text.', category: 'Minimalist' },
+    ];
+  }
+
   public loadFont(family: string, weights?: number[]): Promise<boolean> {
     this.addRecentlyUsed(family);
     return loadFontFamily(family, weights);

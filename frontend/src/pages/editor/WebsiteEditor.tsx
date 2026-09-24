@@ -94,8 +94,11 @@ import {
   SpacerWidgetInspector,
   CustomSVGWidgetInspector,
   QueryBuilderWidgetInspector,
-  DisplayConditionsWidgetInspector
+  DisplayConditionsWidgetInspector,
+  NestedTabsWidgetInspector,
+  NestedAccordionWidgetInspector,
 } from "./inspector/DynamicWidgetInspectors";
+import { MediaLightboxModal } from "../../components/MediaLightboxModal";
 import { MotionInteractionInspector } from "./inspector";
 import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
@@ -256,6 +259,8 @@ import {
   DynamicLightboxWidgetRenderer,
   CustomSvgWidgetRenderer,
   IconLibraryWidgetRenderer,
+  NestedTabsWidgetRenderer,
+  NestedAccordionWidgetRenderer,
   ShareButtonsWidgetRenderer,
   WcProductTitleWidgetRenderer,
   WcProductPriceWidgetRenderer,
@@ -6254,6 +6259,14 @@ export default function WebsiteEditor() {
           <IconLibraryWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
+        {el.type === "nested-tabs" && (
+          <NestedTabsWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "nested-accordion" && (
+          <NestedAccordionWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
         {el.type === "mega-menu" && (
           <MegaMenuWidgetRenderer
             el={el}
@@ -10002,6 +10015,22 @@ export default function WebsiteEditor() {
                 {/* Custom SVG Inspector */}
                 {selectedElementAny.type === "custom-svg" && (
                   <CustomSVGWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Nested Tabs Inspector */}
+                {selectedElementAny.type === "nested-tabs" && (
+                  <NestedTabsWidgetInspector
+                    el={selectedElementAny}
+                    updateProp={updateSelectedProp}
+                  />
+                )}
+
+                {/* Nested Accordion Inspector */}
+                {selectedElementAny.type === "nested-accordion" && (
+                  <NestedAccordionWidgetInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
                   />

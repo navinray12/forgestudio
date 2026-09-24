@@ -11,8 +11,9 @@ interface FontPickerModalProps {
   onSelectFont: (family: string) => void;
 }
 
-const CATEGORY_TABS: { id: FontCategory | 'all' | 'recent' | 'favorites' | 'popular'; label: string }[] = [
+const CATEGORY_TABS: { id: FontCategory | 'all' | 'recent' | 'favorites' | 'popular' | 'pairings'; label: string }[] = [
   { id: 'all', label: 'All Fonts' },
+  { id: 'pairings', label: '✨ Font Pairings' },
   { id: 'popular', label: 'Popular' },
   { id: 'recent', label: 'Recently Used' },
   { id: 'favorites', label: 'Favorites' },
@@ -31,7 +32,7 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
   onSelectFont,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<FontCategory | 'all' | 'recent' | 'favorites' | 'popular'>('all');
+  const [activeCategory, setActiveCategory] = useState<FontCategory | 'all' | 'recent' | 'favorites' | 'popular' | 'pairings'>('all');
   const [previewText, setPreviewText] = useState('The quick brown fox jumps over 123');
   const [favTrigger, setFavTrigger] = useState(0);
 
@@ -41,10 +42,14 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
     }
   }, [isOpen]);
 
+  const fontPairings = useMemo(() => {
+    return FontService.getFontPairings();
+  }, []);
+
   const filteredFonts = useMemo(() => {
     return FontService.searchFonts({
       query: searchQuery,
-      category: activeCategory === 'popular' ? 'all' : activeCategory,
+      category: activeCategory === 'popular' || activeCategory === 'pairings' ? 'all' : activeCategory,
       popularOnly: activeCategory === 'popular',
     });
   }, [searchQuery, activeCategory, favTrigger]);
@@ -157,7 +162,51 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
 
         {/* Font List Container */}
         <div className="flex-1 overflow-y-auto p-5 bg-slate-50/50 space-y-3">
-          {filteredFonts.length === 0 ? (
+          {activeCategory === 'pairings' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {fontPairings.map((pair) => (
+                <div
+                  key={pair.id}
+                  onClick={() => handleSelect(pair.heading)}
+                  className="group relative p-5 rounded-2xl border border-slate-200 bg-white hover:border-blue-500 hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-extrabold uppercase tracking-wider">
+                      {pair.category}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelect(pair.heading);
+                      }}
+                      className="text-xs font-bold text-blue-600 hover:underline"
+                    >
+                      Use Heading Font →
+                    </button>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 mb-0.5">{pair.name}</h3>
+                    <p className="text-xs text-slate-500">{pair.description}</p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Heading: {pair.heading}</span>
+                      <p className="text-lg font-bold text-slate-900 truncate" style={{ fontFamily: FontService.getFontFamilyCss(pair.heading) }}>
+                        Sample Heading Style
+                      </p>
+                    </div>
+                    <div className="pt-1 border-t border-slate-200/60">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Body: {pair.body}</span>
+                      <p className="text-xs text-slate-700 truncate" style={{ fontFamily: FontService.getFontFamilyCss(pair.body) }}>
+                        The quick brown fox jumps over the lazy dog.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredFonts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <p className="text-sm font-bold text-slate-600 mb-1">No fonts found matching your search</p>
               <p className="text-xs text-slate-400 max-w-sm mb-4">Try searching for a different keyword like "Inter", "Playfair", or "Display".</p>

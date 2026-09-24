@@ -63,22 +63,32 @@ export async function queryAuditLogs(filters: AuditLogFilters = {}) {
   };
 }
 
-export async function recordAuditLog(params: {
-  userId?: string;
-  action: string;
-  targetResource: string;
-  details?: any;
-  ipAddress?: string;
-}) {
+export async function recordAuditLog(
+  paramsOrUserId: string | { userId?: string; action: string; targetResource: string; details?: any; ipAddress?: string },
+  action?: string,
+  targetResource?: string,
+  details?: any
+) {
   try {
-    return await db.auditLog.create({
-      data: {
-        userId: params.userId,
-        action: params.action,
-        targetResource: params.targetResource,
-        details: params.details || {},
-        ipAddress: params.ipAddress,
-      },
-    });
+    if (typeof paramsOrUserId === "object" && paramsOrUserId !== null) {
+      return await db.auditLog.create({
+        data: {
+          userId: paramsOrUserId.userId,
+          action: paramsOrUserId.action,
+          targetResource: paramsOrUserId.targetResource,
+          details: paramsOrUserId.details || {},
+          ipAddress: paramsOrUserId.ipAddress,
+        },
+      });
+    } else {
+      return await db.auditLog.create({
+        data: {
+          userId: paramsOrUserId,
+          action: action || "UNKNOWN_ACTION",
+          targetResource: targetResource || "system",
+          details: details || {},
+        },
+      });
+    }
   } catch {}
 }

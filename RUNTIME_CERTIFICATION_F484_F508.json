@@ -1,0 +1,49 @@
+{
+  "certificationDate": "2026-09-23T18:41:00+05:30",
+  "certificationStatus": "RUNTIME CERTIFICATION BLOCKED",
+  "environment": {
+    "frontendUrl": "http://localhost:5173",
+    "frontendStatus": "PASS (HTTP 200 OK)",
+    "backendUrl": "http://localhost:5000/api/v1/health",
+    "backendStatus": "PASS (HTTP 200 OK)",
+    "wordpressUrl": "http://localhost:8000/wp-json/",
+    "wordpressStatus": "FAIL (Connection Refused)",
+    "postgresHost": "localhost:5432",
+    "postgresStatus": "FAIL (Connection Refused)",
+    "mysqlHost": "localhost:3307",
+    "mysqlStatus": "FAIL (Connection Refused)"
+  },
+  "bootstrapFixesApplied": [
+    "Fixed MySQL Docker container port mapping from 3307:3307 to 3307:3306 in bootstrap.ps1",
+    "Added non-destructive fallback to prisma db push --skip-generate for P3005 existing database schema",
+    "Added automatic plugin deployment to mu-plugins for instant REST namespace activation upon WordPress startup"
+  ],
+  "featureResults": [
+    { "id": "F-484", "name": "WordPress Connector Plugin", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-485", "name": "Site Connection", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-486", "name": "Connection Verification", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-487", "name": "Connection Disconnect", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-488", "name": "Site Information", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-489", "name": "Site Health", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-490", "name": "Page CRUD", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-491", "name": "Page Duplicate", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-492", "name": "Page Reorder", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-493", "name": "Media Upload", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-494", "name": "Media Management", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-495", "name": "Publish", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-496", "name": "Publish Status", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-497", "name": "Publish Rollback", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-498", "name": "Publishing Jobs", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-499", "name": "HTML Publishing", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-500", "name": "Gutenberg Block Publishing", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-501", "name": "Forms API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-502", "name": "SEO API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-503", "name": "Analytics API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-504", "name": "Menus API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-505", "name": "Webhooks API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-506", "name": "Plugins API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-507", "name": "Themes API", "result": "BLOCKED", "reason": "WordPress container offline" },
+    { "id": "F-508", "name": "Cache API", "result": "BLOCKED", "reason": "WordPress container offline" }
+  ],
+  "unblockCommand": "Set-Location -Path \"C:\\forgestudio-backup-devnew\"; .\\bootstrap.ps1"
+}
