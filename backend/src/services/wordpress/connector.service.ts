@@ -10,8 +10,9 @@ import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
 import { canUserAccessResource } from "../permission.service.js";
 import { createRevision } from "../revision.service.js";
-import { transformPageToWordPress, TransformedWordPressPage } from "./transformer.service.js";
+import { transformPageToWordPress, transformPageToHTML, computeHtmlHash, sanitizeHtml, TransformedWordPressPage, TransformedHtmlPage } from "./transformer.service.js";
 import { assertSafeUrl } from "../../utils/ssrf.guard.js";
+import { enqueueJob, getJobById, listJobs, cancelJob, retryJob, processNextJob } from "../jobs/jobRunner.js";
 
 const db = prisma as any;
 
@@ -127,7 +128,7 @@ async function recordAuditLog(userId: string, action: string, websiteId: string,
   } catch (e) {}
 }
 
-async function sendSignedWordPressRequest(
+export async function sendSignedWordPressRequest(
   siteUrl: string,
   endpointPath: string,
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
@@ -962,7 +963,14 @@ export interface PublishWordPressOptions {
   content?: string;
   excerpt?: string;
   template?: string;
+  format?: "html" | "gutenberg" | string;
+  mode?: "html" | "gutenberg" | string;
+  includeStyles?: boolean;
+  includeResponsiveStyles?: boolean;
+  assetStrategy?: string;
   metadata?: any;
+  publishId?: string;
+  sourceVersion?: string;
 }
 
 export interface PublishWordPressResult {
@@ -978,6 +986,16 @@ export interface PublishWordPressResult {
   publishedAt: string;
   snapshotId?: string;
   sourceVersion?: number;
+  publishingFormat?: string;
+  htmlHash?: string;
+  gutenbergHash?: string;
+  stats?: {
+    htmlSizeBytes: number;
+    cssSizeBytes: number;
+    assetCount: number;
+    sanitizationWarnings: string[];
+  };
+  blockStats?: any;
   warnings: Array<{ field?: string; message: string; severity?: string }>;
 }
 
@@ -1245,7 +1263,129 @@ export async function getWordPressPublishStatus(
 }
 
 /**
- * F-495: Production-grade WordPress Page Publish Engine
+ * F-500: Determines whether an error represents an ambiguous network outcome
+ * (e.g., timeout, connection reset, socket error) where remote mutation MAY have occurred.
+ */
+export function isAmbiguousNetworkError(err: any): boolean {
+  if (!err) return false;
+  const msg = String(err.message || "").toLowerCase();
+  const code = String(err.code || err.statusCode || "").toLowerCase();
+  return (
+    code === "etimedout" ||
+    code === "econnreset" ||
+    code === "504" ||
+    code === "wordpress_timeout" ||
+    msg.includes("timeout") ||
+    msg.includes("etimedout") ||
+    msg.includes("econnreset") ||
+    msg.includes("connection reset") ||
+    msg.includes("socket hang up") ||
+    msg.includes("network error") ||
+    msg.includes("unknown transport result")
+  );
+}
+
+export interface ReconcileUnmappedPageOptions {
+  publishId: string;
+  gutenbergHash?: string;
+  htmlHash?: string;
+  slug: string;
+  title: string;
+  sourceVersion?: string;
+}
+
+/**
+ * F-500: Reconciles an unmapped page after an ambiguous network outcome on first POST.
+ * Queries the remote WordPress site for matching candidate pages using deterministic signals.
+ */
+export async function reconcileUnmappedWordPressPage(
+  connection: any,
+  websiteId: string,
+  forgePageId: string,
+  opts: ReconcileUnmappedPageOptions
+): Promise<{ matched: boolean; page?: any; ambiguous: boolean; candidateCount: number }> {
+  try {
+    const remoteListRes = await sendSignedWordPressRequest(
+      connection.siteUrl,
+      `/pages?slug=${encodeURIComponent(opts.slug)}`,
+      "GET",
+      connection.apiKeyHash
+    );
+
+    let candidates: any[] = [];
+    if (Array.isArray(remoteListRes)) {
+      candidates = remoteListRes;
+    } else if (remoteListRes?.pages && Array.isArray(remoteListRes.pages)) {
+      candidates = remoteListRes.pages;
+    } else if (remoteListRes?.data && Array.isArray(remoteListRes.data)) {
+      candidates = remoteListRes.data;
+    }
+
+    if (candidates.length === 0) {
+      const searchRes = await sendSignedWordPressRequest(
+        connection.siteUrl,
+        `/pages?search=${encodeURIComponent(forgePageId)}`,
+        "GET",
+        connection.apiKeyHash
+      ).catch(() => null);
+
+      if (Array.isArray(searchRes)) {
+        candidates = searchRes;
+      } else if (searchRes?.pages && Array.isArray(searchRes.pages)) {
+        candidates = searchRes.pages;
+      }
+    }
+
+    if (candidates.length === 0) {
+      return { matched: false, ambiguous: false, candidateCount: 0 };
+    }
+
+    const targetHash = opts.gutenbergHash || opts.htmlHash;
+
+    const exactMatches = candidates.filter((p: any) => {
+      // Signal A: forgestudio_publish_id match
+      if (opts.publishId && (p?.meta?._forgestudio_publish_id === opts.publishId || p?.publishId === opts.publishId)) {
+        return true;
+      }
+      // Signal B: forgePageId + hash match
+      const metaForgeId = p?.meta?._forgestudio_page_id || p?.forgePageId;
+      const metaHash = p?.meta?._forgestudio_gutenberg_hash || p?.meta?._forgestudio_html_hash || p?.gutenbergHash || p?.htmlHash;
+
+      if (metaForgeId === forgePageId && targetHash && metaHash === targetHash) {
+        return true;
+      }
+      // Signal C: slug match + hash match in content or meta
+      if (p.slug === opts.slug && targetHash && (metaHash === targetHash || (p.content?.rendered || p.content || "").includes(targetHash))) {
+        return true;
+      }
+      // Signal D: exact title + exact slug + forgePageId
+      if (p.slug === opts.slug && (p.title?.rendered === opts.title || p.title === opts.title) && metaForgeId === forgePageId) {
+        return true;
+      }
+      return false;
+    });
+
+    if (exactMatches.length === 1) {
+      return { matched: true, page: exactMatches[0], ambiguous: false, candidateCount: 1 };
+    } else if (exactMatches.length > 1) {
+      return { matched: false, ambiguous: true, candidateCount: exactMatches.length };
+    }
+
+    const slugTitleMatches = candidates.filter((p: any) => p.slug === opts.slug && (p.title?.rendered === opts.title || p.title === opts.title));
+    if (slugTitleMatches.length === 1) {
+      return { matched: true, page: slugTitleMatches[0], ambiguous: false, candidateCount: 1 };
+    } else if (slugTitleMatches.length > 1) {
+      return { matched: false, ambiguous: true, candidateCount: slugTitleMatches.length };
+    }
+
+    return { matched: false, ambiguous: false, candidateCount: 0 };
+  } catch (err) {
+    return { matched: false, ambiguous: true, candidateCount: 0 };
+  }
+}
+
+/**
+ * F-495 & F-500: Production-grade WordPress Page Publish Engine
  */
 export async function publishWordPressPage(
   websiteId: string,
@@ -1337,21 +1477,40 @@ export async function publishWordPressPage(
       throw new AppError(`Invalid publish status '${options?.status}'. Allowed: draft, publish, private.`, 400, "WORDPRESS_PUBLISH_VALIDATION_FAILED");
     }
 
-    // 10. Document Transformation (F-495 / Transformer Service Reuse)
-    let transformed: TransformedWordPressPage;
+    // 10. Document Transformation (F-495 & F-499 Transformer Service Reuse)
+    const publishingFormat = (options?.format || options?.mode || "html").toLowerCase();
+    let transformedGutenberg: TransformedWordPressPage | null = null;
+    let transformedHtml: TransformedHtmlPage | null = null;
+    let finalContent = options?.content;
+    let finalSlug = "";
+    let finalExcerpt = "";
+
     try {
-      transformed = transformPageToWordPress(targetPage, website.siteSettings || {}, website.globalStyles || {});
+      if (publishingFormat === "gutenberg") {
+        transformedGutenberg = transformPageToWordPress(targetPage, website.siteSettings || {}, website.globalStyles || {});
+        if (!finalContent) finalContent = transformedGutenberg.content;
+        finalSlug = (options?.slug || targetPage.slug || transformedGutenberg.slug || "page");
+        finalExcerpt = options?.excerpt !== undefined ? options.excerpt : transformedGutenberg.excerpt;
+      } else {
+        transformedHtml = transformPageToHTML(targetPage, website.siteSettings || {}, website.globalStyles || {});
+        if (transformedHtml.stats?.sanitizationWarnings?.length > 0) {
+          transformedHtml.stats.sanitizationWarnings.forEach((w) => {
+            warnings.push({ message: w, severity: "WARNING" });
+          });
+        }
+        if (!finalContent) finalContent = transformedHtml.fullHtml;
+        finalSlug = (options?.slug || targetPage.slug || transformedHtml.slug || "page");
+        finalExcerpt = options?.excerpt !== undefined ? options.excerpt : "";
+      }
     } catch (transformErr: any) {
       throw new AppError(`Document transformation failed: ${transformErr.message}`, 400, "WORDPRESS_PUBLISH_TRANSFORM_FAILED");
     }
 
-    const finalContent = options?.content !== undefined ? options.content : transformed.content;
-    const finalSlug = (options?.slug || targetPage.slug || transformed.slug || "page")
+    finalSlug = finalSlug
       .toLowerCase()
       .replace(/^\//, "")
       .replace(/[^a-z0-9-]/g, "-")
       .replace(/-+/g, "-") || "home";
-    const finalExcerpt = options?.excerpt !== undefined ? options.excerpt : transformed.excerpt;
     const finalTemplate = options?.template || "default";
 
     // 11. Mapping Resolution (Check for existing WordPressPageMapping)
@@ -1360,6 +1519,34 @@ export async function publishWordPressPage(
 
     if (!mapping && options?.wordpressPageId) {
       mapping = existingMappings.find((m: any) => m.wpPostId === options.wordpressPageId);
+    }
+
+    const sourceVersion = options?.sourceVersion || `v1.${Date.now()}`;
+    const gutenbergHash = transformedGutenberg?.gutenbergHash || "";
+    const htmlHash = transformedHtml?.htmlHash || "";
+    const publishId = options?.publishId || `pub_${websiteId}_${targetPage.id}_${gutenbergHash || htmlHash || Date.now()}`;
+
+    // F-500 Ambiguous First-Publish Reconciliation Pre-Check:
+    // If no mapping exists locally, query remote site to discover if an interrupted prior POST created the page
+    if (!mapping) {
+      try {
+        const preRec = await reconcileUnmappedWordPressPage(connection, websiteId, targetPage.id, {
+          publishId,
+          gutenbergHash,
+          htmlHash,
+          slug: finalSlug,
+          title,
+          sourceVersion,
+        });
+
+        if (preRec.matched && preRec.page) {
+          const recoveredWpPostId = Number(preRec.page.id);
+          await upsertPageMapping(websiteId, targetPage.id, recoveredWpPostId, preRec.page.slug || finalSlug, preRec.page.link || `${connection.siteUrl}/${finalSlug}`);
+          mapping = { forgePageId: targetPage.id, wpPostId: recoveredWpPostId };
+        }
+      } catch (preRecErr) {
+        // Pre-check advisory notice only
+      }
     }
 
     let action: "CREATED" | "UPDATED" = "CREATED";
@@ -1383,47 +1570,128 @@ export async function publishWordPressPage(
             status: targetStatus,
             excerpt: finalExcerpt,
             template: finalTemplate,
+            forgePageId: targetPage.id,
+            format: publishingFormat,
+            publishId,
+            gutenbergHash,
+            htmlHash,
+            sourceVersion,
+            meta: {
+              _forgestudio_page_id: targetPage.id,
+              _forgestudio_gutenberg_hash: gutenbergHash,
+              _forgestudio_html_hash: htmlHash,
+              _forgestudio_publish_id: publishId,
+              _forgestudio_source_version: sourceVersion,
+            },
           }
         );
       } catch (remoteErr: any) {
         if (remoteErr?.statusCode === 404 || remoteErr?.message?.includes("404") || remoteErr?.message?.includes("not found")) {
           action = "CREATED";
-          remoteRes = await sendSignedWordPressRequest(
-            connection.siteUrl,
-            "/pages",
-            "POST",
-            connection.apiKeyHash,
-            {
-              title,
-              slug: finalSlug,
-              content: finalContent,
-              status: targetStatus,
-              excerpt: finalExcerpt,
-              template: finalTemplate,
-              forgePageId: targetPage.id,
-            }
-          );
+          // Fall through to POST
         } else {
-          throw new AppError(`WordPress API publish request failed: ${remoteErr.message}`, 502, "WORDPRESS_PUBLISH_FAILED");
+          throw remoteErr;
         }
       }
-    } else {
+    }
+
+    if (!remoteRes) {
       action = "CREATED";
-      remoteRes = await sendSignedWordPressRequest(
-        connection.siteUrl,
-        "/pages",
-        "POST",
-        connection.apiKeyHash,
-        {
-          title,
-          slug: finalSlug,
-          content: finalContent,
-          status: targetStatus,
-          excerpt: finalExcerpt,
-          template: finalTemplate,
-          forgePageId: targetPage.id,
+      const postPayload = {
+        title,
+        slug: finalSlug,
+        content: finalContent,
+        status: targetStatus,
+        excerpt: finalExcerpt,
+        template: finalTemplate,
+        forgePageId: targetPage.id,
+        format: publishingFormat,
+        publishId,
+        gutenbergHash,
+        htmlHash,
+        sourceVersion,
+        meta: {
+          _forgestudio_page_id: targetPage.id,
+          _forgestudio_gutenberg_hash: gutenbergHash,
+          _forgestudio_html_hash: htmlHash,
+          _forgestudio_publish_id: publishId,
+          _forgestudio_source_version: sourceVersion,
+        },
+      };
+
+      try {
+        remoteRes = await sendSignedWordPressRequest(
+          connection.siteUrl,
+          "/pages",
+          "POST",
+          connection.apiKeyHash,
+          postPayload
+        );
+      } catch (postErr: any) {
+        if (isAmbiguousNetworkError(postErr)) {
+          // F-500 Ambiguous network outcome during first POST!
+          try {
+            await recordAuditLog(userId, "WORDPRESS_PUBLISH_RECONCILIATION_STARTED", websiteId, {
+              pageId: targetPage.id,
+              publishId,
+              error: postErr.message,
+            });
+          } catch (e) {}
+
+          const rec = await reconcileUnmappedWordPressPage(connection, websiteId, targetPage.id, {
+            publishId,
+            gutenbergHash,
+            htmlHash,
+            slug: finalSlug,
+            title,
+            sourceVersion,
+          });
+
+          if (rec.matched && rec.page) {
+            // Case A: Remote page found & matched!
+            remoteRes = rec.page;
+            wpPostId = Number(rec.page.id);
+            try {
+              await recordAuditLog(userId, "WORDPRESS_PUBLISH_RECONCILIATION_SUCCEEDED", websiteId, {
+                pageId: targetPage.id,
+                wpPostId,
+                publishId,
+              });
+            } catch (e) {}
+          } else if (rec.ambiguous || rec.candidateCount > 1) {
+            // Case C: Ambiguous or multiple matches -> NEVER POST again!
+            try {
+              await recordAuditLog(userId, "WORDPRESS_PUBLISH_RECONCILIATION_REQUIRED", websiteId, {
+                pageId: targetPage.id,
+                publishId,
+                candidateCount: rec.candidateCount,
+              });
+            } catch (e) {}
+
+            throw new AppError(
+              "First publish timed out and remote state is ambiguous. Reconciliation required to avoid duplicate pages.",
+              504,
+              "WORDPRESS_PUBLISH_RECONCILIATION_REQUIRED"
+            );
+          } else {
+            // Case B: Proven no remote page created -> allow retry
+            try {
+              await recordAuditLog(userId, "WORDPRESS_PUBLISH_RECONCILIATION_FAILED", websiteId, {
+                pageId: targetPage.id,
+                publishId,
+              });
+            } catch (e) {}
+
+            throw new AppError(
+              "First publish timed out before remote page creation.",
+              504,
+              "WORDPRESS_PUBLISH_TIMEOUT_NO_MUTATION"
+            );
+          }
+        } else {
+          throw postErr;
         }
-      );
+      }
     }
 
     if (remoteRes?.success === false || remoteRes?.error) {
@@ -1432,7 +1700,7 @@ export async function publishWordPressPage(
       throw new AppError(msg, 502, code);
     }
 
-    const createdOrUpdatedPage: WordPressPageDTO = remoteRes.data || remoteRes;
+    const createdOrUpdatedPage = remoteRes?.page || remoteRes?.data || remoteRes || {};
     wpPostId = createdOrUpdatedPage.id || wpPostId;
     const canonicalSlug = createdOrUpdatedPage.slug || finalSlug;
     const canonicalUrl = createdOrUpdatedPage.link || `${connection.siteUrl}/${canonicalSlug === "home" ? "" : canonicalSlug}`;
@@ -1469,17 +1737,20 @@ export async function publishWordPressPage(
     // 14. Create Immutable Publish Snapshot & Audit Logging
     const durationMs = Date.now() - startTime;
     let snapshotId: string | undefined;
-    let sourceVersion: number | undefined;
+    let revisionVersion: number | undefined;
+
+    const contentHash = transformedGutenberg?.gutenbergHash || transformedHtml?.htmlHash;
+    const statsPayload = transformedGutenberg?.blockStats || transformedHtml?.stats;
 
     try {
       const pubRev = await createRevision(websiteId, userId, {
         revisionType: "PUBLISH",
-        description: `WordPress Publish: ${title} (WP ID: ${wpPostId})`,
+        description: `WordPress Publish (${publishingFormat.toUpperCase()}): ${title} (WP ID: ${wpPostId})`,
         elements: targetPage.elements || [],
         pages,
       });
       snapshotId = pubRev.id;
-      sourceVersion = pubRev.version;
+      revisionVersion = pubRev.version;
     } catch (revErr) {
       console.warn("Could not create PUBLISH revision snapshot:", revErr);
     }
@@ -1487,15 +1758,15 @@ export async function publishWordPressPage(
     try {
       await recordAuditLog(userId, "WORDPRESS_PUBLISH_SUCCEEDED", websiteId, {
         forgePageId: targetPage.id,
-        wpPostId,
+        wordpressPageId: wpPostId,
         action,
         status: targetStatus,
-        snapshotId,
-        sourceVersion,
-        title,
-        slug: canonicalSlug,
+        url: canonicalUrl,
         durationMs,
-        warningsCount: warnings.length,
+        snapshotId,
+        publishingFormat,
+        htmlHash: contentHash,
+        gutenbergHash: transformedGutenberg?.gutenbergHash,
       });
     } catch (e) {}
 
@@ -1506,26 +1777,124 @@ export async function publishWordPressPage(
       wordpressPageId: wpPostId,
       action,
       status: targetStatus,
-      title: createdOrUpdatedPage.title || title,
+      title,
       slug: canonicalSlug,
       url: canonicalUrl,
       publishedAt: now.toISOString(),
       snapshotId,
-      sourceVersion,
+      sourceVersion: revisionVersion,
+      publishingFormat,
+      htmlHash: contentHash,
+      gutenbergHash: transformedGutenberg?.gutenbergHash,
+      stats: transformedHtml?.stats,
+      blockStats: transformedGutenberg?.blockStats,
       warnings,
     };
-  } catch (error: any) {
+  } catch (err: any) {
     try {
       await recordAuditLog(userId, "WORDPRESS_PUBLISH_FAILED", websiteId, {
         pageId: options?.pageId,
-        errorCode: error.code || "WORDPRESS_PUBLISH_FAILED",
-        errorMessage: error.message,
+        errorCode: err.code || "WORDPRESS_PUBLISH_FAILED",
+        errorMessage: err.message,
+        durationMs: Date.now() - startTime,
       });
     } catch (e) {}
-    throw error;
+
+    throw err;
   } finally {
     publishLocks.delete(lockKey);
   }
+}
+
+/**
+ * F-499: Generate an HTML preview of the canonical page document without remote mutation.
+ */
+export async function previewWordPressHtml(
+  websiteId: string,
+  userId: string,
+  pageId?: string
+) {
+  const website = await getWebsiteById(websiteId, userId);
+  const canView = await canUserAccessResource(userId, websiteId, "*", "VIEW");
+  if (!canView) {
+    throw new AppError("Forbidden: Insufficient permissions to view page preview.", 403, "FORBIDDEN");
+  }
+
+  let editorData = website.editorData;
+  if (typeof editorData === "string") {
+    try { editorData = JSON.parse(editorData); } catch { editorData = {}; }
+  } else if (!editorData || typeof editorData !== "object") {
+    editorData = {};
+  }
+
+  const pages = Array.isArray(editorData.pages) && editorData.pages.length > 0
+    ? editorData.pages
+    : [{ id: "home", name: website.name || "Home", slug: "/", elements: Array.isArray(editorData.elements) ? editorData.elements : [] }];
+
+  let targetPage = pages[0];
+  if (pageId && pageId !== "default") {
+    const found = pages.find((p: any) => p.id === pageId || p.slug === pageId);
+    if (found) targetPage = found;
+  }
+
+  const transformedHtml = transformPageToHTML(targetPage, website.siteSettings || {}, website.globalStyles || {});
+
+  return {
+    success: true,
+    pageId: targetPage.id,
+    title: targetPage.name || "Untitled Page",
+    slug: targetPage.slug || "home",
+    html: transformedHtml.html,
+    css: transformedHtml.css,
+    fullHtml: transformedHtml.fullHtml,
+    htmlHash: transformedHtml.htmlHash,
+    stats: transformedHtml.stats,
+  };
+}
+
+/**
+ * F-500: Generate a Gutenberg block preview of the canonical page document without remote mutation.
+ */
+export async function previewWordPressGutenberg(
+  websiteId: string,
+  userId: string,
+  pageId?: string
+) {
+  const website = await getWebsiteById(websiteId, userId);
+  const canView = await canUserAccessResource(userId, websiteId, "*", "VIEW");
+  if (!canView) {
+    throw new AppError("Forbidden: Insufficient permissions to view block preview.", 403, "FORBIDDEN");
+  }
+
+  let editorData = website.editorData;
+  if (typeof editorData === "string") {
+    try { editorData = JSON.parse(editorData); } catch { editorData = {}; }
+  } else if (!editorData || typeof editorData !== "object") {
+    editorData = {};
+  }
+
+  const pages = Array.isArray(editorData.pages) && editorData.pages.length > 0
+    ? editorData.pages
+    : [{ id: "home", name: website.name || "Home", slug: "/", elements: Array.isArray(editorData.elements) ? editorData.elements : [] }];
+
+  let targetPage = pages[0];
+  if (pageId && pageId !== "default") {
+    const found = pages.find((p: any) => p.id === pageId || p.slug === pageId);
+    if (found) targetPage = found;
+  }
+
+  const transformedGutenberg = transformPageToWordPress(targetPage, website.siteSettings || {}, website.globalStyles || {});
+
+  return {
+    success: true,
+    pageId: targetPage.id,
+    title: targetPage.name || "Untitled Page",
+    slug: targetPage.slug || "home",
+    content: transformedGutenberg.content,
+    gutenbergHash: transformedGutenberg.gutenbergHash,
+    blockStats: transformedGutenberg.blockStats,
+    blocks: transformedGutenberg.gutenbergBlocks,
+  };
 }
 
 /**
@@ -2349,7 +2718,7 @@ async function verifyWebsiteOwnership(websiteId: string, userId: string) {
 /**
  * Helper: Get active WordPress connection by website ID (throws if missing)
  */
-export async function getConnectionState(websiteId: string): Promise<any> {
+export async function getConnectionState(websiteId: string, _userId?: string): Promise<any> {
   let connection: any = null;
   if (db?.wordPressConnection?.findUnique) {
     connection = await db.wordPressConnection.findUnique({
@@ -2373,6 +2742,7 @@ export async function getConnectionState(websiteId: string): Promise<any> {
  * Helper: Get active WordPress connection by website ID
  */
 export const getConnectionByWebsiteId = getConnectionState;
+export const getWordPressConnection = getConnectionState;
 
 /**
  * List WordPress Pages
@@ -4107,3 +4477,231 @@ export async function rollbackWordPressPage(
     publishLocks.delete(lockKey);
   }
 }
+
+/**
+ * F-498: Create an asynchronous WordPress publishing job with concurrency guard.
+ */
+export async function createWordPressPublishJob(
+  websiteId: string,
+  forgePageId: string,
+  userId: string,
+  options: {
+    targetWpPostId?: number;
+    slug?: string;
+    status?: string;
+    title?: string;
+    format?: string;
+    mode?: string;
+  } = {}
+) {
+  // 1. Check capability
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: Insufficient permissions to manage publish jobs.", 403, "FORBIDDEN");
+  }
+
+  // 2. Check WordPress Connection
+  const connection = await getConnectionByWebsiteId(websiteId);
+  if (!connection || connection.status !== "CONNECTED") {
+    throw new AppError(
+      "WordPress connection is not active or verified",
+      400,
+      "WORDPRESS_NOT_CONNECTED"
+    );
+  }
+
+  // 3. Concurrency / Idempotency Check: Guard against duplicate QUEUED/RUNNING jobs for same site & page
+  const existingJobs = await listJobs({ type: "WORDPRESS_PUBLISH", limit: 50 });
+  const activeJob = existingJobs.find(
+    (j: any) =>
+      j.payload?.websiteId === websiteId &&
+      j.payload?.pageId === forgePageId &&
+      (j.status === "QUEUED" || j.status === "RUNNING")
+  );
+
+  if (activeJob) {
+    return {
+      success: true,
+      alreadyQueued: true,
+      job: activeJob,
+      message: "A publish job for this page is already active.",
+    };
+  }
+
+  // 4. Enqueue Job
+  const payload = {
+    websiteId,
+    pageId: forgePageId,
+    userId,
+    targetWpPostId: options.targetWpPostId,
+    slug: options.slug,
+    status: options.status,
+    title: options.title,
+    createdAt: new Date().toISOString(),
+  };
+
+  const job = await enqueueJob("WORDPRESS_PUBLISH", payload, { maxAttempts: 3 });
+
+  // Trigger immediate async processing tick
+  processNextJob({ id: job.id }).catch(() => {});
+
+  return {
+    success: true,
+    alreadyQueued: false,
+    job,
+    message: "WordPress publishing job queued successfully.",
+  };
+}
+
+/**
+ * F-498: Get detailed status and step progress of a WordPress publishing job.
+ */
+export async function getWordPressPublishJobStatus(
+  websiteId: string,
+  jobId: string,
+  userId: string
+) {
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: Insufficient permissions to view job status.", 403, "FORBIDDEN");
+  }
+
+  const job = await getJobById(jobId);
+  if (!job) {
+    throw new AppError(`Publishing job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+
+  if (job.payload?.websiteId !== websiteId) {
+    throw new AppError("Access denied to job for specified website", 403, "FORBIDDEN");
+  }
+
+  let step = "QUEUED";
+  let progressPercent = 10;
+  if (job.status === "RUNNING") {
+    step = "EXECUTING_PUBLISH_PIPELINE";
+    progressPercent = 50;
+  } else if (job.status === "COMPLETED") {
+    step = "PUBLISHED_VERIFIED";
+    progressPercent = 100;
+  } else if (job.status === "FAILED") {
+    step = "FAILED";
+    progressPercent = 0;
+  } else if (job.status === "CANCELLED") {
+    step = "CANCELLED";
+    progressPercent = 0;
+  }
+
+  return {
+    success: true,
+    job: {
+      id: job.id,
+      type: job.type,
+      status: job.status,
+      step,
+      progressPercent,
+      attempts: job.attempts,
+      maxAttempts: job.maxAttempts,
+      lastError: job.lastError,
+      payload: job.payload,
+      runAt: job.runAt,
+      startedAt: job.startedAt,
+      completedAt: job.completedAt,
+      createdAt: job.createdAt,
+      updatedAt: job.updatedAt,
+    },
+  };
+}
+
+/**
+ * F-498: List all WordPress publishing jobs for a website and optional page.
+ */
+export async function listWordPressPublishJobs(
+  websiteId: string,
+  userId: string,
+  filters: { pageId?: string; status?: string; limit?: number } = {}
+) {
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: Insufficient permissions to list publish jobs.", 403, "FORBIDDEN");
+  }
+
+  const allJobs = await listJobs({ type: "WORDPRESS_PUBLISH", limit: filters.limit || 50 });
+
+  const siteJobs = allJobs.filter((j: any) => {
+    if (j.payload?.websiteId !== websiteId) return false;
+    if (filters.pageId && j.payload?.pageId !== filters.pageId) return false;
+    if (filters.status && j.status !== filters.status) return false;
+    return true;
+  });
+
+  return {
+    success: true,
+    jobs: siteJobs,
+    total: siteJobs.length,
+  };
+}
+
+/**
+ * F-498: Cancel an active or queued WordPress publishing job.
+ */
+export async function cancelWordPressPublishJob(
+  websiteId: string,
+  jobId: string,
+  userId: string,
+  reason?: string
+) {
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: Insufficient permissions to cancel publish jobs.", 403, "FORBIDDEN");
+  }
+
+  const job = await getJobById(jobId);
+  if (!job) {
+    throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+
+  if (job.payload?.websiteId !== websiteId) {
+    throw new AppError("Access denied to job for specified website", 403, "FORBIDDEN");
+  }
+
+  const cancelResult = await cancelJob(jobId, reason);
+  return {
+    success: true,
+    alreadyCancelled: cancelResult.alreadyCancelled || false,
+    job: cancelResult.job,
+    message: "Publishing job cancelled successfully",
+  };
+}
+
+/**
+ * F-498: Retry a failed or cancelled WordPress publishing job.
+ */
+export async function retryWordPressPublishJob(
+  websiteId: string,
+  jobId: string,
+  userId: string
+) {
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("Forbidden: Insufficient permissions to retry publish jobs.", 403, "FORBIDDEN");
+  }
+
+  const job = await getJobById(jobId);
+  if (!job) {
+    throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+
+  if (job.payload?.websiteId !== websiteId) {
+    throw new AppError("Access denied to job for specified website", 403, "FORBIDDEN");
+  }
+
+  const retried = await retryJob(jobId);
+  processNextJob({ id: jobId }).catch(() => {});
+
+  return {
+    success: true,
+    job: retried,
+    message: "Publishing job requeued for retry",
+  };
+}
+

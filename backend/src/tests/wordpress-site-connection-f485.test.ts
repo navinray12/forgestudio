@@ -43,7 +43,7 @@ export async function runF485SiteConnectionTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f485-owner-${Date.now()}@example.com`,
-        name: "F485 Owner User",
+        fullName: "F485 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -51,28 +51,22 @@ export async function runF485SiteConnectionTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f485-unauth-${Date.now()}@example.com`,
-        name: "F485 Unauthorized User",
+        fullName: "F485 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite1 = await createWebsite(
-      {
-        name: "F-485 Primary Website Workspace",
-        subdomain: `f485-site1-${Date.now()}`,
-        siteSettings: { title: "F-485 Test Site 1" },
-      },
-      ownerUser.id
-    );
+    testWebsite1 = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-485 Primary Website Workspace",
+      slug: `f485-site1-${Date.now()}`,
+    });
 
-    testWebsite2 = await createWebsite(
-      {
-        name: "F-485 Secondary Website Workspace",
-        subdomain: `f485-site2-${Date.now()}`,
-        siteSettings: { title: "F-485 Test Site 2" },
-      },
-      ownerUser.id
-    );
+    testWebsite2 = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-485 Secondary Website Workspace",
+      slug: `f485-site2-${Date.now()}`,
+    });
 
     assert(Boolean(testWebsite1?.id && testWebsite2?.id), "Setup: Created test website workspaces");
 
@@ -157,8 +151,8 @@ export async function runF485SiteConnectionTests() {
 
     // 6. Verification Endpoint & Health Check
     const verifyRes = await verifyWordPressConnection(testWebsite1.id, ownerUser.id);
-    assert(verifyRes.verified === true, "6a. Verification endpoint returns verified = true");
-    assert(verifyRes.status === "CONNECTED", "6b. Status remains CONNECTED after verification");
+    assert(verifyRes.verification?.healthy === true, "6a. Verification endpoint returns verified = true");
+    assert(verifyRes.verification?.status === "CONNECTED", "6b. Status remains CONNECTED after verification");
 
     // 7. Revoke Connection Flow
     const revokeRes = await revokeWordPressConnection(testWebsite1.id, ownerUser.id);

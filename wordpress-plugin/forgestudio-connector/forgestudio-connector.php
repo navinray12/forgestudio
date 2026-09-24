@@ -13,7 +13,11 @@
  */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    if (file_exists(__DIR__ . '/wordpress-stubs.php')) {
+        require_once __DIR__ . '/wordpress-stubs.php';
+    } else {
+        exit; // Exit if accessed directly
+    }
 }
 
 define('FORGESTUDIO_CONNECTOR_VERSION', '1.0.0');
@@ -23,7 +27,8 @@ define('FORGESTUDIO_REST_NAMESPACE', 'forgestudio/v1');
 /**
  * Activation & Deactivation Hooks
  */
-function forgestudio_connector_activate() {
+function forgestudio_connector_activate()
+{
     add_option('forgestudio_connector_version', FORGESTUDIO_CONNECTOR_VERSION);
     add_option('forgestudio_api_version', FORGESTUDIO_API_VERSION);
     if (!get_option('forgestudio_connection_status')) {
@@ -32,7 +37,8 @@ function forgestudio_connector_activate() {
 }
 register_activation_hook(__FILE__, 'forgestudio_connector_activate');
 
-function forgestudio_connector_deactivate() {
+function forgestudio_connector_deactivate()
+{
     // Keep connection metadata intact to avoid unexpected data loss
 }
 register_deactivation_hook(__FILE__, 'forgestudio_connector_deactivate');
@@ -43,126 +49,126 @@ register_deactivation_hook(__FILE__, 'forgestudio_connector_deactivate');
 add_action('rest_api_init', function () {
     // GET /wp-json/forgestudio/v1/status
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/status', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_status',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/site-info
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/site-info', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_site_info',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/site-health
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/site-health', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_site_health',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/connect
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/connect', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_connect',
         'permission_callback' => '__return_true', // Open during initial setup with payload key verification
     ]);
 
     // POST /wp-json/forgestudio/v1/verify
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/verify', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_verify',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/disconnect
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/disconnect', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_disconnect',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/revoke
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/revoke', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_revoke',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/publish
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/publish', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_publish',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/pages
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/pages', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_pages',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/pages/(?P<id>\d+)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/pages/(?P<id>\d+)', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_page',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/pages
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/pages', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_create_page',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // PUT /wp-json/forgestudio/v1/pages/(?P<id>\d+)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/pages/(?P<id>\d+)', [
-        'methods'  => 'PUT',
+        'methods' => 'PUT',
         'callback' => 'forgestudio_rest_update_page',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // DELETE /wp-json/forgestudio/v1/pages/(?P<id>\d+)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/pages/(?P<id>\d+)', [
-        'methods'  => 'DELETE',
+        'methods' => 'DELETE',
         'callback' => 'forgestudio_rest_delete_page',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/media (List Media)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/media', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_media_list',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // GET /wp-json/forgestudio/v1/media/(?P<id>\d+) (Get Media Item)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/media/(?P<id>\d+)', [
-        'methods'  => 'GET',
+        'methods' => 'GET',
         'callback' => 'forgestudio_rest_get_media_item',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // POST /wp-json/forgestudio/v1/media (Upload Media - F-493)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/media', [
-        'methods'  => 'POST',
+        'methods' => 'POST',
         'callback' => 'forgestudio_rest_upload_media',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // PUT /wp-json/forgestudio/v1/media/(?P<id>\d+) (Update Media Metadata - F-494)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/media/(?P<id>\d+)', [
-        'methods'  => ['PUT', 'PATCH'],
+        'methods' => ['PUT', 'PATCH'],
         'callback' => 'forgestudio_rest_update_media_item',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
 
     // DELETE /wp-json/forgestudio/v1/media/(?P<id>\d+) (Delete/Trash Media - F-494)
     register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/media/(?P<id>\d+)', [
-        'methods'  => 'DELETE',
+        'methods' => 'DELETE',
         'callback' => 'forgestudio_rest_delete_media_item',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
@@ -171,7 +177,8 @@ add_action('rest_api_init', function () {
 /**
  * Security: Permission & Signature Validation Callback
  */
-function forgestudio_rest_permission_check(WP_REST_Request $request) {
+function forgestudio_rest_permission_check(WP_REST_Request $request)
+{
     // 1. Check logged-in WP Admin capability if request originates from WP Session
     if (current_user_can('manage_options') || current_user_can('edit_posts')) {
         return true;
@@ -214,7 +221,8 @@ function forgestudio_rest_permission_check(WP_REST_Request $request) {
 /**
  * Controller: Get Status
  */
-function forgestudio_rest_get_status(WP_REST_Request $request) {
+function forgestudio_rest_get_status(WP_REST_Request $request)
+{
     $status = get_option('forgestudio_connection_status', 'DISCONNECTED');
     $website_id = get_option('forgestudio_website_id', '');
     $last_synced = get_option('forgestudio_last_synced_at', null);
@@ -238,18 +246,26 @@ function forgestudio_rest_get_status(WP_REST_Request $request) {
 /**
  * Controller: Get Site Information
  */
-function forgestudio_rest_get_site_info(WP_REST_Request $request) {
+function forgestudio_rest_get_site_info(WP_REST_Request $request)
+{
     $theme = function_exists('wp_get_theme') ? wp_get_theme() : null;
-    $theme_name = $theme ? $theme->get('Name') : 'Unknown Theme';
-    $theme_version = $theme ? $theme->get('Version') : '1.0.0';
+    $theme_name = ($theme && is_object($theme)) ? $theme->get('Name') : 'Unknown Theme';
+    $theme_version = ($theme && is_object($theme)) ? $theme->get('Version') : '1.0.0';
     $is_block = false;
     if (function_exists('wp_is_block_theme')) {
         $is_block = wp_is_block_theme();
-    } elseif ($theme && method_exists($theme, 'is_block_theme')) {
+    } elseif ($theme && is_object($theme) && method_exists($theme, 'is_block_theme')) {
         $is_block = $theme->is_block_theme();
     }
     $theme_type = $is_block ? 'BLOCK' : 'CLASSIC';
-    $parent_theme = ($theme && method_exists($theme, 'parent') && $theme->parent()) ? $theme->parent()->get('Name') : null;
+    $parent_theme = null;
+    if ($theme instanceof WP_Theme && method_exists($theme, 'parent')) {
+        /** @var WP_Theme|null $parent_val */
+        $parent_val = $theme->parent();
+        if ($parent_val instanceof WP_Theme) {
+            $parent_theme = $parent_val->get('Name');
+        }
+    }
 
     // Timezone calculation
     $tz_string = get_option('timezone_string');
@@ -316,10 +332,11 @@ function forgestudio_rest_get_site_info(WP_REST_Request $request) {
 /**
  * Controller: Get Site Health & Compatibility Diagnostics
  */
-function forgestudio_rest_get_site_health(WP_REST_Request $request) {
+function forgestudio_rest_get_site_health(WP_REST_Request $request)
+{
     $wp_version = get_bloginfo('version');
     $is_ssl = is_ssl() || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
-    
+
     // Dynamic capabilities evaluation
     $capabilities = [];
     $can_edit_pages = post_type_exists('page') && (current_user_can('edit_pages') || current_user_can('edit_posts') || current_user_can('manage_options'));
@@ -330,13 +347,20 @@ function forgestudio_rest_get_site_health(WP_REST_Request $request) {
     $has_menus = function_exists('wp_get_nav_menus') || current_theme_supports('menus');
     $has_acf = class_exists('ACF') || function_exists('acf_add_local_field_group');
 
-    if ($can_edit_pages) $capabilities[] = 'pages';
-    if ($can_upload_media) $capabilities[] = 'media';
-    if ($can_publish) $capabilities[] = 'publishing';
-    if ($has_gutenberg) $capabilities[] = 'gutenberg';
-    if ($has_webhooks) $capabilities[] = 'webhooks';
-    if ($has_menus) $capabilities[] = 'menus';
-    if ($has_acf) $capabilities[] = 'acf';
+    if ($can_edit_pages)
+        $capabilities[] = 'pages';
+    if ($can_upload_media)
+        $capabilities[] = 'media';
+    if ($can_publish)
+        $capabilities[] = 'publishing';
+    if ($has_gutenberg)
+        $capabilities[] = 'gutenberg';
+    if ($has_webhooks)
+        $capabilities[] = 'webhooks';
+    if ($has_menus)
+        $capabilities[] = 'menus';
+    if ($has_acf)
+        $capabilities[] = 'acf';
 
     // Publishing readiness evaluation
     $can_publish_pages = $can_edit_pages && $can_publish;
@@ -440,7 +464,8 @@ function forgestudio_rest_get_site_health(WP_REST_Request $request) {
 /**
  * Controller: Connect
  */
-function forgestudio_rest_connect(WP_REST_Request $request) {
+function forgestudio_rest_connect(WP_REST_Request $request)
+{
     $params = $request->get_json_params();
     $api_key = sanitize_text_field($params['apiKey'] ?? '');
     $website_id = sanitize_text_field($params['websiteId'] ?? '');
@@ -480,7 +505,8 @@ function forgestudio_rest_connect(WP_REST_Request $request) {
 /**
  * Controller: Verify
  */
-function forgestudio_rest_verify(WP_REST_Request $request) {
+function forgestudio_rest_verify(WP_REST_Request $request)
+{
     update_option('forgestudio_connection_status', 'CONNECTED');
     update_option('forgestudio_last_verified_at', current_time('mysql', 1));
 
@@ -539,7 +565,8 @@ function forgestudio_rest_verify(WP_REST_Request $request) {
 /**
  * Controller: Disconnect
  */
-function forgestudio_rest_disconnect(WP_REST_Request $request) {
+function forgestudio_rest_disconnect(WP_REST_Request $request)
+{
     update_option('forgestudio_connection_status', 'DISCONNECTED');
     update_option('forgestudio_disconnected_at', current_time('mysql', 1));
     delete_option('forgestudio_api_key_hash');
@@ -558,7 +585,8 @@ function forgestudio_rest_disconnect(WP_REST_Request $request) {
 /**
  * Controller: Revoke
  */
-function forgestudio_rest_revoke(WP_REST_Request $request) {
+function forgestudio_rest_revoke(WP_REST_Request $request)
+{
     update_option('forgestudio_connection_status', 'REVOKED');
     update_option('forgestudio_revoked_at', current_time('mysql', 1));
     delete_option('forgestudio_api_key_hash');
@@ -577,7 +605,8 @@ function forgestudio_rest_revoke(WP_REST_Request $request) {
 /**
  * Controller: Publish (Batch / Single Page Sync)
  */
-function forgestudio_rest_publish(WP_REST_Request $request) {
+function forgestudio_rest_publish(WP_REST_Request $request)
+{
     $params = $request->get_json_params();
     $pages = $params['pages'] ?? [];
 
@@ -595,11 +624,11 @@ function forgestudio_rest_publish(WP_REST_Request $request) {
         $existing_id = intval($p['wpPostId'] ?? 0);
 
         $post_data = [
-            'post_title'   => $title,
-            'post_name'    => $slug,
+            'post_title' => $title,
+            'post_name' => $slug,
             'post_content' => $content,
-            'post_status'  => $status,
-            'post_type'    => 'page',
+            'post_status' => $status,
+            'post_type' => 'page',
         ];
 
         if ($existing_id > 0 && get_post($existing_id)) {
@@ -607,9 +636,10 @@ function forgestudio_rest_publish(WP_REST_Request $request) {
             $post_id = wp_update_post($post_data);
         } else {
             // Check if post with slug exists
-            $existing_post = get_page_by_path($slug, OBJECT, 'page');
-            if ($existing_post) {
-                $post_data['ID'] = $existing_post->ID;
+            /** @var WP_Post|null $page_by_slug */
+            $page_by_slug = get_page_by_path($slug, OBJECT, 'page');
+            if ($page_by_slug instanceof WP_Post) {
+                $post_data['ID'] = $page_by_slug->ID;
                 $post_id = wp_update_post($post_data);
             } else {
                 $post_id = wp_insert_post($post_data);
@@ -623,9 +653,9 @@ function forgestudio_rest_publish(WP_REST_Request $request) {
             $permalink = get_permalink($post_id);
             $mappings[] = [
                 'forgePageId' => $forge_id,
-                'wpPostId'    => $post_id,
-                'wpPostSlug'  => get_post_field('post_name', $post_id),
-                'wpPostUrl'   => $permalink,
+                'wpPostId' => $post_id,
+                'wpPostSlug' => get_post_field('post_name', $post_id),
+                'wpPostUrl' => $permalink,
             ];
         }
     }
@@ -645,25 +675,26 @@ function forgestudio_rest_publish(WP_REST_Request $request) {
 /**
  * Helper to normalize a WP_Post object into standard ForgeStudio Page DTO
  */
-function forgestudio_normalize_page_dto($post) {
+function forgestudio_normalize_page_dto($post)
+{
     if (!$post || !($post instanceof WP_Post)) {
         return null;
     }
     return [
-        'id'          => (int) $post->ID,
-        'date'        => get_the_date('c', $post),
-        'modified'    => get_the_modified_date('c', $post),
-        'slug'        => $post->post_name,
-        'status'      => $post->post_status,
-        'type'        => $post->post_type,
-        'link'        => get_permalink($post->ID),
-        'title'       => $post->post_title,
-        'content'     => $post->post_content,
-        'excerpt'     => $post->post_excerpt,
-        'author'      => (int) $post->post_author,
-        'parent'      => (int) $post->post_parent,
-        'menuOrder'   => (int) $post->menu_order,
-        'template'    => get_post_meta($post->ID, '_wp_page_template', true) ?: 'default',
+        'id' => (int) $post->ID,
+        'date' => get_the_date('c', $post),
+        'modified' => get_the_modified_date('c', $post),
+        'slug' => $post->post_name,
+        'status' => $post->post_status,
+        'type' => $post->post_type,
+        'link' => get_permalink($post->ID),
+        'title' => $post->post_title,
+        'content' => $post->post_content,
+        'excerpt' => $post->post_excerpt,
+        'author' => (int) $post->post_author,
+        'parent' => (int) $post->post_parent,
+        'menuOrder' => (int) $post->menu_order,
+        'template' => get_post_meta($post->ID, '_wp_page_template', true) ?: 'default',
         'forgePageId' => get_post_meta($post->ID, '_forgestudio_page_id', true) ?: null,
     ];
 }
@@ -671,12 +702,13 @@ function forgestudio_normalize_page_dto($post) {
 /**
  * Controller: Get Pages List
  */
-function forgestudio_rest_get_pages(WP_REST_Request $request) {
-    $search   = sanitize_text_field($request->get_param('search') ?? '');
-    $status   = sanitize_text_field($request->get_param('status') ?? 'any');
-    $parent   = $request->get_param('parent') !== null ? intval($request->get_param('parent')) : null;
-    $author   = $request->get_param('author') !== null ? intval($request->get_param('author')) : null;
-    $page     = max(1, intval($request->get_param('page') ?? 1));
+function forgestudio_rest_get_pages(WP_REST_Request $request)
+{
+    $search = sanitize_text_field($request->get_param('search') ?? '');
+    $status = sanitize_text_field($request->get_param('status') ?? 'any');
+    $parent = $request->get_param('parent') !== null ? intval($request->get_param('parent')) : null;
+    $author = $request->get_param('author') !== null ? intval($request->get_param('author')) : null;
+    $page = max(1, intval($request->get_param('page') ?? 1));
     $per_page = min(100, max(1, intval($request->get_param('per_page') ?? $request->get_param('perPage') ?? 20)));
 
     $allowed_statuses = ['publish', 'draft', 'pending', 'private', 'trash', 'any'];
@@ -685,12 +717,12 @@ function forgestudio_rest_get_pages(WP_REST_Request $request) {
     }
 
     $args = [
-        'post_type'      => 'page',
-        'post_status'    => $status === 'any' ? ['publish', 'draft', 'pending', 'private'] : $status,
+        'post_type' => 'page',
+        'post_status' => $status === 'any' ? ['publish', 'draft', 'pending', 'private'] : $status,
         'posts_per_page' => $per_page,
-        'paged'          => $page,
-        'orderby'        => 'date',
-        'order'          => 'DESC',
+        'paged' => $page,
+        'orderby' => 'date',
+        'order' => 'DESC',
     ];
 
     if (!empty($search)) {
@@ -717,10 +749,10 @@ function forgestudio_rest_get_pages(WP_REST_Request $request) {
         'data' => [
             'pages' => $pages,
             'pagination' => [
-                'total'      => (int) $query->found_posts,
+                'total' => (int) $query->found_posts,
                 'totalPages' => (int) $query->max_num_pages,
-                'page'       => $page,
-                'perPage'    => $per_page,
+                'page' => $page,
+                'perPage' => $per_page,
             ]
         ]
     ]);
@@ -729,7 +761,8 @@ function forgestudio_rest_get_pages(WP_REST_Request $request) {
 /**
  * Controller: Get Single Page
  */
-function forgestudio_rest_get_page(WP_REST_Request $request) {
+function forgestudio_rest_get_page(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $post = get_post($id);
 
@@ -752,16 +785,17 @@ function forgestudio_rest_get_page(WP_REST_Request $request) {
 /**
  * Controller: Create Page
  */
-function forgestudio_rest_create_page(WP_REST_Request $request) {
+function forgestudio_rest_create_page(WP_REST_Request $request)
+{
     $params = $request->get_json_params() ?: [];
-    $title   = sanitize_text_field($params['title'] ?? 'Untitled Page');
-    $slug    = sanitize_title($params['slug'] ?? $title);
+    $title = sanitize_text_field($params['title'] ?? 'Untitled Page');
+    $slug = sanitize_title($params['slug'] ?? $title);
     $content = wp_kses_post($params['content'] ?? '');
-    $status  = sanitize_text_field($params['status'] ?? 'draft');
+    $status = sanitize_text_field($params['status'] ?? 'draft');
     $excerpt = wp_kses_post($params['excerpt'] ?? '');
-    $parent  = isset($params['parent']) ? intval($params['parent']) : 0;
-    $order   = isset($params['menuOrder']) ? intval($params['menuOrder']) : (isset($params['menu_order']) ? intval($params['menu_order']) : 0);
-    $template= sanitize_text_field($params['template'] ?? 'default');
+    $parent = isset($params['parent']) ? intval($params['parent']) : 0;
+    $order = isset($params['menuOrder']) ? intval($params['menuOrder']) : (isset($params['menu_order']) ? intval($params['menu_order']) : 0);
+    $template = sanitize_text_field($params['template'] ?? 'default');
 
     $allowed_statuses = ['draft', 'publish', 'pending', 'private'];
     if (!in_array($status, $allowed_statuses, true)) {
@@ -782,14 +816,14 @@ function forgestudio_rest_create_page(WP_REST_Request $request) {
     }
 
     $post_data = [
-        'post_title'   => $title,
-        'post_name'    => $slug,
+        'post_title' => $title,
+        'post_name' => $slug,
         'post_content' => $content,
         'post_excerpt' => $excerpt,
-        'post_status'  => $status,
-        'post_type'    => 'page',
-        'post_parent'  => $parent,
-        'menu_order'   => $order,
+        'post_status' => $status,
+        'post_type' => 'page',
+        'post_parent' => $parent,
+        'menu_order' => $order,
     ];
 
     $post_id = wp_insert_post($post_data, true);
@@ -822,7 +856,8 @@ function forgestudio_rest_create_page(WP_REST_Request $request) {
 /**
  * Controller: Update Page
  */
-function forgestudio_rest_update_page(WP_REST_Request $request) {
+function forgestudio_rest_update_page(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $params = $request->get_json_params() ?: [];
 
@@ -838,11 +873,15 @@ function forgestudio_rest_update_page(WP_REST_Request $request) {
     }
 
     $post_data = ['ID' => $id];
-    if (isset($params['title'])) $post_data['post_title'] = sanitize_text_field($params['title']);
-    if (isset($params['content'])) $post_data['post_content'] = wp_kses_post($params['content']);
-    if (isset($params['excerpt'])) $post_data['post_excerpt'] = wp_kses_post($params['excerpt']);
-    if (isset($params['slug'])) $post_data['post_name'] = sanitize_title($params['slug']);
-    
+    if (isset($params['title']))
+        $post_data['post_title'] = sanitize_text_field($params['title']);
+    if (isset($params['content']))
+        $post_data['post_content'] = wp_kses_post($params['content']);
+    if (isset($params['excerpt']))
+        $post_data['post_excerpt'] = wp_kses_post($params['excerpt']);
+    if (isset($params['slug']))
+        $post_data['post_name'] = sanitize_title($params['slug']);
+
     if (isset($params['status'])) {
         $status = sanitize_text_field($params['status']);
         $allowed = ['draft', 'publish', 'pending', 'private', 'trash'];
@@ -911,7 +950,8 @@ function forgestudio_rest_update_page(WP_REST_Request $request) {
 /**
  * Controller: Delete Page
  */
-function forgestudio_rest_delete_page(WP_REST_Request $request) {
+function forgestudio_rest_delete_page(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $force = $request->get_param('force') === 'true' || $request->get_param('force') === true;
 
@@ -955,7 +995,8 @@ function forgestudio_rest_delete_page(WP_REST_Request $request) {
 /**
  * Controller: Upload Media (F-493)
  */
-function forgestudio_rest_upload_media(WP_REST_Request $request) {
+function forgestudio_rest_upload_media(WP_REST_Request $request)
+{
     $params = $request->get_json_params();
     if (empty($params)) {
         $params = $request->get_body_params();
@@ -1006,10 +1047,10 @@ function forgestudio_rest_upload_media(WP_REST_Request $request) {
 
         $attachment = [
             'post_mime_type' => $file_type['type'] ?: 'image/png',
-            'post_title'     => $title,
-            'post_excerpt'   => $caption,
-            'post_content'   => $description,
-            'post_status'    => 'inherit'
+            'post_title' => $title,
+            'post_excerpt' => $caption,
+            'post_content' => $description,
+            'post_status' => 'inherit'
         ];
 
         $attach_id = wp_insert_attachment($attachment, $file_path);
@@ -1073,7 +1114,8 @@ function forgestudio_rest_upload_media(WP_REST_Request $request) {
 /**
  * Media Normalizer DTO Helper (F-494)
  */
-function forgestudio_normalize_media_dto($post) {
+function forgestudio_normalize_media_dto($post)
+{
     if (!$post || $post->post_type !== 'attachment') {
         return null;
     }
@@ -1084,29 +1126,30 @@ function forgestudio_normalize_media_dto($post) {
     $alt_text = get_post_meta($id, '_wp_attachment_image_alt', true) ?: '';
 
     return [
-        'id'          => $id,
-        'title'       => $post->post_title,
-        'filename'    => $file_path ? basename($file_path) : basename($file_url ?: 'media'),
-        'mimeType'    => $post->post_mime_type ?: 'application/octet-stream',
-        'url'         => $file_url ?: '',
-        'sourceUrl'   => $file_url ?: '',
-        'date'        => $post->post_date,
-        'modified'    => $post->post_modified,
-        'width'       => $meta['width'] ?? null,
-        'height'      => $meta['height'] ?? null,
-        'filesize'    => ($file_path && file_exists($file_path)) ? filesize($file_path) : ($meta['filesize'] ?? null),
-        'altText'     => $alt_text,
-        'caption'     => $post->post_excerpt ?: '',
+        'id' => $id,
+        'title' => $post->post_title,
+        'filename' => $file_path ? basename($file_path) : basename($file_url ?: 'media'),
+        'mimeType' => $post->post_mime_type ?: 'application/octet-stream',
+        'url' => $file_url ?: '',
+        'sourceUrl' => $file_url ?: '',
+        'date' => $post->post_date,
+        'modified' => $post->post_modified,
+        'width' => $meta['width'] ?? null,
+        'height' => $meta['height'] ?? null,
+        'filesize' => ($file_path && file_exists($file_path)) ? filesize($file_path) : ($meta['filesize'] ?? null),
+        'altText' => $alt_text,
+        'caption' => $post->post_excerpt ?: '',
         'description' => $post->post_content ?: '',
-        'status'      => $post->post_status,
-        'author'      => strval($post->post_author),
+        'status' => $post->post_status,
+        'author' => strval($post->post_author),
     ];
 }
 
 /**
  * Controller: List Media (F-494)
  */
-function forgestudio_rest_get_media_list(WP_REST_Request $request) {
+function forgestudio_rest_get_media_list(WP_REST_Request $request)
+{
     $page = max(1, intval($request->get_param('page') ?: 1));
     $per_page = min(100, max(1, intval($request->get_param('perPage') ?: $request->get_param('per_page') ?: 20)));
     $search = sanitize_text_field($request->get_param('search') ?: '');
@@ -1116,20 +1159,20 @@ function forgestudio_rest_get_media_list(WP_REST_Request $request) {
     $orderby_param = strtolower(sanitize_text_field($request->get_param('orderby') ?: 'date'));
 
     $orderby_map = [
-        'date'     => 'date',
+        'date' => 'date',
         'modified' => 'modified',
-        'title'    => 'title',
+        'title' => 'title',
         'filename' => 'name',
     ];
     $orderby = $orderby_map[$orderby_param] ?? 'date';
 
     $args = [
-        'post_type'      => 'attachment',
-        'post_status'    => 'inherit',
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
         'posts_per_page' => $per_page,
-        'paged'          => $page,
-        'order'          => $order,
-        'orderby'        => $orderby,
+        'paged' => $page,
+        'order' => $order,
+        'orderby' => $orderby,
     ];
 
     if (!empty($search)) {
@@ -1158,12 +1201,12 @@ function forgestudio_rest_get_media_list(WP_REST_Request $request) {
 
     return rest_ensure_response([
         'success' => true,
-        'data'    => [
-            'items'      => $items,
+        'data' => [
+            'items' => $items,
             'pagination' => [
-                'page'       => $page,
-                'perPage'    => $per_page,
-                'total'      => $total,
+                'page' => $page,
+                'perPage' => $per_page,
+                'total' => $total,
                 'totalPages' => $total_pages,
             ]
         ]
@@ -1173,15 +1216,16 @@ function forgestudio_rest_get_media_list(WP_REST_Request $request) {
 /**
  * Controller: Get Single Media Item (F-494)
  */
-function forgestudio_rest_get_media_item(WP_REST_Request $request) {
+function forgestudio_rest_get_media_item(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $post = get_post($id);
 
     if (!$post || $post->post_type !== 'attachment') {
         return rest_ensure_response([
             'success' => false,
-            'error'   => [
-                'code'    => 'WORDPRESS_MEDIA_NOT_FOUND',
+            'error' => [
+                'code' => 'WORDPRESS_MEDIA_NOT_FOUND',
                 'message' => "WordPress media attachment with ID {$id} not found."
             ]
         ]);
@@ -1190,14 +1234,15 @@ function forgestudio_rest_get_media_item(WP_REST_Request $request) {
     $dto = forgestudio_normalize_media_dto($post);
     return rest_ensure_response([
         'success' => true,
-        'data'    => $dto
+        'data' => $dto
     ]);
 }
 
 /**
  * Controller: Update Media Metadata (F-494)
  */
-function forgestudio_rest_update_media_item(WP_REST_Request $request) {
+function forgestudio_rest_update_media_item(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $params = $request->get_json_params() ?: [];
 
@@ -1205,8 +1250,8 @@ function forgestudio_rest_update_media_item(WP_REST_Request $request) {
     if (!$post || $post->post_type !== 'attachment') {
         return rest_ensure_response([
             'success' => false,
-            'error'   => [
-                'code'    => 'WORDPRESS_MEDIA_NOT_FOUND',
+            'error' => [
+                'code' => 'WORDPRESS_MEDIA_NOT_FOUND',
                 'message' => "WordPress media attachment with ID {$id} not found."
             ]
         ]);
@@ -1227,8 +1272,8 @@ function forgestudio_rest_update_media_item(WP_REST_Request $request) {
     if (is_wp_error($updated_id)) {
         return rest_ensure_response([
             'success' => false,
-            'error'   => [
-                'code'    => 'WORDPRESS_MEDIA_UPDATE_FAILED',
+            'error' => [
+                'code' => 'WORDPRESS_MEDIA_UPDATE_FAILED',
                 'message' => $updated_id->get_error_message()
             ]
         ]);
@@ -1241,14 +1286,15 @@ function forgestudio_rest_update_media_item(WP_REST_Request $request) {
     $updated_post = get_post($id);
     return rest_ensure_response([
         'success' => true,
-        'data'    => forgestudio_normalize_media_dto($updated_post)
+        'data' => forgestudio_normalize_media_dto($updated_post)
     ]);
 }
 
 /**
  * Controller: Delete Media (F-494)
  */
-function forgestudio_rest_delete_media_item(WP_REST_Request $request) {
+function forgestudio_rest_delete_media_item(WP_REST_Request $request)
+{
     $id = intval($request->get_param('id'));
     $force = $request->get_param('force') === 'true' || $request->get_param('force') === true;
 
@@ -1256,8 +1302,8 @@ function forgestudio_rest_delete_media_item(WP_REST_Request $request) {
     if (!$post || $post->post_type !== 'attachment') {
         return rest_ensure_response([
             'success' => false,
-            'error'   => [
-                'code'    => 'WORDPRESS_MEDIA_NOT_FOUND',
+            'error' => [
+                'code' => 'WORDPRESS_MEDIA_NOT_FOUND',
                 'message' => "WordPress media attachment with ID {$id} not found."
             ]
         ]);
@@ -1267,8 +1313,8 @@ function forgestudio_rest_delete_media_item(WP_REST_Request $request) {
     if (!$result) {
         return rest_ensure_response([
             'success' => false,
-            'error'   => [
-                'code'    => 'WORDPRESS_MEDIA_DELETE_FAILED',
+            'error' => [
+                'code' => 'WORDPRESS_MEDIA_DELETE_FAILED',
                 'message' => "Could not delete WordPress media attachment ID {$id}."
             ]
         ]);
@@ -1276,10 +1322,10 @@ function forgestudio_rest_delete_media_item(WP_REST_Request $request) {
 
     return rest_ensure_response([
         'success' => true,
-        'data'    => [
+        'data' => [
             'deleted' => true,
-            'id'      => $id,
-            'force'   => $force,
+            'id' => $id,
+            'force' => $force,
         ]
     ]);
 }
@@ -1297,7 +1343,8 @@ add_action('admin_menu', function () {
     );
 });
 
-function forgestudio_connector_admin_page() {
+function forgestudio_connector_admin_page()
+{
     if (!current_user_can('manage_options')) {
         return;
     }
@@ -1311,19 +1358,23 @@ function forgestudio_connector_admin_page() {
         <h1 style="display:flex; align-items:center; gap:10px;">
             <span style="font-size: 24px;">⚡</span> ForgeStudio WordPress Connector
         </h1>
-        <p>Production-grade secure bridge connecting your WordPress installation with the ForgeStudio SaaS Website Builder.</p>
+        <p>Production-grade secure bridge connecting your WordPress installation with the ForgeStudio SaaS Website Builder.
+        </p>
 
-        <div style="background:#ffffff; border:1px solid #ccd0d4; border-radius:8px; padding:20px; max-width:700px; margin-top:20px;">
+        <div
+            style="background:#ffffff; border:1px solid #ccd0d4; border-radius:8px; padding:20px; max-width:700px; margin-top:20px;">
             <h2 style="margin-top:0;">Connection Information</h2>
             <table class="widefat striped" style="border:none;">
                 <tbody>
                     <tr>
                         <td><strong>Status</strong></td>
                         <td>
-                            <?php if ($status === 'CONNECTED') : ?>
-                                <span style="background:#d1fae5; color:#065f46; font-weight:bold; padding:4px 10px; border-radius:12px; font-size:12px;">CONNECTED</span>
-                            <?php else : ?>
-                                <span style="background:#fee2e2; color:#991b1b; font-weight:bold; padding:4px 10px; border-radius:12px; font-size:12px;">DISCONNECTED</span>
+                            <?php if ($status === 'CONNECTED'): ?>
+                                <span
+                                    style="background:#d1fae5; color:#065f46; font-weight:bold; padding:4px 10px; border-radius:12px; font-size:12px;">CONNECTED</span>
+                            <?php else: ?>
+                                <span
+                                    style="background:#fee2e2; color:#991b1b; font-weight:bold; padding:4px 10px; border-radius:12px; font-size:12px;">DISCONNECTED</span>
                             <?php endif; ?>
                         </td>
                     </tr>

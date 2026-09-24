@@ -379,6 +379,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [isSyncingSftp, setIsSyncingSftp] = useState(false);
   const [sftpFeedback, setSftpFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [sftpVerified, setSftpVerified] = useState(false);
+  const [publishingFormat, setPublishingFormat] = useState<"html" | "gutenberg">("html");
 
   useEffect(() => {
     if (isOpen && websiteId) {
@@ -386,9 +387,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       loadWordPressStatus();
       loadWpPagePublishStatus();
       loadWpRollbackTargets();
+      loadWpJobs();
       loadSftpConfig();
+      loadHtmlPreview();
     }
-  }, [isOpen, websiteId]);
+  }, [isOpen, websiteId, publishingFormat]);
 
   const loadSftpConfig = async () => {
     if (!websiteId) return;
@@ -496,6 +499,30 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [wpPublishResult, setWpPublishResult] = useState<any | null>(null);
   const [wpPublishError, setWpPublishError] = useState<string | null>(null);
   const [wpPublishStatusMode, setWpPublishStatusMode] = useState<"publish" | "draft" | "private">("publish");
+  const [htmlPreviewData, setHtmlPreviewData] = useState<any | null>(null);
+  const [isLoadingHtmlPreview, setIsLoadingHtmlPreview] = useState(false);
+  const [htmlPreviewError, setHtmlPreviewError] = useState<string | null>(null);
+  const [showRawHtmlModal, setShowRawHtmlModal] = useState(false);
+
+  const loadHtmlPreview = async () => {
+    if (!websiteId) return;
+    setIsLoadingHtmlPreview(true);
+    setHtmlPreviewError(null);
+    try {
+      if (publishingFormat === "gutenberg") {
+        const res = await publishingService.previewWordPressGutenberg(websiteId, "default");
+        setHtmlPreviewData(res);
+      } else {
+        const res = await publishingService.previewWordPressHtml(websiteId, "default");
+        setHtmlPreviewData(res);
+      }
+    } catch (err: any) {
+      setHtmlPreviewError(err.message || "Failed to generate publishing preview");
+    } finally {
+      setIsLoadingHtmlPreview(false);
+    }
+  };
+
   const [wpPagePublishStatus, setWpPagePublishStatus] = useState<any | null>(null);
   const [isLoadingWpPublishStatus, setIsLoadingWpPublishStatus] = useState(false);
 
@@ -508,6 +535,113 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [showRollbackConfirm, setShowRollbackConfirm] = useState(false);
   const [wpRollbackResult, setWpRollbackResult] = useState<any | null>(null);
   const [wpRollbackError, setWpRollbackError] = useState<string | null>(null);
+
+  // F-498 WordPress Publishing Job States
+  const [wpJobs, setWpJobs] = useState<any[]>([]);
+  const [isLoadingWpJobs, setIsLoadingWpJobs] = useState(false);
+  const [activeWpJob, setActiveWpJob] = useState<any | null>(null);
+  const [isCreatingJob, setIsCreatingJob] = useState(false);
+  const [cancellingJobId, setCancellingJobId] = useState<string | null>(null);
+  const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
+  const [wpJobFeedback, setWpJobFeedback] = useState<string | null>(null);
+
+  const loadWpJobs = async (pageId?: string) => {
+    if (!websiteId) return;
+    setIsLoadingWpJobs(true);
+    try {
+      const list = await publishingService.listWordPressPublishJobs(websiteId, pageId);
+      setWpJobs(list || []);
+      const active = (list || []).find((j: any) => j.status === "QUEUED" || j.status === "RUNNING");
+      if (active) {
+        setActiveWpJob(active);
+      }
+    } catch (err) {
+      console.warn("Could not load WordPress publish jobs:", err);
+    } finally {
+      setIsLoadingWpJobs(false);
+    }
+  };
+
+  const handleEnqueueWpPublishJob = async (pageId: string = "default") => {
+    if (!websiteId || isCreatingJob) return;
+    setIsCreatingJob(true);
+    setWpJobFeedback(null);
+    setWpPublishError(null);
+
+    try {
+      const res = await publishingService.createWordPressPublishJob(websiteId, pageId, {
+        status: wpPublishStatusMode,
+        format: publishingFormat,
+      });
+
+      if (res.job) {
+        setActiveWpJob(res.job);
+        setWpJobFeedback(res.message || "WordPress publishing job queued successfully.");
+        await loadWpJobs(pageId);
+      }
+    } catch (err: any) {
+      setWpPublishError(err.message || "Failed to enqueue WordPress publish job");
+    } finally {
+      setIsCreatingJob(false);
+    }
+  };
+
+  const handleCancelWpJob = async (jobId: string) => {
+    if (!websiteId || cancellingJobId) return;
+    setCancellingJobId(jobId);
+    try {
+      await publishingService.cancelWordPressPublishJob(websiteId, jobId);
+      if (activeWpJob?.id === jobId) {
+        setActiveWpJob(null);
+      }
+      setWpJobFeedback("Job cancelled successfully.");
+      await loadWpJobs();
+    } catch (err: any) {
+      alert(`Failed to cancel job: ${err.message}`);
+    } finally {
+      setCancellingJobId(null);
+    }
+  };
+
+  const handleRetryWpJob = async (jobId: string) => {
+    if (!websiteId || retryingJobId) return;
+    setRetryingJobId(jobId);
+    try {
+      const res = await publishingService.retryWordPressPublishJob(websiteId, jobId);
+      if (res.job) {
+        setActiveWpJob(res.job);
+      }
+      setWpJobFeedback("Job re-queued for retry.");
+      await loadWpJobs();
+    } catch (err: any) {
+      alert(`Failed to retry job: ${err.message}`);
+    } finally {
+      setRetryingJobId(null);
+    }
+  };
+
+  // F-498 Auto-polling for active background job status
+  useEffect(() => {
+    if (!isOpen || !websiteId || !activeWpJob) return;
+    if (activeWpJob.status !== "QUEUED" && activeWpJob.status !== "RUNNING") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const updated = await publishingService.getWordPressPublishJobStatus(websiteId, activeWpJob.id);
+        if (updated) {
+          setActiveWpJob(updated);
+          if (updated.status === "COMPLETED" || updated.status === "FAILED" || updated.status === "CANCELLED") {
+            await loadWpJobs();
+            await loadWpPagePublishStatus();
+            await loadWpRollbackTargets();
+          }
+        }
+      } catch (e) {}
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, websiteId, activeWpJob?.id, activeWpJob?.status]);
+
 
   const loadWpPagePublishStatus = async (pageId?: string) => {
     if (!websiteId || isLoadingWpPublishStatus) return;
@@ -589,7 +723,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setWpPublishStep("Validating pre-publish readiness & connection health...");
       await new Promise((r) => setTimeout(r, 250));
 
-      setWpPublishStep("Transforming document JSON into Gutenberg block markup...");
+      setWpPublishStep(publishingFormat === "html" ? "Compiling HTML & responsive CSS with SHA-256 validation..." : "Transforming document JSON into Gutenberg block markup...");
       await new Promise((r) => setTimeout(r, 250));
 
       setWpPublishStep("Resolving media references & page mapping...");
@@ -598,6 +732,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setWpPublishStep("Sending signed payload to WordPress REST API...");
       const res = await publishingService.publishWordPressPage(websiteId, {
         status: statusToUse,
+        format: publishingFormat,
       });
 
       setWpPublishStep("Published successfully!");
@@ -1782,6 +1917,133 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       </div>
                     </div>
 
+                    {/* F-499 Publishing Format Selector (HTML vs Gutenberg) */}
+                    <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-white uppercase tracking-wide flex items-center gap-1.5">
+                          <span>⚙️</span> Publishing Format (F-499 Engine)
+                        </span>
+                        <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setPublishingFormat("html")}
+                            className={`px-3 py-1 rounded text-xs font-black transition cursor-pointer ${
+                              publishingFormat === "html"
+                                ? "bg-cyan-600 text-white shadow shadow-cyan-600/30"
+                                : "text-slate-400 hover:text-slate-200"
+                            }`}
+                          >
+                            🌐 HTML + CSS (Deterministic)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPublishingFormat("gutenberg")}
+                            className={`px-3 py-1 rounded text-xs font-black transition cursor-pointer ${
+                              publishingFormat === "gutenberg"
+                                ? "bg-indigo-600 text-white shadow shadow-indigo-600/30"
+                                : "text-slate-400 hover:text-slate-200"
+                            }`}
+                          >
+                            🧱 Gutenberg Blocks
+                          </button>
+                        </div>
+                      </div>
+
+                      {publishingFormat === "html" && (
+                        <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-400 font-semibold">
+                              HTML Engine: Semantic tags, responsive CSS breakpoints (desktop/tablet/mobile), & strict XSS sanitization.
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => loadHtmlPreview()}
+                              disabled={isLoadingHtmlPreview}
+                              className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[10px] transition cursor-pointer shrink-0"
+                            >
+                              {isLoadingHtmlPreview ? "Refreshing..." : "🔄 Preview HTML Stats"}
+                            </button>
+                          </div>
+
+                          {htmlPreviewData && (
+                            <div className="grid grid-cols-4 gap-2 text-[11px] bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/40">
+                              <div>
+                                <span className="text-[9px] text-cyan-400 font-bold block uppercase">HTML Payload</span>
+                                <span className="font-mono font-bold text-white">{(htmlPreviewData.stats?.htmlSizeBytes || 0).toLocaleString()} bytes</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cyan-400 font-bold block uppercase">Compiled CSS</span>
+                                <span className="font-mono font-bold text-white">{(htmlPreviewData.stats?.cssSizeBytes || 0).toLocaleString()} bytes</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cyan-400 font-bold block uppercase">SHA-256 Hash</span>
+                                <span className="font-mono font-bold text-cyan-300 truncate block" title={htmlPreviewData.htmlHash}>
+                                  {htmlPreviewData.htmlHash ? htmlPreviewData.htmlHash.substring(0, 10) + "..." : "N/A"}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cyan-400 font-bold block uppercase">Media / Assets</span>
+                                <span className="font-bold text-emerald-300">{htmlPreviewData.mediaCount || 0} referenced</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {htmlPreviewData?.stats?.sanitizationWarnings?.length > 0 && (
+                            <div className="p-2 rounded bg-amber-950/40 border border-amber-800/40 text-[10px] text-amber-300 font-medium">
+                              ⚠️ Sanitization stripped {htmlPreviewData.stats.sanitizationWarnings.length} unsafe element(s) for security.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {publishingFormat === "gutenberg" && (
+                        <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-400 font-semibold">
+                              Gutenberg Engine: Core Gutenberg blocks serialization (core/paragraph, core/heading, core/group, core/columns).
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => loadHtmlPreview()}
+                              disabled={isLoadingHtmlPreview}
+                              className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-[10px] transition cursor-pointer shrink-0"
+                            >
+                              {isLoadingHtmlPreview ? "Refreshing..." : "🔄 Preview Block Stats"}
+                            </button>
+                          </div>
+
+                          {htmlPreviewData && (
+                            <div className="grid grid-cols-4 gap-2 text-[11px] bg-indigo-950/30 p-2.5 rounded-lg border border-indigo-800/40">
+                              <div>
+                                <span className="text-[9px] text-indigo-400 font-bold block uppercase">Block Count</span>
+                                <span className="font-mono font-bold text-white">{(htmlPreviewData.blockStats?.blocksCount || 0).toLocaleString()} blocks</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-indigo-400 font-bold block uppercase">Nested Blocks</span>
+                                <span className="font-mono font-bold text-white">{(htmlPreviewData.blockStats?.nestedBlocksCount || 0).toLocaleString()} nested</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-indigo-400 font-bold block uppercase">Gutenberg Hash</span>
+                                <span className="font-mono font-bold text-indigo-300 truncate block" title={htmlPreviewData.gutenbergHash}>
+                                  {htmlPreviewData.gutenbergHash ? htmlPreviewData.gutenbergHash.substring(0, 10) + "..." : "N/A"}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-indigo-400 font-bold block uppercase">Markup Size</span>
+                                <span className="font-bold text-emerald-300">{(htmlPreviewData.blockStats?.markupSizeBytes || 0).toLocaleString()} bytes</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {htmlPreviewData?.blockStats?.sanitizationWarnings?.length > 0 && (
+                            <div className="p-2 rounded bg-amber-950/40 border border-amber-800/40 text-[10px] text-amber-300 font-medium">
+                              ⚠️ Sanitization stripped {htmlPreviewData.blockStats.sanitizationWarnings.length} unsafe element(s) for security.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Pre-Publish Review Summary */}
                     <div className="grid grid-cols-4 gap-2 text-xs bg-slate-950/60 p-3 rounded-lg border border-slate-800">
                       <div>
@@ -1875,6 +2137,14 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       </button>
                       <button
                         type="button"
+                        onClick={() => handleEnqueueWpPublishJob("default")}
+                        disabled={isCreatingJob || (activeWpJob && (activeWpJob.status === "QUEUED" || activeWpJob.status === "RUNNING"))}
+                        className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-black shadow-lg shadow-cyan-600/30 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>⚡</span> {isCreatingJob ? "Queuing Job..." : "Queue Async Job"}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => handlePublishWpPageAction("publish")}
                         disabled={isPublishingWpPage}
                         className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-black shadow-lg shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
@@ -1883,6 +2153,162 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       </button>
                     </div>
                   </div>
+
+                  {/* F-498 WordPress Publishing Jobs Orchestration Panel */}
+                  <div className="rounded-xl border border-cyan-900/50 bg-slate-900/90 p-4 space-y-4 shadow-xl">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <div>
+                        <h4 className="text-xs font-black text-white uppercase tracking-wide flex items-center gap-1.5">
+                          <span>⚡</span> WordPress Asynchronous Publishing Jobs (F-498)
+                        </h4>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Durable queue orchestration layer for background job processing, step progress tracking, cancellation, and retry controls.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEnqueueWpPublishJob("default")}
+                          disabled={isCreatingJob || (activeWpJob && (activeWpJob.status === "QUEUED" || activeWpJob.status === "RUNNING"))}
+                          className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-black text-[11px] transition shadow disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                        >
+                          <span>+</span> {isCreatingJob ? "Enqueuing..." : "Queue Publish Job"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => loadWpJobs()}
+                          disabled={isLoadingWpJobs}
+                          className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-[11px] font-bold transition cursor-pointer"
+                        >
+                          🔄 Refresh Jobs
+                        </button>
+                      </div>
+                    </div>
+
+                    {wpJobFeedback && (
+                      <div className="p-2.5 rounded-lg bg-cyan-950/40 border border-cyan-800/40 text-cyan-300 text-xs font-semibold">
+                        ℹ️ {wpJobFeedback}
+                      </div>
+                    )}
+
+                    {/* Active Job Step Tracker Card */}
+                    {activeWpJob && (activeWpJob.status === "QUEUED" || activeWpJob.status === "RUNNING") && (
+                      <div className="p-3.5 rounded-xl bg-cyan-950/50 border border-cyan-700/60 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="animate-spin text-cyan-400 text-sm">🔄</span>
+                            <span className="text-xs font-black text-white uppercase">
+                              Active Job #{activeWpJob.id}
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-cyan-900 text-cyan-200 text-[10px] font-black font-mono">
+                              {activeWpJob.status}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCancelWpJob(activeWpJob.id)}
+                            disabled={cancellingJobId === activeWpJob.id}
+                            className="px-2.5 py-1 rounded bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold text-[10px] transition cursor-pointer"
+                          >
+                            {cancellingJobId === activeWpJob.id ? "Cancelling..." : "Cancel Job"}
+                          </button>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-cyan-300">
+                            <span>Step: {activeWpJob.step || "Processing..."}</span>
+                            <span>{activeWpJob.progressPercent || 50}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-cyan-400 transition-all duration-500 rounded-full animate-pulse"
+                              style={{ width: `${activeWpJob.progressPercent || 50}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Jobs History List Table */}
+                    <div className="space-y-2">
+                      <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Publishing Jobs Queue History</span>
+                        <span>Total: {wpJobs.length}</span>
+                      </div>
+
+                      {isLoadingWpJobs ? (
+                        <div className="py-6 text-center text-xs text-slate-400 italic">
+                          Loading background publishing jobs...
+                        </div>
+                      ) : wpJobs.length === 0 ? (
+                        <div className="py-4 text-center text-xs text-slate-500 bg-slate-950/40 rounded-lg border border-slate-800">
+                          No background publishing jobs queued yet. Click "Queue Publish Job" above to enqueue an async publish operation.
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                          {wpJobs.map((job) => (
+                            <div
+                              key={job.id}
+                              className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 hover:border-slate-700 flex items-center justify-between gap-3 text-xs transition"
+                            >
+                              <div className="space-y-1 truncate">
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase border ${
+                                      job.status === "COMPLETED"
+                                        ? "bg-emerald-950 border-emerald-800 text-emerald-300"
+                                        : job.status === "RUNNING"
+                                        ? "bg-cyan-950 border-cyan-800 text-cyan-300 animate-pulse"
+                                        : job.status === "QUEUED"
+                                        ? "bg-amber-950 border-amber-800 text-amber-300"
+                                        : job.status === "CANCELLED"
+                                        ? "bg-slate-800 border-slate-700 text-slate-400"
+                                        : "bg-rose-950 border-rose-800 text-rose-300"
+                                    }`}
+                                  >
+                                    {job.status}
+                                  </span>
+                                  <span className="font-mono text-slate-300 font-bold">#{job.id}</span>
+                                  <span className="text-slate-400 text-[10px]">Page: {job.payload?.pageId || "default"}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-400 flex items-center gap-3">
+                                  <span>🕒 {new Date(job.createdAt).toLocaleString()}</span>
+                                  <span>Attempts: {job.attempts || 0}/{job.maxAttempts || 3}</span>
+                                  {job.lastError && (
+                                    <span className="text-rose-400 truncate max-w-xs">Error: {job.lastError}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {(job.status === "FAILED" || job.status === "CANCELLED") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRetryWpJob(job.id)}
+                                    disabled={retryingJobId === job.id}
+                                    className="px-2.5 py-1 rounded bg-indigo-950 hover:bg-indigo-900 border border-indigo-800 text-indigo-300 text-[10px] font-bold transition cursor-pointer"
+                                  >
+                                    {retryingJobId === job.id ? "Retrying..." : "🔄 Retry"}
+                                  </button>
+                                )}
+                                {(job.status === "QUEUED" || job.status === "RUNNING") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCancelWpJob(job.id)}
+                                    disabled={cancellingJobId === job.id}
+                                    className="px-2.5 py-1 rounded bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 text-[10px] font-bold transition cursor-pointer"
+                                  >
+                                    {cancellingJobId === job.id ? "Cancelling..." : "✕ Cancel"}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
 
                   {/* F-497 WordPress Publish Rollback Panel */}
                   <div className="rounded-xl border border-purple-900/50 bg-slate-900/90 p-4 space-y-4 shadow-xl">

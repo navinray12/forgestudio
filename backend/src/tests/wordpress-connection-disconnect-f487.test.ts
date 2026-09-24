@@ -41,7 +41,7 @@ export async function runF487ConnectionDisconnectTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f487-owner-${Date.now()}@example.com`,
-        name: "F487 Owner User",
+        fullName: "F487 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -49,19 +49,16 @@ export async function runF487ConnectionDisconnectTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f487-unauth-${Date.now()}@example.com`,
-        name: "F487 Unauthorized User",
+        fullName: "F487 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-487 Disconnect Workspace",
-        subdomain: `f487-site-${Date.now()}`,
-        siteSettings: { title: "F-487 Disconnect Site" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-487 Disconnect Workspace",
+      slug: `f487-site-${Date.now()}`,
+    });
 
     assert(Boolean(testWebsite?.id), "Setup: Created test website workspace");
 
@@ -141,7 +138,7 @@ export async function runF487ConnectionDisconnectTests() {
       "f487_new_reconnect_api_key_7777",
       "Reconnected Target"
     );
-    assert(reconnectRes.success === true && reconnectRes.connection.status === "CONNECTED", "9a. Reconnect after disconnect succeeds using F-485 workflow");
+    assert(Boolean(reconnectRes?.id) && reconnectRes.status === "CONNECTED", "9a. Reconnect after disconnect succeeds using F-485 workflow");
 
     const reconnectedStatus = await getWordPressStatus(testWebsite.id, ownerUser.id);
     assert(reconnectedStatus.isConnected === true, "9b. Connection status returns to CONNECTED after reconnection");

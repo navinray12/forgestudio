@@ -630,7 +630,7 @@ export const publishingService = {
   },
 
   /**
-   * Publish page to WordPress destination (F-495)
+   * Publish a ForgeStudio page to WordPress synchronously (F-495 & F-499)
    */
   async publishWordPressPage(
     websiteId: string,
@@ -643,6 +643,8 @@ export const publishingService = {
       content?: string;
       excerpt?: string;
       template?: string;
+      format?: "html" | "gutenberg";
+      mode?: "html" | "gutenberg";
     },
     apiUrl?: string
   ): Promise<any> {
@@ -659,6 +661,50 @@ export const publishingService = {
       throw new Error(data?.error?.message || data?.message || "Failed to publish page to WordPress");
     }
     return data;
+  },
+
+  /**
+   * Preview sanitized HTML & CSS payload without publishing mutation (F-499)
+   */
+  async previewWordPressHtml(
+    websiteId: string,
+    pageId: string = "default",
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/pages/${pageId}/preview-html`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to generate HTML preview");
+    }
+    return data.data || data;
+  },
+
+  /**
+   * Preview native Gutenberg blocks payload without publishing mutation (F-500)
+   */
+  async previewWordPressGutenberg(
+    websiteId: string,
+    pageId: string = "default",
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/pages/${pageId}/preview-gutenberg`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to generate Gutenberg preview");
+    }
+    return data.data || data;
   },
 
   /**
@@ -732,6 +778,121 @@ export const publishingService = {
   },
 
   /**
+   * Create an asynchronous WordPress publishing job (F-498 & F-499)
+   */
+  async createWordPressPublishJob(
+    websiteId: string,
+    pageId: string = "default",
+    options: { targetWpPostId?: number; slug?: string; status?: string; title?: string; format?: "html" | "gutenberg" } = {},
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/pages/${pageId}/jobs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(options),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to create WordPress publishing job");
+    }
+    return data;
+  },
+
+  /**
+   * Get detailed status and step progress of a WordPress publishing job (F-498)
+   */
+  async getWordPressPublishJobStatus(
+    websiteId: string,
+    jobId: string,
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/jobs/${jobId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to fetch job status");
+    }
+    return data.job || data;
+  },
+
+  /**
+   * List WordPress publishing jobs (F-498)
+   */
+  async listWordPressPublishJobs(
+    websiteId: string,
+    pageId?: string,
+    apiUrl?: string
+  ): Promise<any[]> {
+    const base = getBaseUrl(apiUrl);
+    const query = pageId ? `?pageId=${encodeURIComponent(pageId)}` : "";
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/jobs${query}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to list publishing jobs");
+    }
+    return data.jobs || [];
+  },
+
+  /**
+   * Cancel an active or queued WordPress publishing job (F-498)
+   */
+  async cancelWordPressPublishJob(
+    websiteId: string,
+    jobId: string,
+    reason?: string,
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/jobs/${jobId}/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ reason }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to cancel publishing job");
+    }
+    return data;
+  },
+
+  /**
+   * Retry a failed or cancelled WordPress publishing job (F-498)
+   */
+  async retryWordPressPublishJob(
+    websiteId: string,
+    jobId: string,
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/jobs/${jobId}/retry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || "Failed to retry publishing job");
+    }
+    return data;
+  },
+
+  /**
    * Sync compiled files to SFTP server
    */
   async syncSftp(websiteId: string, options: any = {}, apiUrl?: string): Promise<any> {
@@ -748,6 +909,744 @@ export const publishingService = {
     }
     return data;
   },
+
+  /**
+   * Get WordPress Forms capabilities for site
+   */
+  async getWordPressFormsCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/forms/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress forms capabilities");
+    }
+    return data;
+  },
+
+  /**
+   * List WordPress forms for site
+   */
+  async listWordPressForms(websiteId: string, apiUrl?: string): Promise<any[]> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/forms`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to list WordPress forms");
+    }
+    return data;
+  },
+
+  /**
+   * Synchronize form definition to WordPress
+   */
+  async syncWordPressForm(websiteId: string, formId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/forms/${formId}/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to sync form to WordPress");
+    }
+    return data;
+  },
+
+  /**
+   * Submit form payload
+   */
+  async submitWordPressForm(websiteId: string, formId: string, payload: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/forms/${formId}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to submit form");
+    }
+    return data;
+  },
+
+  /**
+   * F-502: Get WordPress SEO capabilities
+   */
+  async getWordPressSeoCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/seo/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress SEO capabilities");
+    }
+    return data;
+  },
+
+  /**
+   * F-502: Get page SEO metadata
+   */
+  async getWordPressPageSeo(websiteId: string, pageId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/seo/pages/${pageId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress page SEO");
+    }
+    return data;
+  },
+
+  /**
+   * F-502: Update page SEO metadata
+   */
+  async updateWordPressPageSeo(websiteId: string, pageId: string, metadata: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/seo/pages/${pageId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(metadata),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to update WordPress page SEO");
+    }
+    return data;
+  },
+
+  /**
+   * F-502: Synchronize page SEO metadata to WordPress
+   */
+  async syncWordPressPageSeo(websiteId: string, pageId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/seo/pages/${pageId}/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to sync page SEO to WordPress");
+    }
+    return data;
+  },
+
+  /**
+   * F-503: Get WordPress Analytics capabilities
+   */
+  async getWordPressAnalyticsCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/analytics/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress Analytics capabilities");
+    }
+    return data;
+  },
+
+  /**
+   * F-503: Get Analytics Configuration
+   */
+  async getWordPressAnalyticsConfig(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/analytics/config`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress Analytics configuration");
+    }
+    return data;
+  },
+
+  /**
+   * F-503: Update Analytics Configuration
+   */
+  async updateWordPressAnalyticsConfig(websiteId: string, config: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/analytics/config`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(config),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to update WordPress Analytics configuration");
+    }
+    return data;
+  },
+
+  /**
+   * F-503: Get Analytics Data
+   */
+  async getWordPressAnalyticsData(websiteId: string, params?: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const query = new URLSearchParams(params || {}).toString();
+    const url = `${base}/api/websites/${websiteId}/wordpress/analytics${query ? `?${query}` : ""}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to fetch WordPress Analytics data");
+    }
+    return data;
+  },
+
+  /**
+   * F-503: Synchronize Analytics
+   */
+  async syncWordPressAnalytics(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/analytics/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to sync WordPress Analytics");
+    }
+    return data;
+  },
+
+  /**
+   * F-504: Get Menu Capabilities
+   */
+  async getWordPressMenuCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch WordPress Menu capabilities");
+    return data;
+  },
+
+  /**
+   * F-504: List Menus
+   */
+  async listWordPressMenus(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to list WordPress menus");
+    return data;
+  },
+
+  /**
+   * F-504: Create Menu
+   */
+  async createWordPressMenu(websiteId: string, menuData: { name: string; slug?: string; description?: string }, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(menuData),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to create WordPress menu");
+    return data;
+  },
+
+  /**
+   * F-504: Delete Menu
+   */
+  async deleteWordPressMenu(websiteId: string, menuId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/${menuId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to delete WordPress menu");
+    return data;
+  },
+
+  /**
+   * F-504: List Menu Items
+   */
+  async listWordPressMenuItems(websiteId: string, menuId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/${menuId}/items`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to list menu items");
+    return data;
+  },
+
+  /**
+   * F-504: Create Menu Item
+   */
+  async createWordPressMenuItem(websiteId: string, menuId: string, itemData: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/${menuId}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(itemData),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to create menu item");
+    return data;
+  },
+
+  /**
+   * F-504: Reorder Menu Items
+   */
+  async reorderWordPressMenuItems(websiteId: string, menuId: string, reorderPayload: any[], apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/${menuId}/items/reorder`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: reorderPayload }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to reorder menu items");
+    return data;
+  },
+
+  /**
+   * F-504: Get Theme Menu Locations
+   */
+  async getWordPressMenuLocations(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/locations`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch menu locations");
+    return data;
+  },
+
+  /**
+   * F-504: Assign Menu Location
+   */
+  async assignWordPressMenuLocation(websiteId: string, menuId: string, location: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/menus/locations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ menuId, location }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to assign menu location");
+    return data;
+  },
+
+  /**
+   * F-505: Get Webhook Capabilities
+   */
+  async getWordPressWebhookCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch webhook capabilities");
+    return data;
+  },
+
+  /**
+   * F-505: List Webhooks
+   */
+  async listWordPressWebhooks(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to list webhooks");
+    return data;
+  },
+
+  /**
+   * F-505: Create Webhook
+   */
+  async createWordPressWebhook(websiteId: string, webhookData: any, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(webhookData),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to create webhook");
+    return data;
+  },
+
+  /**
+   * F-505: Delete Webhook
+   */
+  async deleteWordPressWebhook(websiteId: string, webhookId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks/${webhookId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to delete webhook");
+    return data;
+  },
+
+  /**
+   * F-505: Enable Webhook
+   */
+  async enableWordPressWebhook(websiteId: string, webhookId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks/${webhookId}/enable`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to enable webhook");
+    return data;
+  },
+
+  /**
+   * F-505: Disable Webhook
+   */
+  async disableWordPressWebhook(websiteId: string, webhookId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks/${webhookId}/disable`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to disable webhook");
+    return data;
+  },
+
+  /**
+   * F-505: List Webhook Deliveries
+   */
+  async listWordPressWebhookDeliveries(websiteId: string, webhookId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/webhooks/${webhookId}/deliveries`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch webhook deliveries");
+    return data;
+  },
+
+  /**
+   * F-506: Get Plugin Capabilities
+   */
+  async getWordPressPluginCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch plugin capabilities");
+    return data;
+  },
+
+  /**
+   * F-506: List Plugins
+   */
+  async listWordPressPlugins(websiteId: string, filter: any = {}, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const params = new URLSearchParams(filter).toString();
+    const query = params ? `?${params}` : "";
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins${query}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to list plugins");
+    return data;
+  },
+
+  /**
+   * F-506: Activate Plugin
+   */
+  async activateWordPressPlugin(websiteId: string, pluginId: string, isNetwork = false, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins/${encodeURIComponent(pluginId)}/activate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isNetwork }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to activate plugin");
+    return data;
+  },
+
+  /**
+   * F-506: Deactivate Plugin
+   */
+  async deactivateWordPressPlugin(websiteId: string, pluginId: string, isNetwork = false, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins/${encodeURIComponent(pluginId)}/deactivate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isNetwork }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to deactivate plugin");
+    return data;
+  },
+
+  /**
+   * F-506: Update Plugin
+   */
+  async updateWordPressPlugin(websiteId: string, pluginId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins/${encodeURIComponent(pluginId)}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to update plugin");
+    return data;
+  },
+
+  /**
+   * F-506: Delete Plugin
+   */
+  async deleteWordPressPlugin(websiteId: string, pluginId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/plugins/${encodeURIComponent(pluginId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to delete plugin");
+    return data;
+  },
+
+  /**
+   * F-507: Get Theme Capabilities
+   */
+  async getWordPressThemeCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch theme capabilities");
+    return data;
+  },
+
+  /**
+   * F-507: List Themes
+   */
+  async listWordPressThemes(websiteId: string, filter: any = {}, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const params = new URLSearchParams(filter).toString();
+    const query = params ? `?${params}` : "";
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes${query}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to list themes");
+    return data;
+  },
+
+  /**
+   * F-507: Get Active Theme
+   */
+  async getActiveWordPressTheme(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes/active`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch active theme");
+    return data;
+  },
+
+  /**
+   * F-507: Activate Theme
+   */
+  async activateWordPressTheme(websiteId: string, themeId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes/${encodeURIComponent(themeId)}/activate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to activate theme");
+    return data;
+  },
+
+  /**
+   * F-507: Update Theme
+   */
+  async updateWordPressTheme(websiteId: string, themeId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes/${encodeURIComponent(themeId)}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to update theme");
+    return data;
+  },
+
+  /**
+   * F-507: Delete Theme
+   */
+  async deleteWordPressTheme(websiteId: string, themeId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/themes/${encodeURIComponent(themeId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to delete theme");
+    return data;
+  },
+
+  /**
+   * F-508: Get Cache Capabilities
+   */
+  async getWordPressCacheCapabilities(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/cache/capabilities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch cache capabilities");
+    return data;
+  },
+
+  /**
+   * F-508: Get Remote Cache Status
+   */
+  async getWordPressCacheStatus(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/cache/status`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to fetch cache status");
+    return data;
+  },
+
+  /**
+   * F-508: Purge Cache
+   */
+  async purgeWordPressCache(websiteId: string, target: any = {}, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/cache/purge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(target),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to purge cache");
+    return data;
+  },
+
+  /**
+   * F-508: Clear All Cache
+   */
+  async clearWordPressCache(websiteId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/cache/clear`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to clear cache");
+    return data;
+  },
+
+  /**
+   * F-508: Warm Cache
+   */
+  async warmWordPressCache(websiteId: string, urls: string[] = [], apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/cache/warm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ urls }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || "Failed to warm cache");
+    return data;
+  },
 };
+
+
+
+
 
 

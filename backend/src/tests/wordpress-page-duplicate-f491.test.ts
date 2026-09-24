@@ -47,7 +47,7 @@ export async function runF491WordPressPageDuplicateTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f491-owner-${Date.now()}@example.com`,
-        name: "F491 Owner User",
+        fullName: "F491 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -55,19 +55,16 @@ export async function runF491WordPressPageDuplicateTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f491-unauth-${Date.now()}@example.com`,
-        name: "F491 Unauthorized User",
+        fullName: "F491 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-491 Page Duplicate Workspace",
-        subdomain: `f491-dup-${Date.now()}`,
-        siteSettings: { title: "F-491 Workspace" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-491 Page Duplicate Workspace",
+      slug: `f491-dup-${Date.now()}`,
+    });
 
     // 1. Initial State: Unconnected Site Duplicate Fails
     try {
@@ -82,7 +79,7 @@ export async function runF491WordPressPageDuplicateTests() {
 
     // 2. Establish Active WordPress Connection
     const targetWpUrl = `https://wp-f491-${Date.now()}.example.com`;
-    const connResult = await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    const connResult = await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f491_secret", "F-491 Site");
     assert(connResult.status === "CONNECTED", "Scenario 2: Establish connected status for F-491");
 
     // Create Source Page 1 (Published)
@@ -211,7 +208,7 @@ export async function runF491WordPressPageDuplicateTests() {
     }
 
     // 24. Revoked WordPress Fail-Closed
-    await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f491_secret", "F-491 Site");
     await revokeWordPressConnection(testWebsite.id, ownerUser.id);
     try {
       await duplicateWordPressPage(testWebsite.id, sourcePage1.page.id, ownerUser.id);
@@ -221,7 +218,7 @@ export async function runF491WordPressPageDuplicateTests() {
     }
 
     // Re-connect site
-    await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f491_secret", "F-491 Site");
 
     // 25. Audit Log Entry Recorded for WORDPRESS_PAGE_DUPLICATED
     const auditLogs: any[] = await prisma.$queryRaw`

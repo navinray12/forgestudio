@@ -47,19 +47,16 @@ export async function runF484WordPressConnectorTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: uniqueEmail,
-        name: "WP Connector Test User",
+        fullName: "WP Connector Test User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-484 Test WordPress Destination Site",
-        subdomain: `wp-f484-${Date.now()}`,
-        siteSettings: { title: "F-484 Test Site", description: "WordPress Connector Integration" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-484 Test WordPress Destination Site",
+      slug: `wp-f484-${Date.now()}`,
+    });
 
     assert(Boolean(testWebsite?.id), "1. Created test website workspace");
 
@@ -106,8 +103,8 @@ export async function runF484WordPressConnectorTests() {
     assert(activeStatus.connection?.siteUrl === testSiteUrl, "4. Status connection DTO contains siteUrl");
 
     const healthCheck = await verifyWordPressConnection(testWebsite.id, ownerUser.id);
-    assert(healthCheck.verified === true, "4. Connection health verification returned verified = true");
-    assert(healthCheck.status === "CONNECTED", "4. Health check status is CONNECTED");
+    assert(healthCheck.verification?.healthy === true, "4. Connection health verification returned verified = true");
+    assert(healthCheck.verification?.status === "CONNECTED", "4. Health check status is CONNECTED");
 
     // 5. Publish Canvas Pages to WordPress
     const sampleCanvasSnapshot = {
@@ -159,7 +156,12 @@ export async function runF484WordPressConnectorTests() {
     assert(mappings[1].forgePageId === "page-about", "5. Mapping 2 maps page-about");
 
     // 6. Test Webhook Security Logic
-    const webhookBody = JSON.stringify({ event: "post.updated", wpPostId: 1001, forgePageId: "page-home" });
+    const webhookPayloadObj = {
+      event: "page_updated" as const,
+      timestamp: Math.floor(Date.now() / 1000),
+      data: { wpPostId: 1001, forgePageId: "page-home" },
+    };
+    const webhookBody = JSON.stringify(webhookPayloadObj);
     const validSignature = crypto.createHmac("sha256", expectedApiKeyHash).update(webhookBody).digest("hex");
     const isWebhookValid = verifyWebhookSignature(validSignature, webhookBody, expectedApiKeyHash);
     assert(isWebhookValid === true, "6. HMAC-SHA256 webhook signature verification succeeds for valid payload");
@@ -167,11 +169,7 @@ export async function runF484WordPressConnectorTests() {
     const isInvalidSigValid = verifyWebhookSignature("invalid_sig", webhookBody, expectedApiKeyHash);
     assert(isInvalidSigValid === false, "6. HMAC-SHA256 webhook signature verification fails for tampered payload");
 
-    const webhookResult = await processWordPressWebhook(testWebsite.id, validSignature, webhookBody, {
-      event: "post.updated",
-      wpPostId: 1001,
-      forgePageId: "page-home",
-    });
+    const webhookResult = await processWordPressWebhook(testWebsite.id, validSignature, webhookBody, webhookPayloadObj);
     assert(webhookResult.success === true, "6. Webhook payload processed successfully");
 
     // 7. Safely Disconnect WordPress Integration

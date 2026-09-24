@@ -39,7 +39,7 @@ export async function runF489SiteHealthTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f489-owner-${Date.now()}@example.com`,
-        name: "F489 Owner User",
+        fullName: "F489 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -47,19 +47,16 @@ export async function runF489SiteHealthTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f489-unauth-${Date.now()}@example.com`,
-        name: "F489 Unauthorized User",
+        fullName: "F489 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-489 Site Health Workspace",
-        subdomain: `f489-site-${Date.now()}`,
-        siteSettings: { title: "F-489 Site Health Workspace" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-489 Site Health Workspace",
+      slug: `f489-site-${Date.now()}`,
+    });
 
     // 1. Initial State: Unconnected Site Health Request
     try {
@@ -75,7 +72,7 @@ export async function runF489SiteHealthTests() {
 
     // 2. Establish Active WordPress Connection
     const targetWpUrl = `https://wp-f489-${Date.now()}.example.com`;
-    const connResult = await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    const connResult = await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f489_secret", "F-489 Site");
     assert(connResult.status === "CONNECTED", "Scenario 2: Establish connected status for F-489");
 
     // Mock verify connection to register capabilities
@@ -180,7 +177,7 @@ export async function runF489SiteHealthTests() {
     }
 
     // 16. Re-connect & Revoke Token Fail-Closed Check
-    await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f489_secret", "F-489 Site");
     await revokeWordPressConnection(testWebsite.id, ownerUser.id);
     try {
       await getWordPressSiteHealth(testWebsite.id, ownerUser.id);
@@ -194,7 +191,7 @@ export async function runF489SiteHealthTests() {
     }
 
     // Restore active connection for remaining tests
-    await connectWordPress(testWebsite.id, targetWpUrl, ownerUser.id);
+    await connectWordPress(testWebsite.id, ownerUser.id, targetWpUrl, "wp_api_key_f489_secret", "F-489 Site");
 
     // 17. High-Precision Latency Measurement
     const latencyData = await getWordPressSiteHealth(testWebsite.id, ownerUser.id);
@@ -240,15 +237,12 @@ export async function runF489SiteHealthTests() {
     );
 
     // 25. HTTP Security Warning Code (Simulated HTTP URL)
-    const httpWebsite = await createWebsite(
-      {
-        name: "F-489 HTTP Site",
-        subdomain: `f489-http-${Date.now()}`,
-        siteSettings: { title: "HTTP Site" },
-      },
-      ownerUser.id
-    );
-    await connectWordPress(httpWebsite.id, `http://insecure-wp-${Date.now()}.example.com`, ownerUser.id);
+    const httpWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-489 HTTP Site",
+      slug: `f489-http-${Date.now()}`,
+    });
+    await connectWordPress(httpWebsite.id, ownerUser.id, `http://insecure-wp-${Date.now()}.example.com`, "wp_api_key_f489_secret", "HTTP Site");
     const httpHealth = await getWordPressSiteHealth(httpWebsite.id, ownerUser.id);
     assert(
       httpHealth.security.https === false,

@@ -41,7 +41,7 @@ export async function runF486ConnectionVerificationTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f486-owner-${Date.now()}@example.com`,
-        name: "F486 Owner User",
+        fullName: "F486 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -49,19 +49,16 @@ export async function runF486ConnectionVerificationTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f486-unauth-${Date.now()}@example.com`,
-        name: "F486 Unauthorized User",
+        fullName: "F486 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-486 Verification Workspace",
-        subdomain: `f486-site-${Date.now()}`,
-        siteSettings: { title: "F-486 Verification Site" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-486 Verification Workspace",
+      slug: `f486-site-${Date.now()}`,
+    });
 
     assert(Boolean(testWebsite?.id), "Setup: Created test website workspace");
 

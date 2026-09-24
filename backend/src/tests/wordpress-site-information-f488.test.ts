@@ -40,7 +40,7 @@ export async function runF488SiteInformationTests() {
     ownerUser = await prisma.user.create({
       data: {
         email: `f488-owner-${Date.now()}@example.com`,
-        name: "F488 Owner User",
+        fullName: "F488 Owner User",
         passwordHash: "hashed_pwd",
       },
     });
@@ -48,19 +48,16 @@ export async function runF488SiteInformationTests() {
     unauthorizedUser = await prisma.user.create({
       data: {
         email: `f488-unauth-${Date.now()}@example.com`,
-        name: "F488 Unauthorized User",
+        fullName: "F488 Unauthorized User",
         passwordHash: "hashed_pwd",
       },
     });
 
-    testWebsite = await createWebsite(
-      {
-        name: "F-488 Site Info Workspace",
-        subdomain: `f488-site-${Date.now()}`,
-        siteSettings: { title: "F-488 Site Info Workspace" },
-      },
-      ownerUser.id
-    );
+    testWebsite = await createWebsite({
+      userId: ownerUser.id,
+      name: "F-488 Site Info Workspace",
+      slug: `f488-site-${Date.now()}`,
+    });
 
     assert(Boolean(testWebsite?.id), "Setup: Created test website workspace");
 
@@ -161,7 +158,7 @@ export async function runF488SiteInformationTests() {
 
     // 14. Regression Check: F-485 Reconnect Capability
     const reconnectRes = await connectWordPress(testWebsite.id, ownerUser.id, testSiteUrl, "f488_final_key", "Final Target");
-    assert(reconnectRes.success === true, "24. Regression F-485: Reconnect workflow functions correctly");
+    assert(reconnectRes.status === "CONNECTED", "24. Regression F-485: Reconnect workflow functions correctly");
 
     // 15. Regression Check: F-486 Verification Engine
     const status = await getWordPressStatus(testWebsite.id, ownerUser.id);
