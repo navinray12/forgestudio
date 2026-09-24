@@ -52,6 +52,11 @@ const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
 import { CookieConsentBanner } from "../../components/CookieConsentBanner";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
+import { SkipLinks } from "../../components/accessibility/SkipLinks";
+import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar";
+import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
+import { AccessibilityStatementModal } from "../../components/accessibility/AccessibilityStatementModal";
+import { WooCommerceProvider } from "../../context/WooCommerceContext";
 
 import {
     SlidesWidgetRenderer,
@@ -95,6 +100,29 @@ import {
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
     WcProductRatingWidgetRenderer,
+    WcBuilderWidgetRenderer,
+    WcProductWidgetRenderer,
+    WcProductStockWidgetRenderer,
+    WcProductMetaWidgetRenderer,
+    WcProductContentWidgetRenderer,
+    WcShortDescriptionWidgetRenderer,
+    WcProductDataTabsWidgetRenderer,
+    WcAdditionalInfoWidgetRenderer,
+    WcRelatedProductsWidgetRenderer,
+    WcUpsellsWidgetRenderer,
+    WcProductsWidgetRenderer,
+    WcCustomAddToCartWidgetRenderer,
+    WcProductCategoriesWidgetRenderer,
+    WcMenuCartWidgetRenderer,
+    WcCartWidgetRenderer,
+    WcCheckoutWidgetRenderer,
+    WcMyAccountWidgetRenderer,
+    WcPurchaseSummaryWidgetRenderer,
+    WcNoticesWidgetRenderer,
+    WcShopLayoutsWidgetRenderer,
+    WcProductArchiveWidgetRenderer,
+    WcProductPageTemplatesWidgetRenderer,
+    WcProductArchiveTemplatesWidgetRenderer,
     resolveButtonHref
 } from "../editor/widgets";
 import { IconRenderer } from "../editor/widgets/icons";
@@ -492,6 +520,30 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
     if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
 
+    if (el.type === "wc-builder") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcBuilderWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-stock") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductStockWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-meta") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductMetaWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-content") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductContentWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-short-description") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShortDescriptionWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-data-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductDataTabsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-additional-info") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAdditionalInfoWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-related-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcRelatedProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-upsells") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcUpsellsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-custom-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCustomAddToCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-categories") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductCategoriesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-menu-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMenuCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-checkout") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCheckoutWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-my-account") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMyAccountWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-purchase-summary") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcPurchaseSummaryWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-notices") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcNoticesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-shop-layouts") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopLayoutsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
             <NestedCarouselWidgetRenderer
@@ -792,6 +844,14 @@ export default function PublishedSite() {
         const title = pSettings.title || curPage.name || siteSettings.siteName || "Published Website";
         document.title = title;
 
+        // F-379 & F-380: Sync HTML language and RTL direction for published site
+        const siteLang = pSettings.siteLanguage || siteSettings.siteLanguage || "en";
+        const rtlLangs = ["ar", "he", "fa", "ur", "ar-sa", "he-il"];
+        const isRtl = pSettings.siteDirection === "rtl" || siteSettings.siteDirection === "rtl" || rtlLangs.includes(siteLang.toLowerCase());
+
+        document.documentElement.lang = siteLang;
+        document.documentElement.dir = isRtl ? "rtl" : "ltr";
+
         const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
             if (!content) return;
             const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
@@ -961,8 +1021,17 @@ export default function PublishedSite() {
         );
     }
 
+    const [statementOpen, setStatementOpen] = useState<boolean>(false);
+
     return (
+        <WooCommerceProvider websiteId={websiteId}>
         <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+            {/* F-366: Keyboard Skip Link */}
+            <SkipLinks targetId="main-content" />
+
+            {/* F-376: Reading Guide Bar */}
+            <ReadingGuideBar />
+
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
             {compiledDesignTokensCss && <style id="fs-design-tokens-styles">{compiledDesignTokensCss}</style>}
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
@@ -1048,25 +1117,42 @@ export default function PublishedSite() {
                 </header>
             )}
 
-            {elements.map((el, index) => (
-                <RenderNode
-                    key={el.id}
-                    el={el}
-                    isCritical={index === 0}
-                    activeBreakpointId={activeBreakpointId}
-                    breakpoints={breakpoints}
-                    globalSettings={globalSettings}
-                    elementClassMap={elementClassMap}
-                    apiUrl={apiUrl}
-                    allElements={elements}
-                    pages={pages}
-                    onSwitchPage={handleSwitchPage}
-                    websiteId={websiteId}
-                />
-            ))}
+            {/* F-361: Semantic Main Container */}
+            <main id="main-content" className="w-full">
+                {elements.map((el, index) => (
+                    <RenderNode
+                        key={el.id}
+                        el={el}
+                        isCritical={index === 0}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={elements}
+                        pages={pages}
+                        onSwitchPage={handleSwitchPage}
+                        websiteId={websiteId}
+                    />
+                ))}
+            </main>
+
+            {/* F-364 & F-367 & F-374: Accessibility Visitor Widget */}
+            <AccessibilityWidget
+                config={globalSettings?.accessibilityWidget}
+                onOpenStatement={() => setStatementOpen(true)}
+            />
+
+            {/* F-373: Accessibility Statement Modal */}
+            <AccessibilityStatementModal
+                isOpen={statementOpen}
+                onClose={() => setStatementOpen(false)}
+                organizationName={globalSettings?.siteIdentity?.name || "Website"}
+            />
 
             {/* F-438: Cookie Consent Runtime Banner */}
             <CookieConsentBanner config={cookieConsentConfig} />
         </div>
+        </WooCommerceProvider>
     );
 }

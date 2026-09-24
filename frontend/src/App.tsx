@@ -6,11 +6,9 @@ import {
   Routes,
 } from "react-router-dom";
 
-import {
-  AuthProvider,
-  useAuth,
-  type UserRole,
-} from "./context/AuthContext";
+import { AuthProvider, useAuth, type UserRole } from "./context/AuthContext";
+import { AccessibilityProvider } from "./context/AccessibilityContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
@@ -210,9 +208,11 @@ const RouteLoading = () => (
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Suspense fallback={<RouteLoading />}>
-          <Routes>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <ErrorBoundary>
+            <Suspense fallback={<RouteLoading />}>
+              <Routes>
 
           {/* ================= AUTH ================= */}
 
@@ -367,7 +367,9 @@ function App() {
 
         </Routes>
         </Suspense>
-      </AuthProvider>
+        </ErrorBoundary>
+        </AuthProvider>
+      </AccessibilityProvider>
     </BrowserRouter>
   );
 }
