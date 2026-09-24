@@ -8250,6 +8250,7 @@ export default function WebsiteEditor() {
                       <div className="space-y-1.5">
                         {Object.entries(components)
                           .filter(([_id, comp]) => !widgetLibrarySearch || comp.name.toLowerCase().includes(widgetLibrarySearch.toLowerCase()))
+                          .filter((entry, idx, arr) => arr.findIndex((([_, c]) => c.name.trim().toLowerCase() === entry[1].name.trim().toLowerCase())) === idx)
                           .map(([compId, comp]) => (
                             <div
                               key={compId}
