@@ -41,7 +41,10 @@ import {
   ArrowRightLeft,
   ShieldAlert,
   Key,
+  Share2,
+  DollarSign,
 } from "lucide-react";
+import type { ClientBillingConfig } from "../../../types/clientBilling.types.js";
 
 interface ManagedSiteModalProps {
   website: {
@@ -78,6 +81,8 @@ type TabType =
   | "mailer"
   | "email-logs"
   | "cookie-consent"
+  | "integrations"
+  | "client-billing"
   | "activity";
 
 export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
@@ -115,6 +120,156 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
     policyUrl: "",
     theme: "dark" as "dark" | "light",
   });
+
+  // Integrations Form State
+  const [integrationsForm, setIntegrationsForm] = useState({
+    googleSheetsWebhookUrl: "",
+    mailchimpApiKey: "",
+    mailchimpListId: "",
+    zapierWebhookUrl: "",
+  });
+  const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
+
+  const handleTestIntegration = async (type: "google-sheets" | "mailchimp" | "zapier") => {
+    setTestingIntegration(type);
+    setFeedback(null);
+    try {
+      let body: any = {};
+      if (type === "google-sheets") {
+        if (!integrationsForm.googleSheetsWebhookUrl) {
+          throw new Error("Please enter a Google Sheets Webhook URL first.");
+        }
+        body = { webhookUrl: integrationsForm.googleSheetsWebhookUrl };
+      } else if (type === "mailchimp") {
+        if (!integrationsForm.mailchimpApiKey || !integrationsForm.mailchimpListId) {
+          throw new Error("Please enter both Mailchimp API Key and List ID.");
+        }
+        body = {
+          apiKey: integrationsForm.mailchimpApiKey,
+          listId: integrationsForm.mailchimpListId,
+        };
+      } else if (type === "zapier") {
+        if (!integrationsForm.zapierWebhookUrl) {
+          throw new Error("Please enter a Zapier Webhook URL first.");
+        }
+        body = { zapierUrl: integrationsForm.zapierWebhookUrl };
+      }
+
+      const res = await fetch(`${apiUrl}/api/integrations/${type}/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({
+          type: "success",
+          message: `${type === "google-sheets" ? "Google Sheets" : type === "mailchimp" ? "Mailchimp" : "Zapier"} connection test succeeded!`,
+        });
+      } else {
+        setFeedback({
+          type: "error",
+          message: data.message || "Integration test dispatch failed.",
+        });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Test failed." });
+    } finally {
+      setTestingIntegration(null);
+    }
+  };
+
+  // Client Billing State (Phase 3 Subsystem 1)
+  const [clientBillingForm, setClientBillingForm] = useState<ClientBillingConfig>({
+    enabled: true,
+    clientEmail: "",
+    clientName: "",
+    currency: "USD",
+    baseCostMonthly: 15,
+    clientPriceMonthly: 49,
+    marginMonthly: 34,
+    billingInterval: "month",
+    subscriptionStatus: "UNBILLED",
+  });
+  const [clientBillingMetrics, setClientBillingMetrics] = useState<any>(null);
+  const [clientBillingLoading, setClientBillingLoading] = useState(false);
+  const [clientBillingCopied, setClientBillingCopied] = useState(false);
+  const [clientInvoiceSending, setClientInvoiceSending] = useState(false);
+
+  const fetchClientBilling = async () => {
+    if (!website?.id) return;
+    try {
+      setClientBillingLoading(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.data?.config) {
+        setClientBillingForm(data.data.config);
+        setClientBillingMetrics(data.data.metrics);
+      }
+    } catch (err) {
+      console.warn("[ClientBilling] Failed to load billing config:", err);
+    } finally {
+      setClientBillingLoading(false);
+    }
+  };
+
+  const handleSaveClientBilling = async () => {
+    if (!website?.id) return;
+    try {
+      setActionLoading(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(clientBillingForm),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({ type: "success", message: "Client billing markup settings updated successfully!" });
+        if (data.data?.config) {
+          setClientBillingForm(data.data.config);
+          setClientBillingMetrics(data.data.metrics);
+        }
+      } else {
+        setFeedback({ type: "error", message: data.message || "Failed to update client billing." });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Failed to save client billing." });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSendClientInvoice = async () => {
+    if (!website?.id) return;
+    if (!clientBillingForm.clientEmail) {
+      setFeedback({ type: "error", message: "Please specify client email address first." });
+      return;
+    }
+    try {
+      setClientInvoiceSending(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing/invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ sendEmail: true }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({ type: "success", message: data.message || "Client invoice dispatched successfully!" });
+        fetchClientBilling();
+      } else {
+        setFeedback({ type: "error", message: data.message || "Failed to send invoice." });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Failed to send invoice." });
+    } finally {
+      setClientInvoiceSending(false);
+    }
+  };
 
   // Site Activity Logs
   const [siteLogs, setSiteLogs] = useState<any[]>([]);
@@ -1259,6 +1414,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
       if (website.wpConnection) {
         fetchWpAdminOverview();
       }
+      fetchClientBilling();
     }
   }, [isOpen, website?.id]);
 
@@ -1438,6 +1594,8 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
             { id: "mailer", label: "Site Mailer", icon: Mail },
             { id: "email-logs", label: "Email Logs", icon: Send },
             { id: "cookie-consent", label: "Cookie Consent", icon: Cookie },
+            { id: "integrations", label: "Integrations", icon: Share2 },
+            { id: "client-billing", label: "Client Billing", icon: DollarSign },
             { id: "activity", label: "Activity Trail", icon: Activity },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -2226,6 +2384,407 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                     </button>
                   </div>
                 </form>
+              )}
+
+              {/* TAB: LEAD & EXTERNAL INTEGRATIONS */}
+              {activeTab === "integrations" && (
+                <div className="space-y-6 text-xs">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center gap-2">
+                      <Share2 className="w-5 h-5 text-indigo-400" />
+                      Lead Integrations & Webhook Connectors
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Connect your site to external marketing and productivity platforms for real-time lead distribution.
+                    </p>
+                  </div>
+
+                  {/* 1. Google Sheets */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📊</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Google Sheets Connector</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Automatically append incoming form submissions to your Google Sheet in real-time.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("google-sheets")}
+                        disabled={testingIntegration === "google-sheets"}
+                        className="px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "google-sheets" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Test Row Append</span>
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-300 block mb-1">Google Web App / Script URL</label>
+                      <input
+                        type="text"
+                        placeholder="https://script.google.com/macros/s/.../exec"
+                        value={integrationsForm.googleSheetsWebhookUrl}
+                        onChange={(e) =>
+                          setIntegrationsForm({ ...integrationsForm, googleSheetsWebhookUrl: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Mailchimp */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🐵</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Mailchimp Audience Sync</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Automatically create or update newsletter subscribers with merge fields.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("mailchimp")}
+                        disabled={testingIntegration === "mailchimp"}
+                        className="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "mailchimp" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Test API Ping</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="font-semibold text-slate-300 block mb-1">Mailchimp API Key</label>
+                        <input
+                          type="password"
+                          placeholder="xxxxxxxxxxxxxxxxxxxxxxxx-us1"
+                          value={integrationsForm.mailchimpApiKey}
+                          onChange={(e) =>
+                            setIntegrationsForm({ ...integrationsForm, mailchimpApiKey: e.target.value })
+                          }
+                          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-semibold text-slate-300 block mb-1">Audience List ID</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 84a7e3d1c9"
+                          value={integrationsForm.mailchimpListId}
+                          onChange={(e) =>
+                            setIntegrationsForm({ ...integrationsForm, mailchimpListId: e.target.value })
+                          }
+                          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Zapier */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">⚡</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Zapier Catch Hook</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Trigger multi-step Zapier automated workflows on incoming leads.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("zapier")}
+                        disabled={testingIntegration === "zapier"}
+                        className="px-3 py-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "zapier" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Send Test Webhook</span>
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-300 block mb-1">Zapier Webhook Catch URL</label>
+                      <input
+                        type="text"
+                        placeholder="https://hooks.zapier.com/hooks/catch/..."
+                        value={integrationsForm.zapierWebhookUrl}
+                        onChange={(e) =>
+                          setIntegrationsForm({ ...integrationsForm, zapierWebhookUrl: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB: AGENCY CLIENT INVOICING & MARKUP */}
+              {activeTab === "client-billing" && (
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-emerald-400" />
+                        Agency Client Invoicing & Markup Engine
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Add a recurring hosting markup to client sites, calculate agency profit margins, and dispatch custom-branded Stripe checkout links.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${
+                          clientBillingForm.subscriptionStatus === "ACTIVE"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : clientBillingForm.subscriptionStatus === "PENDING"
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                            : "bg-slate-800 text-slate-400 border-slate-700"
+                        }`}
+                      >
+                        Status: {clientBillingForm.subscriptionStatus}
+                      </span>
+                      <button
+                        onClick={fetchClientBilling}
+                        disabled={clientBillingLoading}
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+                        title="Refresh Client Billing"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${clientBillingLoading ? "animate-spin" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Real-time Profit & Margin Calculator */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <Sliders className="w-4 h-4 text-blue-400" />
+                        Hosting Markup & Pricing Configuration
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-medium text-slate-400 block mb-1.5">
+                            Platform Base Cost (Wholesale)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold">$</span>
+                            <input
+                              type="number"
+                              disabled
+                              value={clientBillingForm.baseCostMonthly}
+                              className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-800/50 border border-slate-700/60 text-slate-400 text-sm font-semibold cursor-not-allowed"
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-500 mt-1 block">Fixed platform infrastructure fee</span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">
+                            Client Retail Price (Monthly)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-xs text-emerald-400 font-bold">$</span>
+                            <input
+                              type="number"
+                              min={clientBillingForm.baseCostMonthly}
+                              value={clientBillingForm.clientPriceMonthly}
+                              onChange={(e) => {
+                                const newPrice = Math.max(0, Number(e.target.value));
+                                const margin = Math.max(0, newPrice - clientBillingForm.baseCostMonthly);
+                                setClientBillingForm({
+                                  ...clientBillingForm,
+                                  clientPriceMonthly: newPrice,
+                                  marginMonthly: margin,
+                                });
+                              }}
+                              className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-emerald-500"
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-400 mt-1 block">Amount charged directly to your client</span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">Billing Currency</label>
+                          <select
+                            value={clientBillingForm.currency}
+                            onChange={(e) => setClientBillingForm({ ...clientBillingForm, currency: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="INR">INR (₹)</option>
+                            <option value="CAD">CAD ($)</option>
+                            <option value="AUD">AUD ($)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">Billing Interval</label>
+                          <select
+                            value={clientBillingForm.billingInterval}
+                            onChange={(e) => setClientBillingForm({ ...clientBillingForm, billingInterval: e.target.value as "month" | "year" })}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="month">Monthly Recurring</option>
+                            <option value="year">Annual Upfront</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Calculated Margin Hero Card */}
+                    <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/30 to-slate-900 p-5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                            Net Agency Profit
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                            {clientBillingForm.clientPriceMonthly > 0
+                              ? Math.round((clientBillingForm.marginMonthly / clientBillingForm.clientPriceMonthly) * 100)
+                              : 0}% Margin
+                          </span>
+                        </div>
+                        <div className="text-3xl font-extrabold text-white mt-3">
+                          +{clientBillingForm.currency} {clientBillingForm.marginMonthly}
+                          <span className="text-xs font-normal text-slate-400"> / mo</span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-2">
+                          Projected profit on this single client website:
+                        </p>
+                      </div>
+
+                      <div className="pt-4 border-t border-emerald-500/20 mt-4 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Annual Client Revenue:</span>
+                          <span className="font-semibold text-slate-200">
+                            {clientBillingForm.currency} {clientBillingForm.clientPriceMonthly * 12} / yr
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Annual Agency Profit:</span>
+                          <span className="font-bold text-emerald-400">
+                            +{clientBillingForm.currency} {clientBillingForm.marginMonthly * 12} / yr
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Client Contact & Checkout Details */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-indigo-400" />
+                      Client Details & Checkout Link Dispatch
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-medium text-slate-300 block mb-1">Client Contact Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Jane Doe / Acme Corp"
+                          value={clientBillingForm.clientName}
+                          onChange={(e) => setClientBillingForm({ ...clientBillingForm, clientName: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-slate-300 block mb-1">Client Billing Email</label>
+                        <input
+                          type="email"
+                          placeholder="billing@clientcompany.com"
+                          value={clientBillingForm.clientEmail}
+                          onChange={(e) => setClientBillingForm({ ...clientBillingForm, clientEmail: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Checkout URL Box */}
+                    <div className="pt-2">
+                      <label className="text-xs font-medium text-slate-300 block mb-1">
+                        Client Direct Payment URL
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={clientBillingForm.clientInvoiceUrl || `https://pay.forgestudio.io/c/${website.slug || website.id}`}
+                          className="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 font-mono text-xs text-slate-300 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => {
+                            const url = clientBillingForm.clientInvoiceUrl || `https://pay.forgestudio.io/c/${website.slug || website.id}`;
+                            navigator.clipboard.writeText(url);
+                            setClientBillingCopied(true);
+                            setTimeout(() => setClientBillingCopied(false), 2000);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                        >
+                          {clientBillingCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                      <p className="text-xs text-slate-400">
+                        {clientBillingForm.lastBilledAt
+                          ? `Last invoice dispatched: ${new Date(clientBillingForm.lastBilledAt).toLocaleDateString()}`
+                          : "Client has not yet been invoiced."}
+                      </p>
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={handleSaveClientBilling}
+                          disabled={actionLoading}
+                          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 transition"
+                        >
+                          Save Markup Settings
+                        </button>
+                        <button
+                          onClick={handleSendClientInvoice}
+                          disabled={clientInvoiceSending}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 transition"
+                        >
+                          <Send className={`w-3.5 h-3.5 ${clientInvoiceSending ? "animate-pulse" : ""}`} />
+                          <span>{clientInvoiceSending ? "Sending..." : "Send Client Invoice Email"}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* TAB: BACKUPS SUITE */}

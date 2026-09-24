@@ -16,6 +16,10 @@ import { RevisionHistoryPanel, revisionHistoryService } from "../../features/rev
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { publishingService } from "../../features/publishing/services/publishingService";
+import { useComponentAccess } from "../../features/permissions/hooks/useComponentAccess";
+import { ContentOnlyInspector } from "./components/ContentOnlyInspector";
+import { ExperimentManagerModal } from "./components/experiments/ExperimentManagerModal";
+import { useCanvasPresence } from "../../features/collaboration/hooks/useCanvasPresence";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -378,6 +382,32 @@ export default function WebsiteEditor() {
   const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
   const selectedElementAny = selectedElement as any;
   const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
+  const userAccess = useComponentAccess(website, allowedComponentIds);
+  const isRestrictedMode = userAccess.isRestrictedMode;
+  const [canvasTheme, setCanvasTheme] = useState<"light" | "dark">("light");
+  const [isExperimentModalOpen, setIsExperimentModalOpen] = useState(false);
+
+  // Real-Time Canvas Presence (Phase 3 Subsystem 3)
+  const currentLoggedInUser = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return { id: "user_editor", name: "Editor User" };
+  }, []);
+
+  const {
+    peers: canvasPeers,
+    peerSelections: canvasPeerSelections,
+    isConnected: isPresenceConnected,
+    broadcastCursor,
+    broadcastSelection,
+  } = useCanvasPresence(websiteId || (website as any)?.id, currentLoggedInUser);
+
+  useEffect(() => {
+    broadcastSelection(selectedId || null);
+  }, [selectedId, broadcastSelection]);
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
@@ -6852,6 +6882,44 @@ export default function WebsiteEditor() {
               <span>Notes</span>
             </button>
 
+            {/* F-339: Dynamic Multi-Mode Theme Toggle */}
+            <button
+              type="button"
+              onClick={() => setCanvasTheme((t) => (t === "light" ? "dark" : "light"))}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${
+                canvasTheme === "dark"
+                  ? "bg-indigo-950/60 text-indigo-300 border-indigo-700/80 shadow-sm"
+                  : "bg-amber-950/30 text-amber-300 border-amber-700/60"
+              }`}
+              title="Toggle Dynamic Canvas Theme (☀️ Light / 🌙 Dark)"
+            >
+              <span>{canvasTheme === "dark" ? "🌙 Dark" : "☀️ Light"}</span>
+            </button>
+
+            {/* Live Real-time Collaborators Avatar Stack */}
+            {canvasPeers.length > 0 && (
+              <div className="flex items-center -space-x-1.5 overflow-hidden pl-1 pr-1" title={`${canvasPeers.length} other collaborator(s) online`}>
+                {canvasPeers.map((peer) => (
+                  <div
+                    key={peer.socketId}
+                    title={`${peer.user.name} is currently editing`}
+                    className="relative flex items-center justify-center w-6 h-6 rounded-full text-[9px] font-extrabold text-white ring-2 ring-slate-900 shadow-sm transition hover:z-20 hover:scale-110"
+                    style={{ backgroundColor: peer.user.color }}
+                  >
+                    {peer.user.name.slice(0, 2).toUpperCase()}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Client Restricted Mode Badge */}
+            {isRestrictedMode && (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold shadow-xs">
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Client Editor Mode (Content Only)</span>
+              </div>
+            )}
+
             {/* F-339: Variables Manager (Tokens) */}
             <button
               type="button"
@@ -6872,6 +6940,17 @@ export default function WebsiteEditor() {
             >
               <span>🏷️</span>
               <span>Classes</span>
+            </button>
+
+            {/* Phase 3: A/B Split Testing */}
+            <button
+              type="button"
+              onClick={() => setIsExperimentModalOpen(true)}
+              className="px-3 py-1 text-xs font-semibold rounded-lg border text-purple-300 bg-purple-950/40 hover:bg-purple-900/60 border-purple-800/60 transition flex items-center gap-1.5 cursor-pointer"
+              title="A/B Split Testing & Conversion Experiments"
+            >
+              <span>🧪</span>
+              <span>A/B Tests</span>
             </button>
 
             <button
@@ -6998,7 +7077,15 @@ export default function WebsiteEditor() {
               </button>
             </div>
 
-            {leftSidebarTab === "elements" ? (
+            {isRestrictedMode ? (
+              <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/70 text-center my-4 space-y-2">
+                <Lock className="w-6 h-6 text-amber-600 mx-auto" />
+                <span className="block text-xs font-bold text-amber-800">Widget Drawer Locked</span>
+                <p className="text-[11px] text-amber-700 leading-snug">
+                  Your Client Editor role allows editing text, images, and links directly on the canvas without adding new layout blocks.
+                </p>
+              </div>
+            ) : leftSidebarTab === "elements" ? (
               <div className="space-y-3">
                 {/* Main Widget Library Search Input */}
                 {!disabledWidgets.includes("search-bar") && (
@@ -8328,17 +8415,56 @@ export default function WebsiteEditor() {
         {/* Center: White Canvas Container              */}
         {/* ========================================== */}
         <main
+          data-theme={canvasTheme}
           onClick={() => handleSelectElement(null)}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            broadcastCursor(e.clientX - rect.left, e.clientY - rect.top);
+          }}
           onDragOver={(e) => {
+            if (isRestrictedMode) return;
             e.preventDefault();
             handleCanvasAutoScroll(e);
             e.dataTransfer.dropEffect = "move";
           }}
-          onDrop={(e) => handleDropElement(e, null, "after")}
-          className="relative flex flex-1 justify-center items-start overflow-y-auto overflow-x-auto min-w-0 max-w-full bg-[#f1f5f9] p-4 sm:p-8 box-border"
+          onDrop={(e) => (isRestrictedMode ? undefined : handleDropElement(e, null, "after"))}
+          className={`relative flex flex-1 justify-center items-start overflow-y-auto overflow-x-auto min-w-0 max-w-full ${
+            canvasTheme === "dark" ? "bg-slate-950 text-slate-100" : "bg-[#f1f5f9]"
+          } p-4 sm:p-8 box-border`}
         >
           {/* Dynamic Hover Styles Block (F-036) */}
           <style dangerouslySetInnerHTML={{ __html: generateElementsHoverCSS(elements, activeDevice) }} />
+
+          {/* Live Real-time Multi-Cursor Overlays */}
+          {canvasPeers.map((peer) => {
+            if (!peer.cursor) return null;
+            return (
+              <div
+                key={`cursor-${peer.socketId}`}
+                className="pointer-events-none absolute z-50 transition-all duration-75 ease-out"
+                style={{
+                  left: `${peer.cursor.x}px`,
+                  top: `${peer.cursor.y}px`,
+                }}
+              >
+                <svg
+                  className="w-4 h-4 drop-shadow-md"
+                  viewBox="0 0 24 24"
+                  fill={peer.user.color}
+                  stroke="#ffffff"
+                  strokeWidth="1.5"
+                >
+                  <path d="M5.653 3.123A1 1 0 0 0 4.19 4.316l3.5 14.5a1 1 0 0 0 1.838.256l3.224-6.448 6.448-3.224a1 1 0 0 0 .256-1.838l-14.5-3.5z" />
+                </svg>
+                <div
+                  className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white shadow-md whitespace-nowrap ml-3 -mt-2"
+                  style={{ backgroundColor: peer.user.color }}
+                >
+                  {peer.user.name}
+                </div>
+              </div>
+            );
+          })}
 
           {/* Floating Exit Full Screen Overlay Button (F-015) */}
           {isFullScreenCanvas && (
@@ -8744,16 +8870,28 @@ export default function WebsiteEditor() {
         {!isPreview && (
           <aside className="w-80 shrink-0 border-l border-slate-200 bg-white p-5 overflow-y-auto shadow-sm">
             <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-              SETTINGS & STYLING
+              {isRestrictedMode ? "CONTENT-ONLY SANDBOX" : "SETTINGS & STYLING"}
             </h2>
 
-            {selectedIds.length > 1 && (
-              <div className="mb-3 rounded-lg bg-blue-50 border border-blue-200 p-2 text-center text-xs font-semibold text-blue-700">
-                Multi-Select ({selectedIds.length} elements selected)
-              </div>
-            )}
+            {isRestrictedMode ? (
+              <ContentOnlyInspector
+                element={selectedElementAny}
+                onUpdateElement={(id, updates) => {
+                  setElements((prev) => updateTreeElement(prev, id, updates));
+                }}
+                onTriggerImagePicker={(callback) => {
+                  triggerImagePicker(callback);
+                }}
+              />
+            ) : (
+              <>
+                {selectedIds.length > 1 && (
+                  <div className="mb-3 rounded-lg bg-blue-50 border border-blue-200 p-2 text-center text-xs font-semibold text-blue-700">
+                    Multi-Select ({selectedIds.length} elements selected)
+                  </div>
+                )}
 
-            {selectedElementAny ? (
+                {selectedElementAny ? (
               <div className="space-y-5">
                 {/* Element Type Header & Quick Actions */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -17746,6 +17884,8 @@ export default function WebsiteEditor() {
                 </div>
               </div>
             )}
+              </>
+            )}
           </aside>
         )}
       </div>
@@ -18848,6 +18988,13 @@ export default function WebsiteEditor() {
           setGlobalClasses(updated);
           handleSave();
         }}
+      />
+
+      {/* Phase 3: A/B Split Testing & Conversion Experiments Modal */}
+      <ExperimentManagerModal
+        isOpen={isExperimentModalOpen}
+        onClose={() => setIsExperimentModalOpen(false)}
+        websiteId={websiteId || (website as any)?.id || ""}
       />
     </div>
   );

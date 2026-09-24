@@ -4,6 +4,11 @@
  * Centralized CSS variable tokens, global classes, JSON export/import, and CSS generator.
  */
 
+export interface VariableModeValue {
+  modeId: "light" | "dark" | string;
+  value: string;
+}
+
 export interface DesignVariable {
   id: string;
   name: string;
@@ -11,6 +16,8 @@ export interface DesignVariable {
   token: string; // e.g. "--fs-color-primary"
   value: string; // e.g. "#4f46e5" or "16px"
   description?: string;
+  defaultMode?: "light" | "dark";
+  modes?: Record<string, string>; // e.g. { light: '#ffffff', dark: '#0f172a' }
 }
 
 export interface GlobalClass {
@@ -65,11 +72,27 @@ export function validateVariables(input: any[]): DesignVariable[] {
       const category = ["color", "typography", "spacing", "shadow", "radius", "custom"].includes(item.category)
         ? item.category
         : "custom";
-      const token = sanitizeTokenName(String(item.token || `--fs-${category}-${index + 1}`));
+      const token = sanitizeTokenName(
+        String(item.token || (item.name?.startsWith("--") ? item.name : undefined) || `--fs-${category}-${index + 1}`)
+      );
       // Basic CSS injection prevention on the value
       const value = String(item.value || "").replace(/[;{}]/g, "").trim();
       const description = item.description ? String(item.description).slice(0, 300) : undefined;
-      return { id, name, category, token, value, description };
+      const defaultMode = item.defaultMode === "dark" ? "dark" : "light";
+      
+      let modes: Record<string, string> | undefined = undefined;
+      if (item.modes && typeof item.modes === "object") {
+        modes = {};
+        for (const [mKey, mVal] of Object.entries(item.modes)) {
+          const cleanKey = String(mKey).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 50);
+          const cleanVal = String(mVal || "").replace(/[;{}]/g, "").trim();
+          if (cleanKey && cleanVal) {
+            modes[cleanKey] = cleanVal;
+          }
+        }
+      }
+
+      return { id, name, category, token, value, description, defaultMode, modes };
     });
 }
 
@@ -131,16 +154,39 @@ function toKebabCase(prop: string): string {
 export function compileDesignSystemCss(variables: DesignVariable[], classes: GlobalClass[]): string {
   const cssLines: string[] = [];
 
-  // 1. Root variables
+  // 1. Root variables (Light / Base)
   if (variables.length > 0) {
     cssLines.push("/* --- ForgeStudio Design Tokens (:root) --- */");
     cssLines.push(":root {");
     for (const v of variables) {
-      if (v.token && v.value) {
-        cssLines.push(`  ${v.token}: ${v.value};`);
+      if (v.token) {
+        const lightVal = v.modes?.light || v.value;
+        if (lightVal) {
+          cssLines.push(`  ${v.token}: ${lightVal};`);
+        }
       }
     }
     cssLines.push("}\n");
+
+    // Check for Dark Mode token overrides
+    const darkModeEntries = variables.filter((v) => v.token && v.modes?.dark);
+    if (darkModeEntries.length > 0) {
+      cssLines.push("/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */");
+      cssLines.push('[data-theme="dark"], .dark {');
+      for (const v of darkModeEntries) {
+        cssLines.push(`  ${v.token}: ${v.modes!.dark};`);
+      }
+      cssLines.push("}\n");
+
+      // Auto-respect visitor system preference
+      cssLines.push("@media (prefers-color-scheme: dark) {");
+      cssLines.push('  :root:not([data-theme="light"]) {');
+      for (const v of darkModeEntries) {
+        cssLines.push(`    ${v.token}: ${v.modes!.dark};`);
+      }
+      cssLines.push("  }");
+      cssLines.push("}\n");
+    }
   }
 
   // 2. Global Utility Classes

@@ -58,7 +58,15 @@ export interface FormStepConfig {
   description?: string;
 }
 
-export type PostSubmitActionType = "database" | "email" | "redirect" | "popup" | "webhook";
+export type PostSubmitActionType =
+  | "database"
+  | "email"
+  | "redirect"
+  | "popup"
+  | "webhook"
+  | "google_sheets"
+  | "mailchimp"
+  | "zapier";
 
 export interface EmailActionConfig {
   toEmail: string;
@@ -82,12 +90,38 @@ export interface WebhookActionConfig {
   secretKey?: string;
 }
 
+export interface GoogleSheetsActionConfig {
+  webhookUrl: string;
+  fieldMapping?: Record<string, string>; // Maps form fieldId/slug to Sheet Column name
+}
+
+export interface MailchimpActionConfig {
+  apiKey: string;
+  listId: string;
+  serverPrefix?: string;
+  tags?: string[];
+  fieldMapping?: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+}
+
+export interface ZapierActionConfig {
+  webhookUrl: string;
+  secretKey?: string;
+}
+
 export interface FormPostSubmitConfig {
   activeActions: PostSubmitActionType[];
   emailConfig?: EmailActionConfig;
   redirectConfig?: RedirectActionConfig;
   popupConfig?: PopupActionConfig;
   webhookConfig?: WebhookActionConfig;
+  googleSheetsConfig?: GoogleSheetsActionConfig;
+  mailchimpConfig?: MailchimpActionConfig;
+  zapierConfig?: ZapierActionConfig;
   successMessage: string;
   errorMessage: string;
 }

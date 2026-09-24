@@ -14,5 +14,8 @@ router.post("/stripe/create-checkout-session", IntegrationController.createStrip
 router.get("/dynamic-data/fetch", IntegrationController.fetchDynamicData);
 router.post("/crm/submit-lead", IntegrationController.submitLeadToCRM);
 router.post("/webhook/dispatch", IntegrationController.dispatchWebhook);
+router.post("/google-sheets/test", IntegrationController.testGoogleSheets);
+router.post("/mailchimp/test", IntegrationController.testMailchimp);
+router.post("/zapier/test", IntegrationController.testZapier);
 
 export default router;

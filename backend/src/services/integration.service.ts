@@ -53,7 +53,7 @@ async function assertSafeExternalUrl(rawUrl: string): Promise<URL> {
   return url;
 }
 
-function withTimeout(): AbortSignal { return AbortSignal.timeout(REQUEST_TIMEOUT_MS); }
+function withTimeout(timeoutMs: number = REQUEST_TIMEOUT_MS): AbortSignal { return AbortSignal.timeout(timeoutMs); }
 
 async function readJsonResponse(response: Response): Promise<any> {
   const contentLength = Number(response.headers.get("content-length") || 0);
@@ -341,5 +341,130 @@ export class IntegrationService {
       body, redirect: "error", signal: withTimeout(),
     });
     return { success: response.ok, status: response.status, eventId, message: response.ok ? "Webhook dispatched successfully" : `Webhook server returned status ${response.status}` };
+  }
+
+  public static async syncToGoogleSheets(
+    config: { webhookUrl: string },
+    rowData: Record<string, unknown>
+  ) {
+    if (!config?.webhookUrl) throw new Error("Google Sheets Webhook URL is required");
+    const safeUrl = await assertSafeExternalUrl(config.webhookUrl);
+    const timestamp = new Date().toISOString();
+    const payload = {
+      timestamp,
+      submittedAt: timestamp,
+      ...rowData,
+    };
+    const response = await fetch(safeUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "ForgeStudio-GoogleSheets/1.0",
+      },
+      body: JSON.stringify(payload),
+      redirect: "follow",
+      signal: withTimeout(15000),
+    });
+    if (!response.ok) {
+      throw new Error(`Google Sheets endpoint returned HTTP ${response.status}`);
+    }
+    return {
+      success: true,
+      provider: "google_sheets",
+      timestamp,
+      rowsAppended: 1,
+    };
+  }
+
+  public static async syncToMailchimp(
+    config: { apiKey: string; listId: string; serverPrefix?: string },
+    contact: { email: string; firstName?: string; lastName?: string; tags?: string[]; mergeFields?: Record<string, unknown> }
+  ) {
+    const { apiKey, listId } = config || {};
+    if (!apiKey || !listId) throw new Error("Mailchimp API Key and List ID are required");
+    if (!/^\S+@\S+\.\S+$/.test(contact.email)) throw new Error("Invalid email address for Mailchimp sync");
+
+    const serverPrefix = config.serverPrefix || apiKey.split("-")[1] || "us1";
+    const subscriberHash = crypto.createHash("md5").update(contact.email.toLowerCase().trim()).digest("hex");
+    const url = `https://${serverPrefix}.api.mailchimp.com/3.0/lists/${listId}/members/${subscriberHash}`;
+
+    const mergeFields: Record<string, unknown> = {
+      ...(contact.mergeFields || {}),
+    };
+    if (contact.firstName) mergeFields.FNAME = contact.firstName.trim();
+    if (contact.lastName) mergeFields.LNAME = contact.lastName.trim();
+
+    const bodyData = {
+      email_address: contact.email.toLowerCase().trim(),
+      status_if_new: "subscribed",
+      merge_fields: mergeFields,
+      tags: contact.tags || ["ForgeStudio Lead"],
+    };
+
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyData),
+      signal: withTimeout(15000),
+    });
+
+    const data = await readJsonResponse(response);
+    if (!response.ok) {
+      throw new Error(data?.detail || `Mailchimp sync failed (${response.status})`);
+    }
+
+    return {
+      success: true,
+      provider: "mailchimp",
+      subscriberId: data?.id || subscriberHash,
+      email: contact.email,
+      status: data?.status || "subscribed",
+    };
+  }
+
+  public static async dispatchToZapier(
+    zapierUrl: string,
+    payload: Record<string, unknown>,
+    secret?: string
+  ) {
+    if (!zapierUrl) throw new Error("Zapier Webhook Catch URL is required");
+    const safeUrl = await assertSafeExternalUrl(zapierUrl);
+    const timestamp = new Date().toISOString();
+    const eventId = `zap_${crypto.randomBytes(8).toString("hex")}`;
+    const standardizedPayload = {
+      zapierCatchHook: true,
+      eventId,
+      timestamp,
+      data: payload,
+    };
+    const body = JSON.stringify(standardizedPayload);
+    const signature = secret ? crypto.createHmac("sha256", secret).update(body).digest("hex") : "";
+
+    const response = await fetch(safeUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "ForgeStudio-Zapier-Connector/1.0",
+        ...(signature ? { "X-ForgeStudio-Signature": signature } : {}),
+        "X-ForgeStudio-Event-Id": eventId,
+      },
+      body,
+      redirect: "error",
+      signal: withTimeout(15000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Zapier webhook returned HTTP ${response.status}`);
+    }
+
+    return {
+      success: true,
+      provider: "zapier",
+      eventId,
+      status: response.status,
+    };
   }
 }

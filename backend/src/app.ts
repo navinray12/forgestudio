@@ -48,6 +48,8 @@ import { downloadWordPressPluginHandler } from "./controllers/wordpress.controll
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
 import mailerRoutes from "./routes/mailer.routes.js";
+import clientBillingRoutes from "./routes/clientBilling.routes.js";
+import experimentRoutes from "./routes/experiment.routes.js";
 import { rateLimit } from "express-rate-limit";
 
 const authRateLimiter = rateLimit({
@@ -125,6 +127,10 @@ app.use("/api/v1/websites", websiteRoutes);
 app.use("/api/websites", websiteRoutes);
 app.use("/api/v1/websites", mailerRoutes);
 app.use("/api/websites", mailerRoutes);
+app.use("/api/v1/websites", clientBillingRoutes);
+app.use("/api/websites", clientBillingRoutes);
+app.use("/api/v1/websites", experimentRoutes);
+app.use("/api/websites", experimentRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
 

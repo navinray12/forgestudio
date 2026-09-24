@@ -572,7 +572,10 @@ export default function FormInspectorPanel({
                   { id: "email", label: "Email Notification" },
                   { id: "redirect", label: "Redirect to URL" },
                   { id: "popup", label: "Open Popup Modal" },
-                  { id: "webhook", label: "Send Webhook (Zapier/Make)" },
+                  { id: "webhook", label: "Generic Webhook" },
+                  { id: "google_sheets", label: "Google Sheets" },
+                  { id: "mailchimp", label: "Mailchimp" },
+                  { id: "zapier", label: "Zapier Connector" },
                 ].map((act) => {
                   const isActive = config.actions.activeActions.includes(act.id as any);
                   return (
@@ -738,6 +741,126 @@ export default function FormInspectorPanel({
                       })
                     }
                     placeholder="Secret Key Header"
+                    className="w-full rounded border border-slate-300 p-1.5 text-xs font-mono"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Google Sheets Connector Config */}
+            {config.actions.activeActions.includes("google_sheets") && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-emerald-700 font-bold text-xs">📊 Google Sheets Real-Time Sync</span>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                    Google Web App / Sheet Webhook URL:
+                  </label>
+                  <input
+                    type="text"
+                    value={config.actions.googleSheetsConfig?.webhookUrl || ""}
+                    onChange={(e) =>
+                      updateConfig({
+                        actions: {
+                          ...config.actions,
+                          googleSheetsConfig: {
+                            ...(config.actions.googleSheetsConfig || {}),
+                            webhookUrl: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    className="w-full rounded border border-slate-300 p-1.5 text-xs font-mono"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Rows will be appended automatically with matching form field slugs.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Mailchimp Connector Config */}
+            {config.actions.activeActions.includes("mailchimp") && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-amber-800 font-bold text-xs">🐵 Mailchimp Audience Sync</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                      Mailchimp API Key:
+                    </label>
+                    <input
+                      type="password"
+                      value={config.actions.mailchimpConfig?.apiKey || ""}
+                      onChange={(e) =>
+                        updateConfig({
+                          actions: {
+                            ...config.actions,
+                            mailchimpConfig: {
+                              ...(config.actions.mailchimpConfig || { listId: "" }),
+                              apiKey: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="key-us1"
+                      className="w-full rounded border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                      Audience List ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={config.actions.mailchimpConfig?.listId || ""}
+                      onChange={(e) =>
+                        updateConfig({
+                          actions: {
+                            ...config.actions,
+                            mailchimpConfig: {
+                              ...(config.actions.mailchimpConfig || { apiKey: "" }),
+                              listId: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="e.g. 84a7e3d1c9"
+                      className="w-full rounded border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Zapier Connector Config */}
+            {config.actions.activeActions.includes("zapier") && (
+              <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-orange-700 font-bold text-xs">⚡ Zapier Catch Hook</span>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                    Zapier Webhook Catch URL:
+                  </label>
+                  <input
+                    type="text"
+                    value={config.actions.zapierConfig?.webhookUrl || ""}
+                    onChange={(e) =>
+                      updateConfig({
+                        actions: {
+                          ...config.actions,
+                          zapierConfig: {
+                            ...(config.actions.zapierConfig || {}),
+                            webhookUrl: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    placeholder="https://hooks.zapier.com/hooks/catch/..."
                     className="w-full rounded border border-slate-300 p-1.5 text-xs font-mono"
                   />
                 </div>

@@ -4,6 +4,7 @@ import { getWebsiteById } from "../website.service.js";
 import { enqueueJob } from "../jobs/jobRunner.js";
 import { assertSafeUrl, isSafeUrl } from "../../utils/ssrf.guard.js";
 import { sendSiteEmail } from "../siteMailer.service.js";
+import { IntegrationService } from "../integration.service.js";
 import nodemailer from "nodemailer";
 
 // In-memory rate limiting map: ip -> timestamps[]
@@ -132,6 +133,20 @@ export interface FormSubmitPayload {
     };
     popupConfig?: {
       popupId?: string;
+    };
+    googleSheetsConfig?: {
+      webhookUrl?: string;
+      fieldMapping?: Record<string, string>;
+    };
+    mailchimpConfig?: {
+      apiKey?: string;
+      listId?: string;
+      serverPrefix?: string;
+      fieldMapping?: Record<string, string>;
+    };
+    zapierConfig?: {
+      webhookUrl?: string;
+      secretKey?: string;
     };
     successMessage?: string;
   };
@@ -405,6 +420,87 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
         executionResults.webhook = false;
       }
     }
+  }
+
+  // 5b. Action: Google Sheets Connector
+  if (activeActions.includes("google_sheets") && actions?.googleSheetsConfig?.webhookUrl) {
+    const gsUrl = actions.googleSheetsConfig.webhookUrl.trim();
+    const rowData = {
+      websiteId,
+      formId,
+      formName,
+      ...sanitizedFields,
+    };
+    IntegrationService.syncToGoogleSheets({ webhookUrl: gsUrl }, rowData)
+      .catch(async (err) => {
+        console.warn("[Form Google Sheets] Sync failed, enqueuing retry job:", err);
+        try {
+          await enqueueJob(
+            "WEBHOOK_RETRY",
+            {
+              url: gsUrl,
+              event: "form.google_sheets_sync",
+              headers: { "Content-Type": "application/json" },
+              body: rowData,
+            },
+            { maxAttempts: 5, runAt: new Date(Date.now() + 15000) }
+          );
+        } catch {}
+      });
+    executionResults.google_sheets = true;
+  }
+
+  // 5c. Action: Mailchimp Audience Sync
+  if (activeActions.includes("mailchimp") && actions?.mailchimpConfig?.apiKey && actions?.mailchimpConfig?.listId) {
+    const mcEmail = sanitizedFields.email || sanitizedFields.user_email || Object.values(sanitizedFields).find((v) => typeof v === "string" && /^\S+@\S+\.\S+$/.test(v));
+    if (mcEmail) {
+      const contact = {
+        email: String(mcEmail),
+        firstName: String(sanitizedFields.firstName || sanitizedFields.first_name || sanitizedFields.name || sanitizedFields.fullName || ""),
+        lastName: String(sanitizedFields.lastName || sanitizedFields.last_name || ""),
+        mergeFields: sanitizedFields,
+      };
+      IntegrationService.syncToMailchimp(
+        {
+          apiKey: actions.mailchimpConfig.apiKey,
+          listId: actions.mailchimpConfig.listId,
+          serverPrefix: actions.mailchimpConfig.serverPrefix,
+        },
+        contact
+      ).catch((err) => {
+        console.warn("[Form Mailchimp] Sync failed:", err);
+      });
+      executionResults.mailchimp = true;
+    }
+  }
+
+  // 5d. Action: Zapier Catch Hook
+  if (activeActions.includes("zapier") && actions?.zapierConfig?.webhookUrl) {
+    const zapUrl = actions.zapierConfig.webhookUrl.trim();
+    const zapPayload = {
+      websiteId,
+      formId,
+      formName,
+      fields: sanitizedFields,
+      metadata: sanitizedMetadata,
+    };
+    IntegrationService.dispatchToZapier(zapUrl, zapPayload, actions.zapierConfig.secretKey)
+      .catch(async (err) => {
+        console.warn("[Form Zapier] Dispatch failed, enqueuing retry job:", err);
+        try {
+          await enqueueJob(
+            "WEBHOOK_RETRY",
+            {
+              url: zapUrl,
+              event: "form.zapier_catch_hook",
+              headers: { "Content-Type": "application/json" },
+              body: zapPayload,
+            },
+            { maxAttempts: 5, runAt: new Date(Date.now() + 15000) }
+          );
+        } catch {}
+      });
+    executionResults.zapier = true;
   }
 
   // 6. Action: Email Notification Dispatcher (F-435 / F-436)
