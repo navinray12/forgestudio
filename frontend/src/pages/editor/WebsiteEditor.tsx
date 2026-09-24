@@ -20,6 +20,20 @@ import { RevisionHistoryPanel, revisionHistoryService } from "../../features/rev
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { publishingService } from "../../features/publishing/services/publishingService";
+import { BlockInserterModal } from "../../features/blocks/components/BlockInserterModal";
+import { BlockToolbar } from "../../features/blocks/components/BlockToolbar";
+import { BlockInspector } from "../../features/blocks/components/BlockInspector";
+import { BlockTemplateManager } from "../../features/blocks/components/BlockTemplateManager";
+import { TemplatePartManager } from "../../features/blocks/components/TemplatePartManager";
+import { GlobalStylesPanel } from "../../features/blocks/components/GlobalStylesPanel";
+import { DocumentOutlineModal } from "../../features/blocks/components/DocumentOutlineModal";
+import { EditorPreferencesModal } from "../../features/blocks/components/EditorPreferencesModal";
+import { EditorPreferencesService } from "../../features/blocks/services/editorPreferencesService";
+import { ShortcutRegistry } from "../../features/blocks/services/shortcutRegistry";
+import { DragDropEngine } from "../../features/blocks/engine/dragDropEngine";
+import { type BlockNode, type BlockPattern, type BlockTemplate, type TemplatePart, type GlobalStyleConfig, type EditorPreferences } from "../../features/blocks/types/block.types";
+import { serializeBlockToGutenbergMarkup } from "../../features/blocks/engine/gutenbergBridge";
+import { buildRootCssVariablesFromGlobalStyles } from "../../features/blocks/engine/designTokenBridge";
 import { useComponentAccess } from "../../features/permissions/hooks/useComponentAccess";
 import { ContentOnlyInspector } from "./components/ContentOnlyInspector";
 import { ExperimentManagerModal } from "./components/experiments/ExperimentManagerModal";
@@ -34,7 +48,7 @@ import {
   Sliders, Palette, FileText, Globe, Code, Play, Check, X, Move, Lock, Unlock,
   HelpCircle, ExternalLink, RefreshCw, Database, Server, Cpu, HardDrive, Key,
   Mail, MessageSquare, Phone, User, Calendar, MapPin, Search, Star, Share2,
-  AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass,
+  AlertCircle, Info, Download, Upload, Zap, Shield, Sparkles, Layout, Compass, List, Sun,
   Terminal, ShieldCheck, StickyNote, FormInput, Link as LinkIcon, Navigation, ArrowRight, Menu,
   ArrowLeft, Keyboard, Code2, Rocket, History as HistoryIcon
 } from "lucide-react";
@@ -325,6 +339,100 @@ export default function WebsiteEditor() {
   const [popups, setPopups] = useState<any[]>([]);
 
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isBlockInserterOpen, setIsBlockInserterOpen] = useState(false);
+  const [isBlockTemplateManagerOpen, setIsBlockTemplateManagerOpen] = useState(false);
+  const [isTemplatePartManagerOpen, setIsTemplatePartManagerOpen] = useState(false);
+  const [isGlobalStylesPanelOpen, setIsGlobalStylesPanelOpen] = useState(false);
+  const [blockTemplatesList, setBlockTemplatesList] = useState<BlockTemplate[]>([]);
+  const [templatePartsList, setTemplatePartsList] = useState<TemplatePart[]>([]);
+  const [globalStylesConfig, setGlobalStylesConfig] = useState<GlobalStyleConfig>({
+    colors: { primary: "#3699ff", secondary: "#2b2b40", accent: "#7367f0", background: "#151521", text: "#ffffff" },
+    typography: { fontFamily: "Inter, sans-serif", fontSize: "16px", lineHeight: "1.5" },
+    spacing: { gap: "16px" },
+    layout: { type: "constrained", contentSize: "1200px", wideSize: "1400px" },
+  });
+  const [isDocumentOutlineOpen, setIsDocumentOutlineOpen] = useState(false);
+  const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState(false);
+  const [editorPreferences, setEditorPreferences] = useState<EditorPreferences>(() =>
+    EditorPreferencesService.getPreferences()
+  );
+
+  const handleUpdatePreferences = (updated: EditorPreferences) => {
+    setEditorPreferences(updated);
+    EditorPreferencesService.savePreferences(updated);
+  };
+
+  const [isDistractionFree, setIsDistractionFree] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("fs_distraction_free_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleDistractionFree = useCallback(() => {
+    setIsDistractionFree((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("fs_distraction_free_mode", String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape key to exit fullscreen mode (F-534)
+      if (e.key === "Escape" && editorPreferences.fullscreen) {
+        handleUpdatePreferences({ ...editorPreferences, fullscreen: false });
+        return;
+      }
+
+      // Distraction free (Ctrl+Shift+\)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "\\" || e.code === "Backslash")) {
+        e.preventDefault();
+        toggleDistractionFree();
+        return;
+      }
+
+      // Spotlight mode (Ctrl+Alt+S) (F-533)
+      if (ShortcutRegistry.isMatchingCombo(e, editorPreferences.keyboardShortcuts["toggle-spotlight"] || "Ctrl+Alt+S")) {
+        e.preventDefault();
+        handleUpdatePreferences({ ...editorPreferences, spotlightMode: !editorPreferences.spotlightMode });
+        return;
+      }
+
+      // Top Toolbar mode (Ctrl+Alt+T) (F-535)
+      if (ShortcutRegistry.isMatchingCombo(e, editorPreferences.keyboardShortcuts["toggle-top-toolbar"] || "Ctrl+Alt+T")) {
+        e.preventDefault();
+        handleUpdatePreferences({ ...editorPreferences, topToolbarMode: !editorPreferences.topToolbarMode });
+        return;
+      }
+
+      // Fullscreen mode (Ctrl+Shift+F) (F-534)
+      if (ShortcutRegistry.isMatchingCombo(e, editorPreferences.keyboardShortcuts["toggle-fullscreen"] || "Ctrl+Shift+F")) {
+        e.preventDefault();
+        handleUpdatePreferences({ ...editorPreferences, fullscreen: !editorPreferences.fullscreen });
+        return;
+      }
+
+      // Document outline (Ctrl+Alt+O) (F-538)
+      if (ShortcutRegistry.isMatchingCombo(e, editorPreferences.keyboardShortcuts["toggle-outline"] || "Ctrl+Alt+O")) {
+        e.preventDefault();
+        setIsDocumentOutlineOpen((prev) => !prev);
+        return;
+      }
+
+      // Block inserter (Ctrl+Alt+I)
+      if (ShortcutRegistry.isMatchingCombo(e, editorPreferences.keyboardShortcuts["toggle-inserter"] || "Ctrl+Alt+I")) {
+        e.preventDefault();
+        setIsBlockInserterOpen((prev) => !prev);
+        return;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleDistractionFree, editorPreferences]);
   const [isSeoAnalyzerOpen, setIsSeoAnalyzerOpen] = useState(false);
   const [isMultilingualModalOpen, setIsMultilingualModalOpen] = useState(false);
   const [isStatementOpen, setIsStatementOpen] = useState(false);
@@ -335,6 +443,33 @@ export default function WebsiteEditor() {
   const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>("widgets");
   const [pageCss, setPageCss] = useState<string>("");
+
+  const handleInsertBlockFromEngine = (blockNode: BlockNode) => {
+    const newElement: EditorElement = {
+      id: blockNode.id || generateId(),
+      type: "gutenberg-blocks",
+      content: blockNode.attributes?.content || blockNode.name,
+      styles: {
+        padding: "16px",
+        margin: "8px 0",
+      },
+      props: {
+        blockNode,
+        gutenbergMarkup: serializeBlockToGutenbergMarkup(blockNode),
+      },
+    };
+    setElements((prev) => [...prev, newElement]);
+    setSelectedId(newElement.id);
+    setSelectedIds([newElement.id]);
+  };
+
+  const handleInsertPatternFromEngine = (pattern: BlockPattern) => {
+    if (Array.isArray(pattern.content)) {
+      pattern.content.forEach((blockNode) => {
+        handleInsertBlockFromEngine(blockNode);
+      });
+    }
+  };
 
   const handleSelectPopupForEdit = (popup: any) => {
     setActivePopupId(popup.id);
@@ -1696,6 +1831,13 @@ export default function WebsiteEditor() {
           if (res.ok) {
             const data = await res.json();
             loadedSite = data.website || data;
+          } else {
+            console.warn(`Backend returned non-OK status ${res.status} when fetching website ${websiteId}`);
+            if (res.status === 404) {
+              setErrorMessage("Website not found or access denied.");
+            } else if (res.status === 500) {
+              setErrorMessage("Backend server error while fetching website.");
+            }
           }
         } catch (netErr) {
           console.warn("Backend fetch failed, checking localStorage fallback...", netErr);
@@ -1707,7 +1849,8 @@ export default function WebsiteEditor() {
           if (cachedStr) {
             try {
               const editorData = JSON.parse(cachedStr);
-              loadedSite = { id: websiteId, name: "Local Website", editorData };
+              loadedSite = { id: websiteId, name: "Local Website (Cached)", editorData };
+              setErrorMessage(""); // Clear error if local cache successfully loaded
             } catch (e) {
               console.error("Failed to parse cached editor data:", e);
             }
@@ -2426,7 +2569,7 @@ export default function WebsiteEditor() {
         setSelectedId(newEl.id);
         setSelectedIds([newEl.id]);
       } else if (data.type === "move" && data.id) {
-        if (effectiveTargetId && (data.id === effectiveTargetId || isDescendant(elements, data.id, effectiveTargetId))) return;
+        if (effectiveTargetId && (data.id === effectiveTargetId || DragDropEngine.isChildOf(data.id, effectiveTargetId, elements as any) || isDescendant(elements, data.id, effectiveTargetId))) return;
         setElements((prev) => moveTreeElement(prev, data.id, effectiveTargetId, effectivePosition));
         setSelectedId(data.id);
         setSelectedIds([data.id]);
@@ -5009,21 +5152,29 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
-          } ${isPreview
+        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${
+          draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+        } ${
+          editorPreferences.spotlightMode && selectedId && selectedId !== el.id && !isDescendant(elements, el.id, selectedId)
+            ? "opacity-35 hover:opacity-80"
+            : ""
+        } ${
+          isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
-          } ${isSelected
+        } ${
+          isSelected
             ? "border-2 border-blue-500 p-2.5"
             : isHovered
               ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
               : "p-2.5 border border-transparent"
-          } ${isDropTarget && dropPosition === "before"
+        } ${
+          isDropTarget && dropPosition === "before"
             ? "border-t-4 border-t-blue-500"
             : isDropTarget && dropPosition === "after"
               ? "border-b-4 border-b-blue-500"
               : ""
-          }`}
+        }`}
         style={{
           ...stickyStyles,
           boxSizing: "border-box",
@@ -6634,6 +6785,22 @@ export default function WebsiteEditor() {
   }
 
   return (
+    <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans relative">
+      {/* Save Success / Error Toasts */}
+      {saveMessage && (
+        <div className="fixed top-16 right-6 z-50 flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-xl text-xs font-bold animate-fadeIn">
+          <span>✓</span>
+          <span>{saveMessage}</span>
+        </div>
+      )}
+      {errorMessage && (
+        <div className="fixed top-16 right-6 z-50 flex items-center gap-2 bg-rose-600 text-white px-4 py-2 rounded-xl shadow-xl text-xs font-bold animate-fadeIn">
+          <span>⚠️</span>
+          <span>{errorMessage}</span>
+          <button onClick={() => setErrorMessage("")} className="ml-2 hover:opacity-80">✕</button>
+        </div>
+      )}
+
     <WooCommerceProvider websiteId={websiteId}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* ========================================== */}
@@ -19228,18 +19395,145 @@ export default function WebsiteEditor() {
         }}
       />
 
-      {/* F-340: Global Class Manager Modal */}
-      <ClassManagerModal
-        isOpen={isClassModalOpen}
-        onClose={() => setIsClassModalOpen(false)}
-        classes={globalClasses}
-        userRole="OWNER"
-        onSaveClasses={(updated) => {
-          setGlobalClasses(updated);
-          handleSave();
+      {/* F-509 - F-511 Block Inserter Modal */}
+      <BlockInserterModal
+        isOpen={isBlockInserterOpen}
+        onClose={() => setIsBlockInserterOpen(false)}
+        onSelectBlock={handleInsertBlockFromEngine}
+        onSelectPattern={handleInsertPatternFromEngine}
+        workspaceId={(website as any)?.workspaceId || undefined}
+      />
+
+      {/* F-517 Block Template Manager */}
+      <BlockTemplateManager
+        isOpen={isBlockTemplateManagerOpen}
+        onClose={() => setIsBlockTemplateManagerOpen(false)}
+        templates={blockTemplatesList}
+        onCreateTemplate={(title, type, lock) => {
+          const newTemplate: BlockTemplate = {
+            id: `template-${Date.now()}`,
+            slug: generateSlug(title),
+            title,
+            type,
+            content: [],
+            templateLock: lock,
+            workspaceId: (website as any)?.workspaceId || null,
+          };
+          setBlockTemplatesList((prev) => [newTemplate, ...prev]);
         }}
       />
 
+      {/* F-518 Template Part Manager */}
+      <TemplatePartManager
+        isOpen={isTemplatePartManagerOpen}
+        onClose={() => setIsTemplatePartManagerOpen(false)}
+        templateParts={templatePartsList}
+        onCreatePart={(title, area) => {
+          const newPart: TemplatePart = {
+            id: `part-${Date.now()}`,
+            slug: generateSlug(title),
+            title,
+            area,
+            content: [],
+            workspaceId: (website as any)?.workspaceId || null,
+          };
+          setTemplatePartsList((prev) => [newPart, ...prev]);
+        }}
+      />
+
+      {/* F-519 Global Styles Panel */}
+      <GlobalStylesPanel
+        isOpen={isGlobalStylesPanelOpen}
+        onClose={() => setIsGlobalStylesPanelOpen(false)}
+        globalStyles={globalStylesConfig}
+        onSaveStyles={(updated) => {
+          setGlobalStylesConfig(updated);
+        }}
+      />
+      {/* F-538 Document Outline Modal */}
+      <DocumentOutlineModal
+        isOpen={isDocumentOutlineOpen}
+        onClose={() => setIsDocumentOutlineOpen(false)}
+        blocks={elements as any}
+        onSelectBlock={(blockId) => {
+          setSelectedId(blockId);
+          setSelectedIds([blockId]);
+        }}
+      />
+
+      {/* F-536 / F-537 Editor Preferences & Keybindings Modal */}
+      <EditorPreferencesModal
+        isOpen={isPreferencesModalOpen}
+        onClose={() => setIsPreferencesModalOpen(false)}
+        preferences={editorPreferences}
+        onSavePreferences={handleUpdatePreferences}
+        workspaceId={(website as any)?.workspaceId || undefined}
+      />
+
+      {/* F-535 Top Toolbar Mode Docked Bar */}
+      {editorPreferences.topToolbarMode && !isDistractionFree && (
+        <div className="fixed top-2 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 bg-slate-900/90 text-slate-200 border border-slate-700/80 px-3 py-1.5 rounded-xl shadow-2xl backdrop-blur-md text-xs">
+          <button
+            type="button"
+            onClick={() => setIsBlockInserterOpen(true)}
+            className="flex items-center gap-1 px-2 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors"
+            title="Add Block (Ctrl+Alt+I)"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Block
+          </button>
+
+          <div className="h-4 w-px bg-slate-700 my-auto mx-1" />
+
+          <button
+            type="button"
+            onClick={() => setIsDocumentOutlineOpen(true)}
+            className="flex items-center gap-1 px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            title="Document Outline (Ctrl+Alt+O)"
+          >
+            <List className="w-3.5 h-3.5 text-indigo-400" />
+            Outline
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleUpdatePreferences({ ...editorPreferences, spotlightMode: !editorPreferences.spotlightMode })}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
+              editorPreferences.spotlightMode ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "text-slate-300 hover:text-white hover:bg-slate-800"
+            }`}
+            title="Spotlight Mode (Ctrl+Alt+S)"
+          >
+            <Sun className="w-3.5 h-3.5" />
+            Spotlight
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPreferencesModalOpen(true)}
+            className="flex items-center gap-1 px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            title="Editor Preferences & Keys"
+          >
+            <Settings className="w-3.5 h-3.5 text-purple-400" />
+            Preferences
+          </button>
+        </div>
+      )}
+
+      {/* F-532 Distraction-Free Mode Active Indicator */}
+      {isDistractionFree && (
+        <div className="fixed top-3 right-3 z-50 flex items-center gap-2 bg-slate-900/90 text-slate-100 border border-indigo-500/60 px-3 py-1.5 rounded-lg shadow-xl backdrop-blur-md text-xs animate-in fade-in duration-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="font-semibold">Distraction-Free Mode Active</span>
+          <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono">Ctrl+Shift+\</span>
+          <button
+            type="button"
+            onClick={toggleDistractionFree}
+            className="ml-2 text-indigo-400 hover:text-white font-medium underline"
+          >
+            Restore UI
+          </button>
+        </div>
+      )}
 {/* Phase 3: A/B Split Testing & Conversion Experiments Modal */}
       <ExperimentManagerModal
         isOpen={isExperimentModalOpen}
