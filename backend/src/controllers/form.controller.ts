@@ -15,7 +15,17 @@ export async function submitFormHandler(
   next: NextFunction
 ) {
   try {
-    const { websiteId, formId, formName, fields, actions, spamProtection, honeypotValue } = req.body;
+    const {
+      websiteId,
+      formId,
+      formName,
+      fields,
+      actions,
+      spamProtection,
+      honeypotValue,
+      conditionalLogic,
+      fieldConfigs,
+    } = req.body;
 
     const metadata = {
       ip: req.ip || req.headers["x-forwarded-for"]?.toString() || req.socket.remoteAddress || "unknown",
@@ -31,6 +41,8 @@ export async function submitFormHandler(
       actions,
       spamProtection,
       honeypotValue,
+      conditionalLogic,
+      fieldConfigs,
       metadata,
     });
 

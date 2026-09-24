@@ -90,4 +90,52 @@ export class IntegrationController {
       return res.status(500).json({ success: false, message: error?.message || "Webhook dispatch failed" });
     }
   }
+
+  // POST /api/integrations/google-sheets/test
+  public static async testGoogleSheets(req: Request, res: Response) {
+    try {
+      const { webhookUrl, testData } = req.body;
+      if (!webhookUrl) {
+        return res.status(400).json({ success: false, message: "webhookUrl is required" });
+      }
+      const data = testData || { test: true, message: "ForgeStudio Test Row", email: "test@forgestudio.io" };
+      const result = await IntegrationService.syncToGoogleSheets({ webhookUrl }, data);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error?.message || "Google Sheets test sync failed" });
+    }
+  }
+
+  // POST /api/integrations/mailchimp/test
+  public static async testMailchimp(req: Request, res: Response) {
+    try {
+      const { apiKey, listId, serverPrefix, email, firstName, lastName } = req.body;
+      if (!apiKey || !listId) {
+        return res.status(400).json({ success: false, message: "apiKey and listId are required" });
+      }
+      const targetEmail = email || "test-lead@forgestudio.io";
+      const result = await IntegrationService.syncToMailchimp(
+        { apiKey, listId, serverPrefix },
+        { email: targetEmail, firstName: firstName || "Test", lastName: lastName || "Lead" }
+      );
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error?.message || "Mailchimp test sync failed" });
+    }
+  }
+
+  // POST /api/integrations/zapier/test
+  public static async testZapier(req: Request, res: Response) {
+    try {
+      const { zapierUrl, payload, secret } = req.body;
+      if (!zapierUrl) {
+        return res.status(400).json({ success: false, message: "zapierUrl is required" });
+      }
+      const testPayload = payload || { test: true, source: "ForgeStudio Test Catch Hook" };
+      const result = await IntegrationService.dispatchToZapier(zapierUrl, testPayload, secret);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error?.message || "Zapier test dispatch failed" });
+    }
+  }
 }

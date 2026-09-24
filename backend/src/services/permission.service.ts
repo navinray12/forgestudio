@@ -115,6 +115,12 @@ export const DEFAULT_CAPABILITIES: Record<string, string[]> = {
     "COMMENT",
     "EDIT_CONTENT",
   ],
+  CLIENT: [
+    "VIEW",
+    "EDIT",
+    "COMMENT",
+    "EDIT_CONTENT",
+  ],
   SEO_MANAGER: [
     "VIEW",
     "EDIT",

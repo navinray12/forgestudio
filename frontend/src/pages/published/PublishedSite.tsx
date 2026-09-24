@@ -766,18 +766,39 @@ export default function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
+    const [experiments, setExperiments] = useState<any[]>([]);
+    const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
         let css = "";
         if (globalVariables && globalVariables.length > 0) {
-            css += ":root {\n";
+            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
             for (const v of globalVariables) {
-                if (v && v.token && v.value) {
-                    css += `  ${v.token}: ${v.value};\n`;
+                if (v && v.token) {
+                    const lightVal = v.modes?.light || v.value;
+                    if (lightVal) {
+                        css += `  ${v.token}: ${lightVal};\n`;
+                    }
                 }
             }
             css += "}\n\n";
+
+            // Multi-mode Dark Theme overrides
+            const darkModeVars = globalVariables.filter((v: any) => v && v.token && v.modes?.dark);
+            if (darkModeVars.length > 0) {
+                css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
+                for (const v of darkModeVars) {
+                    css += `  ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "}\n\n";
+
+                css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
+                for (const v of darkModeVars) {
+                    css += `    ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "  }\n}\n\n";
+            }
         }
         if (globalClasses && globalClasses.length > 0) {
             for (const c of globalClasses) {
@@ -860,6 +881,9 @@ export default function PublishedSite() {
                 if (editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent) {
                     setCookieConsentConfig(editorData.siteSettings?.cookieConsent || editorData.cookieConsent);
                 }
+                if (site?.editorData?.experiments) {
+                    setExperiments(site.editorData.experiments);
+                }
 
             } catch (_err: any) {
                 setErrorMessage("This website is unavailable.");
@@ -869,6 +893,66 @@ export default function PublishedSite() {
         };
         fetchWebsite();
     }, [websiteId, apiUrl, pageSlug]);
+
+    // Phase 3 Subsystem 2: A/B Split Testing & Impression Telemetry
+    useEffect(() => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+
+        const running = experiments.filter((e) => e.status === "RUNNING");
+        if (running.length === 0) return;
+
+        const assignments: Record<string, string> = {};
+
+        for (const exp of running) {
+            const storageKey = `fs_exp_${exp.id}`;
+            let variantId = localStorage.getItem(storageKey);
+
+            if (!variantId || !exp.variants.some((v: any) => v.id === variantId)) {
+                // Weighted random traffic allocation
+                const rand = Math.random() * 100;
+                let cumulative = 0;
+                let selected = exp.variants[0]?.id || "control";
+
+                for (const v of exp.variants) {
+                    cumulative += v.trafficAllocation || 50;
+                    if (rand <= cumulative) {
+                        selected = v.id;
+                        break;
+                    }
+                }
+                variantId = selected;
+                try {
+                    localStorage.setItem(storageKey, variantId);
+                } catch {}
+            }
+
+            assignments[exp.id] = variantId;
+
+            // Dispatch impression telemetry (fire-and-forget)
+            fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/impression`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ variantId }),
+            }).catch(() => {});
+        }
+
+        setAssignedVariants(assignments);
+    }, [experiments, websiteId, apiUrl]);
+
+    const recordConversionForGoal = (action: string) => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+        const matching = experiments.filter((e) => e.status === "RUNNING" && e.goalAction === action);
+        for (const exp of matching) {
+            const variantId = assignedVariants[exp.id] || localStorage.getItem(`fs_exp_${exp.id}`);
+            if (variantId) {
+                fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/conversion`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ variantId }),
+                }).catch(() => {});
+            }
+        }
+    };
 
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);

@@ -13,6 +13,8 @@ import {
   isValidDomainStatusTransition,
   setOnePrimary,
   getPrimaryDomain,
+  initiateSslProvisioning,
+  getDomainDiagnosticStatus,
   type DomainVerificationMethod,
 } from "../services/domains/customDomain.service.js";
 
@@ -183,6 +185,71 @@ export async function removeDomain(req: Request, res: Response) {
 
     await writeDomains(websiteId, website, filtered);
     return res.status(200).json({ success: true, message: "Domain removed" });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+/** GET /api/websites/:websiteId/domains/:domain/status */
+export async function getDomainStatus(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const domainName = decodeURIComponent(String(req.params.domain || "")).toLowerCase();
+    const userId = res.locals.user?.id || (req as any).user?.id;
+
+    const website = await getAuthorizedWebsite(websiteId, userId);
+    if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
+
+    const domains = readDomains(website);
+    const record = domains.find((d: any) => d.domain === domainName);
+    if (!record) return res.status(404).json({ success: false, message: "Domain not found" });
+
+    const diagnostics = getDomainDiagnosticStatus(record);
+    const dnsRecords = getDnsInstructions(record.domain, record.verificationToken);
+
+    return res.status(200).json({
+      success: true,
+      diagnostics,
+      domain: { ...record, dnsRecords },
+      dnsRecords,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+/** POST /api/websites/:websiteId/domains/:domain/ssl/provision */
+export async function provisionDomainSsl(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const domainName = decodeURIComponent(String(req.params.domain || "")).toLowerCase();
+    const userId = res.locals.user?.id || (req as any).user?.id;
+
+    const website = await getAuthorizedWebsite(websiteId, userId);
+    if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
+
+    const domains = readDomains(website);
+    const idx = domains.findIndex((d: any) => d.domain === domainName);
+    if (idx === -1) return res.status(404).json({ success: false, message: "Domain not found" });
+
+    const updatedRecord = await initiateSslProvisioning(domains[idx], websiteId);
+    domains[idx] = updatedRecord;
+
+    await writeDomains(websiteId, website, domains);
+
+    const diagnostics = getDomainDiagnosticStatus(updatedRecord);
+    const dnsRecords = getDnsInstructions(updatedRecord.domain, updatedRecord.verificationToken);
+
+    return res.status(200).json({
+      success: updatedRecord.sslStatus === "ACTIVE",
+      domain: { ...updatedRecord, dnsRecords },
+      diagnostics,
+      dnsRecords,
+      message:
+        updatedRecord.sslStatus === "ACTIVE"
+          ? "Zero-touch SSL provisioned and active on edge router"
+          : "Pre-flight DNS check failed: " + (updatedRecord.dnsPreflight?.errors?.join("; ") || "Check DNS records"),
+    });
   } catch (err: any) {
     return res.status(500).json({ success: false, message: err.message });
   }
