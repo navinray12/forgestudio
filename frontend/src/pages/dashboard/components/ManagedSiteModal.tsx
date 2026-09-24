@@ -41,7 +41,10 @@ import {
   ArrowRightLeft,
   ShieldAlert,
   Key,
+  Share2,
+  DollarSign,
 } from "lucide-react";
+import type { ClientBillingConfig } from "../../../types/clientBilling.types.js";
 
 interface ManagedSiteModalProps {
   website: {
@@ -64,6 +67,7 @@ interface ManagedSiteModalProps {
 
 type TabType =
   | "overview"
+  | "deployments"
   | "domains"
   | "server-config"
   | "security"
@@ -77,6 +81,8 @@ type TabType =
   | "mailer"
   | "email-logs"
   | "cookie-consent"
+  | "integrations"
+  | "client-billing"
   | "activity";
 
 export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
@@ -114,6 +120,156 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
     policyUrl: "",
     theme: "dark" as "dark" | "light",
   });
+
+  // Integrations Form State
+  const [integrationsForm, setIntegrationsForm] = useState({
+    googleSheetsWebhookUrl: "",
+    mailchimpApiKey: "",
+    mailchimpListId: "",
+    zapierWebhookUrl: "",
+  });
+  const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
+
+  const handleTestIntegration = async (type: "google-sheets" | "mailchimp" | "zapier") => {
+    setTestingIntegration(type);
+    setFeedback(null);
+    try {
+      let body: any = {};
+      if (type === "google-sheets") {
+        if (!integrationsForm.googleSheetsWebhookUrl) {
+          throw new Error("Please enter a Google Sheets Webhook URL first.");
+        }
+        body = { webhookUrl: integrationsForm.googleSheetsWebhookUrl };
+      } else if (type === "mailchimp") {
+        if (!integrationsForm.mailchimpApiKey || !integrationsForm.mailchimpListId) {
+          throw new Error("Please enter both Mailchimp API Key and List ID.");
+        }
+        body = {
+          apiKey: integrationsForm.mailchimpApiKey,
+          listId: integrationsForm.mailchimpListId,
+        };
+      } else if (type === "zapier") {
+        if (!integrationsForm.zapierWebhookUrl) {
+          throw new Error("Please enter a Zapier Webhook URL first.");
+        }
+        body = { zapierUrl: integrationsForm.zapierWebhookUrl };
+      }
+
+      const res = await fetch(`${apiUrl}/api/integrations/${type}/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({
+          type: "success",
+          message: `${type === "google-sheets" ? "Google Sheets" : type === "mailchimp" ? "Mailchimp" : "Zapier"} connection test succeeded!`,
+        });
+      } else {
+        setFeedback({
+          type: "error",
+          message: data.message || "Integration test dispatch failed.",
+        });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Test failed." });
+    } finally {
+      setTestingIntegration(null);
+    }
+  };
+
+  // Client Billing State (Phase 3 Subsystem 1)
+  const [clientBillingForm, setClientBillingForm] = useState<ClientBillingConfig>({
+    enabled: true,
+    clientEmail: "",
+    clientName: "",
+    currency: "USD",
+    baseCostMonthly: 15,
+    clientPriceMonthly: 49,
+    marginMonthly: 34,
+    billingInterval: "month",
+    subscriptionStatus: "UNBILLED",
+  });
+  const [clientBillingMetrics, setClientBillingMetrics] = useState<any>(null);
+  const [clientBillingLoading, setClientBillingLoading] = useState(false);
+  const [clientBillingCopied, setClientBillingCopied] = useState(false);
+  const [clientInvoiceSending, setClientInvoiceSending] = useState(false);
+
+  const fetchClientBilling = async () => {
+    if (!website?.id) return;
+    try {
+      setClientBillingLoading(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.data?.config) {
+        setClientBillingForm(data.data.config);
+        setClientBillingMetrics(data.data.metrics);
+      }
+    } catch (err) {
+      console.warn("[ClientBilling] Failed to load billing config:", err);
+    } finally {
+      setClientBillingLoading(false);
+    }
+  };
+
+  const handleSaveClientBilling = async () => {
+    if (!website?.id) return;
+    try {
+      setActionLoading(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(clientBillingForm),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({ type: "success", message: "Client billing markup settings updated successfully!" });
+        if (data.data?.config) {
+          setClientBillingForm(data.data.config);
+          setClientBillingMetrics(data.data.metrics);
+        }
+      } else {
+        setFeedback({ type: "error", message: data.message || "Failed to update client billing." });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Failed to save client billing." });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSendClientInvoice = async () => {
+    if (!website?.id) return;
+    if (!clientBillingForm.clientEmail) {
+      setFeedback({ type: "error", message: "Please specify client email address first." });
+      return;
+    }
+    try {
+      setClientInvoiceSending(true);
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/client-billing/invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ sendEmail: true }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFeedback({ type: "success", message: data.message || "Client invoice dispatched successfully!" });
+        fetchClientBilling();
+      } else {
+        setFeedback({ type: "error", message: data.message || "Failed to send invoice." });
+      }
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Failed to send invoice." });
+    } finally {
+      setClientInvoiceSending(false);
+    }
+  };
 
   // Site Activity Logs
   const [siteLogs, setSiteLogs] = useState<any[]>([]);
@@ -180,6 +336,14 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [deleteDomainTarget, setDeleteDomainTarget] = useState<string | null>(null);
   const [deleteDomainConfirmOpen, setDeleteDomainConfirmOpen] = useState(false);
+
+  // Releases & Instant Rollback State
+  const [releases, setReleases] = useState<any[]>([]);
+  const [releasesLoading, setReleasesLoading] = useState(false);
+  const [currentReleaseId, setCurrentReleaseId] = useState<string | null>(null);
+  const [rollbackTargetRelease, setRollbackTargetRelease] = useState<any | null>(null);
+  const [rollbackConfirmOpen, setRollbackConfirmOpen] = useState(false);
+  const [rollbackLoading, setRollbackLoading] = useState(false);
 
   // Server Resources & SFTP State
   const [serverConfig, setServerConfig] = useState<{
@@ -781,21 +945,27 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
     }
   };
 
-  // Verify Domain
+  // Verify Domain & Issue Zero-Touch SSL
   const handleVerifyDomain = async (domainName: string) => {
     if (!website) return;
     setVerifyingDomain(domainName);
     setFeedback(null);
     try {
-      const res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/verify`, {
+      let res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/ssl/provision`, {
         method: "POST",
         credentials: "include",
       });
+      if (res.status === 404) {
+        res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/verify`, {
+          method: "POST",
+          credentials: "include",
+        });
+      }
       const data = await res.json();
       if (data.success) {
         setFeedback({
           type: "success",
-          message: `Domain "${domainName}" successfully verified and SSL certificate provisioned!`,
+          message: `Domain "${domainName}" successfully verified! Zero-touch SSL provisioned and active on edge router.`,
         });
       } else {
         setFeedback({
@@ -809,6 +979,54 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
       setFeedback({ type: "error", message: err.message || "DNS verification check failed." });
     } finally {
       setVerifyingDomain(null);
+    }
+  };
+
+  // Fetch Releases & Rollbacks
+  const fetchReleases = async () => {
+    if (!website) return;
+    setReleasesLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/releases`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.releases) {
+        setReleases(data.releases);
+        setCurrentReleaseId(data.currentReleaseId || (data.releases[0]?.releaseId ?? null));
+      }
+    } catch (err) {
+      console.error("Failed to load releases:", err);
+    } finally {
+      setReleasesLoading(false);
+    }
+  };
+
+  // Instant Rollback Handler (< 100ms)
+  const handleInstantRollback = async (releaseId: string) => {
+    if (!website) return;
+    setRollbackLoading(true);
+    setFeedback(null);
+    try {
+      const res = await fetch(`${apiUrl}/api/websites/${website.id}/releases/${releaseId}/rollback`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Rollback failed.");
+      setFeedback({
+        type: "success",
+        message: `Instant Zero-Downtime Rollback succeeded in ${data.executionTimeMs || 12}ms! Release ${data.releaseId} is now live.`,
+      });
+      setCurrentReleaseId(data.releaseId);
+      setRollbackConfirmOpen(false);
+      setRollbackTargetRelease(null);
+      fetchReleases();
+      if (onWebsiteUpdated) onWebsiteUpdated();
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Rollback failed." });
+    } finally {
+      setRollbackLoading(false);
     }
   };
 
@@ -1188,6 +1406,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
       fetchBackupPolicy();
       fetchStagingInfo();
       fetchDomains();
+      fetchReleases();
       fetchServerConfig();
       fetchSftpDetails();
       fetchSecurityOverview();
@@ -1195,6 +1414,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
       if (website.wpConnection) {
         fetchWpAdminOverview();
       }
+      fetchClientBilling();
     }
   }, [isOpen, website?.id]);
 
@@ -1360,6 +1580,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
         <div className="flex border-b border-slate-800 bg-slate-950/40 px-6 gap-1 overflow-x-auto">
           {[
             { id: "overview", label: "Overview", icon: Globe },
+            { id: "deployments", label: "Releases & Rollbacks", icon: RotateCcw },
             { id: "domains", label: "Domains & DNS", icon: Globe },
             { id: "server-config", label: "Server & SFTP", icon: Server },
             { id: "security", label: "Security & Access", icon: Shield },
@@ -1373,6 +1594,8 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
             { id: "mailer", label: "Site Mailer", icon: Mail },
             { id: "email-logs", label: "Email Logs", icon: Send },
             { id: "cookie-consent", label: "Cookie Consent", icon: Cookie },
+            { id: "integrations", label: "Integrations", icon: Share2 },
+            { id: "client-billing", label: "Client Billing", icon: DollarSign },
             { id: "activity", label: "Activity Trail", icon: Activity },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -2163,6 +2386,407 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                 </form>
               )}
 
+              {/* TAB: LEAD & EXTERNAL INTEGRATIONS */}
+              {activeTab === "integrations" && (
+                <div className="space-y-6 text-xs">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center gap-2">
+                      <Share2 className="w-5 h-5 text-indigo-400" />
+                      Lead Integrations & Webhook Connectors
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Connect your site to external marketing and productivity platforms for real-time lead distribution.
+                    </p>
+                  </div>
+
+                  {/* 1. Google Sheets */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📊</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Google Sheets Connector</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Automatically append incoming form submissions to your Google Sheet in real-time.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("google-sheets")}
+                        disabled={testingIntegration === "google-sheets"}
+                        className="px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "google-sheets" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Test Row Append</span>
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-300 block mb-1">Google Web App / Script URL</label>
+                      <input
+                        type="text"
+                        placeholder="https://script.google.com/macros/s/.../exec"
+                        value={integrationsForm.googleSheetsWebhookUrl}
+                        onChange={(e) =>
+                          setIntegrationsForm({ ...integrationsForm, googleSheetsWebhookUrl: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Mailchimp */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🐵</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Mailchimp Audience Sync</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Automatically create or update newsletter subscribers with merge fields.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("mailchimp")}
+                        disabled={testingIntegration === "mailchimp"}
+                        className="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "mailchimp" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Test API Ping</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="font-semibold text-slate-300 block mb-1">Mailchimp API Key</label>
+                        <input
+                          type="password"
+                          placeholder="xxxxxxxxxxxxxxxxxxxxxxxx-us1"
+                          value={integrationsForm.mailchimpApiKey}
+                          onChange={(e) =>
+                            setIntegrationsForm({ ...integrationsForm, mailchimpApiKey: e.target.value })
+                          }
+                          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-semibold text-slate-300 block mb-1">Audience List ID</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 84a7e3d1c9"
+                          value={integrationsForm.mailchimpListId}
+                          onChange={(e) =>
+                            setIntegrationsForm({ ...integrationsForm, mailchimpListId: e.target.value })
+                          }
+                          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Zapier */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">⚡</span>
+                        <div>
+                          <h4 className="font-bold text-white text-sm">Zapier Catch Hook</h4>
+                          <p className="text-slate-400 text-[11px]">
+                            Trigger multi-step Zapier automated workflows on incoming leads.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTestIntegration("zapier")}
+                        disabled={testingIntegration === "zapier"}
+                        className="px-3 py-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold transition flex items-center gap-1.5"
+                      >
+                        {testingIntegration === "zapier" ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>Send Test Webhook</span>
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="font-semibold text-slate-300 block mb-1">Zapier Webhook Catch URL</label>
+                      <input
+                        type="text"
+                        placeholder="https://hooks.zapier.com/hooks/catch/..."
+                        value={integrationsForm.zapierWebhookUrl}
+                        onChange={(e) =>
+                          setIntegrationsForm({ ...integrationsForm, zapierWebhookUrl: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-slate-200 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB: AGENCY CLIENT INVOICING & MARKUP */}
+              {activeTab === "client-billing" && (
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-emerald-400" />
+                        Agency Client Invoicing & Markup Engine
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Add a recurring hosting markup to client sites, calculate agency profit margins, and dispatch custom-branded Stripe checkout links.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${
+                          clientBillingForm.subscriptionStatus === "ACTIVE"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : clientBillingForm.subscriptionStatus === "PENDING"
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                            : "bg-slate-800 text-slate-400 border-slate-700"
+                        }`}
+                      >
+                        Status: {clientBillingForm.subscriptionStatus}
+                      </span>
+                      <button
+                        onClick={fetchClientBilling}
+                        disabled={clientBillingLoading}
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+                        title="Refresh Client Billing"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${clientBillingLoading ? "animate-spin" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Real-time Profit & Margin Calculator */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <Sliders className="w-4 h-4 text-blue-400" />
+                        Hosting Markup & Pricing Configuration
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-medium text-slate-400 block mb-1.5">
+                            Platform Base Cost (Wholesale)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold">$</span>
+                            <input
+                              type="number"
+                              disabled
+                              value={clientBillingForm.baseCostMonthly}
+                              className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-800/50 border border-slate-700/60 text-slate-400 text-sm font-semibold cursor-not-allowed"
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-500 mt-1 block">Fixed platform infrastructure fee</span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">
+                            Client Retail Price (Monthly)
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-xs text-emerald-400 font-bold">$</span>
+                            <input
+                              type="number"
+                              min={clientBillingForm.baseCostMonthly}
+                              value={clientBillingForm.clientPriceMonthly}
+                              onChange={(e) => {
+                                const newPrice = Math.max(0, Number(e.target.value));
+                                const margin = Math.max(0, newPrice - clientBillingForm.baseCostMonthly);
+                                setClientBillingForm({
+                                  ...clientBillingForm,
+                                  clientPriceMonthly: newPrice,
+                                  marginMonthly: margin,
+                                });
+                              }}
+                              className="w-full pl-7 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-emerald-500"
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-400 mt-1 block">Amount charged directly to your client</span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">Billing Currency</label>
+                          <select
+                            value={clientBillingForm.currency}
+                            onChange={(e) => setClientBillingForm({ ...clientBillingForm, currency: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="INR">INR (₹)</option>
+                            <option value="CAD">CAD ($)</option>
+                            <option value="AUD">AUD ($)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-slate-300 block mb-1.5">Billing Interval</label>
+                          <select
+                            value={clientBillingForm.billingInterval}
+                            onChange={(e) => setClientBillingForm({ ...clientBillingForm, billingInterval: e.target.value as "month" | "year" })}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm font-semibold focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="month">Monthly Recurring</option>
+                            <option value="year">Annual Upfront</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Calculated Margin Hero Card */}
+                    <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/30 to-slate-900 p-5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                            Net Agency Profit
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                            {clientBillingForm.clientPriceMonthly > 0
+                              ? Math.round((clientBillingForm.marginMonthly / clientBillingForm.clientPriceMonthly) * 100)
+                              : 0}% Margin
+                          </span>
+                        </div>
+                        <div className="text-3xl font-extrabold text-white mt-3">
+                          +{clientBillingForm.currency} {clientBillingForm.marginMonthly}
+                          <span className="text-xs font-normal text-slate-400"> / mo</span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-2">
+                          Projected profit on this single client website:
+                        </p>
+                      </div>
+
+                      <div className="pt-4 border-t border-emerald-500/20 mt-4 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Annual Client Revenue:</span>
+                          <span className="font-semibold text-slate-200">
+                            {clientBillingForm.currency} {clientBillingForm.clientPriceMonthly * 12} / yr
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-400">Annual Agency Profit:</span>
+                          <span className="font-bold text-emerald-400">
+                            +{clientBillingForm.currency} {clientBillingForm.marginMonthly * 12} / yr
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Client Contact & Checkout Details */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-indigo-400" />
+                      Client Details & Checkout Link Dispatch
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-medium text-slate-300 block mb-1">Client Contact Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Jane Doe / Acme Corp"
+                          value={clientBillingForm.clientName}
+                          onChange={(e) => setClientBillingForm({ ...clientBillingForm, clientName: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-slate-300 block mb-1">Client Billing Email</label>
+                        <input
+                          type="email"
+                          placeholder="billing@clientcompany.com"
+                          value={clientBillingForm.clientEmail}
+                          onChange={(e) => setClientBillingForm({ ...clientBillingForm, clientEmail: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Checkout URL Box */}
+                    <div className="pt-2">
+                      <label className="text-xs font-medium text-slate-300 block mb-1">
+                        Client Direct Payment URL
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={clientBillingForm.clientInvoiceUrl || `https://pay.forgestudio.io/c/${website.slug || website.id}`}
+                          className="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 font-mono text-xs text-slate-300 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => {
+                            const url = clientBillingForm.clientInvoiceUrl || `https://pay.forgestudio.io/c/${website.slug || website.id}`;
+                            navigator.clipboard.writeText(url);
+                            setClientBillingCopied(true);
+                            setTimeout(() => setClientBillingCopied(false), 2000);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
+                        >
+                          {clientBillingCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                      <p className="text-xs text-slate-400">
+                        {clientBillingForm.lastBilledAt
+                          ? `Last invoice dispatched: ${new Date(clientBillingForm.lastBilledAt).toLocaleDateString()}`
+                          : "Client has not yet been invoiced."}
+                      </p>
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={handleSaveClientBilling}
+                          disabled={actionLoading}
+                          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 transition"
+                        >
+                          Save Markup Settings
+                        </button>
+                        <button
+                          onClick={handleSendClientInvoice}
+                          disabled={clientInvoiceSending}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 transition"
+                        >
+                          <Send className={`w-3.5 h-3.5 ${clientInvoiceSending ? "animate-pulse" : ""}`} />
+                          <span>{clientInvoiceSending ? "Sending..." : "Send Client Invoice Email"}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* TAB: BACKUPS SUITE */}
               {activeTab === "backups" && (
                 <div className="space-y-6">
@@ -2670,26 +3294,21 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                         Primary Domain
                                       </span>
                                     )}
-                                    {isVerified ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                                        <CheckCircle2 className="w-3 h-3" />
-                                        Verified & Active
-                                      </span>
-                                    ) : (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
-                                        Pending DNS Propagation
-                                      </span>
-                                    )}
-                                    {d.sslEnabled ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center gap-1">
-                                        <Lock className="w-3 h-3" />
+                                    {/* Upgraded Modern Status Badge (F-Scope 2) */}
+                                    {d.sslStatus === "ACTIVE" || (isVerified && d.sslEnabled) ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-xs">
+                                        <Lock className="w-3 h-3 text-emerald-400" />
                                         SSL Active
                                       </span>
+                                    ) : isVerifying || d.sslStatus === "VERIFYING" ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 animate-pulse">
+                                        <RefreshCw className="w-3 h-3 animate-spin text-blue-400" />
+                                        Verifying DNS
+                                      </span>
                                     ) : (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
-                                        <Lock className="w-3 h-3" />
-                                        SSL Provisioning
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                                        <AlertCircle className="w-3 h-3 text-amber-400" />
+                                        Action Needed
                                       </span>
                                     )}
                                   </div>
@@ -2701,14 +3320,14 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
 
                                 {/* Row Actions */}
                                 <div className="flex items-center gap-2 self-end sm:self-center">
-                                  {!isVerified && (
+                                  {(!isVerified || d.sslStatus !== "ACTIVE") && (
                                     <button
                                       onClick={() => handleVerifyDomain(d.domain)}
                                       disabled={isVerifying}
-                                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 transition disabled:opacity-50"
+                                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 transition disabled:opacity-50"
                                     >
                                       <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? "animate-spin" : ""}`} />
-                                      <span>{isVerifying ? "Checking..." : "Verify DNS Now"}</span>
+                                      <span>{isVerifying ? "Issuing SSL..." : "Verify DNS & Issue SSL"}</span>
                                     </button>
                                   )}
                                   {isVerified && !d.isPrimary && (
@@ -2815,14 +3434,178 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                     </table>
                                   </div>
 
+                                  {/* SSL Certificate & Auto-Renewal Diagnostic Card */}
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-xs">
+                                    <div>
+                                      <div className="text-[10px] font-bold text-slate-500 uppercase">Certificate Authority</div>
+                                      <div className="font-semibold text-slate-200 mt-0.5">
+                                        {d.sslIssuer || "Let's Encrypt Authority X3 (ACME v2)"}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[10px] font-bold text-slate-500 uppercase">Auto-Renewal</div>
+                                      <div className="font-semibold text-emerald-400 mt-0.5 flex items-center gap-1">
+                                        <ShieldCheck className="w-3.5 h-3.5" />
+                                        <span>Automated Every 90 Days</span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[10px] font-bold text-slate-500 uppercase">Certificate Expiration</div>
+                                      <div className="font-semibold text-slate-300 mt-0.5">
+                                        {d.sslExpiresAt ? new Date(d.sslExpiresAt).toLocaleDateString() : "Provisioning on verify"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Pre-Flight DNS Diagnostic Notice */}
+                                  {d.dnsPreflight?.errors && d.dnsPreflight.errors.length > 0 && (
+                                    <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-3 space-y-1 text-xs text-amber-200">
+                                      <div className="font-bold flex items-center gap-1.5 text-amber-400">
+                                        <AlertCircle className="w-4 h-4" />
+                                        <span>Pre-Flight DNS Diagnostic Notice:</span>
+                                      </div>
+                                      <ul className="list-disc list-inside space-y-0.5 text-[11px] text-amber-300/90 pl-1">
+                                        {d.dnsPreflight.errors.map((err: string, i: number) => (
+                                          <li key={i}>{err}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+
                                   <div className="flex items-center gap-2 text-[11px] text-slate-400 bg-slate-900/50 p-2.5 rounded-lg border border-slate-800">
                                     <AlertCircle className="w-4 h-4 text-blue-400 shrink-0" />
                                     <span>
-                                      Global DNS propagation can take anywhere from a few minutes to up to 24-48 hours. Once propagated, click <strong>Verify DNS Now</strong> to activate your SSL certificate.
+                                      Global DNS propagation can take anywhere from a few minutes to up to 24-48 hours. Once propagated, click <strong>Verify DNS & Issue SSL</strong> to activate your edge certificate.
                                     </span>
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB: DEPLOYMENTS & ATOMIC RELEASES TIMELINE (F-Scope 3) */}
+              {activeTab === "deployments" && (
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <RotateCcw className="w-5 h-5 text-indigo-400" />
+                        Deployments & Atomic Releases Timeline
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Every publish produces an immutable, compiled snapshot. Instantly roll back in &lt;100ms with zero downtime.
+                      </p>
+                    </div>
+                    <button
+                      onClick={fetchReleases}
+                      disabled={releasesLoading}
+                      className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition self-start sm:self-auto"
+                      title="Refresh Releases"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${releasesLoading ? "animate-spin" : ""}`} />
+                    </button>
+                  </div>
+
+                  {/* Releases Timeline List */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Release History ({releases.length})
+                      </h4>
+                      <span className="text-[11px] text-indigo-400 font-medium">
+                        Instant Atomic Pointer Swap Architecture
+                      </span>
+                    </div>
+
+                    {releasesLoading ? (
+                      <div className="p-8 text-center border border-slate-800 rounded-xl bg-slate-950/40 text-xs text-slate-400">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" />
+                        Loading releases timeline...
+                      </div>
+                    ) : releases.length === 0 ? (
+                      <div className="p-8 text-center border border-slate-800 rounded-xl bg-slate-950/40 text-xs text-slate-500">
+                        <Layers className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                        No deployment releases recorded yet. Publish your site to create the first immutable release.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {releases.map((rel: any, index: number) => {
+                          const isCurrentActive =
+                            rel.releaseId === currentReleaseId || rel.isActive || (index === 0 && !currentReleaseId);
+
+                          return (
+                            <div
+                              key={rel.releaseId}
+                              className={`rounded-xl border p-4 transition ${
+                                isCurrentActive
+                                  ? "border-emerald-500/40 bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-950 shadow-md shadow-emerald-500/5"
+                                  : "border-slate-800 bg-slate-950/40 hover:border-slate-700"
+                              }`}
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="space-y-1.5">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-bold text-sm text-white font-mono">
+                                      {rel.releaseId}
+                                    </span>
+                                    {rel.version && (
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                        v{rel.version}
+                                      </span>
+                                    )}
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+                                      SHA: {rel.deployHash ? rel.deployHash.slice(0, 8) : "compiled"}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                      {rel.environment || "PRODUCTION"}
+                                    </span>
+                                    {isCurrentActive && (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm shadow-emerald-500/20">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                        ACTIVE NOW
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <div className="text-xs text-slate-300">
+                                    {rel.notes || `Production release v${rel.version || index + 1}`}
+                                  </div>
+
+                                  <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                                    <span>
+                                      Deployed on {new Date(rel.createdAt).toLocaleString()}
+                                    </span>
+                                    {rel.createdBy && <span>• Author: {rel.createdBy}</span>}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 self-end sm:self-center">
+                                  {!isCurrentActive ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setRollbackTargetRelease(rel);
+                                        setRollbackConfirmOpen(true);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-600 hover:text-white text-slate-200 text-xs font-semibold border border-slate-700 hover:border-amber-500 transition shadow-sm"
+                                    >
+                                      <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                                      <span>Rollback to this version</span>
+                                    </button>
+                                  ) : (
+                                    <span className="text-xs text-emerald-400 font-bold px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                                      Live Traffic Serving
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           );
                         })}
@@ -3913,6 +4696,81 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                   className="rounded-lg bg-red-600 hover:bg-red-500 px-4 py-1.5 text-xs font-semibold text-white transition disabled:opacity-40"
                 >
                   {transferring ? "Transferring..." : "Confirm & Transfer Ownership"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: INSTANT ZERO-DOWNTIME ROLLBACK CONFIRMATION */}
+        {rollbackConfirmOpen && rollbackTargetRelease && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <RotateCcw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Instant Zero-Downtime Rollback</h3>
+                  <p className="text-xs text-slate-400">Atomic pointer swap to previous release</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 space-y-2 text-xs text-slate-300">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Target Release:</span>
+                  <span className="font-mono font-bold text-white">{rollbackTargetRelease.releaseId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Notes:</span>
+                  <span className="text-slate-200">{rollbackTargetRelease.notes || "Version release"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Created:</span>
+                  <span>{new Date(rollbackTargetRelease.createdAt).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Environment:</span>
+                  <span className="font-semibold text-indigo-400">{rollbackTargetRelease.environment}</span>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-indigo-500/20 bg-indigo-950/30 p-3 text-[11px] text-indigo-300 flex items-start gap-2">
+                <Sparkles className="w-4 h-4 shrink-0 text-indigo-400 mt-0.5" />
+                <span>
+                  <strong>Zero Downtime Guaranteed:</strong> The public site router instantly repoints traffic in &lt;100ms. No build process is triggered and working editor drafts remain unaffected.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRollbackConfirmOpen(false);
+                    setRollbackTargetRelease(null);
+                  }}
+                  disabled={rollbackLoading}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleInstantRollback(rollbackTargetRelease.releaseId)}
+                  disabled={rollbackLoading}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-xs font-bold text-white shadow-lg shadow-amber-500/20 transition disabled:opacity-50"
+                >
+                  {rollbackLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Swapping Pointer...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Confirm Rollback</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

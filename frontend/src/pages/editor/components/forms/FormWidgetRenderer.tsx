@@ -3,7 +3,92 @@ import type {
   FormWidgetConfig,
   FormFieldConfig,
   FieldColumnWidth,
+  FormConditionalLogic,
+  ConditionalRule,
 } from "../../../../types/form.types";
+
+/**
+ * Pure evaluator for a single rule condition against form values
+ */
+export function evaluateRuleCondition(
+  rule: ConditionalRule,
+  formValues: Record<string, any>,
+  allFields?: FormFieldConfig[]
+): boolean {
+  const triggerField = (allFields || []).find((f) => f.id === rule.fieldId);
+  const fieldKey = triggerField ? triggerField.name : rule.fieldId;
+  const rawValue =
+    formValues[fieldKey] !== undefined ? formValues[fieldKey] : formValues[rule.fieldId];
+
+  const valStr = rawValue !== undefined && rawValue !== null ? String(rawValue).trim() : "";
+  const targetStr =
+    rule.value !== undefined && rule.value !== null ? String(rule.value).trim() : "";
+
+  switch (rule.operator) {
+    case "equals":
+      return valStr.toLowerCase() === targetStr.toLowerCase();
+    case "not_equals":
+      return valStr.toLowerCase() !== targetStr.toLowerCase();
+    case "contains":
+      return valStr.toLowerCase().includes(targetStr.toLowerCase());
+    case "greater_than":
+      return Number(rawValue) > Number(rule.value);
+    case "less_than":
+      return Number(rawValue) < Number(rule.value);
+    case "is_empty":
+      return rawValue === undefined || rawValue === null || valStr === "";
+    case "is_not_empty":
+      return rawValue !== undefined && rawValue !== null && valStr !== "";
+    default:
+      return false;
+  }
+}
+
+/**
+ * Pure evaluator for field visibility and required status based on active form values
+ */
+export function evaluateFieldVisibility(
+  field: FormFieldConfig,
+  formValues: Record<string, any>,
+  logicRules?: FormConditionalLogic[],
+  allFields?: FormFieldConfig[]
+): { isVisible: boolean; isRequired: boolean } {
+  let isVisible = true;
+  let isRequired = field.required;
+
+  if (!logicRules || logicRules.length === 0) {
+    return { isVisible, isRequired };
+  }
+
+  const targetRules = logicRules.filter(
+    (l) => l.targetFieldId === field.id || l.targetFieldId === field.name
+  );
+
+  for (const block of targetRules) {
+    if (!block.rules || block.rules.length === 0) continue;
+
+    const matches = block.rules.map((r) =>
+      evaluateRuleCondition(r, formValues, allFields)
+    );
+
+    const isMatch =
+      block.matchType === "any" ? matches.some(Boolean) : matches.every(Boolean);
+
+    if (block.action === "show") {
+      isVisible = isMatch;
+    } else if (block.action === "hide") {
+      if (isMatch) {
+        isVisible = false;
+      }
+    } else if (block.action === "require") {
+      if (isMatch) {
+        isRequired = true;
+      }
+    }
+  }
+
+  return { isVisible, isRequired };
+}
 
 interface FormWidgetRendererProps {
   config: FormWidgetConfig;
@@ -96,8 +181,16 @@ export default function FormWidgetRenderer({
   const validateCurrentStep = (): boolean => {
     const newErrors: Record<string, string> = {};
     currentFields.forEach((field) => {
+      const { isVisible, isRequired } = evaluateFieldVisibility(
+        field,
+        formData,
+        config.conditionalLogic,
+        config.fields
+      );
+      if (!isVisible) return; // Do not validate hidden fields
+
       const val = formData[field.name];
-      const err = validateField(field, val);
+      const err = validateField({ ...field, required: isRequired }, val);
       if (err) {
         newErrors[field.name] = err;
       }
@@ -110,7 +203,25 @@ export default function FormWidgetRenderer({
   const handleNextStep = (e: React.MouseEvent) => {
     e.preventDefault();
     if (validateCurrentStep()) {
-      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+      let nextStep = currentStep + 1;
+      const skipRules = (config.conditionalLogic || []).filter(
+        (l) => l.action === "skip_to_step" && l.targetStepIndex !== undefined
+      );
+
+      for (const block of skipRules) {
+        const matches = block.rules.map((r) =>
+          evaluateRuleCondition(r, formData, config.fields)
+        );
+        const isMatch =
+          block.matchType === "any" ? matches.some(Boolean) : matches.every(Boolean);
+
+        if (isMatch && block.targetStepIndex !== undefined) {
+          nextStep = block.targetStepIndex;
+          break;
+        }
+      }
+
+      setCurrentStep(Math.min(Math.max(nextStep, 0), totalSteps - 1));
     }
   };
 
@@ -139,6 +250,8 @@ export default function FormWidgetRenderer({
         actions: config.actions,
         spamProtection: config.spamProtection,
         honeypotValue: honeypotVal,
+        conditionalLogic: config.conditionalLogic,
+        fieldConfigs: config.fields,
       };
 
       const res = await fetch(`${apiUrl}/api/forms/submit`, {
@@ -271,6 +384,14 @@ export default function FormWidgetRenderer({
         {/* Fields Grid Layout */}
         <div className="flex flex-wrap -mx-2 gap-y-4">
           {currentFields.map((field) => {
+            const { isVisible, isRequired } = evaluateFieldVisibility(
+              field,
+              formData,
+              config.conditionalLogic,
+              config.fields
+            );
+            if (!isVisible) return null;
+
             const hasError = !!errors[field.name];
             const widthClass = getWidthClass(field.width);
             const value = formData[field.name] ?? field.defaultValue ?? "";
@@ -290,7 +411,7 @@ export default function FormWidgetRenderer({
               <div key={field.id} className={`px-2 ${widthClass}`}>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                  {isRequired && <span className="text-red-500 ml-1">*</span>}
                 </label>
 
                 {field.type === "textarea" ? (

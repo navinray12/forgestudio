@@ -5,6 +5,8 @@ import {
   getWebsiteDeployments,
   getDeploymentById,
   rollbackDeployment,
+  getWebsiteReleases,
+  instantRollbackRelease,
 } from "../services/publishing.service.js";
 
 export async function validatePublishHandler(req: Request, res: Response, next: NextFunction) {
@@ -84,6 +86,42 @@ export async function rollbackDeploymentHandler(req: Request, res: Response, nex
       message: "Rollback deployment initiated successfully",
       ...result,
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/websites/:id/releases
+ * Returns versioned release timeline with active release pointer
+ */
+export async function getReleasesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const userId = res.locals.user?.id;
+
+    const result = await getWebsiteReleases(websiteId, userId);
+    return res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/releases/:releaseId/rollback
+ * Instant zero-downtime rollback in < 100ms
+ */
+export async function instantRollbackHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const releaseId = String(req.params.releaseId);
+    const userId = res.locals.user?.id;
+
+    const result = await instantRollbackRelease(websiteId, releaseId, userId);
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
