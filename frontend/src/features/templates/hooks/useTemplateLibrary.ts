@@ -59,7 +59,7 @@ export function useTemplateLibrary({ apiUrl }: UseTemplateLibraryParams) {
       ) {
         const itemCat = template.category || "Other";
         const catMatch = itemCat.toLowerCase() === selectedCategory.toLowerCase();
-        const typeMatch = template.type.toLowerCase() === selectedCategory.toLowerCase();
+        const typeMatch = template.type ? template.type.toLowerCase() === selectedCategory.toLowerCase() : false;
         if (!catMatch && !typeMatch) {
           return false;
         }

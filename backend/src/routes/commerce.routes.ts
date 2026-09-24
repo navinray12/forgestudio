@@ -17,6 +17,7 @@ import {
   calculateCart,
   wcExport,
   listOrders,
+  createOrder,
   updateOrderStatus,
 } from "../controllers/commerce.controller.js";
 
@@ -45,6 +46,7 @@ router.get("/:websiteId/commerce/wc-export", requireAuth, wcExport);
 
 // Orders
 router.get("/:websiteId/commerce/orders", requireAuth, listOrders);
+router.post("/:websiteId/commerce/orders", createOrder);
 router.patch("/:websiteId/commerce/orders/:orderId/status", requireAuth, updateOrderStatus);
 
 export default router;

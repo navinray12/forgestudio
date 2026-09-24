@@ -114,7 +114,19 @@ export class ReusableComponentService {
         return INITIAL_PRESETS;
       }
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : INITIAL_PRESETS;
+      if (!Array.isArray(parsed)) return INITIAL_PRESETS;
+
+      const seenNames = new Set<string>();
+      const uniqueList: ReusableComponentDefinition[] = [];
+      for (const item of parsed) {
+        if (!item || !item.name) continue;
+        const normalized = item.name.trim().toLowerCase();
+        if (!seenNames.has(normalized)) {
+          seenNames.add(normalized);
+          uniqueList.push(item);
+        }
+      }
+      return uniqueList.length > 0 ? uniqueList : INITIAL_PRESETS;
     } catch {
       return INITIAL_PRESETS;
     }

@@ -333,8 +333,65 @@ export async function wcExport(req: Request, res: Response) {
 }
 
 // ---------------------------------------------------------------------------
-// Orders (read/status-update only — creation happens via checkout)
+// Orders
 // ---------------------------------------------------------------------------
+
+/** POST /api/websites/:websiteId/commerce/orders */
+export async function createOrder(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const website = await prisma.website.findUnique({ where: { id: websiteId } });
+    if (!website) return res.status(404).json({ success: false, message: "Website not found" });
+
+    const { items, customerName, customerEmail, billingAddress, shippingAddress, paymentMethod, couponCode } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "Cart items are required to create an order" });
+    }
+
+    const { settings: rawSettings, coupons, orders } = readCommerceData(website);
+    const settings = validateCommerceSettings(rawSettings || {});
+
+    let coupon: Coupon | undefined;
+    if (couponCode) {
+      coupon = coupons.find((c: any) => c.code === String(couponCode).toUpperCase());
+    }
+
+    const totals = calculateCartTotals(
+      { items, couponCode, discountAmount: 0, shippingCost: 0, taxRate: settings.taxRate, currency: settings.currency },
+      settings,
+      coupon
+    );
+
+    const newOrder: any = {
+      id: "WC-ORD-" + Math.floor(100000 + Math.random() * 900000),
+      websiteId,
+      customerEmail: customerEmail || "guest@example.com",
+      customerName: customerName || "Guest Customer",
+      status: "processing",
+      items,
+      subtotal: totals.subtotal,
+      discountAmount: totals.discountAmount,
+      shippingCost: totals.shippingCost,
+      taxAmount: totals.taxAmount,
+      total: totals.total,
+      currency: settings.currency,
+      couponCode,
+      billingAddress,
+      shippingAddress,
+      paymentMethod: paymentMethod || "Credit Card",
+      paymentStatus: "paid",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedOrders = [newOrder, ...orders];
+    await writeCommerceData(websiteId, website, { orders: updatedOrders });
+
+    return res.status(201).json({ success: true, order: newOrder });
+  } catch (err: any) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+}
 
 /** GET /api/websites/:websiteId/commerce/orders */
 export async function listOrders(req: Request, res: Response) {

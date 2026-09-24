@@ -6,6 +6,10 @@ import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperM
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
 import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
+import { MultilingualExportModal } from "../../components/accessibility/MultilingualExportModal";
+import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
+import { AccessibilityStatementModal } from "../../components/accessibility/AccessibilityStatementModal";
+import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar";
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
@@ -16,6 +20,7 @@ import { RevisionHistoryPanel, revisionHistoryService } from "../../features/rev
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
 import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
 import { publishingService } from "../../features/publishing/services/publishingService";
+import { WooCommerceProvider } from "../../context/WooCommerceContext";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -257,6 +262,29 @@ import {
   WcProductImagesWidgetRenderer,
   WcAddToCartWidgetRenderer,
   WcProductRatingWidgetRenderer,
+  WcBuilderWidgetRenderer,
+  WcProductWidgetRenderer,
+  WcProductStockWidgetRenderer,
+  WcProductMetaWidgetRenderer,
+  WcProductContentWidgetRenderer,
+  WcShortDescriptionWidgetRenderer,
+  WcProductDataTabsWidgetRenderer,
+  WcAdditionalInfoWidgetRenderer,
+  WcRelatedProductsWidgetRenderer,
+  WcUpsellsWidgetRenderer,
+  WcProductsWidgetRenderer,
+  WcCustomAddToCartWidgetRenderer,
+  WcProductCategoriesWidgetRenderer,
+  WcMenuCartWidgetRenderer,
+  WcCartWidgetRenderer,
+  WcCheckoutWidgetRenderer,
+  WcMyAccountWidgetRenderer,
+  WcPurchaseSummaryWidgetRenderer,
+  WcNoticesWidgetRenderer,
+  WcShopLayoutsWidgetRenderer,
+  WcProductArchiveWidgetRenderer,
+  WcProductPageTemplatesWidgetRenderer,
+  WcProductArchiveTemplatesWidgetRenderer,
   SearchBarWidgetRenderer,
   ImportAssetWidgetRenderer,
   ReusableComponentWidgetRenderer,
@@ -288,6 +316,9 @@ export default function WebsiteEditor() {
   const [popups, setPopups] = useState<any[]>([]);
 
   const [isPopupManagerOpen, setIsPopupManagerOpen] = useState(false);
+  const [isSeoAnalyzerOpen, setIsSeoAnalyzerOpen] = useState(false);
+  const [isMultilingualModalOpen, setIsMultilingualModalOpen] = useState(false);
+  const [isStatementOpen, setIsStatementOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
@@ -1612,7 +1643,10 @@ export default function WebsiteEditor() {
 
   // Fetch Website Data
   useEffect(() => {
-    if (!websiteId) return;
+    if (!websiteId) {
+      setLoading(false);
+      return;
+    }
 
     const fetchWebsite = async () => {
       try {
@@ -6278,6 +6312,30 @@ export default function WebsiteEditor() {
           <WcProductRatingWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
+        {el.type === "wc-builder" && <WcBuilderWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product" && <WcProductWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-stock" && <WcProductStockWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-meta" && <WcProductMetaWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-content" && <WcProductContentWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-short-description" && <WcShortDescriptionWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-data-tabs" && <WcProductDataTabsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-additional-info" && <WcAdditionalInfoWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-related-products" && <WcRelatedProductsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-upsells" && <WcUpsellsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-products" && <WcProductsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-custom-add-to-cart" && <WcCustomAddToCartWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-categories" && <WcProductCategoriesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-menu-cart" && <WcMenuCartWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-cart" && <WcCartWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-checkout" && <WcCheckoutWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-my-account" && <WcMyAccountWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-purchase-summary" && <WcPurchaseSummaryWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-notices" && <WcNoticesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-shop-layouts" && <WcShopLayoutsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-archive" && <WcProductArchiveWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-page-templates" && <WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-archive-templates" && <WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+
         {el.type === "link-in-bio" && (() => {
           const links = el.bioLinks || [
             { id: "b1", label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
@@ -6533,6 +6591,7 @@ export default function WebsiteEditor() {
   }
 
   return (
+    <WooCommerceProvider websiteId={websiteId}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* ========================================== */}
       {/* Top Header Bar */}
@@ -8204,6 +8263,7 @@ export default function WebsiteEditor() {
                       <div className="space-y-1.5">
                         {Object.entries(components)
                           .filter(([_id, comp]) => !widgetLibrarySearch || comp.name.toLowerCase().includes(widgetLibrarySearch.toLowerCase()))
+                          .filter((entry, idx, arr) => arr.findIndex((([_, c]) => c.name.trim().toLowerCase() === entry[1].name.trim().toLowerCase())) === idx)
                           .map(([compId, comp]) => (
                             <div
                               key={compId}
@@ -17568,7 +17628,7 @@ export default function WebsiteEditor() {
                   </div>
                 </div>
 
-                {/* Site / Website Published Language (F-022) */}
+                {/* Site / Website Published Language (F-022 & F-379) */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
                     <span>{t("siteLang", "Site Language (Published)")}</span>
@@ -17585,10 +17645,101 @@ export default function WebsiteEditor() {
                     <option value="de">German (de)</option>
                     <option value="it">Italian (it)</option>
                     <option value="ja">Japanese (ja)</option>
+                    <option value="ar">Arabic (ar - RTL)</option>
+                    <option value="he">Hebrew (he - RTL)</option>
+                    <option value="ta">Tamil (ta)</option>
                   </select>
                   <p className="mt-1 text-[10px] text-slate-400">
                     Controls published HTML website language. Completely independent from Editor UI language.
                   </p>
+                </div>
+
+                {/* F-380: Site Layout Direction (RTL / LTR) */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Site Layout Direction (F-380 RTL)</span>
+                    <span className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded">dir</span>
+                  </label>
+                  <select
+                    value={pageSettings.siteDirection || "ltr"}
+                    onChange={(e) => setPageSettings((prev) => ({ ...prev, siteDirection: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                  >
+                    <option value="ltr">Left-to-Right (LTR - Standard)</option>
+                    <option value="rtl">Right-to-Left (RTL - Arabic, Hebrew, Urdu)</option>
+                  </select>
+                  <p className="mt-1 text-[10px] text-slate-400">
+                    Mirrors published website text direction and layout alignment for RTL languages.
+                  </p>
+                </div>
+
+                {/* Action Buttons for Accessibility Audit & Multilingual Export */}
+                <div className="space-y-2 pt-2 border-t border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setIsSeoAnalyzerOpen(true)}
+                    className="w-full py-2 px-3 rounded-lg bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    <span>✨</span>
+                    <span>Run WCAG & SEO Audit (F-363/F-371)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsMultilingualModalOpen(true)}
+                    className="w-full py-2 px-3 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 font-bold text-xs hover:bg-purple-100 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>🌐</span>
+                    <span>Multilingual Export (F-381 WPML/Weglot)</span>
+                  </button>
+                </div>
+
+                {/* Accessibility & Usability Widget Settings (F-364, F-367) */}
+                <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between border-b border-indigo-100 pb-2">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>♿</span>
+                      <span>Accessibility Widget (F-364 / F-367)</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full">
+                      WCAG 2.1
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-700">Enable Floating Toolbar Widget</span>
+                      <input
+                        type="checkbox"
+                        checked={globalSettings?.accessibilityWidget?.enabled !== false}
+                        onChange={(e) =>
+                          setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            accessibilityWidget: { ...prev?.accessibilityWidget, enabled: e.target.checked },
+                          }))
+                        }
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Widget Corner Position</label>
+                      <select
+                        value={globalSettings?.accessibilityWidget?.position || "bottom-right"}
+                        onChange={(e) =>
+                          setGlobalSettings((prev: any) => ({
+                            ...prev,
+                            accessibilityWidget: { ...prev?.accessibilityWidget, position: e.target.value },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
+                      >
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-left">Top Left</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Page Canvas Background Color */}
@@ -18498,7 +18649,7 @@ export default function WebsiteEditor() {
             devModalMode === "css-selectors" ? selectedElement?.customSelectors :
               devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
                 devModalMode === "page-css" ? pageCss :
-                  devModalMode === "global-css" ? globalSettings.customCss :
+                  devModalMode === "global-css" ? globalSettings?.customCss :
                     ""
         }
         onSave={(val) => {
@@ -18849,6 +19000,46 @@ export default function WebsiteEditor() {
           handleSave();
         }}
       />
+
+      {/* F-363 & F-371: SEO & WCAG Accessibility Audit Modal */}
+      <SeoAnalyzerModal
+        isOpen={isSeoAnalyzerOpen}
+        onClose={() => setIsSeoAnalyzerOpen(false)}
+        websiteId={websiteId || ""}
+        activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
+        allPages={pages}
+        websiteData={website}
+        onSelectElement={(elId) => {
+          setSelectedId(elId);
+        }}
+        onUpdateElementProp={(elId, propKey, propVal) => {
+          setElements((prev) => updateTreeElement(prev, elId, (item) => ({ ...item, [propKey]: propVal })));
+        }}
+        onUpdatePageSettings={(updater) => {
+          setPageSettings((prev) => updater(prev));
+        }}
+      />
+
+      {/* F-381: Multilingual Plugin Compatibility Modal */}
+      <MultilingualExportModal
+        isOpen={isMultilingualModalOpen}
+        onClose={() => setIsMultilingualModalOpen(false)}
+        activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
+        websiteData={website}
+      />
+
+      {/* F-364 & F-376: Visitor Accessibility Usability Toolbar & Reading Guide */}
+      <ReadingGuideBar />
+      <AccessibilityWidget
+        config={globalSettings?.accessibilityWidget}
+        onOpenStatement={() => setIsStatementOpen(true)}
+      />
+      <AccessibilityStatementModal
+        isOpen={isStatementOpen}
+        onClose={() => setIsStatementOpen(false)}
+        organizationName={globalSettings?.siteIdentity?.name || website?.name || "Website"}
+      />
     </div>
+    </WooCommerceProvider>
   );
 }

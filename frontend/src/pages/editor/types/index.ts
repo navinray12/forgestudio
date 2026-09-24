@@ -19,8 +19,13 @@ export type ElementType =
   | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets"
   | "reusable-components" | "basic-media-carousel" | "basic-gallery"
   | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library"
-  | "wc-product-title" | "wc-product-price" | "wc-product-images"
-  | "wc-add-to-cart" | "wc-product-rating" | "wp-menu" | "menu-widget"
+  | "wc-builder" | "wc-product" | "wc-product-title" | "wc-product-images" | "wc-product-price"
+  | "wc-add-to-cart" | "wc-product-rating" | "wc-product-stock" | "wc-product-meta" | "wc-product-content"
+  | "wc-short-description" | "wc-product-data-tabs" | "wc-additional-info" | "wc-related-products" | "wc-upsells"
+  | "wc-products" | "wc-custom-add-to-cart" | "wc-product-categories" | "wc-menu-cart" | "wc-cart"
+  | "wc-checkout" | "wc-my-account" | "wc-purchase-summary" | "wc-notices" | "wc-shop-layouts"
+  | "wc-product-archive" | "wc-product-page-templates" | "wc-product-archive-templates"
+  | "wp-menu" | "menu-widget"
   | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
   | "site-search" | "search-form" | "taxonomy-filter"
   | "facebook-integration" | "facebook-feed" | "facebook-like-button"
@@ -205,12 +210,35 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "custom-svg", name: "SVG / Custom Icon", category: "Media", icon: "⚡", description: "Sanitized custom SVG vector graphic asset viewer" },
   { type: "icon-library", name: "Icon Library", category: "Media", icon: "🎨", description: "Searchable ready-to-use vector icon picker library" },
 
-  // WooCommerce Store Widgets
+  // WooCommerce Store Widgets (F-292 to F-319)
+  { type: "wc-builder", name: "WooCommerce Builder", category: "Commerce", icon: "🏪", description: "Main e-commerce builder & WooCommerce store settings container" },
+  { type: "wc-product", name: "Single Product Card", category: "Commerce", icon: "📦", description: "Displays a selected single product container card" },
   { type: "wc-product-title", name: "Product Title", category: "Commerce", icon: "🏷️", description: "Displays WooCommerce product title" },
-  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
   { type: "wc-product-images", name: "Product Images", category: "Commerce", icon: "🖼️", description: "Displays main product gallery & thumbnails" },
+  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
   { type: "wc-add-to-cart", name: "Add to Cart", category: "Commerce", icon: "🛒", description: "Customizable purchase & add to cart button" },
   { type: "wc-product-rating", name: "Product Rating", category: "Commerce", icon: "⭐", description: "Displays product review star rating" },
+  { type: "wc-product-stock", name: "Product Stock Status", category: "Commerce", icon: "📦", description: "Displays current stock availability & status" },
+  { type: "wc-product-meta", name: "Product Meta", category: "Commerce", icon: "🔖", description: "Displays SKU, category & tag product metadata" },
+  { type: "wc-product-content", name: "Product Content", category: "Commerce", icon: "📄", description: "Full product description content area" },
+  { type: "wc-short-description", name: "Short Description", category: "Commerce", icon: "📝", description: "Brief product summary description" },
+  { type: "wc-product-data-tabs", name: "Product Data Tabs", category: "Commerce", icon: "🗂️", description: "Product info, reviews & specification tabs" },
+  { type: "wc-additional-info", name: "Additional Info", category: "Commerce", icon: "📋", description: "Product attributes & additional specifications table" },
+  { type: "wc-related-products", name: "Related Products", category: "Commerce", icon: "🔄", description: "Recommended related products grid" },
+  { type: "wc-upsells", name: "Upsells & Cross-sells", category: "Commerce", icon: "📈", description: "Configured upsell & cross-sell products carousel" },
+  { type: "wc-products", name: "Products Query Grid", category: "Commerce", icon: "🛍️", description: "Filterable store products grid catalogue" },
+  { type: "wc-custom-add-to-cart", name: "Custom Add to Cart", category: "Commerce", icon: "➕", description: "Custom purchase control with quantity selector" },
+  { type: "wc-product-categories", name: "Product Categories", category: "Commerce", icon: "🗂️", description: "Store product categories grid & list" },
+  { type: "wc-menu-cart", name: "Menu Cart Drawer", category: "Commerce", icon: "🛍️", description: "Navigation menu cart count badge & drawer" },
+  { type: "wc-cart", name: "Shopping Cart", category: "Commerce", icon: "🛒", description: "Full shopping cart page & item list" },
+  { type: "wc-checkout", name: "Checkout Form", category: "Commerce", icon: "💳", description: "Customer checkout form & payment gateway fields" },
+  { type: "wc-my-account", name: "My Account Dashboard", category: "Commerce", icon: "👤", description: "Customer dashboard & order tracking" },
+  { type: "wc-purchase-summary", name: "Purchase Summary", category: "Commerce", icon: "🧾", description: "Order confirmation receipt & purchase summary" },
+  { type: "wc-notices", name: "WooCommerce Notices", category: "Commerce", icon: "⚠️", description: "Store notifications, messages & checkout alerts" },
+  { type: "wc-shop-layouts", name: "Shop Layout Switcher", category: "Commerce", icon: "📐", description: "Grid / List shop layout control" },
+  { type: "wc-product-archive", name: "Product Archive", category: "Commerce", icon: "📁", description: "Product archive & category catalog listing" },
+  { type: "wc-product-page-templates", name: "Product Page Template", category: "Commerce", icon: "🔲", description: "Single product page layout template layout" },
+  { type: "wc-product-archive-templates", name: "Product Archive Template", category: "Commerce", icon: "🗄️", description: "Product archive layout template" },
 
   // Commerce
   { type: "paypal-button", name: "PayPal Button", category: "Commerce", icon: "💳", description: "Direct PayPal express checkout button" },
