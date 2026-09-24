@@ -44,8 +44,6 @@ import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
-import blockPatternRoutes from "./routes/blockPattern.routes.js";
-import blockTemplateRoutes from "./routes/blockTemplate.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
@@ -160,10 +158,6 @@ app.use("/api/v1/design-notes", designNotesRoutes);
 app.use("/api/design-notes", designNotesRoutes);
 app.use("/api/v1/component-access", componentAccessRoutes);
 app.use("/api/component-access", componentAccessRoutes);
-app.use("/api/v1/blocks", blockPatternRoutes);
-app.use("/api/blocks", blockPatternRoutes);
-app.use("/api/v1/blocks", blockTemplateRoutes);
-app.use("/api/blocks", blockTemplateRoutes);
 
 
 
