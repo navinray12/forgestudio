@@ -49,6 +49,7 @@ import {
   getWordPressStatusHandler,
   verifyWordPressHandler,
   disconnectWordPressHandler,
+  revokeWordPressHandler,
   syncWordPressPagesHandler,
   handleWordPressWebhook,
   getAcfFieldsHandler,
@@ -56,6 +57,103 @@ import {
   getPodsFieldsHandler,
   syncGutenbergBlocksHandler,
   getMultisiteSitesHandler,
+  downloadPluginHandler,
+  getWordPressSiteInfoHandler,
+  getWordPressSiteHealthHandler,
+  listWordPressPagesHandler,
+  getWordPressPageHandler,
+  createWordPressPageHandler,
+  updateWordPressPageHandler,
+  deleteWordPressPageHandler,
+  duplicateWordPressPageHandler,
+  reorderWordPressPageHandler,
+  uploadWordPressMediaHandler,
+  listWordPressMediaHandler,
+  getWordPressMediaHandler,
+  updateWordPressMediaHandler,
+  deleteWordPressMediaHandler,
+  publishWordPressPageHandler,
+  getWordPressPublishStatusHandler,
+  getWordPressRollbackTargetsHandler,
+  rollbackWordPressPageHandler,
+  createWordPressPublishJobHandler,
+  getWordPressPublishJobStatusHandler,
+  listWordPressPublishJobsHandler,
+  cancelWordPressPublishJobHandler,
+  retryWordPressPublishJobHandler,
+  previewWordPressHtmlHandler,
+  previewWordPressGutenbergHandler,
+  getWordPressFormsCapabilitiesHandler,
+  listWordPressFormsHandler,
+  getWordPressFormHandler,
+  createWordPressFormHandler,
+  updateWordPressFormHandler,
+  deleteWordPressFormHandler,
+  syncWordPressFormHandler,
+  submitWordPressFormHandler,
+  getWordPressFormSubmissionsHandler,
+  deleteWordPressFormSubmissionHandler,
+  getWordPressSeoCapabilitiesHandler,
+  getWordPressPageSeoHandler,
+  updateWordPressPageSeoHandler,
+  syncWordPressPageSeoHandler,
+  reconcileWordPressPageSeoHandler,
+  getWordPressAnalyticsCapabilitiesHandler,
+  getWordPressAnalyticsConfigHandler,
+  updateWordPressAnalyticsConfigHandler,
+  getWordPressAnalyticsDataHandler,
+  syncWordPressAnalyticsHandler,
+  reconcileWordPressAnalyticsConfigHandler,
+  getWordPressMenuCapabilitiesHandler,
+  listWordPressMenusHandler,
+  getWordPressMenuHandler,
+  createWordPressMenuHandler,
+  updateWordPressMenuHandler,
+  deleteWordPressMenuHandler,
+  listWordPressMenuItemsHandler,
+  createWordPressMenuItemHandler,
+  updateWordPressMenuItemHandler,
+  deleteWordPressMenuItemHandler,
+  reorderWordPressMenuItemsHandler,
+  getWordPressMenuLocationsHandler,
+  assignWordPressMenuLocationHandler,
+  syncWordPressMenusHandler,
+  reconcileWordPressMenuHandler,
+  getWordPressWebhookCapabilitiesHandler,
+  listWordPressWebhooksHandler,
+  getWordPressWebhookHandler,
+  createWordPressWebhookHandler,
+  updateWordPressWebhookHandler,
+  deleteWordPressWebhookHandler,
+  enableWordPressWebhookHandler,
+  disableWordPressWebhookHandler,
+  listWordPressWebhookDeliveriesHandler,
+  handleIncomingWordPressWebhookDeliveryHandler,
+  getWordPressPluginCapabilitiesHandler,
+  listWordPressPluginsHandler,
+  getWordPressPluginDetailsHandler,
+  activateWordPressPluginHandler,
+  deactivateWordPressPluginHandler,
+  updateWordPressPluginHandler,
+  deleteWordPressPluginHandler,
+  installWordPressPluginHandler,
+  reconcileWordPressPluginMutationHandler,
+  getWordPressThemeCapabilitiesHandler,
+  listWordPressThemesHandler,
+  getActiveWordPressThemeHandler,
+  getWordPressThemeDetailsHandler,
+  activateWordPressThemeHandler,
+  updateWordPressThemeHandler,
+  deleteWordPressThemeHandler,
+  installWordPressThemeHandler,
+  reconcileWordPressThemeMutationHandler,
+  getWordPressCacheCapabilitiesHandler,
+  getWordPressCacheStatusHandler,
+  purgeWordPressCacheHandler,
+  clearWordPressCacheHandler,
+  warmWordPressCacheHandler,
+  getWordPressCacheGroupsHandler,
+  reconcileWordPressCacheOperationHandler,
 } from "../controllers/wordpress.controller.js";
 import {
   schedulePublishHandler,
@@ -136,16 +234,154 @@ router.post("/:id/wordpress/database/optimize", authorizeCapability("MANAGE_INTE
 
 
 // WordPress Connector API
+router.get("/:id/wordpress/download-plugin", authorizeCapability("VIEW"), downloadPluginHandler);
 router.post("/:id/wordpress/connect", authorizeCapability("MANAGE_INTEGRATIONS"), connectWordPressHandler);
 router.get("/:id/wordpress/status", authorizeCapability("VIEW"), getWordPressStatusHandler);
+router.get("/:id/wordpress/connection", authorizeCapability("VIEW"), getWordPressStatusHandler);
+router.get("/:id/wordpress/site-info", authorizeCapability("VIEW"), getWordPressSiteInfoHandler);
+router.get("/:id/wordpress/site-health", authorizeCapability("VIEW"), getWordPressSiteHealthHandler);
+router.get("/:id/wordpress/pages", authorizeCapability("VIEW"), listWordPressPagesHandler);
+router.get("/:id/wordpress/pages/:pageId", authorizeCapability("VIEW"), getWordPressPageHandler);
+router.post("/:id/wordpress/pages", authorizeCapability("EDIT"), createWordPressPageHandler);
+router.patch("/:id/wordpress/pages/:pageId", authorizeCapability("EDIT"), updateWordPressPageHandler);
+router.put("/:id/wordpress/pages/:pageId", authorizeCapability("EDIT"), updateWordPressPageHandler);
+router.delete("/:id/wordpress/pages/:pageId", authorizeCapability("DELETE"), deleteWordPressPageHandler);
+router.post("/:id/wordpress/pages/:pageId/duplicate", authorizeCapability("EDIT"), duplicateWordPressPageHandler);
+router.patch("/:id/wordpress/pages/:pageId/reorder", authorizeCapability("EDIT"), reorderWordPressPageHandler);
+router.get("/:id/wordpress/media", authorizeCapability("VIEW"), listWordPressMediaHandler);
+router.get("/:id/wordpress/media/:mediaId", authorizeCapability("VIEW"), getWordPressMediaHandler);
+router.post("/:id/wordpress/media", authorizeCapability("EDIT"), uploadWordPressMediaHandler);
+router.put("/:id/wordpress/media/:mediaId", authorizeCapability("EDIT"), updateWordPressMediaHandler);
+router.patch("/:id/wordpress/media/:mediaId", authorizeCapability("EDIT"), updateWordPressMediaHandler);
+router.delete("/:id/wordpress/media/:mediaId", authorizeCapability("DELETE"), deleteWordPressMediaHandler);
 router.post("/:id/wordpress/verify", authorizeCapability("MANAGE_INTEGRATIONS"), verifyWordPressHandler);
 router.post("/:id/wordpress/disconnect", authorizeCapability("MANAGE_INTEGRATIONS"), disconnectWordPressHandler);
+router.post("/:id/wordpress/revoke", authorizeCapability("MANAGE_INTEGRATIONS"), revokeWordPressHandler);
 router.post("/:id/wordpress/sync-pages", authorizeCapability("MANAGE_INTEGRATIONS"), syncWordPressPagesHandler);
 router.get("/:id/wordpress/acf-fields", authorizeCapability("VIEW"), getAcfFieldsHandler);
 router.get("/:id/wordpress/toolset-fields", authorizeCapability("VIEW"), getToolsetFieldsHandler);
 router.get("/:id/wordpress/pods-fields", authorizeCapability("VIEW"), getPodsFieldsHandler);
 router.post("/:id/wordpress/gutenberg-sync", authorizeCapability("MANAGE_INTEGRATIONS"), syncGutenbergBlocksHandler);
 router.get("/:id/wordpress/multisite-sites", authorizeCapability("VIEW"), getMultisiteSitesHandler);
+router.post("/:id/wordpress/publish-page", authorizeCapability("PUBLISH"), publishWordPressPageHandler);
+router.post("/:id/wordpress/publish-wp", authorizeCapability("PUBLISH"), publishWordPressPageHandler);
+router.get("/:id/wordpress/pages/:pageId/publish-status", authorizeCapability("VIEW"), getWordPressPublishStatusHandler);
+router.get("/:id/wordpress/publish-status", authorizeCapability("VIEW"), getWordPressPublishStatusHandler);
+router.get("/:id/wordpress/pages/:pageId/rollback-targets", authorizeCapability("PUBLISH"), getWordPressRollbackTargetsHandler);
+router.get("/:id/wordpress/rollback-targets", authorizeCapability("PUBLISH"), getWordPressRollbackTargetsHandler);
+router.post("/:id/wordpress/pages/:pageId/rollback", authorizeCapability("PUBLISH"), rollbackWordPressPageHandler);
+router.post("/:id/wordpress/rollback", authorizeCapability("PUBLISH"), rollbackWordPressPageHandler);
+
+// WordPress Publishing Jobs (F-498)
+router.post("/:id/wordpress/pages/:pageId/jobs", authorizeCapability("PUBLISH"), createWordPressPublishJobHandler);
+router.post("/:id/wordpress/jobs", authorizeCapability("PUBLISH"), createWordPressPublishJobHandler);
+router.get("/:id/wordpress/pages/:pageId/jobs", authorizeCapability("VIEW"), listWordPressPublishJobsHandler);
+router.get("/:id/wordpress/jobs", authorizeCapability("VIEW"), listWordPressPublishJobsHandler);
+router.get("/:id/wordpress/jobs/:jobId", authorizeCapability("VIEW"), getWordPressPublishJobStatusHandler);
+router.post("/:id/wordpress/jobs/:jobId/cancel", authorizeCapability("PUBLISH"), cancelWordPressPublishJobHandler);
+router.post("/:id/wordpress/jobs/:jobId/retry", authorizeCapability("PUBLISH"), retryWordPressPublishJobHandler);
+
+// WordPress HTML Publishing Preview (F-499)
+router.post("/:id/wordpress/pages/:pageId/preview-html", authorizeCapability("VIEW"), previewWordPressHtmlHandler);
+router.post("/:id/wordpress/preview-html", authorizeCapability("VIEW"), previewWordPressHtmlHandler);
+router.get("/:id/wordpress/pages/:pageId/preview-html", authorizeCapability("VIEW"), previewWordPressHtmlHandler);
+router.get("/:id/wordpress/preview-html", authorizeCapability("VIEW"), previewWordPressHtmlHandler);
+
+// WordPress Gutenberg Block Publishing Preview (F-500)
+router.post("/:id/wordpress/pages/:pageId/preview-gutenberg", authorizeCapability("VIEW"), previewWordPressGutenbergHandler);
+router.post("/:id/wordpress/preview-gutenberg", authorizeCapability("VIEW"), previewWordPressGutenbergHandler);
+router.get("/:id/wordpress/pages/:pageId/preview-gutenberg", authorizeCapability("VIEW"), previewWordPressGutenbergHandler);
+router.get("/:id/wordpress/preview-gutenberg", authorizeCapability("VIEW"), previewWordPressGutenbergHandler);
+
+// WordPress Forms API (F-501)
+router.get("/:id/wordpress/forms/capabilities", authorizeCapability("VIEW"), getWordPressFormsCapabilitiesHandler);
+router.get("/:id/wordpress/forms", authorizeCapability("VIEW"), listWordPressFormsHandler);
+router.get("/:id/wordpress/forms/:formId", authorizeCapability("VIEW"), getWordPressFormHandler);
+router.post("/:id/wordpress/forms", authorizeCapability("EDIT"), createWordPressFormHandler);
+router.put("/:id/wordpress/forms/:formId", authorizeCapability("EDIT"), updateWordPressFormHandler);
+router.delete("/:id/wordpress/forms/:formId", authorizeCapability("DELETE"), deleteWordPressFormHandler);
+router.post("/:id/wordpress/forms/:formId/sync", authorizeCapability("PUBLISH"), syncWordPressFormHandler);
+router.post("/:id/wordpress/forms/:formId/submit", submitWordPressFormHandler);
+router.get("/:id/wordpress/forms/:formId/submissions", authorizeCapability("VIEW"), getWordPressFormSubmissionsHandler);
+router.delete("/:id/wordpress/forms/:formId/submissions/:submissionId", authorizeCapability("DELETE"), deleteWordPressFormSubmissionHandler);
+
+// WordPress SEO API (F-502)
+router.get("/:id/wordpress/seo/capabilities", authorizeCapability("VIEW"), getWordPressSeoCapabilitiesHandler);
+router.get("/:id/wordpress/seo/pages/:pageId", authorizeCapability("VIEW"), getWordPressPageSeoHandler);
+router.put("/:id/wordpress/seo/pages/:pageId", authorizeCapability("EDIT_SEO"), updateWordPressPageSeoHandler);
+router.post("/:id/wordpress/seo/pages/:pageId/sync", authorizeCapability("PUBLISH"), syncWordPressPageSeoHandler);
+router.post("/:id/wordpress/seo/pages/:pageId/reconcile", authorizeCapability("PUBLISH"), reconcileWordPressPageSeoHandler);
+
+// WordPress Analytics API (F-503)
+router.get("/:id/wordpress/analytics/capabilities", authorizeCapability("VIEW"), getWordPressAnalyticsCapabilitiesHandler);
+router.get("/:id/wordpress/analytics/config", authorizeCapability("VIEW"), getWordPressAnalyticsConfigHandler);
+router.put("/:id/wordpress/analytics/config", authorizeCapability("EDIT_ANALYTICS"), updateWordPressAnalyticsConfigHandler);
+router.get("/:id/wordpress/analytics", authorizeCapability("VIEW"), getWordPressAnalyticsDataHandler);
+router.post("/:id/wordpress/analytics/sync", authorizeCapability("PUBLISH"), syncWordPressAnalyticsHandler);
+router.post("/:id/wordpress/analytics/reconcile", authorizeCapability("PUBLISH"), reconcileWordPressAnalyticsConfigHandler);
+
+// WordPress Menus API (F-504)
+router.get("/:id/wordpress/menus/capabilities", authorizeCapability("VIEW"), getWordPressMenuCapabilitiesHandler);
+router.get("/:id/wordpress/menus", authorizeCapability("VIEW"), listWordPressMenusHandler);
+router.post("/:id/wordpress/menus", authorizeCapability("EDIT"), createWordPressMenuHandler);
+router.get("/:id/wordpress/menus/locations", authorizeCapability("VIEW"), getWordPressMenuLocationsHandler);
+router.post("/:id/wordpress/menus/locations", authorizeCapability("EDIT"), assignWordPressMenuLocationHandler);
+router.get("/:id/wordpress/menus/:menuId", authorizeCapability("VIEW"), getWordPressMenuHandler);
+router.put("/:id/wordpress/menus/:menuId", authorizeCapability("EDIT"), updateWordPressMenuHandler);
+router.delete("/:id/wordpress/menus/:menuId", authorizeCapability("DELETE"), deleteWordPressMenuHandler);
+router.get("/:id/wordpress/menus/:menuId/items", authorizeCapability("VIEW"), listWordPressMenuItemsHandler);
+router.post("/:id/wordpress/menus/:menuId/items", authorizeCapability("EDIT"), createWordPressMenuItemHandler);
+router.put("/:id/wordpress/menus/:menuId/items/reorder", authorizeCapability("EDIT"), reorderWordPressMenuItemsHandler);
+router.put("/:id/wordpress/menus/:menuId/items/:itemId", authorizeCapability("EDIT"), updateWordPressMenuItemHandler);
+router.delete("/:id/wordpress/menus/:menuId/items/:itemId", authorizeCapability("DELETE"), deleteWordPressMenuItemHandler);
+router.post("/:id/wordpress/menus/:menuId/sync", authorizeCapability("PUBLISH"), syncWordPressMenusHandler);
+router.post("/:id/wordpress/menus/:menuId/reconcile", authorizeCapability("PUBLISH"), reconcileWordPressMenuHandler);
+
+// F-505 — WordPress Webhooks API Routes
+router.get("/:id/wordpress/webhooks/capabilities", authorizeCapability("VIEW"), getWordPressWebhookCapabilitiesHandler);
+router.get("/:id/wordpress/webhooks", authorizeCapability("VIEW"), listWordPressWebhooksHandler);
+router.post("/:id/wordpress/webhooks", authorizeCapability("EDIT"), createWordPressWebhookHandler);
+router.post("/:id/wordpress/webhooks/delivery", handleIncomingWordPressWebhookDeliveryHandler);
+router.get("/:id/wordpress/webhooks/:webhookId", authorizeCapability("VIEW"), getWordPressWebhookHandler);
+router.put("/:id/wordpress/webhooks/:webhookId", authorizeCapability("EDIT"), updateWordPressWebhookHandler);
+router.delete("/:id/wordpress/webhooks/:webhookId", authorizeCapability("DELETE"), deleteWordPressWebhookHandler);
+router.post("/:id/wordpress/webhooks/:webhookId/enable", authorizeCapability("EDIT"), enableWordPressWebhookHandler);
+router.post("/:id/wordpress/webhooks/:webhookId/disable", authorizeCapability("EDIT"), disableWordPressWebhookHandler);
+router.get("/:id/wordpress/webhooks/:webhookId/deliveries", authorizeCapability("VIEW"), listWordPressWebhookDeliveriesHandler);
+
+// F-506 — WordPress Plugins API Routes
+router.get("/:id/wordpress/plugins/capabilities", authorizeCapability("VIEW"), getWordPressPluginCapabilitiesHandler);
+router.get("/:id/wordpress/plugins", authorizeCapability("VIEW"), listWordPressPluginsHandler);
+router.post("/:id/wordpress/plugins/install", authorizeCapability("EDIT"), installWordPressPluginHandler);
+router.get("/:id/wordpress/plugins/:pluginId", authorizeCapability("VIEW"), getWordPressPluginDetailsHandler);
+router.post("/:id/wordpress/plugins/:pluginId/activate", authorizeCapability("EDIT"), activateWordPressPluginHandler);
+router.post("/:id/wordpress/plugins/:pluginId/deactivate", authorizeCapability("EDIT"), deactivateWordPressPluginHandler);
+router.post("/:id/wordpress/plugins/:pluginId/update", authorizeCapability("EDIT"), updateWordPressPluginHandler);
+router.delete("/:id/wordpress/plugins/:pluginId", authorizeCapability("DELETE"), deleteWordPressPluginHandler);
+router.post("/:id/wordpress/plugins/:pluginId/reconcile", authorizeCapability("EDIT"), reconcileWordPressPluginMutationHandler);
+
+// F-507 — WordPress Themes API Routes
+router.get("/:id/wordpress/themes/capabilities", authorizeCapability("VIEW"), getWordPressThemeCapabilitiesHandler);
+router.get("/:id/wordpress/themes", authorizeCapability("VIEW"), listWordPressThemesHandler);
+router.get("/:id/wordpress/themes/active", authorizeCapability("VIEW"), getActiveWordPressThemeHandler);
+router.post("/:id/wordpress/themes/install", authorizeCapability("EDIT"), installWordPressThemeHandler);
+router.get("/:id/wordpress/themes/:themeId", authorizeCapability("VIEW"), getWordPressThemeDetailsHandler);
+router.post("/:id/wordpress/themes/:themeId/activate", authorizeCapability("EDIT"), activateWordPressThemeHandler);
+router.post("/:id/wordpress/themes/:themeId/update", authorizeCapability("EDIT"), updateWordPressThemeHandler);
+router.delete("/:id/wordpress/themes/:themeId", authorizeCapability("DELETE"), deleteWordPressThemeHandler);
+router.post("/:id/wordpress/themes/:themeId/reconcile", authorizeCapability("EDIT"), reconcileWordPressThemeMutationHandler);
+
+// F-508 — WordPress Cache API Routes
+router.get("/:id/wordpress/cache/capabilities", authorizeCapability("VIEW"), getWordPressCacheCapabilitiesHandler);
+router.get("/:id/wordpress/cache/status", authorizeCapability("VIEW"), getWordPressCacheStatusHandler);
+router.post("/:id/wordpress/cache/purge", authorizeCapability("EDIT"), purgeWordPressCacheHandler);
+router.post("/:id/wordpress/cache/clear", authorizeCapability("EDIT"), clearWordPressCacheHandler);
+router.post("/:id/wordpress/cache/warm", authorizeCapability("EDIT"), warmWordPressCacheHandler);
+router.get("/:id/wordpress/cache/groups", authorizeCapability("VIEW"), getWordPressCacheGroupsHandler);
+router.post("/:id/wordpress/cache/reconcile", authorizeCapability("EDIT"), reconcileWordPressCacheOperationHandler);
+
+
+
 
 
 // Production Publishing & Deployment API

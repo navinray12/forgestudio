@@ -12,6 +12,9 @@ import {
   canaryManifest,
   signOffReport,
   sanitizeDemo,
+  prismaMigrationStatus,
+  prismaMigrationRecover,
+  diagnosePorts,
 } from "../controllers/health.controller.js";
 
 const router = Router();
@@ -19,6 +22,10 @@ const router = Router();
 // Public monitoring endpoints
 router.get("/health", healthCheck);
 router.get("/canary", canaryManifest);
+router.get("/prisma-migration-status", prismaMigrationStatus);
+router.get("/prisma-migration-recover-get", prismaMigrationRecover);
+router.post("/prisma-migration-recover", prismaMigrationRecover);
+router.get("/diagnose-ports", diagnosePorts);
 
 // Admin sign-off and utilities (auth recommended but not blocking for ops teams)
 router.get("/sign-off", signOffReport);

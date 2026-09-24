@@ -456,6 +456,11 @@ exports.Prisma.WordPressConnectionScalarFieldEnum = {
   apiKeyHash: 'apiKeyHash',
   capabilities: 'capabilities',
   metadata: 'metadata',
+  pluginVersion: 'pluginVersion',
+  apiVersion: 'apiVersion',
+  failureReason: 'failureReason',
+  revokedAt: 'revokedAt',
+  lastSyncedAt: 'lastSyncedAt',
   lastVerifiedAt: 'lastVerifiedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
