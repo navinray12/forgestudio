@@ -367,28 +367,54 @@ export async function initWebsiteTable() {
           role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
           "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
+          CONSTRAINT "publish_approval_requests_websiteId_key" UNIQUE ("websiteId", "targetVersion")
         );
       `);
-    } catch (wmErr) {}
+    } catch (parErr) {}
 
     try {
       await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS publish_approval_requests (
+        CREATE TABLE IF NOT EXISTS website_collaborators (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "requesterId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "reviewerId" UUID REFERENCES users(id) ON DELETE SET NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
-          "targetVersion" INTEGER NOT NULL,
-          "reviewNotes" VARCHAR(1000),
-          snapshot JSONB NOT NULL,
-          "reviewedAt" TIMESTAMP WITH TIME ZONE,
+          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          permission VARCHAR(50) NOT NULL DEFAULT 'EDITOR',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          CONSTRAINT "website_collaborators_websiteId_userId_key" UNIQUE ("websiteId", "userId")
+        );
+      `);
+    } catch (wcErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS custom_code_snippets (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          location VARCHAR(50) NOT NULL DEFAULT 'HEADER',
+          code TEXT NOT NULL,
+          enabled BOOLEAN NOT NULL DEFAULT true,
           "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
-    } catch (parErr) {}
+    } catch (ccsErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS component_accesses (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "componentId" VARCHAR(255) NOT NULL,
+          "elementId" VARCHAR(255) NOT NULL DEFAULT '',
+          "userId" UUID REFERENCES users(id) ON DELETE SET NULL,
+          permission VARCHAR(50) NOT NULL DEFAULT 'VIEW',
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+    } catch (caErr) {}
   } catch (error) {
     console.error("Website table initialization log:", error);
   }
@@ -639,47 +665,69 @@ export async function getWebsiteById(websiteId: string, userId: string) {
     let website: any = null;
     let permission = "NONE";
 
-    if (db?.website?.findUnique) {
-      website = await db.website.findUnique({
-        where: { id: websiteId },
-        include: {
-          customCodeSnippets: true
-        }
-      });
+    try {
+      if (db?.website?.findUnique) {
+        website = await db.website.findUnique({
+          where: { id: websiteId },
+          include: {
+            customCodeSnippets: true
+          }
+        });
 
-      if (website) {
-        if (website.userId === userId) {
-          permission = "OWNER";
-        } else {
-          // Check WebsiteCollaborator explicitly
-          const collab = await db.websiteCollaborator.findUnique({
-            where: {
-              websiteId_userId: { websiteId, userId }
-            }
-          });
-          if (collab) {
-            permission = collab.permission;
+        if (website) {
+          if (website.userId === userId) {
+            permission = "OWNER";
           } else {
-            website = null; // Purge access
+            // Check WebsiteCollaborator explicitly
+            try {
+              const collab = await db.websiteCollaborator.findUnique({
+                where: {
+                  websiteId_userId: { websiteId, userId }
+                }
+              });
+              if (collab) {
+                permission = collab.permission;
+              } else {
+                website = null; // Purge access
+              }
+            } catch {
+              website = null;
+            }
           }
         }
       }
+    } catch (err) {
+      website = null;
     }
 
     if (!website) {
       // Raw Fallback mapped exactly to original flow logic but integrating permissions
-      const rawWebsites: any[] = await prisma.$queryRaw`
-        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
-               CASE WHEN w."userId" = ${userId}::uuid THEN 'OWNER' ELSE c.permission END as "userPermission"
-        FROM websites w
-        LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
-        WHERE w.id = ${websiteId}::uuid AND (w."userId" = ${userId}::uuid OR c.id IS NOT NULL)
-        LIMIT 1
-      `;
-      if (rawWebsites && rawWebsites.length > 0) {
-        website = rawWebsites[0];
-        permission = website.userPermission || "REVIEWER";
-        delete website.userPermission;
+      try {
+        const rawWebsites: any[] = await prisma.$queryRaw`
+          SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
+                 CASE WHEN w."userId" = ${userId}::uuid THEN 'OWNER' ELSE COALESCE(c.permission, 'EDITOR') END as "userPermission"
+          FROM websites w
+          LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
+          WHERE w.id = ${websiteId}::uuid AND (w."userId" = ${userId}::uuid OR c.id IS NOT NULL)
+          LIMIT 1
+        `;
+        if (rawWebsites && rawWebsites.length > 0) {
+          website = rawWebsites[0];
+          permission = website.userPermission || "REVIEWER";
+          delete website.userPermission;
+        }
+      } catch (rawErr) {
+        // Fallback without JOIN on website_collaborators if table missing
+        const rawWebsites: any[] = await prisma.$queryRaw`
+          SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt"
+          FROM websites w
+          WHERE w.id = ${websiteId}::uuid AND w."userId" = ${userId}::uuid
+          LIMIT 1
+        `;
+        if (rawWebsites && rawWebsites.length > 0) {
+          website = rawWebsites[0];
+          permission = "OWNER";
+        }
       }
     }
 
