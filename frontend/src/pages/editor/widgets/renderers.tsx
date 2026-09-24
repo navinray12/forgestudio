@@ -1160,12 +1160,12 @@ export const NavMenuWidgetRenderer = ({
   const pagesNavItems: NavMenuItem[] =
     pages && pages.length > 0
       ? pages.map((p) => ({
-          id: p.id,
-          label: p.name,
-          url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
-          pageId: p.id,
-          isActive: p.isHome || p.id === homePageId,
-        }))
+        id: p.id,
+        label: p.name,
+        url: p.slug || (p.isHome ? "/" : `/${p.name.toLowerCase()}`),
+        pageId: p.id,
+        isActive: p.isHome || p.id === homePageId,
+      }))
       : defaultNavItems;
 
   const items: NavMenuItem[] =
@@ -1373,13 +1373,12 @@ export const NavMenuWidgetRenderer = ({
       {/* Main Desktop & Tablet Nav List */}
       <ul
         ref={navListRef}
-        className={`flex w-full ${
-          mobileMenuOpen
+        className={`flex w-full ${mobileMenuOpen
             ? "flex-col items-stretch mt-2"
             : isVertical
-            ? "flex-col items-stretch"
-            : `hidden sm:flex flex-row items-center ${justifyClass}`
-        } wrap relative`}
+              ? "flex-col items-stretch"
+              : `hidden sm:flex flex-row items-center ${justifyClass}`
+          } wrap relative`}
         style={{
           gap: `${gap}px`,
           position: "relative",
@@ -1407,9 +1406,8 @@ export const NavMenuWidgetRenderer = ({
             <li
               key={item.id}
               onPointerDown={(e) => handleItemPointerDown(e, item, idx)}
-              className={`group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""} ${
-                !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80 rounded-xl" : ""
-              }`}
+              className={`group list-none ${item.isDisabled ? "opacity-50 pointer-events-none" : ""} ${!isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80 rounded-xl" : ""
+                }`}
               style={{
                 position: isPositioned ? "absolute" : "relative",
                 left: isPositioned ? `${activePos.x}px` : undefined,
@@ -3518,14 +3516,14 @@ export const LoopCarouselWidgetRenderer = ({
   // Dynamic Content Binding: if dynamic CPT entries are attached to element
   const dynamicCptItems: LoopCarouselItem[] = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0
     ? (el as any).cptEntries.map((entry: any, i: number) => ({
-        id: entry.id || `cpt-${i}`,
-        title: entry.title || entry.name || "Untitled Entry",
-        description: entry.data?.description || entry.data?.excerpt || entry.description || "",
-        imageUrl: entry.data?.image || entry.data?.featuredImage || entry.imageUrl || "",
-        badge: entry.data?.category || entry.badge || "",
-        buttonText: entry.data?.buttonText || "Read More",
-        linkUrl: entry.slug ? `/entry/${entry.slug}` : "#",
-      }))
+      id: entry.id || `cpt-${i}`,
+      title: entry.title || entry.name || "Untitled Entry",
+      description: entry.data?.description || entry.data?.excerpt || entry.description || "",
+      imageUrl: entry.data?.image || entry.data?.featuredImage || entry.imageUrl || "",
+      badge: entry.data?.category || entry.badge || "",
+      buttonText: entry.data?.buttonText || "Read More",
+      linkUrl: entry.slug ? `/entry/${entry.slug}` : "#",
+    }))
     : [];
 
   const items = el.loopCarouselItems && el.loopCarouselItems.length > 0
@@ -6284,9 +6282,8 @@ export const MegaMenuWidgetRenderer = ({
                 <li
                   key={item.id}
                   onPointerDown={(e) => handleMegaItemPointerDown(e, item, idx)}
-                  className={`py-2 px-3 rounded-lg hover:bg-slate-100/70 transition select-none ${
-                    !isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80" : "cursor-pointer"
-                  }`}
+                  className={`py-2 px-3 rounded-lg hover:bg-slate-100/70 transition select-none ${!isPreview ? "cursor-grab active:cursor-grabbing hover:ring-2 hover:ring-blue-400/80" : "cursor-pointer"
+                    }`}
                   style={{
                     position: isPositioned ? "absolute" : "relative",
                     left: isPositioned ? `${activePos.x}px` : undefined,
@@ -6328,11 +6325,11 @@ export const MegaMenuWidgetRenderer = ({
                           ? "left-0 right-auto translate-x-0"
                           : "left-1/2 -translate-x-1/2"
                       } mt-1 z-50 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800 gap-6 animate-fadeIn ${
-                        item.columns!.length === 1
+                        (item.columns?.length || 0) === 1
                           ? "w-[300px] grid grid-cols-1"
-                          : item.columns!.length === 2
+                          : (item.columns?.length || 0) === 2
                           ? "w-[540px] grid grid-cols-2"
-                          : item.columns!.length === 3
+                          : (item.columns?.length || 0) === 3
                           ? "w-[720px] grid grid-cols-3"
                           : "w-[880px] grid grid-cols-4"
                       }`}

@@ -610,10 +610,12 @@ export async function publishWebsite(
     ) {
       try {
         await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
-          error: { code: error?.code || "DEPLOY_FAILED", message: error?.message },
+          error: { code: error?.code || "DEPLOY_FAILED", message: error?.message || "Publishing failed" },
           completedAt: new Date(),
         });
-      } catch (e) {}
+      } catch (persistenceError) {
+        console.error("Could not record deployment failure", { deploymentId: deployment.id });
+      }
     }
     throw error;
   }

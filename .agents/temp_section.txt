@@ -1,0 +1,170 @@
+﻿                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-semibold text-slate-700">
+                                Snap Stop
+                              </label>
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "scrollSnapStop") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("scrollSnapStop")}
+                                  className="text-[10px] text-slate-400 hover:text-blue-600"
+                                >
+                                  Γå║
+                                </button>
+                              )}
+                            </div>
+                            <select
+                              value={snapStop}
+                              onChange={(e) => updateSelectedStyle("scrollSnapStop", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="normal">Normal</option>
+                              <option value="always">Always</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow X
+                            </label>
+                            <select
+                              value={overflowX}
+                              onChange={(e) => updateSelectedStyle("overflowX", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Overflow Y
+                            </label>
+                            <select
+                              value={overflowY}
+                              onChange={(e) => updateSelectedStyle("overflowY", e.target.value)}
+                              className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                            >
+                              <option value="visible">Visible</option>
+                              <option value="hidden">Hidden</option>
+                              <option value="auto">Auto</option>
+                              <option value="scroll">Scroll</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
+                )}
+
+                {/* Universal Sizing, Background & Spacing Controls (For ALL Elements) (F-002, F-035, F-052) */}
+                <div className="space-y-4 pt-2">
+                  {/* Width & Height */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Width (F-052)
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "width") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("width")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                            title="Reset width"
+                          >
+                            Γå║ Reset
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "width") || ""}
+                        onChange={(e) => updateSelectedStyle("width", e.target.value || undefined)}
+                        placeholder="auto, 100%, 50vw"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-slate-700">
+                          Height (F-052)
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "height") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("height")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                            title="Reset height"
+                          >
+                            Γå║ Reset
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "height") || ""}
+                        onChange={(e) => updateSelectedStyle("height", e.target.value || undefined)}
+                        placeholder="auto, 100vh, 400px"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Min / Max Dimensions (F-052) */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Min Height
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "minHeight") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("minHeight")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                          >
+                            Γå║
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "minHeight") || ""}
+                        onChange={(e) => updateSelectedStyle("minHeight", e.target.value || undefined)}
+                        placeholder="e.g. 100vh, 300px"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Max Width
+                        </label>
+                        {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "maxWidth") && (
+                          <button
+                            type="button"
+                            onClick={() => resetSelectedStyle("maxWidth")}
+                            className="text-[10px] text-slate-400 hover:text-blue-600"
+                          >
+                            Γå║
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "maxWidth") || ""}
+                        onChange={(e) => updateSelectedStyle("maxWidth", e.target.value || undefined)}
+                        placeholder="e.g. 1200px, 100%"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Universal Alignment Control (For ALL Elements & Widgets including Mega Menu) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
