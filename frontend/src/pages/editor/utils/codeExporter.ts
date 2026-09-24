@@ -2812,18 +2812,44 @@ export default defineConfig({
 `;
 
   // 4. src/styles/global.css (Tokens from GlobalStylesConfig)
-  const gStyles = data.globalStyles || {};
+  const gStyles = data.globalStyles || (data.globalSettings as any)?.globalStyles || data.globalSettings || {};
+  const gVars = (data as any).variables || gStyles.variables || (data.globalSettings as any)?.variables || {};
+  const gClasses = (data as any).globalClasses || gStyles.globalClasses || (data.globalSettings as any)?.globalClasses || {};
+
+  let extraCssVars = "";
+  if (gVars && typeof gVars === "object") {
+    Object.entries(gVars).forEach(([k, v]: [string, any]) => {
+      const varName = k.startsWith("--") ? k : `--${k}`;
+      const val = typeof v === "object" ? v.value : v;
+      if (val) extraCssVars += `  ${varName}: ${val};\n`;
+    });
+  }
+
+  let globalClassCss = "";
+  if (gClasses && typeof gClasses === "object") {
+    Object.entries(gClasses).forEach(([className, styleObj]: [string, any]) => {
+      if (styleObj && typeof styleObj === "object") {
+        const rules = Object.entries(styleObj)
+          .map(([prop, val]) => {
+            const kebab = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+            return `${kebab}: ${val};`;
+          })
+          .join(" ");
+        if (rules) globalClassCss += `.${className} { ${rules} }\n`;
+      }
+    });
+  }
   files["src/styles/global.css"] = `:root {
-  --forge-primary: ${gStyles.primaryColor || "#3b82f6"};
-  --forge-secondary: ${gStyles.secondaryColor || "#10b981"};
-  --forge-accent: ${gStyles.accentColor || "#8b5cf6"};
-  --forge-bg: ${gStyles.backgroundColor || "#ffffff"};
-  --forge-text: ${gStyles.textColor || "#0f172a"};
-  --forge-heading-font: ${gStyles.headingFont || "Inter, sans-serif"};
-  --forge-body-font: ${gStyles.bodyFont || "Inter, sans-serif"};
-  --forge-radius: ${gStyles.borderRadius || "12px"};
-  --forge-container-max: ${gStyles.containerMaxWidth || "1280px"};
-}
+  --forge-primary: ${gStyles.primaryColor || gStyles.colors?.primary || "#3b82f6"};
+  --forge-secondary: ${gStyles.secondaryColor || gStyles.colors?.secondary || "#10b981"};
+  --forge-accent: ${gStyles.accentColor || gStyles.colors?.accent || "#8b5cf6"};
+  --forge-bg: ${gStyles.backgroundColor || gStyles.colors?.background || "#ffffff"};
+  --forge-text: ${gStyles.textColor || gStyles.colors?.text || "#0f172a"};
+  --forge-heading-font: ${gStyles.headingFont || gStyles.typography?.headingFontFamily || "Inter, sans-serif"};
+  --forge-body-font: ${gStyles.bodyFont || gStyles.typography?.fontFamily || "Inter, sans-serif"};
+  --forge-radius: ${gStyles.borderRadius || gStyles.buttonStyles?.borderRadius || "12px"};
+  --forge-container-max: ${gStyles.containerMaxWidth || gStyles.containerStyles?.maxWidth || "1280px"};
+${extraCssVars}}
 
 * {
   box-sizing: border-box;
@@ -2848,7 +2874,8 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 0 1rem;
 }
-`;
+
+${globalClassCss}`;
 
   // 5. src/main.tsx
   files["src/main.tsx"] = `import React from 'react';
