@@ -17877,10 +17877,7 @@ export default function WebsiteEditor() {
                         placeholder="<meta name='keywords' content='builder' />"
                         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                       />
-<span>Do not follow links on this page (<code className="text-[10px] bg-slate-200 px-1 py-0.5 rounded">nofollow</code>)</span>
-                    </label>
-                  </div>
-                </div>
+                    </div>
 
                 {/* Site / Website Published Language (F-022 & F-379) */}
                 <div>
@@ -19287,7 +19284,6 @@ export default function WebsiteEditor() {
         isOpen={isStatementOpen}
         onClose={() => setIsStatementOpen(false)}
         organizationName={globalSettings?.siteIdentity?.name || website?.name || "Website"}
-      />
       />
     </div>
     </WooCommerceProvider>
