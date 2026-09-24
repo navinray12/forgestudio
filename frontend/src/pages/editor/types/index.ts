@@ -1583,6 +1583,8 @@ export interface WebsiteData {
   name: string;
   slug: string;
   status: string;
+  workspaceId?: string;
+  organizationId?: string;
   userPermission?: string;
   editorData?: CanonicalWebsiteData | any;
 }
