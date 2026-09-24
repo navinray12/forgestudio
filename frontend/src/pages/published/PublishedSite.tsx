@@ -769,9 +769,18 @@ export default function PublishedSite() {
                 if (!res.ok) throw new Error("This website is unavailable.");
 
                 const site = data.website || data;
+                let rawEditorData = site?.editorData;
+                if (typeof rawEditorData === "string") {
+                    try {
+                        rawEditorData = JSON.parse(rawEditorData);
+                    } catch (_e) {
+                        rawEditorData = {};
+                    }
+                }
+                const editorData = rawEditorData?.publishedData || rawEditorData || {};
 
-                if (site?.editorData?.pages && site.editorData.pages.length > 0) {
-                    const pagesList: PageConfig[] = site.editorData.pages;
+                if (editorData?.pages && editorData.pages.length > 0) {
+                    const pagesList: PageConfig[] = editorData.pages;
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
@@ -779,24 +788,25 @@ export default function PublishedSite() {
                     const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
                     const activePage = matchedPage || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
                     setActivePageId(activePage.id || "home");
-                    setElements(activePage.elements || []);
-                } else if (site?.editorData?.elements) {
-                    const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: site.editorData.elements };
+                    setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+                } else if (editorData?.elements && editorData.elements.length > 0) {
+                    const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: editorData.elements };
                     setPages([defaultPage]);
                     setActivePageId("home");
-                    setElements(site.editorData.elements);
+                    setElements(editorData.elements);
                 }
 
-                if (site?.editorData?.popups) setPopups(site.editorData.popups);
-                if (site?.editorData?.breakpoints) setBreakpoints(site.editorData.breakpoints);
-                if (site?.editorData?.globalSettings) setGlobalSettings(site.editorData.globalSettings);
-                if (site?.editorData?.globalVariables) setGlobalVariables(site.editorData.globalVariables);
-                if (site?.editorData?.globalClasses) setGlobalClasses(site.editorData.globalClasses);
+                if (editorData?.siteParts) setSitePartsState(editorData.siteParts);
+                if (editorData?.popups) setPopups(editorData.popups);
+                if (editorData?.breakpoints) setBreakpoints(editorData.breakpoints);
+                if (editorData?.globalSettings) setGlobalSettings(editorData.globalSettings);
+                if (editorData?.globalVariables) setGlobalVariables(editorData.globalVariables);
+                if (editorData?.globalClasses) setGlobalClasses(editorData.globalClasses);
                 if (site?.customCodeSnippets) setCustomCodeSnippets(site.customCodeSnippets);
                 if (site?.status) setSiteStatus(site.status);
                 if (site?.themeLocationRules) _setThemeRules(site.themeLocationRules);
-                if (site?.editorData?.siteSettings?.cookieConsent || site?.editorData?.cookieConsent) {
-                    setCookieConsentConfig(site.editorData.siteSettings?.cookieConsent || site.editorData.cookieConsent);
+                if (editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent) {
+                    setCookieConsentConfig(editorData.siteSettings?.cookieConsent || editorData.cookieConsent);
                 }
 
             } catch (_err: any) {
@@ -1045,8 +1055,30 @@ export default function PublishedSite() {
                 </React.Suspense>
             )}
 
-            {/* Dynamic Published Website Navigation Header */}
-            {pages && pages.length > 0 && (
+            {/* Configured Global Header */}
+            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && (
+                <header className="site-global-header w-full">
+                    {sitePartsState.header.elements.map((el: EditorElement, index: number) => (
+                        <RenderNode
+                            key={el.id}
+                            el={el}
+                            isCritical={index === 0}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={elements}
+                            pages={pages}
+                            onSwitchPage={handleSwitchPage}
+                            websiteId={websiteId}
+                        />
+                    ))}
+                </header>
+            )}
+
+            {/* Dynamic Published Website Navigation Header fallback (only if multiple pages and no custom global header) */}
+            {(!sitePartsState?.header?.elements || sitePartsState.header.elements.length === 0) && pages && pages.length > 1 && (
                 <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs transition-all">
                     <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
                         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => {
@@ -1138,8 +1170,72 @@ export default function PublishedSite() {
                 />
             ))}
 
+            {/* Configured Global Footer */}
+            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
+                <footer className="site-global-footer w-full">
+                    {sitePartsState.footer.elements.map((el: EditorElement, index: number) => (
+                        <RenderNode
+                            key={el.id}
+                            el={el}
+                            isCritical={false}
+                            activeBreakpointId={activeBreakpointId}
+                            breakpoints={breakpoints}
+                            globalSettings={globalSettings}
+                            elementClassMap={elementClassMap}
+                            apiUrl={apiUrl}
+                            allElements={elements}
+                            pages={pages}
+                            onSwitchPage={handleSwitchPage}
+                            websiteId={websiteId}
+                        />
+                    ))}
+                </footer>
+            )}
+
             {/* F-438: Cookie Consent Runtime Banner */}
             <CookieConsentBanner config={cookieConsentConfig} />
         </div>
+    );
+}
+
+class PublishedSiteErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        console.error("PublishedSite rendering error:", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
+                    <div className="text-5xl mb-4">⚠️</div>
+                    <h1 className="text-2xl font-bold mb-2">Unable to render published page</h1>
+                    <p className="text-slate-400 max-w-md text-sm mb-4">
+                        A rendering error occurred while displaying this page.
+                    </p>
+                    {import.meta.env.DEV && this.state.error && (
+                        <pre className="bg-slate-950 p-4 rounded-lg text-left text-xs text-red-300 font-mono overflow-auto max-w-xl max-h-48 border border-red-900/50">
+                            {this.state.error.toString()}
+                            {"\n"}
+                            {this.state.error.stack}
+                        </pre>
+                    )}
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
+export default function PublishedSiteWithBoundary() {
+    return (
+        <PublishedSiteErrorBoundary>
+            <PublishedSite />
+        </PublishedSiteErrorBoundary>
     );
 }
