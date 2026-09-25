@@ -79,6 +79,20 @@ class ForgeStudio_Connector {
             'callback'            => 'forgestudio_get_menus',
             'permission_callback' => 'forgestudio_verify_token',
         ));
+
+        // 5. Custom Fields endpoint (ACF, Pods, Toolset Types) (Module 11 / F-262, F-263, F-264)
+        register_rest_route(self::REST_NAMESPACE, '/custom-fields', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_custom_fields'),
+            'permission_callback' => 'forgestudio_verify_token',
+        ));
+
+        // 6. Multisite Network Sites endpoint (Module 11 / F-269)
+        register_rest_route(self::REST_NAMESPACE, '/multisite', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_multisite_sites'),
+            'permission_callback' => 'forgestudio_verify_token',
+        ));
     }
 
     /**
@@ -251,6 +265,139 @@ class ForgeStudio_Connector {
             'success' => true,
             'event'   => $event,
             'received'=> true,
+        ));
+    }
+
+    /**
+     * Endpoint handler: Retrieve registered Custom Fields (ACF, Pods, Toolset Types) (F-262 - F-264)
+     */
+    public function rest_get_custom_fields(WP_REST_Request $request) {
+        $acf_groups = array();
+        $pods_types = array();
+        $toolset_fields = array();
+
+        // 1. ACF (Advanced Custom Fields)
+        if (function_exists('acf_get_field_groups')) {
+            $groups = acf_get_field_groups();
+            if (is_array($groups)) {
+                foreach ($groups as $group) {
+                    $fields = function_exists('acf_get_fields') ? acf_get_fields($group['key']) : array();
+                    $field_items = array();
+                    if (is_array($fields)) {
+                        foreach ($fields as $f) {
+                            $field_items[] = array(
+                                'key'   => $f['key'] ?? '',
+                                'name'  => $f['name'] ?? '',
+                                'label' => $f['label'] ?? '',
+                                'type'  => $f['type'] ?? 'text',
+                            );
+                        }
+                    }
+                    $acf_groups[] = array(
+                        'id'     => $group['ID'] ?? $group['key'],
+                        'key'    => $group['key'],
+                        'title'  => $group['title'],
+                        'fields' => $field_items,
+                    );
+                }
+            }
+        }
+
+        // 2. Pods Framework
+        if (function_exists('pods_api')) {
+            $api = pods_api();
+            if (is_object($api) && method_exists($api, 'load_pods')) {
+                $all_pods = $api->load_pods();
+                if (is_array($all_pods)) {
+                    foreach ($all_pods as $pod) {
+                        $p_fields = array();
+                        if (!empty($pod['fields']) && is_array($pod['fields'])) {
+                            foreach ($pod['fields'] as $fname => $fdata) {
+                                $p_fields[] = array(
+                                    'name'  => $fname,
+                                    'label' => $fdata['label'] ?? $fname,
+                                    'type'  => $fdata['type'] ?? 'text',
+                                );
+                            }
+                        }
+                        $pods_types[] = array(
+                            'name'   => $pod['name'] ?? '',
+                            'label'  => $pod['label'] ?? '',
+                            'type'   => $pod['type'] ?? 'post_type',
+                            'fields' => $p_fields,
+                        );
+                    }
+                }
+            }
+        }
+
+        // 3. Toolset Types
+        if (function_exists('wpcf_admin_fields_get_fields')) {
+            $raw_toolset = wpcf_admin_fields_get_fields();
+            if (is_array($raw_toolset)) {
+                foreach ($raw_toolset as $t_slug => $t_data) {
+                    $toolset_fields[] = array(
+                        'slug'  => $t_slug,
+                        'name'  => $t_data['name'] ?? $t_slug,
+                        'type'  => $t_data['type'] ?? 'textfield',
+                        'meta'  => 'wpcf-' . $t_slug,
+                    );
+                }
+            }
+        }
+
+        return rest_ensure_response(array(
+            'status'     => 'success',
+            'acf'        => $acf_groups,
+            'pods'       => $pods_types,
+            'toolset'    => $toolset_fields,
+            'discovered' => array(
+                'acfActive'     => function_exists('acf_get_field_groups'),
+                'podsActive'    => function_exists('pods_api'),
+                'toolsetActive' => function_exists('wpcf_admin_fields_get_fields'),
+            ),
+        ));
+    }
+
+    /**
+     * Endpoint handler: Retrieve WordPress Multisite Network Sites (F-269)
+     */
+    public function rest_get_multisite_sites(WP_REST_Request $request) {
+        $is_ms = is_multisite();
+        $sites_list = array();
+
+        if ($is_ms && function_exists('get_sites')) {
+            $network_sites = get_sites(array('number' => 100));
+            if (is_array($network_sites)) {
+                foreach ($network_sites as $s) {
+                    $details = get_blog_details($s->blog_id);
+                    $sites_list[] = array(
+                        'id'        => (string)$s->blog_id,
+                        'name'      => $details ? $details->blogname : "Site " . $s->blog_id,
+                        'domain'    => $s->domain,
+                        'path'      => $s->path,
+                        'isMain'    => (string)$s->blog_id === "1",
+                        'siteUrl'   => get_site_url($s->blog_id),
+                    );
+                }
+            }
+        } else {
+            // Single-site fallback
+            $sites_list[] = array(
+                'id'      => '1',
+                'name'    => get_bloginfo('name'),
+                'domain'  => parse_url(site_url(), PHP_URL_HOST) ?: 'localhost',
+                'path'    => parse_url(site_url(), PHP_URL_PATH) ?: '/',
+                'isMain'  => true,
+                'siteUrl' => site_url(),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'status'      => 'success',
+            'isMultisite' => $is_ms,
+            'sites'       => $sites_list,
+            'currentSite' => get_current_blog_id(),
         ));
     }
 

@@ -28,6 +28,7 @@ export type ElementType =
   | "wp-menu" | "menu-widget"
   | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
   | "site-search" | "search-form" | "taxonomy-filter"
+  | "loop-grid"
   | "facebook-integration" | "facebook-feed" | "facebook-like-button"
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
@@ -178,6 +179,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 
   // Content
   { type: "posts", name: "Posts", category: "Content", icon: "📰", description: "Blog posts and articles grid layout" },
+  { type: "loop-grid", name: "Loop Grid", category: "Content", icon: "➿", description: "Dynamic query loop grid repeating post cards and custom templates" },
   { type: "portfolio", name: "Portfolio", category: "Content", icon: "💼", description: "Filterable project showcase portfolio grid" },
   { type: "price-table", name: "Price Table", category: "Content", icon: "🏷️", description: "SaaS pricing table card with features list" },
   { type: "price-list", name: "Price List", category: "Content", icon: "📋", description: "Menu or service items price list" },
@@ -1390,6 +1392,17 @@ export interface EditorElement {
   queryLimit?: number;
   queryOrderBy?: string;
   queryOrder?: string;
+  queryTaxonomy?: string;
+  queryTerms?: string[];
+  queryOffset?: number;
+  queryExcludeCurrent?: boolean;
+  querySource?: "custom" | "current_query" | "related";
+  loopColumns?: number;
+  loopGap?: number;
+  loopTemplateId?: string;
+  alternateTemplateId?: string;
+  paginationType?: "none" | "numbers" | "load-more" | "infinite";
+  targetGridId?: string;
   displayConditions?: any[];
   semanticTag?: string;
   /**
@@ -1406,21 +1419,198 @@ export interface EditorElement {
   interactions?: InteractionRule[];
 }
 
+export type ThemeBuilderScope =
+  | "page"
+  | "header"
+  | "footer"
+  | "single"
+  | "archive"
+  | "404"
+  | "search-results";
+
+export interface SitePartSection {
+  enabled?: boolean;
+  isEnabled?: boolean;
+  elements: EditorElement[];
+  customCss?: string;
+  conditions?: string[];
+}
+
 export interface SitePartsConfig {
-  header?: {
-    enabled?: boolean;
-    isEnabled?: boolean;
-    elements: EditorElement[];
-    customCss?: string;
-    conditions?: string[];
+  header?: SitePartSection;
+  footer?: SitePartSection;
+  single?: SitePartSection;
+  archive?: SitePartSection;
+  notFound404?: SitePartSection;
+  searchResults?: SitePartSection;
+}
+
+/**
+ * Dynamic Context for frontend live token interpolation & request parameters
+ */
+export interface DynamicContext {
+  site?: {
+    id?: string;
+    name?: string;
+    slug?: string;
+    siteSettings?: {
+      siteName?: string;
+      siteLanguage?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
   };
-  footer?: {
-    enabled?: boolean;
-    isEnabled?: boolean;
-    elements: EditorElement[];
-    customCss?: string;
-    conditions?: string[];
+  page?: {
+    id?: string;
+    name?: string;
+    title?: string;
+    slug?: string;
+    isHome?: boolean;
+    [key: string]: any;
   };
+  entry?: {
+    id?: string;
+    title?: string;
+    slug?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  post?: {
+    id?: string;
+    title?: string;
+    name?: string;
+    slug?: string;
+    excerpt?: string;
+    date?: string;
+    author?: string;
+    featuredImage?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  query?: Record<string, string>;
+  requestParams?: Record<string, string>;
+  custom?: Record<string, string>;
+}
+
+/**
+ * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, {{post.field}}, {{request.param}}, etc. tokens inside a string.
+ */
+export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
+  if (typeof content !== "string" || !content.includes("{{")) {
+    return content;
+  }
+
+  const site = context.site || {};
+  const siteSettings = site.siteSettings || {};
+  const page = context.page || {};
+  const entry = context.entry || {};
+  const post = context.post || context.entry || {};
+  const query = context.query || context.requestParams || {};
+  const custom = context.custom || {};
+
+  return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
+    const key = rawKey.trim();
+
+    // Site level tokens
+    if (key === "site.name" || key === "site.title") {
+      return siteSettings.siteName || site.name || "";
+    }
+    if (key === "site.slug") {
+      return site.slug || "";
+    }
+    if (key === "site.language" || key === "site.lang") {
+      return siteSettings.siteLanguage || "en";
+    }
+
+    // System tokens
+    if (key === "current.year") {
+      return new Date().getFullYear().toString();
+    }
+    if (key === "current.date") {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    // Page level tokens
+    if (key === "page.title") {
+      return page.title || page.name || "";
+    }
+    if (key === "page.name") {
+      return page.name || page.title || "";
+    }
+    if (key === "page.slug") {
+      return page.slug || "";
+    }
+
+    // Request / Query parameter tokens: {{request.param}}, {{query.param}}
+    if (key.startsWith("request.") || key.startsWith("query.")) {
+      const param = key.replace(/^(request|query)\./, "");
+      if (query[param] !== undefined) {
+        return String(query[param]);
+      }
+      return "";
+    }
+
+    // Post / Article level tokens: {{post.title}}, {{post.excerpt}}, {{post.date}}, {{post.author}}, {{post.featuredImage}}
+    if (key.startsWith("post.")) {
+      const field = key.replace(/^post\./, "");
+      const postData = post.data || {};
+      if (field === "title" || field === "name") return post.title || post.name || "";
+      if (field === "slug") return post.slug || "";
+      if (field === "excerpt") return post.excerpt || postData.excerpt || postData.description || "";
+      if (field === "date") return post.date || postData.date || post.createdAt || "";
+      if (field === "author") return post.author || postData.author || "";
+      if (field === "featuredImage" || field === "image") return post.featuredImage || postData.featuredImage || postData.image || "";
+      if (postData[field] !== undefined) {
+        return String(postData[field]);
+      }
+      if (post[field] !== undefined) {
+        return String(post[field]);
+      }
+      return "";
+    }
+
+    // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}
+    if (key.startsWith("entry.") || key.startsWith("cpt.")) {
+      const field = key.replace(/^(entry|cpt)\./, "");
+      if (field === "title" || field === "name") return entry.title || "";
+      if (field === "slug") return entry.slug || "";
+      if (entry.data && entry.data[field] !== undefined) {
+        return String(entry.data[field]);
+      }
+      if (entry[field] !== undefined) {
+        return String(entry[field]);
+      }
+      return "";
+    }
+
+    // Custom dictionary fallback
+    if (custom[key] !== undefined) {
+      return custom[key];
+    }
+
+    return match;
+  });
+}
+
+/**
+ * Recursively resolves dynamic tag tokens across an object tree or array on the frontend.
+ */
+export function resolveTokensInTree(obj: any, context: DynamicContext): any {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === "string") {
+    return resolveDynamicTokens(obj, context);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => resolveTokensInTree(item, context));
+  }
+  if (typeof obj === "object") {
+    const resolved: Record<string, any> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      resolved[k] = resolveTokensInTree(v, context);
+    }
+    return resolved;
+  }
+  return obj;
 }
 
 /**
@@ -1431,9 +1621,10 @@ export function matchesThemeCondition(
   pageContext: { pageId?: string; isHome?: boolean; slug?: string }
 ): boolean {
   if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
-    return true;
+    return true; // Default: include everywhere
   }
 
+  // 1. Check exclusions first (exclusion takes priority)
   for (const cond of conditions) {
     if (cond === "exclude:all") return false;
     if (cond === "exclude:singular:home" && pageContext.isHome) return false;
@@ -1443,6 +1634,7 @@ export function matchesThemeCondition(
     }
   }
 
+  // 2. Check inclusions
   let explicitlyIncluded = false;
   let hasInclusionRule = false;
 

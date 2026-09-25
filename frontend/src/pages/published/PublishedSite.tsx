@@ -9,6 +9,7 @@ import {
     initMotionRuntime
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
+import { resolveDynamicTokens } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
@@ -179,7 +180,9 @@ import {
     WcProductPageTemplatesWidgetRenderer,
     WcProductArchiveTemplatesWidgetRenderer,
     resolveButtonHref,
-    SearchBarWidgetRenderer
+    SearchBarWidgetRenderer,
+    LoopGridWidgetRenderer,
+    DEFAULT_LOOP_ITEMS
 } from "../editor/widgets";
 import {
     BreadcrumbsRenderer,
@@ -320,9 +323,33 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     // Forward ref natively avoiding wrappers (F-351 / F-355 bounds)
     const assignRefIfTracked = (!isCritical && hasBgImage) ? observerRef : undefined;
 
-    if (el.type === "heading") return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</h2></React.Fragment>;
+    // F-260, F-261: Client-Side Dynamic Token Interpolation Runtime
+    const urlQueryParams: Record<string, string> = {};
+    if (typeof window !== "undefined" && window.location.search) {
+        new URLSearchParams(window.location.search).forEach((val, key) => {
+            urlQueryParams[key] = val;
+        });
+    }
+    const tokenContext = {
+        siteName: globalSettings?.siteIdentity?.name || "ForgeStudio",
+        pageTitle: pages?.find(p => p.id === (el as any).pageId)?.name || "Page",
+        request: urlQueryParams,
+        query: urlQueryParams,
+        post: {
+            title: pages?.find(p => p.id === (el as any).pageId)?.name || "Dynamic Post",
+            date: new Date().toLocaleDateString(),
+        }
+    };
 
-    if (el.type === "text") return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</p></React.Fragment>;
+    if (el.type === "heading") {
+        const resolvedHeading = resolveDynamicTokens(el.content || "", tokenContext);
+        return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</h2></React.Fragment>;
+    }
+
+    if (el.type === "text") {
+        const resolvedText = resolveDynamicTokens(el.content || "", tokenContext);
+        return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{resolvedText}</p></React.Fragment>;
+    }
 
     if (el.type === "image") {
         const imageHref = (el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "") || "").trim();
@@ -656,6 +683,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "wc-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "wc-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
 
+    if (el.type === "loop-grid") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopGridWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} pages={pages} onSwitchPage={onSwitchPage} apiUrl={apiUrl} /></div>;
+
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
             <NestedCarouselWidgetRenderer
@@ -797,7 +826,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         prev.elementClassMap.get(prev.el.id) === next.elementClassMap.get(next.el.id);
 });
 
-export default function PublishedSite() {
+function PublishedSite() {
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -901,24 +930,51 @@ export default function PublishedSite() {
                 }
                 const editorData = rawEditorData?.publishedData || rawEditorData || {};
 
+                if (editorData?.siteParts) setSitePartsState(editorData.siteParts);
+                const loadedSiteParts = editorData?.siteParts;
+
                 if (editorData?.pages && editorData.pages.length > 0) {
                     const pagesList: PageConfig[] = editorData.pages;
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
                     const initialSlug = pageSlug || queryPage;
+                    const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
+                    const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
+                    const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
                     const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
-                    const activePage = matchedPage || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
-                    setActivePageId(activePage.id || "home");
-                    setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+
+                    if (matchedPage) {
+                        setActivePageId(matchedPage.id || "home");
+                        setElements(matchedPage.elements?.length ? matchedPage.elements : (editorData.elements || []));
+                    } else if (isPostRoute && loadedSiteParts?.single?.elements?.length && (loadedSiteParts.single.isEnabled ?? true)) {
+                        // F-237: Single Post Template Fallback
+                        setActivePageId("single-post-template");
+                        setElements(loadedSiteParts.single.elements);
+                    } else if (isTermRoute && loadedSiteParts?.archive?.elements?.length && (loadedSiteParts.archive.isEnabled ?? true)) {
+                        // F-256: Term / Taxonomy Archive Template Fallback
+                        setActivePageId("archive-template");
+                        setElements(loadedSiteParts.archive.elements);
+                    } else if (isTermRoute) {
+                        // F-256: Fallback to archive page or home page with loop feed
+                        const archivePage = pagesList.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        setActivePageId(archivePage?.id || "home");
+                        setElements(archivePage?.elements?.length ? archivePage.elements : (editorData.elements || []));
+                    } else if (initialSlug && loadedSiteParts?.notFound404?.elements?.length && (loadedSiteParts.notFound404.isEnabled ?? true)) {
+                        // F-239: 404 Template Fallback for unmatched route
+                        setActivePageId("404-template");
+                        setElements(loadedSiteParts.notFound404.elements);
+                    } else {
+                        const activePage = pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        setActivePageId(activePage.id || "home");
+                        setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+                    }
                 } else if (editorData?.elements && editorData.elements.length > 0) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: editorData.elements };
                     setPages([defaultPage]);
                     setActivePageId("home");
                     setElements(editorData.elements);
                 }
-
-                if (editorData?.siteParts) setSitePartsState(editorData.siteParts);
                 if (editorData?.popups) setPopups(editorData.popups);
                 if (editorData?.breakpoints) setBreakpoints(editorData.breakpoints);
                 if (editorData?.globalSettings) setGlobalSettings(editorData.globalSettings);
@@ -1021,7 +1077,7 @@ export default function PublishedSite() {
             if (!pages || pages.length === 0) return;
             const currentPath = window.location.pathname;
             const parts = currentPath.split("/").filter(Boolean);
-            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts[2] : undefined;
+            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts.slice(2).join("/") : undefined;
             const queryPage = new URLSearchParams(window.location.search).get("page");
             const targetSlug = slugFromPath || queryPage;
 
@@ -1032,6 +1088,12 @@ export default function PublishedSite() {
             if (matched && matched.id !== activePageId) {
                 setActivePageId(matched.id);
                 setElements(matched.elements || []);
+            } else if (!matched && targetSlug && (targetSlug.startsWith("category/") || targetSlug.startsWith("tag/"))) {
+                const archivePage = pages.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pages.find((p: any) => p.isHome || p.slug === "/") || pages[0];
+                if (archivePage && archivePage.id !== activePageId) {
+                    setActivePageId(archivePage.id);
+                    setElements(archivePage.elements || []);
+                }
             }
         };
 

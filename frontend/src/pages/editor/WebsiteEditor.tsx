@@ -14,7 +14,7 @@ import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
+import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData, type ThemeBuilderScope, resolveDynamicTokens, type DynamicContext } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -308,12 +308,19 @@ import {
   ImportAssetWidgetRenderer,
   ReusableComponentWidgetRenderer,
   FavoriteWidgetsWidgetRenderer,
+  LoopGridWidgetRenderer,
   resolveButtonHref
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
 import { DefaultWebsiteNavbar } from "./components/DefaultWebsiteNavbar";
-import { createDefaultHeaderElements } from "./navigation/navigationDefaults";
+import {
+  createDefaultHeaderElements,
+  createDefaultSinglePostElements,
+  createDefaultArchiveElements,
+  createDefault404Elements,
+  createDefaultSearchResultsElements,
+} from "./navigation/navigationDefaults";
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -1051,8 +1058,8 @@ export default function WebsiteEditor() {
   });
   const publishedDataRef = useRef<any>(null);
 
-  // Canvas Editing Target Mode: "page" | "header" | "footer"
-  const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
+  // Canvas Editing Target Mode: ThemeBuilderScope ("page" | "header" | "footer" | "single" | "archive" | "404" | "search-results")
+  const [canvasMode, setCanvasMode] = useState<ThemeBuilderScope>("page");
 
   // Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
   // Advanced Icon Library Modal State
@@ -1151,7 +1158,7 @@ export default function WebsiteEditor() {
     });
   }, [elements, pageSettings, activePageId, canvasMode]);
 
-  // Sync active Header/Footer changes into siteParts when in header or footer canvasMode
+  // Sync active Theme Builder changes into siteParts when in theme builder canvasMode
   useEffect(() => {
     if (canvasMode === "header") {
       setSiteParts((prev) => ({
@@ -1162,6 +1169,26 @@ export default function WebsiteEditor() {
       setSiteParts((prev) => ({
         ...prev,
         footer: { ...prev.footer, elements },
+      }));
+    } else if (canvasMode === "single") {
+      setSiteParts((prev) => ({
+        ...prev,
+        single: { ...prev.single, elements },
+      }));
+    } else if (canvasMode === "archive") {
+      setSiteParts((prev) => ({
+        ...prev,
+        archive: { ...prev.archive, elements },
+      }));
+    } else if (canvasMode === "404") {
+      setSiteParts((prev) => ({
+        ...prev,
+        notFound404: { ...prev.notFound404, elements },
+      }));
+    } else if (canvasMode === "search-results") {
+      setSiteParts((prev) => ({
+        ...prev,
+        searchResults: { ...prev.searchResults, elements },
       }));
     }
   }, [elements, canvasMode]);
@@ -1266,8 +1293,8 @@ export default function WebsiteEditor() {
     setIsPageSelectorOpen(false);
   };
 
-  // Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
-  const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
+  // Canvas Mode Switcher: switches between Page, Header, Footer, Single, Archive, 404, and Search Results editing modes safely
+  const handleSwitchCanvasMode = (mode: ThemeBuilderScope) => {
     if (mode === canvasMode) return;
 
     // 1. Save current elements into appropriate model
@@ -1284,6 +1311,26 @@ export default function WebsiteEditor() {
       setSiteParts((prev) => ({
         ...prev,
         footer: { ...prev.footer, elements },
+      }));
+    } else if (canvasMode === "single") {
+      setSiteParts((prev) => ({
+        ...prev,
+        single: { ...prev.single, elements },
+      }));
+    } else if (canvasMode === "archive") {
+      setSiteParts((prev) => ({
+        ...prev,
+        archive: { ...prev.archive, elements },
+      }));
+    } else if (canvasMode === "404") {
+      setSiteParts((prev) => ({
+        ...prev,
+        notFound404: { ...prev.notFound404, elements },
+      }));
+    } else if (canvasMode === "search-results") {
+      setSiteParts((prev) => ({
+        ...prev,
+        searchResults: { ...prev.searchResults, elements },
       }));
     }
 
@@ -1315,6 +1362,54 @@ export default function WebsiteEditor() {
       setHistoryIndex(0);
     } else if (mode === "footer") {
       const targetEls = siteParts.footer?.elements || [];
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "single") {
+      let targetEls = siteParts.single?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultSinglePostElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          single: { ...prev.single, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "archive") {
+      let targetEls = siteParts.archive?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultArchiveElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          archive: { ...prev.archive, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "404") {
+      let targetEls = siteParts.notFound404?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefault404Elements();
+        setSiteParts((prev) => ({
+          ...prev,
+          notFound404: { ...prev.notFound404, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "search-results") {
+      let targetEls = siteParts.searchResults?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultSearchResultsElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          searchResults: { ...prev.searchResults, elements: targetEls, isEnabled: true },
+        }));
+      }
       setElements(targetEls);
       setHistory([targetEls]);
       setHistoryIndex(0);
@@ -2164,6 +2259,10 @@ export default function WebsiteEditor() {
 
     const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+    const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
+    const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
+    const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
+    const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
     const workingDraftSnapshot = {
@@ -2183,6 +2282,22 @@ export default function WebsiteEditor() {
         footer: {
           isEnabled: siteParts.footer?.isEnabled ?? true,
           elements: canonicalFooterElements,
+        },
+        single: {
+          isEnabled: siteParts.single?.isEnabled ?? true,
+          elements: canonicalSingleElements,
+        },
+        archive: {
+          isEnabled: siteParts.archive?.isEnabled ?? true,
+          elements: canonicalArchiveElements,
+        },
+        notFound404: {
+          isEnabled: siteParts.notFound404?.isEnabled ?? true,
+          elements: canonical404Elements,
+        },
+        searchResults: {
+          isEnabled: siteParts.searchResults?.isEnabled ?? true,
+          elements: canonicalSearchResultsElements,
         },
       },
       deployment,
@@ -2264,6 +2379,10 @@ export default function WebsiteEditor() {
 
       const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
       const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+      const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
+      const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
+      const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
+      const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
       const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
       const payload = {
@@ -2284,6 +2403,22 @@ export default function WebsiteEditor() {
             footer: {
               enabled: siteParts.footer?.enabled ?? true,
               elements: canonicalFooterElements,
+            },
+            single: {
+              enabled: siteParts.single?.enabled ?? true,
+              elements: canonicalSingleElements,
+            },
+            archive: {
+              enabled: siteParts.archive?.enabled ?? true,
+              elements: canonicalArchiveElements,
+            },
+            notFound404: {
+              enabled: siteParts.notFound404?.enabled ?? true,
+              elements: canonical404Elements,
+            },
+            searchResults: {
+              enabled: siteParts.searchResults?.enabled ?? true,
+              elements: canonicalSearchResultsElements,
             },
           },
           publishing,
@@ -3063,6 +3198,8 @@ export default function WebsiteEditor() {
           return "🔘";
         case "posts":
           return "📰";
+        case "loop-grid":
+          return "➿";
         case "wc-product-title":
           return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
         case "wc-product-price":
@@ -3091,6 +3228,7 @@ export default function WebsiteEditor() {
       if (item.type === "image") return item.alt ? `Image (${item.alt})` : "Image";
       if (item.type === "container") return "Container";
       if (item.type === "posts") return item.posts ? `Posts (${item.posts.length})` : "Posts Widget";
+      if (item.type === "loop-grid") return "Loop Grid";
       if (item.type === "share-buttons") return item.shareNetworks ? `Share (${item.shareNetworks.length})` : "Share Buttons";
       if (item.type === "portfolio") return item.portfolioItems ? `Portfolio (${item.portfolioItems.length})` : "Portfolio Widget";
       if (item.type === "slides") return item.slidesItems ? `Slides (${item.slidesItems.length})` : "Slides Widget";
@@ -5164,6 +5302,20 @@ export default function WebsiteEditor() {
         {/* Element Renderers */}
         {el.type === "heading" && (() => {
           const Tag = (el.headingLevel || "h2") as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+          const displayContent = resolveDynamicTokens(el.content || "", {
+            siteName: website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+            pageTitle: pages.find((p) => p.id === activePageId)?.name || pageSettings?.title || "Page",
+            post: {
+              title: "Sample Blog Post Title",
+              excerpt: "This is a preview excerpt of your dynamic post content.",
+              date: new Date().toLocaleDateString(),
+              author: "Editorial Team",
+              featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+            },
+            request: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+            query: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+          });
+
           return (
             <Tag
               id={`heading-${el.id}`}
@@ -5190,39 +5342,55 @@ export default function WebsiteEditor() {
                 textShadow: mergedStyles.textShadow,
               }}
             >
-              {el.content}
+              {isSelected ? el.content : displayContent}
             </Tag>
           );
         })()}
 
-        {el.type === "text" && (
-          <p
-            contentEditable={!isPreview}
-            suppressContentEditableWarning
-            onFocus={() => handleSelectElement(el.id)}
-            onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-            className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
-            style={{
-              margin: 0,
-              padding: 0,
-              boxSizing: "border-box",
-              outline: "none",
-              color: mergedStyles.color || "#475569",
-              fontSize: mergedStyles.fontSize || "16px",
-              fontWeight: mergedStyles.fontWeight || "400",
-              textAlign: mergedStyles.textAlign || "left",
-              lineHeight: mergedStyles.lineHeight || "1.6",
-              fontFamily: mergedStyles.fontFamily,
-              fontStyle: mergedStyles.fontStyle,
-              textTransform: mergedStyles.textTransform,
-              textDecoration: mergedStyles.textDecoration,
-              letterSpacing: mergedStyles.letterSpacing,
-              textShadow: mergedStyles.textShadow,
-            }}
-          >
-            {el.content}
-          </p>
-        )}
+        {el.type === "text" && (() => {
+          const displayContent = resolveDynamicTokens(el.content || "", {
+            siteName: website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+            pageTitle: pages.find((p) => p.id === activePageId)?.name || pageSettings?.title || "Page",
+            post: {
+              title: "Sample Blog Post Title",
+              excerpt: "This is a preview excerpt of your dynamic post content.",
+              date: new Date().toLocaleDateString(),
+              author: "Editorial Team",
+              featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+            },
+            request: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+            query: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+          });
+
+          return (
+            <p
+              contentEditable={!isPreview}
+              suppressContentEditableWarning
+              onFocus={() => handleSelectElement(el.id)}
+              onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
+              className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
+              style={{
+                margin: 0,
+                padding: 0,
+                boxSizing: "border-box",
+                outline: "none",
+                color: mergedStyles.color || "#475569",
+                fontSize: mergedStyles.fontSize || "16px",
+                fontWeight: mergedStyles.fontWeight || "400",
+                textAlign: mergedStyles.textAlign || "left",
+                lineHeight: mergedStyles.lineHeight || "1.6",
+                fontFamily: mergedStyles.fontFamily,
+                fontStyle: mergedStyles.fontStyle,
+                textTransform: mergedStyles.textTransform,
+                textDecoration: mergedStyles.textDecoration,
+                letterSpacing: mergedStyles.letterSpacing,
+                textShadow: mergedStyles.textShadow,
+              }}
+            >
+              {isSelected ? el.content : displayContent}
+            </p>
+          );
+        })()}
 
         {el.type === "video" && (
           <div
@@ -5980,6 +6148,21 @@ export default function WebsiteEditor() {
             </div>
           );
         })()}
+
+        {el.type === "loop-grid" && (
+          <LoopGridWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            activeDevice={activeDevice}
+            pages={pages}
+            onSwitchPage={(target) => {
+              if (isPreview) setActivePreviewPageId(target.id);
+              else setActivePageId(target.id);
+            }}
+            apiUrl={apiUrl}
+          />
+        )}
 
         {el.type === "share-buttons" && (
           <ShareButtonsWidgetRenderer
@@ -6810,38 +6993,48 @@ export default function WebsiteEditor() {
               )}
             </div>
 
-            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
+            {/* Scope Switcher Dropdown (Page / Header / Footer / Single / Archive / 404 / Search Results) */}
             <div className="relative" ref={scopeDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
                 className="h-8 px-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 hover:text-white rounded-lg border border-slate-700/80 transition flex items-center gap-1 shadow-sm cursor-pointer"
-                title="Switch Canvas Scope (Page / Header / Footer)"
+                title="Switch Canvas Scope (Page / Header / Footer / Single / Archive / 404 / Search)"
                 aria-label="Switch Canvas Scope"
               >
                 <span className="text-xs">
                   {canvasMode === "page" && "📄"}
                   {canvasMode === "header" && "🌐"}
                   {canvasMode === "footer" && "🌐"}
+                  {canvasMode === "single" && "📰"}
+                  {canvasMode === "archive" && "📚"}
+                  {canvasMode === "404" && "⚠️"}
+                  {canvasMode === "search-results" && "🔍"}
                 </span>
-                <span className="capitalize font-semibold hidden md:inline">{canvasMode}</span>
+                <span className="capitalize font-semibold hidden md:inline">
+                  {canvasMode === "404" ? "404 Page" : canvasMode === "search-results" ? "Search Results" : canvasMode}
+                </span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {isScopeDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 mt-1.5 w-44 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
                   {(
                     [
-                      { mode: "page", label: "Page", icon: "📄" },
-                      { mode: "header", label: "Header", icon: "🌐" },
-                      { mode: "footer", label: "Footer", icon: "🌐" },
+                      { mode: "page", label: "Page Content", icon: "📄" },
+                      { mode: "header", label: "Global Header", icon: "🌐" },
+                      { mode: "footer", label: "Global Footer", icon: "🌐" },
+                      { mode: "single", label: "Single Post Template", icon: "📰" },
+                      { mode: "archive", label: "Archive Template", icon: "📚" },
+                      { mode: "404", label: "404 Not Found Page", icon: "⚠️" },
+                      { mode: "search-results", label: "Search Results Layout", icon: "🔍" },
                     ] as const
                   ).map(({ mode, label, icon }) => (
                     <button
                       key={mode}
                       type="button"
                       onClick={() => {
-                        handleSwitchCanvasMode(mode);
+                        handleSwitchCanvasMode(mode as ThemeBuilderScope);
                         setIsScopeDropdownOpen(false);
                       }}
                       className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
@@ -8932,6 +9125,106 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
+                {/* Canvas Target Banner: Single Post Template Mode */}
+                {canvasMode === "single" && (
+                  <div className="flex items-center justify-between border-b-2 border-indigo-500 bg-indigo-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">📰</span>
+                      <div>
+                        <span className="text-xs font-bold text-indigo-900 block">
+                          Editing Single Post Template (F-237)
+                        </span>
+                        <span className="text-[10px] text-indigo-600 block">
+                          Dynamic layout applied when viewing individual blog posts or articles (/post/:slug).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: Archive Template Mode */}
+                {canvasMode === "archive" && (
+                  <div className="flex items-center justify-between border-b-2 border-emerald-500 bg-emerald-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">📚</span>
+                      <div>
+                        <span className="text-xs font-bold text-emerald-900 block">
+                          Editing Archive Template (F-238)
+                        </span>
+                        <span className="text-[10px] text-emerald-600 block">
+                          Layout applied to category listings, taxonomy archives, and blog indexes (/archive.html).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-900 bg-white hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: 404 Template Mode */}
+                {canvasMode === "404" && (
+                  <div className="flex items-center justify-between border-b-2 border-amber-500 bg-amber-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">⚠️</span>
+                      <div>
+                        <span className="text-xs font-bold text-amber-900 block">
+                          Editing 404 Error Template (F-239)
+                        </span>
+                        <span className="text-[10px] text-amber-600 block">
+                          Layout displayed when visitors navigate to invalid URLs or unlisted routes (/404.html).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-amber-700 hover:text-amber-900 bg-white hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: Search Results Template Mode */}
+                {canvasMode === "search-results" && (
+                  <div className="flex items-center justify-between border-b-2 border-blue-500 bg-blue-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🔍</span>
+                      <div>
+                        <span className="text-xs font-bold text-blue-900 block">
+                          Editing Search Results Template (F-240)
+                        </span>
+                        <span className="text-[10px] text-blue-600 block">
+                          Layout presented when visitors search site content (/search.html?q=...).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-white hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
@@ -8969,14 +9262,30 @@ export default function WebsiteEditor() {
                         ? "Global Header is Empty"
                         : canvasMode === "footer"
                           ? "Global Footer is Empty"
-                          : "Your Page Canvas is Empty"}
+                          : canvasMode === "single"
+                            ? "Single Post Template is Empty"
+                            : canvasMode === "archive"
+                              ? "Archive Template is Empty"
+                              : canvasMode === "404"
+                                ? "404 Not Found Template is Empty"
+                                : canvasMode === "search-results"
+                                  ? "Search Results Template is Empty"
+                                  : "Your Page Canvas is Empty"}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
                       {canvasMode === "header"
                         ? "Add navigation menu, logo, buttons, or links from the left panel."
                         : canvasMode === "footer"
                           ? "Add footer links, copyright text, or social icons from the left panel."
-                          : "Click any element from the left panel to start building."}
+                          : canvasMode === "single"
+                            ? "Add post title, breadcrumbs, excerpt, or post navigation."
+                            : canvasMode === "archive"
+                              ? "Add taxonomy filter, archive title, or post cards."
+                              : canvasMode === "404"
+                                ? "Add 404 message, homepage link, or search bar."
+                                : canvasMode === "search-results"
+                                  ? "Add search input, results layout, or query heading."
+                                  : "Click any element from the left panel to start building."}
                     </p>
                   </div>
                 ) : (
@@ -10140,7 +10449,7 @@ export default function WebsiteEditor() {
                 )}
 
                 {/* Query Builder Inspector */}
-                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio" || selectedElementAny.type === "loop-grid") && (
                   <QueryBuilderWidgetInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
@@ -10303,7 +10612,7 @@ export default function WebsiteEditor() {
                     )}
 
                     {/* Query Builder Inspector */}
-                    {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                    {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio" || selectedElementAny.type === "loop-grid") && (
                       <QueryBuilderWidgetInspector
                         el={selectedElementAny}
                         updateProp={updateSelectedProp}

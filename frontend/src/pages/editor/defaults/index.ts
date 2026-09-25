@@ -396,6 +396,93 @@ export function createDefaultElement(type: ElementType): EditorElement {
           backgroundColor: "transparent",
         },
       };
+    case "loop-grid":
+      return {
+        id,
+        type: "loop-grid",
+        content: "Loop Grid",
+        loopColumns: 3,
+        loopGap: 24,
+        paginationType: "none",
+        queryPostType: "post",
+        queryLimit: 6,
+        queryOrderBy: "date",
+        queryOrder: "desc",
+        queryTaxonomy: "category",
+        queryTerms: [],
+        queryOffset: 0,
+        queryExcludeCurrent: true,
+        querySource: "custom",
+        children: [
+          {
+            id: `${id}_card`,
+            type: "container",
+            content: "Card Template",
+            layout: { direction: "column", gap: 12 },
+            styles: {
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              paddingTop: "20px",
+              paddingRight: "20px",
+              paddingBottom: "20px",
+              paddingLeft: "20px",
+              boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+              borderWidth: "1px",
+              borderColor: "#f1f5f9",
+            },
+            children: [
+              {
+                id: `${id}_img`,
+                type: "image",
+                content: "Featured Image",
+                src: "{{post.featuredImage}}",
+                styles: { width: "100%", height: "200px", objectFit: "cover", borderRadius: "12px" },
+              },
+              {
+                id: `${id}_date_author`,
+                type: "text",
+                content: "{{post.date}} • By {{post.author}}",
+                styles: { fontSize: "12px", color: "#64748b", fontWeight: "500" },
+              },
+              {
+                id: `${id}_title`,
+                type: "heading",
+                content: "{{post.title}}",
+                styles: { fontSize: "20px", fontWeight: "700", color: "#0f172a", marginTop: "4px", marginBottom: "8px" },
+              },
+              {
+                id: `${id}_excerpt`,
+                type: "text",
+                content: "{{post.excerpt}}",
+                styles: { fontSize: "14px", color: "#475569", lineHeight: "1.6", marginBottom: "12px" },
+              },
+              {
+                id: `${id}_btn`,
+                type: "button",
+                content: "Read Article →",
+                href: "/blog/{{post.slug}}",
+                styles: {
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  paddingTop: "8px",
+                  paddingBottom: "8px",
+                  paddingLeft: "16px",
+                  paddingRight: "16px",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                },
+              },
+            ],
+          },
+        ],
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          backgroundColor: "transparent",
+        },
+      };
     case "share-buttons":
       return {
         id,

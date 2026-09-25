@@ -1025,10 +1025,24 @@ export const TaxonomyFilterRenderer: React.FC<NavigationRendererProps> = ({ elem
     } else {
       setSelectedSlugs([slug]);
     }
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("fs-taxonomy-filter", {
+          detail: {
+            targetGridId: element.targetGridId || (element as any).styles?.targetGridId,
+            slug,
+          },
+        })
+      );
+    }
   };
 
   return (
-    <div className="w-full flex items-center flex-wrap gap-2 select-none">
+    <div
+      className="w-full flex items-center flex-wrap gap-2 select-none"
+      data-target-grid={element.targetGridId || (element as any).styles?.targetGridId || ""}
+    >
       {items.map((tax) => {
         const isActive = selectedSlugs.includes(tax.slug);
 
@@ -1036,6 +1050,8 @@ export const TaxonomyFilterRenderer: React.FC<NavigationRendererProps> = ({ elem
           <button
             key={tax.id}
             type="button"
+            data-target-grid={element.targetGridId || (element as any).styles?.targetGridId || ""}
+            data-taxonomy-slug={tax.slug}
             onClick={(e) => {
               e.stopPropagation();
               handleToggle(tax.slug);

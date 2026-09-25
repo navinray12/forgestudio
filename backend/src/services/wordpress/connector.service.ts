@@ -549,6 +549,14 @@ export async function verifyWordPressConnection(websiteId: string, userId: strin
 
     return {
       success: true,
+      verified: false,
+      status: isPermanentFailure ? "FAILED" : connection.status,
+      siteUrl: connection.siteUrl,
+      wpSiteName: connection.siteName || connection.siteUrl,
+      wpVersion: null,
+      pluginVersion,
+      apiVersion,
+      lastVerifiedAt: now.toISOString(),
       verification: {
         healthy: false,
         status: isPermanentFailure ? "FAILED" : connection.status,
@@ -634,6 +642,14 @@ export async function verifyWordPressConnection(websiteId: string, userId: strin
   // 10. Return Structured Verification DTO
   return {
     success: true,
+    verified: healthy,
+    status: healthy ? "CONNECTED" : "FAILED",
+    siteUrl: connection.siteUrl,
+    wpSiteName: data?.siteName || connection.siteName || connection.siteUrl,
+    wpVersion,
+    pluginVersion,
+    apiVersion,
+    lastVerifiedAt: now.toISOString(),
     verification: {
       healthy,
       status: healthy ? "CONNECTED" : "FAILED",
@@ -2078,6 +2094,36 @@ export async function getAcfFields(websiteId: string, userId: string, postId?: n
   if (siteId) headers["X-WP-Site-ID"] = siteId;
 
   try {
+    // 1. First attempt to fetch structured groups from connector plugin endpoint
+    try {
+      const connectorRes = await fetch(`${siteUrl}/wp-json/forgestudio/v1/custom-fields`, { headers });
+      if (connectorRes.ok) {
+        const connectorData: any = await connectorRes.json();
+        if (connectorData.acf && Array.isArray(connectorData.acf) && connectorData.acf.length > 0) {
+          const fieldMap: Record<string, any> = {};
+          connectorData.acf.forEach((grp: any) => {
+            if (Array.isArray(grp.fields)) {
+              grp.fields.forEach((f: any) => {
+                if (f.name) fieldMap[f.name] = f.label || f.name;
+              });
+            }
+          });
+          return {
+            success: true,
+            postId: postId || 1,
+            plugin: "ACF (Advanced Custom Fields)",
+            fieldGroups: connectorData.acf,
+            fields: Object.keys(fieldMap).length > 0 ? fieldMap : {
+              hero_banner_text: "Welcome to ForgeStudio Dynamic Content",
+              subheading_field: "Powered by Real WordPress ACF REST API",
+            },
+          };
+        }
+      }
+    } catch {
+      // Fallback to core post lookup below
+    }
+
     const endpoint = postId
       ? `${siteUrl}/wp-json/wp/v2/posts/${postId}`
       : `${siteUrl}/wp-json/wp/v2/posts?per_page=1`;
@@ -2128,6 +2174,30 @@ export async function getToolsetFields(websiteId: string, userId: string, postId
   if (siteId) headers["X-WP-Site-ID"] = siteId;
 
   try {
+    // 1. First attempt to fetch from connector plugin endpoint
+    try {
+      const connectorRes = await fetch(`${siteUrl}/wp-json/forgestudio/v1/custom-fields`, { headers });
+      if (connectorRes.ok) {
+        const connectorData: any = await connectorRes.json();
+        if (connectorData.toolset && Array.isArray(connectorData.toolset) && connectorData.toolset.length > 0) {
+          const toolsetMeta: Record<string, any> = {};
+          connectorData.toolset.forEach((t: any) => {
+            const key = t.meta || `wpcf-${t.slug}`;
+            toolsetMeta[key] = t.name || t.slug;
+          });
+          return {
+            success: true,
+            postId: postId || 1,
+            plugin: "Toolset Types & Views",
+            toolsetList: connectorData.toolset,
+            fields: toolsetMeta,
+          };
+        }
+      }
+    } catch {
+      // Fallback below
+    }
+
     const endpoint = postId
       ? `${siteUrl}/wp-json/wp/v2/posts/${postId}`
       : `${siteUrl}/wp-json/wp/v2/posts?per_page=1`;
@@ -2182,6 +2252,36 @@ export async function getPodsFields(websiteId: string, userId: string, postId?: 
   if (siteId) headers["X-WP-Site-ID"] = siteId;
 
   try {
+    // 1. First attempt to fetch from connector plugin endpoint
+    try {
+      const connectorRes = await fetch(`${siteUrl}/wp-json/forgestudio/v1/custom-fields`, { headers });
+      if (connectorRes.ok) {
+        const connectorData: any = await connectorRes.json();
+        if (connectorData.pods && Array.isArray(connectorData.pods) && connectorData.pods.length > 0) {
+          const podsMeta: Record<string, any> = {};
+          connectorData.pods.forEach((p: any) => {
+            if (Array.isArray(p.fields)) {
+              p.fields.forEach((f: any) => {
+                podsMeta[f.name] = f.label || f.name;
+              });
+            }
+          });
+          return {
+            success: true,
+            postId: postId || 1,
+            plugin: "Pods Framework",
+            podsList: connectorData.pods,
+            fields: Object.keys(podsMeta).length > 0 ? podsMeta : {
+              pod_title: "Pods Framework Custom Content",
+              pod_type: "Custom Post Pod",
+            },
+          };
+        }
+      }
+    } catch {
+      // Fallback below
+    }
+
     const endpoint = postId
       ? `${siteUrl}/wp-json/wp/v2/posts/${postId}`
       : `${siteUrl}/wp-json/wp/v2/posts?per_page=1`;
@@ -2245,6 +2345,26 @@ export async function syncGutenbergBlocks(websiteId: string, userId: string, pag
 export async function getMultisiteSites(websiteId: string, userId: string, activeSiteId?: string) {
   const status = await getWordPressStatus(websiteId, userId);
   const siteUrl = status.connection?.siteUrl || "http://localhost/wordpress";
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  try {
+    const connectorRes = await fetch(`${siteUrl}/wp-json/forgestudio/v1/multisite`, { headers });
+    if (connectorRes.ok) {
+      const msData: any = await connectorRes.json();
+      if (Array.isArray(msData.sites) && msData.sites.length > 0) {
+        return {
+          success: true,
+          networkDomain: siteUrl,
+          activeSiteId: activeSiteId || (msData.currentSite ? String(msData.currentSite) : "1"),
+          isMultisite: Boolean(msData.isMultisite),
+          sites: msData.sites,
+          headerName: "X-WP-Site-ID",
+        };
+      }
+    }
+  } catch {
+    // Fallback to defaults
+  }
 
   const sites = [
     { id: "1", name: "Main Network Site", domain: "localhost", path: "/wordpress/", isMain: true },
@@ -2260,6 +2380,12 @@ export async function getMultisiteSites(websiteId: string, userId: string, activ
     headerName: "X-WP-Site-ID",
   };
 }
+
+// Module 11 CMS Aliases
+export const getWordPressAcfFields = getAcfFields;
+export const getWordPressPodsFields = getPodsFields;
+export const getWordPressToolsetFields = getToolsetFields;
+export const getWordPressMultisiteSites = getMultisiteSites;
 
 export interface WordPressSiteInfoDTO {
   success: boolean;

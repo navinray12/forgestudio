@@ -588,6 +588,42 @@ function renderElementToHtml(el: any, allPages: any[]): string {
     case "shortcode": {
       return el.content || el.html || "";
     }
+    case "loop-grid": {
+      const defaultPosts = [
+        { title: "Design Systems in 2026", excerpt: "How to build modular scalable component libraries.", category: "Design", date: "Jan 15, 2026", slug: "design-systems-2026", featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80" },
+        { title: "Next-Gen CSS Architecture", excerpt: "Mastering subgrid, container queries, and native nesting.", category: "Architecture", date: "Jan 22, 2026", slug: "next-gen-css", featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80" },
+        { title: "Modern Headless WordPress", excerpt: "Decoupled frontends with lightning fast response times.", category: "Development", date: "Feb 02, 2026", slug: "headless-wordpress", featuredImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80" },
+      ];
+      const posts = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : defaultPosts;
+      const cols = Math.min(Math.max(el.loopColumns || 3, 1), 6);
+      const gap = el.loopGap ?? 24;
+      const limit = el.queryLimit || 6;
+      const displayPosts = posts.slice(0, limit);
+
+      const cardsHtml = displayPosts.map((post: any, idx: number) => {
+        const isAlternate = idx % 2 === 1 && !!el.alternateTemplateId;
+        const altClass = isAlternate ? " fs-loop-card-alt" : "";
+        const title = escapeHtml(post.title || "Untitled");
+        const excerpt = escapeHtml(post.excerpt || "");
+        const img = post.featuredImage ? `<img src="${escapeHtml(post.featuredImage)}" alt="${title}" class="fs-loop-card-img" loading="lazy" />` : "";
+        const category = post.category ? `<span class="fs-loop-card-cat">${escapeHtml(post.category)}</span>` : "";
+        const date = post.date ? `<span class="fs-loop-card-date">${escapeHtml(post.date)}</span>` : "";
+        const slug = post.slug || "#";
+        return `
+        <article class="fs-loop-card${altClass}" data-loop-item-index="${idx}" data-modulo="${idx % 2}" data-alternate="${isAlternate ? "true" : "false"}">
+          ${img ? `<div class="fs-loop-card-media">${img}${category}</div>` : ""}
+          <div class="fs-loop-card-body">
+            ${date}
+            <h3 class="fs-loop-card-title"><a href="/${escapeHtml(slug)}">${title}</a></h3>
+            ${excerpt ? `<p class="fs-loop-card-excerpt">${excerpt}</p>` : ""}
+            <a href="/${escapeHtml(slug)}" class="fs-loop-card-link">Read Article →</a>
+          </div>
+        </article>`;
+      }).join("\n");
+
+      const gridStyle = `display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;`;
+      return `<div class="fs-loop-grid"${idAttr}${classAttr} style="${gridStyle}${styleAttr ? styleAttr.replace(/^\\s*style="/, "").replace(/"$/, "") : ""}">\n${cardsHtml}\n</div>`;
+    }
     default: {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
       const fallbackChildren = children.length > 0
@@ -703,12 +739,13 @@ function generatePageHtml(
 }
 
 function generateGlobalCss(websiteData: any): string {
-  const globalStyles = websiteData.globalStyles || {};
+  const safeData = websiteData || {};
+  const globalStyles = safeData.globalStyles || safeData.editorData?.globalStyles || {};
   const colors = globalStyles.colors || {};
   const typography = globalStyles.typography || {};
 
-  const globalVars = validateVariables(websiteData.globalVariables || websiteData.editorData?.globalVariables || []);
-  const globalClasses = validateClasses(websiteData.globalClasses || websiteData.editorData?.globalClasses || []);
+  const globalVars = validateVariables(safeData.globalVariables || safeData.editorData?.globalVariables || []);
+  const globalClasses = validateClasses(safeData.globalClasses || safeData.editorData?.globalClasses || []);
   const designSystemCss = compileDesignSystemCss(globalVars, globalClasses);
 
   return `${designSystemCss ? designSystemCss + "\n\n" : ""}/* ForgeStudio Generated CSS */
@@ -898,7 +935,7 @@ img {
 .fs-post-prev a:hover, .fs-post-next a:hover { text-decoration: underline; }
 
 /* Custom Page Styles */
-${websiteData.pageCss || ""}
+${safeData.pageCss || safeData.editorData?.pageCss || ""}
 `;
 }
 
@@ -1009,6 +1046,88 @@ export function compileCanonicalToStaticBundle(
       path: fileName,
       content: pageHtml,
       size: Buffer.byteLength(pageHtml, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // Compile Specialized Theme Parts (404, archive, search)
+  const siteParts = websiteData.siteParts || {};
+  const resolvedWebsiteData = {
+    ...websiteData,
+    siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
+  };
+
+  // 4a. 404 Error Page Template (F-239)
+  if (
+    siteParts.notFound404 &&
+    Array.isArray(siteParts.notFound404.elements) &&
+    siteParts.notFound404.elements.length > 0 &&
+    (siteParts.notFound404.enabled ?? siteParts.notFound404.isEnabled ?? true)
+  ) {
+    const page404 = {
+      id: "404",
+      name: "404 - Page Not Found",
+      title: "404 - Page Not Found",
+      slug: "404",
+      isHome: false,
+      elements: siteParts.notFound404.elements,
+    };
+    const resolved404 = resolveTokensInTree(page404, siteContext);
+    const html404 = generatePageHtml(resolved404, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "404.html",
+      content: html404,
+      size: Buffer.byteLength(html404, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // 4b. Archive Template (F-238)
+  if (
+    siteParts.archive &&
+    Array.isArray(siteParts.archive.elements) &&
+    siteParts.archive.elements.length > 0 &&
+    (siteParts.archive.enabled ?? siteParts.archive.isEnabled ?? true)
+  ) {
+    const pageArchive = {
+      id: "archive",
+      name: "Archive",
+      title: "Archive",
+      slug: "archive",
+      isHome: false,
+      elements: siteParts.archive.elements,
+    };
+    const resolvedArchive = resolveTokensInTree(pageArchive, siteContext);
+    const htmlArchive = generatePageHtml(resolvedArchive, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "archive.html",
+      content: htmlArchive,
+      size: Buffer.byteLength(htmlArchive, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // 4c. Search Results Template (F-240)
+  if (
+    siteParts.searchResults &&
+    Array.isArray(siteParts.searchResults.elements) &&
+    siteParts.searchResults.elements.length > 0 &&
+    (siteParts.searchResults.enabled ?? siteParts.searchResults.isEnabled ?? true)
+  ) {
+    const pageSearch = {
+      id: "search",
+      name: "Search Results",
+      title: "Search Results",
+      slug: "search",
+      isHome: false,
+      elements: siteParts.searchResults.elements,
+    };
+    const resolvedSearch = resolveTokensInTree(pageSearch, siteContext);
+    const htmlSearch = generatePageHtml(resolvedSearch, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "search.html",
+      content: htmlSearch,
+      size: Buffer.byteLength(htmlSearch, "utf8"),
       contentType: "text/html",
     });
   }
