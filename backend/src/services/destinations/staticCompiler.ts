@@ -79,7 +79,7 @@ export function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any
   return trimmed;
 }
 
-function renderElementToHtml(el: any, allPages: any[]): string {
+function renderElementToHtml(el: any, allPages: any[], websiteId?: string): string {
   if (!el) return "";
 
   const styleObj = el.styles || {};
@@ -255,7 +255,7 @@ function renderElementToHtml(el: any, allPages: any[]): string {
     case "div":
     case "div-block": {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
-      const childrenHtml = children.map((child: any) => renderElementToHtml(child, allPages)).join("\n");
+      const childrenHtml = children.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
 
       const layout = el.layout || {};
       const isMasonry = layout.layoutType === "masonry";
@@ -310,7 +310,7 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       const colsHtml = cols
         .map((col: any) => {
           const colChildren = Array.isArray(col.elements) ? col.elements : (Array.isArray(col.children) ? col.children : []);
-          const childrenHtml = colChildren.map((child: any) => renderElementToHtml(child, allPages)).join("\n");
+          const childrenHtml = colChildren.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
           return `<div class="col" style="flex: ${col.width || 1};">\n${childrenHtml}\n</div>`;
         })
         .join("\n");
@@ -320,15 +320,35 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       const formFields = Array.isArray(el.fields) ? el.fields : (Array.isArray(el.formFields) ? el.formFields : []);
       const fieldsHtml = formFields
         .map((f: any) => {
-          const label = f.label ? `<label for="${escapeHtml(f.name || f.id)}">${escapeHtml(f.label)}</label>` : "";
-          const input = f.type === "textarea"
-            ? `<textarea id="${escapeHtml(f.name || f.id)}" name="${escapeHtml(f.name || f.id)}" ${f.required ? "required" : ""}></textarea>`
-            : `<input type="${escapeHtml(f.type || "text")}" id="${escapeHtml(f.name || f.id)}" name="${escapeHtml(f.name || f.id)}" ${f.required ? "required" : ""} />`;
+          const fieldId = escapeHtml(f.name || f.id || "field");
+          const label = f.label ? `<label for="${fieldId}">${escapeHtml(f.label)}</label>` : "";
+          let input = "";
+          if (f.type === "textarea") {
+            input = `<textarea id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""}></textarea>`;
+          } else if (f.type === "select") {
+            const options = Array.isArray(f.options) ? f.options : [];
+            const optsHtml = options
+              .map((opt: any) => {
+                const val = typeof opt === "string" ? opt : opt.value ?? opt.label;
+                const lab = typeof opt === "string" ? opt : opt.label ?? opt.value;
+                return `<option value="${escapeHtml(String(val))}">${escapeHtml(String(lab))}</option>`;
+              })
+              .join("\n");
+            input = `<select id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""}>\n${optsHtml}\n</select>`;
+          } else {
+            input = `<input type="${escapeHtml(f.type || "text")}" id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""} />`;
+          }
           return `<div class="form-group">\n${label}\n${input}\n</div>`;
         })
         .join("\n");
       const submitText = el.submitButtonText || "Submit";
-      return `<form${idAttr}${classAttr}${styleAttr} action="/api/forms/submit" method="POST">\n${fieldsHtml}\n<button type="submit" class="btn btn-primary">${escapeHtml(submitText)}</button>\n</form>`;
+      const actualWebsiteId = websiteId || el.websiteId || "";
+      const formId = el.id || el.formId || "form";
+      const redirectUrl = el.redirectUrl || el.formRedirectUrl || "";
+      const redirectAttr = redirectUrl ? ` data-redirect="${escapeHtml(redirectUrl)}"` : "";
+      const hiddenInputs = `  <input type="hidden" name="websiteId" value="${escapeHtml(actualWebsiteId)}" />\n  <input type="hidden" name="formId" value="${escapeHtml(formId)}" />\n  <input type="text" name="_fs_hp_check" value="" style="display:none !important; opacity:0; position:absolute; top:-9999px; left:-9999px;" tabindex="-1" autocomplete="off" />`;
+
+      return `<form${idAttr}${classAttr}${styleAttr}${redirectAttr} action="/api/forms/submit" method="POST">\n${hiddenInputs}\n${fieldsHtml}\n<div class="fs-form-status" style="display:none; margin: 10px 0; padding: 10px; border-radius: 4px;"></div>\n<button type="submit" class="btn btn-primary">${escapeHtml(submitText)}</button>\n</form>`;
     }
     case "slides": {
       const slides = Array.isArray(el.slides) ? el.slides : [];
@@ -627,7 +647,7 @@ function renderElementToHtml(el: any, allPages: any[]): string {
     default: {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
       const fallbackChildren = children.length > 0
-        ? children.map((child: any) => renderElementToHtml(child, allPages)).join("\n")
+        ? children.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n")
         : escapeHtml(el.content || "");
       return `<div${idAttr}${classAttr}${styleAttr}>${fallbackChildren}</div>`;
     }
@@ -678,6 +698,7 @@ function generatePageHtml(
   if (pSettings.nofollow) robotsDirectives.push("nofollow");
 
   // Site Header (supports both isEnabled and enabled, plus theme conditions)
+  const currentWebsiteId = websiteData.id || websiteData.websiteId || "";
   let headerHtml = "";
   const headerPart = websiteData.siteParts?.header;
   const headerMatches = matchesThemeCondition(headerPart?.conditions, {
@@ -686,12 +707,12 @@ function generatePageHtml(
     slug: page.slug,
   });
   if (headerMatches && (headerPart?.isEnabled || headerPart?.enabled) && Array.isArray(headerPart.elements) && headerPart.elements.length > 0) {
-    headerHtml = `<header class="site-header">\n${headerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</header>`;
+    headerHtml = `<header class="site-header">\n${headerPart.elements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n")}\n</header>`;
   }
 
   // Page Elements
   const pageElements = Array.isArray(page.elements) ? page.elements : [];
-  const mainContent = pageElements.map((el: any) => renderElementToHtml(el, allPages)).join("\n");
+  const mainContent = pageElements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n");
 
   // Site Footer (supports both isEnabled and enabled, plus theme conditions)
   let footerHtml = "";
@@ -702,7 +723,7 @@ function generatePageHtml(
     slug: page.slug,
   });
   if (footerMatches && (footerPart?.isEnabled || footerPart?.enabled) && Array.isArray(footerPart.elements) && footerPart.elements.length > 0) {
-    footerHtml = `<footer class="site-footer">\n${footerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</footer>`;
+    footerHtml = `<footer class="site-footer">\n${footerPart.elements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n")}\n</footer>`;
   }
 
   return `<!DOCTYPE html>
@@ -942,12 +963,83 @@ ${safeData.pageCss || safeData.editorData?.pageCss || ""}
 function generateRuntimeJs(): string {
   return `/* ForgeStudio Static Runtime */
 (function() {
-  // Mobile navigation toggles & interactive components
   document.addEventListener('DOMContentLoaded', function() {
     // Intercept form submissions for ForgeStudio API integration
     document.querySelectorAll('form').forEach(function(form) {
-      form.addEventListener('submit', function(e) {
-        // Fallback for native submit if action is set
+      form.addEventListener('submit', async function(e) {
+        var action = form.getAttribute('action') || '';
+        if (action.indexOf('/api/forms/submit') !== -1) {
+          e.preventDefault();
+          var submitBtn = form.querySelector('button[type="submit"]');
+          var originalBtnText = submitBtn ? submitBtn.innerText : '';
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Submitting...';
+          }
+          var statusBox = form.querySelector('.fs-form-status');
+          if (statusBox) {
+            statusBox.style.display = 'none';
+          }
+
+          var formData = new FormData(form);
+          var data = {};
+          var websiteId = formData.get('websiteId') || '';
+          var formId = formData.get('formId') || form.id || '';
+          var honeypotValue = formData.get('_fs_hp_check') || '';
+
+          formData.forEach(function(val, key) {
+            if (key !== 'websiteId' && key !== 'formId' && key !== '_fs_hp_check') {
+              data[key] = val;
+            }
+          });
+
+          var payload = {
+            websiteId: String(websiteId),
+            formId: String(formId),
+            data: data,
+            honeypotValue: String(honeypotValue)
+          };
+
+          try {
+            var response = await fetch('/api/forms/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            var result = await response.json();
+            if (response.ok && result.success !== false) {
+              if (statusBox) {
+                statusBox.textContent = result.message || 'Thank you! Your submission has been received.';
+                statusBox.style.display = 'block';
+                statusBox.style.color = '#155724';
+                statusBox.style.backgroundColor = '#d4edda';
+                statusBox.style.border = '1px solid #c3e6cb';
+              }
+              form.reset();
+              var redirectUrl = form.getAttribute('data-redirect') || result.redirectUrl;
+              if (redirectUrl) {
+                setTimeout(function() {
+                  window.location.href = redirectUrl;
+                }, 1000);
+              }
+            } else {
+              throw new Error(result.error || result.message || 'Submission failed');
+            }
+          } catch (err) {
+            if (statusBox) {
+              statusBox.textContent = err.message || 'An error occurred. Please try again.';
+              statusBox.style.display = 'block';
+              statusBox.style.color = '#721c24';
+              statusBox.style.backgroundColor = '#f8d7da';
+              statusBox.style.border = '1px solid #f5c6cb';
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerText = originalBtnText;
+            }
+          }
+        }
       });
     });
   });
@@ -1036,6 +1128,8 @@ export function compileCanonicalToStaticBundle(
     const resolvedPage = resolveTokensInTree(rawPage, pageContext);
     const resolvedWebsiteData = {
       ...websiteData,
+      id: websiteId || websiteData.id,
+      websiteId: websiteId || websiteData.websiteId,
       siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
     };
 
@@ -1054,6 +1148,8 @@ export function compileCanonicalToStaticBundle(
   const siteParts = websiteData.siteParts || {};
   const resolvedWebsiteData = {
     ...websiteData,
+    id: websiteId || websiteData.id,
+    websiteId: websiteId || websiteData.websiteId,
     siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
   };
 

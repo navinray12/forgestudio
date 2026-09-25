@@ -383,7 +383,9 @@ export type FormFieldType =
   | "textarea"
   | "select"
   | "checkbox"
-  | "radio";
+  | "radio"
+  | "date"
+  | "file";
 
 export interface FormStepItem {
   id: string;
@@ -401,6 +403,12 @@ export interface FormFieldItem {
   defaultValue?: string;
   width?: "full" | "half";
   stepId?: string;
+  conditionalLogic?: {
+    action: "show" | "hide";
+    targetFieldId: string;
+    operator: "equals" | "not_equals" | "contains" | "not_empty";
+    value: string;
+  };
 }
 
 export interface SlideItem {
@@ -833,7 +841,7 @@ export interface EditorElement {
   slidesAlignment?: "left" | "center" | "right";
   slidesShowArrows?: boolean;
   slidesShowDots?: boolean;
-  formMode?: "simple" | "step-by-step";
+  formMode?: "simple" | "standard" | "step-by-step";
   formSteps?: FormStepItem[];
   formNextText?: string;
   formBackText?: string;
@@ -853,6 +861,17 @@ export interface EditorElement {
   formSubmitBtnBg?: string;
   formSubmitBtnColor?: string;
   formSubmitBtnFullWidth?: boolean;
+  formEnableHoneypot?: boolean;
+  formActions?: {
+    saveToDb?: boolean;
+    sendEmail?: boolean;
+    toEmail?: string;
+    emailSubject?: string;
+    webhook?: boolean;
+    webhookUrl?: string;
+    redirect?: boolean;
+    redirectUrl?: string;
+  };
   loginTitle?: string;
   loginSubtitle?: string;
   loginEmailLabel?: string;

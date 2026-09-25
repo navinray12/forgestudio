@@ -305,14 +305,54 @@ export const FormWidgetRenderer = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [honeypotVal, setHoneypotVal] = useState("");
 
   // Active step fields
   const activeStep = steps[currentStepIndex] || steps[0];
   const isMultiStep = formMode === "step-by-step" && steps.length > 1;
 
-  const visibleFields = isMultiStep
+  // Client-Side Conditional Logic (X-788)
+  const isFieldVisible = (field: FormFieldItem, currentData: Record<string, any>): boolean => {
+    if (!field.conditionalLogic || !field.conditionalLogic.targetFieldId) {
+      return true;
+    }
+    const { action, targetFieldId, operator, value } = field.conditionalLogic;
+    const targetVal = currentData[targetFieldId];
+    const strTargetVal = targetVal !== undefined && targetVal !== null ? String(targetVal) : "";
+    const ruleValue = value !== undefined && value !== null ? String(value) : "";
+
+    let conditionMet = false;
+    switch (operator) {
+      case "equals":
+        conditionMet = strTargetVal === ruleValue;
+        break;
+      case "not_equals":
+        conditionMet = strTargetVal !== ruleValue;
+        break;
+      case "contains":
+        conditionMet = strTargetVal.toLowerCase().includes(ruleValue.toLowerCase());
+        break;
+      case "not_empty":
+        conditionMet = strTargetVal.trim().length > 0;
+        break;
+      default:
+        conditionMet = strTargetVal === ruleValue;
+        break;
+    }
+
+    if (action === "show") {
+      return conditionMet;
+    } else if (action === "hide") {
+      return !conditionMet;
+    }
+    return true;
+  };
+
+  const currentStepFields = isMultiStep
     ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
     : fields;
+
+  const visibleFields = currentStepFields.filter((f) => isFieldVisible(f, formData));
 
   const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
     setValidationError(null);
@@ -386,6 +426,8 @@ export const FormWidgetRenderer = ({
           formId: el.id,
           formName: el.formTitle || el.content || "Website Form",
           fields: formData,
+          data: formData,
+          honeypotValue: honeypotVal,
         };
         const res = await fetch(`${apiUrl}/api/forms/submit`, {
           method: "POST",
@@ -472,6 +514,16 @@ export const FormWidgetRenderer = ({
         boxSizing: "border-box",
       }}
     >
+      {/* Honeypot Trap (F-277) */}
+      <input
+        type="text"
+        name="_fs_hp_check"
+        value={honeypotVal}
+        onChange={(e) => setHoneypotVal(e.target.value)}
+        style={{ display: "none", opacity: 0, position: "absolute", top: -9999, left: -9999 }}
+        tabIndex={-1}
+        autoComplete="off"
+      />
       {/* Form Header Title & Subtitle */}
       {(title || subtitle) && (
         <div className="mb-6">
@@ -570,7 +622,30 @@ export const FormWidgetRenderer = ({
               )}
 
               {/* Field Inputs */}
-              {field.type === "textarea" ? (
+              {field.type === "date" ? (
+                <input
+                  type="date"
+                  required={field.required}
+                  value={formData[field.id] || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                />
+              ) : field.type === "file" ? (
+                <div className="flex flex-col gap-1.5">
+                  <input
+                    type="file"
+                    required={field.required}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setFormData((prev) => ({ ...prev, [field.id]: file ? file.name : "" }));
+                    }}
+                    className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-700 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                  />
+                  {formData[field.id] && (
+                    <span className="text-[11px] text-slate-500 truncate">Selected: {formData[field.id]}</span>
+                  )}
+                </div>
+              ) : field.type === "textarea" ? (
                 <textarea
                   rows={4}
                   required={field.required}

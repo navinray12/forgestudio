@@ -45,6 +45,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import type { ClientBillingConfig } from "../../../types/clientBilling.types.js";
+import { FormSubmissionsModal } from "./FormSubmissionsModal.js";
 
 interface ManagedSiteModalProps {
   website: {
@@ -80,6 +81,7 @@ type TabType =
   | "image-optimization"
   | "mailer"
   | "email-logs"
+  | "forms"
   | "cookie-consent"
   | "integrations"
   | "client-billing"
@@ -1593,6 +1595,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
             { id: "image-optimization", label: "Image Optimizer", icon: ImageIcon },
             { id: "mailer", label: "Site Mailer", icon: Mail },
             { id: "email-logs", label: "Email Logs", icon: Send },
+            { id: "forms", label: "Form Submissions", icon: FileText },
             { id: "cookie-consent", label: "Cookie Consent", icon: Cookie },
             { id: "integrations", label: "Integrations", icon: Share2 },
             { id: "client-billing", label: "Client Billing", icon: DollarSign },
@@ -2304,6 +2307,17 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                       </table>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* TAB: FORM SUBMISSIONS (F-273) */}
+              {activeTab === "forms" && website && (
+                <div className="space-y-4">
+                  <FormSubmissionsModal
+                    websiteId={website.id}
+                    websiteName={website.name}
+                    isEmbedded={true}
+                  />
                 </div>
               )}
 

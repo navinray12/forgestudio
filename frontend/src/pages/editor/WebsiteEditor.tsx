@@ -11598,6 +11598,309 @@ export default function WebsiteEditor() {
                           </label>
                         </div>
 
+                        {/* Form Mode & Multi-Step (F-275) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Form Mode & Steps
+                          </span>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("formMode", "standard")}
+                              className={`rounded-lg py-1.5 text-xs font-bold transition ${
+                                selectedElementAny.formMode !== "step-by-step"
+                                  ? "bg-emerald-600 text-white shadow-xs"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              Standard
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateSelectedProp("formMode", "step-by-step");
+                                if (!selectedElementAny.formSteps || selectedElementAny.formSteps.length === 0) {
+                                  updateSelectedProp("formSteps", [
+                                    { id: "step_1", title: "Step 1: Contact Info" },
+                                    { id: "step_2", title: "Step 2: Details" },
+                                  ]);
+                                }
+                              }}
+                              className={`rounded-lg py-1.5 text-xs font-bold transition ${
+                                selectedElementAny.formMode === "step-by-step"
+                                  ? "bg-emerald-600 text-white shadow-xs"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              Step-by-Step
+                            </button>
+                          </div>
+
+                          {selectedElementAny.formMode === "step-by-step" && (
+                            <div className="space-y-2 pt-2 border-t border-slate-200">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-bold text-slate-700">Steps ({selectedElementAny.formSteps?.length || 0})</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const currentSteps = selectedElementAny.formSteps || [];
+                                    const newStep = {
+                                      id: `step_${Date.now()}`,
+                                      title: `Step ${currentSteps.length + 1}: Details`,
+                                    };
+                                    updateSelectedProp("formSteps", [...currentSteps, newStep]);
+                                  }}
+                                  className="rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-emerald-700 cursor-pointer"
+                                >
+                                  + Add Step
+                                </button>
+                              </div>
+
+                              <div className="space-y-1.5">
+                                {(selectedElementAny.formSteps || []).map((step: any, sIdx: number) => (
+                                  <div key={step.id} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1.5 shadow-2xs">
+                                    <span className="text-[10px] font-bold text-slate-400 w-4 text-center">{sIdx + 1}</span>
+                                    <input
+                                      type="text"
+                                      value={step.title}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formSteps || []).map((s: any) =>
+                                          s.id === step.id ? { ...s, title: e.target.value } : s
+                                        );
+                                        updateSelectedProp("formSteps", updated);
+                                      }}
+                                      className="flex-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-800 outline-none focus:border-emerald-500"
+                                    />
+                                    {sIdx > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const steps = [...(selectedElementAny.formSteps || [])];
+                                          const temp = steps[sIdx];
+                                          steps[sIdx] = steps[sIdx - 1];
+                                          steps[sIdx - 1] = temp;
+                                          updateSelectedProp("formSteps", steps);
+                                        }}
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 px-1 cursor-pointer"
+                                        title="Move Step Up"
+                                      >
+                                        ↑
+                                      </button>
+                                    )}
+                                    {sIdx < (selectedElementAny.formSteps?.length || 0) - 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const steps = [...(selectedElementAny.formSteps || [])];
+                                          const temp = steps[sIdx];
+                                          steps[sIdx] = steps[sIdx + 1];
+                                          steps[sIdx + 1] = temp;
+                                          updateSelectedProp("formSteps", steps);
+                                        }}
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 px-1 cursor-pointer"
+                                        title="Move Step Down"
+                                      >
+                                        ↓
+                                      </button>
+                                    )}
+                                    {(selectedElementAny.formSteps?.length || 0) > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updated = (selectedElementAny.formSteps || []).filter((s: any) => s.id !== step.id);
+                                          updateSelectedProp("formSteps", updated);
+                                        }}
+                                        className="text-[10px] font-bold text-red-500 hover:text-red-700 px-1 cursor-pointer"
+                                        title="Delete Step"
+                                      >
+                                        ✕
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Spam Protection (F-277) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Spam Protection
+                          </span>
+                          <label className="flex items-center justify-between text-xs text-slate-700 cursor-pointer">
+                            <div>
+                              <span className="font-semibold text-slate-800">Honeypot Anti-Spam Trap</span>
+                              <p className="text-[10px] text-slate-500 mt-0.5">Injects an invisible trap input field that silently flags bot submissions.</p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={selectedElementAny.formEnableHoneypot !== false}
+                              onChange={(e) => updateSelectedProp("formEnableHoneypot", e.target.checked)}
+                              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                          </label>
+                        </div>
+
+                        {/* Actions After Submit (F-274, F-276, F-278, F-280, F-281) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Actions After Submit
+                          </span>
+
+                          {/* Save to Database */}
+                          <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedElementAny.formActions?.saveToDb !== false}
+                              onChange={(e) =>
+                                updateSelectedProp("formActions", {
+                                  ...(selectedElementAny.formActions || {}),
+                                  saveToDb: e.target.checked,
+                                })
+                              }
+                              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                            <span className="font-semibold text-slate-800">Save to Database (Leads Viewer)</span>
+                          </label>
+
+                          {/* Send Notification Email */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.sendEmail}
+                                onChange={(e) =>
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    sendEmail: e.target.checked,
+                                  })
+                                }
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">Send Notification Email</span>
+                            </label>
+                            {selectedElementAny.formActions?.sendEmail && (
+                              <div className="space-y-2 pl-6 pt-1">
+                                <div>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                    Recipient Email (toEmail)
+                                  </label>
+                                  <input
+                                    type="email"
+                                    value={selectedElementAny.formActions?.toEmail || ""}
+                                    onChange={(e) =>
+                                      updateSelectedProp("formActions", {
+                                        ...(selectedElementAny.formActions || {}),
+                                        toEmail: e.target.value,
+                                      })
+                                    }
+                                    placeholder="admin@example.com"
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                    Email Subject
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={selectedElementAny.formActions?.emailSubject || ""}
+                                    onChange={(e) =>
+                                      updateSelectedProp("formActions", {
+                                        ...(selectedElementAny.formActions || {}),
+                                        emailSubject: e.target.value,
+                                      })
+                                    }
+                                    placeholder="New Lead from Website Form"
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* External Webhook */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.webhook}
+                                onChange={(e) =>
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    webhook: e.target.checked,
+                                  })
+                                }
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">External Webhook</span>
+                            </label>
+                            {selectedElementAny.formActions?.webhook && (
+                              <div className="pl-6 pt-1">
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                  Webhook URL
+                                </label>
+                                <input
+                                  type="url"
+                                  value={selectedElementAny.formActions?.webhookUrl || ""}
+                                  onChange={(e) =>
+                                    updateSelectedProp("formActions", {
+                                      ...(selectedElementAny.formActions || {}),
+                                      webhookUrl: e.target.value,
+                                    })
+                                  }
+                                  placeholder="https://hooks.zapier.com/..."
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Redirect URL */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.redirect || !!selectedElementAny.formRedirectUrl}
+                                onChange={(e) => {
+                                  const enabled = e.target.checked;
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    redirect: enabled,
+                                  });
+                                  if (!enabled) {
+                                    updateSelectedProp("formRedirectUrl", "");
+                                  }
+                                }}
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">Redirect URL (Thank You Page)</span>
+                            </label>
+                            {(selectedElementAny.formActions?.redirect || selectedElementAny.formRedirectUrl) && (
+                              <div className="pl-6 pt-1">
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                  Destination URL
+                                </label>
+                                <input
+                                  type="text"
+                                  value={selectedElementAny.formActions?.redirectUrl || selectedElementAny.formRedirectUrl || ""}
+                                  onChange={(e) => {
+                                    updateSelectedProp("formRedirectUrl", e.target.value);
+                                    updateSelectedProp("formActions", {
+                                      ...(selectedElementAny.formActions || {}),
+                                      redirect: true,
+                                      redirectUrl: e.target.value,
+                                    });
+                                  }}
+                                  placeholder="/thank-you or https://..."
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Form Fields Manager */}
                         <div className="pt-2 border-t border-slate-200 space-y-3">
                           <div className="flex items-center justify-between">
@@ -11617,6 +11920,8 @@ export default function WebsiteEditor() {
                                     select: "Choose Option",
                                     checkbox: "I agree to the terms",
                                     radio: "Select Preference",
+                                    date: "Select Date",
+                                    file: "Attachment / File",
                                   };
                                   const newField: FormFieldItem = {
                                     id: generateId(),
@@ -11635,6 +11940,8 @@ export default function WebsiteEditor() {
                                 <option value="email">+ Email</option>
                                 <option value="number">+ Number</option>
                                 <option value="tel">+ Telephone</option>
+                                <option value="date">+ Date Picker</option>
+                                <option value="file">+ File Upload</option>
                                 <option value="textarea">+ Textarea</option>
                                 <option value="select">+ Dropdown Select</option>
                                 <option value="checkbox">+ Checkbox</option>
@@ -11664,7 +11971,7 @@ export default function WebsiteEditor() {
                                           items[idx - 1] = temp;
                                           updateSelectedProp("formFields", items);
                                         }}
-                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                                         title="Move Up"
                                       >
                                         ↑
@@ -11680,7 +11987,7 @@ export default function WebsiteEditor() {
                                           items[idx + 1] = temp;
                                           updateSelectedProp("formFields", items);
                                         }}
-                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                                         title="Move Down"
                                       >
                                         ↓
@@ -11692,7 +11999,7 @@ export default function WebsiteEditor() {
                                         const updated = (selectedElementAny.formFields || []).filter((f) => f.id !== field.id);
                                         updateSelectedProp("formFields", updated);
                                       }}
-                                      className="text-[10px] font-bold text-red-500 hover:text-red-700"
+                                      className="text-[10px] font-bold text-red-500 hover:text-red-700 cursor-pointer"
                                     >
                                       Remove
                                     </button>
@@ -11728,10 +12035,10 @@ export default function WebsiteEditor() {
                                         const updated = (selectedElementAny.formFields || []).map((f) =>
                                           f.id === field.id
                                             ? {
-                                              ...f,
-                                              type: newType,
-                                              options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
-                                            }
+                                                ...f,
+                                                type: newType,
+                                                options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
+                                              }
                                             : f
                                         );
                                         updateSelectedProp("formFields", updated);
@@ -11742,6 +12049,8 @@ export default function WebsiteEditor() {
                                       <option value="email">Email</option>
                                       <option value="number">Number</option>
                                       <option value="tel">Telephone</option>
+                                      <option value="date">Date Picker</option>
+                                      <option value="file">File Upload</option>
                                       <option value="textarea">Textarea</option>
                                       <option value="select">Select Dropdown</option>
                                       <option value="checkbox">Checkbox</option>
@@ -11750,7 +12059,31 @@ export default function WebsiteEditor() {
                                   </div>
                                 </div>
 
-                                {field.type !== "checkbox" && (
+                                {selectedElementAny.formMode === "step-by-step" && (
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Assign to Step
+                                    </label>
+                                    <select
+                                      value={field.stepId || (selectedElementAny.formSteps?.[0]?.id || "")}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id ? { ...f, stepId: e.target.value } : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                    >
+                                      {(selectedElementAny.formSteps || []).map((st: any) => (
+                                        <option key={st.id} value={st.id}>
+                                          {st.title}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+
+                                {field.type !== "checkbox" && field.type !== "file" && (
                                   <div>
                                     <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
                                       Placeholder Text
@@ -11823,6 +12156,123 @@ export default function WebsiteEditor() {
                                       <option value="full">100% (Full Width)</option>
                                     </select>
                                   </div>
+                                </div>
+
+                                {/* Conditional Logic (X-788) */}
+                                <div className="pt-2 border-t border-slate-100">
+                                  <label className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-700 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!field.conditionalLogic}
+                                      onChange={(e) => {
+                                        const otherFields = (selectedElementAny.formFields || []).filter((f) => f.id !== field.id);
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id
+                                            ? {
+                                                ...f,
+                                                conditionalLogic: e.target.checked
+                                                  ? {
+                                                      action: "show" as const,
+                                                      targetFieldId: otherFields[0]?.id || "",
+                                                      operator: "equals" as const,
+                                                      value: "",
+                                                    }
+                                                  : undefined,
+                                              }
+                                            : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span>Conditional Visibility</span>
+                                  </label>
+                                  {field.conditionalLogic && (
+                                    <div className="mt-1.5 space-y-1.5 rounded-lg bg-slate-50 p-2 border border-slate-200 text-xs">
+                                      <div className="grid grid-cols-2 gap-1.5">
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Action</label>
+                                          <select
+                                            value={field.conditionalLogic.action}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, action: e.target.value as "show" | "hide" } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            <option value="show">Show when</option>
+                                            <option value="hide">Hide when</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Target Field</label>
+                                          <select
+                                            value={field.conditionalLogic.targetFieldId}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, targetFieldId: e.target.value } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            {(selectedElementAny.formFields || [])
+                                              .filter((f) => f.id !== field.id)
+                                              .map((of) => (
+                                                <option key={of.id} value={of.id}>
+                                                  {of.label}
+                                                </option>
+                                              ))}
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-1.5">
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Operator</label>
+                                          <select
+                                            value={field.conditionalLogic.operator}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, operator: e.target.value as any } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            <option value="equals">Equals</option>
+                                            <option value="not_equals">Does Not Equal</option>
+                                            <option value="contains">Contains</option>
+                                            <option value="not_empty">Is Not Empty</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Match Value</label>
+                                          <input
+                                            type="text"
+                                            value={field.conditionalLogic.value}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, value: e.target.value } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            placeholder="Value to match..."
+                                            className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px]"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}
