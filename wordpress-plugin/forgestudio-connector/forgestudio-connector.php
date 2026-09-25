@@ -172,6 +172,13 @@ add_action('rest_api_init', function () {
         'callback' => 'forgestudio_rest_delete_media_item',
         'permission_callback' => 'forgestudio_rest_permission_check',
     ]);
+
+    // GET /wp-json/forgestudio/v1/menus (Navigation Menus - F-224)
+    register_rest_route(FORGESTUDIO_REST_NAMESPACE, '/menus', [
+        'methods' => 'GET',
+        'callback' => 'forgestudio_get_menus',
+        'permission_callback' => 'forgestudio_verify_token',
+    ]);
 });
 
 /**
@@ -1413,3 +1420,156 @@ function forgestudio_connector_admin_page()
     </div>
     <?php
 }
+
+/**
+ * Builds hierarchical tree from flat nav menu items (Module 10 / F-224)
+ */
+if (!function_exists('forgestudio_build_menu_tree')) {
+    function forgestudio_build_menu_tree($items) {
+        if (empty($items) || !is_array($items)) {
+            return array();
+        }
+
+        $items_by_id = array();
+        $tree = array();
+
+        foreach ($items as $item) {
+            $item_id = is_object($item) ? intval($item->ID) : (is_array($item) ? intval($item['ID'] ?? $item['id'] ?? 0) : 0);
+            if (!$item_id) {
+                continue;
+            }
+
+            $parent_id = 0;
+            $title = '';
+            $url = '';
+            $target = '_self';
+            $order = 0;
+
+            if (is_object($item)) {
+                $parent_id = isset($item->menu_item_parent) ? intval($item->menu_item_parent) : (isset($item->post_parent) ? intval($item->post_parent) : 0);
+                $title = !empty($item->title) ? $item->title : (!empty($item->post_title) ? $item->post_title : '');
+                $url = isset($item->url) ? $item->url : (function_exists('get_post_meta') ? (get_post_meta($item->ID, '_menu_item_url', true) ?: '') : '');
+                $raw_target = isset($item->target) ? $item->target : (function_exists('get_post_meta') ? (get_post_meta($item->ID, '_menu_item_target', true) ?: '_self') : '_self');
+                $target = !empty($raw_target) ? $raw_target : '_self';
+                $order = isset($item->menu_order) ? intval($item->menu_order) : 0;
+            } elseif (is_array($item)) {
+                $parent_id = isset($item['menu_item_parent']) ? intval($item['menu_item_parent']) : (isset($item['parent_id']) ? intval($item['parent_id']) : 0);
+                $title = $item['title'] ?? $item['post_title'] ?? '';
+                $url = $item['url'] ?? '';
+                $target = !empty($item['target']) ? $item['target'] : '_self';
+                $order = isset($item['menu_order']) ? intval($item['menu_order']) : (isset($item['order']) ? intval($item['order']) : 0);
+            }
+
+            $items_by_id[$item_id] = array(
+                'id'        => $item_id,
+                'title'     => $title,
+                'url'       => $url,
+                'target'    => $target,
+                'parent_id' => $parent_id,
+                'order'     => $order,
+                'children'  => array(),
+            );
+        }
+
+        foreach ($items_by_id as $id => &$node) {
+            $pid = $node['parent_id'];
+            if ($pid > 0 && isset($items_by_id[$pid])) {
+                $items_by_id[$pid]['children'][] = &$node;
+            } else {
+                $tree[] = &$node;
+            }
+        }
+        unset($node);
+
+        return $tree;
+    }
+}
+
+/**
+ * REST Endpoint handler: Fetch registered WordPress menus with hierarchical item trees and theme locations
+ */
+if (!function_exists('forgestudio_get_menus')) {
+    function forgestudio_get_menus($request = null) {
+        $menus_data = array();
+        $raw_menus = function_exists('wp_get_nav_menus') ? wp_get_nav_menus() : array();
+
+        if (!empty($raw_menus) && is_array($raw_menus)) {
+            foreach ($raw_menus as $menu) {
+                $term_id = is_object($menu) ? $menu->term_id : (is_array($menu) ? ($menu['term_id'] ?? $menu['id'] ?? 0) : 0);
+                $name    = is_object($menu) ? $menu->name : (is_array($menu) ? ($menu['name'] ?? '') : '');
+                $slug    = is_object($menu) ? $menu->slug : (is_array($menu) ? ($menu['slug'] ?? '') : '');
+                $count   = is_object($menu) ? intval($menu->count) : (is_array($menu) ? intval($menu['count'] ?? 0) : 0);
+
+                $raw_items = function_exists('wp_get_nav_menu_items') ? wp_get_nav_menu_items($term_id) : array();
+                $tree = forgestudio_build_menu_tree($raw_items);
+
+                $menus_data[] = array(
+                    'id'       => $term_id,
+                    'name'     => $name,
+                    'slug'     => $slug,
+                    'count'    => $count,
+                    'items'    => $tree,
+                );
+            }
+        }
+
+        $locations = function_exists('get_nav_menu_locations') ? get_nav_menu_locations() : array();
+
+        $response = array(
+            'status'    => 'success',
+            'menus'     => $menus_data,
+            'locations' => $locations,
+        );
+
+        if (function_exists('rest_ensure_response')) {
+            return rest_ensure_response($response);
+        }
+        return $response;
+    }
+}
+
+/**
+ * Permission callback: Validate token / API key
+ */
+if (!function_exists('forgestudio_verify_token')) {
+    function forgestudio_verify_token($request) {
+        if (function_exists('forgestudio_rest_permission_check')) {
+            $check = forgestudio_rest_permission_check($request);
+            if ($check === true) {
+                return true;
+            }
+        }
+
+        if (class_exists('ForgeStudio_Connector')) {
+            $instance = ForgeStudio_Connector::get_instance();
+            if (method_exists($instance, 'validate_api_key_permission')) {
+                $check = $instance->validate_api_key_permission($request);
+                if ($check === true) {
+                    return true;
+                }
+            }
+        }
+
+        $stored_key = function_exists('get_option') ? get_option('forgestudio_api_key') : null;
+        $provided_key = is_object($request) && method_exists($request, 'get_header')
+            ? ($request->get_header('x-forge-api-key') ?: $request->get_header('x-forgestudio-token') ?: $request->get_param('api_key'))
+            : null;
+
+        if ($stored_key && $provided_key) {
+            $clean_token = str_replace('Bearer ', '', trim($provided_key));
+            if (hash_equals($stored_key, $clean_token) || hash_equals(hash('sha256', $stored_key), $clean_token)) {
+                return true;
+            }
+        }
+
+        if (function_exists('current_user_can') && (current_user_can('manage_options') || current_user_can('edit_theme_options'))) {
+            return true;
+        }
+
+        if (function_exists('is_wp_error')) {
+            return new WP_Error('unauthorized', 'Missing or invalid authentication token for ForgeStudio.', array('status' => 401));
+        }
+        return false;
+    }
+}
+

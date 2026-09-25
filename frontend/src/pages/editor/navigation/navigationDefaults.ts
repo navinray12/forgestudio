@@ -456,6 +456,7 @@ export function isNavigationElement(type: string): boolean {
     "breadcrumbs",
     "menu-anchor",
     "post-nav",
+    "off-canvas",
     "off-canvas-nav",
     "site-search",
     "search-form",
@@ -549,5 +550,240 @@ export function createDefaultHeaderElements(
     },
   ];
 }
+
+export function createDefaultSinglePostElements(): EditorElement[] {
+  return [
+    {
+      id: "single-post-container",
+      type: "container",
+      content: "",
+      containerBg: "#ffffff",
+      styles: {
+        paddingTop: "40px",
+        paddingBottom: "60px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        maxWidth: "800px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
+      children: [
+        {
+          id: "single-post-breadcrumbs",
+          type: "breadcrumbs",
+          content: "",
+          styles: { marginBottom: "20px" },
+        },
+        {
+          id: "single-post-title",
+          type: "heading",
+          content: "{{post.title}}",
+          headingLevel: "h1",
+          styles: {
+            fontSize: "2.5rem",
+            fontWeight: "800",
+            color: "#0f172a",
+            marginBottom: "16px",
+            lineHeight: "1.2",
+          },
+        },
+        {
+          id: "single-post-meta",
+          type: "text",
+          content: "Published by {{post.author}} on {{post.date}}",
+          styles: {
+            fontSize: "0.875rem",
+            color: "#64748b",
+            marginBottom: "28px",
+          },
+        },
+        {
+          id: "single-post-excerpt",
+          type: "text",
+          content: "{{post.excerpt}}",
+          styles: {
+            fontSize: "1.125rem",
+            color: "#334155",
+            lineHeight: "1.75",
+            marginBottom: "32px",
+            fontWeight: "500",
+          },
+        },
+        {
+          id: "single-post-navigation",
+          type: "post-nav",
+          content: "",
+          styles: { marginTop: "40px", borderTop: "1px solid #e2e8f0", paddingTop: "24px" },
+        },
+      ],
+    },
+  ];
+}
+
+export function createDefaultArchiveElements(): EditorElement[] {
+  return [
+    {
+      id: "archive-container",
+      type: "container",
+      content: "",
+      containerBg: "#f8fafc",
+      styles: {
+        paddingTop: "48px",
+        paddingBottom: "64px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        maxWidth: "1100px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
+      children: [
+        {
+          id: "archive-heading",
+          type: "heading",
+          content: "Blog & Articles Archive",
+          headingLevel: "h1",
+          styles: {
+            fontSize: "2.25rem",
+            fontWeight: "800",
+            color: "#0f172a",
+            marginBottom: "8px",
+          },
+        },
+        {
+          id: "archive-subtext",
+          type: "text",
+          content: "Explore our latest thoughts, updates, and deep dives.",
+          styles: {
+            fontSize: "1rem",
+            color: "#64748b",
+            marginBottom: "36px",
+          },
+        },
+        {
+          id: "archive-filter",
+          type: "taxonomy-filter",
+          content: "",
+          styles: { marginBottom: "24px" },
+        },
+      ],
+    },
+  ];
+}
+
+export function createDefault404Elements(): EditorElement[] {
+  return [
+    {
+      id: "notfound-container",
+      type: "container",
+      content: "",
+      containerBg: "#ffffff",
+      styles: {
+        paddingTop: "80px",
+        paddingBottom: "80px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        textAlign: "center",
+        maxWidth: "600px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
+      children: [
+        {
+          id: "notfound-badge",
+          type: "heading",
+          content: "404",
+          headingLevel: "h1",
+          styles: {
+            fontSize: "5rem",
+            fontWeight: "900",
+            color: "#3b82f6",
+            marginBottom: "8px",
+            lineHeight: "1",
+          },
+        },
+        {
+          id: "notfound-title",
+          type: "heading",
+          content: "Page Not Found",
+          headingLevel: "h2",
+          styles: {
+            fontSize: "1.75rem",
+            fontWeight: "700",
+            color: "#0f172a",
+            marginBottom: "12px",
+          },
+        },
+        {
+          id: "notfound-desc",
+          type: "text",
+          content: "Sorry, the page you are looking for doesn't exist or has been moved.",
+          styles: {
+            fontSize: "1rem",
+            color: "#64748b",
+            marginBottom: "28px",
+          },
+        },
+        {
+          id: "notfound-button",
+          type: "button",
+          content: "Return to Homepage",
+          href: "/",
+          styles: {
+            backgroundColor: "#2563eb",
+            color: "#ffffff",
+            paddingTop: "12px",
+            paddingBottom: "12px",
+            paddingLeft: "28px",
+            paddingRight: "28px",
+            borderRadius: "8px",
+            fontWeight: "600",
+            fontSize: "0.95rem",
+          },
+        },
+      ],
+    },
+  ];
+}
+
+export function createDefaultSearchResultsElements(): EditorElement[] {
+  return [
+    {
+      id: "search-results-container",
+      type: "container",
+      content: "",
+      containerBg: "#ffffff",
+      styles: {
+        paddingTop: "48px",
+        paddingBottom: "64px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        maxWidth: "960px",
+        marginLeft: "auto",
+        marginRight: "auto",
+      },
+      children: [
+        {
+          id: "search-results-title",
+          type: "heading",
+          content: 'Search Results for "{{request.q}}"',
+          headingLevel: "h1",
+          styles: {
+            fontSize: "2rem",
+            fontWeight: "800",
+            color: "#0f172a",
+            marginBottom: "20px",
+          },
+        },
+        {
+          id: "search-results-bar",
+          type: "search-bar",
+          content: "",
+          styles: { marginBottom: "32px" },
+        },
+      ],
+    },
+  ];
+}
+
 
 

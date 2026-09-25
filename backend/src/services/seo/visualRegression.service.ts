@@ -81,7 +81,7 @@ export async function comparePngImages(
     if (mismatchPixels > 0) {
       const diffDir = path.dirname(diffPath);
       if (!fs.existsSync(diffDir)) fs.mkdirSync(diffDir, { recursive: true });
-      await sharp(diffRaw, { raw: { width, height, channels: 4 } }).toPng().toFile(diffPath);
+      await sharp(diffRaw, { raw: { width, height, channels: 4 } }).png().toFile(diffPath);
     }
 
     return {

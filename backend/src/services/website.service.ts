@@ -1455,6 +1455,21 @@ export interface DynamicContext {
     data?: Record<string, any>;
     [key: string]: any;
   };
+  post?: {
+    id?: string;
+    title?: string;
+    name?: string;
+    slug?: string;
+    excerpt?: string;
+    date?: string;
+    author?: string;
+    featuredImage?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  request?: Record<string, string>;
+  query?: Record<string, string>;
+  requestParams?: Record<string, string>;
   custom?: Record<string, string>;
 }
 
@@ -1462,17 +1477,40 @@ export interface DynamicContext {
  * Evaluates theme builder display conditions (include:all, include:singular:home, include:page:id, exclude:page:id, etc.)
  */
 export function matchesThemeCondition(
-  conditions: string[] | undefined,
-  pageContext: { pageId?: string; isHome?: boolean; slug?: string }
+  conditions: Array<string | { type?: string; condition?: string }> | undefined,
+  pageContext: { pageId?: string; isHome?: boolean; slug?: string; isSearch?: boolean; is404?: boolean; isArchive?: boolean }
 ): boolean {
   if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
     return true; // Default: include everywhere
   }
 
+  // Normalize conditions to standard strings e.g. "include:all", "exclude:page:123"
+  const normalized: string[] = [];
+  for (const item of conditions) {
+    if (typeof item === "string") {
+      normalized.push(item);
+    } else if (item && typeof item === "object") {
+      const type = (item.type || "INCLUDE").toLowerCase();
+      const rawCond = (item.condition || "").toLowerCase().replace(/_/g, ":");
+      if (rawCond === "search:results" || rawCond === "search") {
+        normalized.push(`${type}:search`);
+      } else if (rawCond === "404" || rawCond === "notfound") {
+        normalized.push(`${type}:404`);
+      } else if (rawCond === "archive") {
+        normalized.push(`${type}:archive`);
+      } else if (rawCond) {
+        normalized.push(`${type}:${rawCond}`);
+      }
+    }
+  }
+
   // 1. Check exclusions first (exclusion takes priority)
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond === "exclude:all") return false;
     if (cond === "exclude:singular:home" && pageContext.isHome) return false;
+    if (cond === "exclude:search" && pageContext.isSearch) return false;
+    if (cond === "exclude:404" && pageContext.is404) return false;
+    if (cond === "exclude:archive" && pageContext.isArchive) return false;
     if (cond.startsWith("exclude:page:")) {
       const target = cond.replace("exclude:page:", "").trim();
       if (target === pageContext.pageId || target === pageContext.slug) return false;
@@ -1483,11 +1521,14 @@ export function matchesThemeCondition(
   let explicitlyIncluded = false;
   let hasInclusionRule = false;
 
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond.startsWith("include:")) {
       hasInclusionRule = true;
       if (cond === "include:all") explicitlyIncluded = true;
       if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
+      if (cond === "include:search" && pageContext.isSearch) explicitlyIncluded = true;
+      if (cond === "include:404" && pageContext.is404) explicitlyIncluded = true;
+      if (cond === "include:archive" && pageContext.isArchive) explicitlyIncluded = true;
       if (cond.startsWith("include:page:")) {
         const target = cond.replace("include:page:", "").trim();
         if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
@@ -1499,7 +1540,7 @@ export function matchesThemeCondition(
 }
 
 /**
- * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, etc. tokens inside a string.
+ * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, {{post.field}}, {{request.param}}, etc. tokens inside a string.
  */
 export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
   if (typeof content !== "string" || !content.includes("{{")) {
@@ -1510,6 +1551,9 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
   const siteSettings = site.siteSettings || {};
   const page = context.page || {};
   const entry = context.entry || {};
+  const post = context.post || context.entry || {};
+  const query = context.query || context.requestParams || context.request || {};
+  const request = context.request || context.requestParams || context.query || {};
   const custom = context.custom || {};
 
   return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
@@ -1543,6 +1587,40 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
     }
     if (key === "page.slug") {
       return page.slug || "";
+    }
+
+    // Request / Query parameter tokens: {{request.param}}, {{query.param}}
+    if (key.startsWith("request.") || key.startsWith("query.")) {
+      const param = key.replace(/^(request|query)\./, "");
+      if (key.startsWith("request.") && request[param] !== undefined) {
+        return String(request[param]);
+      }
+      if (query[param] !== undefined) {
+        return String(query[param]);
+      }
+      if (request[param] !== undefined) {
+        return String(request[param]);
+      }
+      return "";
+    }
+
+    // Post / Article level tokens: {{post.title}}, {{post.excerpt}}, {{post.date}}, {{post.author}}, {{post.featuredImage}}
+    if (key.startsWith("post.")) {
+      const field = key.replace(/^post\./, "");
+      const postData = post.data || {};
+      if (field === "title" || field === "name") return post.title || post.name || "";
+      if (field === "slug") return post.slug || "";
+      if (field === "excerpt") return post.excerpt || postData.excerpt || postData.description || "";
+      if (field === "date") return post.date || postData.date || post.createdAt || "";
+      if (field === "author") return post.author || postData.author || "";
+      if (field === "featuredImage" || field === "image") return post.featuredImage || postData.featuredImage || postData.image || "";
+      if (postData[field] !== undefined) {
+        return String(postData[field]);
+      }
+      if (post[field] !== undefined) {
+        return String(post[field]);
+      }
+      return "";
     }
 
     // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}

@@ -97,6 +97,7 @@ export function auditPagePerformance(page: any, websiteData: any): AnalyzerResul
   }
 
   // 5. Estimated LCP Threshold Check
+  const lcpEstMs = lcpStaticEstimateMs;
   if (lcpEstMs > 2500) {
     issues.push({
       ruleId: "PERF-LCP-HIGH",

@@ -600,3 +600,37 @@ export async function deleteWebsiteSubmission(
     throw new AppError("Failed to delete form submission", 500, "DELETE_SUBMISSION_FAILED");
   }
 }
+
+/**
+ * X-800: Generate and retrieve a binary PDF report for a specific form submission
+ */
+export async function getSubmissionPdf(websiteId: string, submissionId: string, userId: string) {
+  const website = await getWebsiteById(websiteId, userId);
+
+  try {
+    const rows: any[] = await prisma.$queryRaw`
+      SELECT id, "websiteId", "formId", "formName", data, metadata, "createdAt"
+      FROM form_submissions
+      WHERE id = ${submissionId}::uuid AND "websiteId" = ${websiteId}::uuid
+      LIMIT 1
+    `;
+
+    if (!rows || rows.length === 0) {
+      throw new AppError("Form submission not found", 404, "SUBMISSION_NOT_FOUND");
+    }
+
+    const { generateSubmissionPdf } = await import("./pdf.service.js");
+    const submission = rows[0];
+    const pdfBuffer = generateSubmissionPdf(submission, website?.name);
+
+    return {
+      pdfBuffer,
+      filename: `lead-${submission.formName ? submission.formName.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "form"}-${submission.id.slice(0, 8)}.pdf`,
+    };
+  } catch (err: any) {
+    if (err instanceof AppError) throw err;
+    console.error("Error generating submission PDF:", err);
+    throw new AppError("Failed to generate submission PDF", 500, "PDF_GENERATION_FAILED");
+  }
+}
+

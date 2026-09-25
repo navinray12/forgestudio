@@ -14,7 +14,7 @@ import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
-import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData } from "./types";
+import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData, type ThemeBuilderScope, resolveDynamicTokens, type DynamicContext } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
 import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
@@ -108,6 +108,16 @@ import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
 import { FontService } from "../../features/fonts/FontService";
 import { syncDocumentFonts } from "../../features/fonts/FontManager";
+import {
+  BreadcrumbsRenderer,
+  WpMenuRenderer,
+  MenuAnchorRenderer,
+  PostNavigationRenderer,
+  TaxonomyFilterRenderer,
+  SiteSearchRenderer,
+} from "./navigation/NavigationRenderers";
+import { NavigationSettingsPanel } from "./navigation/NavigationSettings";
+import { isNavigationElement } from "./navigation/navigationDefaults";
 
 import type {
   PageConfig,
@@ -294,16 +304,24 @@ import {
   WcProductArchiveWidgetRenderer,
   WcProductPageTemplatesWidgetRenderer,
   WcProductArchiveTemplatesWidgetRenderer,
+  WcProductAddOnsWidgetRenderer,
   SearchBarWidgetRenderer,
   ImportAssetWidgetRenderer,
   ReusableComponentWidgetRenderer,
   FavoriteWidgetsWidgetRenderer,
+  LoopGridWidgetRenderer,
   resolveButtonHref
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
 import { DefaultWebsiteNavbar } from "./components/DefaultWebsiteNavbar";
-import { createDefaultHeaderElements } from "./navigation/navigationDefaults";
+import {
+  createDefaultHeaderElements,
+  createDefaultSinglePostElements,
+  createDefaultArchiveElements,
+  createDefault404Elements,
+  createDefaultSearchResultsElements,
+} from "./navigation/navigationDefaults";
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -1041,8 +1059,8 @@ export default function WebsiteEditor() {
   });
   const publishedDataRef = useRef<any>(null);
 
-  // Canvas Editing Target Mode: "page" | "header" | "footer"
-  const [canvasMode, setCanvasMode] = useState<"page" | "header" | "footer">("page");
+  // Canvas Editing Target Mode: ThemeBuilderScope ("page" | "header" | "footer" | "single" | "archive" | "404" | "search-results")
+  const [canvasMode, setCanvasMode] = useState<ThemeBuilderScope>("page");
 
   // Sync live editor state with active page entry ONLY when in page mode (protects Header/Footer isolation)
   // Advanced Icon Library Modal State
@@ -1141,7 +1159,7 @@ export default function WebsiteEditor() {
     });
   }, [elements, pageSettings, activePageId, canvasMode]);
 
-  // Sync active Header/Footer changes into siteParts when in header or footer canvasMode
+  // Sync active Theme Builder changes into siteParts when in theme builder canvasMode
   useEffect(() => {
     if (canvasMode === "header") {
       setSiteParts((prev) => ({
@@ -1152,6 +1170,26 @@ export default function WebsiteEditor() {
       setSiteParts((prev) => ({
         ...prev,
         footer: { ...prev.footer, elements },
+      }));
+    } else if (canvasMode === "single") {
+      setSiteParts((prev) => ({
+        ...prev,
+        single: { ...prev.single, elements },
+      }));
+    } else if (canvasMode === "archive") {
+      setSiteParts((prev) => ({
+        ...prev,
+        archive: { ...prev.archive, elements },
+      }));
+    } else if (canvasMode === "404") {
+      setSiteParts((prev) => ({
+        ...prev,
+        notFound404: { ...prev.notFound404, elements },
+      }));
+    } else if (canvasMode === "search-results") {
+      setSiteParts((prev) => ({
+        ...prev,
+        searchResults: { ...prev.searchResults, elements },
       }));
     }
   }, [elements, canvasMode]);
@@ -1256,8 +1294,8 @@ export default function WebsiteEditor() {
     setIsPageSelectorOpen(false);
   };
 
-  // Canvas Mode Switcher: switches between Page, Header, and Footer editing modes safely
-  const handleSwitchCanvasMode = (mode: "page" | "header" | "footer") => {
+  // Canvas Mode Switcher: switches between Page, Header, Footer, Single, Archive, 404, and Search Results editing modes safely
+  const handleSwitchCanvasMode = (mode: ThemeBuilderScope) => {
     if (mode === canvasMode) return;
 
     // 1. Save current elements into appropriate model
@@ -1274,6 +1312,26 @@ export default function WebsiteEditor() {
       setSiteParts((prev) => ({
         ...prev,
         footer: { ...prev.footer, elements },
+      }));
+    } else if (canvasMode === "single") {
+      setSiteParts((prev) => ({
+        ...prev,
+        single: { ...prev.single, elements },
+      }));
+    } else if (canvasMode === "archive") {
+      setSiteParts((prev) => ({
+        ...prev,
+        archive: { ...prev.archive, elements },
+      }));
+    } else if (canvasMode === "404") {
+      setSiteParts((prev) => ({
+        ...prev,
+        notFound404: { ...prev.notFound404, elements },
+      }));
+    } else if (canvasMode === "search-results") {
+      setSiteParts((prev) => ({
+        ...prev,
+        searchResults: { ...prev.searchResults, elements },
       }));
     }
 
@@ -1305,6 +1363,54 @@ export default function WebsiteEditor() {
       setHistoryIndex(0);
     } else if (mode === "footer") {
       const targetEls = siteParts.footer?.elements || [];
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "single") {
+      let targetEls = siteParts.single?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultSinglePostElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          single: { ...prev.single, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "archive") {
+      let targetEls = siteParts.archive?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultArchiveElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          archive: { ...prev.archive, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "404") {
+      let targetEls = siteParts.notFound404?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefault404Elements();
+        setSiteParts((prev) => ({
+          ...prev,
+          notFound404: { ...prev.notFound404, elements: targetEls, isEnabled: true },
+        }));
+      }
+      setElements(targetEls);
+      setHistory([targetEls]);
+      setHistoryIndex(0);
+    } else if (mode === "search-results") {
+      let targetEls = siteParts.searchResults?.elements || [];
+      if (targetEls.length === 0) {
+        targetEls = createDefaultSearchResultsElements();
+        setSiteParts((prev) => ({
+          ...prev,
+          searchResults: { ...prev.searchResults, elements: targetEls, isEnabled: true },
+        }));
+      }
       setElements(targetEls);
       setHistory([targetEls]);
       setHistoryIndex(0);
@@ -2154,6 +2260,10 @@ export default function WebsiteEditor() {
 
     const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+    const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
+    const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
+    const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
+    const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
     const workingDraftSnapshot = {
@@ -2173,6 +2283,22 @@ export default function WebsiteEditor() {
         footer: {
           isEnabled: siteParts.footer?.isEnabled ?? true,
           elements: canonicalFooterElements,
+        },
+        single: {
+          isEnabled: siteParts.single?.isEnabled ?? true,
+          elements: canonicalSingleElements,
+        },
+        archive: {
+          isEnabled: siteParts.archive?.isEnabled ?? true,
+          elements: canonicalArchiveElements,
+        },
+        notFound404: {
+          isEnabled: siteParts.notFound404?.isEnabled ?? true,
+          elements: canonical404Elements,
+        },
+        searchResults: {
+          isEnabled: siteParts.searchResults?.isEnabled ?? true,
+          elements: canonicalSearchResultsElements,
         },
       },
       deployment,
@@ -2254,6 +2380,10 @@ export default function WebsiteEditor() {
 
       const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
       const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
+      const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
+      const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
+      const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
+      const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
       const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
       const payload = {
@@ -2274,6 +2404,22 @@ export default function WebsiteEditor() {
             footer: {
               enabled: siteParts.footer?.enabled ?? true,
               elements: canonicalFooterElements,
+            },
+            single: {
+              enabled: siteParts.single?.enabled ?? true,
+              elements: canonicalSingleElements,
+            },
+            archive: {
+              enabled: siteParts.archive?.enabled ?? true,
+              elements: canonicalArchiveElements,
+            },
+            notFound404: {
+              enabled: siteParts.notFound404?.enabled ?? true,
+              elements: canonical404Elements,
+            },
+            searchResults: {
+              enabled: siteParts.searchResults?.enabled ?? true,
+              elements: canonicalSearchResultsElements,
             },
           },
           publishing,
@@ -2709,6 +2855,11 @@ export default function WebsiteEditor() {
     );
   };
 
+  const updateElementProperties = (updater: (el: EditorElement) => EditorElement) => {
+    if (!selectedId) return;
+    setElements((prev) => updateTreeElement(prev, selectedId, updater));
+  };
+
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
     if (!selectedId) return;
     setElements((prev) =>
@@ -3048,6 +3199,8 @@ export default function WebsiteEditor() {
           return "🔘";
         case "posts":
           return "📰";
+        case "loop-grid":
+          return "➿";
         case "wc-product-title":
           return <WcProductTitleWidgetRenderer el={el} getMergedStyles={getMergedStyles} activeDevice={activeDevice} />;
         case "wc-product-price":
@@ -3076,6 +3229,7 @@ export default function WebsiteEditor() {
       if (item.type === "image") return item.alt ? `Image (${item.alt})` : "Image";
       if (item.type === "container") return "Container";
       if (item.type === "posts") return item.posts ? `Posts (${item.posts.length})` : "Posts Widget";
+      if (item.type === "loop-grid") return "Loop Grid";
       if (item.type === "share-buttons") return item.shareNetworks ? `Share (${item.shareNetworks.length})` : "Share Buttons";
       if (item.type === "portfolio") return item.portfolioItems ? `Portfolio (${item.portfolioItems.length})` : "Portfolio Widget";
       if (item.type === "slides") return item.slidesItems ? `Slides (${item.slidesItems.length})` : "Slides Widget";
@@ -5149,6 +5303,20 @@ export default function WebsiteEditor() {
         {/* Element Renderers */}
         {el.type === "heading" && (() => {
           const Tag = (el.headingLevel || "h2") as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+          const displayContent = resolveDynamicTokens(el.content || "", {
+            siteName: website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+            pageTitle: pages.find((p) => p.id === activePageId)?.name || pageSettings?.title || "Page",
+            post: {
+              title: "Sample Blog Post Title",
+              excerpt: "This is a preview excerpt of your dynamic post content.",
+              date: new Date().toLocaleDateString(),
+              author: "Editorial Team",
+              featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+            },
+            request: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+            query: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+          });
+
           return (
             <Tag
               id={`heading-${el.id}`}
@@ -5175,39 +5343,55 @@ export default function WebsiteEditor() {
                 textShadow: mergedStyles.textShadow,
               }}
             >
-              {el.content}
+              {isSelected ? el.content : displayContent}
             </Tag>
           );
         })()}
 
-        {el.type === "text" && (
-          <p
-            contentEditable={!isPreview}
-            suppressContentEditableWarning
-            onFocus={() => handleSelectElement(el.id)}
-            onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
-            className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
-            style={{
-              margin: 0,
-              padding: 0,
-              boxSizing: "border-box",
-              outline: "none",
-              color: mergedStyles.color || "#475569",
-              fontSize: mergedStyles.fontSize || "16px",
-              fontWeight: mergedStyles.fontWeight || "400",
-              textAlign: mergedStyles.textAlign || "left",
-              lineHeight: mergedStyles.lineHeight || "1.6",
-              fontFamily: mergedStyles.fontFamily,
-              fontStyle: mergedStyles.fontStyle,
-              textTransform: mergedStyles.textTransform,
-              textDecoration: mergedStyles.textDecoration,
-              letterSpacing: mergedStyles.letterSpacing,
-              textShadow: mergedStyles.textShadow,
-            }}
-          >
-            {el.content}
-          </p>
-        )}
+        {el.type === "text" && (() => {
+          const displayContent = resolveDynamicTokens(el.content || "", {
+            siteName: website?.name || globalSettings?.siteIdentity?.name || "ForgeStudio",
+            pageTitle: pages.find((p) => p.id === activePageId)?.name || pageSettings?.title || "Page",
+            post: {
+              title: "Sample Blog Post Title",
+              excerpt: "This is a preview excerpt of your dynamic post content.",
+              date: new Date().toLocaleDateString(),
+              author: "Editorial Team",
+              featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+            },
+            request: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+            query: { q: "Design Systems", search: "Design Systems", tag: "Tech" },
+          });
+
+          return (
+            <p
+              contentEditable={!isPreview}
+              suppressContentEditableWarning
+              onFocus={() => handleSelectElement(el.id)}
+              onBlur={(e) => updateElementContent(el.id, e.currentTarget.textContent || "")}
+              className="focus:ring-2 focus:ring-blue-400/60 focus:bg-blue-50/20 rounded-sm cursor-text transition-all"
+              style={{
+                margin: 0,
+                padding: 0,
+                boxSizing: "border-box",
+                outline: "none",
+                color: mergedStyles.color || "#475569",
+                fontSize: mergedStyles.fontSize || "16px",
+                fontWeight: mergedStyles.fontWeight || "400",
+                textAlign: mergedStyles.textAlign || "left",
+                lineHeight: mergedStyles.lineHeight || "1.6",
+                fontFamily: mergedStyles.fontFamily,
+                fontStyle: mergedStyles.fontStyle,
+                textTransform: mergedStyles.textTransform,
+                textDecoration: mergedStyles.textDecoration,
+                letterSpacing: mergedStyles.letterSpacing,
+                textShadow: mergedStyles.textShadow,
+              }}
+            >
+              {isSelected ? el.content : displayContent}
+            </p>
+          );
+        })()}
 
         {el.type === "video" && (
           <div
@@ -5966,6 +6150,21 @@ export default function WebsiteEditor() {
           );
         })()}
 
+        {el.type === "loop-grid" && (
+          <LoopGridWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            activeDevice={activeDevice}
+            pages={pages}
+            onSwitchPage={(target) => {
+              if (isPreview) setActivePreviewPageId(target.id);
+              else setActivePageId(target.id);
+            }}
+            apiUrl={apiUrl}
+          />
+        )}
+
         {el.type === "share-buttons" && (
           <ShareButtonsWidgetRenderer
             el={el}
@@ -6248,8 +6447,66 @@ export default function WebsiteEditor() {
           <CodeHighlightWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
-        {(el.type === "search-bar" || el.type === "site-search" || el.type === "search-form") && (
+        {(el.type === "search-bar" || el.type === "search-form") && (
           <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "site-search" && (
+          <SiteSearchRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "breadcrumbs" && (
+          <BreadcrumbsRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            pages={pages}
+            homePageId={homePageId}
+          />
+        )}
+
+        {el.type === "wp-menu" && (
+          <WpMenuRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            pages={pages}
+            homePageId={homePageId}
+          />
+        )}
+
+        {el.type === "menu-anchor" && (
+          <MenuAnchorRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "post-nav" && (
+          <PostNavigationRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "taxonomy-filter" && (
+          <TaxonomyFilterRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
         )}
 
         {el.type === "import-asset" && (
@@ -6378,6 +6635,7 @@ export default function WebsiteEditor() {
         {el.type === "wc-product-archive" && <WcProductArchiveWidgetRenderer el={el} mergedStyles={mergedStyles} />}
         {el.type === "wc-product-page-templates" && <WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
         {el.type === "wc-product-archive-templates" && <WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-addons" && <WcProductAddOnsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
 
         {el.type === "link-in-bio" && (() => {
           const links = el.bioLinks || [
@@ -6737,38 +6995,48 @@ export default function WebsiteEditor() {
               )}
             </div>
 
-            {/* Scope Switcher Dropdown (Page / Header / Footer) */}
+            {/* Scope Switcher Dropdown (Page / Header / Footer / Single / Archive / 404 / Search Results) */}
             <div className="relative" ref={scopeDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
                 className="h-8 px-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 hover:text-white rounded-lg border border-slate-700/80 transition flex items-center gap-1 shadow-sm cursor-pointer"
-                title="Switch Canvas Scope (Page / Header / Footer)"
+                title="Switch Canvas Scope (Page / Header / Footer / Single / Archive / 404 / Search)"
                 aria-label="Switch Canvas Scope"
               >
                 <span className="text-xs">
                   {canvasMode === "page" && "📄"}
                   {canvasMode === "header" && "🌐"}
                   {canvasMode === "footer" && "🌐"}
+                  {canvasMode === "single" && "📰"}
+                  {canvasMode === "archive" && "📚"}
+                  {canvasMode === "404" && "⚠️"}
+                  {canvasMode === "search-results" && "🔍"}
                 </span>
-                <span className="capitalize font-semibold hidden md:inline">{canvasMode}</span>
+                <span className="capitalize font-semibold hidden md:inline">
+                  {canvasMode === "404" ? "404 Page" : canvasMode === "search-results" ? "Search Results" : canvasMode}
+                </span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {isScopeDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-36 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
+                <div className="absolute top-full left-0 mt-1.5 w-44 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
                   {(
                     [
-                      { mode: "page", label: "Page", icon: "📄" },
-                      { mode: "header", label: "Header", icon: "🌐" },
-                      { mode: "footer", label: "Footer", icon: "🌐" },
+                      { mode: "page", label: "Page Content", icon: "📄" },
+                      { mode: "header", label: "Global Header", icon: "🌐" },
+                      { mode: "footer", label: "Global Footer", icon: "🌐" },
+                      { mode: "single", label: "Single Post Template", icon: "📰" },
+                      { mode: "archive", label: "Archive Template", icon: "📚" },
+                      { mode: "404", label: "404 Not Found Page", icon: "⚠️" },
+                      { mode: "search-results", label: "Search Results Layout", icon: "🔍" },
                     ] as const
                   ).map(({ mode, label, icon }) => (
                     <button
                       key={mode}
                       type="button"
                       onClick={() => {
-                        handleSwitchCanvasMode(mode);
+                        handleSwitchCanvasMode(mode as ThemeBuilderScope);
                         setIsScopeDropdownOpen(false);
                       }}
                       className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
@@ -8859,6 +9127,106 @@ export default function WebsiteEditor() {
                   </div>
                 )}
 
+                {/* Canvas Target Banner: Single Post Template Mode */}
+                {canvasMode === "single" && (
+                  <div className="flex items-center justify-between border-b-2 border-indigo-500 bg-indigo-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">📰</span>
+                      <div>
+                        <span className="text-xs font-bold text-indigo-900 block">
+                          Editing Single Post Template (F-237)
+                        </span>
+                        <span className="text-[10px] text-indigo-600 block">
+                          Dynamic layout applied when viewing individual blog posts or articles (/post/:slug).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: Archive Template Mode */}
+                {canvasMode === "archive" && (
+                  <div className="flex items-center justify-between border-b-2 border-emerald-500 bg-emerald-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">📚</span>
+                      <div>
+                        <span className="text-xs font-bold text-emerald-900 block">
+                          Editing Archive Template (F-238)
+                        </span>
+                        <span className="text-[10px] text-emerald-600 block">
+                          Layout applied to category listings, taxonomy archives, and blog indexes (/archive.html).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-900 bg-white hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: 404 Template Mode */}
+                {canvasMode === "404" && (
+                  <div className="flex items-center justify-between border-b-2 border-amber-500 bg-amber-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">⚠️</span>
+                      <div>
+                        <span className="text-xs font-bold text-amber-900 block">
+                          Editing 404 Error Template (F-239)
+                        </span>
+                        <span className="text-[10px] text-amber-600 block">
+                          Layout displayed when visitors navigate to invalid URLs or unlisted routes (/404.html).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-amber-700 hover:text-amber-900 bg-white hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Canvas Target Banner: Search Results Template Mode */}
+                {canvasMode === "search-results" && (
+                  <div className="flex items-center justify-between border-b-2 border-blue-500 bg-blue-50/90 rounded-xl px-4 py-3 mb-6 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🔍</span>
+                      <div>
+                        <span className="text-xs font-bold text-blue-900 block">
+                          Editing Search Results Template (F-240)
+                        </span>
+                        <span className="text-[10px] text-blue-600 block">
+                          Layout presented when visitors search site content (/search.html?q=...).
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchCanvasMode("page")}
+                      className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-white hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-300 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>←</span>
+                      <span>Back to Page</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Blank Page Layout Bar (F-016) - Page Mode */}
                 {canvasMode === "page" && (
                   <>
@@ -8896,14 +9264,30 @@ export default function WebsiteEditor() {
                         ? "Global Header is Empty"
                         : canvasMode === "footer"
                           ? "Global Footer is Empty"
-                          : "Your Page Canvas is Empty"}
+                          : canvasMode === "single"
+                            ? "Single Post Template is Empty"
+                            : canvasMode === "archive"
+                              ? "Archive Template is Empty"
+                              : canvasMode === "404"
+                                ? "404 Not Found Template is Empty"
+                                : canvasMode === "search-results"
+                                  ? "Search Results Template is Empty"
+                                  : "Your Page Canvas is Empty"}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
                       {canvasMode === "header"
                         ? "Add navigation menu, logo, buttons, or links from the left panel."
                         : canvasMode === "footer"
                           ? "Add footer links, copyright text, or social icons from the left panel."
-                          : "Click any element from the left panel to start building."}
+                          : canvasMode === "single"
+                            ? "Add post title, breadcrumbs, excerpt, or post navigation."
+                            : canvasMode === "archive"
+                              ? "Add taxonomy filter, archive title, or post cards."
+                              : canvasMode === "404"
+                                ? "Add 404 message, homepage link, or search bar."
+                                : canvasMode === "search-results"
+                                  ? "Add search input, results layout, or query heading."
+                                  : "Click any element from the left panel to start building."}
                     </p>
                   </div>
                 ) : (
@@ -9925,6 +10309,35 @@ export default function WebsiteEditor() {
                       />
                     )}
 
+                    {/* Module 10: Navigation Settings Panel */}
+                    {selectedElement && [
+                      "nav-menu",
+                      "wp-menu",
+                      "menu-widget",
+                      "mega-menu",
+                      "breadcrumbs",
+                      "menu-anchor",
+                      "post-nav",
+                      "off-canvas",
+                      "off-canvas-nav",
+                      "site-search",
+                      "search-form",
+                      "taxonomy-filter"
+                    ].includes(selectedElement.type) && (
+                      <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          onUpdateElement={updateElementProperties}
+                          availablePages={pages}
+                          activeBreakpointId={activeDevice}
+                          breakpoints={breakpoints}
+                          updateSelectedStyle={updateSelectedStyle}
+                          updateSelectedProp={updateSelectedProp}
+                          renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      </div>
+                    )}
+
                     {/* Countdown Specific Inspector */}
                     {selectedElementAny.type === "countdown" && (
                       <CountdownWidgetInspector
@@ -10038,7 +10451,7 @@ export default function WebsiteEditor() {
                 )}
 
                 {/* Query Builder Inspector */}
-                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio" || selectedElementAny.type === "loop-grid") && (
                   <QueryBuilderWidgetInspector
                     el={selectedElementAny}
                     updateProp={updateSelectedProp}
@@ -10094,7 +10507,7 @@ export default function WebsiteEditor() {
                     )}
 
                     {/* WooCommerce Widgets Inspector */}
-                    {(selectedElementAny.type === "wc-product-title" || selectedElementAny.type === "wc-product-price" || selectedElementAny.type === "wc-product-images" || selectedElementAny.type === "wc-add-to-cart" || selectedElementAny.type === "wc-product-rating") && (
+                    {selectedElementAny.type?.startsWith("wc-") && (
                       <WooCommerceWidgetInspector
                         el={selectedElementAny}
                         updateProp={updateSelectedProp}
@@ -10201,7 +10614,7 @@ export default function WebsiteEditor() {
                     )}
 
                     {/* Query Builder Inspector */}
-                    {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio") && (
+                    {(selectedElementAny.type === "posts" || selectedElementAny.type === "portfolio" || selectedElementAny.type === "loop-grid") && (
                       <QueryBuilderWidgetInspector
                         el={selectedElementAny}
                         updateProp={updateSelectedProp}
@@ -11187,6 +11600,309 @@ export default function WebsiteEditor() {
                           </label>
                         </div>
 
+                        {/* Form Mode & Multi-Step (F-275) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Form Mode & Steps
+                          </span>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedProp("formMode", "standard")}
+                              className={`rounded-lg py-1.5 text-xs font-bold transition ${
+                                selectedElementAny.formMode !== "step-by-step"
+                                  ? "bg-emerald-600 text-white shadow-xs"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              Standard
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateSelectedProp("formMode", "step-by-step");
+                                if (!selectedElementAny.formSteps || selectedElementAny.formSteps.length === 0) {
+                                  updateSelectedProp("formSteps", [
+                                    { id: "step_1", title: "Step 1: Contact Info" },
+                                    { id: "step_2", title: "Step 2: Details" },
+                                  ]);
+                                }
+                              }}
+                              className={`rounded-lg py-1.5 text-xs font-bold transition ${
+                                selectedElementAny.formMode === "step-by-step"
+                                  ? "bg-emerald-600 text-white shadow-xs"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              Step-by-Step
+                            </button>
+                          </div>
+
+                          {selectedElementAny.formMode === "step-by-step" && (
+                            <div className="space-y-2 pt-2 border-t border-slate-200">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-bold text-slate-700">Steps ({selectedElementAny.formSteps?.length || 0})</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const currentSteps = selectedElementAny.formSteps || [];
+                                    const newStep = {
+                                      id: `step_${Date.now()}`,
+                                      title: `Step ${currentSteps.length + 1}: Details`,
+                                    };
+                                    updateSelectedProp("formSteps", [...currentSteps, newStep]);
+                                  }}
+                                  className="rounded-md bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white hover:bg-emerald-700 cursor-pointer"
+                                >
+                                  + Add Step
+                                </button>
+                              </div>
+
+                              <div className="space-y-1.5">
+                                {(selectedElementAny.formSteps || []).map((step: any, sIdx: number) => (
+                                  <div key={step.id} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1.5 shadow-2xs">
+                                    <span className="text-[10px] font-bold text-slate-400 w-4 text-center">{sIdx + 1}</span>
+                                    <input
+                                      type="text"
+                                      value={step.title}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formSteps || []).map((s: any) =>
+                                          s.id === step.id ? { ...s, title: e.target.value } : s
+                                        );
+                                        updateSelectedProp("formSteps", updated);
+                                      }}
+                                      className="flex-1 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-800 outline-none focus:border-emerald-500"
+                                    />
+                                    {sIdx > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const steps = [...(selectedElementAny.formSteps || [])];
+                                          const temp = steps[sIdx];
+                                          steps[sIdx] = steps[sIdx - 1];
+                                          steps[sIdx - 1] = temp;
+                                          updateSelectedProp("formSteps", steps);
+                                        }}
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 px-1 cursor-pointer"
+                                        title="Move Step Up"
+                                      >
+                                        ↑
+                                      </button>
+                                    )}
+                                    {sIdx < (selectedElementAny.formSteps?.length || 0) - 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const steps = [...(selectedElementAny.formSteps || [])];
+                                          const temp = steps[sIdx];
+                                          steps[sIdx] = steps[sIdx + 1];
+                                          steps[sIdx + 1] = temp;
+                                          updateSelectedProp("formSteps", steps);
+                                        }}
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 px-1 cursor-pointer"
+                                        title="Move Step Down"
+                                      >
+                                        ↓
+                                      </button>
+                                    )}
+                                    {(selectedElementAny.formSteps?.length || 0) > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updated = (selectedElementAny.formSteps || []).filter((s: any) => s.id !== step.id);
+                                          updateSelectedProp("formSteps", updated);
+                                        }}
+                                        className="text-[10px] font-bold text-red-500 hover:text-red-700 px-1 cursor-pointer"
+                                        title="Delete Step"
+                                      >
+                                        ✕
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Spam Protection (F-277) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Spam Protection
+                          </span>
+                          <label className="flex items-center justify-between text-xs text-slate-700 cursor-pointer">
+                            <div>
+                              <span className="font-semibold text-slate-800">Honeypot Anti-Spam Trap</span>
+                              <p className="text-[10px] text-slate-500 mt-0.5">Injects an invisible trap input field that silently flags bot submissions.</p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={selectedElementAny.formEnableHoneypot !== false}
+                              onChange={(e) => updateSelectedProp("formEnableHoneypot", e.target.checked)}
+                              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                          </label>
+                        </div>
+
+                        {/* Actions After Submit (F-274, F-276, F-278, F-280, F-281) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3">
+                          <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                            Actions After Submit
+                          </span>
+
+                          {/* Save to Database */}
+                          <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedElementAny.formActions?.saveToDb !== false}
+                              onChange={(e) =>
+                                updateSelectedProp("formActions", {
+                                  ...(selectedElementAny.formActions || {}),
+                                  saveToDb: e.target.checked,
+                                })
+                              }
+                              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            />
+                            <span className="font-semibold text-slate-800">Save to Database (Leads Viewer)</span>
+                          </label>
+
+                          {/* Send Notification Email */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.sendEmail}
+                                onChange={(e) =>
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    sendEmail: e.target.checked,
+                                  })
+                                }
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">Send Notification Email</span>
+                            </label>
+                            {selectedElementAny.formActions?.sendEmail && (
+                              <div className="space-y-2 pl-6 pt-1">
+                                <div>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                    Recipient Email (toEmail)
+                                  </label>
+                                  <input
+                                    type="email"
+                                    value={selectedElementAny.formActions?.toEmail || ""}
+                                    onChange={(e) =>
+                                      updateSelectedProp("formActions", {
+                                        ...(selectedElementAny.formActions || {}),
+                                        toEmail: e.target.value,
+                                      })
+                                    }
+                                    placeholder="admin@example.com"
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                    Email Subject
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={selectedElementAny.formActions?.emailSubject || ""}
+                                    onChange={(e) =>
+                                      updateSelectedProp("formActions", {
+                                        ...(selectedElementAny.formActions || {}),
+                                        emailSubject: e.target.value,
+                                      })
+                                    }
+                                    placeholder="New Lead from Website Form"
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* External Webhook */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.webhook}
+                                onChange={(e) =>
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    webhook: e.target.checked,
+                                  })
+                                }
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">External Webhook</span>
+                            </label>
+                            {selectedElementAny.formActions?.webhook && (
+                              <div className="pl-6 pt-1">
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                  Webhook URL
+                                </label>
+                                <input
+                                  type="url"
+                                  value={selectedElementAny.formActions?.webhookUrl || ""}
+                                  onChange={(e) =>
+                                    updateSelectedProp("formActions", {
+                                      ...(selectedElementAny.formActions || {}),
+                                      webhookUrl: e.target.value,
+                                    })
+                                  }
+                                  placeholder="https://hooks.zapier.com/..."
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Redirect URL */}
+                          <div className="space-y-1.5 pt-1.5 border-t border-slate-200/80">
+                            <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!selectedElementAny.formActions?.redirect || !!selectedElementAny.formRedirectUrl}
+                                onChange={(e) => {
+                                  const enabled = e.target.checked;
+                                  updateSelectedProp("formActions", {
+                                    ...(selectedElementAny.formActions || {}),
+                                    redirect: enabled,
+                                  });
+                                  if (!enabled) {
+                                    updateSelectedProp("formRedirectUrl", "");
+                                  }
+                                }}
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="font-semibold text-slate-800">Redirect URL (Thank You Page)</span>
+                            </label>
+                            {(selectedElementAny.formActions?.redirect || selectedElementAny.formRedirectUrl) && (
+                              <div className="pl-6 pt-1">
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                  Destination URL
+                                </label>
+                                <input
+                                  type="text"
+                                  value={selectedElementAny.formActions?.redirectUrl || selectedElementAny.formRedirectUrl || ""}
+                                  onChange={(e) => {
+                                    updateSelectedProp("formRedirectUrl", e.target.value);
+                                    updateSelectedProp("formActions", {
+                                      ...(selectedElementAny.formActions || {}),
+                                      redirect: true,
+                                      redirectUrl: e.target.value,
+                                    });
+                                  }}
+                                  placeholder="/thank-you or https://..."
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Form Fields Manager */}
                         <div className="pt-2 border-t border-slate-200 space-y-3">
                           <div className="flex items-center justify-between">
@@ -11206,6 +11922,8 @@ export default function WebsiteEditor() {
                                     select: "Choose Option",
                                     checkbox: "I agree to the terms",
                                     radio: "Select Preference",
+                                    date: "Select Date",
+                                    file: "Attachment / File",
                                   };
                                   const newField: FormFieldItem = {
                                     id: generateId(),
@@ -11224,6 +11942,8 @@ export default function WebsiteEditor() {
                                 <option value="email">+ Email</option>
                                 <option value="number">+ Number</option>
                                 <option value="tel">+ Telephone</option>
+                                <option value="date">+ Date Picker</option>
+                                <option value="file">+ File Upload</option>
                                 <option value="textarea">+ Textarea</option>
                                 <option value="select">+ Dropdown Select</option>
                                 <option value="checkbox">+ Checkbox</option>
@@ -11253,7 +11973,7 @@ export default function WebsiteEditor() {
                                           items[idx - 1] = temp;
                                           updateSelectedProp("formFields", items);
                                         }}
-                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                                         title="Move Up"
                                       >
                                         ↑
@@ -11269,7 +11989,7 @@ export default function WebsiteEditor() {
                                           items[idx + 1] = temp;
                                           updateSelectedProp("formFields", items);
                                         }}
-                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                                        className="text-[10px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                                         title="Move Down"
                                       >
                                         ↓
@@ -11281,7 +12001,7 @@ export default function WebsiteEditor() {
                                         const updated = (selectedElementAny.formFields || []).filter((f) => f.id !== field.id);
                                         updateSelectedProp("formFields", updated);
                                       }}
-                                      className="text-[10px] font-bold text-red-500 hover:text-red-700"
+                                      className="text-[10px] font-bold text-red-500 hover:text-red-700 cursor-pointer"
                                     >
                                       Remove
                                     </button>
@@ -11317,10 +12037,10 @@ export default function WebsiteEditor() {
                                         const updated = (selectedElementAny.formFields || []).map((f) =>
                                           f.id === field.id
                                             ? {
-                                              ...f,
-                                              type: newType,
-                                              options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
-                                            }
+                                                ...f,
+                                                type: newType,
+                                                options: newType === "select" || newType === "radio" ? (f.options || ["Option 1", "Option 2"]) : f.options,
+                                              }
                                             : f
                                         );
                                         updateSelectedProp("formFields", updated);
@@ -11331,6 +12051,8 @@ export default function WebsiteEditor() {
                                       <option value="email">Email</option>
                                       <option value="number">Number</option>
                                       <option value="tel">Telephone</option>
+                                      <option value="date">Date Picker</option>
+                                      <option value="file">File Upload</option>
                                       <option value="textarea">Textarea</option>
                                       <option value="select">Select Dropdown</option>
                                       <option value="checkbox">Checkbox</option>
@@ -11339,7 +12061,31 @@ export default function WebsiteEditor() {
                                   </div>
                                 </div>
 
-                                {field.type !== "checkbox" && (
+                                {selectedElementAny.formMode === "step-by-step" && (
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Assign to Step
+                                    </label>
+                                    <select
+                                      value={field.stepId || (selectedElementAny.formSteps?.[0]?.id || "")}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id ? { ...f, stepId: e.target.value } : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                    >
+                                      {(selectedElementAny.formSteps || []).map((st: any) => (
+                                        <option key={st.id} value={st.id}>
+                                          {st.title}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+
+                                {field.type !== "checkbox" && field.type !== "file" && (
                                   <div>
                                     <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
                                       Placeholder Text
@@ -11412,6 +12158,123 @@ export default function WebsiteEditor() {
                                       <option value="full">100% (Full Width)</option>
                                     </select>
                                   </div>
+                                </div>
+
+                                {/* Conditional Logic (X-788) */}
+                                <div className="pt-2 border-t border-slate-100">
+                                  <label className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-700 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!field.conditionalLogic}
+                                      onChange={(e) => {
+                                        const otherFields = (selectedElementAny.formFields || []).filter((f) => f.id !== field.id);
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id
+                                            ? {
+                                                ...f,
+                                                conditionalLogic: e.target.checked
+                                                  ? {
+                                                      action: "show" as const,
+                                                      targetFieldId: otherFields[0]?.id || "",
+                                                      operator: "equals" as const,
+                                                      value: "",
+                                                    }
+                                                  : undefined,
+                                              }
+                                            : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span>Conditional Visibility</span>
+                                  </label>
+                                  {field.conditionalLogic && (
+                                    <div className="mt-1.5 space-y-1.5 rounded-lg bg-slate-50 p-2 border border-slate-200 text-xs">
+                                      <div className="grid grid-cols-2 gap-1.5">
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Action</label>
+                                          <select
+                                            value={field.conditionalLogic.action}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, action: e.target.value as "show" | "hide" } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            <option value="show">Show when</option>
+                                            <option value="hide">Hide when</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Target Field</label>
+                                          <select
+                                            value={field.conditionalLogic.targetFieldId}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, targetFieldId: e.target.value } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            {(selectedElementAny.formFields || [])
+                                              .filter((f) => f.id !== field.id)
+                                              .map((of) => (
+                                                <option key={of.id} value={of.id}>
+                                                  {of.label}
+                                                </option>
+                                              ))}
+                                          </select>
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-1.5">
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Operator</label>
+                                          <select
+                                            value={field.conditionalLogic.operator}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, operator: e.target.value as any } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            className="w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px]"
+                                          >
+                                            <option value="equals">Equals</option>
+                                            <option value="not_equals">Does Not Equal</option>
+                                            <option value="contains">Contains</option>
+                                            <option value="not_empty">Is Not Empty</option>
+                                          </select>
+                                        </div>
+                                        <div>
+                                          <label className="block text-[9px] text-slate-500">Match Value</label>
+                                          <input
+                                            type="text"
+                                            value={field.conditionalLogic.value}
+                                            onChange={(e) => {
+                                              const updated = (selectedElementAny.formFields || []).map((f) =>
+                                                f.id === field.id
+                                                  ? { ...f, conditionalLogic: { ...f.conditionalLogic!, value: e.target.value } }
+                                                  : f
+                                              );
+                                              updateSelectedProp("formFields", updated);
+                                            }}
+                                            placeholder="Value to match..."
+                                            className="w-full rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px]"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}

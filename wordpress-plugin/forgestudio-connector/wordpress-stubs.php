@@ -129,6 +129,8 @@ if (!function_exists('wp_delete_attachment')) { function wp_delete_attachment($p
 if (!function_exists('wp_remote_post')) { function wp_remote_post($url, $args = []) { return []; } }
 if (!function_exists('wp_handle_upload')) { function wp_handle_upload(&$file, $overrides = false, $time = null) { return []; } }
 if (!function_exists('wp_get_nav_menus')) { function wp_get_nav_menus($args = []) { return []; } }
+if (!function_exists('wp_get_nav_menu_items')) { function wp_get_nav_menu_items($menu, $args = []) { return []; } }
+if (!function_exists('get_nav_menu_locations')) { function get_nav_menu_locations() { return []; } }
 if (!function_exists('acf_add_local_field_group')) { function acf_add_local_field_group($field_group) {} }
 if (!function_exists('is_multisite')) { function is_multisite() { return false; } }
 if (!function_exists('parse_blocks')) { function parse_blocks($content) { return []; } }

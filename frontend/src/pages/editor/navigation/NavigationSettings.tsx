@@ -1,22 +1,53 @@
 import React from "react";
 import type { EditorElement, ElementStyles, ContainerLayout, Breakpoint } from "../WebsiteEditor";
 
-interface NavigationSettingsProps {
+export interface NavigationSettingsProps {
   selectedElement: EditorElement;
-  activeBreakpointId: string;
-  breakpoints: Breakpoint[];
-  updateSelectedStyle: (key: keyof ElementStyles, value: any) => void;
-  updateSelectedProp: (key: keyof EditorElement, value: any) => void;
-  renderResponsiveLabel: (label: string, styleKey?: keyof ElementStyles, layoutKey?: keyof ContainerLayout) => React.ReactNode;
+  activeBreakpointId?: string;
+  breakpoints?: Breakpoint[];
+  updateSelectedStyle?: (key: keyof ElementStyles, value: any) => void;
+  updateSelectedProp?: (key: keyof EditorElement, value: any) => void;
+  renderResponsiveLabel?: (label: string, styleKey?: keyof ElementStyles, layoutKey?: keyof ContainerLayout) => React.ReactNode;
+  onUpdateElement?: (updater: (el: EditorElement) => EditorElement) => void;
+  availablePages?: any[];
 }
 
 export const NavigationSettingsPanel: React.FC<NavigationSettingsProps> = ({
   selectedElement,
-  updateSelectedStyle,
-  updateSelectedProp,
-  renderResponsiveLabel,
+  updateSelectedStyle: propUpdateSelectedStyle,
+  updateSelectedProp: propUpdateSelectedProp,
+  renderResponsiveLabel: propRenderResponsiveLabel,
+  onUpdateElement,
+  availablePages: _availablePages,
 }) => {
   const styles = selectedElement.styles || {};
+
+  const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
+    if (propUpdateSelectedStyle) {
+      propUpdateSelectedStyle(key, value);
+    } else if (onUpdateElement) {
+      onUpdateElement((el) => ({
+        ...el,
+        styles: { ...(el.styles || {}), [key]: value },
+      }));
+    }
+  };
+
+  const updateSelectedProp = (key: keyof EditorElement, value: any) => {
+    if (propUpdateSelectedProp) {
+      propUpdateSelectedProp(key, value);
+    } else if (onUpdateElement) {
+      onUpdateElement((el) => ({
+        ...el,
+        [key]: value,
+      }));
+    }
+  };
+
+  const renderResponsiveLabel = (label: string, styleKey?: keyof ElementStyles, layoutKey?: keyof ContainerLayout) => {
+    if (propRenderResponsiveLabel) return propRenderResponsiveLabel(label, styleKey, layoutKey);
+    return <label className="block text-[10px] font-bold text-slate-500 mb-1">{label}</label>;
+  };
 
   return (
     <div className="space-y-4 text-xs">
@@ -470,7 +501,7 @@ export const NavigationSettingsPanel: React.FC<NavigationSettingsProps> = ({
       {/* ---------------------------------------------------- */}
       {/* 8. F-230: Off Canvas Navigation Settings             */}
       {/* ---------------------------------------------------- */}
-      {selectedElement.type === "off-canvas-nav" && (
+      {(selectedElement.type === "off-canvas-nav" || selectedElement.type === "off-canvas") && (
         <div className="space-y-3">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 mb-1">DRAWER SLIDE POSITION</label>

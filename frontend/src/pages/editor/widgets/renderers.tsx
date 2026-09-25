@@ -55,7 +55,12 @@ import type {
   PageConfig,
   MegaMenuColumn,
   MegaMenuColumnLink,
-  SiteProduct
+  SiteProduct,
+  ProductAddonItem
+} from "../types";
+import {
+  resolveDynamicTokens,
+  resolveTokensInTree
 } from "../types";
 import {
   resolveImageUrl,
@@ -301,14 +306,54 @@ export const FormWidgetRenderer = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [honeypotVal, setHoneypotVal] = useState("");
 
   // Active step fields
   const activeStep = steps[currentStepIndex] || steps[0];
   const isMultiStep = formMode === "step-by-step" && steps.length > 1;
 
-  const visibleFields = isMultiStep
+  // Client-Side Conditional Logic (X-788)
+  const isFieldVisible = (field: FormFieldItem, currentData: Record<string, any>): boolean => {
+    if (!field.conditionalLogic || !field.conditionalLogic.targetFieldId) {
+      return true;
+    }
+    const { action, targetFieldId, operator, value } = field.conditionalLogic;
+    const targetVal = currentData[targetFieldId];
+    const strTargetVal = targetVal !== undefined && targetVal !== null ? String(targetVal) : "";
+    const ruleValue = value !== undefined && value !== null ? String(value) : "";
+
+    let conditionMet = false;
+    switch (operator) {
+      case "equals":
+        conditionMet = strTargetVal === ruleValue;
+        break;
+      case "not_equals":
+        conditionMet = strTargetVal !== ruleValue;
+        break;
+      case "contains":
+        conditionMet = strTargetVal.toLowerCase().includes(ruleValue.toLowerCase());
+        break;
+      case "not_empty":
+        conditionMet = strTargetVal.trim().length > 0;
+        break;
+      default:
+        conditionMet = strTargetVal === ruleValue;
+        break;
+    }
+
+    if (action === "show") {
+      return conditionMet;
+    } else if (action === "hide") {
+      return !conditionMet;
+    }
+    return true;
+  };
+
+  const currentStepFields = isMultiStep
     ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
     : fields;
+
+  const visibleFields = currentStepFields.filter((f) => isFieldVisible(f, formData));
 
   const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
     setValidationError(null);
@@ -382,6 +427,8 @@ export const FormWidgetRenderer = ({
           formId: el.id,
           formName: el.formTitle || el.content || "Website Form",
           fields: formData,
+          data: formData,
+          honeypotValue: honeypotVal,
         };
         const res = await fetch(`${apiUrl}/api/forms/submit`, {
           method: "POST",
@@ -468,6 +515,16 @@ export const FormWidgetRenderer = ({
         boxSizing: "border-box",
       }}
     >
+      {/* Honeypot Trap (F-277) */}
+      <input
+        type="text"
+        name="_fs_hp_check"
+        value={honeypotVal}
+        onChange={(e) => setHoneypotVal(e.target.value)}
+        style={{ display: "none", opacity: 0, position: "absolute", top: -9999, left: -9999 }}
+        tabIndex={-1}
+        autoComplete="off"
+      />
       {/* Form Header Title & Subtitle */}
       {(title || subtitle) && (
         <div className="mb-6">
@@ -566,7 +623,30 @@ export const FormWidgetRenderer = ({
               )}
 
               {/* Field Inputs */}
-              {field.type === "textarea" ? (
+              {field.type === "date" ? (
+                <input
+                  type="date"
+                  required={field.required}
+                  value={formData[field.id] || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                />
+              ) : field.type === "file" ? (
+                <div className="flex flex-col gap-1.5">
+                  <input
+                    type="file"
+                    required={field.required}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setFormData((prev) => ({ ...prev, [field.id]: file ? file.name : "" }));
+                    }}
+                    className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-700 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                  />
+                  {formData[field.id] && (
+                    <span className="text-[11px] text-slate-500 truncate">Selected: {formData[field.id]}</span>
+                  )}
+                </div>
+              ) : field.type === "textarea" ? (
                 <textarea
                   rows={4}
                   required={field.required}
@@ -6491,8 +6571,25 @@ export const OffCanvasWidgetRenderer = ({
   const btnBg = el.offCanvasButtonBgColor || "#0f172a";
   const btnText = el.offCanvasButtonTextColor || "#ffffff";
   const panelBg = el.offCanvasPanelBgColor || "#ffffff";
-
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   return (
     <div
@@ -7972,10 +8069,48 @@ export const WcProductStockWidgetRenderer: React.FC<{ el: EditorElement; getMerg
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
   const inStock = prod?.inStock ?? true;
 
+  const threshold = el.stockThreshold ?? 5;
+  const isLowStock = inStock && threshold > 0 && typeof (prod as any)?.stock === "number" && (prod as any).stock <= threshold;
+
+  const label = !inStock
+    ? (el.outOfStockLabel || "Out of Stock")
+    : isLowStock
+    ? (el.lowStockLabel || `Low Stock - Only ${(prod as any).stock} left!`)
+    : (el.inStockLabel || "In Stock (Ready to Ship)");
+
+  const badgeBg = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}15` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}15` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}15` : undefined);
+
+  const badgeColor = !inStock
+    ? (el.outOfStockColor || "#be123c")
+    : isLowStock
+    ? (el.lowStockColor || "#b45309")
+    : (el.inStockColor || "#047857");
+
+  const badgeBorder = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}30` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}30` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}30` : undefined);
+
   return (
-    <div style={styles as React.CSSProperties} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold border ${inStock ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
-      <span className={`h-2.5 w-2.5 rounded-full ${inStock ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-      <span>{inStock ? "In Stock (Ready to Ship)" : "Out of Stock"}</span>
+    <div
+      style={{
+        ...styles,
+        backgroundColor: badgeBg || (inStock ? (isLowStock ? "#fffbeb" : "#ecfdf5") : "#fff1f2"),
+        color: badgeColor,
+        borderColor: badgeBorder || (inStock ? (isLowStock ? "#fde68a" : "#a7f3d0") : "#fecdd3"),
+      } as React.CSSProperties}
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold border"
+    >
+      <span
+        style={{ backgroundColor: badgeColor }}
+        className={`h-2.5 w-2.5 rounded-full ${inStock ? "animate-pulse" : ""}`}
+      />
+      <span>{label}</span>
     </div>
   );
 };
@@ -7986,10 +8121,33 @@ export const WcProductMetaWidgetRenderer: React.FC<{ el: EditorElement; getMerge
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
 
+  const showSku = el.metaShowSku ?? true;
+  const showCategory = el.metaShowCategory ?? true;
+  const showTags = el.metaShowTags ?? true;
+  const separator = el.metaSeparator || " • ";
+
   return (
     <div style={styles as React.CSSProperties} className="text-xs space-y-1.5 text-slate-600 border-t border-slate-200 pt-3">
-      <p><strong className="text-slate-900 font-extrabold">SKU:</strong> <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{prod?.id || "WC-PROD-101"}</span></p>
-      <p><strong className="text-slate-900 font-extrabold">Category:</strong> <button type="button" onClick={() => wc.setActiveCategory(prod?.category || null)} className="text-indigo-600 font-bold hover:underline ml-1">{prod?.category || "Audio & Sound"}</button></p>
+      {showSku && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">SKU:</strong>{" "}
+          <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{prod?.id || "WC-PROD-101"}</span>
+        </p>
+      )}
+      {showCategory && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Category:</strong>{" "}
+          <button type="button" onClick={() => wc.setActiveCategory(prod?.category || null)} className="text-indigo-600 font-bold hover:underline ml-1">
+            {prod?.category || "Audio & Sound"}
+          </button>
+        </p>
+      )}
+      {showTags && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Tags:</strong>{" "}
+          <span className="text-slate-500 font-medium">Electronics{separator}Wireless{separator}Studio Audio</span>
+        </p>
+      )}
     </div>
   );
 };
@@ -7999,10 +8157,18 @@ export const WcProductContentWidgetRenderer: React.FC<{ el: EditorElement; getMe
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const description = el.productDescriptionOverride || el.content || prod?.description || "Experience crystal-clear acoustic fidelity with custom dynamic drivers, memory foam cushions, active noise cancellation, and up to 40 hours of continuous wireless playback.";
 
   return (
-    <div style={styles as React.CSSProperties} className="prose prose-slate text-xs leading-relaxed text-slate-600 bg-white p-4 rounded-xl border border-slate-100">
-      <p>{el.content || prod?.description || "Experience crystal-clear acoustic fidelity with custom dynamic drivers, memory foam cushions, active noise cancellation, and up to 40 hours of continuous wireless playback."}</p>
+    <div
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="prose prose-slate text-xs leading-relaxed text-slate-600 bg-white p-4 rounded-xl border border-slate-100"
+    >
+      <p>{description}</p>
     </div>
   );
 };
@@ -8012,10 +8178,18 @@ export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; get
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const shortDesc = el.productDescriptionOverride || el.content || prod?.description || "Ultra-lightweight wireless headphones engineered for studio acoustic purity and all-day comfort.";
 
   return (
-    <p style={styles as React.CSSProperties} className="text-xs text-slate-600 font-medium leading-normal italic border-l-2 border-indigo-500 pl-3 py-1">
-      {el.content || prod?.description || "Ultra-lightweight wireless headphones engineered for studio acoustic purity and all-day comfort."}
+    <p
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="text-xs text-slate-600 font-medium leading-normal italic border-l-2 border-indigo-500 pl-3 py-1"
+    >
+      {shortDesc}
     </p>
   );
 };
@@ -8023,73 +8197,64 @@ export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; get
 export const WcProductDataTabsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews">("desc");
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const customTabs = el.tabsData && el.tabsData.length > 0 ? el.tabsData : [
+    { id: "desc", title: "Description", content: prod?.description || "Crafted with surgical-grade aluminum and plush protein leather ear cushions, this product delivers uncompromised performance and active noise cancellation." },
+    { id: "specs", title: "Additional Info", content: "Driver Size: 40mm Neodymium • Battery Life: 40 Hours • Warranty: 2 Years Global" },
+    { id: "reviews", title: "Customer Reviews", content: "★★★★★ Alex M. — Exceptional clarity, studio bass, and incredible battery stamina!" },
+  ];
+
+  const [activeTabId, setActiveTabId] = useState<string>(customTabs[0]?.id || "desc");
+  const currentTab = customTabs.find((t) => t.id === activeTabId) || customTabs[0];
 
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4 text-xs">
-      <div className="flex border-b border-slate-200 gap-6 font-bold text-slate-600">
-        <button
-          type="button"
-          onClick={() => setActiveTab("desc")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "desc" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Description
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("specs")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "specs" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Additional Info
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("reviews")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "reviews" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Customer Reviews (142)
-        </button>
+      <div className="flex border-b border-slate-200 gap-4 overflow-x-auto font-bold text-slate-600">
+        {customTabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setActiveTabId(t.id)}
+            className={`pb-2.5 transition whitespace-nowrap border-b-2 cursor-pointer ${
+              activeTabId === t.id ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"
+            }`}
+          >
+            {t.title}
+          </button>
+        ))}
       </div>
 
-      {activeTab === "desc" && (
-        <p className="text-slate-600 leading-relaxed">
-          Crafted with surgical-grade aluminum and plush protein leather ear cushions, this product delivers uncompromised performance and active noise cancellation.
-        </p>
-      )}
-
-      {activeTab === "specs" && (
-        <div className="space-y-2">
-          <div className="flex justify-between py-1 border-b border-slate-100"><span className="font-bold text-slate-700">Driver Size</span><span>40mm Neodymium</span></div>
-          <div className="flex justify-between py-1 border-b border-slate-100"><span className="font-bold text-slate-700">Battery Life</span><span>40 Hours</span></div>
-          <div className="flex justify-between py-1"><span className="font-bold text-slate-700">Warranty</span><span>2 Years Global</span></div>
-        </div>
-      )}
-
-      {activeTab === "reviews" && (
-        <div className="space-y-3">
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-            <div className="flex justify-between items-center">
-              <span className="font-bold text-slate-900">Alex M.</span>
-              <span className="text-amber-500 font-bold">★★★★★</span>
-            </div>
-            <p className="text-slate-600">Exceptional clarity and incredible battery stamina!</p>
-          </div>
-        </div>
-      )}
+      <div className="text-slate-600 leading-relaxed min-h-[60px]">
+        {currentTab?.content}
+      </div>
     </div>
   );
 };
 
 export const WcAdditionalInfoWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const attrs = el.additionalInfoAttributes && el.additionalInfoAttributes.length > 0
+    ? el.additionalInfoAttributes
+    : [
+        { key: "Weight", value: "250 grams" },
+        { key: "Dimensions", value: "18 x 15 x 8 cm" },
+        { key: "Material", value: "Anodized Aerospace Aluminum" },
+        { key: "Connectivity", value: "Bluetooth 5.3 + 3.5mm AUX" },
+        { key: "Warranty", value: "2 Years Manufacturer Warranty" },
+      ];
+
   return (
     <div style={styles as React.CSSProperties} className="rounded-xl border border-slate-200 overflow-hidden bg-white text-xs shadow-2xs">
       <table className="w-full text-left border-collapse">
         <tbody>
-          <tr className="border-b border-slate-100 bg-slate-50/70"><th className="p-3 font-bold text-slate-800 w-1/3">Weight</th><td className="p-3 text-slate-600">250 grams</td></tr>
-          <tr className="border-b border-slate-100"><th className="p-3 font-bold text-slate-800">Dimensions</th><td className="p-3 text-slate-600">18 x 15 x 8 cm</td></tr>
-          <tr className="border-b border-slate-100 bg-slate-50/70"><th className="p-3 font-bold text-slate-800">Connectivity</th><td className="p-3 text-slate-600">Bluetooth 5.3 + 3.5mm AUX</td></tr>
-          <tr><th className="p-3 font-bold text-slate-800">Warranty</th><td className="p-3 text-slate-600">2 Years Manufacturer Warranty</td></tr>
+          {attrs.map((attr, idx) => (
+            <tr key={idx} className={`border-b border-slate-100 ${idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"}`}>
+              <th className="p-3 font-bold text-slate-800 w-1/3">{attr.key}</th>
+              <td className="p-3 text-slate-600">{attr.value}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -8099,21 +8264,34 @@ export const WcAdditionalInfoWidgetRenderer: React.FC<{ el: EditorElement; getMe
 export const WcRelatedProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  let list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = list.find((p) => p.id === el.productId);
+
+  if (el.relatedCriteria === "category" && connected?.category) {
+    const filtered = list.filter((p) => p.id !== connected.id && p.category === connected.category);
+    if (filtered.length > 0) list = filtered;
+  }
+
+  const limit = Math.min(Math.max(el.relatedLimit || 3, 2), 8);
+  const displayItems = list.slice(0, limit);
+  const cols = Math.min(Math.max(el.relatedColumns || 3, 1), 6);
 
   return (
     <div style={styles as React.CSSProperties} className="space-y-3">
       <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
         <span>🔄 Related Products</span>
       </h4>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {list.slice(0, 3).map((p) => (
+      <div
+        className="grid gap-3"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      >
+        {displayItems.map((p) => (
           <div key={p.id} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs hover:shadow-md transition">
             <img src={p.image} alt={p.name} className="h-24 w-full rounded-lg object-cover" />
             <p className="font-bold text-xs text-slate-900 line-clamp-1">{p.name}</p>
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold text-emerald-600">{p.price}</span>
-              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[10px] hover:bg-indigo-700">Add</button>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[10px] hover:bg-indigo-700 cursor-pointer">Add</button>
             </div>
           </div>
         ))}
@@ -8126,6 +8304,7 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const [added, setAdded] = useState(false);
+  const limit = el.upsellsLimit || 2;
 
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 space-y-2.5 text-xs shadow-2xs">
@@ -8137,10 +8316,10 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
       <button
         type="button"
         onClick={() => {
-          wc.addNotice("success", "➕ AddedProtection Plan & Travel Case to your order!");
+          wc.addNotice("success", "➕ Added Protection Plan & Travel Case to your order!");
           setAdded(true);
         }}
-        className={`px-4 py-2 rounded-xl font-bold text-white transition active:scale-95 ${added ? "bg-emerald-600" : "bg-amber-600 hover:bg-amber-700"}`}
+        className={`px-4 py-2 rounded-xl font-bold text-white transition active:scale-95 cursor-pointer ${added ? "bg-emerald-600" : "bg-amber-600 hover:bg-amber-700"}`}
       >
         {added ? "✓ Bundle Added to Order!" : "Add Protection Bundle ($29.99)"}
       </button>
@@ -8151,23 +8330,37 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
 export const WcProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  let list = siteProducts && siteProducts.length > 0 ? [...siteProducts] : [...wc.products];
 
   if (wc.activeCategory) {
     list = list.filter((p) => p.category === wc.activeCategory);
   }
 
+  // Handle orderBy
+  const orderBy = el.productsOrderBy || "date";
+  if (orderBy === "price_asc") {
+    list.sort((a, b) => (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "price_desc") {
+    list.sort((a, b) => (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "rating") {
+    list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }
+
+  const perPage = el.productsPerPage || 8;
+  const displayList = list.slice(0, perPage);
+  const layout = el.productsLayout || wc.activeShopLayout || "grid";
+
   return (
-    <div style={styles as React.CSSProperties} className={`grid gap-4 ${wc.activeShopLayout === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
-      {list.map((p) => (
-        <div key={p.id} className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition ${wc.activeShopLayout === "list" ? "flex items-center gap-4" : "flex flex-col justify-between space-y-3"}`}>
-          <img src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"} alt={p.name} className={`${wc.activeShopLayout === "list" ? "h-24 w-24 rounded-xl object-cover shrink-0" : "w-full h-36 rounded-xl object-cover"}`} />
+    <div style={styles as React.CSSProperties} className={`grid gap-4 ${layout === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
+      {displayList.map((p) => (
+        <div key={p.id} className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition ${layout === "list" ? "flex items-center gap-4" : "flex flex-col justify-between space-y-3"}`}>
+          <img src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"} alt={p.name} className={`${layout === "list" ? "h-24 w-24 rounded-xl object-cover shrink-0" : "w-full h-36 rounded-xl object-cover"}`} />
           <div className="flex-1 space-y-1">
             <h4 className="font-extrabold text-xs text-slate-900 line-clamp-1">{p.name}</h4>
             <p className="text-[11px] text-slate-500 line-clamp-1">{p.description}</p>
             <div className="flex items-center justify-between pt-1">
               <span className="font-extrabold text-xs text-emerald-600">{p.price}</span>
-              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition active:scale-95">Add to Cart</button>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition active:scale-95 cursor-pointer">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -8180,20 +8373,21 @@ export const WcCustomAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getM
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
-  const prod = prodList[0];
+  const targetId = el.customAddToCartProductId || el.productId;
+  const prod = prodList.find((p) => p.id === targetId) || prodList[0];
   const [qty, setQty] = useState(1);
 
   return (
     <div style={styles as React.CSSProperties} className="inline-flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs">
       <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
-        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200">-</button>
+        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">-</button>
         <span className="px-3 py-1.5 font-extrabold text-xs text-slate-900">{qty}</span>
-        <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200">+</button>
+        <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">+</button>
       </div>
       <button
         type="button"
         onClick={() => prod && wc.addToCart(prod, qty)}
-        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-md hover:bg-indigo-700 transition active:scale-95"
+        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-md hover:bg-indigo-700 transition active:scale-95 cursor-pointer"
       >
         🛒 Add ({qty}) to Cart
       </button>
@@ -8253,7 +8447,7 @@ export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
         <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 space-y-3 text-xs">
           <div className="flex justify-between items-center border-b border-slate-100 pb-2">
             <span className="font-extrabold text-slate-900">Your Cart ({wc.cartCount})</span>
-            <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
           </div>
           {wc.cart.length === 0 ? (
             <p className="text-slate-500 text-center py-4 italic">Your cart is currently empty</p>
@@ -8263,9 +8457,9 @@ export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
                 <div key={item.product.id} className="flex justify-between items-center py-1">
                   <div>
                     <p className="font-bold text-slate-900">{item.product.name}</p>
-                    <p className="text-[11px] text-slate-500">Qty: {item.quantity} × {item.product.price}</p>
+                    <p className="text-[11px] text-slate-500">Qty: {item.quantity} × {item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</p>
                   </div>
-                  <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold hover:underline">Remove</button>
+                  <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold hover:underline cursor-pointer">Remove</button>
                 </div>
               ))}
             </div>
@@ -8286,6 +8480,11 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
   const [couponCode, setCouponCode] = useState("");
   const [applied, setApplied] = useState(false);
 
+  const accentColor = el.cartAccentColor || "#4f46e5";
+  const btnLabel = el.cartButtonLabel || "Apply";
+  const showCoupons = el.cartShowCoupons ?? true;
+  const showShippingCalc = el.cartShowShippingCalc ?? true;
+
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -8293,7 +8492,7 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
           <span>🛒</span> Shopping Cart
         </h3>
         {wc.cart.length > 0 && (
-          <button type="button" onClick={wc.clearCart} className="text-xs text-rose-600 font-bold hover:underline">Clear Cart</button>
+          <button type="button" onClick={wc.clearCart} className="text-xs text-rose-600 font-bold hover:underline cursor-pointer">Clear Cart</button>
         )}
       </div>
 
@@ -8311,44 +8510,50 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
                 <img src={item.product.image} alt={item.product.name} className="h-12 w-12 rounded-lg object-cover" />
                 <div>
                   <h4 className="font-bold text-xs text-slate-900">{item.product.name}</h4>
-                  <span className="text-xs text-slate-500">{item.product.price}</span>
+                  <span className="text-xs text-slate-500">{item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white">
-                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100">-</button>
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">-</button>
                   <span className="px-2 py-1 text-xs font-bold text-slate-900">{item.quantity}</span>
-                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity + 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100">+</button>
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity + 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">+</button>
                 </div>
-                <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold">✕</button>
+                <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold cursor-pointer">✕</button>
               </div>
             </div>
           ))}
 
-          <div className="flex gap-2 pt-2">
-            <input
-              type="text"
-              placeholder="Coupon Code"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl border border-slate-300 flex-1 font-mono uppercase"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (couponCode.trim()) {
-                  setApplied(true);
-                  wc.addNotice("success", `🎉 Coupon "${couponCode}" applied successfully! 10% discount applied.`);
-                }
-              }}
-              className="px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 cursor-pointer hover:bg-emerald-100"
-            >
-              {applied ? "Applied!" : "Apply"}
-            </button>
-          </div>
+          {showCoupons && (
+            <div className="flex gap-2 pt-2">
+              <input
+                type="text"
+                placeholder="Coupon Code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="px-3 py-2 text-xs rounded-xl border border-slate-300 flex-1 font-mono uppercase"
+              />
+              <button
+                type="button"
+                style={{ backgroundColor: accentColor, color: "#fff" }}
+                onClick={() => {
+                  if (couponCode.trim()) {
+                    setApplied(true);
+                    wc.addNotice("success", `🎉 Coupon "${couponCode}" applied successfully! 10% discount applied.`);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold rounded-xl shadow-xs cursor-pointer hover:opacity-95"
+              >
+                {applied ? "Applied!" : btnLabel}
+              </button>
+            </div>
+          )}
 
           <div className="border-t border-slate-200 pt-3 space-y-1.5 text-xs">
             <div className="flex justify-between text-slate-600"><span>Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
+            {showShippingCalc && (
+              <div className="flex justify-between text-slate-600"><span>Estimated Shipping:</span><span className="text-emerald-600 font-bold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+            )}
             {applied && <div className="flex justify-between text-emerald-600 font-bold"><span>Discount (10% OFF):</span><span>-${(wc.cartSubtotal * 0.1).toFixed(2)}</span></div>}
             <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-2 border-t border-slate-100">
               <span>Total:</span>
@@ -8367,6 +8572,10 @@ export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
   const [email, setEmail] = useState("customer@forgestudio.com");
   const [name, setName] = useState("John Doe");
   const [loading, setLoading] = useState(false);
+
+  const accentColor = el.checkoutAccentColor || "#10b981";
+  const btnLabel = el.checkoutButtonLabel || "Place Order";
+  const showShippingCalc = el.checkoutShowShippingCalc ?? true;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -8394,16 +8603,19 @@ export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
 
       <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 space-y-1">
         <div className="flex justify-between font-bold text-slate-700"><span>Order Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
-        <div className="flex justify-between font-bold text-slate-700"><span>Shipping:</span><span className="text-emerald-600 font-extrabold">FREE</span></div>
+        {showShippingCalc && (
+          <div className="flex justify-between font-bold text-slate-700"><span>Shipping:</span><span className="text-emerald-600 font-extrabold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+        )}
         <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-1 border-t border-slate-200"><span>Total Due:</span><span className="text-emerald-600">${wc.cartSubtotal.toFixed(2)}</span></div>
       </div>
 
       <button
         type="submit"
         disabled={loading || wc.cart.length === 0}
-        className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-extrabold text-xs hover:bg-emerald-700 transition shadow-md disabled:opacity-50 cursor-pointer active:scale-95"
+        style={{ backgroundColor: accentColor }}
+        className="w-full py-3.5 rounded-xl text-white font-extrabold text-xs shadow-md disabled:opacity-50 cursor-pointer active:scale-95 transition"
       >
-        {loading ? "Processing Order..." : `Place Order ($${wc.cartSubtotal.toFixed(2)})`}
+        {loading ? "Processing Order..." : `${btnLabel} ($${wc.cartSubtotal.toFixed(2)})`}
       </button>
     </form>
   );
@@ -8587,6 +8799,213 @@ export const WcProductArchiveTemplatesWidgetRenderer: React.FC<{ el: EditorEleme
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-purple-200 bg-purple-50/60 p-4 text-xs font-extrabold text-purple-900 flex items-center gap-2">
       <span>🗄️ Product Archive Template Activated • Full pagination & filters enabled</span>
+    </div>
+  );
+};
+
+export const WcProductAddOnsWidgetRenderer: React.FC<{
+  el: EditorElement;
+  getMergedStyles?: any;
+  activeDevice?: DeviceMode;
+  mergedStyles?: any;
+  siteProducts?: SiteProduct[];
+}> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const defaultAddons: ProductAddonItem[] = [
+    { id: "addon-gift", label: "Luxury Gift Wrapping & Ribbon", type: "checkbox", priceAdjustment: 4.99 },
+    { id: "addon-warranty", label: "2-Year Extended Hardware Protection", type: "checkbox", priceAdjustment: 19.99 },
+    { id: "addon-engrave", label: "Custom Laser Name Engraving", type: "text", priceAdjustment: 9.99 },
+    { id: "addon-cable", label: "Audio Cable Upgrade", type: "select", priceAdjustment: 14.99, options: ["Braided Silver-Plated 3.5mm (+$14.99)", "Balanced 4.4mm Pentaconn (+$24.99)"] },
+  ];
+
+  const addons: ProductAddonItem[] = el.productAddons && el.productAddons.length > 0
+    ? el.productAddons
+    : defaultAddons;
+
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, any>>({});
+  const [quantity, setQuantity] = useState<number>(1);
+  const [added, setAdded] = useState(false);
+
+  const parsePrice = (p?: string) => {
+    if (!p) return 0;
+    return parseFloat(p.replace(/[^0-9.]/g, "")) || 0;
+  };
+
+  const basePrice = connected ? parsePrice(connected.price) : (el.wooPrice ? parsePrice(el.wooPrice) : 199.99);
+
+  // Compute add-ons total
+  const addOnsTotal = addons.reduce((sum, addon) => {
+    const val = selectedAddons[addon.id];
+    if (!val) return sum;
+    if (addon.type === "checkbox" && val === true) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "text" && typeof val === "string" && val.trim().length > 0) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "select" && typeof val === "string" && val) {
+      const match = val.match(/\+\s*\$?([0-9.]+)/);
+      const optPrice = match ? parseFloat(match[1]) : (addon.priceAdjustment || 0);
+      return sum + optPrice;
+    }
+    if (addon.type === "radio" && val) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    return sum;
+  }, 0);
+
+  const effectivePrice = Math.round((basePrice + addOnsTotal) * 100) / 100;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (connected) {
+      wc.addToCart(connected, quantity, selectedAddons, effectivePrice);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2200);
+    }
+  };
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-indigo-200/80 bg-white p-5 shadow-sm space-y-4 text-xs font-sans">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 text-base font-extrabold">🧩</span>
+          <div>
+            <h4 className="font-extrabold text-slate-900 text-sm">{el.content || "Custom Options & Add-Ons"}</h4>
+            <p className="text-[11px] text-slate-500">Configure personalization & optional hardware extensions</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] text-slate-400 uppercase font-bold block">Effective Price</span>
+          <span className="text-base font-extrabold text-emerald-600">${effectivePrice.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {addons.map((addon) => {
+          const isSelected = !!selectedAddons[addon.id];
+          return (
+            <div key={addon.id} className={`p-3 rounded-xl border transition ${isSelected ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-slate-50/50"}`}>
+              {addon.type === "checkbox" && (
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedAddons[addon.id]}
+                      onChange={(e) => {
+                        setSelectedAddons((prev) => ({
+                          ...prev,
+                          [addon.id]: e.target.checked,
+                        }));
+                      }}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                    />
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                    +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                  </span>
+                </label>
+              )}
+
+              {addon.type === "text" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                    <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                      +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter custom text..."
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              )}
+
+              {addon.type === "select" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <select
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- Select an option (Standard) --</option>
+                    {(addon.options || []).map((opt, i) => (
+                      <option key={i} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {addon.type === "radio" && (
+                <div className="space-y-1.5">
+                  <span className="font-bold text-slate-800 block">{addon.label}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {(addon.options || ["Standard (+ $0.00)", "Pro Upgrade (+ $10.00)"]).map((opt, i) => (
+                      <label key={i} className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                        <input
+                          type="radio"
+                          name={`addon-radio-${addon.id}`}
+                          value={opt}
+                          checked={selectedAddons[addon.id] === opt}
+                          onChange={(e) => {
+                            setSelectedAddons((prev) => ({
+                              ...prev,
+                              [addon.id]: e.target.value,
+                            }));
+                          }}
+                          className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span className="text-[11px] font-medium text-slate-700">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-slate-100 pt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">-</button>
+          <span className="px-2.5 py-1 font-extrabold text-slate-900">{quantity}</span>
+          <button type="button" onClick={() => setQuantity((q) => q + 1)} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">+</button>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className={`flex-1 py-3 px-4 rounded-xl text-white font-extrabold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${
+            added ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          <span>{added ? "✓" : "🛒"}</span>
+          <span>{added ? "Added with Customizations!" : `Add to Cart • $${(effectivePrice * quantity).toFixed(2)}`}</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -9105,6 +9524,495 @@ export const NestedAccordionWidgetRenderer = ({
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// ==========================================================
+// F-248, F-250, F-254: Loop Grid & Query Engine Widget Renderer
+// ==========================================================
+
+export const DEFAULT_LOOP_ITEMS = [
+  {
+    id: "post-1",
+    title: "The Future of Headless Architecture & Design Systems",
+    slug: "future-of-headless-architecture",
+    excerpt: "Explore how composable frontend architectures and modern design systems empower agile product teams to ship faster.",
+    date: "Sep 24, 2026",
+    author: "Elena Rostova",
+    featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    category: "Architecture",
+    categorySlug: "architecture",
+    tags: ["tech", "cloud", "headless"],
+    postType: "post",
+  },
+  {
+    id: "post-2",
+    title: "Mastering Atomic Loops & Composable Query Engines",
+    slug: "mastering-atomic-loops-query-engines",
+    excerpt: "A deep dive into declarative dynamic token bindings, responsive grid compilation, and client-side taxonomy filtering.",
+    date: "Sep 20, 2026",
+    author: "Marcus Vance",
+    featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    category: "Development",
+    categorySlug: "development",
+    tags: ["design-systems", "tech", "react"],
+    postType: "post",
+  },
+  {
+    id: "post-3",
+    title: "Scaling Multi-Tenant Headless WordPress Deployments",
+    slug: "scaling-multitenant-wordpress",
+    excerpt: "Best practices for enterprise ACF fields synchronization, high-concurrency multisite REST endpoints, and edge caching.",
+    date: "Sep 15, 2026",
+    author: "Sophia Chen",
+    featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    category: "WordPress",
+    categorySlug: "wordpress",
+    tags: ["wordpress", "cms", "multisite"],
+    postType: "post",
+  },
+  {
+    id: "post-4",
+    title: "Design Tokens in Production: Bridging Figma and Code",
+    slug: "design-tokens-in-production",
+    excerpt: "How automated pipeline syncing transforms color, typography, and spacing variables directly into reusable CSS primitives.",
+    date: "Sep 10, 2026",
+    author: "David Miller",
+    featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80",
+    category: "Design",
+    categorySlug: "design",
+    tags: ["design-systems", "figma", "css"],
+    postType: "post",
+  },
+  {
+    id: "post-5",
+    title: "Micro-Frontends & Isomorphic Routing at Scale",
+    slug: "micro-frontends-isomorphic-routing",
+    excerpt: "Deconstruct monolithic single-page applications into isolated, independently deployable feature blocks with zero downtime.",
+    date: "Sep 5, 2026",
+    author: "Elena Rostova",
+    featuredImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+    category: "Architecture",
+    categorySlug: "architecture",
+    tags: ["tech", "frontend", "scale"],
+    postType: "post",
+  },
+  {
+    id: "post-6",
+    title: "Accessibility-First Component Architecture in 2026",
+    slug: "accessibility-first-component-architecture",
+    excerpt: "Implementing strict WCAG 2.2 AAA keyboard navigation, focus traps, and screen-reader announcements seamlessly.",
+    date: "Aug 29, 2026",
+    author: "Alex Morgan",
+    featuredImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80",
+    category: "Development",
+    categorySlug: "development",
+    tags: ["a11y", "react", "ui"],
+    postType: "post",
+  },
+];
+
+export interface LoopGridWidgetRendererProps {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+  activeDevice?: DeviceMode;
+  pages?: PageConfig[];
+  onSwitchPage?: (page: PageConfig) => void;
+  apiUrl?: string;
+}
+
+export const LoopGridWidgetRenderer: React.FC<LoopGridWidgetRendererProps> = ({
+  el,
+  isPreview = false,
+  mergedStyles = {},
+  activeDevice = "desktop",
+  pages,
+  onSwitchPage,
+  apiUrl = "",
+}) => {
+  const [activeFilterSlug, setActiveFilterSlug] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [visibleCount, setVisibleCount] = useState<number>(() => el.queryLimit || 6);
+
+  // URL route term seeding (F-256) & live taxonomy filter listener (F-252, F-257)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const match = window.location.pathname.match(/\/(category|tag)\/([^/?#]+)/i);
+      if (match && match[2]) {
+        setActiveFilterSlug(match[2].toLowerCase());
+      }
+    }
+
+    const handleTaxFilter = (e: any) => {
+      const { targetGridId, slug } = e.detail || {};
+      if (!targetGridId || targetGridId === el.id) {
+        setActiveFilterSlug(slug || "all");
+        setCurrentPage(1);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("fs-taxonomy-filter", handleTaxFilter);
+      return () => window.removeEventListener("fs-taxonomy-filter", handleTaxFilter);
+    }
+  }, [el.id]);
+
+  // Query Engine Evaluation (F-247, F-258)
+  const baseItems = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : DEFAULT_LOOP_ITEMS;
+
+  let filteredItems = baseItems.filter((item: any) => {
+    // Taxonomy Slug Filter
+    if (activeFilterSlug && activeFilterSlug !== "all") {
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      const itemTags = Array.isArray(item.tags)
+        ? item.tags.map((t: string) => t.toLowerCase())
+        : [];
+      if (itemCat !== activeFilterSlug && !itemTags.includes(activeFilterSlug)) {
+        return false;
+      }
+    }
+
+    // Term config filter from Query Inspector (F-247)
+    if (Array.isArray(el.queryTerms) && el.queryTerms.length > 0) {
+      const terms = el.queryTerms.map((t: string) => t.toLowerCase().trim());
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      const itemTags = Array.isArray(item.tags)
+        ? item.tags.map((t: string) => t.toLowerCase())
+        : [];
+      const matches = terms.some((term) => term === itemCat || itemTags.includes(term));
+      if (!matches) return false;
+    }
+
+    // Related Posts Preset mode (F-258)
+    if (el.querySource === "related") {
+      // In preview/canvas, match items with architecture or development
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      if (!["architecture", "development", "wordpress"].includes(itemCat)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Exclude current item if requested
+  if (el.queryExcludeCurrent && filteredItems.length > 1) {
+    filteredItems = filteredItems.slice(1);
+  }
+
+  // Ordering
+  const orderDir = (el.queryOrder || "desc").toLowerCase();
+  filteredItems.sort((a: any, b: any) => {
+    if (el.queryOrderBy === "title") {
+      const res = (a.title || "").localeCompare(b.title || "");
+      return orderDir === "asc" ? res : -res;
+    }
+    // Default date
+    const dateA = new Date(a.date || 0).getTime();
+    const dateB = new Date(b.date || 0).getTime();
+    return orderDir === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  // Offset
+  if (el.queryOffset && el.queryOffset > 0) {
+    filteredItems = filteredItems.slice(el.queryOffset);
+  }
+
+  // Limit
+  const maxLimit = el.queryLimit || 6;
+  filteredItems = filteredItems.slice(0, maxLimit);
+
+  // Pagination (F-251)
+  const paginationType = el.paginationType || "none";
+  let displayItems = filteredItems;
+  const itemsPerPage = Math.max(1, Math.min(3, Math.ceil(maxLimit / 2)));
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  if (paginationType === "numbers") {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    displayItems = filteredItems.slice(startIdx, startIdx + itemsPerPage);
+  } else if (paginationType === "load-more") {
+    displayItems = filteredItems.slice(0, visibleCount);
+  }
+
+  // Columns & Gap calculation
+  const desktopCols = Math.min(Math.max(el.loopColumns || 3, 1), 6);
+  let activeCols = desktopCols;
+  if (activeDevice === "mobile") {
+    activeCols = 1;
+  } else if (activeDevice === "tablet") {
+    activeCols = Math.min(desktopCols, 2);
+  }
+  const gapPx = el.loopGap ?? 24;
+
+  // Resolve template elements: primary and alternate (modulo 2)
+  const childTemplates = el.children && el.children.length > 0 ? el.children : [];
+  const primaryTemplate = childTemplates[0] || null;
+  const alternateTemplate =
+    el.alternateTemplateId && childTemplates.length > 1
+      ? childTemplates.find((c) => c.id === el.alternateTemplateId) || childTemplates[1]
+      : (el.alternateTemplateId ? childTemplates[0] : null);
+
+  // Recursive element tree renderer with dynamic token binding
+  const renderTemplateElement = (templateEl: EditorElement, post: any, isAlternate: boolean): React.ReactNode => {
+    const ctx = { post };
+    const content = resolveDynamicTokens(templateEl.content || "", ctx);
+    const src = resolveDynamicTokens(templateEl.src || "", ctx);
+    const href = resolveDynamicTokens(templateEl.href || templateEl.linkUrl || "#", ctx);
+
+    const baseStyles: React.CSSProperties = {
+      ...(templateEl.styles as any),
+      ...(isAlternate && templateEl.type === "container"
+        ? {
+            borderColor: "#3b82f6",
+            borderWidth: "1.5px",
+            backgroundColor: "#fafbfc",
+          }
+        : {}),
+    };
+
+    switch (templateEl.type) {
+      case "heading":
+        return (
+          <h3 key={templateEl.id} style={baseStyles} className="transition group-hover:text-blue-600">
+            {content || post.title}
+          </h3>
+        );
+      case "text":
+        return (
+          <p key={templateEl.id} style={baseStyles}>
+            {content || post.excerpt}
+          </p>
+        );
+      case "image":
+        return (
+          <div key={templateEl.id} className="relative overflow-hidden w-full bg-slate-100 rounded-xl" style={{ height: baseStyles.height || "200px" }}>
+            <img
+              src={resolveImageUrl(src || post.featuredImage, apiUrl)}
+              alt={post.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        );
+      case "button":
+        return (
+          <a
+            key={templateEl.id}
+            href={href || `/post/${post.slug}`}
+            onClick={(e) => {
+              if (!isPreview && onSwitchPage && pages) {
+                e.preventDefault();
+                const target = pages.find((p) => p.slug === post.slug);
+                if (target) onSwitchPage(target);
+              }
+            }}
+            style={baseStyles}
+            className="inline-flex items-center justify-center font-semibold transition active:scale-95 hover:opacity-90"
+          >
+            {content || "Read Article →"}
+          </a>
+        );
+      case "container":
+      default: {
+        const children = templateEl.children || [];
+        return (
+          <div
+            key={templateEl.id}
+            style={{
+              ...baseStyles,
+              display: "flex",
+              flexDirection: (templateEl.layout?.direction as any) || "column",
+              gap: `${templateEl.layout?.gap ?? 12}px`,
+            }}
+            className="w-full group"
+          >
+            {children.map((child) => renderTemplateElement(child, post, isAlternate))}
+          </div>
+        );
+      }
+    }
+  };
+
+  return (
+    <div
+      id={el.id}
+      data-widget-type="loop-grid"
+      className="w-full select-none"
+      style={{
+        marginTop: mergedStyles.marginTop || "16px",
+        marginBottom: mergedStyles.marginBottom || "16px",
+        paddingTop: mergedStyles.paddingTop,
+        paddingBottom: mergedStyles.paddingBottom,
+        paddingLeft: mergedStyles.paddingLeft,
+        paddingRight: mergedStyles.paddingRight,
+        backgroundColor: mergedStyles.backgroundColor || "transparent",
+      }}
+    >
+      {/* Active filter badge indicator */}
+      {activeFilterSlug !== "all" && (
+        <div className="mb-4 flex items-center justify-between rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border border-blue-100">
+          <span className="flex items-center gap-1.5">
+            <span>🏷️</span> Filtering by: <strong className="uppercase">{activeFilterSlug}</strong> ({filteredItems.length} items)
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveFilterSlug("all")}
+            className="text-blue-500 hover:text-blue-800 underline text-[11px]"
+          >
+            Reset Filter
+          </button>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {displayItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-12 text-center bg-slate-50/60">
+          <span className="text-3xl mb-2">🔍</span>
+          <p className="text-sm font-bold text-slate-700">No Query Items Found</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            Try adjusting your taxonomy filters, query limit, or post type settings in the Query Builder inspector.
+          </p>
+        </div>
+      ) : (
+        /* Dynamic Grid Layout (F-248) */
+        <div
+          className={`fs-loop-grid fs-cols-${activeCols} grid`}
+          style={{
+            gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
+            gap: `${gapPx}px`,
+          }}
+        >
+          {displayItems.map((item: any, idx: number) => {
+            // Alternating modulo 2 template check (F-254)
+            const isAlternate = idx % 2 === 1 && !!el.alternateTemplateId;
+            const chosenTemplate = isAlternate ? (alternateTemplate || primaryTemplate) : primaryTemplate;
+
+            return (
+              <article
+                key={item.id || idx}
+                data-loop-item-index={idx}
+                data-modulo={idx % 2}
+                className="group flex flex-col h-full"
+              >
+                {chosenTemplate ? (
+                  renderTemplateElement(chosenTemplate, item, isAlternate)
+                ) : (
+                  // Default Premium Card Template
+                  <div
+                    className={`flex flex-col flex-1 overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                      isAlternate
+                        ? "border-blue-200 bg-slate-50/80 shadow-xs"
+                        : "border-slate-200 bg-white shadow-xs"
+                    }`}
+                  >
+                    {/* Featured Image */}
+                    <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                      <img
+                        src={resolveImageUrl(item.featuredImage, apiUrl)}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {item.category && (
+                        <span className="absolute top-3 left-3 rounded-full bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm">
+                          {item.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content Body */}
+                    <div className="flex flex-1 flex-col p-5">
+                      <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+                        <span>{item.date}</span>
+                        <span>•</span>
+                        <span>By {item.author}</span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition mb-2">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 leading-relaxed flex-1 line-clamp-3 mb-4">
+                        {item.excerpt}
+                      </p>
+
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:translate-x-0.5 transition-transform">
+                          Read Article <span>→</span>
+                        </span>
+                        {isAlternate && (
+                          <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Interactive Pagination Controls (F-251) */}
+      {paginationType === "numbers" && totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-1.5 select-none">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="flex h-8 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition disabled:opacity-30 hover:bg-slate-100"
+          >
+            ‹ Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => setCurrentPage(pageNum)}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold transition ${
+                currentPage === pageNum
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="flex h-8 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition disabled:opacity-30 hover:bg-slate-100"
+          >
+            Next ›
+          </button>
+        </div>
+      )}
+
+      {paginationType === "load-more" && visibleCount < filteredItems.length && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+          >
+            <span>Load More Posts</span>
+            <span className="text-[10px] opacity-75">({filteredItems.length - visibleCount} remaining)</span>
+          </button>
+        </div>
+      )}
+
+      {paginationType === "infinite" && (
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-slate-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+          <span>Infinite Loop Streaming Active</span>
+        </div>
+      )}
     </div>
   );
 };

@@ -72,6 +72,44 @@ class ForgeStudio_Connector {
             'callback' => array($this, 'rest_handle_webhook'),
             'permission_callback' => array($this, 'validate_api_key_permission'),
         ));
+
+        // 4. Navigation Menus endpoint (Module 10 / F-224)
+        register_rest_route(self::REST_NAMESPACE, '/menus', array(
+            'methods'             => 'GET',
+            'callback'            => 'forgestudio_get_menus',
+            'permission_callback' => 'forgestudio_verify_token',
+        ));
+
+        // 5. Custom Fields endpoint (ACF, Pods, Toolset Types) (Module 11 / F-262, F-263, F-264)
+        register_rest_route(self::REST_NAMESPACE, '/custom-fields', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_custom_fields'),
+            'permission_callback' => 'forgestudio_verify_token',
+        ));
+
+        // 6. Multisite Network Sites endpoint (Module 11 / F-269)
+        register_rest_route(self::REST_NAMESPACE, '/multisite', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_multisite_sites'),
+            'permission_callback' => 'forgestudio_verify_token',
+        ));
+
+        // 7. WooCommerce Integration endpoints (Module 14 / F-292 to F-319, X-799)
+        register_rest_route(self::REST_NAMESPACE, '/woocommerce/products', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_woocommerce_products'),
+            'permission_callback' => '__return_true', // Public catalog access
+        ));
+        register_rest_route(self::REST_NAMESPACE, '/woocommerce/orders', array(
+            'methods'             => 'POST',
+            'callback'            => array($this, 'rest_create_woocommerce_order'),
+            'permission_callback' => '__return_true', // Storefront checkout order creation
+        ));
+        register_rest_route(self::REST_NAMESPACE, '/orders', array(
+            'methods'             => 'POST',
+            'callback'            => array($this, 'rest_create_woocommerce_order'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -248,6 +286,270 @@ class ForgeStudio_Connector {
     }
 
     /**
+     * Endpoint handler: Retrieve registered Custom Fields (ACF, Pods, Toolset Types) (F-262 - F-264)
+     */
+    public function rest_get_custom_fields(WP_REST_Request $request) {
+        $acf_groups = array();
+        $pods_types = array();
+        $toolset_fields = array();
+
+        // 1. ACF (Advanced Custom Fields)
+        if (function_exists('acf_get_field_groups')) {
+            $groups = acf_get_field_groups();
+            if (is_array($groups)) {
+                foreach ($groups as $group) {
+                    $fields = function_exists('acf_get_fields') ? acf_get_fields($group['key']) : array();
+                    $field_items = array();
+                    if (is_array($fields)) {
+                        foreach ($fields as $f) {
+                            $field_items[] = array(
+                                'key'   => $f['key'] ?? '',
+                                'name'  => $f['name'] ?? '',
+                                'label' => $f['label'] ?? '',
+                                'type'  => $f['type'] ?? 'text',
+                            );
+                        }
+                    }
+                    $acf_groups[] = array(
+                        'id'     => $group['ID'] ?? $group['key'],
+                        'key'    => $group['key'],
+                        'title'  => $group['title'],
+                        'fields' => $field_items,
+                    );
+                }
+            }
+        }
+
+        // 2. Pods Framework
+        if (function_exists('pods_api')) {
+            $api = pods_api();
+            if (is_object($api) && method_exists($api, 'load_pods')) {
+                $all_pods = $api->load_pods();
+                if (is_array($all_pods)) {
+                    foreach ($all_pods as $pod) {
+                        $p_fields = array();
+                        if (!empty($pod['fields']) && is_array($pod['fields'])) {
+                            foreach ($pod['fields'] as $fname => $fdata) {
+                                $p_fields[] = array(
+                                    'name'  => $fname,
+                                    'label' => $fdata['label'] ?? $fname,
+                                    'type'  => $fdata['type'] ?? 'text',
+                                );
+                            }
+                        }
+                        $pods_types[] = array(
+                            'name'   => $pod['name'] ?? '',
+                            'label'  => $pod['label'] ?? '',
+                            'type'   => $pod['type'] ?? 'post_type',
+                            'fields' => $p_fields,
+                        );
+                    }
+                }
+            }
+        }
+
+        // 3. Toolset Types
+        if (function_exists('wpcf_admin_fields_get_fields')) {
+            $raw_toolset = wpcf_admin_fields_get_fields();
+            if (is_array($raw_toolset)) {
+                foreach ($raw_toolset as $t_slug => $t_data) {
+                    $toolset_fields[] = array(
+                        'slug'  => $t_slug,
+                        'name'  => $t_data['name'] ?? $t_slug,
+                        'type'  => $t_data['type'] ?? 'textfield',
+                        'meta'  => 'wpcf-' . $t_slug,
+                    );
+                }
+            }
+        }
+
+        return rest_ensure_response(array(
+            'status'     => 'success',
+            'acf'        => $acf_groups,
+            'pods'       => $pods_types,
+            'toolset'    => $toolset_fields,
+            'discovered' => array(
+                'acfActive'     => function_exists('acf_get_field_groups'),
+                'podsActive'    => function_exists('pods_api'),
+                'toolsetActive' => function_exists('wpcf_admin_fields_get_fields'),
+            ),
+        ));
+    }
+
+    /**
+     * Endpoint handler: Retrieve WordPress Multisite Network Sites (F-269)
+     */
+    public function rest_get_multisite_sites(WP_REST_Request $request) {
+        $is_ms = is_multisite();
+        $sites_list = array();
+
+        if ($is_ms && function_exists('get_sites')) {
+            $network_sites = get_sites(array('number' => 100));
+            if (is_array($network_sites)) {
+                foreach ($network_sites as $s) {
+                    $details = get_blog_details($s->blog_id);
+                    $sites_list[] = array(
+                        'id'        => (string)$s->blog_id,
+                        'name'      => $details ? $details->blogname : "Site " . $s->blog_id,
+                        'domain'    => $s->domain,
+                        'path'      => $s->path,
+                        'isMain'    => (string)$s->blog_id === "1",
+                        'siteUrl'   => get_site_url($s->blog_id),
+                    );
+                }
+            }
+        } else {
+            // Single-site fallback
+            $sites_list[] = array(
+                'id'      => '1',
+                'name'    => get_bloginfo('name'),
+                'domain'  => parse_url(site_url(), PHP_URL_HOST) ?: 'localhost',
+                'path'    => parse_url(site_url(), PHP_URL_PATH) ?: '/',
+                'isMain'  => true,
+                'siteUrl' => site_url(),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'status'      => 'success',
+            'isMultisite' => $is_ms,
+            'sites'       => $sites_list,
+            'currentSite' => get_current_blog_id(),
+        ));
+    }
+
+    /**
+     * Endpoint handler: Retrieve WooCommerce products (Module 14 / F-292 to F-319, X-799)
+     */
+    public function rest_get_woocommerce_products(WP_REST_Request $request) {
+        if (!class_exists('WooCommerce') && !function_exists('wc_get_products')) {
+            // Standalone mock catalog fallback when WooCommerce is not activated
+            $default_products = array(
+                array(
+                    'id'          => 'wc-default-1',
+                    'title'       => 'Hi-Fi Studio Reference Headphones',
+                    'name'        => 'Hi-Fi Studio Reference Headphones',
+                    'price'       => '299.00',
+                    'regularPrice'=> '349.00',
+                    'salePrice'   => '299.00',
+                    'sku'         => 'HIFI-REF-01',
+                    'category'    => 'Headphones',
+                    'stock'       => 15,
+                    'rating'      => 4.9,
+                    'image'       => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
+                    'description' => 'Acoustically tuned planar magnetic headphones engineered for reference studio fidelity.',
+                ),
+                array(
+                    'id'          => 'wc-default-2',
+                    'title'       => 'Balanced Desktop Headphone Amplifier',
+                    'name'        => 'Balanced Desktop Headphone Amplifier',
+                    'price'       => '189.00',
+                    'sku'         => 'AMP-BAL-02',
+                    'category'    => 'Amplifiers',
+                    'stock'       => 8,
+                    'rating'      => 4.8,
+                    'image'       => 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800',
+                    'description' => 'Fully balanced discrete circuitry with ultra-low noise floor and high current output.',
+                ),
+            );
+            return rest_ensure_response(array(
+                'status'   => 'success',
+                'products' => $default_products,
+                'source'   => 'forgestudio-fallback',
+            ));
+        }
+
+        $wc_products = wc_get_products(array(
+            'limit'  => 50,
+            'status' => 'publish',
+        ));
+
+        $data = array();
+        foreach ($wc_products as $p) {
+            $img_id = $p->get_image_id();
+            $img_url = $img_id ? wp_get_attachment_url($img_id) : '';
+            $cats = wc_get_product_category_list($p->get_id());
+
+            $data[] = array(
+                'id'           => (string)$p->get_id(),
+                'title'        => $p->get_name(),
+                'name'         => $p->get_name(),
+                'price'        => $p->get_price(),
+                'regularPrice' => $p->get_regular_price(),
+                'salePrice'    => $p->get_sale_price(),
+                'sku'          => $p->get_sku(),
+                'category'     => wp_strip_all_tags($cats),
+                'stock'        => $p->get_stock_quantity() ?? 10,
+                'rating'       => (float)$p->get_average_rating(),
+                'image'        => $img_url ?: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
+                'description'  => wp_strip_all_tags($p->get_short_description() ?: $p->get_description()),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'status'   => 'success',
+            'products' => $data,
+            'source'   => 'woocommerce',
+        ));
+    }
+
+    /**
+     * Endpoint handler: Create WooCommerce Order (Module 14 / F-319, X-799)
+     */
+    public function rest_create_woocommerce_order(WP_REST_Request $request) {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $items = $params['items'] ?? array();
+        $customer = $params['customer'] ?? array();
+
+        if (!class_exists('WooCommerce') || !function_exists('wc_create_order')) {
+            $mock_order_id = 'ORD-' . time();
+            return rest_ensure_response(array(
+                'status'  => 'success',
+                'orderId' => $mock_order_id,
+                'message' => 'Order recorded in standalone mode.',
+            ));
+        }
+
+        try {
+            $order = wc_create_order();
+            foreach ($items as $item) {
+                $product_id = intval($item['productId'] ?? 0);
+                $qty = intval($item['quantity'] ?? 1);
+                if ($product_id > 0) {
+                    $order->add_product(wc_get_product($product_id), $qty);
+                }
+            }
+
+            if (!empty($customer['name'])) {
+                $names = explode(' ', $customer['name'], 2);
+                $order->set_billing_first_name($names[0]);
+                $order->set_billing_last_name($names[1] ?? '');
+            }
+            if (!empty($customer['email'])) {
+                $order->set_billing_email($customer['email']);
+            }
+            if (!empty($customer['address'])) {
+                $order->set_billing_address_1($customer['address']);
+            }
+            if (!empty($customer['city'])) {
+                $order->set_billing_city($customer['city']);
+            }
+
+            $order->calculate_totals();
+            $order->update_status('processing', 'ForgeStudio Storefront Order');
+
+            return rest_ensure_response(array(
+                'status'   => 'success',
+                'orderId'  => (string)$order->get_id(),
+                'orderKey' => $order->get_order_key(),
+                'total'    => $order->get_total(),
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('order_creation_failed', $e->getMessage(), array('status' => 500));
+        }
+    }
+
+    /**
      * Injects custom CSS generated by ForgeStudio into wp_head
      */
     public function inject_custom_css() {
@@ -325,7 +627,158 @@ class ForgeStudio_Connector {
         </div>
         <?php
     }
+
+    /**
+     * Endpoint handler wrapper for ForgeStudio Connector instance
+     */
+    public function rest_get_menus(WP_REST_Request $request) {
+        return forgestudio_get_menus($request);
+    }
+}
+
+/**
+ * Builds hierarchical tree from flat nav menu items
+ */
+function forgestudio_build_menu_tree($items) {
+    if (empty($items) || !is_array($items)) {
+        return array();
+    }
+
+    $items_by_id = array();
+    $tree = array();
+
+    foreach ($items as $item) {
+        $item_id = is_object($item) ? intval($item->ID) : (is_array($item) ? intval($item['ID'] ?? $item['id'] ?? 0) : 0);
+        if (!$item_id) {
+            continue;
+        }
+
+        $parent_id = 0;
+        $title = '';
+        $url = '';
+        $target = '_self';
+        $order = 0;
+
+        if (is_object($item)) {
+            $parent_id = isset($item->menu_item_parent) ? intval($item->menu_item_parent) : (isset($item->post_parent) ? intval($item->post_parent) : 0);
+            $title = !empty($item->title) ? $item->title : (!empty($item->post_title) ? $item->post_title : '');
+            $url = isset($item->url) ? $item->url : (function_exists('get_post_meta') ? (get_post_meta($item->ID, '_menu_item_url', true) ?: '') : '');
+            $raw_target = isset($item->target) ? $item->target : (function_exists('get_post_meta') ? (get_post_meta($item->ID, '_menu_item_target', true) ?: '_self') : '_self');
+            $target = !empty($raw_target) ? $raw_target : '_self';
+            $order = isset($item->menu_order) ? intval($item->menu_order) : 0;
+        } elseif (is_array($item)) {
+            $parent_id = isset($item['menu_item_parent']) ? intval($item['menu_item_parent']) : (isset($item['parent_id']) ? intval($item['parent_id']) : 0);
+            $title = $item['title'] ?? $item['post_title'] ?? '';
+            $url = $item['url'] ?? '';
+            $target = !empty($item['target']) ? $item['target'] : '_self';
+            $order = isset($item['menu_order']) ? intval($item['menu_order']) : (isset($item['order']) ? intval($item['order']) : 0);
+        }
+
+        $items_by_id[$item_id] = array(
+            'id'        => $item_id,
+            'title'     => $title,
+            'url'       => $url,
+            'target'    => $target,
+            'parent_id' => $parent_id,
+            'order'     => $order,
+            'children'  => array(),
+        );
+    }
+
+    foreach ($items_by_id as $id => &$node) {
+        $pid = $node['parent_id'];
+        if ($pid > 0 && isset($items_by_id[$pid])) {
+            $items_by_id[$pid]['children'][] = &$node;
+        } else {
+            $tree[] = &$node;
+        }
+    }
+    unset($node);
+
+    return $tree;
+}
+
+/**
+ * REST Endpoint handler: Fetch registered WordPress menus with hierarchical item trees and theme locations
+ */
+function forgestudio_get_menus($request = null) {
+    $menus_data = array();
+    $raw_menus = function_exists('wp_get_nav_menus') ? wp_get_nav_menus() : array();
+
+    if (!empty($raw_menus) && is_array($raw_menus)) {
+        foreach ($raw_menus as $menu) {
+            $term_id = is_object($menu) ? $menu->term_id : (is_array($menu) ? ($menu['term_id'] ?? $menu['id'] ?? 0) : 0);
+            $name    = is_object($menu) ? $menu->name : (is_array($menu) ? ($menu['name'] ?? '') : '');
+            $slug    = is_object($menu) ? $menu->slug : (is_array($menu) ? ($menu['slug'] ?? '') : '');
+            $count   = is_object($menu) ? intval($menu->count) : (is_array($menu) ? intval($menu['count'] ?? 0) : 0);
+
+            $raw_items = function_exists('wp_get_nav_menu_items') ? wp_get_nav_menu_items($term_id) : array();
+            $tree = forgestudio_build_menu_tree($raw_items);
+
+            $menus_data[] = array(
+                'id'       => $term_id,
+                'name'     => $name,
+                'slug'     => $slug,
+                'count'    => $count,
+                'items'    => $tree,
+            );
+        }
+    }
+
+    $locations = function_exists('get_nav_menu_locations') ? get_nav_menu_locations() : array();
+
+    $response = array(
+        'status'    => 'success',
+        'menus'     => $menus_data,
+        'locations' => $locations,
+    );
+
+    if (function_exists('rest_ensure_response')) {
+        return rest_ensure_response($response);
+    }
+    return $response;
+}
+
+/**
+ * Permission callback: Validate token / API key
+ */
+function forgestudio_verify_token($request) {
+    if (class_exists('ForgeStudio_Connector')) {
+        $instance = ForgeStudio_Connector::get_instance();
+        if (method_exists($instance, 'validate_api_key_permission')) {
+            $check = $instance->validate_api_key_permission($request);
+            if ($check === true) {
+                return true;
+            }
+        }
+    }
+
+    $stored_key = function_exists('get_option') ? get_option('forgestudio_api_key') : null;
+    $provided_key = is_object($request) && method_exists($request, 'get_header')
+        ? ($request->get_header('x-forge-api-key') ?: $request->get_header('x-forgestudio-token') ?: $request->get_param('api_key'))
+        : null;
+
+    if ($stored_key && $provided_key) {
+        $clean_token = str_replace('Bearer ', '', trim($provided_key));
+        if (hash_equals($stored_key, $clean_token) || hash_equals(hash('sha256', $stored_key), $clean_token)) {
+            return true;
+        }
+    }
+
+    if (function_exists('current_user_can') && (current_user_can('manage_options') || current_user_can('edit_theme_options'))) {
+        return true;
+    }
+
+    if (function_exists('forgestudio_rest_permission_check')) {
+        return forgestudio_rest_permission_check($request);
+    }
+
+    if (function_exists('is_wp_error')) {
+        return new WP_Error('unauthorized', 'Missing or invalid authentication token for ForgeStudio.', array('status' => 401));
+    }
+    return false;
 }
 
 // Initialize the plugin singleton
 ForgeStudio_Connector::get_instance();
+

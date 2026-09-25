@@ -3,6 +3,7 @@ import {
   processFormSubmission,
   getWebsiteSubmissions,
   deleteWebsiteSubmission,
+  getSubmissionPdf,
 } from "../services/form/form.service.js";
 
 /**
@@ -161,3 +162,29 @@ export async function exportSubmissionsHandler(
     next(error);
   }
 }
+
+/**
+ * GET /api/forms/:websiteId/submissions/:submissionId/pdf
+ * Authenticated endpoint to stream a binary PDF lead report (X-800)
+ */
+export async function downloadSubmissionPdfHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.websiteId as string;
+    const submissionId = req.params.submissionId as string;
+
+    const { pdfBuffer, filename } = await getSubmissionPdf(websiteId, submissionId, user.id);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    return res.status(200).send(pdfBuffer);
+  } catch (error) {
+    next(error);
+  }
+}
+

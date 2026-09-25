@@ -23,3 +23,7 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Runtime / test generated files
+backend/artifacts/
+backend/uploads/backups/

@@ -49,8 +49,8 @@ async function runQualityAndSeoTestSuite() {
             tag: "section",
             name: "HeroSection",
             children: [
-              { id: "el_h1", type: "heading", tag: "h1", props: { text: "ForgeStudio Quality Suite" } },
-              { id: "el_h2", type: "heading", tag: "h2", props: { text: "Enterprise Features" } },
+              { id: "el_h1", type: "heading", tag: "h1", props: { level: "h1", tag: "h1", text: "ForgeStudio Quality Suite" } },
+              { id: "el_h2", type: "heading", tag: "h2", props: { level: "h2", tag: "h2", text: "Enterprise Features" } },
               { id: "el_img1", type: "image", tag: "img", props: { src: "https://cdn.example.com/hero.jpg", alt: "Hero Banner Graphic" } },
               { id: "el_img2", type: "image", tag: "img", props: { src: "https://cdn.example.com/dec.png", isDecorative: true } },
               { id: "el_btn1", type: "button", tag: "button", props: { text: "Explore Features", ariaLabel: "Explore Features" } },
