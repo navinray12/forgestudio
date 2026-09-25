@@ -27,8 +27,8 @@ const router = Router({ mergeParams: true });
 router.get("/:websiteId/commerce/settings", requireAuth, getCommerceSettings);
 router.put("/:websiteId/commerce/settings", requireAuth, updateCommerceSettings);
 
-// Products
-router.get("/:websiteId/commerce/products", requireAuth, listProducts);
+// Products (public list for storefront, auth for mutation)
+router.get("/:websiteId/commerce/products", listProducts);
 router.post("/:websiteId/commerce/products", requireAuth, createProduct);
 router.put("/:websiteId/commerce/products/:productId", requireAuth, updateProduct);
 router.delete("/:websiteId/commerce/products/:productId", requireAuth, deleteProduct);

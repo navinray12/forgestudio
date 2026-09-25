@@ -179,6 +179,7 @@ import {
     WcProductArchiveWidgetRenderer,
     WcProductPageTemplatesWidgetRenderer,
     WcProductArchiveTemplatesWidgetRenderer,
+    WcProductAddOnsWidgetRenderer,
     resolveButtonHref,
     SearchBarWidgetRenderer,
     LoopGridWidgetRenderer,
@@ -682,8 +683,9 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "wc-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "wc-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "wc-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-addons") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductAddOnsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
 
-    if (el.type === "loop-grid") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopGridWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} pages={pages} onSwitchPage={onSwitchPage} apiUrl={apiUrl} /></div>;
+    if (el.type === "loop-grid") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopGridWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} pages={pages} onSwitchPage={onSwitchPage as any} apiUrl={apiUrl} /></div>;
 
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
@@ -846,6 +848,7 @@ function PublishedSite() {
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
     const [experiments, setExperiments] = useState<any[]>([]);
     const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
+    const [sitePartsState, setSitePartsState] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
@@ -1010,7 +1013,7 @@ function PublishedSite() {
 
         for (const exp of running) {
             const storageKey = `fs_exp_${exp.id}`;
-            let variantId = localStorage.getItem(storageKey);
+            let variantId: string = localStorage.getItem(storageKey) || "";
 
             if (!variantId || !exp.variants.some((v: any) => v.id === variantId)) {
                 // Weighted random traffic allocation

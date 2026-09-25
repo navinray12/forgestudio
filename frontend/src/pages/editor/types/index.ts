@@ -25,6 +25,7 @@ export type ElementType =
   | "wc-products" | "wc-custom-add-to-cart" | "wc-product-categories" | "wc-menu-cart" | "wc-cart"
   | "wc-checkout" | "wc-my-account" | "wc-purchase-summary" | "wc-notices" | "wc-shop-layouts"
   | "wc-product-archive" | "wc-product-page-templates" | "wc-product-archive-templates"
+  | "wc-product-addons"
   | "wp-menu" | "menu-widget"
   | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
   | "site-search" | "search-form" | "taxonomy-filter"
@@ -49,6 +50,15 @@ export interface SiteProduct {
   category?: string;
   inStock?: boolean;
   url?: string;
+}
+
+export interface ProductAddonItem {
+  id: string;
+  label: string;
+  type: "checkbox" | "radio" | "select" | "text";
+  priceAdjustment: number;
+  required?: boolean;
+  options?: string[];
 }
 
 export interface NavSubmenuItem {
@@ -165,7 +175,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "off-canvas", name: "Off Canvas", category: "Layout", icon: "🚪", description: "Sliding drawer panel container for navigation & tools" },
   { type: "mega-menu", name: "Mega Menu", category: "Layout", icon: "📑", description: "Multi-column rich navigation dropdown header" },
   { type: "nav-menu", name: "Nav Menu", category: "Layout", icon: "🧭", description: "Horizontal or vertical site navigation menu" },
-  
+
   // Basic
   { type: "search-bar", name: "Search Bar", category: "Basic", icon: "🔍", description: "Sidebar active widgets search filter bar" },
   { type: "import-asset", name: "Import Asset / File", category: "Basic", icon: "📁", description: "Direct file upload button for images, vectors & media assets" },
@@ -243,6 +253,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "wc-product-archive", name: "Product Archive", category: "Commerce", icon: "📁", description: "Product archive & category catalog listing" },
   { type: "wc-product-page-templates", name: "Product Page Template", category: "Commerce", icon: "🔲", description: "Single product page layout template layout" },
   { type: "wc-product-archive-templates", name: "Product Archive Template", category: "Commerce", icon: "🗄️", description: "Product archive layout template" },
+  { type: "wc-product-addons", name: "Product Add-Ons", category: "Commerce", icon: "🧩", description: "Configurable product options, customizations & dynamic add-on pricing engine" },
 
   // Commerce
   { type: "paypal-button", name: "PayPal Button", category: "Commerce", icon: "💳", description: "Direct PayPal express checkout button" },
@@ -483,7 +494,7 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
-rowGap?: number | string;
+  rowGap?: number | string;
   columnGap?: number | string;
 
   // CSS Grid Controls (F-041, F-043)
@@ -527,7 +538,7 @@ export interface ElementStyles {
   marginLeft?: string;
   lineHeight?: string;
 
-// Alignment & Self Alignment
+  // Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
   justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
 
@@ -1238,6 +1249,45 @@ export interface EditorElement {
   productStarColor?: string;
   productSource?: "manual" | "existing";
   productId?: string;
+  productAddons?: ProductAddonItem[];
+  stockThreshold?: number;
+  inStockLabel?: string;
+  lowStockLabel?: string;
+  outOfStockLabel?: string;
+  inStockColor?: string;
+  lowStockColor?: string;
+  outOfStockColor?: string;
+  metaShowSku?: boolean;
+  metaShowCategory?: boolean;
+  metaShowTags?: boolean;
+  metaSeparator?: string;
+  productDescriptionOverride?: string;
+  productTextColor?: string;
+  productTypography?: string;
+  tabsData?: { id: string; title: string; content: string }[];
+  additionalInfoAttributes?: { key: string; value: string }[];
+  relatedLimit?: number;
+  relatedColumns?: number;
+  relatedCriteria?: "category" | "tag" | "all";
+  upsellsLimit?: number;
+  upsellsColumns?: number;
+  productsOrderBy?: "date" | "price_asc" | "price_desc" | "rating";
+  productsLayout?: "grid" | "list";
+  productsPerPage?: number;
+  customAddToCartProductId?: string;
+  shopLayoutColumns?: number;
+  shopLayoutGap?: number;
+  cartAccentColor?: string;
+  cartButtonLabel?: string;
+  cartShowCoupons?: boolean;
+  cartShowShippingCalc?: boolean;
+  checkoutAccentColor?: string;
+  checkoutButtonLabel?: string;
+  checkoutShowCoupons?: boolean;
+  checkoutShowShippingCalc?: boolean;
+  text?: string;
+  image_asset_id?: string;
+  settings?: Record<string, any>;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";
@@ -1468,6 +1518,9 @@ export interface SitePartsConfig {
  * Dynamic Context for frontend live token interpolation & request parameters
  */
 export interface DynamicContext {
+  siteName?: string;
+  pageTitle?: string;
+  request?: Record<string, any>;
   site?: {
     id?: string;
     name?: string;
@@ -1505,8 +1558,8 @@ export interface DynamicContext {
     featuredImage?: string;
     data?: Record<string, any>;
     [key: string]: any;
-  };
-  query?: Record<string, string>;
+  } | any;
+  query?: Record<string, any>;
   requestParams?: Record<string, string>;
   custom?: Record<string, string>;
 }
@@ -1706,6 +1759,8 @@ export interface GlobalStylesConfig {
   bodyFont?: string;
   borderRadius?: string;
   containerMaxWidth?: string;
+  variables?: any[];
+  globalClasses?: any[];
 }
 
 export type DeploymentStatus =

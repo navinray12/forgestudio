@@ -55,7 +55,8 @@ import type {
   PageConfig,
   MegaMenuColumn,
   MegaMenuColumnLink,
-  SiteProduct
+  SiteProduct,
+  ProductAddonItem
 } from "../types";
 import {
   resolveDynamicTokens,
@@ -8068,10 +8069,48 @@ export const WcProductStockWidgetRenderer: React.FC<{ el: EditorElement; getMerg
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
   const inStock = prod?.inStock ?? true;
 
+  const threshold = el.stockThreshold ?? 5;
+  const isLowStock = inStock && threshold > 0 && typeof (prod as any)?.stock === "number" && (prod as any).stock <= threshold;
+
+  const label = !inStock
+    ? (el.outOfStockLabel || "Out of Stock")
+    : isLowStock
+    ? (el.lowStockLabel || `Low Stock - Only ${(prod as any).stock} left!`)
+    : (el.inStockLabel || "In Stock (Ready to Ship)");
+
+  const badgeBg = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}15` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}15` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}15` : undefined);
+
+  const badgeColor = !inStock
+    ? (el.outOfStockColor || "#be123c")
+    : isLowStock
+    ? (el.lowStockColor || "#b45309")
+    : (el.inStockColor || "#047857");
+
+  const badgeBorder = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}30` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}30` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}30` : undefined);
+
   return (
-    <div style={styles as React.CSSProperties} className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold border ${inStock ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
-      <span className={`h-2.5 w-2.5 rounded-full ${inStock ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-      <span>{inStock ? "In Stock (Ready to Ship)" : "Out of Stock"}</span>
+    <div
+      style={{
+        ...styles,
+        backgroundColor: badgeBg || (inStock ? (isLowStock ? "#fffbeb" : "#ecfdf5") : "#fff1f2"),
+        color: badgeColor,
+        borderColor: badgeBorder || (inStock ? (isLowStock ? "#fde68a" : "#a7f3d0") : "#fecdd3"),
+      } as React.CSSProperties}
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold border"
+    >
+      <span
+        style={{ backgroundColor: badgeColor }}
+        className={`h-2.5 w-2.5 rounded-full ${inStock ? "animate-pulse" : ""}`}
+      />
+      <span>{label}</span>
     </div>
   );
 };
@@ -8082,10 +8121,33 @@ export const WcProductMetaWidgetRenderer: React.FC<{ el: EditorElement; getMerge
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
 
+  const showSku = el.metaShowSku ?? true;
+  const showCategory = el.metaShowCategory ?? true;
+  const showTags = el.metaShowTags ?? true;
+  const separator = el.metaSeparator || " • ";
+
   return (
     <div style={styles as React.CSSProperties} className="text-xs space-y-1.5 text-slate-600 border-t border-slate-200 pt-3">
-      <p><strong className="text-slate-900 font-extrabold">SKU:</strong> <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{prod?.id || "WC-PROD-101"}</span></p>
-      <p><strong className="text-slate-900 font-extrabold">Category:</strong> <button type="button" onClick={() => wc.setActiveCategory(prod?.category || null)} className="text-indigo-600 font-bold hover:underline ml-1">{prod?.category || "Audio & Sound"}</button></p>
+      {showSku && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">SKU:</strong>{" "}
+          <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{prod?.id || "WC-PROD-101"}</span>
+        </p>
+      )}
+      {showCategory && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Category:</strong>{" "}
+          <button type="button" onClick={() => wc.setActiveCategory(prod?.category || null)} className="text-indigo-600 font-bold hover:underline ml-1">
+            {prod?.category || "Audio & Sound"}
+          </button>
+        </p>
+      )}
+      {showTags && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Tags:</strong>{" "}
+          <span className="text-slate-500 font-medium">Electronics{separator}Wireless{separator}Studio Audio</span>
+        </p>
+      )}
     </div>
   );
 };
@@ -8095,10 +8157,18 @@ export const WcProductContentWidgetRenderer: React.FC<{ el: EditorElement; getMe
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const description = el.productDescriptionOverride || el.content || prod?.description || "Experience crystal-clear acoustic fidelity with custom dynamic drivers, memory foam cushions, active noise cancellation, and up to 40 hours of continuous wireless playback.";
 
   return (
-    <div style={styles as React.CSSProperties} className="prose prose-slate text-xs leading-relaxed text-slate-600 bg-white p-4 rounded-xl border border-slate-100">
-      <p>{el.content || prod?.description || "Experience crystal-clear acoustic fidelity with custom dynamic drivers, memory foam cushions, active noise cancellation, and up to 40 hours of continuous wireless playback."}</p>
+    <div
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="prose prose-slate text-xs leading-relaxed text-slate-600 bg-white p-4 rounded-xl border border-slate-100"
+    >
+      <p>{description}</p>
     </div>
   );
 };
@@ -8108,10 +8178,18 @@ export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; get
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
   const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const shortDesc = el.productDescriptionOverride || el.content || prod?.description || "Ultra-lightweight wireless headphones engineered for studio acoustic purity and all-day comfort.";
 
   return (
-    <p style={styles as React.CSSProperties} className="text-xs text-slate-600 font-medium leading-normal italic border-l-2 border-indigo-500 pl-3 py-1">
-      {el.content || prod?.description || "Ultra-lightweight wireless headphones engineered for studio acoustic purity and all-day comfort."}
+    <p
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="text-xs text-slate-600 font-medium leading-normal italic border-l-2 border-indigo-500 pl-3 py-1"
+    >
+      {shortDesc}
     </p>
   );
 };
@@ -8119,73 +8197,64 @@ export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; get
 export const WcProductDataTabsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews">("desc");
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const customTabs = el.tabsData && el.tabsData.length > 0 ? el.tabsData : [
+    { id: "desc", title: "Description", content: prod?.description || "Crafted with surgical-grade aluminum and plush protein leather ear cushions, this product delivers uncompromised performance and active noise cancellation." },
+    { id: "specs", title: "Additional Info", content: "Driver Size: 40mm Neodymium • Battery Life: 40 Hours • Warranty: 2 Years Global" },
+    { id: "reviews", title: "Customer Reviews", content: "★★★★★ Alex M. — Exceptional clarity, studio bass, and incredible battery stamina!" },
+  ];
+
+  const [activeTabId, setActiveTabId] = useState<string>(customTabs[0]?.id || "desc");
+  const currentTab = customTabs.find((t) => t.id === activeTabId) || customTabs[0];
 
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4 text-xs">
-      <div className="flex border-b border-slate-200 gap-6 font-bold text-slate-600">
-        <button
-          type="button"
-          onClick={() => setActiveTab("desc")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "desc" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Description
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("specs")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "specs" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Additional Info
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("reviews")}
-          className={`pb-2.5 transition border-b-2 ${activeTab === "reviews" ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"}`}
-        >
-          Customer Reviews (142)
-        </button>
+      <div className="flex border-b border-slate-200 gap-4 overflow-x-auto font-bold text-slate-600">
+        {customTabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setActiveTabId(t.id)}
+            className={`pb-2.5 transition whitespace-nowrap border-b-2 cursor-pointer ${
+              activeTabId === t.id ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"
+            }`}
+          >
+            {t.title}
+          </button>
+        ))}
       </div>
 
-      {activeTab === "desc" && (
-        <p className="text-slate-600 leading-relaxed">
-          Crafted with surgical-grade aluminum and plush protein leather ear cushions, this product delivers uncompromised performance and active noise cancellation.
-        </p>
-      )}
-
-      {activeTab === "specs" && (
-        <div className="space-y-2">
-          <div className="flex justify-between py-1 border-b border-slate-100"><span className="font-bold text-slate-700">Driver Size</span><span>40mm Neodymium</span></div>
-          <div className="flex justify-between py-1 border-b border-slate-100"><span className="font-bold text-slate-700">Battery Life</span><span>40 Hours</span></div>
-          <div className="flex justify-between py-1"><span className="font-bold text-slate-700">Warranty</span><span>2 Years Global</span></div>
-        </div>
-      )}
-
-      {activeTab === "reviews" && (
-        <div className="space-y-3">
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-            <div className="flex justify-between items-center">
-              <span className="font-bold text-slate-900">Alex M.</span>
-              <span className="text-amber-500 font-bold">★★★★★</span>
-            </div>
-            <p className="text-slate-600">Exceptional clarity and incredible battery stamina!</p>
-          </div>
-        </div>
-      )}
+      <div className="text-slate-600 leading-relaxed min-h-[60px]">
+        {currentTab?.content}
+      </div>
     </div>
   );
 };
 
 export const WcAdditionalInfoWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const attrs = el.additionalInfoAttributes && el.additionalInfoAttributes.length > 0
+    ? el.additionalInfoAttributes
+    : [
+        { key: "Weight", value: "250 grams" },
+        { key: "Dimensions", value: "18 x 15 x 8 cm" },
+        { key: "Material", value: "Anodized Aerospace Aluminum" },
+        { key: "Connectivity", value: "Bluetooth 5.3 + 3.5mm AUX" },
+        { key: "Warranty", value: "2 Years Manufacturer Warranty" },
+      ];
+
   return (
     <div style={styles as React.CSSProperties} className="rounded-xl border border-slate-200 overflow-hidden bg-white text-xs shadow-2xs">
       <table className="w-full text-left border-collapse">
         <tbody>
-          <tr className="border-b border-slate-100 bg-slate-50/70"><th className="p-3 font-bold text-slate-800 w-1/3">Weight</th><td className="p-3 text-slate-600">250 grams</td></tr>
-          <tr className="border-b border-slate-100"><th className="p-3 font-bold text-slate-800">Dimensions</th><td className="p-3 text-slate-600">18 x 15 x 8 cm</td></tr>
-          <tr className="border-b border-slate-100 bg-slate-50/70"><th className="p-3 font-bold text-slate-800">Connectivity</th><td className="p-3 text-slate-600">Bluetooth 5.3 + 3.5mm AUX</td></tr>
-          <tr><th className="p-3 font-bold text-slate-800">Warranty</th><td className="p-3 text-slate-600">2 Years Manufacturer Warranty</td></tr>
+          {attrs.map((attr, idx) => (
+            <tr key={idx} className={`border-b border-slate-100 ${idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"}`}>
+              <th className="p-3 font-bold text-slate-800 w-1/3">{attr.key}</th>
+              <td className="p-3 text-slate-600">{attr.value}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -8195,21 +8264,34 @@ export const WcAdditionalInfoWidgetRenderer: React.FC<{ el: EditorElement; getMe
 export const WcRelatedProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  const list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  let list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = list.find((p) => p.id === el.productId);
+
+  if (el.relatedCriteria === "category" && connected?.category) {
+    const filtered = list.filter((p) => p.id !== connected.id && p.category === connected.category);
+    if (filtered.length > 0) list = filtered;
+  }
+
+  const limit = Math.min(Math.max(el.relatedLimit || 3, 2), 8);
+  const displayItems = list.slice(0, limit);
+  const cols = Math.min(Math.max(el.relatedColumns || 3, 1), 6);
 
   return (
     <div style={styles as React.CSSProperties} className="space-y-3">
       <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
         <span>🔄 Related Products</span>
       </h4>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {list.slice(0, 3).map((p) => (
+      <div
+        className="grid gap-3"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      >
+        {displayItems.map((p) => (
           <div key={p.id} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs hover:shadow-md transition">
             <img src={p.image} alt={p.name} className="h-24 w-full rounded-lg object-cover" />
             <p className="font-bold text-xs text-slate-900 line-clamp-1">{p.name}</p>
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold text-emerald-600">{p.price}</span>
-              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[10px] hover:bg-indigo-700">Add</button>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[10px] hover:bg-indigo-700 cursor-pointer">Add</button>
             </div>
           </div>
         ))}
@@ -8222,6 +8304,7 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const [added, setAdded] = useState(false);
+  const limit = el.upsellsLimit || 2;
 
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 space-y-2.5 text-xs shadow-2xs">
@@ -8233,10 +8316,10 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
       <button
         type="button"
         onClick={() => {
-          wc.addNotice("success", "➕ AddedProtection Plan & Travel Case to your order!");
+          wc.addNotice("success", "➕ Added Protection Plan & Travel Case to your order!");
           setAdded(true);
         }}
-        className={`px-4 py-2 rounded-xl font-bold text-white transition active:scale-95 ${added ? "bg-emerald-600" : "bg-amber-600 hover:bg-amber-700"}`}
+        className={`px-4 py-2 rounded-xl font-bold text-white transition active:scale-95 cursor-pointer ${added ? "bg-emerald-600" : "bg-amber-600 hover:bg-amber-700"}`}
       >
         {added ? "✓ Bundle Added to Order!" : "Add Protection Bundle ($29.99)"}
       </button>
@@ -8247,23 +8330,37 @@ export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedSty
 export const WcProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  let list = siteProducts && siteProducts.length > 0 ? [...siteProducts] : [...wc.products];
 
   if (wc.activeCategory) {
     list = list.filter((p) => p.category === wc.activeCategory);
   }
 
+  // Handle orderBy
+  const orderBy = el.productsOrderBy || "date";
+  if (orderBy === "price_asc") {
+    list.sort((a, b) => (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "price_desc") {
+    list.sort((a, b) => (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "rating") {
+    list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }
+
+  const perPage = el.productsPerPage || 8;
+  const displayList = list.slice(0, perPage);
+  const layout = el.productsLayout || wc.activeShopLayout || "grid";
+
   return (
-    <div style={styles as React.CSSProperties} className={`grid gap-4 ${wc.activeShopLayout === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
-      {list.map((p) => (
-        <div key={p.id} className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition ${wc.activeShopLayout === "list" ? "flex items-center gap-4" : "flex flex-col justify-between space-y-3"}`}>
-          <img src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"} alt={p.name} className={`${wc.activeShopLayout === "list" ? "h-24 w-24 rounded-xl object-cover shrink-0" : "w-full h-36 rounded-xl object-cover"}`} />
+    <div style={styles as React.CSSProperties} className={`grid gap-4 ${layout === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
+      {displayList.map((p) => (
+        <div key={p.id} className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition ${layout === "list" ? "flex items-center gap-4" : "flex flex-col justify-between space-y-3"}`}>
+          <img src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"} alt={p.name} className={`${layout === "list" ? "h-24 w-24 rounded-xl object-cover shrink-0" : "w-full h-36 rounded-xl object-cover"}`} />
           <div className="flex-1 space-y-1">
             <h4 className="font-extrabold text-xs text-slate-900 line-clamp-1">{p.name}</h4>
             <p className="text-[11px] text-slate-500 line-clamp-1">{p.description}</p>
             <div className="flex items-center justify-between pt-1">
               <span className="font-extrabold text-xs text-emerald-600">{p.price}</span>
-              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition active:scale-95">Add to Cart</button>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition active:scale-95 cursor-pointer">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -8276,20 +8373,21 @@ export const WcCustomAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getM
   const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
   const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
-  const prod = prodList[0];
+  const targetId = el.customAddToCartProductId || el.productId;
+  const prod = prodList.find((p) => p.id === targetId) || prodList[0];
   const [qty, setQty] = useState(1);
 
   return (
     <div style={styles as React.CSSProperties} className="inline-flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs">
       <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
-        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200">-</button>
+        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">-</button>
         <span className="px-3 py-1.5 font-extrabold text-xs text-slate-900">{qty}</span>
-        <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200">+</button>
+        <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">+</button>
       </div>
       <button
         type="button"
         onClick={() => prod && wc.addToCart(prod, qty)}
-        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-md hover:bg-indigo-700 transition active:scale-95"
+        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-md hover:bg-indigo-700 transition active:scale-95 cursor-pointer"
       >
         🛒 Add ({qty}) to Cart
       </button>
@@ -8349,7 +8447,7 @@ export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
         <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 space-y-3 text-xs">
           <div className="flex justify-between items-center border-b border-slate-100 pb-2">
             <span className="font-extrabold text-slate-900">Your Cart ({wc.cartCount})</span>
-            <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
           </div>
           {wc.cart.length === 0 ? (
             <p className="text-slate-500 text-center py-4 italic">Your cart is currently empty</p>
@@ -8359,9 +8457,9 @@ export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
                 <div key={item.product.id} className="flex justify-between items-center py-1">
                   <div>
                     <p className="font-bold text-slate-900">{item.product.name}</p>
-                    <p className="text-[11px] text-slate-500">Qty: {item.quantity} × {item.product.price}</p>
+                    <p className="text-[11px] text-slate-500">Qty: {item.quantity} × {item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</p>
                   </div>
-                  <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold hover:underline">Remove</button>
+                  <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold hover:underline cursor-pointer">Remove</button>
                 </div>
               ))}
             </div>
@@ -8382,6 +8480,11 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
   const [couponCode, setCouponCode] = useState("");
   const [applied, setApplied] = useState(false);
 
+  const accentColor = el.cartAccentColor || "#4f46e5";
+  const btnLabel = el.cartButtonLabel || "Apply";
+  const showCoupons = el.cartShowCoupons ?? true;
+  const showShippingCalc = el.cartShowShippingCalc ?? true;
+
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -8389,7 +8492,7 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
           <span>🛒</span> Shopping Cart
         </h3>
         {wc.cart.length > 0 && (
-          <button type="button" onClick={wc.clearCart} className="text-xs text-rose-600 font-bold hover:underline">Clear Cart</button>
+          <button type="button" onClick={wc.clearCart} className="text-xs text-rose-600 font-bold hover:underline cursor-pointer">Clear Cart</button>
         )}
       </div>
 
@@ -8407,44 +8510,50 @@ export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles
                 <img src={item.product.image} alt={item.product.name} className="h-12 w-12 rounded-lg object-cover" />
                 <div>
                   <h4 className="font-bold text-xs text-slate-900">{item.product.name}</h4>
-                  <span className="text-xs text-slate-500">{item.product.price}</span>
+                  <span className="text-xs text-slate-500">{item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white">
-                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100">-</button>
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">-</button>
                   <span className="px-2 py-1 text-xs font-bold text-slate-900">{item.quantity}</span>
-                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity + 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100">+</button>
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity + 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">+</button>
                 </div>
-                <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold">✕</button>
+                <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold cursor-pointer">✕</button>
               </div>
             </div>
           ))}
 
-          <div className="flex gap-2 pt-2">
-            <input
-              type="text"
-              placeholder="Coupon Code"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl border border-slate-300 flex-1 font-mono uppercase"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (couponCode.trim()) {
-                  setApplied(true);
-                  wc.addNotice("success", `🎉 Coupon "${couponCode}" applied successfully! 10% discount applied.`);
-                }
-              }}
-              className="px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 cursor-pointer hover:bg-emerald-100"
-            >
-              {applied ? "Applied!" : "Apply"}
-            </button>
-          </div>
+          {showCoupons && (
+            <div className="flex gap-2 pt-2">
+              <input
+                type="text"
+                placeholder="Coupon Code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="px-3 py-2 text-xs rounded-xl border border-slate-300 flex-1 font-mono uppercase"
+              />
+              <button
+                type="button"
+                style={{ backgroundColor: accentColor, color: "#fff" }}
+                onClick={() => {
+                  if (couponCode.trim()) {
+                    setApplied(true);
+                    wc.addNotice("success", `🎉 Coupon "${couponCode}" applied successfully! 10% discount applied.`);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold rounded-xl shadow-xs cursor-pointer hover:opacity-95"
+              >
+                {applied ? "Applied!" : btnLabel}
+              </button>
+            </div>
+          )}
 
           <div className="border-t border-slate-200 pt-3 space-y-1.5 text-xs">
             <div className="flex justify-between text-slate-600"><span>Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
+            {showShippingCalc && (
+              <div className="flex justify-between text-slate-600"><span>Estimated Shipping:</span><span className="text-emerald-600 font-bold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+            )}
             {applied && <div className="flex justify-between text-emerald-600 font-bold"><span>Discount (10% OFF):</span><span>-${(wc.cartSubtotal * 0.1).toFixed(2)}</span></div>}
             <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-2 border-t border-slate-100">
               <span>Total:</span>
@@ -8463,6 +8572,10 @@ export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
   const [email, setEmail] = useState("customer@forgestudio.com");
   const [name, setName] = useState("John Doe");
   const [loading, setLoading] = useState(false);
+
+  const accentColor = el.checkoutAccentColor || "#10b981";
+  const btnLabel = el.checkoutButtonLabel || "Place Order";
+  const showShippingCalc = el.checkoutShowShippingCalc ?? true;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -8490,16 +8603,19 @@ export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedSt
 
       <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 space-y-1">
         <div className="flex justify-between font-bold text-slate-700"><span>Order Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
-        <div className="flex justify-between font-bold text-slate-700"><span>Shipping:</span><span className="text-emerald-600 font-extrabold">FREE</span></div>
+        {showShippingCalc && (
+          <div className="flex justify-between font-bold text-slate-700"><span>Shipping:</span><span className="text-emerald-600 font-extrabold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+        )}
         <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-1 border-t border-slate-200"><span>Total Due:</span><span className="text-emerald-600">${wc.cartSubtotal.toFixed(2)}</span></div>
       </div>
 
       <button
         type="submit"
         disabled={loading || wc.cart.length === 0}
-        className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-extrabold text-xs hover:bg-emerald-700 transition shadow-md disabled:opacity-50 cursor-pointer active:scale-95"
+        style={{ backgroundColor: accentColor }}
+        className="w-full py-3.5 rounded-xl text-white font-extrabold text-xs shadow-md disabled:opacity-50 cursor-pointer active:scale-95 transition"
       >
-        {loading ? "Processing Order..." : `Place Order ($${wc.cartSubtotal.toFixed(2)})`}
+        {loading ? "Processing Order..." : `${btnLabel} ($${wc.cartSubtotal.toFixed(2)})`}
       </button>
     </form>
   );
@@ -8683,6 +8799,213 @@ export const WcProductArchiveTemplatesWidgetRenderer: React.FC<{ el: EditorEleme
   return (
     <div style={styles as React.CSSProperties} className="rounded-2xl border border-purple-200 bg-purple-50/60 p-4 text-xs font-extrabold text-purple-900 flex items-center gap-2">
       <span>🗄️ Product Archive Template Activated • Full pagination & filters enabled</span>
+    </div>
+  );
+};
+
+export const WcProductAddOnsWidgetRenderer: React.FC<{
+  el: EditorElement;
+  getMergedStyles?: any;
+  activeDevice?: DeviceMode;
+  mergedStyles?: any;
+  siteProducts?: SiteProduct[];
+}> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const defaultAddons: ProductAddonItem[] = [
+    { id: "addon-gift", label: "Luxury Gift Wrapping & Ribbon", type: "checkbox", priceAdjustment: 4.99 },
+    { id: "addon-warranty", label: "2-Year Extended Hardware Protection", type: "checkbox", priceAdjustment: 19.99 },
+    { id: "addon-engrave", label: "Custom Laser Name Engraving", type: "text", priceAdjustment: 9.99 },
+    { id: "addon-cable", label: "Audio Cable Upgrade", type: "select", priceAdjustment: 14.99, options: ["Braided Silver-Plated 3.5mm (+$14.99)", "Balanced 4.4mm Pentaconn (+$24.99)"] },
+  ];
+
+  const addons: ProductAddonItem[] = el.productAddons && el.productAddons.length > 0
+    ? el.productAddons
+    : defaultAddons;
+
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, any>>({});
+  const [quantity, setQuantity] = useState<number>(1);
+  const [added, setAdded] = useState(false);
+
+  const parsePrice = (p?: string) => {
+    if (!p) return 0;
+    return parseFloat(p.replace(/[^0-9.]/g, "")) || 0;
+  };
+
+  const basePrice = connected ? parsePrice(connected.price) : (el.wooPrice ? parsePrice(el.wooPrice) : 199.99);
+
+  // Compute add-ons total
+  const addOnsTotal = addons.reduce((sum, addon) => {
+    const val = selectedAddons[addon.id];
+    if (!val) return sum;
+    if (addon.type === "checkbox" && val === true) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "text" && typeof val === "string" && val.trim().length > 0) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "select" && typeof val === "string" && val) {
+      const match = val.match(/\+\s*\$?([0-9.]+)/);
+      const optPrice = match ? parseFloat(match[1]) : (addon.priceAdjustment || 0);
+      return sum + optPrice;
+    }
+    if (addon.type === "radio" && val) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    return sum;
+  }, 0);
+
+  const effectivePrice = Math.round((basePrice + addOnsTotal) * 100) / 100;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (connected) {
+      wc.addToCart(connected, quantity, selectedAddons, effectivePrice);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2200);
+    }
+  };
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-indigo-200/80 bg-white p-5 shadow-sm space-y-4 text-xs font-sans">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 text-base font-extrabold">🧩</span>
+          <div>
+            <h4 className="font-extrabold text-slate-900 text-sm">{el.content || "Custom Options & Add-Ons"}</h4>
+            <p className="text-[11px] text-slate-500">Configure personalization & optional hardware extensions</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] text-slate-400 uppercase font-bold block">Effective Price</span>
+          <span className="text-base font-extrabold text-emerald-600">${effectivePrice.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {addons.map((addon) => {
+          const isSelected = !!selectedAddons[addon.id];
+          return (
+            <div key={addon.id} className={`p-3 rounded-xl border transition ${isSelected ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-slate-50/50"}`}>
+              {addon.type === "checkbox" && (
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedAddons[addon.id]}
+                      onChange={(e) => {
+                        setSelectedAddons((prev) => ({
+                          ...prev,
+                          [addon.id]: e.target.checked,
+                        }));
+                      }}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                    />
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                    +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                  </span>
+                </label>
+              )}
+
+              {addon.type === "text" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                    <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                      +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter custom text..."
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              )}
+
+              {addon.type === "select" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <select
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- Select an option (Standard) --</option>
+                    {(addon.options || []).map((opt, i) => (
+                      <option key={i} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {addon.type === "radio" && (
+                <div className="space-y-1.5">
+                  <span className="font-bold text-slate-800 block">{addon.label}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {(addon.options || ["Standard (+ $0.00)", "Pro Upgrade (+ $10.00)"]).map((opt, i) => (
+                      <label key={i} className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                        <input
+                          type="radio"
+                          name={`addon-radio-${addon.id}`}
+                          value={opt}
+                          checked={selectedAddons[addon.id] === opt}
+                          onChange={(e) => {
+                            setSelectedAddons((prev) => ({
+                              ...prev,
+                              [addon.id]: e.target.value,
+                            }));
+                          }}
+                          className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span className="text-[11px] font-medium text-slate-700">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-slate-100 pt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">-</button>
+          <span className="px-2.5 py-1 font-extrabold text-slate-900">{quantity}</span>
+          <button type="button" onClick={() => setQuantity((q) => q + 1)} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">+</button>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className={`flex-1 py-3 px-4 rounded-xl text-white font-extrabold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${
+            added ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          <span>{added ? "✓" : "🛒"}</span>
+          <span>{added ? "Added with Customizations!" : `Add to Cart • $${(effectivePrice * quantity).toFixed(2)}`}</span>
+        </button>
+      </div>
     </div>
   );
 };

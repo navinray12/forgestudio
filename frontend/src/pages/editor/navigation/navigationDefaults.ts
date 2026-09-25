@@ -556,6 +556,7 @@ export function createDefaultSinglePostElements(): EditorElement[] {
     {
       id: "single-post-container",
       type: "container",
+      content: "",
       containerBg: "#ffffff",
       styles: {
         paddingTop: "40px",
@@ -570,6 +571,7 @@ export function createDefaultSinglePostElements(): EditorElement[] {
         {
           id: "single-post-breadcrumbs",
           type: "breadcrumbs",
+          content: "",
           styles: { marginBottom: "20px" },
         },
         {
@@ -610,6 +612,7 @@ export function createDefaultSinglePostElements(): EditorElement[] {
         {
           id: "single-post-navigation",
           type: "post-nav",
+          content: "",
           styles: { marginTop: "40px", borderTop: "1px solid #e2e8f0", paddingTop: "24px" },
         },
       ],
@@ -622,6 +625,7 @@ export function createDefaultArchiveElements(): EditorElement[] {
     {
       id: "archive-container",
       type: "container",
+      content: "",
       containerBg: "#f8fafc",
       styles: {
         paddingTop: "48px",
@@ -658,6 +662,7 @@ export function createDefaultArchiveElements(): EditorElement[] {
         {
           id: "archive-filter",
           type: "taxonomy-filter",
+          content: "",
           styles: { marginBottom: "24px" },
         },
       ],
@@ -670,6 +675,7 @@ export function createDefault404Elements(): EditorElement[] {
     {
       id: "notfound-container",
       type: "container",
+      content: "",
       containerBg: "#ffffff",
       styles: {
         paddingTop: "80px",
@@ -744,6 +750,7 @@ export function createDefaultSearchResultsElements(): EditorElement[] {
     {
       id: "search-results-container",
       type: "container",
+      content: "",
       containerBg: "#ffffff",
       styles: {
         paddingTop: "48px",
@@ -770,6 +777,7 @@ export function createDefaultSearchResultsElements(): EditorElement[] {
         {
           id: "search-results-bar",
           type: "search-bar",
+          content: "",
           styles: { marginBottom: "32px" },
         },
       ],

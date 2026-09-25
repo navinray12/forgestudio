@@ -107,7 +107,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         setLocalVars(
             localVars.map((v) => {
                 if (v.id === id) {
-                    const currentModes = v.modes ? { ...v.modes } : { light: v.value };
+                    const currentModes: Record<string, string> = v.modes ? { ...v.modes } : { light: v.value };
                     if (darkVal.trim()) {
                         currentModes.dark = darkVal.trim();
                     } else {

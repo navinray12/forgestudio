@@ -304,6 +304,7 @@ import {
   WcProductArchiveWidgetRenderer,
   WcProductPageTemplatesWidgetRenderer,
   WcProductArchiveTemplatesWidgetRenderer,
+  WcProductAddOnsWidgetRenderer,
   SearchBarWidgetRenderer,
   ImportAssetWidgetRenderer,
   ReusableComponentWidgetRenderer,
@@ -6634,6 +6635,7 @@ export default function WebsiteEditor() {
         {el.type === "wc-product-archive" && <WcProductArchiveWidgetRenderer el={el} mergedStyles={mergedStyles} />}
         {el.type === "wc-product-page-templates" && <WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
         {el.type === "wc-product-archive-templates" && <WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={mergedStyles} />}
+        {el.type === "wc-product-addons" && <WcProductAddOnsWidgetRenderer el={el} mergedStyles={mergedStyles} />}
 
         {el.type === "link-in-bio" && (() => {
           const links = el.bioLinks || [
@@ -10505,7 +10507,7 @@ export default function WebsiteEditor() {
                     )}
 
                     {/* WooCommerce Widgets Inspector */}
-                    {(selectedElementAny.type === "wc-product-title" || selectedElementAny.type === "wc-product-price" || selectedElementAny.type === "wc-product-images" || selectedElementAny.type === "wc-add-to-cart" || selectedElementAny.type === "wc-product-rating") && (
+                    {selectedElementAny.type?.startsWith("wc-") && (
                       <WooCommerceWidgetInspector
                         el={selectedElementAny}
                         updateProp={updateSelectedProp}

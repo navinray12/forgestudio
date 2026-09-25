@@ -433,7 +433,7 @@ export const MotionInteractionInspector: React.FC<MotionInteractionInspectorProp
                     const val = e.target.value;
                     updateMotion((m) => ({
                       ...m,
-                      mouseTrack: { ...(m.mouseTrack || {}), speed: val },
+                      mouseTrack: { enabled: !!(m.mouseTrack?.enabled), ...(m.mouseTrack || {}), speed: val },
                     }));
                     if (updateSelectedStyle) updateSelectedStyle("mouseTrackSpeed", val);
                   }}
@@ -454,7 +454,7 @@ export const MotionInteractionInspector: React.FC<MotionInteractionInspectorProp
                     const enabled = e.target.checked;
                     updateMotion((m) => ({
                       ...m,
-                      tilt: { ...(m.tilt || {}), enabled },
+                      tilt: { enabled, ...(m.tilt || {}) },
                     }));
                     if (updateSelectedStyle) updateSelectedStyle("tilt3DEnabled", enabled ? "true" : "false");
                   }}
@@ -481,7 +481,7 @@ export const MotionInteractionInspector: React.FC<MotionInteractionInspectorProp
                     const val = e.target.value;
                     updateMotion((m) => ({
                       ...m,
-                      tilt: { ...(m.tilt || {}), maxDeg: val },
+                      tilt: { enabled: !!(m.tilt?.enabled), ...(m.tilt || {}), maxDeg: val },
                     }));
                     if (updateSelectedStyle) updateSelectedStyle("tilt3DMax", val);
                   }}

@@ -12,6 +12,8 @@ export interface WcCartItem {
   product: SiteProduct;
   quantity: number;
   selectedVariant?: string;
+  selectedAddOns?: Record<string, any>;
+  customPrice?: number;
 }
 
 export interface WcOrderReceipt {
@@ -33,7 +35,12 @@ interface WooCommerceContextType {
   products: SiteProduct[];
   setProducts: React.Dispatch<React.SetStateAction<SiteProduct[]>>;
   cart: WcCartItem[];
-  addToCart: (product: SiteProduct, quantity?: number) => void;
+  addToCart: (
+    product: SiteProduct,
+    quantity?: number,
+    selectedAddOns?: Record<string, any>,
+    customPrice?: number
+  ) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -53,7 +60,9 @@ interface WooCommerceContextType {
     customerName: string;
     customerEmail: string;
     billingAddress?: any;
+    shippingAddress?: any;
     paymentMethod?: string;
+    couponCode?: string;
   }) => Promise<WcOrderReceipt>;
 }
 
@@ -117,7 +126,7 @@ export const WooCommerceProvider: React.FC<{
   children: React.ReactNode;
   initialProducts?: SiteProduct[];
   websiteId?: string;
-}> = ({ children, initialProducts }) => {
+}> = ({ children, initialProducts, websiteId }) => {
   const [products, setProducts] = useState<SiteProduct[]>(
     initialProducts && initialProducts.length > 0 ? initialProducts : DEFAULT_PRODUCTS
   );
@@ -147,6 +156,36 @@ export const WooCommerceProvider: React.FC<{
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastOrder, setLastOrder] = useState<WcOrderReceipt | null>(null);
 
+  // Live remote product catalog sync from backend commerce endpoint
+  useEffect(() => {
+    let isMounted = true;
+    if (websiteId) {
+      fetch(`/api/websites/${websiteId}/commerce/products`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (isMounted && data && Array.isArray(data.products) && data.products.length > 0) {
+            setProducts(data.products.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: typeof p.price === "number" ? `$${p.price.toFixed(2)}` : String(p.price || "$0.00"),
+              regularPrice: p.salePrice ? (typeof p.salePrice === "number" ? `$${p.salePrice.toFixed(2)}` : String(p.salePrice)) : undefined,
+              image: Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"),
+              description: p.description || "",
+              rating: p.rating || 5,
+              ratingCount: p.ratingCount || 10,
+              badge: p.badge,
+              category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : (p.category || "General"),
+              inStock: p.stock === "unlimited" || (typeof p.stock === "number" && p.stock > 0),
+            })));
+          }
+        })
+        .catch((err) => {
+          console.warn("Could not fetch remote commerce products, falling back to default catalog", err);
+        });
+    }
+    return () => { isMounted = false; };
+  }, [websiteId]);
+
   useEffect(() => {
     try {
       localStorage.setItem("fs_wc_cart", JSON.stringify(cart));
@@ -169,17 +208,29 @@ export const WooCommerceProvider: React.FC<{
     setNotices((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const addToCart = (product: SiteProduct, quantity = 1) => {
+  const addToCart = (
+    product: SiteProduct,
+    quantity = 1,
+    selectedAddOns?: Record<string, any>,
+    customPrice?: number
+  ) => {
     setCart((prev) => {
-      const existingIdx = prev.findIndex((item) => item.product.id === product.id);
+      const addOnsKey = selectedAddOns ? JSON.stringify(selectedAddOns) : "";
+      const existingIdx = prev.findIndex((item) => {
+        const itemAddOnsKey = item.selectedAddOns ? JSON.stringify(item.selectedAddOns) : "";
+        return item.product.id === product.id && itemAddOnsKey === addOnsKey;
+      });
+
       if (existingIdx > -1) {
         const copy = [...prev];
         copy[existingIdx].quantity += quantity;
+        if (customPrice !== undefined) copy[existingIdx].customPrice = customPrice;
         return copy;
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity, selectedAddOns, customPrice }];
     });
-    addNotice("success", `🛒 Added "${product.name}" (${quantity}) to your shopping cart!`);
+    const addOnNotice = selectedAddOns && Object.keys(selectedAddOns).length > 0 ? " (with custom add-ons)" : "";
+    addNotice("success", `🛒 Added "${product.name}"${addOnNotice} (${quantity}) to your shopping cart!`);
   };
 
   const removeFromCart = (productId: string) => {
@@ -215,18 +266,26 @@ export const WooCommerceProvider: React.FC<{
   };
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const cartSubtotal = cart.reduce((sum, item) => sum + parsePriceNum(item.product.price) * item.quantity, 0);
+  const cartSubtotal = cart.reduce((sum, item) => {
+    const price = item.customPrice ?? parsePriceNum(item.product.price);
+    return sum + price * item.quantity;
+  }, 0);
 
   const placeOrder = async (checkoutData: {
     customerName: string;
     customerEmail: string;
     billingAddress?: any;
+    shippingAddress?: any;
     paymentMethod?: string;
+    couponCode?: string;
   }): Promise<WcOrderReceipt> => {
     const orderItems = cart.map((i) => {
-      const unitPrice = parsePriceNum(i.product.price);
+      const unitPrice = i.customPrice ?? parsePriceNum(i.product.price);
+      const addOnSuffix = i.selectedAddOns && Object.keys(i.selectedAddOns).length > 0
+        ? ` (+ Add-ons: ${Object.entries(i.selectedAddOns).map(([k, v]) => `${k}: ${v}`).join(", ")})`
+        : "";
       return {
-        name: i.product.name,
+        name: `${i.product.name}${addOnSuffix}`,
         quantity: i.quantity,
         unitPrice,
         total: unitPrice * i.quantity,
@@ -237,6 +296,32 @@ export const WooCommerceProvider: React.FC<{
     const taxAmount = Math.round(subtotal * 0.08 * 100) / 100;
     const shippingCost = subtotal > 50 ? 0 : 9.99;
     const grandTotal = Math.round((subtotal + taxAmount + shippingCost) * 100) / 100;
+
+    // Dispatch POST to commerce orders endpoint
+    if (websiteId) {
+      try {
+        await fetch(`/api/websites/${websiteId}/commerce/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: checkoutData.customerName,
+            customerEmail: checkoutData.customerEmail,
+            billingAddress: checkoutData.billingAddress,
+            shippingAddress: checkoutData.shippingAddress,
+            paymentMethod: checkoutData.paymentMethod || "Credit Card",
+            couponCode: checkoutData.couponCode,
+            items: cart.map((i) => ({
+              productId: i.product.id,
+              name: i.product.name,
+              quantity: i.quantity,
+              unitPrice: i.customPrice ?? parsePriceNum(i.product.price),
+            })),
+          }),
+        });
+      } catch (err) {
+        console.warn("Could not dispatch order to commerce backend endpoint", err);
+      }
+    }
 
     const newOrder: WcOrderReceipt = {
       id: "WC-ORD-" + Math.floor(100000 + Math.random() * 900000),

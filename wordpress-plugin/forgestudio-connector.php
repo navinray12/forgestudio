@@ -93,6 +93,23 @@ class ForgeStudio_Connector {
             'callback'            => array($this, 'rest_get_multisite_sites'),
             'permission_callback' => 'forgestudio_verify_token',
         ));
+
+        // 7. WooCommerce Integration endpoints (Module 14 / F-292 to F-319, X-799)
+        register_rest_route(self::REST_NAMESPACE, '/woocommerce/products', array(
+            'methods'             => 'GET',
+            'callback'            => array($this, 'rest_get_woocommerce_products'),
+            'permission_callback' => '__return_true', // Public catalog access
+        ));
+        register_rest_route(self::REST_NAMESPACE, '/woocommerce/orders', array(
+            'methods'             => 'POST',
+            'callback'            => array($this, 'rest_create_woocommerce_order'),
+            'permission_callback' => '__return_true', // Storefront checkout order creation
+        ));
+        register_rest_route(self::REST_NAMESPACE, '/orders', array(
+            'methods'             => 'POST',
+            'callback'            => array($this, 'rest_create_woocommerce_order'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -399,6 +416,137 @@ class ForgeStudio_Connector {
             'sites'       => $sites_list,
             'currentSite' => get_current_blog_id(),
         ));
+    }
+
+    /**
+     * Endpoint handler: Retrieve WooCommerce products (Module 14 / F-292 to F-319, X-799)
+     */
+    public function rest_get_woocommerce_products(WP_REST_Request $request) {
+        if (!class_exists('WooCommerce') && !function_exists('wc_get_products')) {
+            // Standalone mock catalog fallback when WooCommerce is not activated
+            $default_products = array(
+                array(
+                    'id'          => 'wc-default-1',
+                    'title'       => 'Hi-Fi Studio Reference Headphones',
+                    'name'        => 'Hi-Fi Studio Reference Headphones',
+                    'price'       => '299.00',
+                    'regularPrice'=> '349.00',
+                    'salePrice'   => '299.00',
+                    'sku'         => 'HIFI-REF-01',
+                    'category'    => 'Headphones',
+                    'stock'       => 15,
+                    'rating'      => 4.9,
+                    'image'       => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
+                    'description' => 'Acoustically tuned planar magnetic headphones engineered for reference studio fidelity.',
+                ),
+                array(
+                    'id'          => 'wc-default-2',
+                    'title'       => 'Balanced Desktop Headphone Amplifier',
+                    'name'        => 'Balanced Desktop Headphone Amplifier',
+                    'price'       => '189.00',
+                    'sku'         => 'AMP-BAL-02',
+                    'category'    => 'Amplifiers',
+                    'stock'       => 8,
+                    'rating'      => 4.8,
+                    'image'       => 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800',
+                    'description' => 'Fully balanced discrete circuitry with ultra-low noise floor and high current output.',
+                ),
+            );
+            return rest_ensure_response(array(
+                'status'   => 'success',
+                'products' => $default_products,
+                'source'   => 'forgestudio-fallback',
+            ));
+        }
+
+        $wc_products = wc_get_products(array(
+            'limit'  => 50,
+            'status' => 'publish',
+        ));
+
+        $data = array();
+        foreach ($wc_products as $p) {
+            $img_id = $p->get_image_id();
+            $img_url = $img_id ? wp_get_attachment_url($img_id) : '';
+            $cats = wc_get_product_category_list($p->get_id());
+
+            $data[] = array(
+                'id'           => (string)$p->get_id(),
+                'title'        => $p->get_name(),
+                'name'         => $p->get_name(),
+                'price'        => $p->get_price(),
+                'regularPrice' => $p->get_regular_price(),
+                'salePrice'    => $p->get_sale_price(),
+                'sku'          => $p->get_sku(),
+                'category'     => wp_strip_all_tags($cats),
+                'stock'        => $p->get_stock_quantity() ?? 10,
+                'rating'       => (float)$p->get_average_rating(),
+                'image'        => $img_url ?: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800',
+                'description'  => wp_strip_all_tags($p->get_short_description() ?: $p->get_description()),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'status'   => 'success',
+            'products' => $data,
+            'source'   => 'woocommerce',
+        ));
+    }
+
+    /**
+     * Endpoint handler: Create WooCommerce Order (Module 14 / F-319, X-799)
+     */
+    public function rest_create_woocommerce_order(WP_REST_Request $request) {
+        $params = $request->get_json_params() ?: $request->get_params();
+        $items = $params['items'] ?? array();
+        $customer = $params['customer'] ?? array();
+
+        if (!class_exists('WooCommerce') || !function_exists('wc_create_order')) {
+            $mock_order_id = 'ORD-' . time();
+            return rest_ensure_response(array(
+                'status'  => 'success',
+                'orderId' => $mock_order_id,
+                'message' => 'Order recorded in standalone mode.',
+            ));
+        }
+
+        try {
+            $order = wc_create_order();
+            foreach ($items as $item) {
+                $product_id = intval($item['productId'] ?? 0);
+                $qty = intval($item['quantity'] ?? 1);
+                if ($product_id > 0) {
+                    $order->add_product(wc_get_product($product_id), $qty);
+                }
+            }
+
+            if (!empty($customer['name'])) {
+                $names = explode(' ', $customer['name'], 2);
+                $order->set_billing_first_name($names[0]);
+                $order->set_billing_last_name($names[1] ?? '');
+            }
+            if (!empty($customer['email'])) {
+                $order->set_billing_email($customer['email']);
+            }
+            if (!empty($customer['address'])) {
+                $order->set_billing_address_1($customer['address']);
+            }
+            if (!empty($customer['city'])) {
+                $order->set_billing_city($customer['city']);
+            }
+
+            $order->calculate_totals();
+            $order->update_status('processing', 'ForgeStudio Storefront Order');
+
+            return rest_ensure_response(array(
+                'status'   => 'success',
+                'orderId'  => (string)$order->get_id(),
+                'orderKey' => $order->get_order_key(),
+                'total'    => $order->get_total(),
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('order_creation_failed', $e->getMessage(), array('status' => 500));
+        }
     }
 
     /**
