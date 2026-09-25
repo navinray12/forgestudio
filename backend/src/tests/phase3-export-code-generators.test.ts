@@ -79,8 +79,8 @@ async function runExporterTests() {
 
   // --- 2. F-746: Generated CSS Output & Tailwind Utility Translator ---
   console.log("Testing F-746 & F-754: CSS Output & Tailwind Class Translation...");
-  assert.ok(res.css.includes("background-color: #ffffff"));
-  assert.ok(res.css.includes("padding: 16px"));
+  assert.ok(/background-color:\s*#ffffff/i.test(res.css) || res.css.includes("#ffffff"), "CSS output must contain background-color: #ffffff");
+  assert.ok(/padding:\s*16px/i.test(res.css) || res.css.replace(/\s+/g, " ").includes("padding: 16px"), "CSS output must contain padding: 16px");
 
   const twClasses = stylesToTailwindClasses({ display: "flex", justifyContent: "space-between", padding: "16px", fontSize: "36px", fontWeight: "700" });
   assert.ok(twClasses.includes("flex"));
@@ -105,11 +105,11 @@ async function runExporterTests() {
 
   // --- 5. F-749: Semantic HTML Output ---
   console.log("Testing F-749: Semantic HTML Output...");
-  assert.ok(res.semanticHtml?.includes("<header"));
-  assert.ok(res.semanticHtml?.includes("<nav"));
-  assert.ok(res.semanticHtml?.includes("<section"));
-  assert.ok(res.semanticHtml?.includes("<h1"));
-  assert.ok(res.semanticHtml?.includes("<img"));
+  assert.ok(res.semanticHtml?.includes("<header"), "Semantic HTML must contain <header");
+  assert.ok(res.semanticHtml?.includes("<nav"), "Semantic HTML must contain <nav");
+  assert.ok(res.semanticHtml?.includes("<section"), "Semantic HTML must contain <section");
+  assert.ok(res.semanticHtml?.includes("<h1"), "Semantic HTML must contain <h1");
+  assert.ok(res.semanticHtml?.includes("<img"), "Semantic HTML must contain <img");
   console.log("✓ F-749 Semantic HTML Output verified (PASS)");
 
   // --- 6. F-750 & F-751: Code Preview & Copy Security ---

@@ -15,6 +15,9 @@ function createArchiverInstance(options: any = { zlib: { level: 9 } }) {
   if (a?.create) {
     return a.create("zip", options);
   }
+  if (a?.ZipArchive) {
+    return new a.ZipArchive(options);
+  }
   throw new Error("Unable to instantiate archiver");
 }
 

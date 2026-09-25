@@ -14,6 +14,9 @@ function createArchiverInstance(options: any = { zlib: { level: 9 } }) {
   if (a?.create) {
     return a.create("zip", options);
   }
+  if (a?.ZipArchive) {
+    return new a.ZipArchive(options);
+  }
   throw new Error("Unable to instantiate archiver");
 }
 
@@ -184,7 +187,7 @@ export function sanitizeIdentifier(str: string): string {
 export function mapSemanticTag(node: ASTNode): string {
   const typeLower = (node.type || "").toLowerCase();
 
-  if (typeLower.includes("header") || typeLower.includes("navbar")) return "header";
+  if (typeLower === "header" || (typeLower.includes("header") && !typeLower.includes("navbar"))) return "header";
   if (typeLower.includes("nav") || typeLower.includes("menu")) return "nav";
   if (typeLower.includes("footer")) return "footer";
   if (typeLower.includes("hero") || typeLower.includes("section")) return "section";
@@ -874,8 +877,16 @@ export default function App() {
 // 11. F-755: Next.js App Router Generator
 // ---------------------------------------------------------------------------
 
+function hasInteractiveNodes(nodes: ASTNode[]): boolean {
+  for (const n of nodes) {
+    if (n.interaction) return true;
+    if (n.children && hasInteractiveNodes(n.children)) return true;
+  }
+  return false;
+}
+
 export function generateNextJsOutput(doc: CanonicalDocument): GeneratedCodeResult["nextJsCode"] {
-  const hasInteractiveInteractions = doc.rootNodes.some((n) => !!n.interaction);
+  const hasInteractiveInteractions = hasInteractiveNodes(doc.rootNodes);
 
   const pageTsx = `${hasInteractiveInteractions ? "'use client';\n" : ""}import React from 'react';
 
