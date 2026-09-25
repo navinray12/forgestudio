@@ -846,6 +846,10 @@ function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
+    const [sitePartsState, setSitePartsState] = useState<any>(null);
+    const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
+    const [_themeRules, _setThemeRules] = useState<any[]>([]);
+    const [statementOpen, setStatementOpen] = useState<boolean>(false);
     const [experiments, setExperiments] = useState<any[]>([]);
     const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
     const [sitePartsState, setSitePartsState] = useState<any>(null);
@@ -1187,9 +1191,6 @@ function PublishedSite() {
         }
     }, [pages, activePageId, globalSettings]);
 
-    const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
-    const [_themeRules, _setThemeRules] = useState<any[]>([]);
-
     useEffect(() => {
         const handleResize = () => {
             const width = window.innerWidth;
@@ -1301,8 +1302,6 @@ function PublishedSite() {
             </div>
         );
     }
-
-    const [statementOpen, setStatementOpen] = useState<boolean>(false);
 
     return (
         <WooCommerceProvider websiteId={websiteId}>

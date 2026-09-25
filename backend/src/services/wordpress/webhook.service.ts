@@ -3,6 +3,7 @@ import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 
 const db = prisma as any;
+const processedWebhookNonces = new Set<string>();
 
 export interface WebhookPayload {
   event: "page_updated" | "form_submitted" | "site_health" | "test_ping";
@@ -70,6 +71,15 @@ export async function processWordPressWebhook(
   if (!isValid) {
     throw new AppError("Invalid webhook signature.", 401, "INVALID_SIGNATURE");
   }
+
+  // Replay Protection: Prevent identical request replay within the time window
+  const nonceKey = `wh_nonce:${websiteId}:${signature}`;
+  if (processedWebhookNonces.has(nonceKey)) {
+    throw new AppError("Replayed webhook request rejected.", 400, "REPLAY_REJECTED");
+  }
+  processedWebhookNonces.add(nonceKey);
+  // Auto-expire nonce after 10 minutes
+  setTimeout(() => processedWebhookNonces.delete(nonceKey), 600000);
 
   // Handle events
   switch (parsedPayload.event) {
