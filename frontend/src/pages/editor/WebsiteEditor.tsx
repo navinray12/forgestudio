@@ -108,6 +108,16 @@ import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
 import { FontService } from "../../features/fonts/FontService";
 import { syncDocumentFonts } from "../../features/fonts/FontManager";
+import {
+  BreadcrumbsRenderer,
+  WpMenuRenderer,
+  MenuAnchorRenderer,
+  PostNavigationRenderer,
+  TaxonomyFilterRenderer,
+  SiteSearchRenderer,
+} from "./navigation/NavigationRenderers";
+import { NavigationSettingsPanel } from "./navigation/NavigationSettings";
+import { isNavigationElement } from "./navigation/navigationDefaults";
 
 import type {
   PageConfig,
@@ -2707,6 +2717,11 @@ export default function WebsiteEditor() {
     setElements((prev) =>
       updateTreeElement(prev, selectedId, (el) => ({ ...el, [key]: value }))
     );
+  };
+
+  const updateElementProperties = (updater: (el: EditorElement) => EditorElement) => {
+    if (!selectedId) return;
+    setElements((prev) => updateTreeElement(prev, selectedId, updater));
   };
 
   const updateSelectedStyle = (key: keyof ElementStyles, value: any) => {
@@ -6248,8 +6263,66 @@ export default function WebsiteEditor() {
           <CodeHighlightWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
-        {(el.type === "search-bar" || el.type === "site-search" || el.type === "search-form") && (
+        {(el.type === "search-bar" || el.type === "search-form") && (
           <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+        )}
+
+        {el.type === "site-search" && (
+          <SiteSearchRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "breadcrumbs" && (
+          <BreadcrumbsRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            pages={pages}
+            homePageId={homePageId}
+          />
+        )}
+
+        {el.type === "wp-menu" && (
+          <WpMenuRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+            pages={pages}
+            homePageId={homePageId}
+          />
+        )}
+
+        {el.type === "menu-anchor" && (
+          <MenuAnchorRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "post-nav" && (
+          <PostNavigationRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
+        )}
+
+        {el.type === "taxonomy-filter" && (
+          <TaxonomyFilterRenderer
+            element={el}
+            activeBreakpointId={activeDevice}
+            breakpoints={breakpoints}
+            isPreview={isPreview}
+          />
         )}
 
         {el.type === "import-asset" && (
@@ -9923,6 +9996,35 @@ export default function WebsiteEditor() {
                         siteProducts={siteProducts}
                         onCreatePage={handleCreatePageQuick}
                       />
+                    )}
+
+                    {/* Module 10: Navigation Settings Panel */}
+                    {selectedElement && [
+                      "nav-menu",
+                      "wp-menu",
+                      "menu-widget",
+                      "mega-menu",
+                      "breadcrumbs",
+                      "menu-anchor",
+                      "post-nav",
+                      "off-canvas",
+                      "off-canvas-nav",
+                      "site-search",
+                      "search-form",
+                      "taxonomy-filter"
+                    ].includes(selectedElement.type) && (
+                      <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+                        <NavigationSettingsPanel
+                          selectedElement={selectedElement}
+                          onUpdateElement={updateElementProperties}
+                          availablePages={pages}
+                          activeBreakpointId={activeDevice}
+                          breakpoints={breakpoints}
+                          updateSelectedStyle={updateSelectedStyle}
+                          updateSelectedProp={updateSelectedProp}
+                          renderResponsiveLabel={renderResponsiveLabel}
+                        />
+                      </div>
                     )}
 
                     {/* Countdown Specific Inspector */}

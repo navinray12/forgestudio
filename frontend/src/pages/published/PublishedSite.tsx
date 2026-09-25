@@ -178,8 +178,17 @@ import {
     WcProductArchiveWidgetRenderer,
     WcProductPageTemplatesWidgetRenderer,
     WcProductArchiveTemplatesWidgetRenderer,
-    resolveButtonHref
+    resolveButtonHref,
+    SearchBarWidgetRenderer
 } from "../editor/widgets";
+import {
+    BreadcrumbsRenderer,
+    WpMenuRenderer,
+    PostNavigationRenderer,
+    TaxonomyFilterRenderer,
+    SiteSearchRenderer,
+    MenuAnchorRenderer
+} from "../editor/navigation/NavigationRenderers";
 import { IconRenderer } from "../editor/widgets/icons";
 
 // Default breakpoints (mirror core for stability)
@@ -211,6 +220,37 @@ const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): Pa
             (clean === "" && (p.isHome || p.id === "home"))
     );
 };
+
+export function renderPublicElement(el: EditorElement, isPreview: boolean = true): React.ReactNode | null {
+    switch (el.type) {
+        case "breadcrumbs":
+            return <BreadcrumbsRenderer element={el} isPreview={isPreview} />;
+        case "wp-menu":
+            return <WpMenuRenderer element={el} isPreview={isPreview} />;
+        case "menu-anchor":
+            return (
+                <div
+                    id={(el as any).anchorId || (el as any).styles?.anchorId || el.content || el.id}
+                    style={{ scrollMarginTop: `${(el as any).anchorOffset || (el as any).styles?.anchorScrollOffset || 80}px`, height: 0 }}
+                />
+            );
+        case "post-nav":
+            return <PostNavigationRenderer element={el} isPreview={isPreview} />;
+        case "taxonomy-filter":
+            return <TaxonomyFilterRenderer element={el} isPreview={isPreview} />;
+        case "search-bar":
+        case "search-form":
+            return typeof SearchBarWidgetRenderer !== "undefined" ? (
+                <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={el.styles} />
+            ) : (
+                <SiteSearchRenderer element={el} isPreview={isPreview} />
+            );
+        case "site-search":
+            return <SiteSearchRenderer element={el} isPreview={isPreview} />;
+        default:
+            return null;
+    }
+}
 
 interface RenderNodeProps {
     el: EditorElement;
@@ -500,6 +540,15 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
             </div>
         </React.Fragment>
     );
+
+    // Module 10: Navigation & Search Runtime
+    const navNode = renderPublicElement(el, true);
+    if (navNode !== null) {
+        if (el.type === "menu-anchor") {
+            return navNode;
+        }
+        return <div ref={assignRefIfTracked as any} {...mergedProps}>{navNode}</div>;
+    }
 
     // Dynamic Widgets
     if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;

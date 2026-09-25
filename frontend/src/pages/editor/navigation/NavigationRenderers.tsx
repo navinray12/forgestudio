@@ -21,8 +21,8 @@ import { resolveInternalLink } from "../utils/pageManagerService";
 
 interface NavigationRendererProps {
   element: EditorElement;
-  activeBreakpointId: string;
-  breakpoints: Breakpoint[];
+  activeBreakpointId?: string;
+  breakpoints?: Breakpoint[];
   isPreview?: boolean;
   onUpdateElement?: (updater: (el: EditorElement) => EditorElement) => void;
   pages?: PageConfig[];

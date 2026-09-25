@@ -3,6 +3,7 @@ import type {
   EditorElement
 } from "../types";
 import { generateId } from "../utils";
+import { getNavigationDefaultElement } from "../navigation/navigationDefaults";
 
 // ==========================================
 // ELEMENT DEFAULT INITIALIZERS & PRESET TEMPLATES
@@ -218,6 +219,9 @@ export const PRESET_SECTION_TEMPLATES: Record<
 // DEFAULT ELEMENT FACTORY FUNCTION
 export function createDefaultElement(type: ElementType): EditorElement {
   const id = generateId();
+  const navDefault = getNavigationDefaultElement(type, id);
+  if (navDefault) return navDefault;
+
   switch (type) {
     case "container":
       return {

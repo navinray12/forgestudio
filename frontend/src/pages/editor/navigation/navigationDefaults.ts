@@ -456,6 +456,7 @@ export function isNavigationElement(type: string): boolean {
     "breadcrumbs",
     "menu-anchor",
     "post-nav",
+    "off-canvas",
     "off-canvas-nav",
     "site-search",
     "search-form",

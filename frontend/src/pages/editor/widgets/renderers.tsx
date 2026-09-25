@@ -6491,8 +6491,25 @@ export const OffCanvasWidgetRenderer = ({
   const btnBg = el.offCanvasButtonBgColor || "#0f172a";
   const btnText = el.offCanvasButtonTextColor || "#ffffff";
   const panelBg = el.offCanvasPanelBgColor || "#ffffff";
-
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   return (
     <div

@@ -152,9 +152,10 @@ export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "f
 export interface WidgetRegistryItem {
   type: ElementType;
   name: string;
-  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social";
+  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social" | "navigation" | "Navigation" | string;
   icon: string;
   description: string;
+  label?: string;
 }
 
 export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
@@ -248,6 +249,13 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   // Social
   { type: "share-buttons", name: "Share Buttons", category: "Social", icon: "🔗", description: "Social media sharing action buttons" },
   { type: "facebook-page", name: "Facebook Integration", category: "Social", icon: "📘", description: "Facebook Page feed, Like button, Post embed & Comments widget" },
+
+  // Navigation (Module 10 / F-223 to F-233)
+  { type: "breadcrumbs", name: "Breadcrumbs", label: "Breadcrumbs", category: "navigation", icon: "🧭", description: "Hierarchical page path breadcrumbs navigation" },
+  { type: "wp-menu", name: "WP Menu", label: "WP Menu", category: "navigation", icon: "🌐", description: "WordPress remote menu tree navigation" },
+  { type: "menu-anchor", name: "Menu Anchor", label: "Menu Anchor", category: "navigation", icon: "⚓", description: "In-page smooth-scroll jump anchor point" },
+  { type: "post-nav", name: "Post Nav", label: "Post Nav", category: "navigation", icon: "↔️", description: "Previous and next post navigation links" },
+  { type: "taxonomy-filter", name: "Taxonomy Filter", label: "Taxonomy Filter", category: "navigation", icon: "🏷️", description: "Category and tag filtering buttons" },
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);

@@ -40,7 +40,7 @@ export function sanitizeCustomHead(rawHead: string | undefined): string {
   return sanitized;
 }
 
-function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []): string {
+export function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []): string {
   if (!rawHref) return "#";
   const trimmed = rawHref.trim();
   if (!trimmed || trimmed === "#") return "#";
@@ -143,6 +143,112 @@ function renderElementToHtml(el: any, allPages: any[]): string {
         return `<li><a href="${escapeHtml(itemHref)}">${escapeHtml(item.label || item.title || "Link")}</a>${subHtml}</li>`;
       }).join("\n");
       return `<nav class="nav-menu"${idAttr}${classAttr}${styleAttr}>\n<ul>\n${itemsHtml}\n</ul>\n</nav>`;
+    }
+    case "mega-menu": {
+      let megaCategories: any[] = [];
+      if (Array.isArray(el.megaMenuItems) && el.megaMenuItems.length > 0) {
+        megaCategories = el.megaMenuItems;
+      } else if (Array.isArray(el.columns) && el.columns.length > 0) {
+        megaCategories = [{ title: el.title || "Menu", columns: el.columns }];
+      } else if (typeof el.content === "string" && el.content.trim().startsWith("[")) {
+        try {
+          const parsed = JSON.parse(el.content);
+          if (Array.isArray(parsed)) {
+            if (parsed.length > 0 && parsed[0].links) {
+              megaCategories = [{ title: el.title || "Menu", columns: parsed }];
+            } else {
+              megaCategories = parsed;
+            }
+          }
+        } catch {
+          // ignore JSON parse error
+        }
+      }
+
+      const categoriesHtml = megaCategories.map((cat: any) => {
+        const catHref = cat.href ? resolveStaticHtmlHref(cat.href || (cat.pageId ? `page:${cat.pageId}` : ""), allPages) : "";
+        const catTitle = catHref
+          ? `<a href="${escapeHtml(catHref)}" class="fs-mega-category-title">${escapeHtml(cat.title || "")}</a>`
+          : `<span class="fs-mega-category-title">${escapeHtml(cat.title || "")}</span>`;
+        const cols = Array.isArray(cat.columns) ? cat.columns : [];
+        const colsHtml = cols.map((col: any) => {
+          const links = Array.isArray(col.links) ? col.links : [];
+          const linksHtml = links.map((link: any) => {
+            const lHref = resolveStaticHtmlHref(link.href || link.url || (link.pageId ? `page:${link.pageId}` : ""), allPages);
+            const badgeHtml = link.badge ? ` <span class="fs-mega-badge">${escapeHtml(link.badge)}</span>` : "";
+            const descHtml = link.description ? `<span class="fs-mega-desc">${escapeHtml(link.description)}</span>` : "";
+            return `<li><a href="${escapeHtml(lHref)}">${escapeHtml(link.label || link.title || "Link")}${badgeHtml}</a>${descHtml}</li>`;
+          }).join("\n");
+          return `<div class="fs-mega-col">
+            ${col.title ? `<h4 class="fs-mega-col-title">${escapeHtml(col.title)}</h4>` : ""}
+            <ul class="fs-mega-links">\n${linksHtml}\n</ul>
+          </div>`;
+        }).join("\n");
+
+        return `<div class="fs-mega-category">
+          ${catTitle}
+          <div class="fs-mega-dropdown">\n${colsHtml}\n</div>
+        </div>`;
+      }).join("\n");
+
+      let promoHtml = "";
+      const showPromo = el.megaMenuPromoEnabled === true || el.megaMenuPromoEnabled === "true" || el.styles?.megaMenuPromoEnabled === "true";
+      if (showPromo || el.megaMenuPromoTitle || el.styles?.megaMenuPromoTitle) {
+        const pTitle = el.megaMenuPromoTitle || el.styles?.megaMenuPromoTitle || "Special Offer";
+        const pText = el.megaMenuPromoText || el.styles?.megaMenuPromoText || "";
+        const pBtn = el.megaMenuPromoButtonText || el.styles?.megaMenuPromoButtonText || "Learn More";
+        const pUrl = resolveStaticHtmlHref(el.megaMenuPromoButtonUrl || el.styles?.megaMenuPromoButtonUrl || "#", allPages);
+        promoHtml = `\n<div class="fs-mega-promo">
+          <h4>${escapeHtml(pTitle)}</h4>
+          ${pText ? `<p>${escapeHtml(pText)}</p>` : ""}
+          <a href="${escapeHtml(pUrl)}" class="btn fs-mega-promo-btn">${escapeHtml(pBtn)}</a>
+        </div>`;
+      }
+
+      return `<nav class="fs-mega-menu"${idAttr}${classAttr}${styleAttr}>\n<div class="fs-mega-categories">\n${categoriesHtml}\n</div>${promoHtml}\n</nav>`;
+    }
+    case "menu-anchor": {
+      const anchorRaw = el.anchorId || el.styles?.anchorId || el.content || el.id || "anchor";
+      const anchorTarget = String(anchorRaw).replace(/^#/, "");
+      const offsetRaw = el.anchorOffset || el.styles?.anchorScrollOffset || 80;
+      const offsetNum = typeof offsetRaw === "number" ? offsetRaw : (parseInt(String(offsetRaw), 10) || 80);
+      return `<div id="${escapeHtml(anchorTarget)}" class="fs-menu-anchor"${classAttr} style="scroll-margin-top: ${offsetNum}px; height: 0;"></div>`;
+    }
+    case "search-bar":
+    case "search-form":
+    case "site-search": {
+      const actionUrl = el.searchRedirectUrl || el.formActionUrl || el.styles?.formActionUrl || "/search";
+      const method = el.formMethod || el.styles?.formMethod || "GET";
+      const paramName = el.formParamName || el.styles?.formParamName || "q";
+      const placeholder = el.searchPlaceholder || el.styles?.searchPlaceholder || el.formPlaceholder || el.styles?.formPlaceholder || el.content || "Search...";
+      const buttonText = el.searchButtonText || el.styles?.searchButtonText || el.formButtonText || el.styles?.formButtonText || el.buttonText || "Search";
+      return `<form action="${escapeHtml(actionUrl)}" method="${escapeHtml(method)}" class="fs-search-form"${idAttr}${classAttr}${styleAttr}>\n<input type="search" name="${escapeHtml(paramName)}" placeholder="${escapeHtml(placeholder)}" class="fs-search-input" />\n<button type="submit" class="fs-search-btn">${escapeHtml(buttonText)}</button>\n</form>`;
+    }
+    case "taxonomy-filter": {
+      let taxItems = Array.isArray(el.taxonomyItems) ? el.taxonomyItems : [];
+      if (taxItems.length === 0 && typeof el.content === "string" && el.content.trim().startsWith("[")) {
+        try {
+          const parsed = JSON.parse(el.content);
+          if (Array.isArray(parsed)) taxItems = parsed;
+        } catch {
+          // ignore JSON parse error
+        }
+      }
+      const targetGrid = el.targetGridId || el.styles?.targetGridId || "";
+      const buttonsHtml = taxItems.map((item: any) => {
+        const slug = item.slug || item.id || "";
+        const label = item.label || item.name || item.title || "Topic";
+        const count = item.count !== undefined ? item.count : 0;
+        return `<button class="fs-tax-btn" data-slug="${escapeHtml(slug)}">${escapeHtml(label)} (${count})</button>`;
+      }).join("");
+      return `<div class="fs-taxonomy-filter"${idAttr}${classAttr}${styleAttr} data-target-grid="${escapeHtml(targetGrid)}">${buttonsHtml}</div>`;
+    }
+    case "post-nav": {
+      const prevUrl = resolveStaticHtmlHref(el.prevUrl || el.styles?.postNavPrevUrl || "#", allPages);
+      const prevTitle = el.prevTitle || el.styles?.postNavPrevTitle || el.postNavPrevLabel || "Previous";
+      const nextUrl = resolveStaticHtmlHref(el.nextUrl || el.styles?.postNavNextUrl || "#", allPages);
+      const nextTitle = el.nextTitle || el.styles?.postNavNextTitle || el.postNavNextLabel || "Next";
+      return `<nav class="fs-post-navigation"${idAttr}${classAttr}${styleAttr} aria-label="Post Navigation">\n<div class="fs-post-prev"><a href="${escapeHtml(prevUrl)}">← ${escapeHtml(prevTitle)}</a></div>\n<div class="fs-post-next"><a href="${escapeHtml(nextUrl)}">${escapeHtml(nextTitle)} →</a></div>\n</nav>`;
     }
     case "container":
     case "section":
@@ -756,6 +862,40 @@ img {
 .fs-counter { text-align: center; padding: 1.5rem; }
 .fs-counter-num { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); }
 .fs-counter-title { font-size: 0.9rem; color: #64748b; margin-top: 0.5rem; }
+
+/* Navigation & Search (Module 10) */
+.fs-mega-menu { display: flex; justify-content: space-between; align-items: flex-start; padding: 1rem 0; position: relative; }
+.fs-mega-categories { display: flex; gap: 2rem; }
+.fs-mega-category { position: relative; }
+.fs-mega-category-title { font-weight: 600; cursor: pointer; display: inline-block; padding: 0.5rem 0; }
+.fs-mega-dropdown { display: flex; gap: 2rem; padding: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin-top: 0.5rem; }
+.fs-mega-col { min-width: 140px; }
+.fs-mega-col-title { font-size: 0.85rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+.fs-mega-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.fs-mega-links li a { color: var(--text-color); font-size: 0.95rem; text-decoration: none; }
+.fs-mega-links li a:hover { color: var(--primary-color); }
+.fs-mega-badge { display: inline-block; padding: 0.15rem 0.4rem; font-size: 0.7rem; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-weight: 600; margin-left: 0.25rem; }
+.fs-mega-desc { display: block; font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
+.fs-mega-promo { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; max-width: 260px; }
+.fs-mega-promo h4 { margin-bottom: 0.5rem; }
+.fs-mega-promo p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; }
+.fs-mega-promo-btn { display: inline-block; padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+.fs-menu-anchor { display: block; height: 0; visibility: hidden; }
+
+.fs-search-form { display: flex; gap: 0.5rem; align-items: center; max-width: 480px; width: 100%; }
+.fs-search-input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; outline: none; }
+.fs-search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+.fs-search-btn { padding: 0.5rem 1rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.95rem; }
+.fs-search-btn:hover { opacity: 0.9; }
+
+.fs-taxonomy-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.fs-tax-btn { padding: 0.35rem 0.75rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.fs-tax-btn:hover, .fs-tax-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+.fs-post-navigation { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin: 2rem 0; }
+.fs-post-prev a, .fs-post-next a { font-weight: 500; color: var(--primary-color); text-decoration: none; }
+.fs-post-prev a:hover, .fs-post-next a:hover { text-decoration: underline; }
 
 /* Custom Page Styles */
 ${websiteData.pageCss || ""}
