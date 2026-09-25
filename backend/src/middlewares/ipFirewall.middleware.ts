@@ -14,7 +14,7 @@ export async function enforceIpFirewall(req: Request, res: Response, next: NextF
 
     // Prevent IP spoofing: only rely on req.ip if trust proxy is configured, else fallback to socket remote address
     const isTrustProxy = req.app.get("trust proxy");
-    const clientIp = (isTrustProxy ? req.ip : req.socket.remoteAddress || req.ip || "").replace(/^::ffff:/, "").trim();
+    const clientIp = ((isTrustProxy ? req.ip : req.socket?.remoteAddress || req.ip) || "").replace(/^::ffff:/, "").trim();
     if (!clientIp) return next();
 
     const website = await db.website.findUnique({

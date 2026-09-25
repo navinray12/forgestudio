@@ -568,24 +568,14 @@ export async function verifyWordPressConnection(websiteId: string, userId: strin
 
     return {
       success: true,
-<<<<<<< HEAD
       verified: false,
       status: isPermanentFailure ? "FAILED" : connection.status,
       siteUrl: connection.siteUrl,
-      wpSiteName: connection.siteName || connection.siteUrl,
+      wpSiteName: connection.wpSiteName || connection.siteName || connection.siteUrl || null,
       wpVersion: null,
       pluginVersion,
       apiVersion,
       lastVerifiedAt: now.toISOString(),
-=======
-      status: isPermanentFailure ? "FAILED" : connection.status,
-      siteUrl: connection.siteUrl,
-      wpSiteName: connection.wpSiteName || null,
-      wpVersion: null,
-      pluginVersion,
-      verified: false,
-      lastVerifiedAt: now,
->>>>>>> origin/backup-devnew
       verification: {
         healthy: false,
         status: isPermanentFailure ? "FAILED" : connection.status,
@@ -671,24 +661,14 @@ export async function verifyWordPressConnection(websiteId: string, userId: strin
   // 10. Return Structured Verification DTO
   return {
     success: true,
-<<<<<<< HEAD
     verified: healthy,
     status: healthy ? "CONNECTED" : "FAILED",
     siteUrl: connection.siteUrl,
-    wpSiteName: data?.siteName || connection.siteName || connection.siteUrl,
+    wpSiteName: data?.siteName || connection.wpSiteName || connection.siteName || connection.siteUrl || null,
     wpVersion,
     pluginVersion,
     apiVersion,
     lastVerifiedAt: now.toISOString(),
-=======
-    status: healthy ? "CONNECTED" : "FAILED",
-    siteUrl: connection.siteUrl,
-    wpSiteName: connection.wpSiteName || null,
-    wpVersion,
-    pluginVersion,
-    verified: healthy,
-    lastVerifiedAt: now,
->>>>>>> origin/backup-devnew
     verification: {
       healthy,
       status: healthy ? "CONNECTED" : "FAILED",

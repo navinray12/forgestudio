@@ -1146,11 +1146,7 @@ export async function deleteWordPressMenuHandler(req: Request, res: Response, ne
     const menuId = String(req.params.menuId);
     const userId = res.locals.user?.id;
     const result = await deleteWordPressMenu(websiteId, menuId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1200,11 +1196,7 @@ export async function deleteWordPressMenuItemHandler(req: Request, res: Response
     const itemId = String(req.params.itemId);
     const userId = res.locals.user?.id;
     const result = await deleteWordPressMenuItem(websiteId, menuId, itemId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1252,11 +1244,7 @@ export async function syncWordPressMenusHandler(req: Request, res: Response, nex
     const menuId = String(req.params.menuId);
     const userId = res.locals.user?.id;
     const result = await syncWordPressMenus(websiteId, menuId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1342,11 +1330,7 @@ export async function deleteWordPressWebhookHandler(req: Request, res: Response,
     const webhookId = String(req.params.webhookId);
     const userId = res.locals.user?.id;
     const result = await deleteWordPressWebhook(websiteId, webhookId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1499,11 +1483,7 @@ export async function deleteWordPressPluginHandler(req: Request, res: Response, 
     const pluginId = String(req.params.pluginId);
     const userId = res.locals.user?.id;
     const result = await deleteWordPressPlugin(websiteId, pluginId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1620,11 +1600,7 @@ export async function deleteWordPressThemeHandler(req: Request, res: Response, n
     const themeId = String(req.params.themeId);
     const userId = res.locals.user?.id;
     const result = await deleteWordPressTheme(websiteId, themeId, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
@@ -1716,11 +1692,7 @@ export async function warmWordPressCacheHandler(req: Request, res: Response, nex
     const urls = Array.isArray(req.body?.urls) ? req.body.urls : [];
     const userId = res.locals.user?.id;
     const result = await warmWordPressCache(websiteId, urls, userId);
-<<<<<<< HEAD
-    return res.status(200).json({ ...result });
-=======
     return res.status(200).json({ ...result, success: true });
->>>>>>> origin/backup-devnew
   } catch (error) {
     next(error);
   }
