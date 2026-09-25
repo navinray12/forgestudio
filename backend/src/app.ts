@@ -38,14 +38,15 @@ import {
   stagingRoutes,
   serverConfigRoutes,
   hostingRoutes,
+  aiHostingRoutes,
+  elementorCloudRoutes,
+  exportRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
-import blockPatternRoutes from "./routes/blockPattern.routes.js";
-import blockTemplateRoutes from "./routes/blockTemplate.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
@@ -160,10 +161,6 @@ app.use("/api/v1/design-notes", designNotesRoutes);
 app.use("/api/design-notes", designNotesRoutes);
 app.use("/api/v1/component-access", componentAccessRoutes);
 app.use("/api/component-access", componentAccessRoutes);
-app.use("/api/v1/blocks", blockPatternRoutes);
-app.use("/api/blocks", blockPatternRoutes);
-app.use("/api/v1/blocks", blockTemplateRoutes);
-app.use("/api/blocks", blockTemplateRoutes);
 
 
 
@@ -213,6 +210,18 @@ app.use("/api/websites", serverConfigRoutes);
 // Security, Privacy, Cache, Transfer & Hosting Logs
 app.use("/api/v1/websites", hostingRoutes);
 app.use("/api/websites", hostingRoutes);
+app.use("/api/v1/websites", aiHostingRoutes);
+app.use("/api/websites", aiHostingRoutes);
+
+// Elementor Cloud Managed Hosting Bundles (X-804)
+app.use("/api/v1/elementor-cloud", elementorCloudRoutes);
+app.use("/api/elementor-cloud", elementorCloudRoutes);
+
+// Code Generation, Multi-Format Exporters & Hello Theme (F-745 to F-755, X-786)
+app.use("/api/v1/websites", exportRoutes);
+app.use("/api/websites", exportRoutes);
+app.use("/api/v1/plugins/wordpress", exportRoutes);
+app.use("/api/plugins/wordpress", exportRoutes);
 
 // Audit Logs
 app.use("/api/v1/audit-logs", auditLogRoutes);

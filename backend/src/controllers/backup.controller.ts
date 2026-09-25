@@ -78,7 +78,7 @@ export async function createBackup(req: Request, res: Response) {
     const notes: string | undefined = req.body.notes;
 
     const editorData: any = website.editorData || {};
-    const backup = createBackupRecord(editorData, { trigger, label, notes });
+    const backup = createBackupRecord(editorData, { websiteId, trigger, label, notes });
 
     let existing = readBackups(website);
     existing = pruneExpiredBackups(existing);

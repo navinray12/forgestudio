@@ -545,7 +545,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [cancellingJobId, setCancellingJobId] = useState<string | null>(null);
   const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
   const [wpJobFeedback, setWpJobFeedback] = useState<string | null>(null);
-  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
 
   const loadWpJobs = async (pageId?: string) => {
     if (!websiteId) return;
