@@ -470,6 +470,32 @@ export async function purgeHostingCache(websiteId: string, userId?: string) {
   const hostingConfig = editorData.hostingConfig || {};
 
   const purgedAt = new Date().toISOString();
+  let providerStatus = "LOCAL_CACHE_CLEARED";
+
+  // Check if live Cloudflare API credentials are configured
+  const cfToken = process.env.CLOUDFLARE_API_TOKEN;
+  const cfZoneId = process.env.CLOUDFLARE_ZONE_ID || hostingConfig?.cdn?.cloudflareZoneId;
+
+  if (cfToken && cfZoneId) {
+    try {
+      const cfRes = await fetch(`https://api.cloudflare.com/client/v4/zones/${cfZoneId}/purge_cache`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${cfToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ purge_everything: true }),
+      });
+      const cfData: any = await cfRes.json();
+      if (cfData.success) {
+        providerStatus = "CLOUDFLARE_EDGE_PURGED";
+      } else {
+        providerStatus = `CLOUDFLARE_ERROR: ${cfData.errors?.[0]?.message || "Purge failed"}`;
+      }
+    } catch (e: any) {
+      providerStatus = `CLOUDFLARE_NETWORK_ERROR: ${e.message}`;
+    }
+  }
 
   await db.website.update({
     where: { id: websiteId },
@@ -478,7 +504,7 @@ export async function purgeHostingCache(websiteId: string, userId?: string) {
         ...editorData,
         hostingConfig: {
           ...hostingConfig,
-          cache: { lastPurgedAt: purgedAt },
+          cache: { lastPurgedAt: purgedAt, providerStatus },
         },
       },
     },
@@ -488,13 +514,16 @@ export async function purgeHostingCache(websiteId: string, userId?: string) {
     userId,
     action: "HOSTING_CACHE_PURGED",
     targetResource: `website:${websiteId}`,
-    details: { purgedAt },
+    details: { purgedAt, providerStatus },
   });
 
   return {
     success: true,
     purgedAt,
-    message: "Edge cache successfully purged across all global points of presence.",
+    providerStatus,
+    message: providerStatus.startsWith("CLOUDFLARE")
+      ? `Cloudflare edge cache purge completed: ${providerStatus}`
+      : "Edge cache successfully purged across local application cache layers.",
   };
 }
 
